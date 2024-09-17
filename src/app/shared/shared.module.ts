@@ -13,12 +13,12 @@ import { CounterComponent } from './counter/counter.component';
 import { ContextMenuComponent } from './context-menu/context-menu.component';
 import { CalendarDropdownComponent } from './calendar-dropdown/calendar-dropdown.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { MenuComponent } from './context-menu/menu/menu.component';
 import { MenuItemComponent } from './context-menu/menu-item/menu-item.component';
 import { ChipsComponent } from './chips/chips.component';
 import { CalendarSelectorComponent } from './calendar-selector/calendar-selector.component';
+import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
 
 @NgModule({
   declarations: [
