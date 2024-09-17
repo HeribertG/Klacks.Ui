@@ -65,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "Klacks.Ui:build:production"
+              "buildTarget": "Klacks.Ui:build:production"
             },
             "development": {
-              "browserTarget": "Klacks.Ui:build:development"
+              "buildTarget": "Klacks.Ui:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Klacks.Ui:build"
+            "buildTarget": "Klacks.Ui:build"
           }
         },
         "test": {

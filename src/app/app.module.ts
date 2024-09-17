@@ -44,6 +44,10 @@ import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import localeIt from '@angular/common/locales/it';
+import { DashboardHomeComponent } from './workplace/dashboard/dashboard-home/dashboard-home.component';
+import { SearchComponent } from './search/search.component';
+import { LoginComponent } from './auth/login/login.component';
+import { ErrorComponent } from './error/error.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -56,16 +60,20 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 
 @NgModule({
   declarations: [
+    ErrorComponent,
+    LoginComponent,
     AppComponent,
     HomeComponent,
     MainComponent,
     NavComponent,
     HeaderComponent,
     FooterComponent,
-    // TranslateModule sollte hier entfernt werden
+    DashboardHomeComponent,
+    SearchComponent,
   ],
   imports: [
     NgbModule,
+    FormsModule,
     BrowserModule,
     AppRoutingModule,
     ToastModule,

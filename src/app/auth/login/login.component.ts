@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
-import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';

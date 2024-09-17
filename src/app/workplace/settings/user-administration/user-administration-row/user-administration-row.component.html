@@ -2,13 +2,14 @@
   <div class="form-group">
     <input
       type="text"
-      [(ngModel)]="user!.firstName + ' ' + user!.lastName"
+      [ngModel]="user!.firstName + ' ' + user!.lastName"
       name="user.name"
       class="form-control gap"
       readonly
       aria-label="name"
     />
   </div>
+  [class]="expression"
   <div class="form-group">
     <input
       type="email"

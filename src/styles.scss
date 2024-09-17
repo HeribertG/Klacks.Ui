@@ -1,4 +1,66 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Importing Bootstrap SCSS file. */
-@import 'bootstrap/scss/bootstrap';
+@import "codemirror/lib/codemirror";
+@import "codemirror/theme/material";
+@import "bootstrap/scss/bootstrap";
+@import "./assets/standard-styles/colors.scss";
+@import "./assets/standard-styles/datepicker.scss";
+
+body {
+  box-sizing: border-box;
+  background-color: var(--backgroundColorWindow);
+  overflow-x: hidden;
+  overflow-y: hidden;
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
+  font-size: 11px;
+}
+
+@media screen and (max-width: 768px) {
+  .container {
+    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
+
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0px;
+    background-color: var(--backgroundColorWindow);
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .container {
+    max-width: 100%;
+    width: 100%;
+    min-width: 100%;
+
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0px;
+    background-color: var(--backgroundColorWindow);
+  }
+}
+
+@media screen and (min-width: 1025px) {
+  .container {
+    max-width: 1445px;
+    display: flex;
+    flex-flow: row wrap;
+    padding: 0px;
+    background-color: var(--backgroundColorWindow);
+  }
+}
+
+.custom-control-inline {
+  display: flex;
+}
+
+.filler {
+  flex: 1 1 auto;
+}
+
+as-split-gutter {
+  background-color: var(--backgroundColorWorkplace) !important;
+}

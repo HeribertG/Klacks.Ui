@@ -1,9 +1,9 @@
 export class Timer {
-  private timerId: NodeJS.Timeout | undefined = undefined;
+  private timerId: number | undefined = undefined;
 
   start(callback: () => void, delay: number) {
     if (!this.timerId) {
-      this.timerId = setInterval(callback, delay);
+      this.timerId = window.setInterval(callback, delay);
     }
   }
 

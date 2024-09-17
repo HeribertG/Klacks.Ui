@@ -1,0 +1,30 @@
+@import "../../assets/standard-styles/standard-controls.scss";
+@import "../../assets/standard-styles/colors.scss";
+
+.container-search {
+  margin-top: 10px;
+  padding-left: 60px;
+  width: 400px;
+  color: var(--colorLabel);
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.container-search-button {
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+  font-size: 13px;
+  font-weight: normal;
+}
+
+.include-address {
+  margin-left: 20px;
+  color: #b6b6c3;
+}
+
+::placeholder {
+  font-size: 13px;
+  font-weight: normal;
+  color: var(--colorPlaceholder);
+  opacity: 1;
+}

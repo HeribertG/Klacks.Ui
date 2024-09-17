@@ -1,7 +1,6 @@
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Absence } from './absence-class';
 import { Client } from './client-class';
-import { MultiLanguage } from './multi-language-class';
 
 export interface IBreak {
   id: string | undefined;
