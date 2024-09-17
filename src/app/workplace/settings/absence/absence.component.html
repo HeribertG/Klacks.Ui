@@ -1,0 +1,355 @@
+<!-- Delete Window -->
+<!-- <ng-template #contentDelete id="content1" let-modal role="dialog">
+  <app-deletewindow [message]="message"></app-deletewindow>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      type="button"
+      class="btn btn-danger normal-btn"
+      (click)="modal.close()"
+    >
+      {{ "button.delete" | translate }}
+    </button>
+  </div>
+</ng-template> -->
+
+<ng-template #absenceModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title1">
+      {{ "setting.absence.modal.edit" | translate }}
+    </div>
+  </div>
+
+  <form>
+    <div class="modal-body first-modal">
+      <div class="row-line">
+        <label for="ruleName">{{
+          "setting.absence.modal.name" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentAbsence.name!.de!"
+          aria-label="ruleName.de"
+          name="ruleName.de"
+          maxlength="256"
+          *ngIf="currentLang === 'de'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentAbsence.name!.en!"
+          aria-label="ruleName.en"
+          name="ruleName.en"
+          maxlength="256"
+          *ngIf="currentLang === 'en'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentAbsence.name!.fr!"
+          aria-label="ruleName.fr"
+          name="ruleName.fr"
+          maxlength="256"
+          *ngIf="currentLang === 'fr'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentAbsence.name!.it!"
+          aria-label="ruleName.it"
+          name="ruleName.it"
+          maxlength="256"
+          *ngIf="currentLang === 'it'"
+        />
+      </div>
+
+      <div class="row-line">
+        <label for="description">{{
+          "setting.absence.modal.description" | translate
+        }}</label>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentAbsence.description!.de!"
+          aria-label="description.de"
+          name="description.de"
+          maxlength="256"
+          *ngIf="currentLang === 'de'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [ngModel]="currentAbsence.description!.en!"
+          aria-label="description.en"
+          name="description.en"
+          maxlength="256"
+          *ngIf="currentLang === 'en'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentAbsence.description!.fr"
+          aria-label="description.fr"
+          name="description.fr"
+          maxlength="256"
+          *ngIf="currentLang === 'fr'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentAbsence.description!.it!"
+          aria-label="description.it"
+          name="description.it"
+          maxlength="256"
+          *ngIf="currentLang === 'it'"
+        ></textarea>
+      </div>
+
+      <div class="row-line">
+        <div class="box-line">
+          <div class="box">
+            <label for="ruleName">{{
+              "setting.absence.modal.sum-day" | translate
+            }}</label>
+            <input
+              type="Number"
+              class="form-control input-number"
+              [(ngModel)]="currentAbsence.defaultLength"
+              aria-label="defaultLength"
+              name="defaultLength"
+              min="0"
+              max="31"
+              value="0"
+              step="1"
+            />
+          </div>
+          <div class="box">
+            <label for="ruleName">{{
+              "setting.absence.modal.value-day" | translate
+            }}</label>
+            <input
+              type="Number"
+              class="form-control input-number"
+              [(ngModel)]="currentAbsence.defaultValue"
+              aria-label="defaultValue"
+              name="defaultValue"
+              min="0"
+              max="24"
+              value="0"
+              step="0.1"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="row-line">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="currentAbsence.withSaturday"
+            name="with-saturday"
+          />
+          {{ "setting.absence.modal.value-sat" | translate }}
+        </label>
+      </div>
+      <div class="row-line">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="currentAbsence.withSunday"
+            name="with-sunday"
+          />
+          {{ "setting.absence.modal.value-sun" | translate }}
+        </label>
+      </div>
+      <div class="row-line">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="currentAbsence.withHoliday"
+            name="with-holiday"
+          />
+          {{ "setting.absence.modal.value-holiday" | translate }}
+        </label>
+      </div>
+      <div class="row-line box">
+        <label for="color" class="form-label">{{
+          "setting.absence.modal.color" | translate
+        }}</label>
+        <div class="input-group">
+          <input
+            type="color"
+            class="form-control form-control-color color-button"
+            name="color"
+            [ngModel]="currentAbsence.color"
+            (ngModelChange)="currentAbsence.color = $event"
+          />
+          <input
+            type="text"
+            class="form-control color-text"
+            [(ngModel)]="currentAbsence.color"
+            name="color-text"
+          />
+        </div>
+      </div>
+
+      <div class="bottom-border-space"></div>
+      <div class="row-line">
+        <label class="checkbox-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="currentAbsence.hideInGantt"
+            name="hideInGantt"
+          />
+          {{ "setting.absence.modal.internal" | translate }}
+        </label>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button type="button" class="btn save-btn" (click)="modal.close()">
+      {{ "setting.absence.modal.add" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<div class="container-dashboard">
+  <form #absenceForm="ngForm">
+    <div class="container-header header-container">
+      {{ "setting.absence.headline" | translate }}
+      <span class="filler"></span>
+
+      <div
+        class="btn ownStyle-button last-right"
+        role="button"
+        aria-label="excel"
+        (click)="onClickDownloadExcel()"
+      >
+        <icon-excel></icon-excel>
+      </div>
+    </div>
+
+    <div class="container-line"></div>
+
+    <div class="container-box-collapse">
+      <div class="container-table table-height">
+        <table class="table table-borderless" #myTable id="myTable">
+          <thead>
+            <tr>
+              <th class="table-header"></th>
+              <th
+                class="table-header header-name"
+                (click)="onClickHeader('name')"
+              >
+                <div class="table-header-cell form-inline">
+                  <p class="gap noselect">
+                    {{ "default.grid.name" | translate }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">
+                    {{ arrowName }}
+                  </p>
+                </div>
+              </th>
+
+              <th
+                class="table-header header-description"
+                (click)="onClickHeader('description')"
+              >
+                <div class="table-header-cell custom-control-inline">
+                  <p class="gap noselect">
+                    {{ "default.grid.description" | translate }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">
+                    {{ arrowDescription }}
+                  </p>
+                </div>
+              </th>
+
+              <th class="table-header action header-action"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              class="table-row"
+              class="table-row"
+              *ngFor="
+                let data of dataManagementAbsenceService.listWrapper?.absences;
+                index as i
+              "
+              (click)="onClickedRow(data)"
+              [class.active]="data.id == highlightRowId"
+            >
+              <td class="table-cell color-width">
+                <div
+                  class="color-icon"
+                  [ngStyle]="{ 'background-color': data.color }"
+                ></div>
+              </td>
+              <td class="table-cell">
+                {{ data.name | fallback : currentLang }}
+              </td>
+              <td class="table-cell">
+                {{ data.description | fallback : currentLang }}
+              </td>
+
+              <td class="table-cell cell-right">
+                <div>
+                  <div
+                    class="icon icon-padding"
+                    (click)="onEditAbsence(absenceModal, data)"
+                  >
+                    <icon-pencil-icon-grey></icon-pencil-icon-grey>
+                  </div>
+
+                  <div
+                    class="icon icon-padding"
+                    (click)="onCopyAbsence(absenceModal, data)"
+                  >
+                    <app-icon-copy-grey></app-icon-copy-grey>
+                  </div>
+
+                  <div class="icon" (click)="openDeleteAbsence(data)">
+                    <icon-trash-icon-red></icon-trash-icon-red>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span
+          class="first add-button"
+          type="button"
+          (click)="createNewAbsence(absenceModal)"
+          >{{ "setting.absence.add" | translate }}
+        </span>
+        <span class="filler"></span>
+
+        <label class="entry-info"
+          >{{ "pagination.sum" | translate }}
+          {{ dataManagementAbsenceService.maxItems }}</label
+        >
+        <ngb-pagination
+          [collectionSize]="dataManagementAbsenceService.maxItems + 1"
+          (pageChange)="onPageChange($event)"
+          [(page)]="page"
+          [maxSize]="5"
+          [pageSize]="numberOfItemsPerPage"
+          [rotate]="true"
+          [ellipses]="false"
+          [boundaryLinks]="true"
+        ></ngb-pagination>
+      </div>
+    </div>
+  </form>
+</div>

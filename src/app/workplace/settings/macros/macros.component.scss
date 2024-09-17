@@ -1,0 +1,19 @@
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+.add-button {
+  margin-left: 165px;
+  // padding-right: 150px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: $standartGreenColor;
+}
+
+.container-box {
+  flex: 1;
+  height: 242px;
+
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

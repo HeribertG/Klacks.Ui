@@ -1,0 +1,68 @@
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+input {
+  width: 300px;
+  height: 35px;
+}
+
+label {
+  margin-top: 10px;
+  width: 300px;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.row-line-single {
+  margin-top: 5px;
+}
+
+.firstColumn {
+  margin-left: 30px;
+}
+
+.secondColumn {
+  margin-left: 90px;
+}
+
+.account-description {
+  width: 300px;
+  height: 110px;
+  resize: none;
+}
+
+.container-bank-box {
+  display: inline-flex;
+}
+
+.container-bank-value {
+  flex-direction: column;
+  width: 300px;
+}
+
+.container-bank-zip {
+  width: 80px;
+  margin-right: 30px;
+}
+
+.container-bank-city {
+  width: 190px;
+}
+
+.add-button {
+  padding-right: 50px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: $standartGreenColor;
+}
+
+.delete-button {
+  padding-right: 50px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: var(--standartRedColor);
+}

@@ -1,0 +1,66 @@
+@import "../../../../assets/standard-styles/colors.scss";
+.menu-item {
+  border: 0;
+  padding: 10px 5px 10px 5px;
+  white-space: nowrap;
+  display: flex;
+  cursor: pointer;
+  align-items: left;
+  position: relative;
+  text-decoration: unset;
+}
+
+.menu-item-container {
+  font-family: Roboto;
+  font-size: small;
+  font-weight: normal;
+  display: flex;
+  flex-direction: row;
+}
+
+.menu-item-container:hover {
+  background: var(--gridBackgroundColorRowHover);
+  cursor: pointer;
+}
+
+.menu-item-icon {
+  border: 1px black;
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.name-icon {
+  width: 17px;
+  height: 18px;
+}
+
+.menu-item-shortcut {
+  width: auto;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gridColorCellComment);
+}
+
+.menu-item-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+}
+
+.menu-item-divider {
+  height: 1px;
+  margin: 1px 1px 8px 1px;
+  overflow: hidden;
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.menu-item-container.disabled {
+  color: var(--gridColorCellComment);
+  background-color: var(--standartTextBackground);
+  cursor: default;
+}

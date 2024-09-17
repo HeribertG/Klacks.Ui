@@ -1,0 +1,26 @@
+<ng-container *ngIf="isProfile">
+  <div class="container-dashboard">
+    <div class="container-headline">
+      {{ "setting.home.header" | translate }}
+    </div>
+
+    <div class="container-profilline">
+      <app-profile-picture
+        class="container-profile-small container-profile-login container-profile-login-margin first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+      ></app-profile-picture>
+      <app-profile-data-edit
+        class="container-profile-small container-profile-login border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+      ></app-profile-data-edit>
+    </div>
+    <div class="container-profilline">
+      <app-profile-custom-setting
+        class="container-profile-small container-profile-login-margin first border-right-card border-bottom-card"
+      >
+      </app-profile-custom-setting>
+    </div>
+
+    <div style="height: 30px"></div>
+  </div>
+</ng-container>

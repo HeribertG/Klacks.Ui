@@ -1,0 +1,184 @@
+<form id="allGroupForm">
+  <div class="container-header header-container">
+    {{ "group.all-group.all-group-list.header" | translate }}
+
+    <span class="filler"></span>
+  </div>
+  <div class="container-line"></div>
+  <div class="container-table">
+    <table
+      class="table table-borderless"
+      (blur)="onLostFocus()"
+      #myGridTable
+      id="myGridTable"
+      resizeObserver
+      (resizeElement)="onResize($event)"
+    >
+      <thead>
+        <tr>
+          <th class="table-header" style="width: 60px; max-width: 60px">
+            <input
+              type="checkbox"
+              [(ngModel)]="dataManagementGroupService.headerCheckBoxValue"
+              (change)="onChangeHeaderCheckBox()"
+              [indeterminate]="checkBoxIndeterminate"
+              name="headerCheckBoxValue"
+              class="checkbox"
+              aria-label="checkbox"
+            />
+          </th>
+
+          <th
+            class="table-header"
+            (click)="onClickHeader('name')"
+            style="width: 180px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{ "group.all-group.all-group-list.table.name" | translate }}
+              </p>
+              <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+            </div>
+          </th>
+
+          <th
+            class="table-header"
+            (click)="onClickHeader('description')"
+            style="width: 320px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  "group.all-group.all-group-list.table.description" | translate
+                }}
+              </p>
+              <p class="table-header-cell-arrow noselect">
+                {{ arrowDescription }}
+              </p>
+            </div>
+          </th>
+
+          <th
+            class="table-header cell-center"
+            (click)="onClickHeader('valid_from')"
+            style="width: 100px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{ "group.all-group.all-group-list.table.from" | translate }}
+              </p>
+              <p class="table-header-cell-arrow noselect">
+                {{ arrowValidFrom }}
+              </p>
+            </div>
+          </th>
+
+          <th
+            class="table-header cell-center"
+            (click)="onClickHeader('valid_until')"
+            style="width: 100px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{ "group.all-group.all-group-list.table.until" | translate }}
+              </p>
+              <p class="table-header-cell-arrow noselect">
+                {{ arrowValidUntil }}
+              </p>
+            </div>
+          </th>
+
+          <th
+            class="table-header action cell-right"
+            style="width: 90px; max-width: 90px; min-width: 90px"
+          >
+            <div class="table-header-cell custom-control-inline"></div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          class="table-row"
+          *ngFor="
+            let data of dataManagementGroupService.listWrapper?.groups;
+            index as i
+          "
+          (click)="onClickedRow(data)"
+          [class.active]="data.id == highlightRowId"
+        >
+          <td class="table-cell">
+            <input
+              type="checkbox"
+              [checked]="checkBoxValue(i)"
+              (change)="onChangeCheckBox(i, $event)"
+              name="checkbox"
+              class="checkbox"
+              aria-label="checkbox"
+            />
+          </td>
+          <td class="table-cell">
+            {{ data.name }}
+          </td>
+          <td class="table-cell">
+            {{ data.description }}
+          </td>
+
+          <td class="table-cell">
+            {{ data.validFrom | date : "dd.MM.yyyy" }}
+          </td>
+          <td class="table-cell">
+            <p *ngIf="data.validUntil">
+              {{ data.validUntil | date : "dd.MM.yyyy" }}
+            </p>
+          </td>
+
+          <td class="table-cell cell-right">
+            <div>
+              <div class="icon icon-padding" (click)="onClickEdit(data)">
+                <icon-pencil-icon-grey></icon-pencil-icon-grey>
+              </div>
+
+              <div class="icon" (click)="open(data)">
+                <icon-trash-icon-red></icon-trash-icon-red>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination justify-content-end">
+    <div *ngIf="visibleRow">
+      <label class="entry-row">{{ "pagination.line" | translate }}</label>
+      <select
+        class="maxSize-selection"
+        value="realRow"
+        (change)="onChangeRowSize($event)"
+      >
+        <option
+          *ngFor="let c of visibleRow"
+          [value]="c.value"
+          [selected]="c.value === realRow"
+        >
+          {{ c.text }}
+        </option>
+      </select>
+    </div>
+
+    <label class="entry-info"
+      >{{ "pagination.sum" | translate }}
+      {{ dataManagementGroupService.maxItems }}</label
+    >
+    <ngb-pagination
+      [collectionSize]="dataManagementGroupService.maxItems + 1"
+      (pageChange)="onPageChange($event)"
+      [(page)]="page"
+      [maxSize]="5"
+      [pageSize]="numberOfItemsPerPage"
+      [rotate]="true"
+      [ellipses]="false"
+      [boundaryLinks]="true"
+    ></ngb-pagination>
+  </div>
+</form>

@@ -1,0 +1,264 @@
+@import "./../../assets/standard-styles/colors.scss";
+
+.container-table {
+  padding-top: 25px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gridColorLine);
+  background-color: transparent;
+  min-height: 310px;
+}
+
+.container-table-max {
+  padding-top: 25px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gridColorLine);
+  background-color: transparent;
+}
+
+.container-table-max-borderless {
+  padding-top: 25px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gridColorLine);
+  background-color: transparent;
+}
+
+.container-table-borderless {
+  padding-top: 25px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gridColorLine);
+  background-color: transparent;
+  min-height: 310px;
+}
+
+.action {
+  text-align: right;
+}
+
+.table-header {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gridColorLine);
+  background-color: transparent;
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.table-header-no-border {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gridColorLine);
+  background-color: transparent;
+  border-bottom: 1px solid transparent !important;
+}
+
+.table-header-cell {
+  height: 20px;
+  display: flex;
+}
+
+.table-header-cell-arrow {
+  margin-top: -4px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cell-right {
+  text-align: right;
+}
+
+.cell-center {
+  text-align: center;
+}
+
+.gap {
+  padding-right: 10px;
+}
+
+.table-cell {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+  background-color: transparent;
+  border-bottom: 1px solid var(--colorLine);
+}
+.table-cell-top {
+  vertical-align: top;
+}
+
+.table-cell-no-border {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+  border-bottom: 1px solid transparent !important;
+}
+
+.table-cell-empty {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+}
+
+.table-cell-Info {
+  background-color: var(--gridBackgroundColorInfo);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gridColorText);
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.table-cell-updated {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gridColorTextUpdate);
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.table-cell-del {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorTextDelete);
+  border-bottom: 1px solid var(--colorLine);
+}
+
+.table-cell-delete {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorTextDelete);
+  border-bottom: 1px solid var(--colorLine);
+  text-decoration: line-through;
+}
+
+.table tr.active {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+.table-row:hover {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+.tablet {
+  width: 80px;
+  height: 50px;
+
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+.icon {
+  cursor: pointer;
+  display: inline;
+}
+
+.icon-padding {
+  padding-right: 10px;
+}
+
+.header-right {
+  float: right;
+  align-content: flex-end;
+}
+
+.noselect {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Old versions of Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
+}
+
+.cell-with-comment {
+  position: relative;
+}
+
+.cell-comment {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  border: 1px;
+  background-color: var(--gridBackgroundColorCellComment);
+
+  border-radius: 5px;
+  padding: 3px;
+  color: var(--gridColorCellComment);
+  width: 200px;
+  top: 50px;
+  left: 20px;
+  text-align: center;
+  margin: 5px;
+  box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
+}
+
+.cell-comment-left {
+  display: none;
+  position: absolute;
+  z-index: 100;
+  border: 1px;
+  background-color: var(--gridBackgroundColorCellComment);
+
+  border-radius: 5px;
+  padding: 3px;
+  color: var(--gridColorCellComment);
+  width: 200px;
+  top: 50px;
+  left: 20px;
+  text-align: left;
+  margin: 5px;
+  box-shadow: 2px 2px 4px var(--gridBackgroundColorCellShadow);
+}
+
+.cell-with-comment:hover span.cell-comment {
+  display: block;
+}
+
+.cell-with-comment:hover span.cell-comment-left {
+  display: block;
+}
+
+.drag-handle {
+  display: flex;
+  align-items: center;
+  cursor: move;
+
+  .handle {
+    margin-right: 5px;
+  }
+}
+
+/* Animate items as they're being sorted. */
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+}
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag {
+  cursor: move; /* fallback: no `url()` support or images disabled */
+  cursor: -webkit-grab; /* Chrome 1-21, Safari 4+ */
+  cursor: -moz-grab; /* Firefox 1.5-26 */
+  cursor: grab; /* W3C standards syntax, should come least */
+}

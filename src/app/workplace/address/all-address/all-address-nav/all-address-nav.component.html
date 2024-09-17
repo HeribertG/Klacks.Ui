@@ -1,0 +1,371 @@
+<form #navClientForm="ngForm" id="navClientForm">
+  <ul class="list-group">
+    <li class="list-group-item-action">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="dataManagementClientService.currentFilter.female"
+          name="female"
+        />
+        {{ "female" | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="dataManagementClientService.currentFilter.male"
+          name="male"
+        />
+        {{ "male" | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="dataManagementClientService.currentFilter.legalEntity"
+          name="legalEntity"
+        />
+        {{ "legal-entity" | translate }}
+      </label>
+    </li>
+
+    <!-- Gültigkeit -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onOpenChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-1"
+          ngbDropdownToggle
+          [disabled]="!isRequestPossible()"
+        >
+          {{ "address.all-address.all-address-nav.validity" | translate }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownForm-1">
+          <div class="form-group">
+            <div class="checkbox-container-default">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.activeMembership
+                  "
+                  name="activeMembership"
+                />
+                {{ "active" | translate }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.formerMembership
+                  "
+                  name="formerMembership"
+                />
+                {{ "alumni" | translate }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.futureMembership
+                  "
+                  name="futureMembership"
+                />
+                {{ "future" | translate }}
+              </label>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem>{{ "close" | translate }}</button>
+        </div>
+      </div>
+    </li>
+
+    <!-- Länder -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onOpenChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-2"
+          ngbDropdownToggle
+          [disabled]="!isRequestPossible()"
+        >
+          {{
+            "address.all-address.all-address-nav.choose-countries" | translate
+          }}
+        </button>
+        <div ngbDropdownMenu>
+          <div class="px-4 py-3">
+            <div class="form-group">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm max-width2"
+                (click)="
+                  dataManagementClientService.currentFilter.selectCountries(
+                    true
+                  )
+                "
+              >
+                {{ "selecting" | translate }}
+              </button>
+              <p></p>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm max-width2"
+                (click)="
+                  dataManagementClientService.currentFilter.selectCountries(
+                    false
+                  )
+                "
+              >
+                {{ "deselecting" | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="form-group">
+            <div class="checkbox-container-default2">
+              <div
+                *ngFor="
+                  let c of dataManagementClientService.currentFilter.countries;
+                  index as i
+                "
+              >
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [ngModel]="c.select"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="c.select = $event"
+                    (change)="
+                      dataManagementClientService.currentFilter.resetFilteredStateToken()
+                    "
+                  />
+                  {{ c.name | fallback : currentLang }}
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem>{{ "close" | translate }}</button>
+        </div>
+      </div>
+    </li>
+
+    <!-- Kantone -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onOpenChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm1"
+          ngbDropdownToggle
+          [disabled]="!isRequestPossible()"
+        >
+          {{ "address.all-address.all-address-nav.choose-cantons" | translate }}
+        </button>
+        <div ngbDropdownMenu>
+          <div class="px-4 py-3">
+            <div class="form-group">
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm max-width"
+                (click)="
+                  dataManagementClientService.currentFilter.selectState(true)
+                "
+              >
+                {{ "selecting" | translate }}
+              </button>
+              <p></p>
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm max-width"
+                (click)="
+                  dataManagementClientService.currentFilter.selectState(false)
+                "
+              >
+                {{ "deselecting" | translate }}
+              </button>
+            </div>
+          </div>
+          <div
+            class="form-group"
+            *ngIf="dataManagementClientService.currentFilter.filteredStateToken"
+          >
+            <div class="checkbox-container">
+              <div
+                *ngFor="
+                  let item of dataManagementClientService.currentFilter
+                    .filteredStateToken
+                "
+              >
+                <label
+                  class="checkbox-label"
+                  placement="right"
+                  ngbTooltip="{{ item.stateName | fallback : currentLang }}"
+                >
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="item.select"
+                    [ngModelOptions]="{ standalone: true }"
+                    (change)="
+                      dataManagementClientService.currentFilter.setFilteredStateToken(
+                        item
+                      )
+                    "
+                  />
+                  {{ item.state }} ( {{ item.country }})
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem>{{ "close" | translate }}</button>
+        </div>
+      </div>
+    </li>
+
+    <!--Scope -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onOpenChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm4"
+          ngbDropdownToggle
+          [disabled]="!isRequestPossible()"
+        >
+          {{ "address.all-address.all-address-nav.date-range" | translate }}
+        </button>
+        <div ngbDropdownMenu>
+          <div class="form-group">
+            <div class="checkbox-container-default3">
+              <div class="row-line-simple">
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      dataManagementClientService.currentFilter.scopeFromFlag
+                    "
+                    id="scopeFromFlag"
+                    name="scopeFrom"
+                  />
+                  {{ "address.all-address.all-address-nav.entry" | translate }}
+                </label>
+                <label class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="
+                      dataManagementClientService.currentFilter.scopeUntilFlag
+                    "
+                    id="scopeUntilFlag"
+                    name="scopeUntil"
+                  />
+                  {{
+                    "address.all-address.all-address-nav.resignation"
+                      | translate
+                  }}
+                </label>
+              </div>
+
+              <div>
+                <label for="billsFrom">{{
+                  "address.all-address.all-address-nav.from" | translate
+                }}</label>
+                <div class="input-group my-datepicker">
+                  <input
+                    class="form-control"
+                    name="from"
+                    aria-label="from"
+                    [ngModel]="
+                      dataManagementClientService.currentFilter
+                        .internalScopeFrom
+                    "
+                    (ngModelChange)="
+                      dataManagementClientService.currentFilter.internalScopeFrom =
+                        $event
+                    "
+                    ngbDatepicker
+                    #from="ngbDatepicker"
+                  />
+
+                  <span
+                    class="input-group-text"
+                    style="width: 40px"
+                    (click)="from.toggle()"
+                  >
+                    <i class="fa fa-calendar" style="color: #464e5f"></i>
+                  </span>
+                </div>
+
+                <label for="billsFrom">{{
+                  "address.all-address.all-address-nav.until" | translate
+                }}</label>
+
+                <div class="input-group my-datepicker">
+                  <input
+                    class="form-control"
+                    name="until"
+                    aria-label="until"
+                    [ngModel]="
+                      dataManagementClientService.currentFilter
+                        .internalScopeUntil
+                    "
+                    (ngModelChange)="
+                      dataManagementClientService.currentFilter.internalScopeUntil =
+                        $event
+                    "
+                    ngbDatepicker
+                    #until="ngbDatepicker"
+                  />
+
+                  <span
+                    class="input-group-text"
+                    style="width: 40px"
+                    (click)="until.toggle()"
+                  >
+                    <i class="fa fa-calendar" style="color: #464e5f"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem>{{ "close" | translate }}</button>
+        </div>
+      </div>
+    </li>
+
+    <!--  Gelöschte Adressen -->
+    <li class="list-group-item-action" (click)="onClickShowDeleteEntries()">
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
+          [(ngModel)]="
+            dataManagementClientService.currentFilter.showDeleteEntries
+          "
+          name="showDeleteEntries"
+          [disabled]="!isRequestPossible()"
+        />
+        {{ "address.all-address.all-address-nav.remove-address" | translate }}
+      </label>
+    </li>
+
+    <li class="list-group-item-action">
+      <button
+        class="btn btn btn-sm max-width place-around"
+        (click)="onClickSetEmpty()"
+        [disabled]="
+          dataManagementClientService.currentFilter.emptyPlaceholder()
+        "
+      >
+        {{ "address.all-address.all-address-nav.reset-filter" | translate }}
+      </button>
+    </li>
+  </ul>
+</form>

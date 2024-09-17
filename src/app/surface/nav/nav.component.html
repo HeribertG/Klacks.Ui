@@ -1,0 +1,83 @@
+<div class="main-container">
+  <div class="main-cell">
+    <div class="icon_group">
+      <app-gantt
+        (click)="onClickAbsence()"
+        placement="right"
+        autoClose="true"
+        ngbTooltip="{{ absence }}"
+      >
+      </app-gantt>
+    </div>
+
+    <div class="icon">
+      <app-icon-group
+        (click)="onClickGroup()"
+        placement="right"
+        ngbTooltip="{{ all_group }}"
+      >
+      </app-icon-group>
+    </div>
+
+    <div class="icon">
+      <app-icon-order
+        (click)="onClickGroup()"
+        placement="right"
+        ngbTooltip="{{ all_group }}"
+      >
+      </app-icon-order>
+    </div>
+
+    <div class="icon">
+      <icon-schedule2
+        (click)="onClickSchedule()"
+        placement="right"
+        ngbTooltip="{{ all_schedule }}"
+      >
+      </icon-schedule2>
+    </div>
+
+    <div class="icon">
+      <app-icon-clients
+        (click)="onClickClients()"
+        placement="right"
+        ngbTooltip="{{ all_employee }}"
+        autoClose="true"
+      >
+      </app-icon-clients>
+    </div>
+
+    <div class="icon">
+      <app-icon-chart
+        (click)="onClickStatistic()"
+        placement="right"
+        ngbTooltip="{{ statistic }}"
+        autoClose="true"
+      >
+      </app-icon-chart>
+    </div>
+  </div>
+
+  <div class="main-bottomcell">
+    <div class="icon icon_user" *ngIf="!dataLoadFileService.profileImage">
+      <app-icon-user (click)="onClickProfile()"></app-icon-user>
+    </div>
+
+    <div
+      *ngIf="dataLoadFileService.profileImage"
+      class="imgIconContainer"
+      (click)="onClickProfile()"
+    >
+      <img
+        [src]="dataLoadFileService.profileImage"
+        alt=""
+        class="imgIcon"
+        *ngIf="dataLoadFileService.profileImage"
+      />
+    </div>
+
+    <div class="icon" *ngIf="isAdmin">
+      <app-icon-setting (click)="onClickSettings()"></app-icon-setting>
+    </div>
+  </div>
+</div>

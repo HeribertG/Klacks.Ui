@@ -1,0 +1,30 @@
+.setting-container {
+  display: flexbox;
+  width: 260px;
+  max-height: 400px;
+  overflow: auto;
+}
+
+.chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.row-line {
+  display: flex;
+  margin-bottom: 10px;
+}
+.center {
+  justify-content: center;
+}
+
+.select-calendar {
+  width: 180px;
+}
+
+.crud-button {
+  margin-left: 5px;
+  width: auto;
+  font-size: xx-small;
+}

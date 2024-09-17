@@ -1,0 +1,87 @@
+<div ngbDropdown (openChange)="onOpenChange()">
+  <button
+    type="button"
+    class="btn btn-primary btn-sm auto-width"
+    id="dropdownForm"
+    ngbDropdownToggle
+  >
+    {{ header }}
+  </button>
+  <div ngbDropdownMenu>
+    <div class="px-4 py-3">
+      <select
+        class="form-select select-country"
+        [(ngModel)]="dataManagementCalendarRulesService.selectedCountry"
+        name="selectedCountry"
+        (change)="onCountryChange()"
+      >
+        <option value="">{{ "all" | translate }}</option>
+        <option
+          *ngFor="
+            let country of dataManagementCalendarRulesService.currentFilter
+              .countries
+          "
+          [value]="country"
+        >
+          {{ country }}
+        </option>
+      </select>
+      <div class="form-group">
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm max-width"
+          (click)="onSelectStates(true)"
+        >
+          {{ "selecting" | translate }}
+        </button>
+        <p></p>
+        <button
+          type="button"
+          class="btn btn-secondary btn-sm max-width"
+          (click)="onSelectStates(false)"
+        >
+          {{ "deselecting" | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div
+        *ngIf="
+          dataManagementCalendarRulesService.filteredRulesToken &&
+          dataManagementCalendarRulesService.filteredRulesToken.length > 0
+        "
+      >
+        <div class="checkbox-container">
+          <div
+            *ngFor="
+              let item of dataManagementCalendarRulesService.filteredRulesToken;
+              index as i
+            "
+          >
+            <label
+              class="checkbox-label single-line"
+              placement="right"
+              ngbTooltip="{{ item.stateName | fallback : currentLang }}"
+              autoClose="true"
+            >
+              <input
+                type="checkbox"
+                [(ngModel)]="item.select"
+                name="{{ item.state }}"
+                (change)="onChangeStateSelection(item)"
+              />
+
+              <div class="column">{{ item.state }}</div>
+              <div class="column">({{ item.country }})</div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dropdown-divider"></div>
+
+    <button type="button" ngbDropdownItem (click)="onClose()">
+      {{ "close" | translate }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,164 @@
+<ng-template #content id="content" let-modal>
+  <form #modalForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title-user">
+        {{ "setting.user-admin.modal-title-user" | translate }}
+      </div>
+      <div type="button" class="close" (click)="modal.dismiss('Cross click')">
+        <span
+          aria-hidden="true"
+          style="
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body container-certificate-box">
+      <div class="container-certificate-value firstColumn">
+        <div class="form-group">
+          <label for="user-firstname">{{
+            "setting.user-admin.modal-firstname" | translate
+          }}</label>
+          <input
+            type="text"
+            name="firstName"
+            [(ngModel)]="newUser!.firstName"
+            class="form-control default-width"
+            (change)="onChange()"
+            id="user-firstname"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="user-name">{{
+            "setting.user-admin.modal-name" | translate
+          }}</label>
+          <input
+            type="text"
+            name="lastName"
+            [(ngModel)]="newUser!.lastName"
+            class="form-control default-width"
+            (change)="onChange()"
+            id="user-name"
+          />
+        </div>
+      </div>
+
+      <div class="container-certificate-value secondColumn">
+        <div class="row-line">
+          <div class="form-group">
+            <label for="user-userName">{{
+              "setting.user-admin.modal-user-name" | translate
+            }}</label>
+            <input
+              type="text"
+              name="userName"
+              [(ngModel)]="newUser!.userName"
+              class="form-control default-width"
+              (change)="onChange()"
+              id="user-userName"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-line firstColumn-email">
+      <label for="setting-user-description">{{
+        "setting.user-admin.modal-email" | translate
+      }}</label>
+
+      <input
+        type="text"
+        name="email"
+        [(ngModel)]="newUser!.email"
+        class="form-control"
+        (keyup)="onChange()"
+        id="setting-user-email"
+        aria-label="email"
+      />
+    </div>
+
+    <p></p>
+    <p></p>
+    <p></p>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "setting.user-admin.cancel" | translate }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="modal.close()"
+      [disabled]="disabled"
+    >
+      {{ "setting.user-admin.modal-save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #msg id="msg" let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ "setting.user-admin.new" | translate }}
+    </div>
+  </div>
+  <div class="modal-body">
+    <p>
+      {{ "setting.user-admin.modal-question" | translate }}<br /><b>{{
+        currentEmail
+      }}</b
+      ><br />
+    </p>
+  </div>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "setting.user-admin.cancel" | translate }}</span
+    >
+    <button type="button" class="btn save-btn-ok" (click)="modal.close()">
+      Ok
+    </button>
+  </div>
+</ng-template>
+
+<form>
+  <div class="container-header">
+    {{ "setting.user-admin.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-box">
+    <app-user-administration-header></app-user-administration-header>
+    <div
+      *ngFor="let c of dataManagementSettingsService.accountsList; index as i"
+    >
+      <!-- <app-user-administration-row
+        [user]="c"
+        [enabled]="!(c.id === dataManagementSettingsService.CurrentAccountId)"
+        (isSentToEvent)="onSentTo($event); openMsg(msg)"
+        (isChangingEvent)="onIsChanging()"
+        (isDeleteEvent)="onDelete(i)"
+      >
+      </app-user-administration-row> -->
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="filler"></div>
+    <span class="first add-button" type="button" (click)="open(content)"
+      >{{ "setting.user-admin.add" | translate }}
+    </span>
+  </div>
+</form>

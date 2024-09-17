@@ -1,0 +1,188 @@
+<form
+  #bankForm="ngForm"
+  [ngClass]="{
+    'container-bank-box  ': isFocusIndex != position,
+    'container-bank-box-focus ': isFocusIndex === position
+  }"
+>
+  <div class="container-bank-value">
+    <label [for]="'accountdescription' + position">{{
+      "setting.bank.description" | translate
+    }}</label>
+    <textarea
+      class="form-control account-description"
+      [(ngModel)]="bankDetail!.accountDescription"
+      aria-label="accountDescription"
+      name="accountDescription"
+      type="text"
+      [id]="'accountdescription' + position"
+    ></textarea>
+    <label [for]="'accountNumber' + position">{{
+      "setting.bank.number" | translate
+    }}</label>
+    <input
+      type="text"
+      [(ngModel)]="bankDetail!.accountNumber"
+      name="bankDetail.accountNumber"
+      class="form-control"
+      aria-label="accountNumber"
+      [id]="'accountNumber' + position"
+    />
+
+    <label [for]="'subscriberNumber' + position">{{
+      "setting.bank.subscriber-number" | translate
+    }}</label>
+    <input
+      type="text"
+      [(ngModel)]="bankDetail!.subscriberNumber"
+      name="bankDetail.subscriberNumber"
+      class="form-control"
+      aria-label="subscriberNumber"
+      [id]="'subscriberNumber' + position"
+    />
+
+    <label [for]="'paymentSlipAddress' + position"
+      >Adresse auf Einzahlungsschein</label
+    >
+    <textarea
+      class="form-control account-description"
+      [(ngModel)]="bankDetail!.paymentSlipAddress"
+      aria-label="paymentSlipAddress"
+      name="'paymentSlipAddress' + position"
+      type="text"
+      [id]="'paymentSlipAddress' + position"
+    ></textarea>
+  </div>
+
+  <div class="container-bank-value" class="secondColumn">
+    <label [for]="'name' + position">{{
+      "setting.bank.name" | translate
+    }}</label>
+    <input
+      type="text"
+      [(ngModel)]="bankDetail!.name"
+      name="name"
+      class="form-control"
+      [id]="'name' + position"
+      aria-label="name"
+    />
+
+    <label [for]="'additionLine' + position">Zusatz</label>
+    <input
+      type="text"
+      [(ngModel)]="bankDetail!.additionLine"
+      name="additionLine"
+      class="form-control"
+      aria-label="additionLine"
+      [id]="'additionLine' + position"
+    />
+
+    <div>
+      <label [for]="'street' + position">{{
+        "setting.bank.street" | translate
+      }}</label>
+      <div class="custom-control-inline">
+        <input
+          type="text"
+          class="form-control default-width"
+          [(ngModel)]="bankDetail!.street"
+          name="street"
+          aria-label="street"
+          [id]="'street' + position"
+        />
+        <span
+          class="add-button"
+          type="button"
+          (click)="addStreetLine2 = true"
+          *ngIf="!addStreetLine2 == true"
+          >+</span
+        >
+      </div>
+    </div>
+
+    <div *ngIf="addStreetLine2 == true">
+      <label [for]="'street2' + position">{{
+        "setting.bank.street2" | translate
+      }}</label>
+      <div class="custom-control-inline">
+        <input
+          type="text"
+          class="form-control default-width"
+          [(ngModel)]="bankDetail!.street2"
+          name="street2"
+          aria-label="street2"
+          [id]="'street2' + position"
+        />
+        <span
+          class="add-button"
+          type="button"
+          (click)="addStreetLine3 = true"
+          *ngIf="!addStreetLine3 == true"
+          >+</span
+        >
+        <span
+          class="del-button"
+          type="button"
+          (click)="addStreetLine2 = false"
+          *ngIf="addStreetLine2 == true"
+          >-</span
+        >
+      </div>
+    </div>
+
+    <div class="row-line" *ngIf="addStreetLine3 == true">
+      <div class="form-group">
+        <label [for]="'street3' + position">{{
+          "setting.bank.street3" | translate
+        }}</label>
+        <div class="custom-control-inline">
+          <input
+            type="text"
+            class="form-control default-width"
+            [(ngModel)]="bankDetail!.street3"
+            name="street3"
+            aria-label="street3"
+            id="'street3'+ position"
+          />
+          <span
+            class="del-button"
+            type="button"
+            (click)="addStreetLine3 = false"
+            *ngIf="addStreetLine3 == true"
+            >-</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-control-inline">
+      <div>
+        <label class="container-bank-zip" [for]="'bankzip' + position">{{
+          "setting.bank.zip" | translate
+        }}</label>
+        <input
+          type="text"
+          [(ngModel)]="bankDetail!.zip"
+          name="zip"
+          class="form-control container-bank-zip"
+          aria-label="zip"
+          [id]="'bankzip' + position"
+        />
+      </div>
+
+      <div>
+        <label class="container-bank-city" [for]="'bankcity' + position">{{
+          "setting.bank.place" | translate
+        }}</label>
+        <input
+          type="text"
+          [(ngModel)]="bankDetail!.city"
+          name="city"
+          class="form-control container-bank-city"
+          aria-label="city"
+          [id]="'bankcity' + position"
+        />
+      </div>
+    </div>
+  </div>
+</form>

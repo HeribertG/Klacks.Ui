@@ -1,0 +1,11 @@
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+.container-box {
+  flex: 1;
+  height: 242px;
+
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

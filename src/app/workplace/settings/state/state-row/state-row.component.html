@@ -1,0 +1,73 @@
+<form>
+  <div class="first custom-control-inline">
+    <div>
+      <input
+        type="text"
+        [(ngModel)]="data!.abbreviation"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.abbreviation"
+        name="data.abbreviation"
+        class="form-control abbreviation"
+      />
+    </div>
+    <div>
+      <input
+        type="text"
+        [(ngModel)]="data!.name!.de"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.name"
+        name="data.name.de"
+        class="form-control country-name"
+        *ngIf="currentLang === 'de'"
+      />
+
+      <input
+        type="text"
+        [(ngModel)]="data!.name!.en"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.name"
+        name="data.name.en"
+        class="form-control country-name"
+        *ngIf="currentLang === 'en'"
+      />
+
+      <input
+        type="text"
+        [(ngModel)]="data!.name!.fr"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.name"
+        name="data.name.fr"
+        class="form-control country-name"
+        *ngIf="currentLang === 'fr'"
+      />
+
+      <input
+        type="text"
+        [(ngModel)]="data!.name!.it"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.name"
+        name="data.name.it"
+        class="form-control country-name"
+        *ngIf="currentLang === 'it'"
+      />
+    </div>
+    <div>
+      <input
+        type="text"
+        [(ngModel)]="data!.countryPrefix"
+        (change)="onChange($event)"
+        (keyup)="onKeyUp($event)"
+        aria-label="data.prefix"
+        name="data.prefix"
+        class="form-control country-prefix"
+      />
+    </div>
+
+    <span class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+  </div>
+</form>

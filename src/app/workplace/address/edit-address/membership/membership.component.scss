@@ -1,0 +1,115 @@
+@import '../../../../../assets/standard-styles/standard-card-interior.scss';
+@import '../../../../../assets/standard-styles/standard-controls.scss';
+@import '../../../../../assets/standard-styles/standard-modal.scss';
+
+
+input {
+  height: 35px;
+ }
+
+.default-width {
+  width: 400px;
+}
+
+.medium-width-tel {
+  margin-left: 20px;
+  width: 180px;
+}
+
+.medium-width {
+
+  width: 280px;
+}
+
+.medium-width-without-button {
+
+  width: 200px;
+}
+
+select {
+
+  height: 35px;
+
+}
+
+label {
+  width: 400px;
+
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+
+}
+
+.row-line-add {
+
+  display: inline-flex;
+  padding-bottom: 20px;
+}
+
+.firstColumn {
+  margin-left: 30px;
+}
+
+.gap {
+  margin-left: 20px;
+  width: 100px;
+}
+
+.gap-prefix {
+  width: 80px;
+}
+
+.secondColumn {
+  margin-left: 30px;
+
+}
+
+.ownStyle-button {
+
+  width: 180px;
+  height: 40px;
+  background-color: $standartBlueColor;
+  font-weight: 600;
+  font-size: 14px;
+  color: $standartWhiteColor;
+
+}
+
+.own-boolean {
+  width: 40px;
+  margin-left: 0px;
+}
+
+.container-bank-box {
+  margin-top: 40px;
+  display: inline-flex;
+
+}
+
+.container-bank-value {
+  flex-direction: column;
+  width: 450px;
+}
+
+.add-credits {
+  margin-left: 180px;
+  color: $standartBlueColor;
+  font-weight: 500;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.add-gap {
+  margin-top: 25px;
+}
+
+.top-gap-negativ {
+  margin-top: -25px;
+}
+.text-right{
+  text-align: right;
+}

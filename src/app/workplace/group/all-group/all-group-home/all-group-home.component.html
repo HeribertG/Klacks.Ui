@@ -1,0 +1,23 @@
+<ng-container *ngIf="isGroup">
+  <div class="container-dashboard">
+    <div class="container-headline">
+      {{ "group.all-group.all-group-home.header" | translate }}
+    </div>
+
+    <div class="container-profilline">
+      <app-all-group-list
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-all-group-list>
+    </div>
+
+    <div
+      id="group-nav"
+      class="container-address-nav border-right-card border-bottom-card"
+    >
+      <app-all-group-nav></app-all-group-nav>
+    </div>
+
+    <div class="bottom-border-space"></div>
+  </div>
+</ng-container>

@@ -1,0 +1,12 @@
+<div
+  class="menu-container"
+  [ngStyle]="rightPanelStyle"
+  (clickOutside)="closeMenu()"
+  (mouseleave)="closeMenu()"
+  (contextmenu)="stopEvent($event)"
+  *ngIf="menu && menu.list"
+>
+  <div *ngFor="let item of menu.list">
+    <app-menu-item [menuItem]="item" #menuItem> </app-menu-item>
+  </div>
+</div>

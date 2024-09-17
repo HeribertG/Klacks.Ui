@@ -1,0 +1,113 @@
+<form>
+  <div class="container-header">
+    {{ "setting.setting-general.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="form-group first">
+    <label for="setting-genaral-name">{{
+      "setting.setting-general.title" | translate
+    }}</label>
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="dataManagementSettingsService.appName"
+      (change)="onChange()"
+      aria-label="appName"
+      (keyup)="onKeyUp()"
+      name="appName"
+    />
+  </div>
+
+  <div class="row-line first">
+    <div class="image-container-show" *ngIf="dataLoadFileService.iconImage">
+      <img [src]="dataLoadFileService.iconImage" alt="" class="imgIcon" />
+
+      <div class="row">
+        <div class="filler"></div>
+        <span
+          class="delete-button delete-button-icon"
+          type="button"
+          (click)="onClickDeleteIcon()"
+          >Icon entfernen
+        </span>
+      </div>
+    </div>
+
+    <div
+      class="image-container"
+      *ngIf="!dataLoadFileService.iconImage"
+      ngbTooltip="ico Datei 32px x 32px"
+      autoClose="true"
+    >
+      <label class="first">{{
+        "setting.setting-general.icon" | translate
+      }}</label>
+
+      <div
+        class="fileupload-ico"
+        appDragDropFileUpload
+        (click)="fileField1.click()"
+        (fileDropped)="onUploadIcon($event)"
+      >
+        <span class="ddinfo">{{
+          "setting.setting-general.info-icon" | translate
+        }}</span>
+        <input
+          type="file"
+          name="avatars"
+          #fileField1
+          (change)="onUploadIcon1($event)"
+          hidden
+          multiple
+        />
+      </div>
+    </div>
+
+    <div class="image-container-show" *ngIf="dataLoadFileService.logoImage">
+      <img [src]="dataLoadFileService.logoImage" alt="" class="imgIcon" />
+
+      <div class="row">
+        <div class="filler"></div>
+        <span
+          class="delete-button delete-button-icon"
+          type="button"
+          (click)="onClickDeleteLogo()"
+          >{{ "setting.setting-general.remove-logo" | translate }}</span
+        >
+      </div>
+    </div>
+
+    <div
+      class="image-container"
+      *ngIf="!dataLoadFileService.logoImage"
+      ngbTooltip="png Datei 32px x 32px"
+      autoClose="true"
+    >
+      <label class="first">{{
+        "setting.setting-general.logo" | translate
+      }}</label>
+      <div
+        class="fileupload-ico"
+        appDragDropFileUpload
+        (click)="fileField.click()"
+        (fileDropped)="onUploadLogo($event)"
+      >
+        <span class="ddinfo"
+          >{{ "setting.setting-general.info-logo" | translate }}
+        </span>
+        <input
+          type="file"
+          name="avatars"
+          #fileField
+          (change)="onUploadLogo1($event)"
+          hidden
+          multiple
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-border-space"></div>
+</form>

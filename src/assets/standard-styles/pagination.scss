@@ -1,0 +1,69 @@
+@import '../../assets/standard-styles/colors.scss';
+
+.pagination {
+  margin-top: 30px;
+}
+
+ngb-pagination {
+  padding-right: 30px;
+}
+
+ngb-pagination ::ng-deep a {
+ font-weight: 500;
+  font-size: 13px;
+ }
+
+ngb-pagination ::ng-deep .page-item.active .page-link {
+  border-color: var(--paginationBorderColorSelected);
+
+  color: var(--coloPaginationSelected) !important;
+  background-color: var(--backgroundColoPaginationSelected);
+}
+
+ngb-pagination ::ng-deep .page-link:first-child {
+  border:1px solid var(--paginationBorderColor);
+  color: var(--colorLabel) !important;
+  background-color: var(--backgroundColoPagination);
+}
+
+ngb-pagination ::ng-deep .page-item.active .page-link:focus,
+.page-link:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 0.1rem dimgrey;
+}
+
+ngb-pagination ::ng-deep .page-link:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 0.1rem dimgrey;
+}
+
+
+.maxSize-selection {
+  margin-right: 10px;
+  margin-top: 3px;
+  width: auto;
+  height:30px;
+  font-weight: 500;
+  color:var(--colorLabel);
+  border: 0px;
+  outline: 0px;
+  border-color: transparent !important;
+  outline-color: transparent !important;
+  background-color: transparent;
+  scroll-behavior: smooth;
+}
+
+.entry-info {
+  padding-right: 20px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color:var(--colorLabel);
+  
+}
+
+.entry-row{
+  padding-right: 1px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color:var(--colorLabel);
+}

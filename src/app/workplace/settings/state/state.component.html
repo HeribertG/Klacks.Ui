@@ -1,0 +1,30 @@
+<form>
+  <div class="container-header">{{ "setting.state.headline" | translate }}</div>
+
+  <div class="container-line"></div>
+
+  <app-state-header
+    *ngIf="
+      dataManagementSettingsService.statesList &&
+      dataManagementSettingsService.statesList.length > 0
+    "
+  >
+  </app-state-header>
+  <div class="container-box">
+    <div *ngFor="let c of dataManagementSettingsService.statesList; index as i">
+      <app-state-row
+        [data]="c"
+        *ngIf="c.isDirty !== 3"
+        (isChangingEvent)="onIsChanging($event)"
+        (isDeleteEvent)="onClickDelete(i)"
+      >
+      </app-state-row>
+    </div>
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ "setting.state.add" | translate }}
+    </span>
+  </div>
+</form>

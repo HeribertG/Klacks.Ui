@@ -1,0 +1,115 @@
+@import '../../assets/standard-styles/colors.scss';
+
+select {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+
+}
+
+select:focus {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+
+}
+
+select:disabled {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+input {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  caret-color:  var(--standartTextCaretColor);
+  
+}
+
+input:focus{
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+
+input:read-only {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+input:disabled {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+ 
+
+textarea {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+textarea:focus {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+  caret-color:  var(--standartTextCaretColor);
+
+}
+
+textarea:read-only {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackgroundReadOnly);
+  caret-color:  var(--standartTextCaretColor);
+}
+
+label  {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+em  {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+option {
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorOption);
+  background-color: var(--backgroundOption);
+}
+
+
+
+.checkbox-label {
+  padding-right: 25px;
+  white-space: nowrap;
+  color: var(--colorLabel);
+}
+
+:host ::ng-deep ngb-datepicker {
+  font-weight: 500;
+  font-size: 13px;
+
+}
+
+button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+
+span[type='button'] {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}

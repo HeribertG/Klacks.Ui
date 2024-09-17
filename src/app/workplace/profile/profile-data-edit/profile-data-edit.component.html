@@ -1,0 +1,104 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.data-edit.header" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <form #clientForm="ngForm" autocomplete="off">
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="profile-userName">{{
+          "setting.data-edit.username" | translate
+        }}</label>
+        <input
+          type="text"
+          AutoCompleteType="Disabled"
+          [(ngModel)]="
+            dataManagementProfileService.changePasswordWrapper!.userName
+          "
+          name="userName"
+          class="form-control"
+          id="profile-userName"
+          readonly
+        />
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="input-group firstColumn my-password">
+        <label for="profile-oldPassword">{{
+          "setting.data-edit.current-password" | translate
+        }}</label>
+        <input
+          [type]="showOldPassword ? 'text' : 'password'"
+          (change)="onChange()"
+          [(ngModel)]="
+            dataManagementProfileService.changePasswordWrapper!.oldPassword
+          "
+          name="oldPassword"
+          class="form-control"
+          id="profile-oldPassword"
+        />
+
+        <span
+          class="input-group-text"
+          (click)="showOldPassword = !showOldPassword"
+        >
+          <i
+            class="fa"
+            [ngClass]="{
+              'fa-eye-slash': !showOldPassword,
+              'fa-eye': showOldPassword
+            }"
+            style="font-size: 16px; color: #464e5f"
+          ></i>
+        </span>
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="profile-newPassword">{{
+          "setting.data-edit.new-password" | translate
+        }}</label>
+        <input
+          type="password"
+          (change)="onChange()"
+          (keyup)="onKeyUp()"
+          [(ngModel)]="
+            dataManagementProfileService.changePasswordWrapper!.password
+          "
+          name="newPassword"
+          class="form-control"
+          id="profile-newPassword"
+        />
+        <span
+          [ngClass]="{
+            weak: passwordStrengthFlag === false,
+            strong: passwordStrengthFlag === true
+          }"
+          >{{ passwordStrength }}</span
+        >
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn move-on-top">
+        <label for="profile-newPassword1">{{
+          "setting.data-edit.new-password-repeat" | translate
+        }}</label>
+        <input
+          type="password"
+          (change)="onChange()"
+          (keyup)="onChange()"
+          [disabled]="passwordStrengthFlag === false"
+          [(ngModel)]="newPassword1"
+          name="newPassword1"
+          class="form-control"
+          id="profile-newPassword1"
+        />
+      </div>
+    </div>
+  </form>
+</div>

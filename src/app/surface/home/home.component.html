@@ -1,0 +1,59 @@
+<app-modal></app-modal>
+<app-spinner-wrapper></app-spinner-wrapper>
+
+<div class="container" id="main_container">
+  <app-header></app-header>
+  <app-nav></app-nav>
+
+  <app-main
+    [isDashboard]="isDashboard"
+    [isSetting]="isSetting"
+    [isClient]="isClient"
+    [isEditClient]="isEditClient"
+    [isProfile]="isProfile"
+    [isAbsence]="isAbsence"
+    [isSchedule]="isSchedule"
+    [isGroup]="isGroup"
+    [isEditGroup]="isEditGroup"
+    [isCreateShift]="isCreateShift"
+    (isChangingEvent)="onIsChanging($event)"
+    (isEnterEvent)="onIsEnter()"
+  >
+  </app-main>
+
+  <div class="footer custom-control-inline" *ngIf="isSavebarVisible">
+    <span
+      type="button"
+      class="link-button blue-font"
+      (click)="onClickGoBack()"
+      >{{ "back" | translate }}</span
+    >
+
+    <div class="filler"></div>
+
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="onClickReset()"
+      *ngIf="
+        dataManagementSwitchboardService.isDirty &&
+        dataManagementSwitchboardService.isDisabled === false
+      "
+    >
+      {{ "reset" | translate }}</span
+    >
+
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onClickSave()"
+      *ngIf="dataManagementSwitchboardService.isDirty"
+      [disabled]="dataManagementSwitchboardService.isDisabled"
+    >
+      {{ "store" | translate }}
+    </button>
+  </div>
+
+  <app-aside></app-aside>
+  <app-footer></app-footer>
+</div>

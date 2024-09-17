@@ -1,0 +1,30 @@
+@import "../../../../assets/standard-styles/colors.scss";
+
+.box-calendar {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+canvas {
+  background-color: $gridBackgroundColor;
+}
+
+.gantt-filter-windows {
+  opacity: 1;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 200px;
+  height: 200px;
+  background-color: var(--standartTextBackground);
+  color: var(--standartTextColor);
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgb(64 64 64 / 30%);
+  padding: 4px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  border-right: 1px solid var(--cardBorderColor);
+  animation-duration: 0s;
+  z-index: 999;
+  visibility: hidden;
+}

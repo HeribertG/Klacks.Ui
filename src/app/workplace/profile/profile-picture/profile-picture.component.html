@@ -1,0 +1,47 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.picture.header" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="row" *ngIf="!dataLoadFileService.profileImage">
+    <label>{{ "setting.picture.upload" | translate }} </label>
+  </div>
+  <div class="row" *ngIf="dataLoadFileService.profileImage">
+    <label>{{ "setting.picture.picture" | translate }} </label>
+  </div>
+  <div class="row">
+    <div class="image-container" *ngIf="dataLoadFileService.profileImage">
+      <img [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
+    </div>
+
+    <div *ngIf="!dataLoadFileService.profileImage">
+      <div
+        class="fileupload"
+        appDragDropFileUpload
+        (click)="fileField.click()"
+        (fileDropped)="onUpload($event)"
+      >
+        <span class="ddinfo">{{ "setting.picture.info" | translate }} </span>
+        <input
+          type="file"
+          name="avatars"
+          #fileField
+          (change)="onUpload1($event)"
+          hidden
+          multiple
+        />
+      </div>
+    </div>
+  </div>
+  <div class="row" *ngIf="dataLoadFileService.profileImage">
+    <div class="filler"></div>
+    <span
+      class="delete-button firstColumn"
+      type="button"
+      (click)="onDeleteImg()"
+      >{{ "setting.picture.delete" | translate }}
+    </span>
+  </div>
+</div>

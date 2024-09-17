@@ -1,0 +1,21 @@
+@import "../../../../assets/standard-styles/colors.scss";
+
+ul {
+  list-style: none;
+  margin-left: -10px;
+}
+
+.menu-container {
+  display: none;
+  flex-direction: column;
+  background-color: var(--standartTextBackground);
+  color: var(--standartTextColor);
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgb(64 64 64 / 30%);
+  padding: 4px;
+  position: absolute;
+  border-bottom: 1px solid var(--cardBorderColor);
+  border-right: 1px solid var(--cardBorderColor);
+  animation-duration: 0s;
+  z-index: 999;
+}

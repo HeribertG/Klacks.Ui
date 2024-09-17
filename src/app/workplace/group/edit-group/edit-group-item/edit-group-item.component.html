@@ -1,0 +1,115 @@
+<form #groupForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    {{ "group.edit-group.edit-group-item.headline" | translate }}
+    <span class="filler"></span>
+  </div>
+  <div class="container-line"></div>
+  <div
+    class="firstColumn first-row"
+    *ngIf="dataManagementGroupService.editGroup !== undefined"
+  >
+    <!-- Name -->
+    <label for="name">{{
+      "group.edit-group.edit-group-item.name" | translate
+    }}</label>
+    <div class="custom-control-inline default-width">
+      <input
+        type="text"
+        class="form-control"
+        autocomplete="off"
+        [(ngModel)]="dataManagementGroupService.editGroup.name"
+        id="name"
+        name="name"
+        required
+      />
+    </div>
+  </div>
+  <!-- Valid From and Until -->
+  <div *ngIf="dataManagementGroupService.editGroup !== undefined">
+    <div class="container-bank-box">
+      <div class="form-group firstColumn">
+        <div class="firstColumContainer">
+          <div class="form-group">
+            <label for="validFrom">{{
+              "group.edit-group.edit-group-item.from" | translate
+            }}</label>
+
+            <div class="input-group medium-width">
+              <input
+                class="form-control"
+                name="validFrom"
+                id="validFrom"
+                [ngModel]="
+                  dataManagementGroupService.editGroup.internalValidFrom
+                "
+                (ngModelChange)="
+                  dataManagementGroupService.editGroup.internalValidFrom =
+                    $event
+                "
+                ngbDatepicker
+                btn-dark
+                #validFrom="ngbDatepicker"
+                required
+              />
+              <span
+                class="input-group-text"
+                style="width: 40px"
+                (click)="validFrom.toggle()"
+              >
+                <i class="fa fa-calendar" style="color: #464e5f"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="secondColumnContainer firstColumn">
+        <div class="form-group">
+          <label for="validUntil">{{
+            "group.edit-group.edit-group-item.until" | translate
+          }}</label>
+
+          <div class="input-group medium-width">
+            <input
+              class="form-control"
+              name="validUntil"
+              id="validUntil"
+              [ngModel]="
+                dataManagementGroupService.editGroup.internalValidUntil
+              "
+              (ngModelChange)="
+                dataManagementGroupService.editGroup.internalValidUntil = $event
+              "
+              ngbDatepicker
+              btn-dark
+              #validUntil="ngbDatepicker"
+            />
+            <span
+              class="input-group-text"
+              style="width: 40px"
+              (click)="validUntil.toggle()"
+            >
+              <i class="fa fa-calendar" style="color: #464e5f"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="firstColumn endColumn">
+      <div class="form-group">
+        <label for="description">{{
+          "absence-gantt.absence-gantt-mask.absence-gantt-mask.note" | translate
+        }}</label>
+        <div class="input-text">
+          <textarea
+            class="form-control"
+            [(ngModel)]="dataManagementGroupService.editGroup.description"
+            name="description"
+          >
+          </textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height: 30px"></div>
+</form>

@@ -1,0 +1,26 @@
+@import "./../../../../assets/standard-styles/spinner.scss";
+@import "./../../../../assets/standard-styles/standard-modal.scss";
+@import "./../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+$header_height: 65px;
+$main-header_height: 65px;
+$nav_width: 100px;
+
+.gantt-main-header {
+  order: 1;
+  height: $main-header_height;
+  width: calc(100vw - #{$nav_width});
+  background-color: var(--backgroundColorWorkplace);
+}
+
+.gantt-body {
+  order: 2;
+  flex: 1;
+  width: calc(100vw - #{$nav_width});
+  height: calc(100vh - (#{$main-header_height} + #{$header_height}));
+  background-color: var(--backgroundColorWorkplace);
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}

@@ -1,0 +1,68 @@
+<div
+  class="row-line"
+  *ngIf="
+    dataManagementCalendarSelectionService.calendarsSelections &&
+    dataManagementCalendarSelectionService.calendarsSelections.length &&
+    dataManagementCalendarSelectionService.calendarsSelections.length > 0 &&
+    dataManagementCalendarSelectionService.currentCalendarSelection
+  "
+>
+  <select
+    class="form-select select-calendar"
+    name="select-calendar"
+    id="select-calendar"
+    [(ngModel)]="
+      dataManagementCalendarSelectionService.currentCalendarSelection
+    "
+    [compareWith]="compareCalendars"
+    (ngModelChange)="onChangeSelection()"
+  >
+    <option
+      *ngFor="
+        let c of dataManagementCalendarSelectionService.calendarsSelections
+      "
+      [ngValue]="c"
+    >
+      {{ c.name }}
+    </option>
+  </select>
+
+  <button
+    class="crud-button btn btn-success"
+    [disabled]="!addButtonEnabled"
+    (click)="onOpen(modalTypeInput)"
+  >
+    <i class="fa fa-plus" aria-hidden="true"></i>
+  </button>
+
+  <button
+    class="crud-button btn btn-danger"
+    [disabled]="!delButtonEnabled"
+    (click)="onOpen(modalTypeDelete)"
+  >
+    <i class="fa fa-trash" aria-hidden="true"></i>
+  </button>
+</div>
+<div class="row-line center">
+  <app-calendar-dropdown
+    [header]="headerCalendarDropdown"
+    (changed)="onChangeFilter()"
+    (isClosing)="onIsClosing()"
+    (isOpening)="onIsOpening()"
+  ></app-calendar-dropdown>
+</div>
+<div
+  *ngIf="
+    this.dataManagementCalendarSelectionService.chips &&
+    this.dataManagementCalendarSelectionService.chips.length > 0
+  "
+  class="chips-list setting-container"
+>
+  <div *ngFor="let chip of this.dataManagementCalendarSelectionService.chips">
+    <app-chips
+      [name]="chip.country + '-' + chip.state"
+      [key]="chip.country + '|' + chip.state"
+      (delete)="onDeleteChip($event)"
+    ></app-chips>
+  </div>
+</div>

@@ -1,0 +1,105 @@
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../assets/standard-styles/pagination.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/navigation.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.add-button {
+  padding-right: 50px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: $standartGreenColor;
+}
+
+.rule-result {
+  margin-left: 1em;
+}
+
+.rule-state {
+  width: 80px;
+}
+
+.rule-description {
+  height: 4em;
+}
+
+.single-line {
+  display: inline-flex;
+}
+
+.modal-checkbox-container {
+  margin-left: 1em;
+  margin-top: 3em;
+}
+
+.header-name {
+  width: 290px;
+  max-width: 290px;
+  min-width: 290px;
+}
+.header-state {
+  width: 80px;
+  max-width: 80px;
+  min-width: 80px;
+}
+.header-description {
+  width: 300px;
+}
+.header-action {
+  width: 140px;
+  max-width: 140px;
+  min-width: 140px;
+}
+
+.table-height {
+  height: 27em;
+  max-height: 27em;
+  min-height: 27em;
+}
+
+.box-line {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
+  gap: 10%;
+}
+.box {
+  width: 45%;
+}
+
+.input-number {
+  width: 40%;
+}
+
+.color-text {
+  width: calc(100% - 40px);
+}
+.color-button {
+  width: 40px;
+}
+
+.color-icon {
+  width: 1.6em;
+  height: 1.6em;
+  border: 1px solid var(--gridColorLine);
+  border-radius: 3px;
+}
+.color-width {
+  width: 2em;
+}
+
+.last-right {
+  margin-right: 30px;
+  margin-top: -7px;
+}

@@ -1,0 +1,41 @@
+@import "../../../assets/standard-styles/colors.scss";
+
+.rounded {
+  border-radius: 15px !important;
+}
+
+.d-flex {
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 5px !important;
+  background-color: var(--backgroundColorWorkplace);
+  color: var(--colorLabel);
+  width: auto;
+  font: normal 10px Roboto;
+  margin-bottom: 0px !important;
+  border: 1px solid var(--paginationBorderColor);
+}
+
+.me-2 {
+  margin-right: auto !important;
+}
+
+.btn-close {
+  margin-left: 5px !important;
+  opacity: 0.5;
+  border-radius: 50%;
+  font: bold 8px Roboto;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.btn-close {
+  opacity: 0.5;
+}
+
+.btn-close:hover {
+  background-color: var(--backgroundColoPaginationSelected);
+}

@@ -1,0 +1,54 @@
+@import "./../../../assets/standard-styles/colors.scss";
+@import "./../../../assets/standard-styles/standard-controls.scss";
+@import "./../../../assets/standard-styles/menu.scss";
+
+.icon {
+  cursor: pointer;
+  margin-left: 38px;
+  margin-top: 30px;
+  width: 32px;
+  height: 32px;
+}
+
+.header-container {
+  display: flex;
+  flex-flow: row;
+}
+
+.ownStyle-button {
+  margin-top: 12px;
+  width: 213px;
+  height: 40px;
+  background-color: $standartGreenColor;
+
+  font-size: 13px;
+  color: $standartWhiteColor;
+}
+
+.ownStyle-split {
+  margin-top: 12px;
+  height: 40px;
+  width: 30px;
+  background-color: $splitButtonGreenColor;
+
+  font-size: 13px;
+  color: $standartWhiteColor;
+  margin-right: 20px;
+}
+
+.icon-logOut {
+  cursor: pointer;
+  fill: #ccd1d1;
+  margin-top: 20px;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.version {
+  margin-left: 35px;
+  margin-top: 45px;
+  font-size: small;
+  color: var(--VersionNumberColor);
+  display: none;
+}

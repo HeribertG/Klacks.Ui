@@ -1,0 +1,45 @@
+@import './../../assets/standard-styles/colors.scss';
+
+.imgzentriert {
+  display: block;
+  width: 100vw;
+  padding: 0px;
+  text-align: center;
+}
+
+.main {
+  background-color: #353535;
+
+  height: 100vh;
+
+}
+
+.healine {
+  position: absolute;
+  margin-top: 10%;
+  margin-left: 43%;
+  font-size: 56px;
+  font-weight: 500;
+  letter-spacing: 10px;
+  color: $standartWhiteColor;
+}
+
+.info{
+  position: absolute;
+  margin-top: calc(10% + 100px);
+  margin-left: 43%;
+  font-size: 20px;
+  font-weight: 400;
+
+  color: $standartWhiteColor;
+}
+
+button {
+  // position: absolute;
+  // margin-top: calc(10% + 220px);
+  // margin-left: 43%;
+  font-size: 18px;
+  width: 140px;
+  height:40px;
+
+}

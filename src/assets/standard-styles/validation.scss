@@ -1,0 +1,23 @@
+.c-info  {
+    background:#F4D03F  !important;
+    padding: 8px !important;
+    border-radius: 5px !important;
+    position: relative; 
+    display: inline-block !important;
+    box-shadow: 1px 1px 1px #aaaaaa;
+    margin-top: 10px;
+    font-size: 13px;
+    color:var(--colorLabel);
+    
+  }
+  .c-info-validation:before{
+    content: '';  
+    width: 0;  
+    height: 0;  
+    color:#F4D03F  !important;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid ;
+    position: absolute;  
+    top: -10px; 
+  }

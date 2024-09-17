@@ -1,0 +1,66 @@
+@import "../../../assets/standard-styles/colors.scss";
+
+$login-background: "../../../assets/png/login-background.png" !default;
+
+.background {
+  display: flex;
+  background-image: url(#{$login-background});
+  background-size: cover;
+  height: 100vh;
+}
+
+.container {
+  background-color: white;
+  align-self: center;
+  display: flex;
+  justify-content: flex-start space-around;
+  flex-direction: column;
+  border-radius: 5px;
+  width: 600px;
+  max-width: 600px;
+  min-width: 600px;
+  box-sizing: border-box;
+}
+
+.big-gap-top {
+  padding-top: 40px;
+}
+
+input {
+  height: 40px;
+}
+
+label {
+  width: 341px;
+}
+
+.first {
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+.center {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.right {
+  width: 400px;
+  text-align: right;
+}
+
+.input-password {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  width: 355px;
+}
+
+.password-button {
+  width: 45px;
+}
+
+.password-icon {
+  font-size: 16px;
+  color: #464e5f;
+}

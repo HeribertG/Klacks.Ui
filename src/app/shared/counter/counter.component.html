@@ -1,0 +1,19 @@
+<div class="form-group ownPaginationContainer">
+  <div
+    type="button"
+    class="ownPaginationBlock ownPaginationBlockLeft"
+    (click)="onClickPaginationButton(-1)"
+    disabled="currentNumber ===1"
+  >
+    <i class="fas fa-angle-left"></i>
+  </div>
+  <div class="ownPaginationBlock">{{ currentNumber }}</div>
+  <div
+    type="button"
+    class="ownPaginationBlock ownPaginationBlockRight"
+    (click)="onClickPaginationButton(1)"
+    disabled="maxNumber ===1"
+  >
+    <i class="fas fa-angle-right"></i>
+  </div>
+</div>

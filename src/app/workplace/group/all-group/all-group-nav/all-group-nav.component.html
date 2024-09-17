@@ -1,0 +1,59 @@
+<form #navGroupForm="ngForm" id="navGroupForm">
+  <ul class="list-group">
+    <!-- Gültigkeit -->
+    <li class="list-group-item-action">
+      <div ngbDropdown>
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-1"
+          ngbDropdownToggle
+        >
+          {{ "address.all-address.all-address-nav.validity" | translate }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownForm-1">
+          <div class="form-group">
+            <div class="checkbox-container-default">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementGroupService.currentFilter.activeDateRange
+                  "
+                  name="activeDateRange"
+                />
+                {{ "active" | translate }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementGroupService.currentFilter.formerDateRange
+                  "
+                  name="formerDateRange"
+                />
+                {{ "former" | translate }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementGroupService.currentFilter.futureDateRange
+                  "
+                  name="futureDateRange"
+                />
+                {{ "future" | translate }}
+              </label>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+
+          <button ngbDropdownItem (click)="onClose()">
+            {{ "close" | translate }}
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+</form>

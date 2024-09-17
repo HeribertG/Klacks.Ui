@@ -1,0 +1,37 @@
+@import '../../../../assets/standard-styles/dragDropFileUpLoad.scss';
+@import '../../../../assets/standard-styles/standard-controls.scss';
+@import '../../../../assets/standard-styles/toggle-switch.scss';
+@import '../../../../assets/standard-styles/standard-card-interior.scss';
+
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+
+}
+
+input {
+  width: 420px;
+  height: 32px;
+}
+
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+
+}
+.row-line-single {
+  margin-top: 5px;
+
+}
+
+
+.firstColumn {
+  margin-left: 30px;
+}
+
+.secondColumn {
+  margin-left: 40px;
+}

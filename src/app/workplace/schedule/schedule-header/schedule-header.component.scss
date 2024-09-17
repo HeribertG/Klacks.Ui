@@ -1,0 +1,90 @@
+@import "../../../../assets/standard-styles/colors.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/validation.scss";
+
+.custom-slider {
+  width: 180px;
+  height: 40px !important;
+  padding-right: 20px;
+}
+
+.ngx-slider .ngx-slider-pointer {
+  cursor: pointer;
+  width: 6px;
+  height: 6px;
+  top: -10px;
+  z-index: 3;
+  border-radius: 3px;
+}
+
+::ng-deep {
+  // .custom-slider .ngx-slider .ngx-slider-bar {
+  //   background: #ffe4d1;
+  //   height: 2px;
+  // }
+  // .custom-slider .ngx-slider .ngx-slider-selection {
+  //   background: orange;
+  // }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: #333;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-pointer:after {
+    display: none;
+  }
+
+  .custom-slider .ngx-slider .ngx-slider-bubble {
+    bottom: 14px;
+  }
+
+  .button {
+    height: 20px;
+    width: 20px;
+  }
+
+  .btn-setting {
+    color: var(--paginationBorderColor);
+    height: 30px;
+    margin-right: 10px;
+    margin-top: 8px;
+    border: 1px solid var(--paginationBorderColor);
+    background-color: var(--backgroundColoPagination);
+    icon-slider-grey {
+      margin-right: 3px;
+    }
+  }
+  .btn-setting:hover {
+    border: 1px solid var(--paginationBorderColor);
+    background-color: var(--backgroundColoPaginationSelected);
+  }
+}
+
+.btn-setting {
+  color: var(--paginationBorderColor);
+  height: 30px;
+  margin-right: 10px;
+  margin-top: 8px;
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPagination);
+  icon-slider-grey {
+    margin-right: 3px;
+  }
+}
+.btn-setting:hover {
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPaginationSelected);
+}
+.chip-form-group {
+  line-height: 25px;
+}
+
+.dropdown-menu {
+  background-color: var(--backgroundColoPagination);
+}

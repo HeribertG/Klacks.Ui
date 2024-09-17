@@ -1,0 +1,70 @@
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../assets/standard-styles/pagination.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.add-button {
+  padding-right: 50px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: $standartGreenColor;
+}
+
+.rule-result {
+  margin-left: 1em;
+}
+
+.rule-state {
+  width: 80px;
+}
+
+.rule-description {
+  height: 4em;
+}
+
+.single-line {
+  display: inline-flex;
+}
+
+.modal-checkbox-container {
+  margin-left: 1em;
+  margin-top: 3em;
+}
+
+.header-name {
+  width: 290px;
+  max-width: 290px;
+  min-width: 290px;
+}
+.header-state {
+  width: 80px;
+  max-width: 80px;
+  min-width: 80px;
+}
+.header-description {
+  width: 300px;
+}
+.header-action {
+  width: 140px;
+  max-width: 140px;
+  min-width: 140px;
+}
+
+.table-height {
+  height: 27em;
+  max-height: 27em;
+  min-height: 27em;
+}
+
+.last-right {
+  margin-right: 30px;
+  margin-top: -7px;
+}

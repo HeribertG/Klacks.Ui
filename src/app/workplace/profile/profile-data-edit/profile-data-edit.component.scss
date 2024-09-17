@@ -1,0 +1,73 @@
+@import '../../../../assets/standard-styles/standard-card-interior.scss';
+@import '../../../../assets/standard-styles/standard-controls.scss';
+@import '../../../../assets/standard-styles/colors.scss';
+
+
+
+
+  .container-search {
+    margin-top: 24px;
+    padding-left: 30px;
+    padding-right: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    color:var(--colorLabel);
+
+  }
+
+  .container-search-button {
+    font-weight: 600;
+    font-size: 13px;
+    background-color: $standartBlueColor;
+    color: $standartWhiteColor;
+  }
+
+
+
+  input {
+    width: 341px;
+    height: 35px;
+
+  }
+
+  .mylabel {
+    width: 341px;
+    font-weight: 500;
+    font-size: 13px;
+
+    color:var(--colorLabel);
+  }
+
+  label {
+    width: 400px;
+
+  }
+
+  .row-line {
+    margin-top: 5px;
+    display: inline-flex;
+
+  }
+
+
+  .firstColumn {
+    margin-left: 30px;
+  }
+
+  span {
+    font-weight: 500;
+    font-size: 11px;
+  }
+
+
+.weak  {
+  color: var(--standartRedColor );
+}
+
+.strong {
+  color: green;
+}
+
+.my-password {
+  width: 340px;
+}

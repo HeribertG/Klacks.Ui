@@ -1,0 +1,72 @@
+@import "./../../../assets/standard-styles/colors.scss";
+
+$header_height: 65px;
+$bottomcell_height: 105px;
+$adjustment_constant_height: 5px;
+
+.icon {
+  cursor: pointer;
+  margin-left: 38px;
+  padding-top: 30px;
+}
+
+.icon_group {
+  cursor: pointer;
+  margin-top: 80px;
+  margin-left: 38px;
+}
+
+.icon_user {
+  padding-top: 1px;
+}
+
+.main-cell {
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  justify-content: flex-start;
+  flex-direction: column;
+  height: calc(
+    100vh -
+      (
+        #{$header_height} + #{$bottomcell_height} + #{$adjustment_constant_height}
+      )
+  );
+}
+
+.main-bottomcell {
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  justify-content: flex-start;
+  flex-direction: column;
+  height: $bottomcell_height;
+}
+
+.main-container {
+  box-sizing: border-box;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+.imgIconContainer {
+  cursor: pointer;
+  margin-left: 28px;
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  border: 2px solid #e5eaee;
+  background-color: var(--backgroundColorImgIconContainer);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.imgIcon {
+  vertical-align: middle;
+  width: 40px;
+}
+
+ngbTooltip {
+  opacity: 50%;
+}

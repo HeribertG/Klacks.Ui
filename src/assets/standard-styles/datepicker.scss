@@ -1,0 +1,30 @@
+@import "../../assets/standard-styles/colors.scss";
+
+.ngb-dp-day .btn-light {
+  color: var(--colorHeadline) !important;
+}
+
+.btn-light:hover {
+  color: var(--colorHoverOnCalenderDay) !important;
+}
+// .ngb-dp-day .bg-primary {
+//   background: red !important;
+// }
+
+.ngb-dp-header {
+  background: var(--backgroundColorCard) !important;
+}
+.ngb-dp-content {
+  background: var(--backgroundColorCard) !important;
+}
+.ngb-dp-week {
+  background: var(--backgroundColorCard) !important;
+}
+
+.dropdown-menu {
+  border: 1px solid var(--cardBorderColor);
+}
+.custom-select {
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+}

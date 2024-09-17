@@ -1,0 +1,245 @@
+<div class="container-dashboard">
+  <div class="container-header">Email-Settings</div>
+
+  <div class="container-line"></div>
+
+  <form #emailSettingsForm="ngForm">
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-name">Outgoing Server</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.outgoingServer"
+          aria-label="outgoingServer"
+          name="outgoingServer"
+        />
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="setting-owner-address-tel">Outgoing Server Port</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.outgoingServerPort"
+          aria-label="outgoingServerPort"
+          name="outgoingServerPort"
+        />
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-supplement"
+          >Outgoing Server Timeout</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.outgoingServerTimeout"
+          aria-label="outgoingServerTimeout"
+          name="outgoingServerTimeout"
+        />
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="setting-owner-addressl-email">Enabled SSL</label>
+        <select
+          type="email"
+          class="form-select"
+          [(ngModel)]="dataManagementSettingsService.enabledSSL"
+          aria-label="enabledSSL"
+          name="enabledSSL"
+        >
+          <option
+            value="true"
+            [selected]="dataManagementSettingsService.enabledSSL === 'true'"
+          >
+            Yes
+          </option>
+          <option
+            value="false"
+            [selected]="dataManagementSettingsService.enabledSSL === 'false'"
+          >
+            No
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-street">Authentication Type</label>
+        <select
+          type="text"
+          class="form-select"
+          [(ngModel)]="dataManagementSettingsService.authenticationType"
+          aria-label="authenticationType"
+          name="authenticationType"
+        >
+          <option
+            value="<None>"
+            [selected]="
+              dataManagementSettingsService.authenticationType === '<None>'
+            "
+          >
+            None
+          </option>
+          <option
+            value="LOGIN"
+            [selected]="
+              dataManagementSettingsService.authenticationType === 'LOGIN'
+            "
+          >
+            LOGIN
+          </option>
+          <option
+            value="NTLM"
+            [selected]="
+              dataManagementSettingsService.authenticationType === 'NTLM'
+            "
+          >
+            NTLM
+          </option>
+          <option
+            value="GSSAPI"
+            [selected]="
+              dataManagementSettingsService.authenticationType === 'GSSAPI'
+            "
+          >
+            GSSAPI
+          </option>
+          <option
+            value="WDIGEST"
+            [selected]="
+              dataManagementSettingsService.authenticationType === 'WDIGEST'
+            "
+          >
+            WDIGEST
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group secondColumn">
+        <label for="setting-owner-address-zip">Disposition Notification</label>
+        <select
+          type="text"
+          class="form-select"
+          [(ngModel)]="dataManagementSettingsService.dispositionNotification"
+          aria-label="dispositionNotification"
+          name="dispositionNotification"
+        >
+          <option
+            value="true"
+            [selected]="
+              dataManagementSettingsService.dispositionNotification === 'true'
+            "
+          >
+            Yes
+          </option>
+          <option
+            value="false"
+            [selected]="
+              dataManagementSettingsService.dispositionNotification === 'false'
+            "
+          >
+            No
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row-line-singel">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-city">Read Receipt</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.readReceipt"
+          aria-label="readReceipt"
+          name="readReceipt"
+        />
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-city"
+          >Reply To / Sender Address</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.replyTo"
+          aria-label="replyTo"
+          name="replyTo"
+        />
+      </div>
+    </div>
+
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-city">Mark</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.mark"
+          aria-label="mark"
+          name="mark"
+        />
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-city">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.outgoingserverUsername"
+          aria-label="outgoingserverUsername"
+          name="outgoingserverUsername"
+        />
+      </div>
+
+      <div class="form-group secondColumn">
+        <label class="mylabel" for="Password">Password</label>
+        <div class="input-group">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            autocomplete
+            [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
+            name="password"
+            id="Password"
+            class="form-control input-password"
+          />
+
+          <span
+            class="input-group-text password-button"
+            (click)="showPassword = !showPassword"
+          >
+            <i
+              name="eye-btn"
+              [ngClass]="
+                !showPassword
+                  ? 'password-icon fa fa-eye-slash'
+                  : 'password-icon fa fa-eye'
+              "
+            ></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- <div class="form-group secondColumn">
+        <label for="setting-owner-address-city">Password</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
+          aria-label="outgoingserverPassword"
+          name="outgoingserverPassword"
+        />
+      </div> -->
+    </div>
+  </form>
+</div>

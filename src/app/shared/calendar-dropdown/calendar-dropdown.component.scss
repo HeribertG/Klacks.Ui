@@ -1,0 +1,24 @@
+@import "../../../assets/standard-styles/standard-controls.scss";
+@import "../../../assets/standard-styles/standard-modal.scss";
+@import "../../../assets/standard-styles/navigation.scss";
+
+select {
+  min-width: 100%;
+  margin-bottom: 15px;
+}
+.single-line {
+  display: inline-flex;
+}
+
+.column {
+  display: inline-flex;
+  width: calc(50% - 5px);
+  padding: 5px;
+}
+.select-country {
+  height: 30px;
+}
+
+.auto-width {
+  width: auto !important;
+}

@@ -1,0 +1,9 @@
+<div
+  id="context-menu"
+  class="context-menu"
+  [ngStyle]="rightPanelStyle"
+  (clickOutside)="closeMenu()"
+  (mouseleave)="closeMenu()"
+>
+  <app-menu [menu]="menuData" #main></app-menu>
+</div>

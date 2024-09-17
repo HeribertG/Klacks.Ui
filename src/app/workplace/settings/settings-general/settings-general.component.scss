@@ -1,0 +1,77 @@
+@import "../../../../assets/standard-styles/dragDropFileUpLoad.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/toggle-switch.scss";
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.fileupload {
+  height: 100px;
+  width: 880px;
+  background-color: var(--backgroundColorCard);
+}
+
+.fileupload-ico {
+  background-repeat: no-repeat;
+  background-size: 100px;
+  background-position: center;
+  background-color: var(--backgroundColorCard);
+  height: 150px;
+  width: 180px;
+  margin-left: 10px;
+  cursor: pointer;
+  border: 2px dashed #b6b6c3;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  padding: 0px;
+}
+
+.ddinfo {
+  padding-top: 10px;
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorSubHeadline);
+  height: 100%;
+}
+
+.image-container {
+  height: 200px;
+  width: 200px;
+  margin-right: 50px;
+}
+
+.image-container-show {
+  height: 200px;
+  width: 200px;
+  border: 2px dashed #b6b6c3;
+  border-radius: 6px;
+  margin-bottom: 25px;
+  background-color: var(--backgroundColorCard);
+  margin-right: 50px;
+}
+
+.row-line {
+  display: inline-flex;
+}
+
+.imgIcon {
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  margin-top: 40px;
+  margin-left: 65px;
+  width: 64px;
+  height: 64px;
+}
+
+.delete-button-icon {
+  margin-left: 30px;
+  margin-top: 60px;
+}

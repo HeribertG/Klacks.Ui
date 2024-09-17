@@ -1,0 +1,27 @@
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-left: 30px;
+  padding-right: -30px;
+  height: 40px;
+}
+
+input {
+  height: 32px;
+}
+
+.color-type {
+  width: 320px;
+  height: 32px;
+  background-color: var(--standartTextBackground);
+  color: var(--standartTextColor);
+  border-color: var(--colorLine);
+}
+
+.color-value {
+  width: 40px;
+  margin-right: 10px;
+}

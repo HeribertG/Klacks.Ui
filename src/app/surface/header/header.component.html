@@ -1,0 +1,58 @@
+<div class="header-container">
+  <div
+    class="icon"
+    (click)="onClickDashboard()"
+    *ngIf="!dataLoadFileService.logoImage"
+  >
+    <img src="/assets/png/{{ ImageName }}" width="35" height="35" alt="image" />
+  </div>
+
+  <div
+    *ngIf="dataLoadFileService.logoImage"
+    (click)="onClickDashboard()"
+    class="icon"
+  >
+    <img [src]="dataLoadFileService.logoImage" width="32" height="32" alt="" />
+  </div>
+
+  <app-search></app-search>
+
+  <span class="version">{{ version }}</span>
+
+  <span class="filler"></span>
+
+  <div class="btn-group">
+    <button
+      type="button"
+      id="registerDropdown"
+      class="btn btn-sm ownStyle-button"
+      (click)="onClickRegister()"
+    >
+      {{ selectedName | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm ownStyle-split dropdown-toggle dropdown-toggle-split"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li class="dropdown-item" (click)="onClickDropdown('new-address')">
+        {{ "new-address" | translate }}
+      </li>
+      <li class="dropdown-item" (click)="onClickDropdown('new-work')">
+        {{ "new-work" | translate }}
+      </li>
+      <li class="dropdown-item" (click)="onClickDropdown('new-group')">
+        {{ "new-group" | translate }}
+      </li>
+    </ul>
+  </div>
+
+  <app-icon-sign-out
+    class="icon-logOut"
+    (click)="onClickLogOut()"
+  ></app-icon-sign-out>
+</div>

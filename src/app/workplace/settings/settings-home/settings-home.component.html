@@ -1,0 +1,104 @@
+<ng-container *ngIf="isSetting">
+  <div class="container-dashboard">
+    <div class="container-headline">
+      {{ "setting.title" | translate }}
+    </div>
+
+    <div class="container-profilline">
+      <app-settings-general
+        class="container-profile first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+      >
+      </app-settings-general>
+    </div>
+
+    <div class="container-profilline">
+      <app-owner-address
+        class="container-profile container-owner-address first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-setting-owner-address')"
+      >
+      </app-owner-address>
+    </div>
+
+    <div class="container-profilline">
+      <app-bank-accounts
+        class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-bank-accounts')"
+      >
+      </app-bank-accounts>
+    </div>
+
+    <div class="container-profilline">
+      <app-user-administration
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-user-administration')"
+      >
+      </app-user-administration>
+    </div>
+
+    <div class="container-profilline">
+      <app-email-setting
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-email-setting')"
+      >
+      </app-email-setting>
+    </div>
+
+    <div class="container-profilline">
+      <app-grid-color
+        class="container-setting-small first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-grid-color')"
+      >
+      </app-grid-color>
+
+      <app-macros
+        class="container-setting-small border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-macros')"
+      >
+      </app-macros>
+    </div>
+
+    <div class="container-profilline">
+      <app-state
+        class="container-setting-small first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-state')"
+      >
+      </app-state>
+
+      <app-countries
+        class="container-setting-small border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-countries')"
+      >
+      </app-countries>
+    </div>
+
+    <div class="container-profilline">
+      <app-absence
+        class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-absence')"
+      >
+      </app-absence>
+    </div>
+
+    <div class="container-profilline">
+      <app-calendar-rules
+        class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
+        (isChangingEvent)="onIsChanging($event)"
+        (click)="isfocused('app-calendar-rules')"
+      >
+      </app-calendar-rules>
+    </div>
+
+    <div class="bottom-border-space"></div>
+  </div>
+  <p></p>
+</ng-container>

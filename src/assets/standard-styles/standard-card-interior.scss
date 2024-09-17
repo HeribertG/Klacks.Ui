@@ -1,0 +1,60 @@
+@import "./../../assets/standard-styles/colors.scss";
+
+.header-container {
+  display: flex;
+  flex-flow: row;
+}
+
+.container-header {
+  padding-top: 25px;
+  padding-left: 30px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--colorHeadline);
+  height: 50px;
+}
+
+.container-subline {
+  margin-top: 4px;
+  margin-bottom: -8px;
+  margin-left: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorSubHeadline);
+}
+
+.container-subline-borderless {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--colorSubHeadline);
+}
+
+.container-line {
+  margin-top: 25px;
+  border-top: 1px solid #e5eaee;
+}
+
+.container-card {
+  display: inline;
+  flex-direction: column;
+}
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+
+span[type="button"] {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+}
+
+.bottom-border-space {
+  height: 30px;
+}

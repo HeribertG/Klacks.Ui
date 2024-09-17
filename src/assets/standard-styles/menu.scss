@@ -1,0 +1,14 @@
+@import "../../assets/standard-styles/colors.scss";
+.dropdown-menu {
+  background-color: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+}
+
+.dropdown-item {
+  color: var(--colorHeadline);
+}
+
+.dropdown-item:hover {
+  color: var(--gridColorText) !important;
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}

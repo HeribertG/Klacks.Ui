@@ -1,0 +1,22 @@
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+@import "../../../../assets/standard-styles/toggle-switch.scss";
+
+.custom-container {
+  margin-top: 30px;
+  margin-left: 30px;
+}
+
+.language-select {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+}
+
+select {
+  border: none;
+  outline: none;
+  margin-right: 20px;
+  margin-left: 8px;
+}

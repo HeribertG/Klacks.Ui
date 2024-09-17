@@ -1,0 +1,72 @@
+<div class="background">
+  <div class="container first border-right border-bottom" *ngIf="!isClicked">
+    <form (ngSubmit)="onSave()" #loginForm="ngForm">
+      <p class="h4 big-gap-top center">{{ "login.header" | translate }}</p>
+
+      <div class="form-group first big-gap-top">
+        <label class="mylabel" for="loginForm-name">{{
+          "login.user" | translate
+        }}</label>
+        <input
+          type="email"
+          [(ngModel)]="username"
+          name="username"
+          class="form-control"
+          id="loginForm-name"
+        />
+      </div>
+
+      <div class="form-group first">
+        <div class="input-group">
+          <label class="mylabel" for="LoginFormPassword">{{
+            "login.password" | translate
+          }}</label>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            autocomplete
+            [(ngModel)]="password"
+            name="password"
+            id="LoginFormPassword"
+            class="form-control input-password"
+          />
+
+          <span
+            class="input-group-text password-button"
+            (click)="showPassword = !showPassword"
+          >
+            <i
+              name="eye-btn"
+              [ngClass]="
+                !showPassword
+                  ? 'password-icon fa fa-eye-slash'
+                  : 'password-icon fa fa-eye'
+              "
+            ></i>
+          </span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-around">
+        <!-- <div class="right">
+  
+            <a href="">Passwort vergessen?</a>
+          </div> -->
+      </div>
+
+      <div class="center">
+        <button
+          type="submit"
+          color="info"
+          block="true"
+          class="btn btn-primary center"
+          [disabled]="!loginForm.form.valid"
+        >
+          {{ "login.summit" | translate }}
+        </button>
+      </div>
+
+      <p></p>
+      <p></p>
+    </form>
+  </div>
+</div>

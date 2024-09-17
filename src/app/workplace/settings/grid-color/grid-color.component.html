@@ -1,0 +1,22 @@
+<form>
+  <div class="container-header">
+    {{ "setting.color-table.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-grid-color-header
+    *ngIf="
+      gridColorService.settingList && gridColorService.settingList.length > 0
+    "
+  >
+  </app-grid-color-header>
+  <div class="container-box">
+    <div *ngFor="let c of gridColorService.settingList; index as i">
+      <app-grid-color-row [data]="c" (isChangingEvent)="onIsChanging($event)">
+      </app-grid-color-row>
+    </div>
+  </div>
+
+  <div class="row"></div>
+</form>

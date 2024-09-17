@@ -1,0 +1,27 @@
+<form>
+  <div class="container-header">
+    {{ "setting.macro.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-macro-header></app-macro-header>
+
+  <div class="container-box">
+    <div *ngFor="let c of dataManagementSettingsService.macroList; index as i">
+      <app-macro-row
+        [data]="c"
+        *ngIf="!(c.isDirty === 3)"
+        (isChangingEvent)="onIsChanging($event)"
+        (isDeleteEvent)="onClickDelete(i)"
+      >
+      </app-macro-row>
+    </div>
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ "setting.macro.add" | translate }}
+    </span>
+  </div>
+</form>

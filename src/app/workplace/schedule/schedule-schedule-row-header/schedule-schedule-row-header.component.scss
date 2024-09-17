@@ -1,0 +1,11 @@
+@import "../../../../assets/standard-styles/colors.scss";
+
+.box {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+canvas {
+  background-color: $gridBackgroundColor;
+}

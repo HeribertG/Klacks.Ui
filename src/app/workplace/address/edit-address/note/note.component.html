@@ -1,0 +1,121 @@
+<form #noteForm="ngForm">
+  <div class="container-header header-container">
+    {{ "address.edit-address.note.header" | translate }}
+
+    <span class="filler"></span>
+
+    <div>
+      <app-button-new
+        placement="top"
+        (click)="newAnnotation()"
+        ngbTooltip="{{ note_new }}"
+        *ngIf="dataManagementClientService.editClientDeleted === false"
+      >
+      </app-button-new>
+
+      <div
+        class="btn dropdown-toggle ownStyle-button"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-label="note-delete"
+        *ngIf="dataManagementClientService.editClientDeleted === false"
+      >
+        <icon-gear-grey></icon-gear-grey>
+      </div>
+
+      <ul
+        class="dropdown-menu dropdown-menu-lg-end"
+        aria-labelledby="dropdownMenuDel"
+      >
+        <li>
+          <a
+            class="dropdown-item"
+            *ngIf="
+              dataManagementClientService.editClient !== undefined &&
+              dataManagementClientService.currentAnnotationIndex > -1
+            "
+            (click)="onDeleteCurrentAnnotation()"
+          >
+            <div class="custom-control-inline" style="height: 25px">
+              <icon-trash-icon-red></icon-trash-icon-red>
+              <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
+                {{ "address.edit-address.note.delete" | translate }}
+              </p>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a
+            class="dropdown-item disabled"
+            *ngIf="
+              dataManagementClientService.editClient !== undefined &&
+              dataManagementClientService.currentAnnotationIndex === -1
+            "
+          >
+            <div class="custom-control-inline" style="height: 25px">
+              <icon-trash-icon-light-red></icon-trash-icon-light-red>
+              <p style="margin-left: 10px; font-size: 13px; color: #fac1c7">
+                {{ "address.edit-address.note.delete" | translate }}
+              </p>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div [ngStyle]="{ display: visibleTable }">
+    <div
+      class="container-main"
+      *ngIf="dataManagementClientService.editClient !== undefined"
+    >
+      <div
+        class="row-line"
+        *ngFor="
+          let c of dataManagementClientService.editClient.annotations;
+          index as i
+        "
+      >
+        <div
+          [ngClass]="{
+            'container-box  ':
+              this.dataManagementClientService.currentAnnotationIndex != i,
+            'container-box-focus ':
+              this.dataManagementClientService.currentAnnotationIndex === i
+          }"
+          (click)="onFocus(i)"
+        >
+          <div class="firstColumn">
+            <label>{{ "address.edit-address.note.notepad" | translate }}</label>
+          </div>
+          <div class="firstColumn">
+            <textarea
+              [value]="c.note"
+              (change)="onChange(i, $event)"
+              (keyup)="onKeyUp(i, $event)"
+              aria-labelledby="Freitextfeld"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              class="form-control freetext"
+              name="setName(i)"
+            >
+            </textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p></p>
+    <p></p>
+    <p></p>
+  </div>
+</form>

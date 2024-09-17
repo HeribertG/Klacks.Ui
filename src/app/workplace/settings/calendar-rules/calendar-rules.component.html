@@ -1,0 +1,373 @@
+<ng-template #ruleModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title1">
+      {{ "setting.holiday-rules.create-rules" | translate }}
+    </div>
+  </div>
+
+  <div class="modal-body first-modal">
+    <form>
+      <div class="row-line">
+        <label for="ruleName">{{
+          "setting.holiday-rules.name" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.name!.de!"
+          aria-label="ruleName.de"
+          name="ruleName.de"
+          maxlength="256"
+          (change)="onModalChange()"
+          *ngIf="currentLang === 'de'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.name!.en!"
+          aria-label="ruleName.en"
+          name="ruleName.en"
+          maxlength="256"
+          (change)="onModalChange()"
+          *ngIf="currentLang === 'en'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.name!.fr!"
+          aria-label="ruleName.fr"
+          name="ruleName.fr"
+          maxlength="256"
+          (change)="onModalChange()"
+          *ngIf="currentLang === 'fr'"
+        />
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.name!.it!"
+          aria-label="ruleName.it"
+          name="ruleName.it"
+          maxlength="256"
+          (change)="onModalChange()"
+          *ngIf="currentLang === 'it'"
+        />
+      </div>
+
+      <div class="row-line">
+        <label for="ruleName">{{
+          "setting.holiday-rules.rule" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.rule"
+          aria-label="rule"
+          name="rule"
+          (change)="onModalChange()"
+          maxlength="256"
+        />
+      </div>
+
+      <div class="row-line">
+        <label for="subRule">{{
+          "setting.holiday-rules.sub-rule" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="currentRule.subRule"
+          aria-label="subRule"
+          name="subRule"
+          (change)="onModalChange()"
+          maxlength="256"
+        />
+      </div>
+      <div class="row-line">
+        <div class="single-line">
+          <div class="row-line gap">
+            <label for="state" class="col-form-label">{{
+              "setting.holiday-rules.states-modal" | translate
+            }}</label>
+
+            <select
+              *ngIf="modalSelectedState"
+              name="state"
+              class="form-select rule-state"
+              [ngModel]="modalSelectedState.id"
+              aria-label="state"
+              (ngModelChange)="onSelectionChange($event)"
+            >
+              <option
+                *ngFor="
+                  let item of dataManagementCalendarRulesService.filteredRulesToken
+                "
+                [value]="item.id"
+                [selected]="modalSelectedState.id === item.id"
+              >
+                {{ item.state }}
+              </option>
+            </select>
+          </div>
+          <div class="row-line">
+            <label for="state" class="col-form-label">{{
+              "setting.holiday-rules.country-modal" | translate
+            }}</label>
+
+            <input
+              name="country"
+              class="form-control rule-state"
+              [ngModel]="currentRule.country"
+              aria-label="state"
+              [disabled]="true"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="single-line">
+        <div class="modal-checkbox-container">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="currentRule.isMandatory"
+              name="isMandatory"
+            />
+            {{ "setting.holiday-rules.is-holyday" | translate }}
+          </label>
+        </div>
+
+        <div class="modal-checkbox-container">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="currentRule.isPaid"
+              name="isPaid"
+            />
+            {{ "setting.holiday-rules.is-paid" | translate }}
+          </label>
+        </div>
+      </div>
+
+      <div class="row-line"></div>
+      <div class="row-line">
+        <label for="description">{{
+          "setting.absence.modal.description" | translate
+        }}</label>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentRule.description!.de!"
+          aria-label="description.de"
+          (change)="onModalChange()"
+          name="description.de"
+          maxlength="256"
+          *ngIf="currentLang === 'de'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentRule.description!.en!"
+          aria-label="description.en"
+          (change)="onModalChange()"
+          name="description.en"
+          maxlength="256"
+          *ngIf="currentLang === 'en'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentRule.description!.fr!"
+          aria-label="description.fr"
+          (change)="onModalChange()"
+          name="description.fr"
+          maxlength="256"
+          *ngIf="currentLang === 'fr'"
+        ></textarea>
+        <textarea
+          class="form-control rule-description"
+          [(ngModel)]="currentRule.description!.it!"
+          aria-label="description.it"
+          (change)="onModalChange()"
+          name="description.it"
+          maxlength="256"
+          *ngIf="currentLang === 'it'"
+        ></textarea>
+      </div>
+
+      <div class="row-line">
+        <label>Result: </label
+        ><label class="rule-result"> {{ currentResult }}</label>
+      </div>
+    </form>
+  </div>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="modal.close()"
+      [disabled]="
+        onName() === '' || currentRule.rule === '' || currentRule.state === ''
+      "
+    >
+      {{ "setting.absence.modal.add" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<form #calendarRulesForm="ngForm">
+  <div class="container-dashboard">
+    <div class="container-header header-container">
+      {{ "setting.calendar-rule.title" | translate }}
+
+      <span class="filler"></span>
+      <app-calendar-dropdown
+        [header]="headerCalendarDropdown"
+        (changed)="onChangeFilter()"
+      ></app-calendar-dropdown>
+      <div
+        class="btn ownStyle-button last-right"
+        role="button"
+        aria-label="excel"
+        (click)="onClickExportExcel()"
+      >
+        <icon-excel></icon-excel>
+      </div>
+    </div>
+
+    <div class="container-line"></div>
+
+    <div class="container-table table-height">
+      <table class="table table-borderless" #myTable id="myTable">
+        <thead>
+          <tr>
+            <th
+              class="table-header header-name"
+              (click)="onClickHeader('name')"
+            >
+              <div class="table-header-cell form-inline">
+                <p class="gap noselect">
+                  {{ "default.grid.name" | translate }}
+                </p>
+                <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+              </div>
+            </th>
+            <th
+              class="table-header header-state"
+              (click)="onClickHeader('country')"
+            >
+              <div class="table-header-cell custom-control-inline">
+                <p class="gap noselect">
+                  {{ "setting.holiday-rules.country" | translate }}
+                </p>
+                <p class="table-header-cell-arrow noselect">
+                  {{ arrowCountry }}
+                </p>
+              </div>
+            </th>
+            <th
+              class="table-header header-state"
+              (click)="onClickHeader('state')"
+            >
+              <div class="table-header-cell custom-control-inline">
+                <p class="gap noselect">
+                  {{ "setting.holiday-rules.states" | translate }}
+                </p>
+                <p class="table-header-cell-arrow noselect">{{ arrowState }}</p>
+              </div>
+            </th>
+            <th
+              class="table-header header-description"
+              (click)="onClickHeader('description')"
+            >
+              <div class="table-header-cell custom-control-inline">
+                <p class="gap noselect">
+                  {{ "default.grid.description" | translate }}
+                </p>
+                <p class="table-header-cell-arrow noselect">
+                  {{ arrowDescription }}
+                </p>
+              </div>
+            </th>
+
+            <th class="table-header action header-action"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            class="table-row"
+            class="table-row"
+            *ngFor="
+              let data of dataManagementCalendarRulesService.listWrapper
+                ?.calendarRules;
+              index as i
+            "
+            (click)="onClickedRow(data)"
+            [class.active]="data.id == highlightRowId"
+          >
+            <td class="table-cell">{{ data.name | fallback : currentLang }}</td>
+            <td class="table-cell cell-center">
+              {{ data.country }}
+            </td>
+            <td class="table-cell cell-center">
+              {{ data.state }}
+            </td>
+            <td class="table-cell">
+              {{ data.description | fallback : currentLang }}
+            </td>
+
+            <td class="table-cell cell-right">
+              <div>
+                <div
+                  class="icon icon-padding"
+                  (click)="onEditRule(ruleModal, data)"
+                >
+                  <icon-pencil-icon-grey></icon-pencil-icon-grey>
+                </div>
+
+                <div
+                  class="icon icon-padding"
+                  (click)="onCopyRule(ruleModal, data)"
+                >
+                  <app-icon-copy-grey></app-icon-copy-grey>
+                </div>
+
+                <div class="icon" (click)="openDeleteRule(data)">
+                  <icon-trash-icon-red></icon-trash-icon-red>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span
+        class="first add-button"
+        type="button"
+        (click)="createNewRule(ruleModal)"
+        >{{ "setting.holiday-rules.add-rule" | translate }}
+      </span>
+      <span class="filler"></span>
+
+      <label class="entry-info"
+        >{{ "pagination.sum" | translate }}
+        {{ dataManagementCalendarRulesService.maxItems }}</label
+      >
+      <ngb-pagination
+        [collectionSize]="dataManagementCalendarRulesService.maxItems + 1"
+        (pageChange)="onPageChange($event)"
+        [(page)]="page"
+        [maxSize]="5"
+        [pageSize]="numberOfItemsPerPage"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+      ></ngb-pagination>
+    </div>
+  </div>
+</form>

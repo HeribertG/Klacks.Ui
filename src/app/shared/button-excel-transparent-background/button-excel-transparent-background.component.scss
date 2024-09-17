@@ -1,0 +1,21 @@
+@import '../../../assets/standard-styles/colors.scss';
+
+.ownStyle-button {
+
+    width: 34px;
+    height: 34px;
+    
+    font-weight: 600;
+    font-size: 14px;
+
+    margin-right: 30px;
+    
+  }
+  .ownStyle-button:hover {
+    background-color:$standartBlueColor;
+    
+  }
+  .ownStyle-button:after {
+    background-color:transparent;
+  }
+  

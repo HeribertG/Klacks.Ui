@@ -1,0 +1,96 @@
+@import "./../../../assets/standard-styles/standard-modal.scss";
+@import "./../../../assets/standard-styles/standard-controls.scss";
+@import "./../../../assets/standard-styles/colors.scss";
+
+$header_height: 65px;
+$footer_height: var(--footer_height);
+$main-footer_height: 0px;
+$aside_width: 0px;
+$nav_width: 100px;
+
+app-header {
+  order: 1;
+  height: $header_height;
+  flex: 0 1 100vw;
+  background-color: var(--backgroundColorHeaderNav);
+}
+
+app-nav {
+  order: 2;
+  flex: 0 1 $nav_width;
+  background-color: var(--backgroundColorHeaderNav);
+  height: calc(100vh - (#{$header_height} + #{$main-footer_height}));
+}
+
+app-main {
+  order: 3;
+  flex: 1;
+  height: calc(
+    100vh - (#{$header_height} + #{$main-footer_height} + #{$footer_height})
+  );
+  background-color: var(--backgroundColorWorkplace);
+  box-sizing: content-box;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.footer {
+  order: 6;
+  position: absolute;
+
+  height: $footer_height;
+  top: calc(100vh - (#{$footer_height} + #{$main-footer_height}));
+  max-width: calc(1445px - (#{$nav_width}));
+  width: calc(100% - (#{$nav_width}));
+  margin-left: $nav_width;
+  background-color: var(--backgroundColorHeaderNav);
+  z-index: 2;
+  padding-top: 13px;
+}
+
+.save-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+  margin-right: 30px;
+}
+
+app-aside {
+  order: 4;
+  width: $aside_width;
+  flex: 0 1 $aside_width;
+
+  background-color: var(--backgroundColorHeaderNav);
+}
+
+app-footer {
+  order: 5;
+  height: $main-footer_height;
+  flex: 0 1 100%;
+  background-color: var(--backgroundColorHeaderNav);
+}
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.red-font {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.red-font-disabled {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: #b6b6c3;
+  pointer-events: none;
+}
+
+.blue-font {
+  margin-top: 10px;
+  color: $standartBlueColor;
+}

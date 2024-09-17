@@ -1,0 +1,56 @@
+@import "../../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../../assets/standard-styles/spinner.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/pagination.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+
+.container-bank-box {
+  margin-top: 40px;
+  width: calc(100% - 60px);
+  margin-left: 30px;
+}
+
+.with-large {
+  width: 100%;
+}
+
+::placeholder {
+  color: var(--colorPlaceholder);
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: var(--colorPlaceholder);
+}
+
+::-ms-input-placeholder {
+  color: var(--colorPlaceholder);
+}
+
+.container-search-button {
+  font-weight: 600;
+  font-size: 13px;
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+}
+.container-search-button-disabled {
+  font-weight: 600;
+  font-size: 13px;
+  background-color: #b6b6c3;
+  color: $standartWhiteColor;
+}
+
+input[type="checkbox"]:indeterminate {
+  outline: 1px solid grey;
+  // box-shadow: 0 0 1px 1px blue;
+}
+
+.container-table-borderless {
+  min-height: 0 !important;
+}
+
+.expand-button {
+  margin-right: 30px;
+}

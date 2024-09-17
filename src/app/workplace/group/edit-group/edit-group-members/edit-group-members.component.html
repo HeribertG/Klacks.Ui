@@ -1,0 +1,200 @@
+<form #memberList="ngForm" class="container-card">
+  <div class="container-header header-container">
+    {{ "group.edit-group.edit-group-member.headline" | translate }}
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div [ngStyle]="{ display: visibleTable }">
+    <div class="container-bank-box">
+      <div class="custom-control-inlinewith-large">
+        <label for="member">{{
+          "group.edit-group.edit-group-member.search" | translate
+        }}</label>
+        <div class="input-group mb-3">
+          <input
+            type="search"
+            class="form-control"
+            [(ngModel)]="selectedClientName"
+            autocomplete="off"
+            (keyup)="onKeyupSearchField($event)"
+            (keydown.enter)="onKeydownEnterSearchField($event)"
+            id="member"
+            list="dynamicClientName"
+            name="selectedClient"
+            placeholder="{{ 'placeholder.search' | translate }}"
+          />
+          <datalist id="dynamicClientName">
+            <option *ngFor="let item of result" [ngValue]="item">
+              {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
+              {{ item.name }}
+            </option>
+          </datalist>
+          <div
+            class="input-group-text btn btn-outline-secondary container-search-button-disabled"
+            *ngIf="!selectedClient"
+          >
+            {{ "group.edit-group.edit-group-member.add" | translate }}
+          </div>
+          <div
+            class="input-group-text btn btn-outline-secondary container-search-button"
+            *ngIf="selectedClient"
+            (click)="onClickApply()"
+          >
+            {{ "group.edit-group.edit-group-member.add" | translate }}
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 30px"></div>
+      <div class="container-table-borderless">
+        <table class="table table-borderless">
+          <thead>
+            <tr>
+              <th class="table-header" style="width: 60px; max-width: 60px">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="dataManagementGroupService.headerCheckBoxValue"
+                  (change)="onChangeHeaderCheckBox()"
+                  [indeterminate]="checkBoxIndeterminate"
+                  name="headerCheckBoxValue"
+                  class="checkbox"
+                />
+              </th>
+
+              <th
+                class="table-header"
+                (click)="onClickHeader('idNumber')"
+                style="width: 90px; max-width: 90px"
+              >
+                <div class="table-header-cell custom-control-inline">
+                  <p class="gap noselect">
+                    {{
+                      "group.edit-group.edit-group-member.table.nr" | translate
+                    }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">{{ arrowNo }}</p>
+                </div>
+              </th>
+              <th
+                class="table-header"
+                (click)="onClickHeader('company')"
+                style="width: 170px"
+              >
+                <div class="table-header-cell custom-control-inline">
+                  <p class="gap noselect">
+                    {{
+                      "group.edit-group.edit-group-member.table.company"
+                        | translate
+                    }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">
+                    {{ arrowCompany }}
+                  </p>
+                </div>
+              </th>
+
+              <th
+                class="table-header"
+                (click)="onClickHeader('firstName')"
+                style="width: 170px"
+              >
+                <div class="table-header-cell custom-control-inline">
+                  <p class="gap noselect">
+                    {{
+                      "group.edit-group.edit-group-member.table.firstname"
+                        | translate
+                    }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">
+                    {{ arrowFirstName }}
+                  </p>
+                </div>
+              </th>
+              <th
+                class="table-header"
+                (click)="onClickHeader('name')"
+                style="width: 170px"
+              >
+                <div class="table-header-cell custom-control-inline">
+                  <p class="gap noselect">
+                    {{
+                      "group.edit-group.edit-group-member.table.lastname"
+                        | translate
+                    }}
+                  </p>
+                  <p class="table-header-cell-arrow noselect">
+                    {{ arrowName }}
+                  </p>
+                </div>
+              </th>
+
+              <th
+                class="table-header action"
+                style="width: 90px; max-width: 90px; min-width: 90px"
+              ></th>
+            </tr>
+          </thead>
+          <tbody
+            *ngIf="
+              dataManagementGroupService.editGroup &&
+              dataManagementGroupService.editGroup.groupItems &&
+              dataManagementGroupService.editGroup.groupItems.length > 0
+            "
+          >
+            <tr
+              class="table-row"
+              *ngFor="
+                let data of dataManagementGroupService.editGroup.groupItems;
+                index as i
+              "
+            >
+              <td class="table-cell">
+                <input
+                  type="checkbox"
+                  [checked]="checkBoxValue(i)"
+                  (change)="onChangeCheckBox(i, $event)"
+                  name="checkbox"
+                  class="checkbox"
+                />
+              </td>
+
+              <td class="table-cell">
+                {{ data.client!.idNumber }}
+              </td>
+              <td class="table-cell">
+                {{ data.client!.company }}
+              </td>
+              <td class="table-cell">
+                {{ data.client!.firstName }}
+              </td>
+              <td class="table-cell">
+                {{ data.client!.name }}
+              </td>
+
+              <td class="table-cell cell-right">
+                <div>
+                  <div class="icon" (click)="onDeleteClient(data)">
+                    <icon-trash-icon-red></icon-trash-icon-red>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="height: 35px"></div>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,155 @@
+$gridBackgroundColor: #424949;
+$objectSurfaceBackgroundColor: #f5f5f5;
+$tooltipBackgroundColor: #ffffcc;
+$tooltipBorder: solid 1px #b6b6b6;
+$splitBackgroundColor: #424949;
+
+$standartGreenColor: #1bc5bd;
+$splitButtonGreenColor: #0bb7af;
+
+$standartRedColor: red;
+$standartRedLiteColor: #ff3333;
+$standartRedBorderDarkColor: #cc0000;
+$standartRedBorderLiteColor: #ff6666;
+
+$standartWhiteColor: white;
+$standartBlueColor: #6993ff;
+$splitButtonBlueColor: #5e84e6;
+
+:root {
+  --VersionNumberColor: #bdc3c7;
+  --backgroundColorWorkplace: #e6ebef;
+  --backgroundColorWindow: #f2f4f4;
+  --colorWorkplaceHeadline: #212121;
+  --colorWorkplaceHeadlineDecoration: rgb(33, 33, 33);
+
+  --backgroundColorHeaderNav: white;
+  --backgroundColorHeaderWorkplace: #e5eaee;
+  --backgroundColorCard: white;
+  --colorHeadline: #212121;
+  --colorSubHeadline: #b6b6c3;
+  --colorLabel: #464e5f;
+  --backgroundColorImgIconContainer: white;
+
+  --colorLine: #e5eaee;
+  --gridColorLine: #b6b6c3;
+  --gridColorText: #464e5f;
+  --gridColorTextUpdate: #2980b9;
+  --gridColorTextDelete: red;
+  --gridColorCellComment: grey;
+  --gridBackgroundColorCellComment: #fef9e7;
+  --gridBackgroundColorCellShadow: dimgrey;
+  --gridBackgroundColorRowHover: #f1f5f8;
+  --gridBackgroundColorInfo: #fef5e7;
+
+  --cardBorderColor: #cfd8dc;
+  --backgroundColorFocus: #e5eaee;
+  --backgroundColorHover: #fafafa;
+
+  --standartTextColor: #464e5f;
+  --standartTextBackground: white;
+  --standartTextCaretColor: dimgray;
+  --standartTextBackgroundReadOnly: #e5eaee;
+
+  --backgroundColoPagination: white;
+  --backgroundColoPaginationSelected: #e5eaee;
+  --coloPaginationSelected: #464e5f;
+  --paginationBorderColor: #e5eaee;
+  --paginationBorderColorSelected: grey;
+
+  --iconBlackColor: black;
+
+  --backgroundOption: white;
+  --colorOption: #464e5f;
+
+  --SpinnerColor: rgb(44, 44, 138);
+
+  --backgroundOwnHeadLine: #e5eaee;
+  --backgroundOwnHeadLineHover: #d5dbdb;
+
+  --backgroundColorDropZone: white;
+  --backgroundColorDropZoneHover: #e2eefd;
+
+  --backgroundColorContributionTypeName: #eafaf1;
+  --backgroundColorContributionTypeVat: #fef9e7;
+
+  --colorPlaceholder: #e5e7e9;
+
+  --backgroundColorMenuDisabled: #e5eaee;
+  --bColorMenuDisabled: #464e5f;
+
+  --standartRedColor: red;
+
+  --backgroundFindCustomerList: #1bc5bd;
+  --backgroundHoverFindCustomerList: #0bb7af;
+  --lightBorderColorFindCustomerList: #c9f7f5;
+  --darkBorderColorFindCustomerList: #0bb7af;
+  --colorFindCustomerList: white;
+
+  --colorHoverOnCalenderDay: black;
+}
+
+:root[data-theme="dark"] {
+  --VersionNumberColor: #b6b6c3;
+  --backgroundColorWorkplace: #34495e;
+  --backgroundColorWindow: #17202a;
+  --colorWorkplaceHeadline: #ebf5fb;
+  --colorWorkplaceHeadlineDecoration: #e5eaee;
+
+  --backgroundColorHeaderNav: #283747;
+  --backgroundColorHeaderWorkplace: #e5eaee;
+  --backgroundColorCard: #283747;
+  --colorHeadline: #ebf5fb;
+  --colorSubHeadline: #b6b6c3;
+  --colorLabel: #b6b6c3;
+  --backgroundColorImgIconContainer: white;
+
+  --colorLine: #e5eaee;
+  --gridColorLine: #b6b6c3;
+  --gridColorText: white;
+  --gridColorTextUpdate: #2980b9;
+  --gridColorTextDelete: #c0392b;
+  --gridColorCellComment: grey;
+  --gridBackgroundColorCellComment: #fef9e7;
+  --gridBackgroundColorCellShadow: dimgrey;
+  --gridBackgroundColorRowHover: #465e78;
+  --gridBackgroundColorInfo: orange;
+
+  --cardBorderColor: #566573;
+  --backgroundColorFocus: #546e7a;
+  --backgroundColorHover: #546e7a;
+
+  --standartTextColor: white;
+  --standartTextBackground: #212121;
+  --standartTextCaretColor: dimgray;
+  --standartTextBackgroundReadOnly: dimgray;
+
+  --backgroundColoPagination: #283747;
+  --backgroundColoPaginationSelected: #546e7a;
+  --coloPaginationSelected: white;
+  --paginationBorderColor: #e5eaee;
+  --paginationBorderColorSelected: #e5eaee;
+
+  --iconBlackColor: white;
+
+  --backgroundOption: #283747;
+  --colorOption: white;
+
+  --SpinnerColor: #aed6f1;
+
+  --backgroundOwnHeadLine: #546e7a;
+  --backgroundOwnHeadLineHover: #3a4b54;
+
+  --backgroundColorDropZone: #283747;
+  --backgroundColorDropZoneHover: #546e7a;
+
+  --backgroundColorContributionTypeName: #0bb7af;
+  --backgroundColorContributionTypeVat: orange;
+
+  --colorPlaceholder: #283747;
+
+  --backgroundColorMenuDisabled: dimgray;
+  --bColorMenuDisabled: #464e5f;
+
+  --standartRedColor: #e74c3c;
+}

@@ -1,0 +1,60 @@
+
+  @import '../../../../assets/standard-styles/standard-home-page.scss';
+
+  
+  .container-headline {
+    justify-content: flex-start space-around;
+    flex-direction: column;
+    padding-left: 80px;
+    padding-top: 70px;
+    font-size: 23px;
+    font-weight: 600;
+    color :var(--colorHeadline);
+    text-decoration: none solid  var(-colorWorkplaceHeadlineDecoration);
+    width: 100%;
+
+  }
+
+  .container-profile-line{
+    display: flex;
+    flex-flow: row;
+
+    padding-top: 40px;
+    max-width: 100%;
+
+  }
+
+  .first{
+    margin-left: 80px;
+  }
+
+  .container-profile{
+    width: 940px;
+    border-radius: 5px;
+    background-color: var(--backgroundColorCard);
+  }
+
+  .container-profile-small{
+    width: 400px;
+    border-radius: 5px;
+    background-color:var(--backgroundColorCard);
+  }
+
+  
+
+  .container-profile-mask{
+
+    height: 620px;
+    
+  }
+
+  .container-profile-login{
+
+    height: 507px;
+    
+  }
+  .container-profile-login-margin{
+
+    margin-right: 140px;
+    
+  }

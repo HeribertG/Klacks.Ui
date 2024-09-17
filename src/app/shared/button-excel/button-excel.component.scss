@@ -1,0 +1,26 @@
+@import '../../../assets/standard-styles/colors.scss';
+
+.ownStyle-button {
+
+  width: 34px;
+  height: 34px;
+  background-color: $standartBlueColor;
+  font-weight: 600;
+  font-size: 14px;
+  color:$standartWhiteColor;
+  margin-right: 30px;
+  
+}
+
+
+.ownStyle-button-disabled {
+
+  width: 34px;
+  height: 34px;
+  background-color: #e5eaee;
+  font-weight: 600;
+  font-size: 14px;
+  color: $standartWhiteColor;
+  margin-right: 30px;
+  
+}

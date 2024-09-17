@@ -1,0 +1,114 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.owner-address.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <form #ownerAddressForm="ngForm">
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-name">{{
+          "setting.owner-address.name" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.appAddressName"
+          aria-label="appAddressName"
+          name="appAddressName"
+        />
+      </div>
+
+      <div>
+        <div class="form-group secondColumn">
+          <label for="setting-owner-address-tel">{{
+            "setting.owner-address.phone" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="dataManagementSettingsService.appAddressPhone"
+            aria-label="appAddressPhone"
+            name="appAddressPhone"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-supplement">{{
+          "setting.owner-address.supplement" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.appSupplementAddress"
+          aria-label="appSupplementAddress"
+          name="appSupplementAddress"
+        />
+      </div>
+
+      <div>
+        <div class="form-group secondColumn">
+          <label for="setting-owner-addressl-email">{{
+            "setting.owner-address.email" | translate
+          }}</label>
+          <input
+            type="email"
+            class="form-control"
+            [(ngModel)]="dataManagementSettingsService.appAddressMail"
+            aria-label="appAddressMail"
+            name="appAddressMail"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-street">{{
+          "setting.owner-address.street" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.appAddressAddress"
+          aria-label="appAddressAddress"
+          name="appAddressAddress"
+        />
+      </div>
+    </div>
+
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-zip">{{
+          "setting.owner-address.zip" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.appAddressZip"
+          aria-label="appAddressZip"
+          name="appAddressZip"
+        />
+      </div>
+    </div>
+
+    <div class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-city">{{
+          "setting.owner-address.place" | translate
+        }}</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.appAddressPlace"
+          aria-label="appAddressPlace"
+          name="appAddressPlace"
+        />
+      </div>
+    </div>
+  </form>
+</div>

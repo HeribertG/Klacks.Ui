@@ -1,0 +1,73 @@
+<!-- Input Window -->
+<ng-template #contentInput id="content" let-modal role="dialog">
+  <div class="modal-header">
+    <div id="modal-title">{{ modalService.contentInputTitle }}</div>
+  </div>
+  <div class="modal-body row-line-modal">
+    <input
+      type="text"
+      class="form-control modal-input"
+      [(ngModel)]="modalService.contentInputString"
+    />
+  </div>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      type="button"
+      class="btn btn-success normal-btn"
+      (click)="modal.close()"
+      [disabled]="modalService.contentInputString === ''"
+    >
+      {{ "store" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Delete Window -->
+<ng-template #contentDelete id="content1" let-modal role="dialog">
+  <app-deletewindow
+    [message]="modalService.deleteMessage"
+    [title]="modalService.deleteMessageTitle"
+  ></app-deletewindow>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button
+      type="button"
+      class="btn btn-danger normal-btn"
+      (click)="modal.close()"
+    >
+      {{ modalService.deleteMessageOkButton }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Message Window -->
+<ng-template #contentMessage id="content2" let-modal role="dialog">
+  <app-message-window [message]="modalService.message"></app-message-window>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary normal-btn"
+      (click)="modal.dismiss('Cancel click')"
+    >
+      {{ "cancel" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-success normal-btn"
+      (click)="modal.close()"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

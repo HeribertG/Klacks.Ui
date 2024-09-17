@@ -1,0 +1,63 @@
+@import "../../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../../assets/standard-styles/spinner.scss";
+@import "../../../../../assets/standard-styles/pagination.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+@import "../../../../../assets/standard-styles/menu.scss";
+
+.entry-info {
+  padding-right: 20px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--colorLabel);
+}
+
+.checkbox {
+  size: 20px;
+}
+
+.red-font {
+  font-size: 13px;
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.save-btn {
+  font-size: 13px;
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+  margin-right: 20px;
+}
+
+input[type="checkbox"]:indeterminate {
+  outline: 1px solid grey;
+  // box-shadow: 0 0 1px 1px blue;
+}
+
+.ownStyle-button-disabled {
+  margin-right: 30px;
+  padding: 0px;
+  padding-top: 3px;
+  width: 50px;
+  height: 34px;
+  background-color: #e5e7e9;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--colorLabel);
+}
+
+.ownStyle-button {
+  margin-right: 30px;
+  padding: 0px;
+  padding-top: 3px;
+  width: 50px;
+  height: 34px;
+  background-color: $standartBlueColor;
+  font-weight: 600;
+  font-size: 14px;
+  color: $standartWhiteColor;
+}

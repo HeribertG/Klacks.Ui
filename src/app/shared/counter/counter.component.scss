@@ -1,0 +1,49 @@
+@import "../../../assets/standard-styles/colors.scss";
+@import "../../../assets/standard-styles/standard-controls.scss";
+.ownPaginationContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  color: var(--coloPaginationSelected);
+}
+
+.ownPaginationBlock {
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-weight: normal;
+  font-size: 11pt;
+}
+
+.ownPaginationBlockLeft {
+  width: 25px;
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPagination);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.ownPaginationBlockRight {
+  width: 25px;
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPagination);
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.ownPaginationBlockRight:hover,
+.ownPaginationBlockLeft:hover {
+  background-color: var(--backgroundColoPaginationSelected);
+}
+.ownPaginationBlockRight:disabled,
+.ownPaginationBlockLeft:disabled {
+  background-color: var(--backgroundColoPaginationSelected);
+}
+
+.ownPaginationBlockRight:active,
+.ownPaginationBlockLeft:active {
+  background-color: var(--backgroundColoPagination);
+}

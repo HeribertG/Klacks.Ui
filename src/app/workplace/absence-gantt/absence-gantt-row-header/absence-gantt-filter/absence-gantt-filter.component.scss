@@ -1,0 +1,24 @@
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+
+.single-line {
+  display: inline-flex;
+}
+
+.container {
+  width: 100%;
+  height: auto;
+  font-size: 11pt;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.arrow {
+  width: 10px;
+  margin-left: 10px;
+  margin-right: 10px;
+  font-weight: bold;
+}

@@ -1,0 +1,32 @@
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+
+.first {
+  margin-left: 30px;
+  padding-right: -30px;
+}
+
+.gap {
+  margin-right: 30px;
+}
+
+.firstColumn {
+  margin-left: 30px;
+  width: 200px;
+}
+
+.secondColumn {
+  margin-left: 40px;
+  width: 100px;
+}
+
+.smallWidth {
+  width: 160px;
+}
+
+.with280 {
+  width: 280px;
+}
+.with150 {
+  width: 150px;
+}

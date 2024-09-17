@@ -1,0 +1,34 @@
+<form>
+  <div class="container-header">
+    {{ "setting.country.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-countries-header
+    *ngIf="
+      dataManagementSettingsService.countriesList &&
+      dataManagementSettingsService.countriesList.length > 0
+    "
+  >
+  </app-countries-header>
+  <div class="container-box">
+    <div
+      *ngFor="let c of dataManagementSettingsService.countriesList; index as i"
+    >
+      <app-countries-row
+        [data]="c"
+        *ngIf="c.isDirty !== 3"
+        (isChangingEvent)="onIsChanging($event)"
+        (isDeleteEvent)="onClickDelete(i)"
+      >
+      </app-countries-row>
+    </div>
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ "setting.country.add" | translate }}
+    </span>
+  </div>
+</form>

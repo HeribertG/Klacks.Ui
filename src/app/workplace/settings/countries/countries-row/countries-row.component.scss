@@ -1,0 +1,36 @@
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-left: 30px;
+  padding-right: -30px;
+  height: 40px;
+}
+
+input {
+  height: 32px;
+}
+
+.delete-button {
+  margin-top: 5px;
+  margin-left: 20px;
+  color: var(--standartRedColor);
+}
+
+.abbreviation {
+  width: 50px;
+  margin-right: 10px;
+  text-align: center;
+}
+
+.country-name {
+  width: 220px;
+  margin-right: 10px;
+}
+
+.country-prefix {
+  width: 60px;
+  margin-right: 10px;
+}

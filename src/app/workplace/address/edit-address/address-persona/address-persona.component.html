@@ -1,0 +1,961 @@
+<ng-template #addressTypeModal let-modal role="dialog" class="modal-window">
+  <form>
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title1">
+        {{
+          "address.edit-address.address-persona.modal-address-typ.header"
+            | translate
+        }}
+      </div>
+    </div>
+
+    <div class="modal-body first-modal">
+      <div class="row-line-modal">
+        <div class="form-group">
+          <div class="form-group">
+            <label for="addressValidFrom">{{
+              "address.edit-address.address-persona.modal-address-typ.valid-date"
+                | translate
+            }}</label>
+
+            <div class="input-group">
+              <input
+                class="form-control"
+                name="addressValidFrom"
+                [ngModel]="addressValidFrom"
+                aria-label="Adresse gültig ab"
+                (ngModelChange)="addressValidFrom = $event"
+                ngbDatepicker
+                #validFrom="ngbDatepicker"
+              />
+
+              <span
+                class="input-group-text"
+                style="width: 40px"
+                (click)="validFrom.toggle()"
+              >
+                <i class="fa fa-calendar" style="color: #464e5f"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line-modal"
+        *ngIf="
+          dataManagementClientService.clientAttribute &&
+          dataManagementClientService.clientAttribute.length > 1
+        "
+      >
+        <div class="form-group">
+          <label for="profile-gender">{{
+            "address.edit-address.address-persona.modal-address-typ.type"
+              | translate
+          }}</label>
+          <select
+            class="form-select"
+            [(ngModel)]="editClientType"
+            name="editClient.type"
+            aria-label="Adresstyp"
+          >
+            <option
+              *ngFor="let c of dataManagementClientService.clientAttribute"
+              [value]="c.type"
+              [selected]="
+                dataManagementClientService.editClient!.type === c.type
+              "
+            >
+              {{ c.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button type="button" class="btn save-btn" (click)="modal.close()">
+      {{
+        "address.edit-address.address-persona.modal-address-typ.add" | translate
+      }}
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #newAddress let-modal role="dialog" class="modal-window">
+  <form>
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title2">
+        {{
+          "address.edit-address.address-persona.modal-new-address-typ.header"
+            | translate
+        }}
+      </div>
+    </div>
+    <div class="modal-body first-modal">
+      <div class="row-line">
+        <div class="form-group">
+          <label for="newAddressValidFrom">{{
+            "address.edit-address.address-persona.modal-new-address-typ.valid"
+              | translate
+          }}</label>
+
+          <div class="input-group">
+            <input
+              class="form-control"
+              name="newAddressValidFrom"
+              [ngModel]="newAddressValidFrom"
+              aria-label="Adresse gültig ab"
+              (ngModelChange)="newAddressValidFrom = $event"
+              ngbDatepicker
+              #newAddressValidFrom1="ngbDatepicker"
+            />
+
+            <span
+              class="input-group-text"
+              (click)="newAddressValidFrom1.toggle()"
+            >
+              <i
+                class="fa fa-calendar"
+                style="font-size: 16px; color: #464e5f"
+              ></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line-modal">
+        <div class="form-group">
+          <label for="profile-gender">{{
+            "address.edit-address.address-persona.modal-new-address-typ.type"
+              | translate
+          }}</label>
+          <select
+            class="form-select"
+            [(ngModel)]="newAddressType"
+            name="newAddressType"
+            aria-label="Adressart"
+          >
+            <option value="0" [selected]="newAddressType === 0">
+              {{ onAddressTypeName(0) }}
+            </option>
+            <option value="1" [selected]="newAddressType === 1">
+              {{ onAddressTypeName(1) }}
+            </option>
+            <option value="2" [selected]="newAddressType === 2">
+              {{ onAddressTypeName(2) }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button type="button" class="btn ownStyle-add" (click)="modal.close()">
+      {{
+        "address.edit-address.address-persona.modal-new-address-typ.add"
+          | translate
+      }}
+    </button>
+  </div>
+</ng-template>
+
+<form #clientForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "address.edit-address.address-persona.id-number" | translate }}
+      {{ dataManagementClientService.editClient?.typeAbbreviation }}
+      {{ dataManagementClientService.editClient?.idNumber }}
+      <div class="container-subline-borderless">
+        {{ dataManagementClientService.editClientLastMutation }}
+      </div>
+    </div>
+
+    <span class="filler"></span>
+
+    <div>
+      <app-button-new
+        (click)="openNewAddress(newAddress)"
+        placement="top"
+        ngbTooltip="{{ newAddressString }}"
+        *ngIf="dataManagementClientService.editClientDeleted === false"
+      >
+      </app-button-new>
+
+      <div
+        class="btn dropdown-toggle ownStyle-button"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-label="ownStyle-button"
+      >
+        <icon-gear-grey></icon-gear-grey>
+      </div>
+
+      <ul class="dropdown-menu dropdown-menu-lg-end">
+        <li>
+          <a
+            class="dropdown-item"
+            (click)="openAddressType(addressTypeModal)"
+            *ngIf="dataManagementClientService.editClientDeleted === false"
+          >
+            <div class="custom-control-inline" style="height: 25px">
+              <i class="far fa-address-book"></i>
+              <p style="margin-left: 10px; font-size: 13px">
+                {{
+                  "address.edit-address.address-persona.change-type" | translate
+                }}
+              </p>
+            </div>
+          </a>
+        </li>
+
+        <li>
+          <a
+            class="dropdown-item"
+            *ngIf="dataManagementClientService.editClient !== undefined"
+            (click)="openDeleteAddress()"
+          >
+            <div class="custom-control-inline" style="height: 25px">
+              <i
+                class="fas fa-trash"
+                style="color: var(--standartRedColor)"
+              ></i>
+              <p
+                style="
+                  margin-left: 10px;
+                  font-size: 13px;
+                  color: var(--standartRedColor);
+                "
+              >
+                {{
+                  "address.edit-address.address-persona.deactivate" | translate
+                }}
+              </p>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div
+    class="container-bank-box"
+    *ngIf="dataManagementClientService.editClient !== undefined"
+  >
+    <div class="firstColumContainer">
+      <div
+        class="row-line-company"
+        *ngIf="
+          dataManagementClientService.editClient.legalEntity &&
+          dataManagementClientService.isCurrentAddressMainAddress()
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="company">{{
+            "address.edit-address.address-persona.firm" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              autocomplete="off"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="dataManagementClientService.editClient.company"
+              id="company"
+              name="company"
+              maxlength="50"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line-simple"
+        *ngIf="dataManagementClientService.isCurrentAddressMainAddress()"
+      >
+        <div class="form-group firstColumn">
+          <div class="gender">
+            <label for="gender">{{
+              "address.edit-address.address-persona.gender" | translate
+            }}</label>
+            <select
+              class="form-select"
+              [ngModel]="dataManagementClientService.editClient.gender"
+              id="gender"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              (ngModelChange)="
+                dataManagementClientService.editClient.gender = $event
+              "
+              name="client.gender"
+            >
+              <option value="Gender.Male">
+                {{ "address.edit-address.address-persona.male" | translate }}
+              </option>
+              <option value="Gender.Female">
+                {{ "address.edit-address.address-persona.female" | translate }}
+              </option>
+              <option
+                value="Gender.LegalEntity"
+                *ngIf="
+                  dataManagementClientService.editClient.legalEntity === true
+                "
+              >
+                {{ "address.edit-address.address-persona.unknow" | translate }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <label class="checkbox-label legal-entity">
+          <input
+            type="checkbox"
+            [(ngModel)]="dataManagementClientService.editClient.legalEntity"
+            name="legalEntity"
+            [disabled]="dataManagementClientService.editClientDeleted"
+          />
+          {{ "address.edit-address.address-persona.legal-entity" | translate }}
+        </label>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.isCurrentAddressMainAddress() === true
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="title">{{
+            "address.edit-address.address-persona.title" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control default-width"
+            id="title"
+            autocomplete="off"
+            [disabled]="dataManagementClientService.editClientDeleted"
+            [(ngModel)]="dataManagementClientService.editClient.title"
+            name="title"
+            maxlength="15"
+          />
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.isCurrentAddressMainAddress() === true
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="firstname">Vorname</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              autofocus
+              autocomplete="off"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="dataManagementClientService.editClient.firstName"
+              id="firstname"
+              name="FirstName"
+              maxlength="50"
+            />
+            <span
+              class="add-button"
+              type="button"
+              (click)="addFirstNameLine2 = true"
+              *ngIf="!addFirstNameLine2 == true"
+              >+</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          addFirstNameLine2 == true &&
+          +dataManagementClientService.editClient.gender !== 2 &&
+          dataManagementClientService.isCurrentAddressMainAddress()
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="secondName">{{
+            "address.edit-address.address-persona.firstname2" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="dataManagementClientService.editClient.secondName"
+              id="secondName"
+              name="SecondName"
+              maxlength="50"
+            />
+            <span
+              class="del-button"
+              type="button"
+              (click)="addFirstNameLine2 = false"
+              *ngIf="addFirstNameLine2 == true"
+              >-</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          +dataManagementClientService.editClient.gender !== 2 &&
+          dataManagementClientService.isCurrentAddressMainAddress()
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="profile-name">{{
+            "address.edit-address.address-persona.name" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="dataManagementClientService.editClient.name"
+              name="Name"
+              id="profile-name"
+              required
+              maxlength="50"
+            />
+            <span
+              class="add-button"
+              type="button"
+              (click)="addNameLine2 = true"
+              *ngIf="!addNameLine2 == true"
+              >+</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          addNameLine2 &&
+          +dataManagementClientService.editClient.gender !== 2 &&
+          dataManagementClientService.isCurrentAddressMainAddress()
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="maidenName">{{
+            "address.edit-address.address-persona.maiden-name" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="dataManagementClientService.editClient.maidenName"
+              id="maidenName"
+              name="MaidenName"
+              maxlength="50"
+            />
+            <span
+              class="del-button"
+              type="button"
+              (click)="addNameLine2 = false"
+              *ngIf="addNameLine2 == true"
+              >-</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          dataManagementClientService.isCurrentAddressMainAddress() === false
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="addressLine1">{{
+            "address.edit-address.address-persona.address1" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              id="addressLine1"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].addressLine1
+              "
+              name="addressLine1"
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        class="row-line"
+        *ngIf="
+          dataManagementClientService.isCurrentAddressMainAddress() === false
+        "
+      >
+        <div class="form-group firstColumn">
+          <label for="addressLine2">{{
+            "address.edit-address.address-persona.address2" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              id="addressLine2"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].addressLine2
+              "
+              name="addressLine2"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line">
+        <div class="form-group firstColumn">
+          <label for="street">{{
+            "address.edit-address.address-persona.street" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              id="street"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].street
+              "
+              name="street"
+            />
+            <span
+              class="add-button"
+              type="button"
+              (click)="addStreetLine2 = true"
+              *ngIf="!addStreetLine2 == true"
+              >+</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line" *ngIf="addStreetLine2 == true">
+        <div class="form-group firstColumn">
+          <label for="street2">{{
+            "address.edit-address.address-persona.street2" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              id="street2"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].street2
+              "
+              name="street2"
+            />
+            <span
+              class="add-button"
+              type="button"
+              (click)="addStreetLine3 = true"
+              *ngIf="!addStreetLine3 == true"
+              >+</span
+            >
+            <span
+              class="del-button"
+              type="button"
+              (click)="addStreetLine2 = false"
+              *ngIf="addStreetLine2 == true"
+              >-</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line" *ngIf="addStreetLine3 == true">
+        <div class="form-group firstColumn">
+          <label for="street3">{{
+            "address.edit-address.address-persona.street3" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              type="text"
+              class="form-control default-width"
+              id="street3"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [(ngModel)]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].street3
+              "
+              name="street3"
+            />
+            <span
+              class="del-button"
+              type="button"
+              (click)="addStreetLine3 = false"
+              *ngIf="addStreetLine3 == true"
+              >-</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line">
+        <div class="form-group firstColumn">
+          <label for="zip" class="zip">{{
+            "address.edit-address.address-persona.zip" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control zip"
+            (focusout)="onZipFocusout()"
+            id="zip"
+            [disabled]="dataManagementClientService.editClientDeleted"
+            [(ngModel)]="
+              dataManagementClientService.editClient.addresses[
+                dataManagementClientService.currentAddressIndex
+              ].zip
+            "
+            name="zip"
+          />
+        </div>
+        <div>
+          <label for="city" class="place">{{
+            "address.edit-address.address-persona.place" | translate
+          }}</label>
+          <input
+            type="text"
+            class="form-control place"
+            id="city"
+            [disabled]="dataManagementClientService.editClientDeleted"
+            [(ngModel)]="
+              dataManagementClientService.editClient.addresses[
+                dataManagementClientService.currentAddressIndex
+              ].city
+            "
+            name="city"
+            list="dynamicPlace"
+          />
+          <datalist id="dynamicPlace">
+            <option
+              *ngFor="let item of dataManagementClientService.lastCountries"
+              [ngValue]="item"
+            >
+              {{ item.city }}
+            </option>
+          </datalist>
+        </div>
+      </div>
+
+      <div class="row-line">
+        <div class="firstColumn">
+          <label
+            for="state"
+            class="zip"
+            [hidden]="
+              !dataManagementClientService.stateList ||
+              dataManagementClientService.stateList.length === 0
+            "
+            >{{ choseCorrectState() | translate }}</label
+          >
+          <select
+            class="form-select zip"
+            [hidden]="
+              !dataManagementClientService.stateList ||
+              dataManagementClientService.stateList.length === 0
+            "
+            id="state"
+            [disabled]="dataManagementClientService.editClientDeleted"
+            [(ngModel)]="
+              dataManagementClientService.editClient.addresses[
+                dataManagementClientService.currentAddressIndex
+              ].state
+            "
+            name="state"
+          >
+            <option
+              *ngFor="let c of dataManagementClientService.stateList"
+              [value]="c.state"
+              [selected]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].state === c.state
+              "
+              data-toggle="tooltip"
+              title="{{ c.stateName | fallback : currentLang }}"
+            >
+              {{ c.state }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <label for="country" class="place">{{
+            "address.edit-address.address-persona.country" | translate
+          }}</label>
+
+          <select
+            class="form-select place"
+            id="country"
+            [disabled]="dataManagementClientService.editClientDeleted"
+            [(ngModel)]="
+              dataManagementClientService.editClient.addresses[
+                dataManagementClientService.currentAddressIndex
+              ].country
+            "
+            name="country"
+            (ngModelChange)="dataManagementClientService.filterState()"
+          >
+            <option
+              *ngFor="
+                let c of dataManagementClientService.currentFilter.countries
+              "
+              [value]="c.abbreviation"
+              [selected]="
+                dataManagementClientService.editClient.addresses[
+                  dataManagementClientService.currentAddressIndex
+                ].country === c.abbreviation
+              "
+            >
+              {{ c.name | fallback : currentLang }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <p></p>
+      <p></p>
+      <p></p>
+      <p></p>
+    </div>
+
+    <div class="secondColumnContainer">
+      <div
+        *ngFor="
+          let phoneData of dataManagementClientService.communicationPhoneList;
+          index as ii
+        "
+      >
+        <div class="row-line">
+          <div class="form-group">
+            <label for="profile-tel"
+              >{{
+                "address.edit-address.address-persona.phone-prefix" | translate
+              }}
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
+                "address.edit-address.address-persona.phone" | translate
+              }}</label
+            >
+            <div class="custom-control-inline">
+              <select
+                class="form-select gap-prefix"
+                [value]="phoneData.prefix"
+                name="phonePrefix"
+                aria-label="Vorwahl"
+                [disabled]="dataManagementClientService.editClientDeleted"
+                (change)="onChangePhonePrefix(ii, $event)"
+              >
+                <option
+                  *ngFor="
+                    let c of dataManagementClientService.communicationPrefixList
+                  "
+                  [value]="c.prefix"
+                  [selected]="phoneData.prefix === c.prefix"
+                  data-toggle="tooltip"
+                  title="{{ c.name }}"
+                >
+                  {{ c.prefix }}
+                </option>
+              </select>
+
+              <input
+                type="text"
+                class="form-control medium-width-tel"
+                [value]="phoneData.value"
+                name="phoneValue"
+                aria-label="Telefon"
+                [disabled]="dataManagementClientService.editClientDeleted"
+                (change)="onChangePhoneValue(ii, $event)"
+                (keyup)="onKeyupPhoneNumber(ii, $event)"
+              />
+
+              <select
+                class="form-select gap"
+                [value]="phoneData.type"
+                name="phoneType"
+                aria-label="phoneType"
+                (change)="onChangePhoneType(ii, $event)"
+                [disabled]="dataManagementClientService.editClientDeleted"
+              >
+                <option
+                  *ngFor="
+                    let c of dataManagementClientService.communicationTypePhoneList
+                  "
+                  [value]="c.type"
+                  [selected]="phoneData.type === c.type"
+                >
+                  {{ c.name }}
+                </option>
+              </select>
+              <span
+                class="add-button"
+                type="button"
+                *ngIf="
+                  ii ===
+                  dataManagementClientService.communicationPhoneList.length - 1
+                "
+                (click)="onClickAddPhone()"
+                >+</span
+              >
+              <span
+                class="del-button"
+                type="button"
+                *ngIf="ii !== 0"
+                (click)="onClickDelPhone(phoneData)"
+                >-</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngFor="
+          let emailData of dataManagementClientService.communicationEmailList;
+          index as i
+        "
+      >
+        <div class="row-line">
+          <div class="form-group">
+            <label>{{
+              "address.edit-address.address-persona.mail" | translate
+            }}</label>
+            <div class="custom-control-inline">
+              <input
+                type="email"
+                class="form-control medium-width"
+                [value]="emailData.value"
+                aria-label="E-Mail"
+                [disabled]="dataManagementClientService.editClientDeleted"
+                (change)="onChangeEmailValue(i, $event)"
+                name="emailValue"
+                (keyup)="onChangeEmailValue(i, $event)"
+              />
+
+              <select
+                class="form-select gap"
+                [value]="emailData.type"
+                name="emailType"
+                aria-label="E-Mail Typ"
+                [disabled]="dataManagementClientService.editClientDeleted"
+                (change)="onChangeEmailType(i, $event)"
+              >
+                <option
+                  *ngFor="
+                    let c of dataManagementClientService.communicationTypeEmailList
+                  "
+                  [value]="c.type"
+                  [selected]="emailData.type === c.type"
+                >
+                  {{ c.name }}
+                </option>
+              </select>
+              <span
+                class="add-button"
+                type="button"
+                *ngIf="
+                  i ===
+                  dataManagementClientService.communicationEmailList.length - 1
+                "
+                (click)="onClickAddEmail()"
+                >+</span
+              >
+              <span
+                class="del-button"
+                type="button"
+                *ngIf="i !== 0"
+                (click)="onClickDelEmail(emailData)"
+                >-</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="row-line"
+        *ngIf="
+          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.isCurrentAddressMainAddress() === true
+        "
+      >
+        <div class="form-group">
+          <label for="profile-birthday">{{
+            "address.edit-address.address-persona.birthday" | translate
+          }}</label>
+
+          <div class="input-group medium-width">
+            <input
+              class="form-control"
+              name="birthday"
+              id="profile-birthday"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              [ngModel]="
+                dataManagementClientService.editClient.internalBirthdate
+              "
+              (ngModelChange)="
+                dataManagementClientService.editClient.internalBirthdate =
+                  $event
+              "
+              ngbDatepicker
+              btn-dark
+              #birthday="ngbDatepicker"
+            />
+            <span
+              class="input-group-text"
+              style="width: 40px"
+              (click)="birthday.toggle()"
+            >
+              <i class="fa fa-calendar" style="color: #464e5f"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 30px"></div>
+</form>

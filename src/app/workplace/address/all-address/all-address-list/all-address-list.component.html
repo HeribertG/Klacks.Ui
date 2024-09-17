@@ -1,0 +1,243 @@
+<form id="allAddressForm">
+  <div class="container-header header-container">
+    {{ "address.all-address.all-address-list.header" | translate }}
+
+    <span class="filler"></span>
+
+    <div
+      *ngIf="
+        !(
+          dataManagementClientService.headerCheckBoxValue ||
+          checkBoxIndeterminate
+        )
+      "
+    >
+      <div
+        class="btn ownStyle-button-disabled"
+        role="button"
+        aria-label="excel"
+      >
+        <icon-excel></icon-excel>
+      </div>
+    </div>
+
+    <div
+      *ngIf="
+        dataManagementClientService.headerCheckBoxValue || checkBoxIndeterminate
+      "
+    >
+      <div
+        class="btn ownStyle-button"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-label="excel"
+        (click)="onClickExportExcel(0)"
+      >
+        <icon-excel></icon-excel>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-subline">
+    {{ dataManagementClientService.subTitleLastChangesAllAddress }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-table">
+    <table
+      class="table table-borderless"
+      (blur)="onLostFocus()"
+      #myAddressTable
+      id="myAddressTable"
+      resizeObserver
+      (resizeElement)="onResize($event)"
+    >
+      <thead>
+        <tr>
+          <th class="table-header" style="width: 40px; max-width: 40px">
+            <input
+              type="checkbox"
+              [(ngModel)]="dataManagementClientService.headerCheckBoxValue"
+              (change)="onChangeHeaderCheckBox()"
+              [indeterminate]="checkBoxIndeterminate"
+              name="headerCheckBoxValue"
+              class="checkbox"
+              aria-label="checkbox"
+            />
+          </th>
+
+          <th class="table-header" style="width: 20px; max-width: 20px"></th>
+
+          <th
+            class="table-header"
+            (click)="onClickHeader('idNumber')"
+            style="width: 90px; max-width: 90px; min-width: 90px"
+          >
+            <div class="table-header-cell form-inline">
+              <p class="gap noselect">
+                {{
+                  "address.all-address.all-address-list.table.nr" | translate
+                }}
+              </p>
+              <p class="table-header-cell-arrow noselect">{{ arrowNo }}</p>
+            </div>
+          </th>
+          <th
+            class="table-header"
+            (click)="onClickHeader('company')"
+            style="width: 160px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  "address.all-address.all-address-list.table.company"
+                    | translate
+                }}
+              </p>
+              <p class="table-header-cell-arrow noselect">{{ arrowCompany }}</p>
+            </div>
+          </th>
+          <th
+            class="table-header"
+            (click)="onClickHeader('firstName')"
+            style="width: 160px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  "address.all-address.all-address-list.table.firstname"
+                    | translate
+                }}
+              </p>
+              <p class="table-header-cell-arrow noselect">
+                {{ arrowFirstName }}
+              </p>
+            </div>
+          </th>
+          <th
+            class="table-header"
+            (click)="onClickHeader('name')"
+            style="width: 160px"
+          >
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  "address.all-address.all-address-list.table.lastname"
+                    | translate
+                }}
+              </p>
+              <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+            </div>
+          </th>
+
+          <th
+            class="table-header action"
+            style="width: 90px; max-width: 90px; min-width: 90px"
+          ></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          class="table-row"
+          *ngFor="
+            let data of dataManagementClientService.listWrapper?.clients;
+            index as i
+          "
+          (click)="onClickedRow(data)"
+          [class.active]="data.id == highlightRowId"
+        >
+          <td class="table-cell">
+            <input
+              type="checkbox"
+              [checked]="checkBoxValue(i)"
+              (change)="onChangeCheckBox(i, $event)"
+              name="checkbox"
+              class="checkbox"
+              aria-label="checkbox"
+            />
+          </td>
+          <td class="table-cell">{{ data.typeAbbreviation }}</td>
+          <td
+            [ngClass]="{
+              'table-cell': data.isDeleted === false,
+              'table-cell-delete': data.isDeleted === true
+            }"
+          >
+            {{ data.idNumber }}
+          </td>
+          <td
+            [ngClass]="{
+              'table-cell': data.isDeleted === false,
+              'table-cell-delete': data.isDeleted === true
+            }"
+          >
+            {{ data.company }}
+          </td>
+          <td
+            [ngClass]="{
+              'table-cell': data.isDeleted === false,
+              'table-cell-delete': data.isDeleted === true
+            }"
+          >
+            {{ data.firstName }}
+          </td>
+          <td
+            [ngClass]="{
+              'table-cell': data.isDeleted === false,
+              'table-cell-delete': data.isDeleted === true
+            }"
+          >
+            {{ data.name }}
+          </td>
+
+          <td class="table-cell cell-right">
+            <div>
+              <div class="icon icon-padding" (click)="onClickEdit(data)">
+                <icon-pencil-icon-grey></icon-pencil-icon-grey>
+              </div>
+
+              <div class="icon" (click)="open(data)" *ngIf="!data.isDeleted">
+                <icon-trash-icon-red></icon-trash-icon-red>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination justify-content-end">
+    <div *ngIf="visibleRow">
+      <label class="entry-row">{{ "pagination.line" | translate }}</label>
+      <select
+        class="maxSize-selection"
+        value="realRow"
+        (change)="onChangeRowSize($event)"
+      >
+        <option
+          *ngFor="let c of visibleRow"
+          [value]="c.value"
+          [selected]="c.value === realRow"
+        >
+          {{ c.text }}
+        </option>
+      </select>
+    </div>
+
+    <label class="entry-info"
+      >{{ "pagination.sum" | translate }}
+      {{ dataManagementClientService.maxItems }}</label
+    >
+    <ngb-pagination
+      [collectionSize]="dataManagementClientService.maxItems + 1"
+      (pageChange)="onPageChange($event)"
+      [(page)]="page"
+      [maxSize]="5"
+      [pageSize]="numberOfItemsPerPage"
+      [rotate]="true"
+      [ellipses]="false"
+      [boundaryLinks]="true"
+    ></ngb-pagination>
+  </div>
+</form>

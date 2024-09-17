@@ -1,0 +1,37 @@
+<ng-container *ngIf="isEditClient">
+  <div class="container-dashboard">
+    <div class="container-headline">
+      {{ "address.edit-address.home.header" | translate }}
+    </div>
+
+    <div class="container-profilline">
+      <app-address-persona
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      ></app-address-persona>
+    </div>
+
+    <div class="container-profilline">
+      <app-membership
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+        (click)="dataManagementClientService.currentAnnotationIndex = -1"
+      >
+      </app-membership>
+    </div>
+
+    <div class="container-profilline">
+      <app-note
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-note>
+    </div>
+
+    <div class="container-address-nav border-right-card border-bottom-card">
+      <app-edit-address-nav></app-edit-address-nav>
+    </div>
+
+    <p></p>
+  </div>
+</ng-container>

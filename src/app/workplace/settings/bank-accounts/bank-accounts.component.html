@@ -1,0 +1,54 @@
+<div class="container-dashboard">
+  <div class="container-header">
+    {{ "setting.bank.headline" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-box">
+    <div
+      *ngFor="
+        let c of dataManagementSettingsService.bankDetailList!;
+        index as i
+      "
+    >
+      <div class="container-line" *ngIf="i >= 1"></div>
+
+      <app-bank-accounts-row
+        [bankDetail
+        as
+        Bankdetail]="c"
+        *ngIf="c.isDirty !== 3"
+        [position]="i"
+        [isFocusIndex]="dataManagementSettingsService.isBankDetailRowFocusIndex"
+        (click)="onFocus(i)"
+        (isChangingEvent)="onIsChanging($event)"
+      ></app-bank-accounts-row>
+    </div>
+  </div>
+
+  <p></p>
+  <p></p>
+
+  <div class="row">
+    <div class="filler"></div>
+    <span
+      class="delete-button"
+      type="button"
+      (click)="onDelete()"
+      *ngIf="
+        dataManagementSettingsService.isBankDetailRowFocusIndex !== -1 &&
+        dataManagementSettingsService.bankDetailList!.length > 1
+      "
+      >-
+      {{ "setting.bank.delete" | translate }}
+    </span>
+    <span class="add-button first" type="button" (click)="onAdd()"
+      >+ Bankverbindung hinzufügen
+    </span>
+  </div>
+
+  <p></p>
+  <p></p>
+  <p></p>
+</div>

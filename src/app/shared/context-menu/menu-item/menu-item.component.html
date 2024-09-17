@@ -1,0 +1,36 @@
+<div *ngIf="menuItem" (contextmenu)="stopEvent($event)">
+  <div
+    class="menu-item-container"
+    *ngIf="!menuItem.isSeparator"
+    (click)="onClick()"
+    (mouseover)="onMouseOver()"
+    (mouseleave)="onMouseLeave()"
+    [ngClass]="{ disabled: menuItem.disabled }"
+  >
+    <div class="menu-item-icon">
+      <i class="{{ menuItem.iconFont }}" *ngIf="menuItem.iconFont"></i>
+      <div
+        class="name-icon"
+        [ngStyle]="{ 'background-color': onColor(menuItem.color) }"
+        *ngIf="!menuItem.iconFont"
+      ></div>
+    </div>
+    <div class="menu-item">
+      {{ menuItem.name }}
+    </div>
+    <span class="filler"></span>
+    <div class="menu-item-shortcut">{{ menuItem.shortCut }}</div>
+
+    <div class="menu-item-arrow">
+      <i class="fas fa-regular fa-angle-right" *ngIf="menuItem.hasMenu"></i>
+      <app-menu
+        *ngIf="menuItem.menu && menuItem.hasMenu"
+        [menu]="menuItem.menu"
+        #subMenu
+      ></app-menu>
+    </div>
+  </div>
+  <div *ngIf="menuItem.isSeparator">
+    <div class="menu-item-divider"></div>
+  </div>
+</div>

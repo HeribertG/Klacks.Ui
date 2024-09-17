@@ -1,0 +1,91 @@
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+
+.add-button {
+  padding-right: 50px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: $standartGreenColor;
+}
+
+.container-box {
+  flex: 1;
+  height: 420px;
+
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.firstColumn {
+  margin-left: 30px;
+  width: 250px;
+}
+.firstColumn-email {
+  margin-top: -20px;
+  margin-left: 30px;
+  width: 430px;
+}
+
+.secondColumn {
+  margin-left: 30px;
+  width: 150px;
+}
+
+.container-certificate-value {
+  flex-direction: column;
+}
+.container-certificate-box {
+  display: inline-flex;
+  margin-left: 0px;
+  padding-left: 0px;
+}
+
+label {
+  width: 100px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--colorLabel);
+}
+
+.delete-button {
+  margin-top: 5px;
+  margin-left: 20px;
+  color: var(--standartRedColor);
+}
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.red-font {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.red-font-disabled {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: #b6b6c3;
+  pointer-events: none;
+}
+
+.save-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+  margin-right: 20px;
+}
+.save-btn-ok {
+  width: 50px;
+  height: 40px;
+  font-size: 13px;
+  background-color: $standartBlueColor;
+  color: $standartWhiteColor;
+  margin-right: 20px;
+}

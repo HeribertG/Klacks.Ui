@@ -1,0 +1,65 @@
+<div class="first custom-control-inline">
+  <div class="form-group">
+    <input
+      type="text"
+      [(ngModel)]="user!.firstName + ' ' + user!.lastName"
+      name="user.name"
+      class="form-control gap"
+      readonly
+      aria-label="name"
+    />
+  </div>
+  <div class="form-group">
+    <input
+      type="email"
+      [(ngModel)]="user!.email"
+      class="form-control gap"
+      name="user.email"
+      readonly
+      aria-label="email"
+    />
+    <span class="send-to" (click)="onClickSentTo()">{{
+      "setting.user-admin.row.send" | translate
+    }}</span>
+  </div>
+  <div class="form-group">
+    <select
+      [(ngModel)]="user!.isAuthorised"
+      (change)="onChange()"
+      class="form-select gap"
+      name=" user.visa"
+      [disabled]="!enabled"
+      aria-label="isAuthorised"
+    >
+      <option value="true" [selected]="user!.isAuthorised === true">
+        {{ "setting.user-admin.row.yes" | translate }}
+      </option>
+      <option value="false" [selected]="user!.isAuthorised === false">
+        {{ "setting.user-admin.row.no" | translate }}
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <select
+      [(ngModel)]="user!.isAdmin"
+      (change)="onChange()"
+      class="form-select"
+      name=" user.rights"
+      [disabled]="!enabled"
+      aria-label="isAdmin"
+    >
+      <option value="true" [selected]="user!.isAdmin === true">Admin</option>
+      <option value="false" [selected]="user!.isAdmin === false">User</option>
+    </select>
+  </div>
+  <div>
+    <span
+      class="delete-button"
+      type="button"
+      (click)="onDelete()"
+      *ngIf="enabled"
+      >✕</span
+    >
+  </div>
+</div>

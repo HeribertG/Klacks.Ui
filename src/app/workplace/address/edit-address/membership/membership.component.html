@@ -1,0 +1,90 @@
+<form #membershipForm="ngForm" class="container-card">
+  <div class="container-header">
+    {{ "address.edit-address.membership.header" | translate }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <div
+    class="container-bank-box"
+    *ngIf="dataManagementClientService.editClient !== undefined"
+  >
+    <div class="container-bank-value">
+      <div class="row-line"></div>
+    </div>
+
+    <div class="container-bank-value secondColumn">
+      <div class="row-line">
+        <div class="form-group medium-width">
+          <label for="membership-entry-date">{{
+            "address.edit-address.membership.entry-date" | translate
+          }}</label>
+          <div class="input-group medium-width">
+            <input
+              class="form-control"
+              name="validFrom"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              aria-labelledby="valid from"
+              id="membership-entry-date"
+              [ngModel]="
+                dataManagementClientService.editClient!.membership!
+                  .internalValidFrom
+              "
+              (ngModelChange)="
+                dataManagementClientService.editClient!.membership!.internalValidFrom =
+                  $event
+              "
+              ngbDatepicker
+              #validFrom="ngbDatepicker"
+            />
+            <span
+              class="input-group-text"
+              style="width: 40px"
+              (click)="validFrom.toggle()"
+            >
+              <i class="fa fa-calendar" style="color: #464e5f"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-line">
+        <div class="form-group medium-width">
+          <label for="membership-until-date">{{
+            "address.edit-address.membership.until-date" | translate
+          }}</label>
+          <div class="input-group flex-nowrap medium-width">
+            <input
+              class="form-control"
+              name="validUntil"
+              [disabled]="dataManagementClientService.editClientDeleted"
+              aria-label="membership-until-date"
+              aria-labelledby="validUntil"
+              id="membership-until-date"
+              [ngModel]="
+                dataManagementClientService.editClient!.membership!
+                  .internalValidUntil
+              "
+              (ngModelChange)="
+                dataManagementClientService.editClient!.membership!.internalValidUntil =
+                  $event
+              "
+              ngbDatepicker
+              #validUntil="ngbDatepicker"
+            />
+
+            <span
+              class="input-group-text"
+              style="width: 40px"
+              (click)="validUntil.toggle()"
+            >
+              <i class="fa fa-calendar" style="color: #464e5f"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 30px"></div>
+</form>

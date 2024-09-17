@@ -1,0 +1,161 @@
+@import "../../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+@import "../../../../../assets/standard-styles/menu.scss";
+@import "../../../../../assets/standard-styles/datepicker.scss";
+
+.default-width {
+  width: 390px;
+}
+
+.medium-width-tel {
+  margin-left: 20px;
+  width: 180px;
+}
+
+.medium-width {
+  width: 280px;
+}
+
+.medium-width-without-button {
+  width: 200px;
+}
+
+label {
+  width: 400px;
+}
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.row-line-company {
+  margin-top: 5px;
+  display: inline-flex;
+  max-height: 82px;
+}
+
+.grey-color {
+  color: #b6b6c3;
+}
+
+.row-line-add {
+  display: inline-flex;
+  padding-bottom: 20px;
+}
+
+.row-line-simple {
+  padding: 0;
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.firstColumn {
+  margin-left: 30px;
+}
+.endColumn {
+  margin-right: 30px;
+}
+
+.gap {
+  margin-left: 20px;
+  width: 130px;
+}
+
+.gap-prefix {
+  width: 80px;
+}
+
+.secondColumnContainer {
+  width: 50%;
+}
+
+.firstColumContainer {
+  width: calc(50% - 10px);
+}
+
+.ownStyle-button {
+  width: 180px;
+  height: 40px;
+  background-color: $standartBlueColor;
+  font-weight: 600;
+  font-size: 14px;
+  color: $standartWhiteColor;
+}
+
+.first-row {
+  margin-top: 40px;
+}
+.own-boolean {
+  width: 40px;
+  margin-left: 0px;
+}
+
+.container-bank-box {
+  display: inline-flex;
+}
+
+.container-bank-value {
+  flex-direction: column;
+  width: 450px;
+}
+
+.add-button {
+  margin-left: 5px;
+  margin-top: 5px;
+  color: $standartGreenColor;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.del-button {
+  margin-left: 5px;
+  margin-top: 5px;
+  color: rosybrown;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.ownStyle-button {
+  width: 53px;
+  height: 34px;
+  background-color: #e5eaee;
+  color: black;
+  font-size: 13px;
+  margin-right: 20px;
+}
+
+.zip {
+  width: 90px;
+  margin-right: 20px;
+}
+
+.gender {
+  width: 130px;
+  margin-right: 20px;
+}
+
+.place {
+  width: 280px;
+}
+
+.row-line-add {
+  display: inline-flex;
+  padding-bottom: 20px;
+}
+
+btn-outline-secondary {
+  height: 33px;
+}
+
+.legal-entity {
+  width: 100px;
+  margin-top: 40px;
+}
+
+input.ng-invalid.ng-dirty {
+  border: 1px solid red;
+}

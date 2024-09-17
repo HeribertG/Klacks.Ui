@@ -1,0 +1,175 @@
+<ng-template #content id="content" let-modal>
+  <form #macroForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ "setting.macro.headline-modal" | translate }}
+      </div>
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="row-line-modal-inline">
+        <div style="margin-left: 30px; width: 150px">
+          <label for="macroName">{{
+            "setting.macro.name-modal" | translate
+          }}</label>
+          <input
+            type="text"
+            style="width: 150px"
+            [(ngModel)]="macroName"
+            name="name"
+            class="form-control"
+            id="macroName"
+          />
+        </div>
+
+        <div style="margin-left: 30px; width: 80px">
+          <label for="type">{{ "setting.macro.type-modal" | translate }}</label>
+          <input
+            class="form-control"
+            style="width: 80px"
+            [(ngModel)]="macroType"
+            name="type"
+            id="type"
+          />
+        </div>
+      </div>
+      <div>
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tabId === 'macro' }"
+              (click)="tabId = 'macro'"
+              >Macro</a
+            >
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tabId === 'data' }"
+              (click)="onClickData()"
+              >{{ "setting.macro.data-modal" | translate }}</a
+            >
+          </li>
+
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tabId === 'test' }"
+              (click)="tabId = 'test'"
+              >{{ "setting.macro.test-modal" | translate }}</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tabId === 'description' }"
+              (click)="tabId = 'description'"
+              >{{ "setting.macro.description-modal" | translate }}</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div
+        class="collapse"
+        [ngStyle]="{ display: tabId === 'macro' ? 'inline' : 'none' }"
+      >
+        <ngx-codemirror
+          #codemirror
+          [options]="codeMirrorOptions"
+          [(ngModel)]="obj"
+          [autoFocus]="true"
+          name="codemirror"
+        >
+        </ngx-codemirror>
+      </div>
+
+      <div
+        class="collapse"
+        [ngStyle]="{ display: tabId === 'data' ? 'inline' : 'none' }"
+      >
+        <ngx-codemirror
+          #codemirror1
+          [options]="codeMirrorOptions"
+          [(ngModel)]="currentData"
+          id="codemirror1"
+          name="codemirrorData1"
+        >
+        </ngx-codemirror>
+      </div>
+
+      <div
+        class="collapse"
+        [ngStyle]="{ display: tabId === 'test' ? 'inline' : 'none' }"
+      >
+        <div class="row-line-modal-inline">
+          <button type="button" class="check">
+            <i class="fas fa-check"></i>&nbsp;check
+          </button>
+          <button type="button"><i class="fas fa-running"></i>&nbsp;run</button>
+        </div>
+
+        <textarea
+          [value]="test"
+          class="preview preview-color preview-color-height"
+          aria-label="test"
+        ></textarea>
+      </div>
+
+      <div
+        class="collapse"
+        [ngStyle]="{ display: tabId === 'description' ? 'inline' : 'none' }"
+      >
+        <textarea
+          value="test"
+          class="preview preview-default-height"
+          aria-label="test"
+        ></textarea>
+      </div>
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ "cancel" | translate }}</span
+    >
+    <button type="button" class="btn save-btn" (click)="modal.close()">
+      Macro erfassen
+    </button>
+  </div>
+</ng-template>
+
+<form>
+  <div class="first custom-control-inline">
+    <div class="form-group">
+      <input
+        type="text"
+        [value]="data.name"
+        name="data.name"
+        class="form-control attribute-name"
+        aria-label="name"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <span class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+  </div>
+</form>

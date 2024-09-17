@@ -1,0 +1,14 @@
+<form>
+  <div class="first custom-control-inline">
+
+    <div>
+
+      <input type="color" class="form-control form-control-color color-button color-value" name="color"
+        (change)="onChange($event)" aria-label=" data.color" [ngModel]="data!.value" (ngModelChange)="data!.value">
+    </div>
+    <div>
+      <div class="form-control color-type">{{data!.type}}</div>
+    </div>
+  </div>
+
+</form>

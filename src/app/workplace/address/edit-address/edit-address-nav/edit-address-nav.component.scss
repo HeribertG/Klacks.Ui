@@ -1,0 +1,112 @@
+@import "../../../../../assets/standard-styles/navigation.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+
+.list-group {
+  padding: 20px;
+}
+
+.icon {
+  margin-left: 10px;
+  padding-right: 10px;
+}
+
+.list-State {
+  flex-flow: column;
+
+  width: 100%;
+  height: 50px;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+ul li {
+  list-style-type: none;
+  padding-bottom: 15px;
+  font-size: 13px;
+}
+
+.max-width {
+  width: 150px;
+}
+
+.dropdown-container {
+  width: 200px;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-flow: column;
+  width: 140px;
+  height: 200px;
+  margin-left: 35px;
+  overflow-x: hidden;
+}
+
+button {
+  margin-bottom: 15px;
+}
+
+.findUl {
+  padding: 0px;
+}
+
+.onwPaginationContainer {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+
+  color: var(--coloPaginationSelected);
+}
+
+.onwPaginationBlock {
+  text-align: center;
+  line-height: 30px;
+  height: 30px;
+}
+
+.onwPaginationBlockLeft {
+  width: 30px;
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPagination);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.onwPaginationB lockRight {
+  width: 30px;
+  border: 1px solid var(--paginationBorderColor);
+  background-color: var(--backgroundColoPagination);
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.onwPaginationBlockRight,
+.onwPaginationBlockLeft.onwPaginationBlockRight {
+  background-color: var(--backgroundColoPaginationSelected);
+}
+
+.onwPaginationBlockRight:active,
+.onwPaginationBlockLeft:active {
+  background-color: var(--backgroundColoPagination);
+}
+
+.onwListButton {
+  text-align: center;
+  vertical-align: middle;
+  color: var(--colorFindClientList) !important;
+  background-color: var(--backgroundFindClientList) !important;
+  border-top: 1px solid var(--backgroundFindClientList);
+  border-left: 1px solid var(--backgroundFindClientList);
+  padding: 5px;
+  border-bottom: 1px solid var(--lightBorderColorFindClientList);
+  border-right: 1px solid var(--lightBorderColorFindClientList);
+  border-radius: 5px;
+  margin-bottom: 3px;
+}
+
+.onwListButton.onwPaginationBlockRight {
+  background-color: var(--backgroundHoverFindClientList) !important;
+  border-top: 1px solid var(--darkBorderColorFindClientList);
+  border-left: 1px solid var(--darkBorderColorFindClientList);
+}
