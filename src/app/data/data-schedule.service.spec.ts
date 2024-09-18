@@ -1,8 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataScheduleService } from './data-schedule.service';
 import {
   IClientWork,
@@ -19,6 +16,7 @@ import {
   Membership,
 } from '../core/client-class';
 import { GenderEnum } from '../helpers/enums/client-enum';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DataScheduleService', () => {
   let service: DataScheduleService;
@@ -26,9 +24,9 @@ describe('DataScheduleService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [DataScheduleService],
-    });
+    imports: [],
+    providers: [DataScheduleService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
     service = TestBed.inject(DataScheduleService);
     httpTestingController = TestBed.inject(HttpTestingController);
   });

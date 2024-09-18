@@ -4,7 +4,7 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
-import * as moment from 'moment';
+import moment from 'moment';
 import { MultiLanguage } from './multi-language-class';
 
 export interface ICalendarRulesFilter extends IBaseFilter {

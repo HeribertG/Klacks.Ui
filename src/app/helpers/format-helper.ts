@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from './string-constants';
 import { OwnTime } from '../core/schedule-class';

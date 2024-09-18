@@ -3,7 +3,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
 import { CalendarSelectorComponent } from './calendar-selector.component';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('CalendarSelectorComponent', () => {
   let component: CalendarSelectorComponent;
@@ -11,13 +12,11 @@ describe('CalendarSelectorComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [CalendarSelectorComponent],
-      imports: [
-        TranslateModule.forRoot(),
-        FormsModule,
-        HttpClientTestingModule,
-      ],
-    }).compileComponents();
+    declarations: [CalendarSelectorComponent],
+    imports: [TranslateModule.forRoot(),
+        FormsModule],
+    providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+}).compileComponents();
   });
 
   beforeEach(() => {

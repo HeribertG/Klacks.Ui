@@ -1,11 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataCountryStateService } from './data-country-state.service';
 import { MultiLanguage, ICountry, Country } from '../core/client-class';
 import { environment } from 'src/environments/environment';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DataCountryStateService', () => {
   let service: DataCountryStateService;
@@ -13,9 +11,9 @@ describe('DataCountryStateService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [DataCountryStateService],
-    });
+    imports: [],
+    providers: [DataCountryStateService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
     service = TestBed.inject(DataCountryStateService);
     httpMock = TestBed.inject(HttpTestingController);
   });

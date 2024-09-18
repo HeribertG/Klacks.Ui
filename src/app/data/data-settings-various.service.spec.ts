@@ -1,12 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { DataSettingsVariousService } from './data-settings-various.service';
 import { ISetting } from '../core/settings-various-class';
 import { environment } from 'src/environments/environment';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DataSettingsVariousService', () => {
   let service: DataSettingsVariousService;
@@ -14,9 +12,9 @@ describe('DataSettingsVariousService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [DataSettingsVariousService],
-    });
+    imports: [],
+    providers: [DataSettingsVariousService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
     service = TestBed.inject(DataSettingsVariousService);
     httpTestingController = TestBed.inject(HttpTestingController);
   });
