@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="month-line">
+    <span class="custom-counter-span"
+      >{{ "schedule.schedule-header.schedule-header.month" | translate }}
+    </span>
+    <span class="filler"></span>
+    <select
+      name="month"
+      id="month"
+      class="form-select month"
+      [(ngModel)]="selectedMonth"
+      (ngChange)="onChangeMonth()"
+    >
+      <option
+        *ngFor="let c of gridSettingsService.monthsName; index as i"
+        [ngValue]="i"
+        [selected]="i === selectedMonth"
+      >
+        {{ c | translate }}
+      </option>
+    </select>
+  </div>
+  <div class="custom-counter">
+    <span class="custom-counter-span"
+      >{{
+        "absence-gantt.absence-gantt-header.absence-gantt-header.year"
+          | translate
+      }}
+    </span>
+    <span class="filler"></span>
+    <app-counter
+      [maxNumber]="maxYear"
+      [currentNumber]="currentYear"
+      (isChanged)="changeYear($event)"
+    >
+    </app-counter>
+  </div>
+</div>
+<div class="row-line-simple">
+  <div
+    ngbDropdownItem
+    class="btn btn-sm btn-info close"
+    (click)="onClickReset()"
+  >
+    {{ "group.edit-group.edit-group-member.add" | translate }}
+  </div>
+</div>

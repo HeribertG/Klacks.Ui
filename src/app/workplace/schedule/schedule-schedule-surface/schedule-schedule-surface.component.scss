@@ -1,0 +1,32 @@
+@import "../../../../assets/standard-styles/colors.scss";
+
+.box-schedule {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.div-tooltip {
+  opacity: 0;
+  position: fixed;
+  border-radius: 4px;
+  background-color: $tooltipBackgroundColor;
+  padding: 5px 10px;
+  margin: 20px;
+  border: $tooltipBorder;
+  z-index: 99999;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  visibility: hidden;
+}
+
+.div-context-menu {
+  z-index: 88888;
+  width: auto;
+  height: auto;
+  position: fixed;
+}
+
+canvas {
+  background-color: $gridBackgroundColor;
+}

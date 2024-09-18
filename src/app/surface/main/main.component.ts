@@ -11,6 +11,7 @@ import { AllAddressHomeComponent } from '../../workplace/address/all-address/all
 import { EditAddressHomeComponent } from '../../workplace/address/edit-address/edit-address-home/edit-address-home.component';
 import { SettingsHomeComponent } from '../../workplace/settings/settings-home/settings-home.component';
 import { ProfileHomeComponent } from '../../workplace/profile/profile-home/profile-home.component';
+import { ScheduleHomeComponent } from '../../workplace/schedule/schedule-home/schedule-home.component';
 
 @Component({
   selector: 'app-main',
@@ -39,6 +40,8 @@ export class MainComponent implements OnChanges {
   compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
   compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
   compInstanceSettingHome: SettingsHomeComponent | undefined;
+  compInstanceScheduleHome: ScheduleHomeComponent | undefined;
+
   // compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
   // compInstanceScheduleHome: ScheduleHomeComponent | undefined;
   // compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
@@ -118,6 +121,20 @@ export class MainComponent implements OnChanges {
       });
     }
 
+    if (this.isSchedule && !this.compInstanceScheduleHome) {
+      import(
+        '../../workplace/schedule/schedule-home/schedule-home.component'
+      ).then((m) => {
+        const comp = m.ScheduleHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<ScheduleHomeComponent>(comp);
+
+        this.compInstanceScheduleHome = compRef.instance;
+        this.compInstanceScheduleHome.isSchedule = this.isSchedule;
+      });
+    }
+
     if (this.compInstanceAllAddressHomeComponent) {
       this.compInstanceAllAddressHomeComponent.isClient = this.isClient;
     }
@@ -130,6 +147,10 @@ export class MainComponent implements OnChanges {
     }
     if (this.compInstanceProfileHome) {
       this.compInstanceProfileHome.isProfile = this.isProfile;
+    }
+
+    if (this.compInstanceScheduleHome) {
+      this.compInstanceScheduleHome.isSchedule = this.isSchedule;
     }
   }
 

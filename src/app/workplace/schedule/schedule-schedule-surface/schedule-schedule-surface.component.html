@@ -1,0 +1,11 @@
+<div
+  id="box-schedule"
+  class="box-schedule"
+  resizeObserver
+  (resizeElement)="onResize($event)"
+>
+  <canvas cellEvents id="scheduleCanvas"> </canvas>
+</div>
+
+<div id="tooltip" class="div-tooltip"></div>
+<app-context-menu #contextMenu></app-context-menu>

@@ -1,0 +1,51 @@
+<div class="custom-control-inline">
+  <span class="filler"></span>
+  <div ngbDropdown #dropdownSetting="ngbDropdown">
+    <button
+      class="btn btn-sm btn-setting"
+      id="dropdownSetting"
+      ngbDropdownToggle
+      aria-label="absence settings"
+      placement="bottom"
+      ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
+      autoClose="true"
+    >
+      <christmas-ball></christmas-ball>
+    </button>
+    <div ngbDropdownMenu>
+      <div class="px-3 py-3">
+        <div class="chip-form-group">
+          <app-calendar-selector
+            (openMenu)="onOpenMenu()"
+            (change)="onChangeCalendar()"
+          ></app-calendar-selector>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ngbDropdown #dropdownSetting="ngbDropdown">
+    <button
+      class="btn btn-sm btn-setting"
+      id="dropdownSetting"
+      ngbDropdownToggle
+      aria-label="absence settings"
+      placement="bottom"
+      ngbTooltip="{{ 'schedule.selector.select-calendar' | translate }}"
+      autoClose="true"
+    >
+      <calendar-icon-ball></calendar-icon-ball>
+    </button>
+    <div ngbDropdownMenu>
+      <app-schedule-header-calendar></app-schedule-header-calendar>
+    </div>
+  </div>
+
+  <!-- <div class="custom-slider">
+    <ngx-slider
+      [(value)]="value"
+      (valueChange)="onChange()"
+      [options]="options"
+    ></ngx-slider>
+  </div> -->
+</div>

@@ -48,6 +48,7 @@ import { DashboardHomeComponent } from './workplace/dashboard/dashboard-home/das
 import { SearchComponent } from './search/search.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
+import { ScheduleModule } from './workplace/schedule/schedule.module';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -84,6 +85,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     AddressModule,
     CommonModule,
     ModalModule,
+    ScheduleModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
