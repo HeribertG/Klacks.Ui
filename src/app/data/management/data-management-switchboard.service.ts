@@ -13,9 +13,6 @@ import { Subject, takeUntil } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementSwitchboardService {
-  pipe(arg0: any) {
-    throw new Error('Method not implemented.');
-  }
   public isFocusChangedEvent = new Subject<boolean>();
 
   private _nameOfVisibleEntity = '';

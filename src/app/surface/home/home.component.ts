@@ -217,6 +217,22 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
 
         break;
+      case 'schedule':
+        // setTimeout(() => {
+        //   this.spinnerService.showProgressSpinner = true;
+        // }, 200);
+        import('../../workplace/schedule/schedule.module').then(
+          (m) => m.ScheduleModule
+        );
+        this.isSchedule = true;
+        this.setContainerWithMax();
+        this.isSavebarVisible = false;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementScheduleService';
+        }, 100);
+
+        break;
 
       case 'profile':
         setTimeout(() => {
