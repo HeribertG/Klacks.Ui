@@ -1,0 +1,164 @@
+<form #mainShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "shift.edit-shift.main.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="main-switch-wrapper">
+      <label class="main-switch" for="checkbox">
+        <input
+          type="checkbox"
+          name="isChecked"
+          aria-labelledby="isChecked"
+          id="checkbox"
+          [(ngModel)]="isChecked"
+          (change)="onComplexModeChecked()"
+          name="isChecked"
+        />
+        <div class="slider round"></div>
+      </label>
+      <em>{{ "shift.edit-shift.main.complex-mode" | translate }}</em>
+    </div>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div [ngStyle]="{ display: visibleTable }">
+    <div
+      class="firstColumn first-row"
+      *ngIf="dataManagementShiftService.editShift !== undefined"
+    >
+      <!-- Abbreviation -->
+      <label for="abbreviation">{{
+        "shift.edit-shift.main.abbreviation" | translate
+      }}</label>
+      <div class="custom-control-inline short-width">
+        <input
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
+          id="abbreviation"
+          name="abbreviation"
+          required
+        />
+      </div>
+      <!-- Name -->
+      <label for="name">{{ "shift.edit-shift.main.name" | translate }}</label>
+      <div class="custom-control-inline default-width">
+        <input
+          type="text"
+          class="form-control"
+          autocomplete="off"
+          [(ngModel)]="dataManagementShiftService.editShift.name"
+          id="name"
+          name="name"
+          required
+        />
+      </div>
+
+      <!-- Valid From and Until -->
+      <div *ngIf="dataManagementShiftService.editShift !== undefined">
+        <div class="container-bank-box">
+          <div class="firstColumContainer">
+            <div class="form-group">
+              <label for="validFrom">{{
+                "shift.edit-shift.main.from" | translate
+              }}</label>
+
+              <div class="input-group medium-width">
+                <input
+                  class="form-control"
+                  name="validFrom"
+                  id="validFrom"
+                  [ngModel]="
+                    dataManagementShiftService.editShift.internalFromDate
+                  "
+                  (ngModelChange)="
+                    dataManagementShiftService.editShift.internalFromDate =
+                      $event
+                  "
+                  ngbDatepicker
+                  btn-dark
+                  #validFrom="ngbDatepicker"
+                  required
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="validFrom.toggle()"
+                >
+                  <i class="fa fa-calendar" style="color: #464e5f"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="secondColumnContainer firstColumn">
+            <div class="row-line">
+              <div class="form-group">
+                <label for="validUntil">{{
+                  "shift.edit-shift.main.until" | translate
+                }}</label>
+
+                <div class="input-group medium-width">
+                  <input
+                    class="form-control"
+                    name="validUntil"
+                    id="validUntil"
+                    [ngModel]="
+                      dataManagementShiftService.editShift.internalUntilDate
+                    "
+                    (ngModelChange)="
+                      dataManagementShiftService.editShift.internalUntilDate =
+                        $event
+                    "
+                    ngbDatepicker
+                    btn-dark
+                    #validUntil="ngbDatepicker"
+                  />
+                  <span
+                    class="input-group-text"
+                    style="width: 40px"
+                    (click)="validUntil.toggle()"
+                  >
+                    <i class="fa fa-calendar" style="color: #464e5f"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="endColumn">
+          <div class="form-group">
+            <label for="description">{{
+              "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+                | translate
+            }}</label>
+            <div class="input-text">
+              <textarea
+                class="form-control"
+                [(ngModel)]="dataManagementShiftService.editShift.description"
+                name="description"
+              >
+              </textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height: 30px"></div>
+</form>

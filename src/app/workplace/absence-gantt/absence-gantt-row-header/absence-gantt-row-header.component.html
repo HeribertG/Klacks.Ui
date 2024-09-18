@@ -1,0 +1,18 @@
+<div
+  id="gantt-filter"
+  class="gantt-filter-windows"
+  [ngStyle]="filterStyle"
+  (mouseleave)="onMouseLeave($event)"
+>
+  <app-absence-gantt-filter #ganttFilter></app-absence-gantt-filter>
+</div>
+
+<div id="box-calendar-row-header" class="box-calendar">
+  <canvas
+    id="rowHeaderCanvas"
+    class="calendar"
+    (mousemove)="onMouseMove($event)"
+    (click)="onClick($event)"
+    aria-labelledby="Row Header of the Absence Gantt."
+  ></canvas>
+</div>

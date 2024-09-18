@@ -1,0 +1,55 @@
+<ng-container *ngIf="isCreateShift">
+  <div class="container-dashboard">
+    <div class="container-headline">
+      {{ "shift.edit-shift.home.header" | translate }}
+    </div>
+
+    <div class="container-profilline">
+      <app-edit-shift-item
+        (isChangingEvent)="onIsChanging($event)"
+        (isChangingMode)="onIsChangingMode()"
+        class="container-profile first border-right-card border-bottom-card"
+      ></app-edit-shift-item>
+    </div>
+
+    <div class="container-profilline">
+      <app-edit-shift-weekday
+        (isChangingEvent)="onIsChanging($event)"
+        [isComplex]="isComplex"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-edit-shift-weekday>
+    </div>
+
+    <div class="container-profilline">
+      <app-edit-shift-macro
+        *ngIf="isComplex"
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      ></app-edit-shift-macro>
+    </div>
+
+    <div class="container-profilline">
+      <app-edit-shift-address
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-edit-shift-address>
+    </div>
+
+    <div class="container-profilline">
+      <app-edit-shift-special-feature
+        *ngIf="isComplex"
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-edit-shift-special-feature>
+    </div>
+
+    <div class="container-address-nav border-right-card border-bottom-card">
+      <app-edit-shift-nav></app-edit-shift-nav>
+    </div>
+
+    <p></p>
+  </div>
+</ng-container>

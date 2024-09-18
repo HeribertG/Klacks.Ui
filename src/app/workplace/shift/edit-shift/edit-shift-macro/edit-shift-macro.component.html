@@ -1,0 +1,58 @@
+<form #macroShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "shift.edit-shift.macro.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    <div *ngIf="dataManagementShiftService.editShift !== undefined">
+      <select
+        *ngIf="dataManagementShiftService.macroList.length > 0"
+        name="macro-list"
+        class="form-select macro-list"
+        [(ngModel)]="dataManagementShiftService.editShift.macroId"
+        aria-label="macro-list"
+        (ngModelChange)="onSelectionChange($event)"
+      >
+        <option
+          *ngFor="let item of dataManagementShiftService.macroList"
+          [value]="item.id"
+          [selected]="dataManagementShiftService.editShift.macroId === item.id"
+        >
+          {{ item.name }}
+        </option>
+      </select>
+
+      <div class="macro-description">
+        <div class="form-group">
+          <label for="description">{{
+            "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+              | translate
+          }}</label>
+          <div class="input-text">
+            <textarea
+              class="form-control"
+              [ngModel]="macroDescription"
+              name="description"
+            >
+            </textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height: 30px"></div>
+</form>

@@ -1,0 +1,26 @@
+<div
+  class="absence-reason-container"
+  *ngIf="dataManagementAbsence && dataManagementAbsence.absenceList.length > 0"
+>
+  <div *ngFor="let c of dataManagementAbsence.absenceList">
+    <div class="name-line" draggable="true" (dragstart)="dragStart($event, c)">
+      <div class="name-icon" [ngStyle]="{ 'background-color': onColor(c) }">
+        <p
+          class="checkmark"
+          (click)="onCheck(c)"
+          [ngStyle]="{ color: onInvertColor(c) }"
+          *ngIf="onIsChecked(c)"
+        >
+          &#10004;
+        </p>
+        <p
+          class="checkmark"
+          (click)="onCheck(c)"
+          [ngStyle]="{ color: onInvertColor(c) }"
+          *ngIf="!onIsChecked(c)"
+        ></p>
+      </div>
+      <span (click)="onCheck(c)">{{ c.name | fallback : currentLang }} </span>
+    </div>
+  </div>
+</div>

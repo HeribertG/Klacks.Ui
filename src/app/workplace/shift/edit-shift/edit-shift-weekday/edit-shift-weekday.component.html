@@ -1,0 +1,324 @@
+<form #weekdayShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "shift.edit-shift.weekday.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div class="container-bank" [ngStyle]="{ display: visibleTable }">
+    <div
+      class="container-bank-box"
+      *ngIf="dataManagementShiftService.editShift !== undefined"
+    >
+      <div class="firstColumContainer">
+        <div class="firstColumn">
+          <div class="row-line1">
+            <label> {{ "shift.edit-shift.weekday.from" | translate }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalStartShift.hours
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalStartShift
+                      .hours
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-hour hours"
+                type="text"
+                maxlength="3"
+                placeholder="hh"
+              />
+              <Label class="delimiter-time">:</Label>
+              <input
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalStartShift
+                    .minutes
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalStartShift
+                      .minutes
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-minute minutes"
+                type="text"
+                maxlength="3"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="secondColumnContainer">
+        <div class="row-line2 endColumn">
+          <div class="row-line1">
+            <label>{{ "shift.edit-shift.weekday.until" | translate }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalEndShift.hours
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalEndShift.hours
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-hour hours"
+                type="text"
+                maxlength="3"
+                placeholder="hh"
+              />
+              <Label class="delimiter-time">:</Label>
+              <input
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalEndShift.minutes
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalEndShift
+                      .minutes
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-minute minutes"
+                type="text"
+                maxlength="3"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+          <span class="filler"></span>
+
+          <!-- work hours -->
+          <div class="row-line1">
+            <label>{{
+              "shift.edit-shift.weekday.work-hour" | translate
+            }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [disabled]="disabledWorkTime"
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalWorkTime.hours
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalWorkTime.hours
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-hour hours"
+                type="text"
+                maxlength="3"
+                placeholder="hh"
+              />
+              <Label class="delimiter-time">:</Label>
+              <input
+                [disabled]="disabledWorkTime"
+                [(ngModel)]="
+                  dataManagementShiftService.editShift.internalWorkTime.minutes
+                "
+                (keyup)="
+                  onKeyUpInput(
+                    $event,
+                    dataManagementShiftService.editShift.internalWorkTime
+                      .minutes
+                  )
+                "
+                [ngModelOptions]="{ standalone: true }"
+                class="form-control time-minute minutes"
+                type="text"
+                maxlength="3"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="firstColumn endColumn"
+      *ngIf="dataManagementShiftService.editShift !== undefined"
+    >
+      <div class="form-group" *ngIf="isComplex">
+        <label class="checkbox-label" for="isTimeRange">
+          <input
+            type="checkbox"
+            [(ngModel)]="dataManagementShiftService.editShift.isTimeRange"
+            id="isTimeRange"
+            name="isTimeRange"
+          />
+          {{ "shift.edit-shift.weekday.time-range" | translate }}
+        </label>
+      </div>
+
+      <div class="form-group top-margin15" *ngIf="isComplex">
+        <div class="d-flex align-items-center">
+          <input
+            type="number"
+            min="1"
+            max="100"
+            class="form-control quantity"
+            [(ngModel)]="dataManagementShiftService.editShift.quantity"
+            id="quantity"
+            name="quantity"
+          />
+          <label class="checkbox-label ms-2" for="quantity">
+            {{ "shift.edit-shift.main.until" | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- -------------------------------------------------------------- -->
+
+    <div
+      class="container-bank-box"
+      *ngIf="dataManagementShiftService.editShift !== undefined"
+    >
+      <div class="firstColumContainer">
+        <div class="firstColumn">
+          <div class="form-group">
+            <label class="checkbox-label" for="isMonday">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isMonday"
+                name="isMonday"
+                id="isMonday"
+              />
+              {{ "monday" | translate }}
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" for="isTuesday">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isTuesday"
+                name="isTuesday"
+                id="isTuesday"
+              />
+              {{ "tuesday" | translate }}
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" for="isWednesday">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isWednesday"
+                name="isWednesday"
+                id="isWednesday"
+              />
+              {{ "wednesday" | translate }}
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" for="isThursday">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isThursday"
+                name="isThursday"
+                id="isThursday"
+              />
+              {{ "thursday" | translate }}
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label" for="isFriday">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isFriday"
+                name="isFriday"
+                id="isFriday"
+              />
+              {{ "friday" | translate }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="secondColumnContainer">
+        <div class="form-group">
+          <label class="checkbox-label" for="isSaturday">
+            <input
+              type="checkbox"
+              [(ngModel)]="dataManagementShiftService.editShift.isSaturday"
+              name="isSaturday"
+              id="isSaturday"
+            />
+            {{ "saturday" | translate }}
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label" for="isSunday">
+            <input
+              type="checkbox"
+              [(ngModel)]="dataManagementShiftService.editShift.isSunday"
+              name="isSunday"
+              id="isSunday"
+            />
+            {{ "sunday" | translate }}
+          </label>
+        </div>
+
+        <div class="form-group">
+          <p></p>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label" for="isHoliday">
+            <input
+              type="checkbox"
+              [(ngModel)]="dataManagementShiftService.editShift.isHoliday"
+              name="isHoliday"
+              id="isHoliday"
+            />
+            {{ "holiday" | translate }}
+          </label>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label" for="isWeekdayOrHoliday">
+            <input
+              type="checkbox"
+              [(ngModel)]="
+                dataManagementShiftService.editShift.isWeekdayOrHoliday
+              "
+              name="isWeekdayOrHoliday"
+              id="isWeekdayOrHoliday"
+            />
+            {{ "weekday-or-holiday" | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height: 30px"></div>
+</form>

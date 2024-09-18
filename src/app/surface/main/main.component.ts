@@ -7,11 +7,15 @@ import {
   ViewChild,
   OnChanges,
 } from '@angular/core';
-import { AllAddressHomeComponent } from '../../workplace/address/all-address/all-address-home/all-address-home.component';
-import { EditAddressHomeComponent } from '../../workplace/address/edit-address/edit-address-home/edit-address-home.component';
-import { SettingsHomeComponent } from '../../workplace/settings/settings-home/settings-home.component';
-import { ProfileHomeComponent } from '../../workplace/profile/profile-home/profile-home.component';
-import { ScheduleHomeComponent } from '../../workplace/schedule/schedule-home/schedule-home.component';
+import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
+import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
+import { ProfileHomeComponent } from 'src/app/workplace/profile/profile-home/profile-home.component';
+import { SettingsHomeComponent } from 'src/app/workplace/settings/settings-home/settings-home.component';
+import { AbsenceGanttHomeComponent } from '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component';
+import { ScheduleHomeComponent } from 'src/app/workplace/schedule/schedule-home/schedule-home.component';
+import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-group-home/all-group-home.component';
+import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
+import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 
 @Component({
   selector: 'app-main',
@@ -40,13 +44,11 @@ export class MainComponent implements OnChanges {
   compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
   compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
   compInstanceSettingHome: SettingsHomeComponent | undefined;
+  compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
   compInstanceScheduleHome: ScheduleHomeComponent | undefined;
-
-  // compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
-  // compInstanceScheduleHome: ScheduleHomeComponent | undefined;
-  // compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
-  // compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
-  // compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
+  compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
+  compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
+  compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
 
   ngOnChanges(changes: any): void {
     if (this.isSetting && !this.compInstanceSettingHome) {
@@ -120,6 +122,19 @@ export class MainComponent implements OnChanges {
         });
       });
     }
+    if (this.isAbsence && !this.compInstanceAbsenceGanttHome) {
+      import(
+        '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component'
+      ).then((m) => {
+        const comp = m.AbsenceGanttHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<AbsenceGanttHomeComponent>(comp);
+
+        this.compInstanceAbsenceGanttHome = compRef.instance;
+        this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
+      });
+    }
 
     if (this.isSchedule && !this.compInstanceScheduleHome) {
       import(
@@ -133,6 +148,63 @@ export class MainComponent implements OnChanges {
         this.compInstanceScheduleHome = compRef.instance;
         this.compInstanceScheduleHome.isSchedule = this.isSchedule;
       });
+    }
+
+    if (this.isGroup && !this.compInstanceAllGroupHome) {
+      import(
+        '../../workplace/group/all-group/all-group-home/all-group-home.component'
+      ).then((m) => {
+        const comp = m.AllGroupHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<AllGroupHomeComponent>(comp);
+
+        this.compInstanceAllGroupHome = compRef.instance;
+        this.compInstanceAllGroupHome.isGroup = this.isGroup;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+
+    if (this.isEditGroup && !this.compInstanceEditGroupHome) {
+      import(
+        '../../workplace/group/edit-group/edit-group-home/edit-group-home.component'
+      ).then((m) => {
+        const comp = m.EditGroupHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<EditGroupHomeComponent>(comp);
+
+        this.compInstanceEditGroupHome = compRef.instance;
+        this.compInstanceEditGroupHome.isEditGroup = this.isEditGroup;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+    if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
+      import(
+        '../../workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component'
+      ).then((m) => {
+        const comp = m.EditShiftHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<EditShiftHomeComponent>(comp);
+
+        this.compInstanceCreateShiftHome = compRef.instance;
+        this.compInstanceCreateShiftHome.isCreateShift = this.isCreateShift;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+
+    if (this.compInstanceAbsenceGanttHome) {
+      this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
     }
 
     if (this.compInstanceAllAddressHomeComponent) {
@@ -151,6 +223,18 @@ export class MainComponent implements OnChanges {
 
     if (this.compInstanceScheduleHome) {
       this.compInstanceScheduleHome.isSchedule = this.isSchedule;
+    }
+
+    if (this.compInstanceAllGroupHome) {
+      this.compInstanceAllGroupHome.isGroup = this.isGroup;
+    }
+
+    if (this.compInstanceEditGroupHome) {
+      this.compInstanceEditGroupHome.isEditGroup = this.isEditGroup;
+    }
+
+    if (this.compInstanceCreateShiftHome) {
+      this.compInstanceCreateShiftHome.isCreateShift = this.isCreateShift;
     }
   }
 

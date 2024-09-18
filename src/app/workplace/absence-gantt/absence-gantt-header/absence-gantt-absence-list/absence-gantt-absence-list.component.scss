@@ -1,0 +1,71 @@
+@import "../../../../../assets/standard-styles/colors.scss";
+
+.absence-reason-container {
+  width: calc(100% - 20px);
+  height: calc(100%);
+  background-color: var(--backgroundColorWorkplace);
+  color: var(--colorLabel);
+  display: flex;
+  flex-flow: row wrap;
+  padding: 10px;
+  box-sizing: content-box;
+  overflow-x: auto;
+  overflow-y: auto;
+  font: normal 14px Roboto;
+}
+
+.absence-reason-container:focus {
+  background-color: Aqua;
+}
+
+.name-line {
+  display: flex;
+  flex-flow: row;
+  margin-right: 15px;
+  background-color: var(--backgroundColorWorkplace);
+}
+
+.name-line:hover {
+  background-color: rgba($color: #1e90ff, $alpha: 0.2);
+}
+
+.name-icon {
+  width: 17px;
+  height: 18px;
+  margin-right: 10px;
+}
+
+[draggable="true"]:hover {
+  cursor: grab;
+}
+
+[draggable="true"] {
+  cursor: grab;
+}
+
+[draggable="false"] {
+  cursor: not-allowed;
+}
+
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Required to make elements draggable in old WebKit */
+  -khtml-user-drag: element;
+  -webkit-user-drag: element;
+}
+
+.checkmark {
+  text-align: center;
+  align-items: center;
+  width: 17px;
+  height: 18px;
+  font-weight: bold;
+}
+
+span {
+  font-size: 13px;
+  font-weight: 500;
+}

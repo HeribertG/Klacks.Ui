@@ -15,12 +15,12 @@ import {
   popFromStack,
   pushOnStack,
 } from 'src/app/helpers/local-storage-stack';
+import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { AppSetting, ISetting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 
 @Component({
   selector: 'app-home',
@@ -174,6 +174,19 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.reset();
 
     switch (value) {
+      case 'absence':
+        pushOnStack('workplace/absence');
+        import('../../workplace/absence-gantt/absence-gantt.module').then(
+          (m) => m.AbsenceGanttModule
+        );
+        this.isAbsence = true;
+        this.isSavebarVisible = false;
+        this.setContainerWithMax();
+
+        // setTimeout(() => {
+        //   this.spinnerService.showProgressSpinner = true;
+        // }, 200);
+        break;
       case 'dashboard':
         pushOnStack('workplace/dashboard');
         // setTimeout(() => {
@@ -233,7 +246,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
 
         break;
-
       case 'profile':
         setTimeout(() => {
           this.spinnerService.showProgressSpinner = true;
@@ -288,7 +300,17 @@ export class HomeComponent implements OnInit, OnDestroy {
             'DataManagementGroupService_Edit';
         }, 100);
         break;
-
+      case 'edit-shift':
+        pushOnStack('workplace/edit-shift');
+        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
+        this.isCreateShift = true;
+        this.setContainerWithNormal();
+        this.isSavebarVisible = true;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementShiftService_Edit';
+        }, 100);
+        break;
       default:
         this.isDashboard = true;
         this.isSavebarVisible = false;

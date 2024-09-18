@@ -1,0 +1,22 @@
+@import "../../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../../assets/standard-styles/colors.scss";
+@import "../../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../../assets/standard-styles/standard-card-interior.scss";
+
+.table {
+  width: calc(100% - 30px);
+  background-color: var(--backgroundColorCard);
+}
+
+.with100 {
+  max-width: 100px;
+  width: 100px;
+  min-width: 100px;
+}
+.maxWith250 {
+  max-width: 250px;
+  width: 200px;
+}
+.with20 {
+  width: 20px;
+}

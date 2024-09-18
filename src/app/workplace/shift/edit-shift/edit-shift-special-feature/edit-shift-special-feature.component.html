@@ -1,0 +1,121 @@
+<form #specialFeatureShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "shift.edit-shift.special-feature.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    <div *ngIf="dataManagementShiftService.editShift !== undefined">
+      <div
+        class="container-bank-box"
+        *ngIf="dataManagementShiftService.editShift !== undefined"
+      >
+        <div class="firstColumContainer">
+          <div class="firstColumn">
+            <div class="row-line1">
+              <label> {{ "shift.edit-shift.weekday.from" | translate }}</label>
+              <div class="row-line-inline-simple">
+                <input
+                  [(ngModel)]="
+                    dataManagementShiftService.editShift.internalStartShift
+                      .hours
+                  "
+                  (keyup)="
+                    onKeyUpInput(
+                      $event,
+                      dataManagementShiftService.editShift.internalStartShift
+                        .hours
+                    )
+                  "
+                  [ngModelOptions]="{ standalone: true }"
+                  class="form-control time-hour hours"
+                  type="text"
+                  maxlength="3"
+                  placeholder="hh"
+                />
+                <Label class="delimiter-time">:</Label>
+                <input
+                  [(ngModel)]="
+                    dataManagementShiftService.editShift.internalStartShift
+                      .minutes
+                  "
+                  (keyup)="
+                    onKeyUpInput(
+                      $event,
+                      dataManagementShiftService.editShift.internalStartShift
+                        .minutes
+                    )
+                  "
+                  [ngModelOptions]="{ standalone: true }"
+                  class="form-control time-minute minutes"
+                  type="text"
+                  maxlength="3"
+                  placeholder="mm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="secondColumnContainer">
+          <div class="row-line2 endColumn">
+            <div class="row-line1">
+              <label>{{ "shift.edit-shift.weekday.until" | translate }}</label>
+              <div class="row-line-inline-simple">
+                <input
+                  [(ngModel)]="
+                    dataManagementShiftService.editShift.internalEndShift.hours
+                  "
+                  (keyup)="
+                    onKeyUpInput(
+                      $event,
+                      dataManagementShiftService.editShift.internalEndShift
+                        .hours
+                    )
+                  "
+                  [ngModelOptions]="{ standalone: true }"
+                  class="form-control time-hour hours"
+                  type="text"
+                  maxlength="3"
+                  placeholder="hh"
+                />
+                <Label class="delimiter-time">:</Label>
+                <input
+                  [(ngModel)]="
+                    dataManagementShiftService.editShift.internalEndShift
+                      .minutes
+                  "
+                  (keyup)="
+                    onKeyUpInput(
+                      $event,
+                      dataManagementShiftService.editShift.internalEndShift
+                        .minutes
+                    )
+                  "
+                  [ngModelOptions]="{ standalone: true }"
+                  class="form-control time-minute minutes"
+                  type="text"
+                  maxlength="3"
+                  placeholder="mm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="height: 30px"></div>
+</form>

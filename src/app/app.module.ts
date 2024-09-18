@@ -49,6 +49,7 @@ import { SearchComponent } from './search/search.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
 import { ScheduleModule } from './workplace/schedule/schedule.module';
+import { AbsenceGanttModule } from './workplace/absence-gantt/absence-gantt.module';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -86,6 +87,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     CommonModule,
     ModalModule,
     ScheduleModule,
+    AbsenceGanttModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

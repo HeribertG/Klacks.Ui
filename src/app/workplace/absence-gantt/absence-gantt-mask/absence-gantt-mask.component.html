@@ -1,0 +1,215 @@
+<div class="mask-container">
+  <div *ngIf="selectedBreak" class="mask">
+    <div class="mask-header custom-control-inline">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [ngClass]="{ active: tabId === 'mask' }"
+            (click)="tabId = 'mask'"
+            >{{
+              "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
+                | translate
+            }}
+          </a>
+        </li>
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link"
+            [ngClass]="{ active: tabId === 'list' }"
+            (click)="tabId = 'list'"
+            >{{
+              "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.list"
+                | translate
+            }}
+          </a>
+        </li>
+      </ul>
+      <span class="filler"></span>
+      <div [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }">
+        <icon-pdf-icon></icon-pdf-icon>
+      </div>
+    </div>
+
+    <div
+      class="collapse"
+      [ngStyle]="{ display: tabId === 'mask' ? 'inline' : 'none' }"
+    >
+      <div class="container-mask">
+        <div class="container-mask-date">
+          <div class="row-line">
+            <div class="form-group">
+              <label for="internalUntil">{{
+                "absence-gantt.absence-gantt-mask.absence-gantt-mask.from"
+                  | translate
+              }}</label>
+              <div class="input-group-own short-width gap">
+                <input
+                  class="form-control input-date"
+                  name="internalFrom"
+                  aria-label="internalUntil"
+                  aria-labelledby="internalFrom"
+                  id="internalUntil"
+                  [ngModel]="selectedBreak!.internalFrom"
+                  (ngModelChange)="
+                    onChange(); selectedBreak!.internalFrom = $event
+                  "
+                  ngbDatepicker
+                  #internalFrom="ngbDatepicker"
+                />
+
+                <span
+                  class="input-group-text span-date"
+                  style="width: 40px"
+                  (click)="internalFrom.toggle()"
+                >
+                  <i class="fa fa-calendar" style="color: #464e5f"></i>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="internalUntil">{{
+                "absence-gantt.absence-gantt-mask.absence-gantt-mask.until"
+                  | translate
+              }}</label>
+              <div class="input-group-own short-width">
+                <input
+                  class="form-control input-date"
+                  name="internalUntil"
+                  aria-label="internalUntil"
+                  aria-labelledby="internalUntil"
+                  id="internalUntil"
+                  [ngModel]="selectedBreak!.internalUntil"
+                  (ngModelChange)="
+                    onChange(); selectedBreak!.internalUntil = $event
+                  "
+                  ngbDatepicker
+                  #internalUntil="ngbDatepicker"
+                />
+
+                <span
+                  class="input-group-text span-date"
+                  style="width: 40px"
+                  (click)="internalUntil.toggle()"
+                >
+                  <i class="fa fa-calendar" style="color: #464e5f"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="row-line"
+            *ngIf="
+              dataManagementAbsence &&
+              dataManagementAbsence.absenceList.length > 0
+            "
+          >
+            <div
+              class="absence-reason-container"
+              *ngIf="
+                dataManagementAbsence &&
+                dataManagementAbsence.absenceList.length > 0
+              "
+            >
+              <div class="form-group">
+                <label for="absenceId">{{
+                  "absence-gantt.absence-gantt-mask.absence-gantt-mask.type"
+                    | translate
+                }}</label>
+                <div class="input-group">
+                  <select
+                    class="form-select type-select"
+                    [ngModel]="selectedBreak!.absenceId"
+                    name="absenceId"
+                    (ngModelChange)="
+                      onChange(); selectedBreak!.absenceId = $event
+                    "
+                    aria-label=" type"
+                  >
+                    <option
+                      *ngFor="let c of dataManagementAbsence.absenceList"
+                      [value]="c.id"
+                      [selected]="selectedBreak!.absenceId === c.id"
+                    >
+                      <div
+                        class="name-icon"
+                        [ngStyle]="{ 'background-color': onColor(c) }"
+                      ></div>
+
+                      <span>{{ c.name | fallback : currentLang }}</span>
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container-mask-description">
+          <div class="form-group">
+            <label for="description">{{
+              "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
+                | translate
+            }}</label>
+            <div class="input-text">
+              <textarea
+                class="form-control"
+                [(ngModel)]="selectedBreak.description"
+                name="description"
+                (change)="onChange()"
+              >
+              </textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="collapse"
+      [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }"
+    >
+      <div class="container-mask">
+        <app-absence-gantt-grid
+          [selectedRowData]="selectedRowData"
+        ></app-absence-gantt-grid>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!selectedBreak" class="mask">
+    <div class="dummy-div"></div>
+  </div>
+  <div class="input-group-flex mask-footer">
+    <button
+      class="btn save-btn button-new"
+      *ngIf="selectedRow > -1"
+      (click)="onClickNewButton()"
+    >
+      {{ "button.new" | translate }}
+    </button>
+    <button
+      class="btn delete-btn"
+      *ngIf="selectedBreak"
+      (click)="dataManagementBreak.deleteBreak(selectedRow, selectedBreak)"
+    >
+      {{ "button.delete" | translate }}
+    </button>
+    <span class="filler"></span>
+    <div class="pagination justify-content-end" *ngIf="selectedBreak">
+      <label class="entry-info"
+        >{{ "pagination.sum" | translate }} {{ selectedRowBreaksMaxIndex! + 1 }}
+      </label>
+      <ngb-pagination
+        [collectionSize]="selectedRowBreaksMaxIndex! + 1"
+        (pageChange)="onBreakChange($event)"
+        [(page)]="page"
+        [maxSize]="5"
+        [pageSize]="1"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+      >
+      </ngb-pagination>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+@import "../../../../assets/standard-styles/standard-grid.scss";
+@import "../../../../assets/standard-styles/standard-card-interior.scss";
+@import "../../../../assets/standard-styles/standard-modal.scss";
+@import "../../../../assets/standard-styles/standard-controls.scss";
+@import "../../../../assets/standard-styles/colors.scss";
+@import "../../../../assets/standard-styles/menu.scss";
+@import "../../../../assets/standard-styles/datepicker.scss";
+@import "../../../../assets/standard-styles/pagination.scss";
+
+.row-line {
+  margin-top: 5px;
+  display: inline-flex;
+}
+
+.row {
+  margin-top: 5px;
+  display: flex;
+}
+
+.short-width {
+  width: 180px;
+  flex-wrap: nowrap;
+}
+
+.gap {
+  margin-right: 30px;
+}
+
+.container-mask {
+  margin-top: 45px;
+  display: flex;
+  flex-direction: row;
+  padding-left: 30px;
+}
+
+.container-mask-date {
+  display: flex;
+  flex-direction: column;
+  padding-left: 30px;
+}
+textarea {
+  height: 102px;
+  width: 500px;
+  overflow: auto;
+  resize: none;
+}
+
+.container-mask-description {
+  display: flex;
+  flex-direction: row;
+  padding-left: 30px;
+}
+
+.input-group-own {
+  display: flex !important;
+}
+
+.input-date {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 120px;
+}
+
+.span-date {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.name-icon {
+  width: 17px;
+  height: 18px;
+  margin-right: 10px;
+}
+
+.input-group-flex {
+  display: flex !important;
+  padding-left: 30px;
+}
+
+.btn {
+  margin-top: 30px;
+  height: 33.5px;
+  margin-bottom: 1rem;
+}
+.button-new {
+  margin-right: 30px;
+  margin-left: 30px;
+}
+
+.container-grid {
+  height: 100%;
+  display: flex;
+  justify-content: stretch;
+}
+
+.mask-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  overflow-y: hidden;
+}
+.mask-footer {
+  align-items: flex-end;
+}
+.mask {
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.mask-header {
+  position: fixed;
+  height: fit-content;
+  background-color: var(--backgroundColorWorkplace);
+  width: calc(100% - 130px);
+  border: black 1px;
+}
+
+.dummy-div {
+  height: 1px;
+}
+
+.grid-background {
+  height: 100%;
+}
+
+.mask-tabs {
+  position: sticky;
+  height: auto;
+}
+
+app-absence-gantt-grid {
+  width: 100%;
+}
+
+option {
+  display: block;
+  height: 35px;
+}
+
+.type-select {
+  width: 370px;
+}
+
+.nav-link {
+  font-size: 11pt;
+  font-weight: normal;
+}

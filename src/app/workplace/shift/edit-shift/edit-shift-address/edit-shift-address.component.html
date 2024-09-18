@@ -1,0 +1,26 @@
+<form #addressShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "shift.edit-shift.address.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      <app-icon-angle-down
+        *ngIf="visibleTable === 'inline'"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="visibleTable === 'none'"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    <div *ngIf="dataManagementShiftService.editShift !== undefined">
+      <div style="height: 30px"></div>
+    </div>
+  </div>
+  <div style="height: 30px"></div>
+</form>
