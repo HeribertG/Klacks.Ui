@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   Input,
@@ -56,7 +57,8 @@ export class ScheduleScheduleSurfaceComponent
     private renderer: Renderer2,
     private el: ElementRef,
     private spinnerService: SpinnerService,
-    private settings: SettingsService
+    private settings: SettingsService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   /* #region ng */
@@ -129,6 +131,8 @@ export class ScheduleScheduleSurfaceComponent
         this.drawSchedule.rebuild();
         this.drawSchedule.redraw();
       });
+
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
