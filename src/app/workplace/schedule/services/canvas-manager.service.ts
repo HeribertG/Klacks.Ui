@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { SettingsService } from './settings.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class CanvasManagerService {
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;

@@ -1,5 +1,3 @@
-// canvasAvailable.decorator.ts
-
 export interface CanvasAvailable {
   isCanvasAvailable: () => boolean;
 }
