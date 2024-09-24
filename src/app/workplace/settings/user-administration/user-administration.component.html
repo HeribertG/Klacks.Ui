@@ -144,14 +144,14 @@
     <div
       *ngFor="let c of dataManagementSettingsService.accountsList; index as i"
     >
-      <!-- <app-user-administration-row
+      <app-user-administration-row
         [user]="c"
         [enabled]="!(c.id === dataManagementSettingsService.CurrentAccountId)"
         (isSentToEvent)="onSentTo($event); openMsg(msg)"
         (isChangingEvent)="onIsChanging()"
         (isDeleteEvent)="onDelete(i)"
       >
-      </app-user-administration-row> -->
+      </app-user-administration-row>
     </div>
   </div>
 

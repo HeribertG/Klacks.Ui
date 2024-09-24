@@ -590,8 +590,8 @@ export class AbsenceGanttSurfaceComponent
     const dirY = directionY;
     const visibleRow = this.scroll.visibleRows;
 
-    this.scroll.hScrollValue += dirX;
-    this.scroll.vScrollValue += dirY;
+    this.scroll.horizontalScrollPosition += dirX;
+    this.scroll.verticalScrollPosition += dirY;
 
     this.zone.runOutsideAngular(() => {
       try {
@@ -634,7 +634,7 @@ export class AbsenceGanttSurfaceComponent
     const visibleRow = this.scroll.visibleRows;
 
     if (directionY !== 0) {
-      const diff = this.scroll.lastDifferenceY;
+      const diff = this.scroll.verticalScrollDelta;
       if (diff === 0) {
         return;
       }
@@ -649,10 +649,10 @@ export class AbsenceGanttSurfaceComponent
       let lastRow = 0;
 
       if (directionY > 0) {
-        firstRow = visibleRow + this.scroll.vScrollValue - 4;
+        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
         lastRow = firstRow + diff * -1 + 4;
       } else {
-        firstRow = this.scroll.vScrollValue;
+        firstRow = this.scroll.verticalScrollPosition;
         lastRow = firstRow + diff + 1;
       }
 
@@ -830,8 +830,8 @@ export class AbsenceGanttSurfaceComponent
             this.calendarSetting.cellHeight
         ) - 1;
 
-      deltaX += this.scroll.hScrollValue;
-      deltaY += this.scroll.vScrollValue;
+      deltaX += this.scroll.horizontalScrollPosition;
+      deltaY += this.scroll.verticalScrollPosition;
 
       return [deltaX, deltaY];
     }
@@ -869,12 +869,12 @@ export class AbsenceGanttSurfaceComponent
       if (this.drawCalendarGanttService.firstVisibleColumn() > col1) {
         const m = col1;
         this.hScrollbar!.value = m!;
-        this.scroll.hScrollValue = m;
+        this.scroll.horizontalScrollPosition = m;
         this.drawCalendarGanttService.drawCalendar();
       } else if (this.drawCalendarGanttService.lastVisibleColumn() < col2) {
         const m = col2 - this.drawCalendarGanttService.visibleCol() + 2;
         this.hScrollbar!.value = m!;
-        this.scroll.hScrollValue = m;
+        this.scroll.horizontalScrollPosition = m;
         this.drawCalendarGanttService.drawCalendar();
       }
     }

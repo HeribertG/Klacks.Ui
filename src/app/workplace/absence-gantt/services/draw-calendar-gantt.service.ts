@@ -420,7 +420,7 @@ export class DrawCalendarGanttService {
     );
 
     for (let i = 0; i < this.scroll.visibleRows + 1; i++) {
-      this.drawName(i + this.scroll.vScrollValue!, true);
+      this.drawName(i + this.scroll.verticalScrollPosition!, true);
     }
   }
 
@@ -433,7 +433,7 @@ export class DrawCalendarGanttService {
     this.renderCanvas!.width = this.getWidth();
 
     for (let i = 0; i < this.visibleRow() + 1; i++) {
-      const posDelta = i + this.scroll.vScrollValue!;
+      const posDelta = i + this.scroll.verticalScrollPosition!;
       this.drawRow(posDelta, this.selectedBreak);
     }
   }
@@ -459,7 +459,7 @@ export class DrawCalendarGanttService {
     }
     const rec = this.calcRowRec(
       index,
-      this.scroll.vScrollValue,
+      this.scroll.verticalScrollPosition,
       this.calendarSetting.cellHeight
     );
 
@@ -543,7 +543,7 @@ export class DrawCalendarGanttService {
       return;
     }
 
-    const dy = index - this.scroll.vScrollValue;
+    const dy = index - this.scroll.verticalScrollPosition;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height);
     const rec = new Rectangle(
@@ -600,7 +600,10 @@ export class DrawCalendarGanttService {
       return;
     }
 
-    const dx = this.scroll.hScrollValue * this.calendarSetting.cellWidth * -1;
+    const dx =
+      this.scroll.horizontalScrollPosition *
+      this.calendarSetting.cellWidth *
+      -1;
     this.ctx!.clearRect(0, 0, this.ctx!.canvas.width, this.ctx!.canvas!.height);
     this.ctx!.drawImage(this.headerCanvas!, dx, 0);
     this.ctx!.drawImage(
@@ -634,7 +637,7 @@ export class DrawCalendarGanttService {
 
       this.ctx!.globalAlpha = 0.2;
       this.ctx!.fillStyle = this.gridColors.focusBorderColor;
-      const dy = this.selectedRow - this.scroll.vScrollValue;
+      const dy = this.selectedRow - this.scroll.verticalScrollPosition;
       const height = this.calendarSetting.cellHeight;
       const top =
         Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
@@ -667,8 +670,11 @@ export class DrawCalendarGanttService {
   // Zeichnet direkt auf Anzeige-Canvas
 
   public drawRowIntern(index: number): void {
-    const dy = index - this.scroll.vScrollValue;
-    const left = this.scroll.hScrollValue * this.calendarSetting.cellWidth * -1;
+    const dy = index - this.scroll.verticalScrollPosition;
+    const left =
+      this.scroll.horizontalScrollPosition *
+      this.calendarSetting.cellWidth *
+      -1;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
     const rowRec = new Rectangle(left, top, this.canvas!.width, top + height);
@@ -700,9 +706,12 @@ export class DrawCalendarGanttService {
     ) {
       const dy =
         this.calendarSetting.cellHeaderHeight +
-        (this.selectedRow - this.scroll.vScrollValue) *
+        (this.selectedRow - this.scroll.verticalScrollPosition) *
           this.calendarSetting.cellHeight;
-      const dx = this.scroll.hScrollValue * this.calendarSetting.cellWidth * -1;
+      const dx =
+        this.scroll.horizontalScrollPosition *
+        this.calendarSetting.cellWidth *
+        -1;
       const tmpBreak = this.dataManagementBreak.readData(this.selectedRow)![
         this.selectedBreakIndex
       ];
@@ -827,7 +836,7 @@ export class DrawCalendarGanttService {
 
   public calcRowRec(
     index: number,
-    vScrollValue: number,
+    verticalScrollPosition: number,
     cellHeight: number
   ): Rectangle {
     if (!this.renderCanvas) {
@@ -836,7 +845,7 @@ export class DrawCalendarGanttService {
       );
     }
 
-    const dy = index - vScrollValue;
+    const dy = index - verticalScrollPosition;
     const height = cellHeight;
     const top = Math.floor(dy * height);
     return new Rectangle(0, top, this.renderCanvas.width, top + height);
@@ -885,7 +894,7 @@ export class DrawCalendarGanttService {
         Math.floor(
           (y - this.calendarSetting.cellHeaderHeight) /
             this.calendarSetting.cellHeight
-        ) + this.scroll.vScrollValue;
+        ) + this.scroll.verticalScrollPosition;
       col = this.calcX2Column(x);
     }
 
@@ -894,7 +903,8 @@ export class DrawCalendarGanttService {
 
   public calcX2Column(x: number): number {
     return (
-      Math.floor(x / this.calendarSetting.cellWidth) + this.scroll.hScrollValue
+      Math.floor(x / this.calendarSetting.cellWidth) +
+      this.scroll.horizontalScrollPosition
     );
   }
 
@@ -1142,7 +1152,7 @@ export class DrawCalendarGanttService {
         this.ctx!.save();
         this.ctx!.globalAlpha = 0.08;
         this.ctx!.fillStyle = this.gridColors.focusBorderColor;
-        const dy = this.dragRow - this.scroll.vScrollValue;
+        const dy = this.dragRow - this.scroll.verticalScrollPosition;
         const height = this.calendarSetting.cellHeight;
         const top =
           Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;

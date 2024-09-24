@@ -228,8 +228,8 @@ export class ScheduleShiftSurfaceComponent
     //         this.calendarSetting.cellHeight
     //     ) - 1;
 
-    //   deltaX += this.scroll.hScrollValue;
-    //   deltaY += this.scroll.vScrollValue;
+    //   deltaX += this.scroll.horizontalScrollPosition;
+    //   deltaY += this.scroll.verticalScrollPosition;
 
     //   return [deltaX, deltaY];
     // }

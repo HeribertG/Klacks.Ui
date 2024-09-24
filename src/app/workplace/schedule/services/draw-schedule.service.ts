@@ -14,6 +14,7 @@ import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
 import { DataService } from './data.service';
 import { CreateRowHeaderService } from './create-row-header.service';
+import { CanvasAvailable } from './canvasAvailable.decorator';
 
 @Injectable()
 export class DrawScheduleService {
@@ -35,6 +36,8 @@ export class DrawScheduleService {
 
   private readonly SUNDAY = 0;
   private readonly SATURDAY = 6;
+
+  private readonly BORDER_OFFSET = 4;
 
   private _isFocused = true;
 
@@ -59,28 +62,65 @@ export class DrawScheduleService {
     this.canvas = document.getElementById(
       'scheduleCanvas'
     ) as HTMLCanvasElement;
-    this.ctx = DrawHelper.createHiDPICanvas(
-      this.canvas,
-      this.width,
-      this.height
-    );
+
+    if (!this.canvas) {
+      console.error("Canvas with ID 'scheduleCanvas' not found.");
+      return;
+    }
+
+    try {
+      this.ctx = DrawHelper.createHiDPICanvas(
+        this.canvas,
+        this.width,
+        this.height
+      );
+    } catch (error) {
+      console.error('Error when creating the scheduleCanvas context:', error);
+      return;
+    }
+
     DrawHelper.setAntiAliasing(this.ctx);
+
     this.renderCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
-      this.renderCanvas,
-      this.width,
-      this.height,
-      true
-    );
+
+    if (!this.renderCanvas) {
+      console.error("Canvas with ID 'renderCanvas' not found.");
+      return;
+    }
+
+    try {
+      this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
+        this.renderCanvas,
+        this.width,
+        this.height,
+        true
+      );
+    } catch (error) {
+      console.error('Error when creating the renderCanvas context:', error);
+      return;
+    }
+
     DrawHelper.setAntiAliasing(this.renderCanvasCtx);
+
     this.headerCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.headerCtx = DrawHelper.createHiDPICanvas(
-      this.headerCanvas,
-      this.width,
-      this.settings.cellHeaderHeight,
-      true
-    );
+    if (!this.headerCanvas) {
+      console.error("Canvas with ID 'headerCanvas' not found.");
+      return;
+    }
+
+    try {
+      this.headerCtx = DrawHelper.createHiDPICanvas(
+        this.headerCanvas,
+        this.width,
+        this.settings.cellHeaderHeight,
+        true
+      );
+    } catch (error) {
+      console.error('Error when creating the headerCanvas context:', error);
+      return;
+    }
     DrawHelper.setAntiAliasing(this.headerCtx);
+
     if (this.vScrollbar) {
       this.vScrollbar.init();
     }
@@ -99,16 +139,17 @@ export class DrawScheduleService {
   }
 
   private isCanvasAvailable(): boolean {
-    if (!this.gridSettings) {
-      return false;
-    }
-    if (!this.canvas) {
-      return false;
-    }
-    if (!(this.height || this.width)) {
-      return false;
-    }
-    return true;
+    return (
+      this.gridSettings != null &&
+      this.canvas != null &&
+      this.width > 0 &&
+      this.height > 0 &&
+      this.ctx != null
+    );
+  }
+
+  private isRenderCanvasAvailable(): boolean {
+    return this.renderCanvas != null && this.renderCanvasCtx != null;
   }
   /* #endregion initial/final */
 
@@ -126,8 +167,9 @@ export class DrawScheduleService {
     this.refreshGrid();
   }
 
+  @CanvasAvailable('throw')
   private setMetrics() {
-    if (this.isCanvasAvailable() && this.existData) {
+    if (this.existData) {
       const visibleRows: number = this.updateVisibleRow();
       const visibleCols: number = this.updateVisibleCol();
       this.scroll.setMetrics(
@@ -164,12 +206,15 @@ export class DrawScheduleService {
     return this._isFocused;
   }
 
+  @CanvasAvailable('throw')
   private resizeMainCanvas() {
-    if (this.isCanvasAvailable()) {
-      this.canvas!.style.width = `${this.width}px`;
-      this.canvas!.style.height = `${this.height}px`;
-      this.ctx!.canvas.height = this.height;
-      this.ctx!.canvas!.width = this.width;
+    if (this.canvas) {
+      this.canvas.style.width = `${this.width}px`;
+      this.canvas.style.height = `${this.height}px`;
+    }
+    if (this.ctx) {
+      this.ctx.canvas.height = this.height;
+      this.ctx.canvas!.width = this.width;
     }
   }
 
@@ -184,118 +229,115 @@ export class DrawScheduleService {
   /* #endregion Environment changes */
 
   /* #region draw Grid */
+
+  @CanvasAvailable('throw')
   private redrawGrid() {
-    if (this.isCanvasAvailable()) {
-      this.setMetrics();
-      this.crateGridHeader();
-      this.drawGrid();
-      this.refreshScroll();
-    }
+    this.setMetrics();
+    this.crateGridHeader();
+    this.drawGrid();
+    this.refreshScroll();
   }
 
+  @CanvasAvailable('throw')
   private refreshGrid(): void {
-    if (this.isCanvasAvailable()) {
-      const oldVisibleRow: number = this.nominalVisibleRow();
-      const oldVisibleCol: number = this.nominalVisibleCol();
+    const oldVisibleRow: number = this.nominalVisibleRow();
+    const oldVisibleCol: number = this.nominalVisibleCol();
 
-      const visibleRow: number = this.updateVisibleRow();
-      const visibleCol: number = this.updateVisibleCol();
+    const visibleRow: number = this.updateVisibleRow();
+    const visibleCol: number = this.updateVisibleCol();
 
-      if (oldVisibleCol < visibleCol || oldVisibleRow < visibleRow) {
-        this.growGrid();
-      } else if (oldVisibleCol > visibleCol || oldVisibleRow > visibleRow) {
-        this.shrinkGrid();
-      } else {
-        this.renderGrid();
-      }
-    }
-  }
-
-  private renderGrid(): void {
-    if (this.isCanvasAvailable()) {
-      this.ctx!.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
-
-      this.ctx!.drawImage(
-        this.renderCanvas!,
-        0,
-        0,
-        this.renderCanvas!.width,
-        this.renderCanvas!.height,
-        0,
-        this.settings.cellHeaderHeight,
-        this.renderCanvas!.width,
-        this.renderCanvas!.height
-      );
-
-      let col: number = this.firstVisibleCol;
-      if (col < 0) {
-        col = 0;
-      }
-
-      if (this.headerCanvas!.width > 0 && this.headerCanvas!.height > 0) {
-        this.ctx!.drawImage(
-          this.headerCanvas!,
-          col * -1 * this.settings.cellWidth,
-          0
-        );
-      }
-
-      if (
-        this.hasPositionCollection &&
-        this.cellManipulation.PositionCollection.count() > 1
-      ) {
-        this.drawSelection();
-      } else {
-        this.drawGridSelectedHeaderCell();
-        this.drawGridSelectedCell();
-      }
-    }
-  }
-
-  private growGrid() {
-    if (this.isCanvasAvailable()) {
-      const oldVisibleRow: number = this.nominalVisibleRow();
-      const oldVisibleCol: number = this.nominalVisibleCol();
-
-      const visibleRow: number = this.updateVisibleRow();
-      const visibleCol: number = this.updateVisibleCol();
-
-      if (oldVisibleRow < visibleRow || oldVisibleCol < visibleCol) {
-        const tempCanvas = this.createTempCanvas();
-        this.drawOnTempCanvas(tempCanvas, 0, 0);
-
-        this.resizeRenderCanvas(visibleRow, visibleCol);
-        this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
-
-        // if it grows horizontally and vertically
-        if (oldVisibleRow < visibleRow && oldVisibleCol < visibleCol) {
-          this.addNewCells(
-            oldVisibleRow,
-            oldVisibleCol,
-            visibleRow + 1,
-            visibleCol + 1
-          );
-          // if it grows horizontally
-        } else if (oldVisibleRow === visibleRow && oldVisibleCol < visibleCol) {
-          // this.addNewCols(
-          //   this.firstVisibleRow,
-          //   oldVisibleCol - 1,
-          //   visibleRow + 1,
-          //   visibleCol + 1
-          // );
-          this.redrawGrid();
-          // if it grows vertically
-        } else if (oldVisibleRow < visibleRow && oldVisibleCol === visibleCol) {
-          this.addNewCells(
-            oldVisibleRow,
-            this.firstVisibleCol,
-            visibleRow + 1,
-            visibleCol + 1
-          );
-        }
-      }
+    if (oldVisibleCol < visibleCol || oldVisibleRow < visibleRow) {
+      this.growGrid();
+    } else if (oldVisibleCol > visibleCol || oldVisibleRow > visibleRow) {
+      this.shrinkGrid();
+    } else {
       this.renderGrid();
     }
+  }
+
+  @CanvasAvailable('throw')
+  private renderGrid(): void {
+    this.ctx!.clearRect(0, 0, this.canvas!.width, this.canvas!.height);
+
+    this.ctx!.drawImage(
+      this.renderCanvas!,
+      0,
+      0,
+      this.renderCanvas!.width,
+      this.renderCanvas!.height,
+      0,
+      this.settings.cellHeaderHeight,
+      this.renderCanvas!.width,
+      this.renderCanvas!.height
+    );
+
+    let col: number = this.firstVisibleCol;
+    if (col < 0) {
+      col = 0;
+    }
+
+    if (this.headerCanvas!.width > 0 && this.headerCanvas!.height > 0) {
+      this.ctx!.drawImage(
+        this.headerCanvas!,
+        col * -1 * this.settings.cellWidth,
+        0
+      );
+    }
+
+    if (
+      this.hasPositionCollection &&
+      this.cellManipulation.PositionCollection.count() > 1
+    ) {
+      this.drawSelection();
+    } else {
+      this.drawGridSelectedHeaderCell();
+      this.drawGridSelectedCell();
+    }
+  }
+
+  @CanvasAvailable('throw')
+  private growGrid() {
+    const oldVisibleRow: number = this.nominalVisibleRow();
+    const oldVisibleCol: number = this.nominalVisibleCol();
+
+    const visibleRow: number = this.updateVisibleRow();
+    const visibleCol: number = this.updateVisibleCol();
+
+    if (oldVisibleRow < visibleRow || oldVisibleCol < visibleCol) {
+      const tempCanvas = this.createTempCanvas();
+      this.drawOnTempCanvas(tempCanvas, 0, 0);
+
+      this.resizeRenderCanvas(visibleRow, visibleCol);
+      this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
+
+      // if it grows horizontally and vertically
+      if (oldVisibleRow < visibleRow && oldVisibleCol < visibleCol) {
+        this.addNewCells(
+          oldVisibleRow,
+          oldVisibleCol,
+          visibleRow + 1,
+          visibleCol + 1
+        );
+        // if it grows horizontally
+      } else if (oldVisibleRow === visibleRow && oldVisibleCol < visibleCol) {
+        // this.addNewCols(
+        //   this.firstVisibleRow,
+        //   oldVisibleCol - 1,
+        //   visibleRow + 1,
+        //   visibleCol + 1
+        // );
+        this.redrawGrid();
+        // if it grows vertically
+      } else if (oldVisibleRow < visibleRow && oldVisibleCol === visibleCol) {
+        this.addNewCells(
+          oldVisibleRow,
+          this.firstVisibleCol,
+          visibleRow + 1,
+          visibleCol + 1
+        );
+      }
+    }
+    this.renderGrid();
   }
 
   private addNewCells(
@@ -324,61 +366,60 @@ export class DrawScheduleService {
     }
   }
 
+  @CanvasAvailable('throw')
   private shrinkGrid() {
-    if (this.isCanvasAvailable()) {
-      const visibleRow: number = this.updateVisibleRow();
-      const visibleCol: number = this.updateVisibleCol();
+    const visibleRow: number = this.updateVisibleRow();
+    const visibleCol: number = this.updateVisibleCol();
 
-      const tempCanvas = this.createTempCanvas();
-      this.drawOnTempCanvas(tempCanvas, 0, 0);
+    const tempCanvas = this.createTempCanvas();
+    this.drawOnTempCanvas(tempCanvas, 0, 0);
 
-      this.resizeRenderCanvas(visibleRow, visibleCol);
-      this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
+    this.resizeRenderCanvas(visibleRow, visibleCol);
+    this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
 
-      this.renderGrid();
-    }
+    this.renderGrid();
   }
 
+  @CanvasAvailable('throw')
   refreshCell(pos: MyPosition) {
-    if (this.isCanvasAvailable()) {
-      if (pos != null) {
-        if (!pos.isEmpty()) {
-          let col: number =
-            (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
-          let row: number =
-            (pos.row - this.firstVisibleRow) * this.settings.cellHeight;
+    if (this.isRenderCanvasAvailable()) {
+      if (pos != null && !pos.isEmpty()) {
+        let col: number =
+          (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
+        let row: number =
+          (pos.row - this.firstVisibleRow) * this.settings.cellHeight;
 
-          col -= 4;
-          row -= 4;
+        col -= this.BORDER_OFFSET;
+        row -= this.BORDER_OFFSET;
 
-          if (row < 0) {
-            row = 0;
-          }
-          if (col < 0) {
-            col = 0;
-          }
-
-          const tmpImage: ImageData = this.renderCanvasCtx!.getImageData(
-            col,
-            row,
-            this.settings.cellWidth + 8,
-            this.settings.cellHeight + 12
-          );
-          this.ctx!.putImageData(
-            tmpImage,
-            col,
-            row + this.settings.cellHeaderHeight
-          );
+        if (row < 0) {
+          row = 0;
         }
+        if (col < 0) {
+          col = 0;
+        }
+
+        const tmpImage: ImageData = this.renderCanvasCtx!.getImageData(
+          col,
+          row,
+          this.settings.cellWidth + this.BORDER_OFFSET + this.BORDER_OFFSET,
+          this.settings.cellHeight +
+            this.BORDER_OFFSET +
+            this.BORDER_OFFSET +
+            this.BORDER_OFFSET +
+            this.BORDER_OFFSET
+        );
+        this.ctx!.putImageData(
+          tmpImage,
+          col,
+          row + this.settings.cellHeaderHeight
+        );
       }
     }
   }
 
+  @CanvasAvailable('throw')
   moveGrid(directionX: number, directionY: number): void {
-    if (!this.isCanvasAvailable()) {
-      return;
-    }
-
     const visibleCol = this.updateVisibleCol();
     const visibleRow = this.updateVisibleRow();
 
@@ -390,7 +431,7 @@ export class DrawScheduleService {
         this.isInRange(directionX, visibleCol) ||
         this.isInRange(directionY, visibleRow)
       ) {
-        this.moveIt(directionX, directionY);
+        this.moveCanvas(directionX, directionY);
       } else {
         this.drawGrid();
         this.refreshScroll();
@@ -413,9 +454,8 @@ export class DrawScheduleService {
     return direction < visibleRange / 2;
   }
 
-  private moveIt(directionX: number, directionY: number) {
-    if (!this.isCanvasAvailable()) return;
-
+  @CanvasAvailable('throw')
+  private moveCanvas(directionX: number, directionY: number) {
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 
@@ -439,7 +479,7 @@ export class DrawScheduleService {
       this.hScrollbar.value = this.firstVisibleCol;
     }
 
-    const diff = this.scroll.lastDifferenceX;
+    const diff = this.scroll.horizontalScrollDelta;
     if (diff === 0) return;
 
     const tempCanvas = this.createTempCanvas();
@@ -465,7 +505,7 @@ export class DrawScheduleService {
       this.vScrollbar.value = this.firstVisibleRow;
     }
 
-    const diff = this.scroll.lastDifferenceY;
+    const diff = this.scroll.verticalScrollDelta;
     if (diff === 0) return;
 
     // Copy the content of the canvas
@@ -552,84 +592,121 @@ export class DrawScheduleService {
     }
   }
 
+  @CanvasAvailable('throw')
   private crateGridHeader() {
-    if (this.isCanvasAvailable()) {
-      const width: number = this.gridData.columns * this.settings.cellWidth;
-      this.headerCanvas!.height =
-        this.settings.cellHeaderHeight + this.settings.increaseBorder;
-      this.headerCanvas!.width =
-        this.gridData.columns * this.settings.cellWidth;
+    const width: number = this.gridData.columns * this.settings.cellWidth;
+    this.headerCanvas!.height =
+      this.settings.cellHeaderHeight + this.settings.increaseBorder;
+    this.headerCanvas!.width = this.gridData.columns * this.settings.cellWidth;
 
-      for (let col = 0; col < this.gridData.columns; col++) {
-        const imgHeader = this.createHeader.createHeader(col);
-        if (imgHeader) {
-          if (col < this.gridData.columns) {
-            this.headerCtx!.putImageData(
-              imgHeader,
-              col * this.settings.cellWidth,
-              0
-            );
-          }
+    for (let col = 0; col < this.gridData.columns; col++) {
+      const imgHeader = this.createHeader.createHeader(col);
+      if (imgHeader) {
+        if (col < this.gridData.columns) {
+          this.headerCtx!.putImageData(
+            imgHeader,
+            col * this.settings.cellWidth,
+            0
+          );
         }
       }
     }
   }
 
+  @CanvasAvailable('throw')
   drawGrid() {
-    if (this.isCanvasAvailable()) {
-      const visibleRow: number = this.updateVisibleRow();
-      const visibleCol: number = this.updateVisibleCol();
+    const visibleRow: number = this.updateVisibleRow();
+    const visibleCol: number = this.updateVisibleCol();
 
-      this.resizeRenderCanvas(visibleRow, visibleCol);
+    this.resizeRenderCanvas(visibleRow, visibleCol);
 
-      for (let row = 0; row < visibleRow; row++) {
-        for (let col = 0; col < visibleCol; col++) {
-          this.addCells(row, col);
-        }
+    for (let row = 0; row < visibleRow; row++) {
+      for (let col = 0; col < visibleCol; col++) {
+        this.addCells(row, col);
       }
-      this.renderGrid();
+    }
+    this.renderGrid();
 
-      if (this.rowHeader) {
-        this.rowHeader.drawRowHeader.redraw();
+    if (this.rowHeader) {
+      this.rowHeader.drawRowHeader.redraw();
+    }
+  }
+
+  @CanvasAvailable('throw')
+  drawGridSelectedCell() {
+    if (this.position && !this.position.isEmpty()) {
+      this.ctx!.save();
+
+      this.ctx!.rect(
+        0,
+        this.settings.cellHeaderHeight,
+        this.canvas!.width,
+        this.renderCanvas!.height - this.settings.cellHeaderHeight
+      );
+
+      this.ctx!.clip();
+
+      if (this.isFocused) {
+        this.ctx!.strokeStyle = this.gridColors.focusBorderColor;
+        this.ctx!.setLineDash([0]);
+      } else {
+        this.ctx!.setLineDash([1, 2]);
+        this.ctx!.strokeStyle = 'grey';
+      }
+
+      const col: number =
+        (this.position.column - this.firstVisibleCol) * this.settings.cellWidth;
+      const row: number =
+        (this.position.row - this.firstVisibleRow) * this.settings.cellHeight +
+        this.settings.cellHeaderHeight;
+
+      this.ctx!.strokeRect(
+        col - 1,
+        row - 1,
+        this.settings.cellWidth + 3,
+        this.settings.cellHeight + 1
+      );
+
+      this.ctx!.restore();
+    }
+  }
+
+  @CanvasAvailable('throw')
+  refreshGridHeaderCell(pos: MyPosition): void {
+    if (pos !== undefined) {
+      if (!pos.isEmpty()) {
+        const col: number =
+          (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
+
+        const tmpImage: ImageData = this.headerCtx!.getImageData(
+          pos.column * this.settings.cellWidth,
+          0,
+          this.settings.cellWidth,
+          this.settings.cellHeaderHeight
+        );
+        this.ctx!.putImageData(tmpImage, col, 0);
       }
     }
   }
 
-  drawGridSelectedCell() {
-    if (this.isCanvasAvailable()) {
-      if (this.position && !this.position.isEmpty()) {
+  @CanvasAvailable('throw')
+  drawGridSelectedHeaderCell() {
+    if (this.position) {
+      if (!this.position.isEmpty()) {
         this.ctx!.save();
 
-        this.ctx!.rect(
-          0,
-          this.settings.cellHeaderHeight,
-          this.canvas!.width,
-          this.renderCanvas!.height - this.settings.cellHeaderHeight
-        );
+        this.ctx!.fillStyle = this.gridColors.focusBorderColor;
 
-        this.ctx!.clip();
-
-        if (this.isFocused) {
-          this.ctx!.strokeStyle = this.gridColors.focusBorderColor;
-          this.ctx!.setLineDash([0]);
-        } else {
-          this.ctx!.setLineDash([1, 2]);
-          this.ctx!.strokeStyle = 'grey';
-        }
-
+        this.ctx!.globalAlpha = 0.2;
         const col: number =
           (this.position.column - this.firstVisibleCol) *
           this.settings.cellWidth;
-        const row: number =
-          (this.position.row - this.firstVisibleRow) *
-            this.settings.cellHeight +
-          this.settings.cellHeaderHeight;
 
-        this.ctx!.strokeRect(
-          col - 1,
-          row - 1,
-          this.settings.cellWidth + 3,
-          this.settings.cellHeight + 1
+        this.ctx!.fillRect(
+          col,
+          0,
+          this.settings.cellWidth,
+          this.settings.cellHeaderHeight
         );
 
         this.ctx!.restore();
@@ -637,57 +714,23 @@ export class DrawScheduleService {
     }
   }
 
-  refreshGridHeaderCell(pos: MyPosition): void {
-    if (this.isCanvasAvailable()) {
-      if (pos !== undefined) {
-        if (!pos.isEmpty()) {
-          const col: number =
-            (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
-
-          const tmpImage: ImageData = this.headerCtx!.getImageData(
-            pos.column * this.settings.cellWidth,
-            0,
-            this.settings.cellWidth,
-            this.settings.cellHeaderHeight
-          );
-          this.ctx!.putImageData(tmpImage, col, 0);
-        }
-      }
-    }
-  }
-
-  drawGridSelectedHeaderCell() {
-    if (this.isCanvasAvailable()) {
-      if (this.position) {
-        if (!this.position.isEmpty()) {
-          this.ctx!.save();
-
-          this.ctx!.fillStyle = this.gridColors.focusBorderColor;
-
-          this.ctx!.globalAlpha = 0.2;
-          const col: number =
-            (this.position.column - this.firstVisibleCol) *
-            this.settings.cellWidth;
-
-          this.ctx!.fillRect(
-            col,
-            0,
-            this.settings.cellWidth,
-            this.settings.cellHeaderHeight
-          );
-
-          this.ctx!.restore();
-        }
-      }
-    }
-  }
-
+  @CanvasAvailable('throw')
   private addCells(row: number, col: number) {
-    if (this.isCanvasAvailable() && this.existData) {
+    if (this.existData) {
       const tmpRow: number = row + this.firstVisibleRow;
       const tmpCol: number = col + this.firstVisibleCol;
       const cellWidth = this.settings.cellWidth;
       const cellHeight = this.settings.cellHeight;
+
+      if (
+        tmpRow < 0 ||
+        tmpRow >= this.gridData.rows ||
+        tmpCol < 0 ||
+        tmpCol >= this.gridData.columns
+      ) {
+        console.warn('Cell index outside the valid limits.');
+        return;
+      }
 
       if (tmpRow < this.gridData.rows && tmpCol < this.gridData.columns) {
         const img = this.createCell.createCell(tmpRow, tmpCol);
@@ -708,52 +751,47 @@ export class DrawScheduleService {
 
   /* #region position and selection */
 
+  @CanvasAvailable('throw')
   drawSelectionDynamically(pos: MyPosition): void {
-    if (this.isCanvasAvailable()) {
-      if (this.position != null && !this.position.isEmpty()) {
-        if (pos != null && !pos.isEmpty()) {
-          this.ctx!.save();
+    if (this.position != null && !this.position.isEmpty()) {
+      if (pos != null && !pos.isEmpty()) {
+        this.ctx!.save();
 
-          this.renderGrid();
+        this.renderGrid();
 
-          this.ctx!.rect(
-            0,
-            this.settings.cellHeaderHeight,
-            this.canvas!.width,
-            this.renderCanvas!.height - this.settings.cellHeaderHeight
-          );
+        this.ctx!.rect(
+          0,
+          this.settings.cellHeaderHeight,
+          this.canvas!.width,
+          this.renderCanvas!.height - this.settings.cellHeaderHeight
+        );
 
-          this.ctx!.clip();
+        this.ctx!.clip();
 
-          this.ctx!.globalAlpha = 0.2;
-          this.ctx!.fillStyle = this.gridColors.focusBorderColor;
+        this.ctx!.globalAlpha = 0.2;
+        this.ctx!.fillStyle = this.gridColors.focusBorderColor;
 
-          const minCol: number =
-            this.position.column < pos.column
-              ? this.position.column
-              : pos.column;
-          let maxCol: number =
-            this.position.column > pos.column
-              ? this.position.column
-              : pos.column;
-          const minRow: number =
-            this.position.row < pos.row ? this.position.row : pos.row;
-          let maxRow: number =
-            this.position.row > pos.row ? this.position.row : pos.row;
+        const minCol: number =
+          this.position.column < pos.column ? this.position.column : pos.column;
+        let maxCol: number =
+          this.position.column > pos.column ? this.position.column : pos.column;
+        const minRow: number =
+          this.position.row < pos.row ? this.position.row : pos.row;
+        let maxRow: number =
+          this.position.row > pos.row ? this.position.row : pos.row;
 
-          maxCol += 1;
-          maxRow += 1;
+        maxCol += 1;
+        maxRow += 1;
 
-          if (maxCol > this.gridData.columns) {
-            maxCol = this.gridData.columns;
-          }
-          if (maxRow > this.gridData.rows) {
-            maxRow = this.gridData.rows;
-          }
-
-          this.drawRange(minCol, maxCol, minRow, maxRow);
-          this.ctx!.restore();
+        if (maxCol > this.gridData.columns) {
+          maxCol = this.gridData.columns;
         }
+        if (maxRow > this.gridData.rows) {
+          maxRow = this.gridData.rows;
+        }
+
+        this.drawRange(minCol, maxCol, minRow, maxRow);
+        this.ctx!.restore();
       }
     }
   }
@@ -780,89 +818,81 @@ export class DrawScheduleService {
     this.drawGridSelectedCell();
   }
 
+  @CanvasAvailable('throw')
   private drawSelectedCellBackground(col: number, row: number): void {
-    if (this.isCanvasAvailable()) {
-      const column: number =
-        (col - this.firstVisibleCol) * this.settings.cellWidth;
-      const rowSet: number =
-        (row - this.firstVisibleRow) * this.settings.cellHeight +
-        this.settings.cellHeaderHeight;
+    const column: number =
+      (col - this.firstVisibleCol) * this.settings.cellWidth;
+    const rowSet: number =
+      (row - this.firstVisibleRow) * this.settings.cellHeight +
+      this.settings.cellHeaderHeight;
 
-      this.ctx!.fillRect(
-        column,
-        rowSet,
-        this.settings.cellWidth,
-        this.settings.cellHeight
-      );
-    }
+    this.ctx!.fillRect(
+      column,
+      rowSet,
+      this.settings.cellWidth,
+      this.settings.cellHeight
+    );
   }
 
+  @CanvasAvailable('throw')
   private drawRange(
     minCol: number,
     maxCol: number,
     minRow: number,
     maxRow: number
   ): void {
-    if (this.isCanvasAvailable()) {
-      let col: number =
-        (minCol - this.firstVisibleCol) * this.settings.cellWidth;
-      let row: number =
-        (minRow - this.firstVisibleRow) * this.settings.cellHeight +
-        this.settings.cellHeaderHeight;
-      if (col < 0) {
-        col = 0;
-      }
-      if (row < this.settings.cellHeaderHeight) {
-        row = this.settings.cellHeaderHeight;
-      }
-
-      let lastCol: number =
-        (maxCol - this.firstVisibleCol) * this.settings.cellWidth;
-      let lastRow: number =
-        (maxRow - this.firstVisibleRow) * this.settings.cellHeight +
-        this.settings.cellHeaderHeight;
-
-      if (lastCol > this.canvas!.width) {
-        lastCol = this.canvas!.width;
-      }
-      if (lastRow > this.canvas!.height) {
-        lastRow = this.canvas!.height;
-      }
-
-      const width = lastCol - col;
-      const height = lastRow - row;
-
-      this.ctx!.fillRect(col, row, width, height);
+    let col: number = (minCol - this.firstVisibleCol) * this.settings.cellWidth;
+    let row: number =
+      (minRow - this.firstVisibleRow) * this.settings.cellHeight +
+      this.settings.cellHeaderHeight;
+    if (col < 0) {
+      col = 0;
     }
+    if (row < this.settings.cellHeaderHeight) {
+      row = this.settings.cellHeaderHeight;
+    }
+
+    let lastCol: number =
+      (maxCol - this.firstVisibleCol) * this.settings.cellWidth;
+    let lastRow: number =
+      (maxRow - this.firstVisibleRow) * this.settings.cellHeight +
+      this.settings.cellHeaderHeight;
+
+    if (lastCol > this.canvas!.width) {
+      lastCol = this.canvas!.width;
+    }
+    if (lastRow > this.canvas!.height) {
+      lastRow = this.canvas!.height;
+    }
+
+    const width = lastCol - col;
+    const height = lastRow - row;
+
+    this.ctx!.fillRect(col, row, width, height);
   }
 
+  @CanvasAvailable('throw')
   drawSelection() {
-    if (this.isCanvasAvailable()) {
-      this.ctx!.save();
+    this.ctx!.save();
 
-      this.ctx!.rect(
-        0,
-        this.settings.cellHeaderHeight,
-        this.canvas!.width,
-        this.renderCanvas!.height - this.settings.cellHeaderHeight
-      );
+    this.ctx!.rect(
+      0,
+      this.settings.cellHeaderHeight,
+      this.canvas!.width,
+      this.renderCanvas!.height - this.settings.cellHeaderHeight
+    );
 
-      this.ctx!.clip();
+    this.ctx!.clip();
 
-      this.ctx!.globalAlpha = 0.2;
-      this.ctx!.fillStyle = this.gridColors.focusBorderColor;
+    this.ctx!.globalAlpha = 0.2;
+    this.ctx!.fillStyle = this.gridColors.focusBorderColor;
 
-      for (
-        let i = 0;
-        i < this.cellManipulation.PositionCollection.count();
-        i++
-      ) {
-        const pos = this.cellManipulation.PositionCollection.item(i);
-        this.drawSelectedCellBackground(pos.column, pos.row);
-      }
-
-      this.ctx!.restore();
+    for (let i = 0; i < this.cellManipulation.PositionCollection.count(); i++) {
+      const pos = this.cellManipulation.PositionCollection.item(i);
+      this.drawSelectedCellBackground(pos.column, pos.row);
     }
+
+    this.ctx!.restore();
   }
 
   createSelection(pos: MyPosition): void {
@@ -914,6 +944,7 @@ export class DrawScheduleService {
     return true;
   }
 
+  @CanvasAvailable('throw')
   calcCorrectCoordinate(event: MouseEvent) {
     let row = -1;
     let col = -1;
@@ -946,18 +977,18 @@ export class DrawScheduleService {
   }
 
   private get firstVisibleRow(): number {
-    return this.scroll.vScrollValue;
+    return this.scroll.verticalScrollPosition;
   }
   private set firstVisibleRow(value: number) {
-    this.scroll.vScrollValue = value;
+    this.scroll.verticalScrollPosition = value;
   }
 
   private get firstVisibleCol(): number {
-    return this.scroll.hScrollValue;
+    return this.scroll.horizontalScrollPosition;
   }
 
   private set firstVisibleCol(value: number) {
-    this.scroll.hScrollValue = value;
+    this.scroll.horizontalScrollPosition = value;
   }
   private updateVisibleRow(): number {
     return Math.ceil(this.height / this.settings.cellHeight);

@@ -93,9 +93,14 @@ export class ScheduleScheduleSurfaceComponent
 
     this.dataManagementSchedule.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.dataService.setMetrics();
-      });
+      .subscribe(
+        () => {
+          this.dataService.setMetrics();
+        },
+        (error) => {
+          console.error('Error loading the data:', error);
+        }
+      );
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
@@ -129,6 +134,13 @@ export class ScheduleScheduleSurfaceComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.resizeWindow) {
+      this.resizeWindow();
+    }
+    if (this.visibilitychangeWindow) {
+      this.visibilitychangeWindow();
+    }
 
     this.drawSchedule.deleteCanvas();
     this.drawSchedule.vScrollbar = undefined;
@@ -181,6 +193,12 @@ export class ScheduleScheduleSurfaceComponent
 
   /* #region   render */
 
+  /**
+   * Moves the table by the specified number of units in the X and Y directions.
+   *
+   * @param directionX - number of steps in X direction (must be a valid number)
+   * @param directionY - number of steps in Y direction (must be a valid number)
+   */
   moveGrid(directionX: number, directionY: number): void {
     this.drawSchedule.moveGrid(directionX, directionY);
   }

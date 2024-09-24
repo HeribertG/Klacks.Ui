@@ -129,7 +129,7 @@ export class DrawRowHeaderService {
     );
 
     for (let i = 0; i < this.scroll.visibleRows + 1; i++) {
-      this.drawName(i + this.scroll.vScrollValue!, true);
+      this.drawName(i + this.scroll.verticalScrollPosition!, true);
     }
   }
 
@@ -204,7 +204,7 @@ export class DrawRowHeaderService {
     const visibleRow = this.scroll.visibleRows;
 
     if (directionY !== 0) {
-      const diff = this.scroll.lastDifferenceY;
+      const diff = this.scroll.verticalScrollDelta;
       if (diff === 0) {
         return;
       }
@@ -236,10 +236,10 @@ export class DrawRowHeaderService {
       const directionDown = directionY > 0;
 
       if (directionY > 0) {
-        firstRow = visibleRow + this.scroll.vScrollValue;
+        firstRow = visibleRow + this.scroll.verticalScrollPosition;
         lastRow = firstRow + diff * -1 + 1;
       } else {
-        firstRow = this.scroll.vScrollValue;
+        firstRow = this.scroll.verticalScrollPosition;
         lastRow = firstRow + diff + 1;
       }
 
@@ -256,7 +256,7 @@ export class DrawRowHeaderService {
       return;
     }
 
-    const dy = index - this.scroll.vScrollValue;
+    const dy = index - this.scroll.verticalScrollPosition;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height);
     const rec = new Rectangle(
@@ -396,7 +396,7 @@ export class DrawRowHeaderService {
         this.ctx!.save();
         this.ctx!.globalAlpha = 0.2;
         this.ctx!.fillStyle = this.gridColorService.focusBorderColor;
-        const dy = this.selectedRow - this.scroll.vScrollValue;
+        const dy = this.selectedRow - this.scroll.verticalScrollPosition;
         const height = this.calendarSetting.cellHeight;
         const top =
           Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
@@ -480,7 +480,7 @@ export class DrawRowHeaderService {
   }
 
   firstVisibleRow(): number {
-    return this.scroll.vScrollValue;
+    return this.scroll.verticalScrollPosition;
   }
 
   lastVisibleRow(): number {

@@ -461,8 +461,8 @@ export class DataManagementSettingsService {
       AppSetting.APP_ADDRESS_MAIL
     );
     this.saveSetting_sub(
-      this.appAddressAccountingStart,
-      this.appAddressAccountingStartDummy,
+      this.appAddressAccountingStart.toString(),
+      this.appAddressAccountingStartDummy.toString(),
       AppSetting.APP_ACCOUNTING_START
     );
     this.saveSetting_sub(
@@ -532,7 +532,7 @@ export class DataManagementSettingsService {
     this.saveSetting_sub(this.mark, this.markDummy, AppSetting.APP_MARK);
   }
 
-  private saveSetting_sub(value: any, dummy: any, type: string) {
+  private saveSetting_sub(value: string, dummy: string, type: string) {
     if (value !== dummy) {
       const c = this.settingList.find((x) => x.type === type);
       if (c) {

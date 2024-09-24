@@ -97,13 +97,13 @@ export class DataClientService {
 
     return this.httpClient
       .post<IClient>(`${environment.baseUrl}Clients/`, value)
-      .pipe(retry(3));
+      .pipe();
   }
 
   deleteClient(id: string) {
     return this.httpClient
       .delete<IClient>(`${environment.baseUrl}Clients/` + id)
-      .pipe(retry(3));
+      .pipe();
   }
 
   readCommunicationTypeList() {
@@ -111,7 +111,7 @@ export class DataClientService {
       .get<ICommunicationType[]>(
         `${environment.baseUrl}Communications/CommunicationTypes/`
       )
-      .pipe(retry(3));
+      .pipe();
   }
 
   getLastChangeMetaData() {
@@ -119,13 +119,13 @@ export class DataClientService {
       .get<ILastChangeMetaData>(
         `${environment.baseUrl}Clients/LastChangeMetaData/`
       )
-      .pipe(retry(3));
+      .pipe();
   }
 
   countIdNumber() {
     return this.httpClient
       .get<number>(`${environment.baseUrl}Clients/Count`)
-      .pipe(retry(3));
+      .pipe();
   }
 
   readClientAddressList(id: string) {
@@ -133,7 +133,7 @@ export class DataClientService {
       .get<IAddress[]>(
         `${environment.baseUrl}Addresses/ClientAddressList/` + id
       )
-      .pipe(retry(3));
+      .pipe();
   }
 
   countNewEntries() {
@@ -145,7 +145,7 @@ export class DataClientService {
 
     return this.httpClient
       .get<number>(`${environment.baseUrl}Clients/NewEntries/` + from)
-      .pipe(retry(3));
+      .pipe();
   }
 
   private setCorrectDatFilter(value: IFilter) {

@@ -66,8 +66,8 @@ export class AbsenceCalendarDirective {
     const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
     this.gridBody.moveCalendar(moveX, moveY);
-    this.gridBody.scroll.isMoveVertical(moveY);
-    this.gridBody.scroll!.isMoveHorizontal(moveX);
+    this.gridBody.scroll.updateVerticalScrollPosition(moveY);
+    this.gridBody.scroll!.updateHorizontalScrollPosition(moveX);
 
     this.stopEvent(event);
   }
@@ -180,7 +180,7 @@ export class AbsenceCalendarDirective {
             this.gridBody.drawCalendarGanttService.selectedRow - lastRow;
 
           this.gridBody.moveCalendar(0, diff);
-          this.gridBody.scroll.isMoveVertical(diff);
+          this.gridBody.scroll.updateVerticalScrollPosition(diff);
         }
       }
 
@@ -197,7 +197,7 @@ export class AbsenceCalendarDirective {
       }
 
       let nextVisibleRow: number =
-        this.gridBody.scroll.vScrollValue +
+        this.gridBody.scroll.verticalScrollPosition +
         this.gridBody.scroll.visibleRows -
         1;
 
@@ -206,11 +206,12 @@ export class AbsenceCalendarDirective {
       }
 
       if (this.gridBody.scroll.maxRows <= 1) {
-        this.gridBody.scroll.vScrollValue = 0;
+        this.gridBody.scroll.verticalScrollPosition = 0;
       } else if (this.gridBody.scroll.maxRows >= nextVisibleRow) {
-        this.gridBody.scroll.vScrollValue = nextVisibleRow;
+        this.gridBody.scroll.verticalScrollPosition = nextVisibleRow;
       } else {
-        this.gridBody.scroll.vScrollValue = this.gridBody.scroll.maxRows;
+        this.gridBody.scroll.verticalScrollPosition =
+          this.gridBody.scroll.maxRows;
       }
 
       this.drawCalendarGanttService.selectedRow = nextVisibleRow;
@@ -239,14 +240,14 @@ export class AbsenceCalendarDirective {
           this.gridBody.drawCalendarGanttService.selectedRow - 1;
 
         if (this.gridBody.scroll.maxRows <= 1) {
-          this.gridBody.scroll.vScrollValue = 0;
+          this.gridBody.scroll.verticalScrollPosition = 0;
         } else {
           if (
-            this.gridBody.scroll.vScrollValue >
+            this.gridBody.scroll.verticalScrollPosition >
             this.gridBody.drawCalendarGanttService.selectedRow
           ) {
             this.gridBody.moveCalendar(0, -1);
-            this.gridBody.scroll.isMoveVertical(-1);
+            this.gridBody.scroll.updateVerticalScrollPosition(-1);
           }
         }
 
@@ -264,7 +265,7 @@ export class AbsenceCalendarDirective {
       }
 
       let previousVisibleRow: number =
-        this.gridBody.scroll.vScrollValue -
+        this.gridBody.scroll.verticalScrollPosition -
         this.gridBody.scroll.visibleRows +
         1;
 
@@ -273,9 +274,9 @@ export class AbsenceCalendarDirective {
       }
 
       if (this.gridBody.scroll.maxRows <= 1) {
-        this.gridBody.scroll.vScrollValue = 0;
+        this.gridBody.scroll.verticalScrollPosition = 0;
       } else {
-        this.gridBody.scroll.vScrollValue = previousVisibleRow;
+        this.gridBody.scroll.verticalScrollPosition = previousVisibleRow;
       }
 
       this.gridBody.drawCalendarGanttService.selectedRow = previousVisibleRow;
@@ -299,7 +300,8 @@ export class AbsenceCalendarDirective {
         }
       }
 
-      this.gridBody.scroll.vScrollValue = this.gridBody.scroll.maxRows;
+      this.gridBody.scroll.verticalScrollPosition =
+        this.gridBody.scroll.maxRows;
 
       this.gridBody.drawCalendarGanttService.selectedRow =
         this.gridBody.dataManagementBreak.rows - 1;
@@ -324,7 +326,7 @@ export class AbsenceCalendarDirective {
         }
       }
 
-      this.gridBody.scroll.vScrollValue = 0;
+      this.gridBody.scroll.verticalScrollPosition = 0;
       this.gridBody.drawCalendarGanttService.selectedRow = 0;
       this.gridBody.vScrollbar!.value = 0;
 
@@ -436,7 +438,7 @@ export class AbsenceCalendarDirective {
     //     this.gridBody.position = pos;
     //     if (
     //       this.gridBody.position.column >
-    //       this.gridBody.scroll.hScrollValue + this.gridBody.scroll.visibleCols
+    //       this.gridBody.scroll.horizontalScrollPosition + this.gridBody.scroll.visibleCols
     //     ) {
     //       this.gridBody.moveCalendar(1, 0);
     //     }
@@ -504,26 +506,26 @@ export class AbsenceCalendarDirective {
   }
 
   // scrollOnPoint(pos: Position) {
-  //   if (pos.column < this.gridBody.scroll.hScrollValue) {
+  //   if (pos.column < this.gridBody.scroll.horizontalScrollPosition) {
   //     this.gridBody.moveCalendar(-1, 0);
   //     return;
   //   }
 
   //   const lastVisibleColum =
-  //     this.gridBody.scroll.visibleCols + this.gridBody.scroll.hScrollValue;
+  //     this.gridBody.scroll.visibleCols + this.gridBody.scroll.horizontalScrollPosition;
 
   //   if (pos.column > lastVisibleColum) {
   //     this.gridBody.moveCalendar(1, 0);
   //     return;
   //   }
 
-  //   if (pos.row < this.gridBody.scroll.vScrollValue) {
+  //   if (pos.row < this.gridBody.scroll.verticalScrollPosition) {
   //     this.gridBody.moveCalendar(0, -1);
   //     return;
   //   }
 
   //   const lastVisibleRow =
-  //     this.gridBody.scroll.visibleRows + this.gridBody.scroll.vScrollValue;
+  //     this.gridBody.scroll.visibleRows + this.gridBody.scroll.verticalScrollPosition;
 
   //   if (pos.row >= lastVisibleRow) {
   //     this.gridBody.moveCalendar(0, 1);

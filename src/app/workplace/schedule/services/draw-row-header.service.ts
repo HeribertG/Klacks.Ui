@@ -454,18 +454,18 @@ export class DrawRowHeaderService {
   }
 
   private get firstVisibleRow(): number {
-    return this.scroll.vScrollValue;
+    return this.scroll.verticalScrollPosition;
   }
   private set firstVisibleRow(value: number) {
-    this.scroll.vScrollValue = value;
+    this.scroll.verticalScrollPosition = value;
   }
 
   private get firstVisibleCol(): number {
-    return this.scroll.hScrollValue;
+    return this.scroll.horizontalScrollPosition;
   }
 
   private set firstVisibleCol(value: number) {
-    this.scroll.hScrollValue = value;
+    this.scroll.horizontalScrollPosition = value;
   }
   private visibleRow(): number {
     return Math.ceil(this.height / this.settings.cellHeight);

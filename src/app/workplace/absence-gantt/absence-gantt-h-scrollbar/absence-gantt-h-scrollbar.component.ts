@@ -116,14 +116,14 @@ export class AbsenceGanttHScrollbarComponent
         res = 0;
       }
 
-      const diff: number = res - this.scroll.hScrollValue;
+      const diff: number = res - this.scroll.horizontalScrollPosition;
 
       try {
         this.isDirty = true;
         if (diff !== 0) {
           if (this.absenceBody) {
             this.absenceBody.moveCalendar(diff, 0);
-            this.scroll.isMoveHorizontal(diff);
+            this.scroll.updateHorizontalScrollPosition(diff);
           }
         }
       } catch (e) {
@@ -136,7 +136,9 @@ export class AbsenceGanttHScrollbarComponent
 
   private get scrollLeft(): number {
     if (this.scroll) {
-      let res: number = Math.ceil(this.scroll.hScrollValue * this.tickSize);
+      let res: number = Math.ceil(
+        this.scroll.horizontalScrollPosition * this.tickSize
+      );
       if (!res || Number.isNaN(res)) {
         res = 0;
       }
@@ -162,7 +164,7 @@ export class AbsenceGanttHScrollbarComponent
 
   get value(): number {
     if (this.scroll) {
-      return this.scroll.hScrollValue;
+      return this.scroll.horizontalScrollPosition;
     }
     return 0;
   }
@@ -441,10 +443,10 @@ export class AbsenceGanttHScrollbarComponent
     if (this.absenceBody && this.scroll) {
       if (this.moveAnimationValue < 0) {
         this.absenceBody.moveCalendar(steps * -1, 0);
-        this.scroll.isMoveHorizontal(steps * -1);
+        this.scroll.updateHorizontalScrollPosition(steps * -1);
       } else if (this.moveAnimationValue > 0) {
         this.absenceBody.moveCalendar(steps, 0);
-        this.scroll.isMoveHorizontal(steps);
+        this.scroll.updateHorizontalScrollPosition(steps);
       }
     }
   }

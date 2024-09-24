@@ -11,63 +11,83 @@ export class ScrollService {
   public maxCols = 0;
   public maxRows = 0;
 
-  private _lastDifferenceX = 0;
-  private _lastDifferenceY = 0;
-  private _vScrollValue = 0;
-  private _hScrollValue = 0;
+  private _horizontalScrollDelta = 0;
+  private _verticalScrollDelta = 0;
+  private _verticalScrollPosition = 0;
+  private _horizontalScrollPosition = 0;
   private _visibleCols = 0;
   private _visibleRows = 0;
-  private _gapAfterEndRows = 3;
-  private _gapAfterEndCols = 3;
+  private readonly _gapAfterEndRows = 3;
+  private readonly _gapAfterEndCols = 3;
 
-  set vScrollValue(value: number) {
-    if (this._vScrollValue !== value) {
-      let oldValue: number = this._vScrollValue;
+  // horizontalScrollDelta and verticalScrollDelta represent the difference (delta)
+  // between the previous and current scroll position in the respective direction.
+  // These values indicate by how many rows or columns the scroll position has changed.
+  // They are used to determine how far the content has been moved in the X or Y axis,
+  // which can then be used to recalculate or redraw the content.
+
+  get horizontalScrollDelta(): number {
+    return this._horizontalScrollDelta;
+  }
+
+  get verticalScrollDelta(): number {
+    return this._verticalScrollDelta;
+  }
+
+  set verticalScrollPosition(value: number) {
+    if (this._verticalScrollPosition !== value) {
+      let oldValue: number = this._verticalScrollPosition;
       oldValue = Math.max(0, oldValue);
 
-      this._vScrollValue = Math.max(0, Math.min(value, this.maxRows));
+      this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
 
-      oldValue ? this.difference(oldValue, false) : (this._lastDifferenceY = 0);
+      if (oldValue !== undefined && oldValue !== null) {
+        this.difference(oldValue, false);
+      } else {
+        this._verticalScrollDelta = 0;
+      }
     }
   }
 
-  get vScrollValue() {
-    return this._vScrollValue;
+  get verticalScrollPosition() {
+    return this._verticalScrollPosition;
   }
 
-  set hScrollValue(value: number) {
-    if (this._hScrollValue !== value) {
-      let oldValue: number = this._hScrollValue;
+  set horizontalScrollPosition(value: number) {
+    if (this._horizontalScrollPosition !== value) {
+      let oldValue: number = this._horizontalScrollPosition;
       oldValue = Math.max(0, oldValue);
 
-      this._hScrollValue = Math.max(0, Math.min(value, this.maxCols));
+      this._horizontalScrollPosition = Math.max(
+        0,
+        Math.min(value, this.maxCols)
+      );
 
-      oldValue ? this.difference(oldValue, true) : (this._lastDifferenceX = 0);
+      if (oldValue !== undefined && oldValue !== null) {
+        this.difference(oldValue, false);
+      } else {
+        this._horizontalScrollDelta = 0;
+      }
     }
   }
 
-  get hScrollValue() {
-    return this._hScrollValue;
+  get horizontalScrollPosition() {
+    return this._horizontalScrollPosition;
   }
 
   resetScrollPosition(): void {
-    this._hScrollValue = 0;
-    this._vScrollValue = 0;
+    this._horizontalScrollPosition = 0;
+    this._verticalScrollPosition = 0;
+    this._horizontalScrollDelta = 0;
+    this._verticalScrollDelta = 0;
   }
 
   private difference(oldValue: number, isHorizontal: boolean) {
     if (isHorizontal) {
-      this._lastDifferenceX = oldValue - this._hScrollValue;
+      this._horizontalScrollDelta = oldValue - this._horizontalScrollPosition;
     } else {
-      this._lastDifferenceY = oldValue - this._vScrollValue;
+      this._verticalScrollDelta = oldValue - this._verticalScrollPosition;
     }
-  }
-
-  get lastDifferenceX(): number {
-    return this._lastDifferenceX;
-  }
-  get lastDifferenceY(): number {
-    return this._lastDifferenceY;
   }
 
   get visibleCols(): number {
@@ -84,6 +104,23 @@ export class ScrollService {
     visibleRows: number,
     rows: number
   ) {
+    if (
+      visibleCols == null ||
+      isNaN(visibleCols) ||
+      cols == null ||
+      isNaN(cols) ||
+      visibleRows == null ||
+      isNaN(visibleRows) ||
+      rows == null ||
+      isNaN(rows)
+    ) {
+      throw new Error('Alle Eingabewerte müssen gültige Zahlen sein.');
+    }
+
+    if (visibleCols < 0 || cols < 0 || visibleRows < 0 || rows < 0) {
+      throw new Error('Eingabewerte dürfen nicht negativ sein.');
+    }
+
     this.colPercent = 0;
     this.rowPercent = 0;
 
@@ -105,10 +142,10 @@ export class ScrollService {
     this._visibleRows = visibleRows;
   }
 
-  isMoveHorizontal(value: number): void {
+  updateHorizontalScrollPosition(value: number): void {
     this.moveHorizontalEvent.next(value);
   }
-  isMoveVertical(value: number): void {
+  updateVerticalScrollPosition(value: number): void {
     this.moveVerticalEvent.next(value);
   }
 }

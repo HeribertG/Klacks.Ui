@@ -105,19 +105,21 @@ export class AbsenceGanttVScrollbarComponent
         res = 0;
       }
 
-      const diff: number = res - this.scroll!.vScrollValue;
+      const diff: number = res - this.scroll!.verticalScrollPosition;
 
       this.isDirty = true;
       if (diff !== 0) {
         this.absenceBody!.moveCalendar(0, diff);
-        this.scroll!.isMoveVertical(diff);
+        this.scroll!.updateVerticalScrollPosition(diff);
       }
 
       this.isDirty = false;
     }
   }
   private get scrollTop(): number {
-    let res: number = Math.ceil(this.scroll!.vScrollValue * this.tickSize);
+    let res: number = Math.ceil(
+      this.scroll!.verticalScrollPosition * this.tickSize
+    );
     if (res === undefined || Number.isNaN(res)) {
       res = 0;
     }
@@ -130,7 +132,9 @@ export class AbsenceGanttVScrollbarComponent
       _value = 0;
     }
 
-    let res: number = Math.ceil(this.scroll!.vScrollValue * this.tickSize);
+    let res: number = Math.ceil(
+      this.scroll!.verticalScrollPosition * this.tickSize
+    );
     if (res === undefined || Number.isNaN(res)) {
       res = 0;
     }
@@ -140,7 +144,7 @@ export class AbsenceGanttVScrollbarComponent
     this.reDraw();
   }
   get value(): number {
-    return this.scroll!.vScrollValue;
+    return this.scroll!.verticalScrollPosition;
   }
 
   refresh() {
@@ -323,10 +327,10 @@ export class AbsenceGanttVScrollbarComponent
   moveAnimation() {
     if (this.moveAnimationValue < 0) {
       this.absenceBody!.moveCalendar(0, -5);
-      this.scroll!.isMoveVertical(-5);
+      this.scroll!.updateVerticalScrollPosition(-5);
     } else if (this.moveAnimationValue > 0) {
       this.absenceBody!.moveCalendar(0, 5);
-      this.scroll!.isMoveVertical(5);
+      this.scroll!.updateVerticalScrollPosition(5);
     }
 
     this.requestID = window.requestAnimationFrame((x) => {

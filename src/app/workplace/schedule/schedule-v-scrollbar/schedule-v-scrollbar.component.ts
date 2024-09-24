@@ -111,13 +111,13 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
         res = 0;
       }
 
-      const diff: number = res - this.scroll!.vScrollValue;
+      const diff: number = res - this.scroll!.verticalScrollPosition;
 
       try {
         this.isDirty = true;
         if (diff !== 0) {
           this.scheduleBody!.drawSchedule.moveGrid(0, diff);
-          this.scroll!.isMoveVertical(diff);
+          this.scroll!.updateVerticalScrollPosition(diff);
         }
       } catch (e) {
         console.error('scrollTop vScroll', e);
@@ -128,7 +128,9 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
   }
 
   private get scrollTop(): number {
-    let res: number = Math.ceil(this.scroll!.vScrollValue * this.tickSize);
+    let res: number = Math.ceil(
+      this.scroll!.verticalScrollPosition * this.tickSize
+    );
     if (res === undefined || Number.isNaN(res)) {
       res = 0;
     }
@@ -140,7 +142,9 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
       _value = 0;
     }
 
-    let res: number = Math.ceil(this.scroll!.vScrollValue * this.tickSize);
+    let res: number = Math.ceil(
+      this.scroll!.verticalScrollPosition * this.tickSize
+    );
     if (res === undefined || Number.isNaN(res)) {
       res = 0;
     }
@@ -151,7 +155,7 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
   }
 
   get value(): number {
-    return this.scroll!.vScrollValue;
+    return this.scroll!.verticalScrollPosition;
   }
 
   refresh() {
@@ -407,10 +411,10 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
     if (this.scheduleBody && this.scroll) {
       if (this.moveAnimationValue < 0) {
         this.scheduleBody.drawSchedule.moveGrid(0, steps * -1);
-        this.scroll.isMoveVertical(steps * -1);
+        this.scroll.updateVerticalScrollPosition(steps * -1);
       } else if (this.moveAnimationValue > 0) {
         this.scheduleBody.drawSchedule.moveGrid(0, steps);
-        this.scroll.isMoveVertical(steps);
+        this.scroll.updateVerticalScrollPosition(steps);
       }
     }
   }
