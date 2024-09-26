@@ -16,7 +16,6 @@ import { CanvasAvailable } from './canvasAvailable.decorator';
 import { CanvasManagerService } from './canvas-manager.service';
 import { GridRenderService } from './grid-render.service';
 import { CellRenderService } from './cell-render.service';
-import { SelectionService } from './selection.service';
 
 @Injectable()
 export class DrawScheduleService {
@@ -44,8 +43,7 @@ export class DrawScheduleService {
     private zone: NgZone,
     private canvasManager: CanvasManagerService,
     private gridRender: GridRenderService,
-    private cellRender: CellRenderService,
-    private selection: SelectionService
+    private cellRender: CellRenderService
   ) {}
 
   /* #region initial/final */
