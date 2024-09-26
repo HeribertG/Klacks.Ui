@@ -3,6 +3,7 @@ import { CanvasManagerService } from './canvas-manager.service';
 import { DataService } from './data.service';
 import { SettingsService } from './settings.service';
 import { CreateCellService } from './create-cell.service';
+import { MyPosition } from 'src/app/grid/classes/position';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,7 @@ export class CellRenderService {
     private createCell: CreateCellService
   ) {}
 
-  public renderCell(
+  private renderCell(
     row: number,
     col: number,
     firstVisibleRow: number,
@@ -40,7 +41,7 @@ export class CellRenderService {
     }
   }
 
-  public renderCellRange(
+  private renderCellRange(
     startRow: number,
     endRow: number,
     startCol: number,
@@ -57,17 +58,17 @@ export class CellRenderService {
 
   public updateCellsForHorizontalScroll(
     directionX: number,
-    visibleRow: number,
-    visibleCol: number,
+    visibleRows: number,
+    visibleCols: number,
     firstVisibleRow: number,
     firstVisibleCol: number
   ): void {
-    const startCol = directionX > 0 ? visibleCol - directionX : 0;
-    const endCol = directionX > 0 ? visibleCol : Math.abs(directionX);
+    const startCol = directionX > 0 ? visibleCols - directionX : 0;
+    const endCol = directionX > 0 ? visibleCols : Math.abs(directionX);
 
     this.renderCellRange(
       0,
-      visibleRow,
+      visibleRows,
       startCol,
       endCol,
       firstVisibleRow,
@@ -77,19 +78,68 @@ export class CellRenderService {
 
   public updateCellsForVerticalScroll(
     directionY: number,
-    visibleRow: number,
-    visibleCol: number,
+    visibleRows: number,
+    visibleCols: number,
     firstVisibleRow: number,
     firstVisibleCol: number
   ): void {
-    const startRow = directionY > 0 ? visibleRow - directionY : 0;
-    const endRow = directionY > 0 ? visibleRow : Math.abs(directionY);
+    const startRow = directionY > 0 ? visibleRows - directionY : 0;
+    const endRow = directionY > 0 ? visibleRows : Math.abs(directionY);
 
     this.renderCellRange(
       startRow,
       endRow,
       0,
-      visibleCol,
+      visibleCols,
+      firstVisibleRow,
+      firstVisibleCol
+    );
+  }
+
+  public addCells(
+    visibleRows: number,
+    visibleCols: number,
+    firstVisibleRow: number,
+    firstVisibleCol: number
+  ): void {
+    this.renderCellRange(
+      0,
+      visibleRows,
+      0,
+      visibleCols,
+      firstVisibleRow,
+      firstVisibleCol
+    );
+  }
+
+  public refreshCell(
+    pos: MyPosition,
+    visibleRows: number,
+    visibleCols: number,
+    firstVisibleRow: number,
+    firstVisibleCol: number
+  ): void {
+    if (pos && !pos.isEmpty()) {
+      const col: number = pos.column - firstVisibleCol;
+      const row: number = pos.row - firstVisibleRow;
+
+      if (this.isVisibleCell(row, col, visibleRows, visibleCols)) {
+        this.renderCell(row, col, firstVisibleRow, firstVisibleCol);
+      }
+    }
+  }
+
+  public refreshVisibleCells(
+    visibleRows: number,
+    visibleCols: number,
+    firstVisibleRow: number,
+    firstVisibleCol: number
+  ): void {
+    this.renderCellRange(
+      0,
+      visibleRows,
+      0,
+      visibleCols,
       firstVisibleRow,
       firstVisibleCol
     );
@@ -102,5 +152,14 @@ export class CellRenderService {
       col >= 0 &&
       col < this.dataService.columns
     );
+  }
+
+  private isVisibleCell(
+    row: number,
+    col: number,
+    visibleRows: number,
+    visibleCols: number
+  ): boolean {
+    return row >= 0 && row < visibleRows && col >= 0 && col < visibleCols;
   }
 }

@@ -16,6 +16,7 @@ import { CanvasAvailable } from './canvasAvailable.decorator';
 import { CanvasManagerService } from './canvas-manager.service';
 import { GridRenderService } from './grid-render.service';
 import { CellRenderService } from './cell-render.service';
+import { SelectionService } from './selection.service';
 
 @Injectable()
 export class DrawScheduleService {
@@ -43,7 +44,8 @@ export class DrawScheduleService {
     private zone: NgZone,
     private canvasManager: CanvasManagerService,
     private gridRender: GridRenderService,
-    private cellRender: CellRenderService
+    private cellRender: CellRenderService,
+    private selection: SelectionService
   ) {}
 
   /* #region initial/final */
@@ -274,39 +276,15 @@ export class DrawScheduleService {
   @CanvasAvailable('queue')
   refreshCell(pos: MyPosition) {
     if (this.canvasManager.isRenderCanvasAvailable()) {
-      if (pos != null && !pos.isEmpty()) {
-        let col: number =
-          (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
-        let row: number =
-          (pos.row - this.firstVisibleRow) * this.settings.cellHeight;
-
-        col -= this.BORDER_OFFSET;
-        row -= this.BORDER_OFFSET;
-
-        if (row < 0) {
-          row = 0;
-        }
-        if (col < 0) {
-          col = 0;
-        }
-
-        const tmpImage: ImageData =
-          this.canvasManager.renderCanvasCtx!.getImageData(
-            col,
-            row,
-            this.settings.cellWidth + this.BORDER_OFFSET + this.BORDER_OFFSET,
-            this.settings.cellHeight +
-              this.BORDER_OFFSET +
-              this.BORDER_OFFSET +
-              this.BORDER_OFFSET +
-              this.BORDER_OFFSET
-          );
-        this.canvasManager.ctx!.putImageData(
-          tmpImage,
-          col,
-          row + this.settings.cellHeaderHeight
-        );
-      }
+      const visibleRows: number = this.updateVisibleRow();
+      const visibleCols: number = this.updateVisibleCol();
+      this.cellRender.refreshCell(
+        pos,
+        visibleRows,
+        visibleCols,
+        this.firstVisibleRow,
+        this.firstVisibleCol
+      );
     }
   }
 
@@ -493,12 +471,12 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   drawGrid() {
-    const visibleRow: number = this.updateVisibleRow();
-    const visibleCol: number = this.updateVisibleCol();
+    const visibleRows: number = this.updateVisibleRow();
+    const visibleCols: number = this.updateVisibleCol();
 
-    this.gridRender.drawGrid(
-      visibleRow,
-      visibleCol,
+    this.cellRender.addCells(
+      visibleRows,
+      visibleCols,
       this.firstVisibleRow,
       this.firstVisibleCol
     );
@@ -565,33 +543,15 @@ export class DrawScheduleService {
   @CanvasAvailable('queue')
   private addCells(row: number, col: number) {
     if (this.existData) {
-      const tmpRow: number = row + this.firstVisibleRow;
-      const tmpCol: number = col + this.firstVisibleCol;
-      const cellWidth = this.settings.cellWidth;
-      const cellHeight = this.settings.cellHeight;
+      const visibleRows: number = this.updateVisibleRow();
+      const visibleCols: number = this.updateVisibleCol();
 
-      if (
-        tmpRow < 0 ||
-        tmpRow >= this.gridData.rows ||
-        tmpCol < 0 ||
-        tmpCol >= this.gridData.columns
-      ) {
-        console.warn('Cell index outside the valid limits.');
-        return;
-      }
-
-      if (tmpRow < this.gridData.rows && tmpCol < this.gridData.columns) {
-        const img = this.createCell.createCell(tmpRow, tmpCol);
-        if (img) {
-          this.canvasManager.renderCanvasCtx!.drawImage(
-            img,
-            col * cellWidth,
-            row * cellHeight,
-            cellWidth,
-            cellHeight
-          );
-        }
-      }
+      this.cellRender.addCells(
+        visibleRows,
+        visibleCols,
+        this.firstVisibleRow,
+        this.firstVisibleCol
+      );
     }
   }
 
