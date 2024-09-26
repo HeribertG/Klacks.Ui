@@ -13,6 +13,7 @@ import { EditShiftNavComponent } from './edit-shift/edit-shift-nav/edit-shift-na
 import { EditShiftAddressComponent } from './edit-shift/edit-shift-address/edit-shift-address.component';
 import { EditShiftSpecialFeatureComponent } from './edit-shift/edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftMacroComponent } from './edit-shift/edit-shift-macro/edit-shift-macro.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { EditShiftMacroComponent } from './edit-shift/edit-shift-macro/edit-shif
     SharedModule,
     ToastModule,
     TranslateModule,
+    FontAwesomeModule,
   ],
   exports: [
     EditShiftHomeComponent,

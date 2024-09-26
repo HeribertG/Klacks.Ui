@@ -14,6 +14,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { IconsModule } from 'src/app/icons/icons.module';
 import { FormsModule } from '@angular/forms';
 import { EditGroupMembersComponent } from './edit-group/edit-group-members/edit-group-members.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { EditGroupMembersComponent } from './edit-group/edit-group-members/edit-
     SharedModule,
     ToastModule,
     TranslateModule,
+    FontAwesomeModule,
   ],
 })
 export class GroupModule {}

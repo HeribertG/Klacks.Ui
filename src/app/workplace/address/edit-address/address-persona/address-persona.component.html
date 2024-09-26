@@ -34,7 +34,10 @@
                 style="width: 40px"
                 (click)="validFrom.toggle()"
               >
-                <i class="fa fa-calendar" style="color: #464e5f"></i>
+                <fa-icon
+                  [icon]="faCalendar"
+                  [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                ></fa-icon>
               </span>
             </div>
           </div>
@@ -122,10 +125,10 @@
               class="input-group-text"
               (click)="newAddressValidFrom1.toggle()"
             >
-              <i
-                class="fa fa-calendar"
-                style="font-size: 16px; color: #464e5f"
-              ></i>
+              <fa-icon
+                [icon]="faCalendar"
+                [style]="{ 'font-size': '16px', color: '#464e5f' }"
+              ></fa-icon>
             </span>
           </div>
         </div>
@@ -949,7 +952,10 @@
               style="width: 40px"
               (click)="birthday.toggle()"
             >
-              <i class="fa fa-calendar" style="color: #464e5f"></i>
+              <fa-icon
+                [icon]="faCalendar"
+                [style]="{ 'font-size': '16px', color: '#464e5f' }"
+              ></fa-icon>
             </span>
           </div>
         </div>

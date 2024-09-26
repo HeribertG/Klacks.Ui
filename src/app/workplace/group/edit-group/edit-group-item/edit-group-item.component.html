@@ -56,7 +56,10 @@
                 style="width: 40px"
                 (click)="validFrom.toggle()"
               >
-                <i class="fa fa-calendar" style="color: #464e5f"></i>
+                <fa-icon
+                  [icon]="faCalendar"
+                  [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                ></fa-icon>
               </span>
             </div>
           </div>
@@ -89,7 +92,10 @@
               style="width: 40px"
               (click)="validUntil.toggle()"
             >
-              <i class="fa fa-calendar" style="color: #464e5f"></i>
+              <fa-icon
+                [icon]="faCalendar"
+                [style]="{ 'font-size': '16px', color: '#464e5f' }"
+              ></fa-icon>
             </span>
           </div>
         </div>

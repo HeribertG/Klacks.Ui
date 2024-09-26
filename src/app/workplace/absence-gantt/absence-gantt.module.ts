@@ -26,6 +26,7 @@ import { AbsenceGanttFilterComponent } from './absence-gantt-row-header/absence-
 import { AbsenceGanttPdfPreviewComponent } from './absence-gantt-pdf-preview/absence-gantt-pdf-preview.component';
 import { DrawCalendarGanttService } from './services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from './services/draw-row-header.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -52,6 +53,7 @@ import { DrawRowHeaderService } from './services/draw-row-header.service';
     SharedModule,
     IconsModule,
     TranslateModule,
+    FontAwesomeModule,
   ],
   providers: [
     TranslateService,

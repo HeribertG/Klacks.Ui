@@ -27,6 +27,7 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-absence-gantt-mask',
@@ -43,9 +44,10 @@ export class AbsenceGanttMaskComponent
   @Input() selectedRowBreaksMaxIndex: number | undefined;
   @Input() selectedBreakIndex: number = -1;
 
-  page = 1;
-  tabId = 'mask';
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public page = 1;
+  public tabId = 'mask';
+  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public faCalendar = faCalendar;
 
   private selectedBreak_dummy: IBreak | undefined;
   private ngUnsubscribe = new Subject<void>();

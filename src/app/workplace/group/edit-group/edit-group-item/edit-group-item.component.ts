@@ -17,6 +17,7 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -30,7 +31,8 @@ export class EditGroupItemComponent
 
   @ViewChild('groupForm', { static: false }) groupForm: NgForm | undefined;
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public faCalendar = faCalendar;
 
   private ngUnsubscribe = new Subject<void>();
   private objectForUnsubscribe: Subscription | undefined;

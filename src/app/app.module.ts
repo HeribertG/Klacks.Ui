@@ -9,7 +9,12 @@ import { NavComponent } from './surface/nav/nav.component';
 import { HeaderComponent } from './surface/header/header.component';
 import { FooterComponent } from './surface/footer/footer.component';
 import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { HTTP_INTERCEPTORS, HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  HttpClient,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import {
   AuthInterceptor,
   ResponseInterceptor,
@@ -35,6 +40,7 @@ import { AddressModule } from './workplace/address/address.module';
 import { ModalModule } from './modal/modal.module';
 import { SpinnerModule } from './spinner/spinner.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
@@ -56,48 +62,55 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient, './assets/i18n/', '.json');
 }
 
-@NgModule({ declarations: [
-        ErrorComponent,
-        LoginComponent,
-        AppComponent,
-        HomeComponent,
-        MainComponent,
-        NavComponent,
-        HeaderComponent,
-        FooterComponent,
-        DashboardHomeComponent,
-        SearchComponent,
-    ],
-    bootstrap: [AppComponent], imports: [NgbModule,
-        FormsModule,
-        BrowserModule,
-        AppRoutingModule,
-        ToastModule,
-        IconsModule,
-        SpinnerModule,
-        FormsModule,
-        AddressModule,
-        CommonModule,
-        ModalModule,
-        ScheduleModule,
-        AbsenceGanttModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        })], providers: [
-        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-        { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
-        { provide: AppErrorHandler, useClass: AppErrorHandler },
-        { provide: CanDeactivateGuard, useClass: CanDeactivateGuard },
-        { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
-        CurrencyPipe,
-        Title,
-        TranslatePipe,
-        TranslateStringConstantsService,
-        { provide: LOCALE_ID, useValue: 'en-US' },
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
+@NgModule({
+  declarations: [
+    ErrorComponent,
+    LoginComponent,
+    AppComponent,
+    HomeComponent,
+    MainComponent,
+    NavComponent,
+    HeaderComponent,
+    FooterComponent,
+    DashboardHomeComponent,
+    SearchComponent,
+  ],
+  bootstrap: [AppComponent],
+  imports: [
+    NgbModule,
+    FormsModule,
+    BrowserModule,
+    AppRoutingModule,
+    ToastModule,
+    IconsModule,
+    SpinnerModule,
+    FormsModule,
+    AddressModule,
+    CommonModule,
+    ModalModule,
+    ScheduleModule,
+    AbsenceGanttModule,
+    FontAwesomeModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
+  ],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
+    { provide: AppErrorHandler, useClass: AppErrorHandler },
+    { provide: CanDeactivateGuard, useClass: CanDeactivateGuard },
+    { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },
+    CurrencyPipe,
+    Title,
+    TranslatePipe,
+    TranslateStringConstantsService,
+    { provide: LOCALE_ID, useValue: 'en-US' },
+    provideHttpClient(withInterceptorsFromDi()),
+  ],
+})
 export class AppModule {}

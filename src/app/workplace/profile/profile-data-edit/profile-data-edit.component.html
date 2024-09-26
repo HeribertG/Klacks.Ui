@@ -40,19 +40,14 @@
           class="form-control"
           id="profile-oldPassword"
         />
-
         <span
           class="input-group-text"
           (click)="showOldPassword = !showOldPassword"
         >
-          <i
-            class="fa"
-            [ngClass]="{
-              'fa-eye-slash': !showOldPassword,
-              'fa-eye': showOldPassword
-            }"
-            style="font-size: 16px; color: #464e5f"
-          ></i>
+          <fa-icon
+            [icon]="showOldPassword ? faEye : faEyeSlash"
+            class="password-icon"
+          ></fa-icon>
         </span>
       </div>
     </div>

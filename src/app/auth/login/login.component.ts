@@ -4,6 +4,7 @@ import { AuthService } from '../auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-login',
@@ -11,12 +12,14 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  isClicked = false;
-  username = '';
-  password = '';
-  token = '';
-  showPassword = false;
-  currentLang = MessageLibrary.CURRENT_LANG;
+  public isClicked = false;
+  public username = '';
+  public password = '';
+  public token = '';
+  public faEye = faEye;
+  public faEyeSlash = faEyeSlash;
+  public showPassword = false;
+  public currentLang = MessageLibrary.CURRENT_LANG;
 
   constructor(
     @Inject(AuthService) private auth: AuthService,

@@ -15,6 +15,7 @@ import {
   PasswordCheckStrength,
 } from 'src/app/helpers/password';
 import { Subject, takeUntil } from 'rxjs';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-profile-data-edit',
@@ -28,10 +29,12 @@ export class ProfileDataEditComponent
 
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 
-  newPassword1 = '';
-  passwordStrength = '';
+  public newPassword1 = '';
+  public passwordStrength = '';
   public passwordStrengthFlag = false;
   public showOldPassword = false;
+  public faEye = faEye;
+  public faEyeSlash = faEyeSlash;
   private ngUnsubscribe = new Subject<void>();
 
   constructor(

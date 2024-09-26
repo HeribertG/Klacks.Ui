@@ -11,6 +11,7 @@ import { NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -27,10 +28,11 @@ export class EditShiftItemComponent
     | NgForm
     | undefined;
 
-  visibleTable = 'inline';
-  isChecked = false;
+  public faCalendar = faCalendar;
+  public visibleTable = 'inline';
+  public isChecked = false;
 
-  objectForUnsubscribe: Subscription | undefined;
+  public objectForUnsubscribe: Subscription | undefined;
 
   constructor(
     public dataManagementShiftService: DataManagementShiftService,

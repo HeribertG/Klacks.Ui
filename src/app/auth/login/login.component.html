@@ -34,14 +34,10 @@
             class="input-group-text password-button"
             (click)="showPassword = !showPassword"
           >
-            <i
-              name="eye-btn"
-              [ngClass]="
-                !showPassword
-                  ? 'password-icon fa fa-eye-slash'
-                  : 'password-icon fa fa-eye'
-              "
-            ></i>
+            <fa-icon
+              [icon]="showPassword ? faEye : faEyeSlash"
+              class="password-icon"
+            ></fa-icon>
           </span>
         </div>
       </div>

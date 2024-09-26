@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { IClient } from 'src/app/core/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-edit-address-nav',
@@ -10,7 +11,8 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   styleUrls: ['./edit-address-nav.component.scss'],
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
-  validFrom = MessageLibrary.VALID_FROM;
+  public validFrom = MessageLibrary.VALID_FROM;
+  public faCalendar = faCalendar;
 
   constructor(
     public dataManagementClientService: DataManagementClientService,

@@ -10,6 +10,7 @@ import { NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-membership',
@@ -22,13 +23,11 @@ export class MembershipComponent implements OnInit {
     | undefined;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
-  isAuthorised = false;
-
-  now = new Date();
-
-  objectForUnsubscribe: any;
-
-  iterableDiffer: any;
+  public faCalendar = faCalendar;
+  public isAuthorised = false;
+  public now = new Date();
+  public objectForUnsubscribe: any;
+  public iterableDiffer: any;
 
   constructor(
     public dataManagementClientService: DataManagementClientService,

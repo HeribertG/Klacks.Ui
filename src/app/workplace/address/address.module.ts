@@ -17,6 +17,7 @@ import { ToastModule } from 'src/app/toast/toast.module';
 import { NgbDateCustomParserFormatter } from 'src/app/helpers/NgbDateParserFormatter';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
     ToastModule,
     TranslateModule,
+    FontAwesomeModule,
   ],
   exports: [
     AllAddressHomeComponent,

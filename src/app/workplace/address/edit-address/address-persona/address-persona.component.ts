@@ -26,6 +26,7 @@ import { createStringId } from 'src/app/helpers/object-helpers';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-address-persona',
@@ -39,28 +40,30 @@ export class AddressPersonaComponent
 
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 
-  addStreetLine2 = false;
-  addStreetLine3 = false;
+  public faCalendar = faCalendar;
 
-  addFirstNameLine2 = false;
-  addNameLine2 = false;
+  public addStreetLine2 = false;
+  public addStreetLine3 = false;
 
-  objectForUnsubscribe: Subscription | undefined;
+  public addFirstNameLine2 = false;
+  public addNameLine2 = false;
 
-  editClientType = 0;
-  addressType = 0;
-  addressValidFrom: NgbDateStruct | undefined;
+  public objectForUnsubscribe: Subscription | undefined;
 
-  newAddressType = 0;
-  newAddressValidFrom: NgbDateStruct = transformDateToNgbDateStruct(
+  public editClientType = 0;
+  public addressType = 0;
+  public addressValidFrom: NgbDateStruct | undefined;
+
+  public newAddressType = 0;
+  public newAddressValidFrom: NgbDateStruct = transformDateToNgbDateStruct(
     new Date()
   )!;
-  message = MessageLibrary.DEACTIVE_ADDRESS;
-  title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
-  newAddressString = MessageLibrary.NEW_ADDRESS;
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public message = MessageLibrary.DEACTIVE_ADDRESS;
+  public title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
+  public newAddressString = MessageLibrary.NEW_ADDRESS;
+  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
-  isPhoneValueSeals = false;
+  public isPhoneValueSeals = false;
 
   private ngUnsubscribe = new Subject<void>();
 

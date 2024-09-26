@@ -12,6 +12,7 @@ import { IconsModule } from 'src/app/icons/icons.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { SharedModule } from 'src/app/shared/shared.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SpinnerModule,
     ToastModule,
     TranslateModule,
+    FontAwesomeModule,
   ],
   exports: [
     ProfileHomeComponent,

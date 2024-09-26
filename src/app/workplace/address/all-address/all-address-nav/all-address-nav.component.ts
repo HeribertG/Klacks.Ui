@@ -14,6 +14,7 @@ import { DataManagementClientService } from 'src/app/data/management/data-manage
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-all-address-nav',
@@ -26,17 +27,17 @@ export class AllAddressNavComponent
   @ViewChild('navClientForm', { static: false }) navClientForm:
     | NgForm
     | undefined;
-  navClient: HTMLElement | undefined;
+  public navClient: HTMLElement | undefined;
+  public faCalendar = faCalendar;
+  public isComboBoxOpen = false;
 
-  isComboBoxOpen = false;
+  public objectForUnsubscribe: any;
+  public clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
 
-  objectForUnsubscribe: any;
-  clientTypeName = MessageLibrary.ENTITY_TYPE_ALL;
-
-  iterableDiffer: any;
-  isInitFinished = false;
-  defaultTop: number = 0;
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public iterableDiffer: any;
+  public isInitFinished = false;
+  public defaultTop: number = 0;
+  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
   constructor(
