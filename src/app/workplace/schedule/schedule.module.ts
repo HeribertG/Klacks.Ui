@@ -28,6 +28,7 @@ import { CreateRowHeaderService } from './services/create-row-header.service';
 import { ScheduleHeaderCalendarComponent } from './schedule-header/schedule-header-calendar/schedule-header-calendar.component';
 import { DrawRowHeaderService } from './services/draw-row-header.service';
 import { CellEventsDirective } from './directives/cell-events.directive';
+import { CanvasManagerService } from './services/canvas-manager.service';
 
 @NgModule({
   declarations: [
@@ -65,6 +66,7 @@ import { CellEventsDirective } from './directives/cell-events.directive';
     CreateCellService,
     CreateRowHeaderService,
     DrawRowHeaderService,
+    CanvasManagerService,
   ],
 })
 export class ScheduleModule {}

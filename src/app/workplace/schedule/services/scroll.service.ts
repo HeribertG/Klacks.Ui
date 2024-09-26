@@ -144,6 +144,7 @@ export class ScrollService {
 
   updateHorizontalScrollPosition(value: number): void {
     this.moveHorizontalEvent.next(value);
+    console.log('updateHorizontalScrollPosition', value);
   }
   updateVerticalScrollPosition(value: number): void {
     this.moveVerticalEvent.next(value);

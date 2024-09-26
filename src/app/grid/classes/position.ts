@@ -48,6 +48,10 @@ export class MyPositionCollection {
     this.items = [];
   }
 
+  getAll(): Array<MyPosition> {
+    return this.items;
+  }
+
   count(): number {
     return this.items.length;
   }

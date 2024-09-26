@@ -160,6 +160,28 @@ export class GridRenderService {
     ctx.restore();
   }
 
+  public drawGridSelectedHeaderCell(
+    position: MyPosition | null,
+    firstVisibleCol: number
+  ): void {
+    const ctx = this.canvasManager.ctx;
+    if (!ctx || !position || position.isEmpty()) return;
+
+    ctx.save();
+    ctx.fillStyle = this.gridColors.focusBorderColor;
+    ctx.globalAlpha = 0.2;
+    const col: number =
+      (position.column - firstVisibleCol) * this.settings.cellWidth;
+
+    ctx.fillRect(
+      col,
+      0,
+      this.settings.cellWidth,
+      this.settings.cellHeaderHeight
+    );
+    ctx.restore();
+  }
+
   private resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
     this.canvasManager.resizeRenderCanvas(visibleRow, visibleCol);
   }
@@ -181,7 +203,7 @@ export class GridRenderService {
       tmpCol < 0 ||
       tmpCol >= this.gridData.columns
     ) {
-      console.warn('Cell index outside the valid limits.');
+      //Cell index outside the valid limits.'
       return;
     }
 

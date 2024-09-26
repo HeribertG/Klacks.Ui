@@ -42,7 +42,6 @@ export class CanvasManagerService {
       this.ctx.canvas.width = this._width;
       this.ctx.canvas.height = this._height;
     }
-    console.log(`Canvas resized to ${this._width}x${this._height}`);
   }
 
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
