@@ -8,7 +8,11 @@ import { MainComponent } from './surface/main/main.component';
 import { NavComponent } from './surface/nav/nav.component';
 import { HeaderComponent } from './surface/header/header.component';
 import { FooterComponent } from './surface/footer/footer.component';
-import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDateParserFormatter,
+  NgbDatepickerI18n,
+  NgbModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import {
   HTTP_INTERCEPTORS,
   HttpClient,
@@ -52,6 +56,8 @@ import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
 import { ScheduleModule } from './workplace/schedule/schedule.module';
 import { AbsenceGanttModule } from './workplace/absence-gantt/absence-gantt.module';
+import { LocaleService } from './services/locale.service';
+import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -60,6 +66,10 @@ registerLocaleData(localeIt);
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient, './assets/i18n/', '.json');
+}
+
+export function localeFactory(localeService: LocaleService) {
+  return localeService.getLocale();
 }
 
 @NgModule({
@@ -100,6 +110,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     }),
   ],
   providers: [
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     { provide: AppErrorHandler, useClass: AppErrorHandler },
@@ -109,7 +120,11 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
     Title,
     TranslatePipe,
     TranslateStringConstantsService,
-    { provide: LOCALE_ID, useValue: 'en-US' },
+    {
+      provide: LOCALE_ID,
+      deps: [LocaleService],
+      useFactory: localeFactory,
+    },
     provideHttpClient(withInterceptorsFromDi()),
   ],
 })

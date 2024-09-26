@@ -3,6 +3,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import {
+  LocaleService,
+  SupportedLocales,
+} from 'src/app/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
@@ -25,7 +29,8 @@ export class ProfileCustomSettingComponent implements OnInit {
   constructor(
     private translateService: TranslateService,
     private translateStringConstantsService: TranslateStringConstantsService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private localeService: LocaleService
   ) {}
 
   ngOnInit(): void {
@@ -51,6 +56,7 @@ export class ProfileCustomSettingComponent implements OnInit {
     this.translateService.use(lang);
     this.localStorageService.set(MessageLibrary.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
+    this.localeService.setLocale(lang as SupportedLocales);
   }
 
   onDarkModeChecked(): void {

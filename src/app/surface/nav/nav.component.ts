@@ -5,6 +5,10 @@ import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { deleteStack } from 'src/app/helpers/local-storage-stack';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import {
+  LocaleService,
+  SupportedLocales,
+} from 'src/app/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
@@ -29,7 +33,8 @@ export class NavComponent implements OnInit, AfterViewInit {
     public dataLoadFileService: DataLoadFileService,
     private translateService: TranslateService,
     private translateStringConstantsService: TranslateStringConstantsService,
-    private localStorageService: LocalStorageService
+    private localStorageService: LocalStorageService,
+    private localeService: LocaleService
   ) {}
 
   ngOnInit(): void {
@@ -116,5 +121,6 @@ export class NavComponent implements OnInit, AfterViewInit {
     this.translateService.use(lang);
     localStorage.setItem(MessageLibrary.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
+    this.localeService.setLocale(lang as SupportedLocales);
   }
 }
