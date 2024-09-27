@@ -3,7 +3,8 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  Renderer2,
+  ViewChild,
+  ElementRef,
 } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { ScrollService } from '../services/scroll.service';
@@ -19,11 +20,7 @@ import { SettingsService } from '../services/settings.service';
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  resizeWindow: (() => void) | undefined;
-  visibilitychangeWindow: (() => void) | undefined;
-
-  private eventListeners: Array<() => void> = [];
-  private box: HTMLDivElement | undefined;
+  @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -31,25 +28,42 @@ export class ScheduleScheduleRowHeaderComponent
     public dataService: DataService,
     public scroll: ScrollService,
     public drawRowHeader: DrawRowHeaderService,
-    private renderer: Renderer2,
     private settings: SettingsService
   ) {}
 
-  /* #region ng */
-  ngOnInit(): void {
-    this.eventListeners.push(
-      this.renderer.listen('window', 'resize', this.resize.bind(this))
-    );
-    this.eventListeners.push(
-      this.renderer.listen('window', 'visibilitychange', this.resize.bind(this))
-    );
-  }
-  ngAfterViewInit(): void {
-    this.box = document.getElementById('box') as HTMLDivElement;
-    this.drawRowHeader.width = this.box.clientWidth;
-    this.drawRowHeader.height = this.box.clientHeight;
-    this.drawRowHeader.createCanvas();
+  ngOnInit(): void {}
 
+  ngAfterViewInit(): void {
+    this.initializeDrawRowHeader();
+    this.setupEventListeners();
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+    this.drawRowHeader.deleteCanvas();
+  }
+
+  onResize(entries: ResizeObserverEntry[]): void {
+    if (entries && entries.length > 0) {
+      const entry = entries[0];
+      this.updateDrawRowHeaderDimensions(entry.target as Element);
+      this.drawRowHeader.refresh();
+    }
+  }
+
+  private initializeDrawRowHeader(): void {
+    this.updateDrawRowHeaderDimensions();
+    this.drawRowHeader.createCanvas();
+  }
+
+  private updateDrawRowHeaderDimensions(element?: Element): void {
+    const box = element || this.boxElement.nativeElement;
+    this.drawRowHeader.width = box.clientWidth;
+    this.drawRowHeader.height = box.clientHeight;
+  }
+
+  private setupEventListeners(): void {
     this.dataService.refreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -64,26 +78,4 @@ export class ScheduleScheduleRowHeaderComponent
         this.drawRowHeader.redraw();
       });
   }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-
-    this.eventListeners.forEach((fn) => fn());
-    this.eventListeners = [];
-    this.drawRowHeader.deleteCanvas();
-  }
-  /* #endregion ng */
-
-  /* #region resize+visibility */
-  private resize = (event: any): void => {
-    this.onResize();
-  };
-  onResize() {
-    this.drawRowHeader.width = this.box!.clientWidth;
-    this.drawRowHeader.height = this.box!.clientHeight;
-
-    this.drawRowHeader.refresh();
-  }
-  /* #endregion resize+visibility */
 }

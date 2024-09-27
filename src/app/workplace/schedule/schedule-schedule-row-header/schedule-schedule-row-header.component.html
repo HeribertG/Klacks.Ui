@@ -1,3 +1,3 @@
-<div id="box" class="box" resizeObserver (resizeElement)="onResize()">
+<div #box id="box" class="box" appResize (resizeElement)="onResize($event)">
   <canvas id="scheduleRowCanvas"></canvas>
 </div>

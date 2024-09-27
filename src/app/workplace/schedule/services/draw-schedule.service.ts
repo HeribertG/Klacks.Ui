@@ -329,7 +329,6 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private moveCanvas(directionX: number, directionY: number) {
-    console.log('moveCanvas called with:', directionX, directionY);
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 

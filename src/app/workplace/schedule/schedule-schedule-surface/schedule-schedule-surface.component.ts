@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
+  ViewChild,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
@@ -35,17 +36,13 @@ export class ScheduleScheduleSurfaceComponent
   @Input() rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
   @Input() vScrollbar: ScheduleVScrollbarComponent | undefined;
   @Input() hScrollbar: ScheduleHScrollbarComponent | undefined;
-
-  resizeWindow: (() => void) | undefined;
-  visibilitychangeWindow: (() => void) | undefined;
+  @ViewChild('boxSchedule') boxSchedule!: ElementRef<HTMLDivElement>;
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
 
   private tooltip: HTMLDivElement | undefined;
   private _pixelRatio = 1;
-
-  private box: HTMLDivElement | undefined;
 
   private ngUnsubscribe = new Subject<void>();
 
@@ -54,7 +51,6 @@ export class ScheduleScheduleSurfaceComponent
     public dataService: DataService,
     public scroll: ScrollService,
     public drawSchedule: DrawScheduleService,
-    private renderer: Renderer2,
     private el: ElementRef,
     private spinnerService: SpinnerService,
     private settings: SettingsService,
@@ -66,22 +62,6 @@ export class ScheduleScheduleSurfaceComponent
     this.spinnerService.showProgressSpinner = false;
     this._pixelRatio = DrawHelper.pixelRatio();
 
-    this.resizeWindow = this.renderer.listen(
-      'window',
-      'resize',
-      (event: any) => {
-        this.resize(event);
-      }
-    );
-
-    this.visibilitychangeWindow = this.renderer.listen(
-      'window',
-      'visibilitychange',
-      (event: any) => {
-        this.resize(event);
-      }
-    );
-
     this.drawSchedule.refresh();
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
@@ -89,9 +69,7 @@ export class ScheduleScheduleSurfaceComponent
 
   ngAfterViewInit(): void {
     this.drawSchedule.createCanvas();
-    this.box = document.getElementById('box-schedule') as HTMLDivElement;
-    this.drawSchedule.width = this.box.clientWidth;
-    this.drawSchedule.height = this.box.clientHeight;
+    this.initializeDrawSchedule();
 
     this.dataManagementSchedule.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -139,13 +117,6 @@ export class ScheduleScheduleSurfaceComponent
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
-    if (this.resizeWindow) {
-      this.resizeWindow();
-    }
-    if (this.visibilitychangeWindow) {
-      this.visibilitychangeWindow();
-    }
-
     this.drawSchedule.deleteCanvas();
     this.drawSchedule.vScrollbar = undefined;
     this.drawSchedule.hScrollbar = undefined;
@@ -156,6 +127,14 @@ export class ScheduleScheduleSurfaceComponent
 
   /* #region   resize+visibility */
 
+  private initializeDrawSchedule(): void {
+    this.drawSchedule.createCanvas();
+    const box = this.boxSchedule.nativeElement;
+    this.drawSchedule.width = box.clientWidth;
+    this.drawSchedule.height = box.clientHeight;
+    this.drawSchedule.refresh();
+  }
+
   setFocus(): void {
     const x = this.el.nativeElement as HTMLDivElement;
     if (x) {
@@ -164,33 +143,38 @@ export class ScheduleScheduleSurfaceComponent
     }
   }
 
-  private resize = (event: Event): void => {
+  onResize(entries: ResizeObserverEntry[]): void {
+    if (entries && entries.length > 0) {
+      const entry = entries[0];
+      this.updateDrawScheduleDimensions(entry.target as Element);
+      this.checkPixelRatio();
+      this.resizeScrollbars();
+    }
+  }
+
+  private updateDrawScheduleDimensions(element: Element): void {
+    this.drawSchedule.width = element.clientWidth;
+    this.drawSchedule.height = element.clientHeight;
+    this.drawSchedule.refresh();
+  }
+
+  private checkPixelRatio(): void {
     const pixelRatio = DrawHelper.pixelRatio();
     if (this._pixelRatio !== pixelRatio) {
       this._pixelRatio = pixelRatio;
-
       this.drawSchedule.createCanvas();
       this.drawSchedule.rebuild();
       this.drawSchedule.redraw();
     }
+  }
 
+  private resizeScrollbars(): void {
     if (this.vScrollbar) {
       this.vScrollbar.resize();
     }
     if (this.hScrollbar) {
       this.hScrollbar.resize();
     }
-  };
-
-  onResize(event: any): void {
-    if (event instanceof Event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    this.drawSchedule.width = this.box!.clientWidth;
-    this.drawSchedule.height = this.box!.clientHeight;
-    this.drawSchedule.refresh();
   }
 
   /* #endregion   resize+visibility */
