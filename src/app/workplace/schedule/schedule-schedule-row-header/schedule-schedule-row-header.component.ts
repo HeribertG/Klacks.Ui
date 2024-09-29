@@ -47,7 +47,7 @@ export class ScheduleScheduleRowHeaderComponent
   onResize(entries: ResizeObserverEntry[]): void {
     if (entries && entries.length > 0) {
       const entry = entries[0];
-      this.updateDrawRowHeaderDimensions(entry.target as Element);
+      this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
       this.drawRowHeader.refresh();
     }
   }

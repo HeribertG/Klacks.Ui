@@ -29,7 +29,6 @@ import { ScheduleHeaderCalendarComponent } from './schedule-header/schedule-head
 import { DrawRowHeaderService } from './services/draw-row-header.service';
 import { CellEventsDirective } from './directives/cell-events.directive';
 import { CanvasManagerService } from './services/canvas-manager.service';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
 
 @NgModule({
   declarations: [
@@ -45,7 +44,6 @@ import { ResizeDirective } from 'src/app/directives/resize.directive';
     ResizeObserverDirective,
     CellEventsDirective,
     ScheduleHeaderCalendarComponent,
-    ResizeDirective,
   ],
   imports: [
     CommonModule,

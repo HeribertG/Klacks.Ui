@@ -1,18 +1,23 @@
 @import "../../../../assets/standard-styles/colors.scss";
 
-.scrollbar {
-  height: 100%;
-  width: calc(100% - 50px);
-}
-.cal-hsroll-container {
-  height: 100%;
+:host {
+  display: block;
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  box-sizing: content-box;
-  background-color: $objectSurfaceBackgroundColor;
-  cursor: default;
+  height: 100%;
 }
+
+.cal-hsroll-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}
+
+.scrollbar {
+  flex: 1;
+  height: 100%;
+}
+
 .arrow-thumb {
   display: flex;
   flex-direction: column;

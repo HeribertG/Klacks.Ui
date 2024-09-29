@@ -32,7 +32,6 @@ export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
   private imgThumb!: ImageData | undefined;
   private imgSelectedThumb!: ImageData | undefined;
   public isDirty = false;
-  private requestID: number | undefined;
   private moveAnimationValue = 0;
   private margin = 3;
   private scrollTrackColor = this.gridColor.scrollTrack;

@@ -348,8 +348,6 @@ export class DrawScheduleService {
     visibleRow: number,
     visibleCol: number
   ) {
-    console.log('handleHorizontalScroll called with directionX:', directionX);
-
     if (this.hScrollbar) {
       this.hScrollbar.value = this.firstVisibleCol;
     }

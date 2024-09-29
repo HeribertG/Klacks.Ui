@@ -1,0 +1,21 @@
+<div class="hScrollbar-container">
+  <div
+    class="arrow-thumb left"
+    (mousedown)="onArrowThumbMouseDown($event, 0)"
+    (mouseup)="onArrowThumbMouseUp($event)"
+  >
+    ◀
+  </div>
+
+  <div class="scrollbar">
+    <canvas #canvas (mousedown)="onMouseDown($event)"></canvas>
+  </div>
+
+  <div
+    class="arrow-thumb right"
+    (mousedown)="onArrowThumbMouseDown($event, 1)"
+    (mouseup)="onArrowThumbMouseUp($event)"
+  >
+    ▶
+  </div>
+</div>

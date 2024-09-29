@@ -74,11 +74,11 @@ export class AbsenceCalendarDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (!this.isOwnElement(event)) {
-      this.gridBody.drawCalendarGanttService.isFocused = false;
+      this.gridBody.drawCalendarGantt.isFocused = false;
       return;
     }
 
-    this.gridBody.drawCalendarGanttService.isFocused = true;
+    this.gridBody.drawCalendarGantt.isFocused = true;
 
     if (event.buttons === 1) {
       this.gridBody.onSelectByMouse(event);
@@ -87,7 +87,7 @@ export class AbsenceCalendarDirective {
     if (event.buttons === 2) {
       this.gridBody.contextMenu!.closeMenu();
       this.stopEvent(event);
-      if (this.gridBody.drawCalendarGanttService.rows > 0) {
+      if (this.gridBody.drawCalendarGantt.rows > 0) {
         this.gridBody.onSelectByMouse(event);
         this.gridBody.createContextMenu(event);
         this.gridBody.contextMenu!.openMenu(event);
@@ -108,7 +108,7 @@ export class AbsenceCalendarDirective {
   }
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
-    if (!this.gridBody.drawCalendarGanttService.isFocused) {
+    if (!this.gridBody.drawCalendarGantt.isFocused) {
       return;
     }
 
@@ -118,14 +118,14 @@ export class AbsenceCalendarDirective {
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
-    if (!this.gridBody.drawCalendarGanttService.isFocused) {
+    if (!this.gridBody.drawCalendarGantt.isFocused) {
       return;
     }
 
     if (event.buttons === 0) {
       const col: number = this.gridBody.calcCorrectCoordinate(event).column;
 
-      if (col < this.gridBody.drawCalendarGanttService.columns && col >= 0) {
+      if (col < this.gridBody.drawCalendarGantt.columns && col >= 0) {
         const holiday = this.gridBody.holidayInfo(col);
         if (holiday) {
           this.gridBody.showToolTip(holiday!.currentName!, event);
@@ -145,11 +145,11 @@ export class AbsenceCalendarDirective {
       return;
     }
     if (!this.isOwnElement(event)) {
-      this.gridBody.drawCalendarGanttService.isFocused = false;
+      this.gridBody.drawCalendarGantt.isFocused = false;
       return;
     }
 
-    this.gridBody.drawCalendarGanttService.isFocused = true;
+    this.gridBody.drawCalendarGantt.isFocused = true;
 
     this.keyDown = true;
     this.gridBody.contextMenu!.closeMenu();
@@ -168,16 +168,14 @@ export class AbsenceCalendarDirective {
       }
 
       if (
-        this.gridBody.drawCalendarGanttService.selectedRow <
+        this.gridBody.drawCalendarGantt.selectedRow <
         this.gridBody.dataManagementBreak.rows - 1
       ) {
-        this.gridBody.drawCalendarGanttService.selectedRow =
-          this.gridBody.drawCalendarGanttService.selectedRow + 1;
-        const lastRow =
-          this.gridBody.drawCalendarGanttService.lastVisibleRow() - 3;
-        if (this.gridBody.drawCalendarGanttService.selectedRow >= lastRow) {
-          const diff =
-            this.gridBody.drawCalendarGanttService.selectedRow - lastRow;
+        this.gridBody.drawCalendarGantt.selectedRow =
+          this.gridBody.drawCalendarGantt.selectedRow + 1;
+        const lastRow = this.gridBody.drawCalendarGantt.lastVisibleRow() - 3;
+        if (this.gridBody.drawCalendarGantt.selectedRow >= lastRow) {
+          const diff = this.gridBody.drawCalendarGantt.selectedRow - lastRow;
 
           this.gridBody.moveCalendar(0, diff);
           this.gridBody.scroll.updateVerticalScrollPosition(diff);
@@ -201,8 +199,8 @@ export class AbsenceCalendarDirective {
         this.gridBody.scroll.visibleRows -
         1;
 
-      if (nextVisibleRow > this.gridBody.drawCalendarGanttService.rows) {
-        nextVisibleRow = this.gridBody.drawCalendarGanttService.rows - 1;
+      if (nextVisibleRow > this.gridBody.drawCalendarGantt.rows) {
+        nextVisibleRow = this.gridBody.drawCalendarGantt.rows - 1;
       }
 
       if (this.gridBody.scroll.maxRows <= 1) {
@@ -216,7 +214,7 @@ export class AbsenceCalendarDirective {
 
       this.drawCalendarGanttService.selectedRow = nextVisibleRow;
 
-      this.gridBody.drawCalendarGanttService.renderCalendar();
+      this.gridBody.drawCalendarGantt.renderCalendar();
 
       if (this.gridBody.absenceRowHeader) {
         this.gridBody.drawRowHeader.createRuler();
@@ -235,16 +233,16 @@ export class AbsenceCalendarDirective {
         }
       }
 
-      if (this.gridBody.drawCalendarGanttService.selectedRow > 0) {
-        this.gridBody.drawCalendarGanttService.selectedRow =
-          this.gridBody.drawCalendarGanttService.selectedRow - 1;
+      if (this.gridBody.drawCalendarGantt.selectedRow > 0) {
+        this.gridBody.drawCalendarGantt.selectedRow =
+          this.gridBody.drawCalendarGantt.selectedRow - 1;
 
         if (this.gridBody.scroll.maxRows <= 1) {
           this.gridBody.scroll.verticalScrollPosition = 0;
         } else {
           if (
             this.gridBody.scroll.verticalScrollPosition >
-            this.gridBody.drawCalendarGanttService.selectedRow
+            this.gridBody.drawCalendarGantt.selectedRow
           ) {
             this.gridBody.moveCalendar(0, -1);
             this.gridBody.scroll.updateVerticalScrollPosition(-1);
@@ -279,9 +277,9 @@ export class AbsenceCalendarDirective {
         this.gridBody.scroll.verticalScrollPosition = previousVisibleRow;
       }
 
-      this.gridBody.drawCalendarGanttService.selectedRow = previousVisibleRow;
+      this.gridBody.drawCalendarGantt.selectedRow = previousVisibleRow;
 
-      this.gridBody.drawCalendarGanttService.renderCalendar();
+      this.gridBody.drawCalendarGantt.renderCalendar();
 
       if (this.gridBody.absenceRowHeader) {
         this.gridBody.drawRowHeader.createRuler();
@@ -303,11 +301,11 @@ export class AbsenceCalendarDirective {
       this.gridBody.scroll.verticalScrollPosition =
         this.gridBody.scroll.maxRows;
 
-      this.gridBody.drawCalendarGanttService.selectedRow =
+      this.gridBody.drawCalendarGantt.selectedRow =
         this.gridBody.dataManagementBreak.rows - 1;
       this.gridBody.vScrollbar!.value = this.gridBody.scroll.maxRows;
 
-      this.gridBody.drawCalendarGanttService.renderCalendar();
+      this.gridBody.drawCalendarGantt.renderCalendar();
 
       if (this.gridBody.absenceRowHeader) {
         this.gridBody.drawRowHeader.createRuler();
@@ -327,10 +325,10 @@ export class AbsenceCalendarDirective {
       }
 
       this.gridBody.scroll.verticalScrollPosition = 0;
-      this.gridBody.drawCalendarGanttService.selectedRow = 0;
+      this.gridBody.drawCalendarGantt.selectedRow = 0;
       this.gridBody.vScrollbar!.value = 0;
 
-      this.gridBody.drawCalendarGanttService.renderCalendar();
+      this.gridBody.drawCalendarGantt.renderCalendar();
 
       if (this.gridBody.absenceRowHeader) {
         this.gridBody.drawRowHeader.createRuler();
@@ -350,17 +348,17 @@ export class AbsenceCalendarDirective {
       }
 
       if (
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex > -1 &&
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex > 0
+        this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
+        this.gridBody.drawCalendarGantt.selectedBreakIndex > 0
       ) {
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex--;
+        this.gridBody.drawCalendarGantt.selectedBreakIndex--;
         this.gridBody.showBreak();
       } else if (
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex === -1 &&
-        this.gridBody.drawCalendarGanttService.selectedRowBreaksMaxIndex > -1
+        this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
+        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
       ) {
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex =
-          this.gridBody.drawCalendarGanttService.selectedRowBreaksMaxIndex;
+        this.gridBody.drawCalendarGantt.selectedBreakIndex =
+          this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex;
         this.gridBody.showBreak();
       }
 
@@ -377,17 +375,17 @@ export class AbsenceCalendarDirective {
       }
 
       if (
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex > -1 &&
-        this.gridBody.drawCalendarGanttService.selectedRowBreaksMaxIndex >
-          this.gridBody.drawCalendarGanttService.selectedBreakIndex
+        this.gridBody.drawCalendarGantt.selectedBreakIndex > -1 &&
+        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex >
+          this.gridBody.drawCalendarGantt.selectedBreakIndex
       ) {
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex++;
+        this.gridBody.drawCalendarGantt.selectedBreakIndex++;
         this.gridBody.showBreak();
       } else if (
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex === -1 &&
-        this.gridBody.drawCalendarGanttService.selectedRowBreaksMaxIndex > -1
+        this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
+        this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
       ) {
-        this.gridBody.drawCalendarGanttService.selectedBreakIndex = 0;
+        this.gridBody.drawCalendarGantt.selectedBreakIndex = 0;
         this.gridBody.showBreak();
       }
 
@@ -494,7 +492,7 @@ export class AbsenceCalendarDirective {
     if (!this.isOwnElement(event)) {
       return;
     }
-    this.gridBody.drawCalendarGanttService.isFocused = true;
+    this.gridBody.drawCalendarGantt.isFocused = true;
   }
 
   @HostListener('blur', ['$event']) onBlur(event: any): void {
@@ -502,7 +500,7 @@ export class AbsenceCalendarDirective {
       return;
     }
 
-    this.gridBody.drawCalendarGanttService.isFocused = false;
+    this.gridBody.drawCalendarGantt.isFocused = false;
   }
 
   // scrollOnPoint(pos: Position) {

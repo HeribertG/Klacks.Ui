@@ -19,6 +19,9 @@ import { MenuItemComponent } from './context-menu/menu-item/menu-item.component'
 import { ChipsComponent } from './chips/chips.component';
 import { CalendarSelectorComponent } from './calendar-selector/calendar-selector.component';
 import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
+import { ResizeDirective } from '../directives/resize.directive';
+import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
+import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +39,9 @@ import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
     MenuItemComponent,
     ChipsComponent,
     CalendarSelectorComponent,
+    ResizeDirective,
+    HScrollbarComponent,
+    VScrollbarComponent,
   ],
   imports: [
     CommonModule,
@@ -60,6 +66,9 @@ import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
     MenuItemComponent,
     ChipsComponent,
     CalendarSelectorComponent,
+    ResizeDirective,
+    HScrollbarComponent,
+    VScrollbarComponent,
   ],
 })
 export class SharedModule {}

@@ -65,6 +65,16 @@ export class AbsenceGanttHScrollbarComponent
   ngAfterViewInit() {
     this.createCanvas();
 
+    const resizeObserver = new ResizeObserver(() => {
+      this.zone.run(() => {
+        this.resize();
+      });
+    });
+
+    if (this.canvas && this.canvas.parentElement) {
+      resizeObserver.observe(this.canvas.parentElement);
+    }
+
     this.scroll?.moveHorizontalEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -94,8 +104,13 @@ export class AbsenceGanttHScrollbarComponent
   }
 
   resize(): void {
-    this.deleteCanvas();
-    this.createCanvas();
+    if (this.canvas) {
+      const rect = this.canvas.parentElement?.getBoundingClientRect();
+      if (rect) {
+        this.canvas.width = rect.width;
+        this.canvas.height = rect.height;
+      }
+    }
     this.refresh();
   }
 
@@ -121,8 +136,8 @@ export class AbsenceGanttHScrollbarComponent
       try {
         this.isDirty = true;
         if (diff !== 0) {
-          if (this.absenceBody) {
-            this.absenceBody.moveCalendar(diff, 0);
+          if (this.absenceBody && this.absenceBody.drawCalendarGantt) {
+            //this.absenceBody.drawCalendarGantt.(diff, 0);
             this.scroll.updateHorizontalScrollPosition(diff);
           }
         }
@@ -442,10 +457,10 @@ export class AbsenceGanttHScrollbarComponent
   animationSteps(steps: number) {
     if (this.absenceBody && this.scroll) {
       if (this.moveAnimationValue < 0) {
-        this.absenceBody.moveCalendar(steps * -1, 0);
+        //this.absenceBody.drawSchedule.moveGrid(steps * -1, 0);
         this.scroll.updateHorizontalScrollPosition(steps * -1);
       } else if (this.moveAnimationValue > 0) {
-        this.absenceBody.moveCalendar(steps, 0);
+        //this.absenceBody.drawSchedule.moveGrid(steps, 0);
         this.scroll.updateHorizontalScrollPosition(steps);
       }
     }
@@ -457,7 +472,7 @@ export class AbsenceGanttHScrollbarComponent
   }
   private createCanvas() {
     this.canvas = document.getElementById(
-      'cal-hScrollbar'
+      'sch-hScrollbar'
     ) as HTMLCanvasElement;
     this.ctx = DrawHelper.createHiDPICanvas(
       this.canvas,

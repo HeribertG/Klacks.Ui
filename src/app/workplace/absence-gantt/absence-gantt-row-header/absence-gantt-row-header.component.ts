@@ -1,9 +1,9 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
 } from '@angular/core';
 import { Size } from 'src/app/grid/classes/geometry';
@@ -29,22 +29,15 @@ export class AbsenceGanttRowHeaderComponent
   @ViewChild('ganttFilter', { static: false }) filter:
     | AbsenceGanttFilterComponent
     | undefined;
+  @ViewChild('boxCalendarRowHeader')
+  boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
 
-  private resizeObserver: ResizeObserver | undefined;
-  private resizeSubject: Subject<void> = new Subject<void>();
   private ngUnsubscribe: Subject<void> = new Subject<void>();
-  resizeWindow: (() => void) | undefined;
-  visibilitychangeWindow: (() => void) | undefined;
-
-  private box: HTMLDivElement | undefined;
 
   filterStyle: any = {};
 
-  private eventListeners: Array<() => void> = [];
-
   constructor(
     public scroll: ScrollService,
-    private renderer: Renderer2,
     private gridColorService: GridColorService,
     private gridFontsService: GridFontsService,
     private dataManagementBreak: DataManagementBreakService,
@@ -73,13 +66,6 @@ export class AbsenceGanttRowHeaderComponent
       'assets/svg/filter.svg'
     );
 
-    this.eventListeners.push(
-      this.renderer.listen('window', 'resize', this.resize.bind(this))
-    );
-    this.eventListeners.push(
-      this.renderer.listen('window', 'visibilitychange', this.resize.bind(this))
-    );
-
     this.drawRowHeader.createCanvas();
 
     this.dataManagementBreak.isRead
@@ -96,31 +82,16 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   ngAfterViewInit(): void {
-    this.box = document.getElementById(
-      'box-calendar-row-header'
-    ) as HTMLDivElement;
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this.resizeSubject.next();
-    });
-    this.resizeObserver.observe(this.box);
-
-    this.resizeSubject.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-      this.resize();
-    });
-
     this.gridColorService.isReset
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.resize());
+      .subscribe(() => this.onResize([]));
     this.gridFontsService.isReset
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.resize());
+      .subscribe(() => this.onResize([]));
     this.gridColorService.readData();
     this.gridFontsService.readData();
 
-    this.drawRowHeader.height = this.box!.clientHeight;
-    this.drawRowHeader.width = this.box!.clientWidth;
-    this.drawRowHeader.createCanvas();
+    this.initializeDrawRowHeader();
 
     this.scroll.moveVerticalEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -133,33 +104,51 @@ export class AbsenceGanttRowHeaderComponent
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
-    this.eventListeners.forEach((fn) => fn());
-    this.eventListeners = [];
-
     this.drawRowHeader.deleteCanvas();
+  }
+
+  private initializeDrawRowHeader(): void {
+    const box = this.boxCalendarRowHeader.nativeElement;
+    this.drawRowHeader.height = box.clientHeight;
+    this.drawRowHeader.width = box.clientWidth;
+    this.drawRowHeader.createCanvas();
   }
 
   /* #endregion ng */
 
   /* #region resize+visibility */
-  private resize = (): void => {
-    if (!this.drawRowHeader.isCanvasAvailable()) {
-      return;
+  onResize(entries: ResizeObserverEntry[]): void {
+    if (entries && entries.length > 0) {
+      const entry = entries[0];
+      this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
+      this.checkPixelRatio();
+      this.redrawComponents();
     }
+  }
 
-    this.drawRowHeader.height = this.box!.clientHeight;
-    this.drawRowHeader.width = this.box!.clientWidth;
+  private checkPixelRatio(): void {
     const pixelRatio = DrawHelper.pixelRatio();
     if (this.drawCalendarGanttService.pixelRatio !== pixelRatio) {
       this.drawRowHeader.deleteCanvas();
       this.drawRowHeader.createCanvas();
       this.drawCalendarGanttService.pixelRatio = pixelRatio;
     }
+  }
+
+  private redrawComponents(): void {
+    if (!this.drawRowHeader.isCanvasAvailable()) {
+      return;
+    }
 
     this.drawRowHeader.createRuler();
     this.drawRowHeader.renderRowHeader();
     this.drawRowHeader.drawCalendar();
-  };
+  }
+
+  private updateDrawRowHeaderDimensions(element: HTMLElement): void {
+    this.drawRowHeader.height = element.clientHeight;
+    this.drawRowHeader.width = element.clientWidth;
+  }
 
   /* #endregion resize+visibility */
 

@@ -7,7 +7,13 @@
   <app-absence-gantt-filter #ganttFilter></app-absence-gantt-filter>
 </div>
 
-<div id="box-calendar-row-header" class="box-calendar">
+<div
+  #boxCalendarRowHeader
+  id="box-calendar-row-header"
+  class="box-calendar"
+  appResize
+  (resizeElement)="onResize($event)"
+>
   <canvas
     id="rowHeaderCanvas"
     class="calendar"

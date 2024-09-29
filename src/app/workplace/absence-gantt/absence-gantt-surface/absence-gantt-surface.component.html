@@ -1,8 +1,12 @@
-<div id="box-calendar-row-header" class="box-calendar">
+<div
+  #calendarCanvas
+  id="box-calendar"
+  class="box-calendar"
+  appResize
+  (resizeElement)="onResize($event)"
+>
   <canvas
     appAbsenceCalendar
-    id="calendarCanvas"
-    class="box-calendar"
     resizeObserver
     (dragover)="dragOver($event)"
     (drop)="drop($event)"

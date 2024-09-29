@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
+  ViewChild,
 } from '@angular/core';
 import {
   EqualDate,
@@ -29,7 +30,6 @@ import { ScrollService } from 'src/app/workplace/absence-gantt/services/scroll.s
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/core/break-class';
-import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
 import {
   cloneObject,
@@ -48,6 +48,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
+import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 
 @Component({
   selector: 'app-absence-gantt-surface',
@@ -62,6 +63,7 @@ export class AbsenceGanttSurfaceComponent
   @Input() hScrollbar: AbsenceGanttHScrollbarComponent | undefined;
   @Input() absenceMask: AbsenceGanttMaskComponent | undefined;
   @Input() absenceRowHeader: AbsenceGanttRowHeaderComponent | undefined;
+  @ViewChild('calendarCanvas') calendarCanvas!: ElementRef<HTMLDivElement>;
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
@@ -91,7 +93,7 @@ export class AbsenceGanttSurfaceComponent
     public dataManagementAbsence: DataManagementAbsenceGanttService,
     public drawRowHeader: DrawRowHeaderService,
     public scroll: ScrollService,
-    public drawCalendarGanttService: DrawCalendarGanttService,
+    public drawCalendarGantt: DrawCalendarGanttService,
     private zone: NgZone,
     private renderer: Renderer2,
     private gridColors: GridColorService,
@@ -113,16 +115,9 @@ export class AbsenceGanttSurfaceComponent
 
   ngOnInit(): void {
     // this.spinnerService.showProgressSpinner = true;
-    this.drawCalendarGanttService.pixelRatio = DrawHelper.pixelRatio();
+    this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
-    this.eventListeners.push(
-      this.renderer.listen('window', 'resize', this.resize.bind(this))
-    );
-    this.eventListeners.push(
-      this.renderer.listen('window', 'visibilitychange', this.resize.bind(this))
-    );
-
-    this.drawCalendarGanttService.createCanvas();
+    this.drawCalendarGantt.createCanvas();
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
@@ -132,14 +127,14 @@ export class AbsenceGanttSurfaceComponent
       }
     );
 
-    this.drawCalendarGanttService?.hScrollbarRefreshEvent
+    this.drawCalendarGantt?.hScrollbarRefreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         if (this.hScrollbar) {
           this.hScrollbar?.refresh();
         }
       });
-    this.drawCalendarGanttService?.vScrollbarRefreshEvent
+    this.drawCalendarGantt?.vScrollbarRefreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         if (this.vScrollbar) {
@@ -149,12 +144,8 @@ export class AbsenceGanttSurfaceComponent
   }
 
   ngAfterViewInit(): void {
-    this.box = document.getElementById('calendarCanvas') as HTMLDivElement;
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this.resizeSubject.next();
-    });
-    this.resizeObserver.observe(this.box);
+    this.initializeDrawCalendarGantt();
+    this.readServices();
 
     this.resizeSubject.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
       this.resize();
@@ -167,7 +158,7 @@ export class AbsenceGanttSurfaceComponent
       .subscribe((x) => {
         this.isAbsenceHeaderInit = x;
         if (x) {
-          this.drawCalendarGanttService.selectedRow = -1;
+          this.drawCalendarGantt.selectedRow = -1;
           this.dataManagementBreak.canReadBreaks = true;
           this.dataManagementBreak.readYear();
         }
@@ -180,10 +171,10 @@ export class AbsenceGanttSurfaceComponent
           this.scroll.maxRows = this.dataManagementBreak.rows;
           this.vScrollbar!.maximumRow = this.dataManagementBreak.rows;
 
-          this.drawCalendarGanttService.setMetrics();
-          this.drawCalendarGanttService.checkSelectedRowVisibility();
-          this.drawCalendarGanttService.renderCalendar();
-          this.drawCalendarGanttService.drawCalendar();
+          this.drawCalendarGantt.setMetrics();
+          this.drawCalendarGantt.checkSelectedRowVisibility();
+          this.drawCalendarGantt.renderCalendar();
+          this.drawCalendarGantt.drawCalendar();
         }
       });
 
@@ -191,30 +182,30 @@ export class AbsenceGanttSurfaceComponent
     this.dataManagementBreak.isUpdate
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
-        this.drawCalendarGanttService.selectedBreakIndex =
+        this.drawCalendarGantt.selectedBreakIndex =
           this.dataManagementBreak.indexOfBreak(x);
-        this.drawCalendarGanttService.unDrawSelectionRow();
-        if (this.drawCalendarGanttService.isSelectedRowVisible()) {
-          this.drawCalendarGanttService.drawSelectionRow();
+        this.drawCalendarGantt.unDrawSelectionRow();
+        if (this.drawCalendarGantt.isSelectedRowVisible()) {
+          this.drawCalendarGantt.drawSelectionRow();
         }
-        this.drawCalendarGanttService.drawSelectedBreak();
-        this.drawCalendarGanttService.drawRow(
-          this.drawCalendarGanttService.selectedRow,
-          this.drawCalendarGanttService.selectedBreak
+        this.drawCalendarGantt.drawSelectedBreak();
+        this.drawCalendarGantt.drawRow(
+          this.drawCalendarGantt.selectedRow,
+          this.drawCalendarGantt.selectedBreak
         );
       });
 
     this.calendarSetting.zoomChangingEvent
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.drawCalendarGanttService.resetAll());
+      .subscribe(() => this.drawCalendarGantt.resetAll());
     this.holidayCollection.isReset
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((value: any) => {
-        this.drawCalendarGanttService.selectedRow = -1;
+        this.drawCalendarGantt.selectedRow = -1;
         this.dataManagementBreak.readYear();
         this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
 
-        this.drawCalendarGanttService.resetAll();
+        this.drawCalendarGantt.resetAll();
       });
 
     const bc = this.readProperty('$gridBackgroundColor');
@@ -222,8 +213,8 @@ export class AbsenceGanttSurfaceComponent
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.drawCalendarGanttService.createRuler();
-        this.drawCalendarGanttService.drawCalendar();
+        this.drawCalendarGantt.createRuler();
+        this.drawCalendarGantt.drawCalendar();
       });
 
     this.contextMenu?.hasClicked
@@ -240,7 +231,7 @@ export class AbsenceGanttSurfaceComponent
     this.eventListeners.forEach((fn) => fn());
     this.eventListeners = [];
 
-    this.drawCalendarGanttService.deleteCanvas();
+    this.drawCalendarGantt.deleteCanvas();
     this.tooltip = undefined;
   }
 
@@ -253,17 +244,17 @@ export class AbsenceGanttSurfaceComponent
     if (x) {
       x.autofocus === true;
       x.focus();
-      this.drawCalendarGanttService.isFocused = true;
+      this.drawCalendarGantt.isFocused = true;
     }
   }
 
   private resize = (): void => {
     const pixelRatio = DrawHelper.pixelRatio();
-    if (this.drawCalendarGanttService.pixelRatio !== pixelRatio) {
-      this.drawCalendarGanttService.pixelRatio = pixelRatio;
+    if (this.drawCalendarGantt.pixelRatio !== pixelRatio) {
+      this.drawCalendarGantt.pixelRatio = pixelRatio;
 
-      this.drawCalendarGanttService.deleteCanvas();
-      this.drawCalendarGanttService.createCanvas();
+      this.drawCalendarGantt.deleteCanvas();
+      this.drawCalendarGantt.createCanvas();
     }
 
     if (this.vScrollbar) {
@@ -271,23 +262,44 @@ export class AbsenceGanttSurfaceComponent
     }
   };
 
-  onResize(): void {
-    if (!this.drawCalendarGanttService.isCanvasAvailable()) {
+  onResize(entries: ResizeObserverEntry[]): void {
+    if (entries && entries.length > 0) {
+      const entry = entries[0];
+      this.updateDrawCalendarGanttDimensions(entry.target as HTMLElement);
+      this.checkPixelRatio();
+      this.redrawComponents();
+    }
+  }
+
+  private updateDrawCalendarGanttDimensions(element: HTMLElement): void {
+    if (!this.drawCalendarGantt.isCanvasAvailable()) {
       return;
     }
 
-    this.drawCalendarGanttService.height = this.box!.clientHeight;
-    this.drawCalendarGanttService.width = this.box!.clientWidth;
-    const pixelRatio = DrawHelper.pixelRatio();
-    if (this.drawCalendarGanttService.pixelRatio !== pixelRatio) {
-      this.drawCalendarGanttService.deleteCanvas();
-      this.drawCalendarGanttService.createCanvas();
-      this.drawCalendarGanttService.pixelRatio = pixelRatio;
-    }
+    this.drawCalendarGantt.height = element.clientHeight;
+    this.drawCalendarGantt.width = element.clientWidth;
+  }
 
-    this.drawCalendarGanttService.createRuler();
-    this.drawCalendarGanttService.renderRowHeader();
-    this.drawCalendarGanttService.drawCalendar();
+  private checkPixelRatio(): void {
+    const pixelRatio = DrawHelper.pixelRatio();
+    if (this.drawCalendarGantt.pixelRatio !== pixelRatio) {
+      this.drawCalendarGantt.deleteCanvas();
+      this.drawCalendarGantt.createCanvas();
+      this.drawCalendarGantt.pixelRatio = pixelRatio;
+    }
+  }
+
+  private redrawComponents(): void {
+    this.drawCalendarGantt.createRuler();
+    this.drawCalendarGantt.renderRowHeader();
+    this.drawCalendarGantt.drawCalendar();
+  }
+
+  private initializeDrawCalendarGantt(): void {
+    const box = this.calendarCanvas.nativeElement;
+    this.drawCalendarGantt.height = box.clientHeight;
+    this.drawCalendarGantt.width = box.clientWidth;
+    this.drawCalendarGantt.createCanvas();
   }
 
   /* #endregion   resize+visibility */
@@ -300,13 +312,10 @@ export class AbsenceGanttSurfaceComponent
 
     if (this.selectedArea !== SelectedArea.None) {
       this.currentCursor = CursorEnum.wResize;
-      if (
-        !this.mouseToBarAlpha &&
-        this.drawCalendarGanttService.selectedBreakRec
-      ) {
+      if (!this.mouseToBarAlpha && this.drawCalendarGantt.selectedBreakRec) {
         this.mouseToBarAlpha = {
-          x: x - this.drawCalendarGanttService.selectedBreakRec.left,
-          y: y - this.drawCalendarGanttService.selectedBreakRec.top,
+          x: x - this.drawCalendarGantt.selectedBreakRec.left,
+          y: y - this.drawCalendarGantt.selectedBreakRec.top,
         };
       }
     }
@@ -324,32 +333,32 @@ export class AbsenceGanttSurfaceComponent
 
     if (this.selectedArea !== SelectedArea.None) {
       if (
-        this.drawCalendarGanttService.selectedBreakRec &&
-        !this.drawCalendarGanttService.selectedBreakRec.isEmpty()
+        this.drawCalendarGantt.selectedBreakRec &&
+        !this.drawCalendarGantt.selectedBreakRec.isEmpty()
       ) {
         switch (this.selectedArea) {
           case SelectedArea.LeftAnchor:
             if (this.mouseToBarAlpha) {
-              const diffDay = this.drawCalendarGanttService.calcX2Column(x);
+              const diffDay = this.drawCalendarGantt.calcX2Column(x);
               if (diffDay !== 0) {
-                if (this.drawCalendarGanttService.selectedBreak) {
-                  this.drawCalendarGanttService.selectedBreak.from = addDays(
+                if (this.drawCalendarGantt.selectedBreak) {
+                  this.drawCalendarGantt.selectedBreak.from = addDays(
                     this.firstDayDate,
                     diffDay
                   );
 
                   if (
                     equalDate(
-                      this.drawCalendarGanttService.selectedBreak.from!,
-                      this.drawCalendarGanttService.selectedBreak.until!
+                      this.drawCalendarGantt.selectedBreak.from!,
+                      this.drawCalendarGantt.selectedBreak.until!
                     ) > 0
                   ) {
-                    this.drawCalendarGanttService.selectedBreak.until =
-                      this.drawCalendarGanttService.selectedBreak.from!;
+                    this.drawCalendarGantt.selectedBreak.until =
+                      this.drawCalendarGantt.selectedBreak.from!;
                   }
-                  this.drawCalendarGanttService.selectedBreak.internalFrom =
+                  this.drawCalendarGantt.selectedBreak.internalFrom =
                     transformDateToNgbDateStruct(
-                      this.drawCalendarGanttService.selectedBreak.from!
+                      this.drawCalendarGantt.selectedBreak.from!
                     );
                 }
               }
@@ -357,26 +366,26 @@ export class AbsenceGanttSurfaceComponent
             break;
           case SelectedArea.RightAnchor:
             if (this.mouseToBarAlpha) {
-              const diffDay = this.drawCalendarGanttService.calcX2Column(x);
+              const diffDay = this.drawCalendarGantt.calcX2Column(x);
               if (diffDay !== 0) {
-                if (this.drawCalendarGanttService.selectedBreak) {
-                  this.drawCalendarGanttService.selectedBreak.until = addDays(
+                if (this.drawCalendarGantt.selectedBreak) {
+                  this.drawCalendarGantt.selectedBreak.until = addDays(
                     this.firstDayDate,
                     diffDay
                   );
 
                   if (
                     equalDate(
-                      this.drawCalendarGanttService.selectedBreak.until!,
-                      this.drawCalendarGanttService.selectedBreak.from!
+                      this.drawCalendarGantt.selectedBreak.until!,
+                      this.drawCalendarGantt.selectedBreak.from!
                     ) < 0
                   ) {
-                    this.drawCalendarGanttService.selectedBreak.from =
-                      this.drawCalendarGanttService.selectedBreak.until!;
+                    this.drawCalendarGantt.selectedBreak.from =
+                      this.drawCalendarGantt.selectedBreak.until!;
                   }
-                  this.drawCalendarGanttService.selectedBreak.internalUntil =
+                  this.drawCalendarGantt.selectedBreak.internalUntil =
                     transformDateToNgbDateStruct(
-                      this.drawCalendarGanttService.selectedBreak.until!
+                      this.drawCalendarGantt.selectedBreak.until!
                     );
                 }
               }
@@ -389,28 +398,26 @@ export class AbsenceGanttSurfaceComponent
                 | undefined;
               if (diffA) {
                 const diffDay = Math.floor(
-                  (x -
-                    this.drawCalendarGanttService.selectedBreakRec.left -
-                    diffA.x) /
+                  (x - this.drawCalendarGantt.selectedBreakRec.left - diffA.x) /
                     this.calendarSetting.cellWidth
                 );
                 if (diffDay !== 0) {
-                  if (this.drawCalendarGanttService.selectedBreak) {
-                    this.drawCalendarGanttService.selectedBreak.from = addDays(
-                      this.drawCalendarGanttService.selectedBreak.from!,
+                  if (this.drawCalendarGantt.selectedBreak) {
+                    this.drawCalendarGantt.selectedBreak.from = addDays(
+                      this.drawCalendarGantt.selectedBreak.from!,
                       diffDay
                     );
-                    this.drawCalendarGanttService.selectedBreak.until = addDays(
-                      this.drawCalendarGanttService.selectedBreak.until!,
+                    this.drawCalendarGantt.selectedBreak.until = addDays(
+                      this.drawCalendarGantt.selectedBreak.until!,
                       diffDay
                     );
-                    this.drawCalendarGanttService.selectedBreak.internalFrom =
+                    this.drawCalendarGantt.selectedBreak.internalFrom =
                       transformDateToNgbDateStruct(
-                        this.drawCalendarGanttService.selectedBreak.from!
+                        this.drawCalendarGantt.selectedBreak.from!
                       );
-                    this.drawCalendarGanttService.selectedBreak.internalUntil =
+                    this.drawCalendarGantt.selectedBreak.internalUntil =
                       transformDateToNgbDateStruct(
-                        this.drawCalendarGanttService.selectedBreak.until!
+                        this.drawCalendarGantt.selectedBreak.until!
                       );
                   }
                 }
@@ -418,11 +425,11 @@ export class AbsenceGanttSurfaceComponent
             }
         }
 
-        this.drawCalendarGanttService.drawRowIntern(
-          this.drawCalendarGanttService.selectedRow
+        this.drawCalendarGantt.drawRowIntern(
+          this.drawCalendarGantt.selectedRow
         );
-        this.drawCalendarGanttService.drawSelectionRow();
-        this.drawCalendarGanttService.drawSelectedBreak();
+        this.drawCalendarGantt.drawSelectionRow();
+        this.drawCalendarGantt.drawSelectedBreak();
       }
     }
   }
@@ -446,11 +453,10 @@ export class AbsenceGanttSurfaceComponent
 
     if (dy >= 0) {
       const tmpRow = Math.floor(dy / height);
-      const tmpSelectedRow =
-        tmpRow + this.drawCalendarGanttService.firstVisibleRow;
+      const tmpSelectedRow = tmpRow + this.drawCalendarGantt.firstVisibleRow;
 
-      if (this.drawCalendarGanttService.selectedRow !== tmpSelectedRow) {
-        this.drawCalendarGanttService.selectedRow = tmpSelectedRow;
+      if (this.drawCalendarGantt.selectedRow !== tmpSelectedRow) {
+        this.drawCalendarGantt.selectedRow = tmpSelectedRow;
         this.selectedArea = SelectedArea.None;
       }
 
@@ -463,7 +469,7 @@ export class AbsenceGanttSurfaceComponent
       }
 
       this.createBreakSelection(tmpSelectedRow, x);
-      this.drawCalendarGanttService.drawSelectedBreak();
+      this.drawCalendarGantt.drawSelectedBreak();
     }
   }
 
@@ -480,14 +486,13 @@ export class AbsenceGanttSurfaceComponent
 
     if (x >= 0) {
       const tmpCol =
-        Math.floor(x / width) +
-        this.drawCalendarGanttService.firstVisibleColumn();
+        Math.floor(x / width) + this.drawCalendarGantt.firstVisibleColumn();
 
-      if (tmpCol === this.drawCalendarGanttService.selectedBreakIndex) {
+      if (tmpCol === this.drawCalendarGantt.selectedBreakIndex) {
         return;
       }
 
-      this.drawCalendarGanttService.selectedBreakIndex = -1;
+      this.drawCalendarGantt.selectedBreakIndex = -1;
       this.selectedArea = SelectedArea.None;
       const allBreaks = this.dataManagementBreak.readData(selectedRow);
       let index = 0;
@@ -497,15 +502,12 @@ export class AbsenceGanttSurfaceComponent
             daysBetweenDates(abs.from as Date, abs.until as Date)
           );
           const col1 = Math.floor(
-            daysBetweenDates(
-              this.drawCalendarGanttService.startDate,
-              abs.from as Date
-            )
+            daysBetweenDates(this.drawCalendarGantt.startDate, abs.from as Date)
           );
           const col2 = col1 + diff;
 
           if (tmpCol >= col1 && tmpCol <= col2) {
-            this.drawCalendarGanttService.selectedBreakIndex = index;
+            this.drawCalendarGantt.selectedBreakIndex = index;
             this.selectedArea = SelectedArea.AbsenceBar;
 
             return;
@@ -523,26 +525,26 @@ export class AbsenceGanttSurfaceComponent
     const y = event.offsetY;
 
     if (
-      this.drawCalendarGanttService.selectedBreakRec &&
-      this.drawCalendarGanttService.selectedBreakRec!.pointInRect(x, y)
+      this.drawCalendarGantt.selectedBreakRec &&
+      this.drawCalendarGantt.selectedBreakRec!.pointInRect(x, y)
     ) {
       this.selectedArea = SelectedArea.AbsenceBar;
       return;
     }
     if (
-      this.drawCalendarGanttService.selectedBreakRec &&
-      !this.drawCalendarGanttService.selectedBreakRec.isEmpty()
+      this.drawCalendarGantt.selectedBreakRec &&
+      !this.drawCalendarGantt.selectedBreakRec.isEmpty()
     ) {
-      const left = this.drawCalendarGanttService.calcLeftAnchorRectangle(
-        this.drawCalendarGanttService.selectedBreakRec!
+      const left = this.drawCalendarGantt.calcLeftAnchorRectangle(
+        this.drawCalendarGantt.selectedBreakRec!
       );
       if (left.pointInRect(x, y)) {
         this.selectedArea = SelectedArea.LeftAnchor;
         return;
       }
 
-      const right = this.drawCalendarGanttService.calcRightAnchorRectangle(
-        this.drawCalendarGanttService.selectedBreakRec!
+      const right = this.drawCalendarGantt.calcRightAnchorRectangle(
+        this.drawCalendarGantt.selectedBreakRec!
       );
       if (right.pointInRect(x, y)) {
         this.selectedArea = SelectedArea.RightAnchor;
@@ -557,9 +559,9 @@ export class AbsenceGanttSurfaceComponent
   /* #region db*/
 
   public isSelectedBreak_Dirty(): boolean {
-    if (this.drawCalendarGanttService.selectedBreak) {
-      const a = this.drawCalendarGanttService.selectedBreak as Break;
-      const b = this.drawCalendarGanttService.selectedBreak_dummy as Break;
+    if (this.drawCalendarGantt.selectedBreak) {
+      const a = this.drawCalendarGantt.selectedBreak as Break;
+      const b = this.drawCalendarGantt.selectedBreak_dummy as Break;
 
       if (!compareComplexObjects(a, b)) {
         return true;
@@ -571,8 +573,8 @@ export class AbsenceGanttSurfaceComponent
   public UpdateSelectedBreakIfNecessary() {
     if (this.isSelectedBreak_Dirty()) {
       this.dataManagementBreak.updateBreak(
-        this.drawCalendarGanttService.selectedRow,
-        this.drawCalendarGanttService.selectedBreak!
+        this.drawCalendarGantt.selectedRow,
+        this.drawCalendarGantt.selectedBreak!
       );
     }
   }
@@ -598,7 +600,7 @@ export class AbsenceGanttSurfaceComponent
         this.isBusy = true;
         // horizontale Verschiebung
         if (dirX !== 0) {
-          this.drawCalendarGanttService.drawCalendar();
+          this.drawCalendarGantt.drawCalendar();
         }
         // vertikale Verschiebung
         if (dirY !== 0) {
@@ -608,7 +610,7 @@ export class AbsenceGanttSurfaceComponent
               this.moveIt(dirY);
               return;
             } else {
-              this.drawCalendarGanttService.renderCalendar();
+              this.drawCalendarGantt.renderCalendar();
               return;
             }
           }
@@ -618,7 +620,7 @@ export class AbsenceGanttSurfaceComponent
               this.moveIt(dirY);
               return;
             } else {
-              this.drawCalendarGanttService.renderCalendar();
+              this.drawCalendarGantt.renderCalendar();
             }
           }
         }
@@ -627,7 +629,7 @@ export class AbsenceGanttSurfaceComponent
       }
     });
 
-    this.drawCalendarGanttService.drawCalendar();
+    this.drawCalendarGantt.drawCalendar();
   }
 
   private moveIt(directionY: number): void {
@@ -639,8 +641,8 @@ export class AbsenceGanttSurfaceComponent
         return;
       }
 
-      this.drawCalendarGanttService.renderCanvasCtx!.drawImage(
-        this.drawCalendarGanttService.renderCanvas!,
+      this.drawCalendarGantt.renderCanvasCtx!.drawImage(
+        this.drawCalendarGantt.renderCanvas!,
         0,
         this.calendarSetting.cellHeight * diff
       );
@@ -657,14 +659,14 @@ export class AbsenceGanttSurfaceComponent
       }
 
       for (let row = firstRow; row < lastRow; row++) {
-        this.drawCalendarGanttService.drawRow(
+        this.drawCalendarGantt.drawRow(
           row,
-          this.drawCalendarGanttService.selectedBreak
+          this.drawCalendarGantt.selectedBreak
         );
       }
     }
 
-    this.drawCalendarGanttService.drawCalendar();
+    this.drawCalendarGantt.drawCalendar();
   }
 
   /* #endregion   render */
@@ -672,8 +674,8 @@ export class AbsenceGanttSurfaceComponent
   /* #region   draw */
 
   refreshCalendar(): void {
-    this.drawCalendarGanttService.renderCalendar();
-    this.drawCalendarGanttService.drawCalendar();
+    this.drawCalendarGantt.renderCalendar();
+    this.drawCalendarGantt.drawCalendar();
   }
 
   /* #endregion   draw */
@@ -685,7 +687,7 @@ export class AbsenceGanttSurfaceComponent
   /* #region position and selection */
 
   holidayInfo(column: number): HolidayDate | undefined {
-    const today = addDays(this.drawCalendarGanttService.startDate, column);
+    const today = addDays(this.drawCalendarGantt.startDate, column);
 
     return this.holidayCollection.holidays.holidayList.find(
       (x) => EqualDate(x.currentDate, today) === 0
@@ -704,7 +706,7 @@ export class AbsenceGanttSurfaceComponent
   }
 
   calcCorrectCoordinate(event: MouseEvent) {
-    return this.drawCalendarGanttService.calcCorrectCoordinate(event);
+    return this.drawCalendarGantt.calcCorrectCoordinate(event);
   }
 
   /* #endregion position and selection */
@@ -756,10 +758,10 @@ export class AbsenceGanttSurfaceComponent
     this.holidayCollection.isReset
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.drawCalendarGanttService.columns =
-          this.drawCalendarGanttService.lastVisibleColumn();
+        this.drawCalendarGantt.columns =
+          this.drawCalendarGantt.lastVisibleColumn();
 
-        this.scroll.maxCols = this.drawCalendarGanttService.columns;
+        this.scroll.maxCols = this.drawCalendarGantt.columns;
         this.addServicesCount();
       });
 
@@ -776,7 +778,7 @@ export class AbsenceGanttSurfaceComponent
 
     if (this.countServices === 4) {
       this.countServices = 0;
-      this.drawCalendarGanttService.resetAll();
+      this.drawCalendarGantt.resetAll();
       this.spinnerService.showProgressSpinner = false;
     }
   }
@@ -798,12 +800,12 @@ export class AbsenceGanttSurfaceComponent
     ev.preventDefault();
     if (ev.dataTransfer) {
       const position = this.calcDroppedCell(ev.offsetX, ev.offsetY);
-      if (this.drawCalendarGanttService.dragRow !== position[1]) {
-        this.drawCalendarGanttService.unDrawDragRow();
-        this.drawCalendarGanttService.dragRow = position[1];
-        this.drawCalendarGanttService.drawDragRow();
-        this.drawCalendarGanttService.unDrawSelectionRow();
-        this.drawCalendarGanttService.drawSelectionRow();
+      if (this.drawCalendarGantt.dragRow !== position[1]) {
+        this.drawCalendarGantt.unDrawDragRow();
+        this.drawCalendarGantt.dragRow = position[1];
+        this.drawCalendarGantt.drawDragRow();
+        this.drawCalendarGantt.unDrawSelectionRow();
+        this.drawCalendarGantt.drawSelectionRow();
       }
     }
   }
@@ -814,15 +816,15 @@ export class AbsenceGanttSurfaceComponent
       const absenceId = ev.dataTransfer.getData('text/plain');
       const position = this.calcDroppedCell(ev.offsetX, ev.offsetY);
 
-      this.drawCalendarGanttService.unDrawDragRow();
-      this.drawCalendarGanttService.selectedRow = position[1];
+      this.drawCalendarGantt.unDrawDragRow();
+      this.drawCalendarGantt.selectedRow = position[1];
 
       this.addBreak(position, absenceId);
     }
   }
 
   private calcDroppedCell(offsetX: number, offsetY: number): number[] {
-    if (this.drawCalendarGanttService.isCanvasAvailable()) {
+    if (this.drawCalendarGantt.isCanvasAvailable()) {
       let deltaX = Math.ceil(offsetX / this.calendarSetting.cellWidth) - 1;
       let deltaY =
         Math.ceil(
@@ -843,47 +845,41 @@ export class AbsenceGanttSurfaceComponent
   /* #region   show Entry */
 
   onChangeIndex(index: number): void {
-    this.drawCalendarGanttService.selectedBreakIndex = index - 1;
-    this.drawCalendarGanttService.drawSelectedBreak();
+    this.drawCalendarGantt.selectedBreakIndex = index - 1;
+    this.drawCalendarGantt.drawSelectedBreak();
     this.showBreak();
   }
 
   showBreak() {
     const tmpBreak = this.dataManagementBreak.readData(
-      this.drawCalendarGanttService.selectedRow
-    )![this.drawCalendarGanttService.selectedBreakIndex];
+      this.drawCalendarGantt.selectedRow
+    )![this.drawCalendarGantt.selectedBreakIndex];
     if (tmpBreak) {
       const col1 = Math.floor(
-        daysBetweenDates(
-          this.drawCalendarGanttService.startDate,
-          tmpBreak.from!
-        )
+        daysBetweenDates(this.drawCalendarGantt.startDate, tmpBreak.from!)
       );
       const col2 = Math.floor(
-        daysBetweenDates(
-          this.drawCalendarGanttService.startDate,
-          tmpBreak.until!
-        )
+        daysBetweenDates(this.drawCalendarGantt.startDate, tmpBreak.until!)
       );
 
-      if (this.drawCalendarGanttService.firstVisibleColumn() > col1) {
+      if (this.drawCalendarGantt.firstVisibleColumn() > col1) {
         const m = col1;
         this.hScrollbar!.value = m!;
         this.scroll.horizontalScrollPosition = m;
-        this.drawCalendarGanttService.drawCalendar();
-      } else if (this.drawCalendarGanttService.lastVisibleColumn() < col2) {
-        const m = col2 - this.drawCalendarGanttService.visibleCol() + 2;
+        this.drawCalendarGantt.drawCalendar();
+      } else if (this.drawCalendarGantt.lastVisibleColumn() < col2) {
+        const m = col2 - this.drawCalendarGantt.visibleCol() + 2;
         this.hScrollbar!.value = m!;
         this.scroll.horizontalScrollPosition = m;
-        this.drawCalendarGanttService.drawCalendar();
+        this.drawCalendarGantt.drawCalendar();
       }
     }
   }
 
   onUpdateMask() {
-    this.drawCalendarGanttService.unDrawSelectionRow();
-    this.drawCalendarGanttService.drawSelectionRow();
-    this.drawCalendarGanttService.drawSelectedBreak();
+    this.drawCalendarGantt.unDrawSelectionRow();
+    this.drawCalendarGantt.drawSelectionRow();
+    this.drawCalendarGantt.drawSelectedBreak();
     this.showBreak();
   }
   /* #endregion   show Entry */
@@ -912,8 +908,8 @@ export class AbsenceGanttSurfaceComponent
         break;
       case 'convertItem':
         this.contextMenu!.closeMenu(true);
-        if (this.drawCalendarGanttService.selectedBreak && keys[1]) {
-          this.drawCalendarGanttService.selectedBreak.absenceId = keys[1];
+        if (this.drawCalendarGantt.selectedBreak && keys[1]) {
+          this.drawCalendarGantt.selectedBreak.absenceId = keys[1];
           this.updateBreak();
         }
         break;
@@ -955,10 +951,10 @@ export class AbsenceGanttSurfaceComponent
   }
 
   private createSubConvertMenu(): Menu | undefined {
-    if (this.drawCalendarGanttService.selectedBreak) {
+    if (this.drawCalendarGantt.selectedBreak) {
       const menuData = new Menu();
       const list = this.dataManagementAbsence.absenceList;
-      const id = this.drawCalendarGanttService.selectedBreak.id;
+      const id = this.drawCalendarGantt.selectedBreak.id;
       const c = new FallbackPipe();
       list.forEach((x) => {
         if (x.id !== id) {
@@ -994,10 +990,7 @@ export class AbsenceGanttSurfaceComponent
     delete newBreak.id;
 
     newBreak.absenceId = absenceId!;
-    newBreak.from = addDays(
-      this.drawCalendarGanttService.startDate,
-      position[0]
-    );
+    newBreak.from = addDays(this.drawCalendarGantt.startDate, position[0]);
     newBreak.until = addDays(
       newBreak.from,
       absence!.defaultLength! > 1 ? absence!.defaultLength - 1 : 0
@@ -1006,31 +999,31 @@ export class AbsenceGanttSurfaceComponent
       .addBreak(newBreak)
       .subscribe((x) => {
         this.dataManagementBreak.addBreak(position[1], x);
-        this.drawCalendarGanttService.selectedRow = position[1];
-        this.drawCalendarGanttService.selectedBreakIndex =
+        this.drawCalendarGantt.selectedRow = position[1];
+        this.drawCalendarGantt.selectedBreakIndex =
           this.dataManagementBreak.indexOfBreak(x);
       });
   }
 
   private updateBreak() {
     if (
-      this.drawCalendarGanttService.selectedRow &&
-      this.drawCalendarGanttService.selectedBreak
+      this.drawCalendarGantt.selectedRow &&
+      this.drawCalendarGantt.selectedBreak
     ) {
       this.dataManagementBreak.updateBreak(
-        this.drawCalendarGanttService.selectedRow,
-        this.drawCalendarGanttService.selectedBreak
+        this.drawCalendarGantt.selectedRow,
+        this.drawCalendarGantt.selectedBreak
       );
     }
   }
   public Delete() {
     if (
-      this.drawCalendarGanttService.selectedRow &&
-      this.drawCalendarGanttService.selectedBreak
+      this.drawCalendarGantt.selectedRow &&
+      this.drawCalendarGantt.selectedBreak
     ) {
       this.dataManagementBreak.deleteBreak(
-        this.drawCalendarGanttService.selectedRow,
-        this.drawCalendarGanttService.selectedBreak
+        this.drawCalendarGantt.selectedRow,
+        this.drawCalendarGantt.selectedBreak
       );
     }
   }
@@ -1041,12 +1034,10 @@ export class AbsenceGanttSurfaceComponent
   public copy() {
     this.copiedBreaks = [];
     if (
-      this.drawCalendarGanttService.selectedRow > -1 &&
-      this.drawCalendarGanttService.selectedBreak
+      this.drawCalendarGantt.selectedRow > -1 &&
+      this.drawCalendarGantt.selectedBreak
     ) {
-      var tmp = cloneObject(
-        this.drawCalendarGanttService.selectedBreak
-      ) as Break;
+      var tmp = cloneObject(this.drawCalendarGantt.selectedBreak) as Break;
 
       delete tmp.client;
       delete tmp.absence;
@@ -1064,10 +1055,10 @@ export class AbsenceGanttSurfaceComponent
   }
 
   public async paste() {
-    if (this.drawCalendarGanttService.selectedRow) {
+    if (this.drawCalendarGantt.selectedRow) {
       this.copiedBreaks.forEach((x) => {
         this.dataManagementBreak.addBreak(
-          this.drawCalendarGanttService.selectedRow,
+          this.drawCalendarGantt.selectedRow,
           x
         );
       });
