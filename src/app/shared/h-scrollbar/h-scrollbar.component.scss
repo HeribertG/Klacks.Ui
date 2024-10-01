@@ -1,6 +1,6 @@
 @import "../../../assets/standard-styles/colors.scss";
 
-.scrollbar {
+.scrollbar-bar {
   height: 100%;
   width: calc(100% - 50px);
 }
@@ -22,9 +22,18 @@
   width: 25px;
   margin: 2px;
   color: #a9a9a9;
+  user-select: none; /* Standard */
+  -webkit-user-select: none; /* Safari, Chrome */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
 }
 
 .arrow-thumb:hover {
   color: #424949;
   cursor: default;
+}
+
+canvas {
+  height: 100%;
+  width: 100%;
 }

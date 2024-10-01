@@ -11,14 +11,12 @@ import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
 } from 'src/app/grid/enums/cell-settings.enum';
+import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
+import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { DrawRowHeaderCellService } from './draw-row-header-cell.service';
 
 @Injectable()
 export class DrawRowHeaderService {
-  public rowHeaderRenderCanvasCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderRenderCanvas: HTMLCanvasElement | undefined;
-  public rowHeaderCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderCanvas: HTMLCanvasElement | undefined;
-
   public recFilterIcon!: Rectangle;
   public filterImage: HTMLImageElement | undefined;
 
@@ -30,12 +28,6 @@ export class DrawRowHeaderService {
 
   private _selectedRow = -1;
 
-  private ctx: CanvasRenderingContext2D | undefined;
-  private canvas: HTMLCanvasElement | undefined;
-
-  private _height: number = 10;
-  private _width: number = 10;
-
   constructor(
     public scroll: ScrollService,
     private zone: NgZone,
@@ -44,47 +36,55 @@ export class DrawRowHeaderService {
     public calendarSetting: CalendarSettingService,
     public dataManagementBreak: DataManagementBreakService,
     private gridColors: GridColorService,
-    private gridFonts: GridFontsService
+    private gridFonts: GridFontsService,
+    public rowHeaderCanvasManager: RowHeaderCanvasManagerService,
+    private drawRowHeaderCell: DrawRowHeaderCellService
   ) {}
 
-  private drawFilterIcon(ctx: CanvasRenderingContext2D) {
-    const size = 16;
-    const dy = this.rowHeaderCanvas!.height / 2 - this.iconSize / 2;
-    const dx = this.rowHeaderCanvas!.width - (this.iconSize + 6);
+  @CanvasAvailable()
+  private drawFilterIcon() {
+    const dy =
+      this.rowHeaderCanvasManager.headerCanvas!.height / 2 - this.iconSize / 2;
+    const dx =
+      this.rowHeaderCanvasManager.headerCanvas!.width - (this.iconSize + 6);
 
-    if (this.filterImage) {
-      this.recFilterIcon = new Rectangle(
-        dx,
-        dy,
-        dx + this.iconSize,
-        dy + this.iconSize
-      );
-      DrawHelper.drawImage(ctx, this.filterImage, this.recFilterIcon, 0.5);
-    }
-    //ctx.fillStyle = '#A9A9A9';
+    this.recFilterIcon = new Rectangle(
+      dx,
+      dy,
+      dx + this.iconSize,
+      dy + this.iconSize
+    );
+    DrawHelper.drawImage(
+      this.rowHeaderCanvasManager.headerCtx!,
+      this.filterImage!,
+      this.recFilterIcon,
+      0.5
+    );
   }
 
-  /* #region   init */
-
+  @CanvasAvailable()
   public createRuler(): void {
-    if (!this.rowHeaderCanvas || !this.rowHeaderCtx) {
-      throw new Error(
-        "CanvasRenderingContext2D and Canvas are'nt initialized."
-      );
-    }
-    this.rowHeaderCanvas.height = this.calendarSetting.cellHeaderHeight;
+    this.rowHeaderCanvasManager.headerCanvas!.height =
+      this.calendarSetting.cellHeaderHeight;
+    this.rowHeaderCanvasManager.headerCanvas!.width =
+      this.rowHeaderCanvasManager.width;
 
-    this.rowHeaderCanvas.width = this.width;
-    const rec = new Rectangle(0, 0, this.width, this.rowHeaderCanvas!.height);
-    DrawHelper.fillRectangle(
-      this.rowHeaderCtx!,
+    const rec = new Rectangle(
+      0,
+      0,
+      this.rowHeaderCanvasManager.width,
+      this.rowHeaderCanvasManager.headerCanvas!.height
+    );
+
+    this.drawRowHeaderCell.fillRectangle(
+      this.rowHeaderCanvasManager.headerCtx!,
       this.gridColors.controlBackGroundColor,
       rec
     );
-    // title
-    DrawHelper.drawText(
-      this.rowHeaderCtx!,
-      `Name (` + this.dataManagementBreak.clients.length + ')',
+
+    this.drawRowHeaderCell.drawText(
+      this.rowHeaderCanvasManager.headerCtx!,
+      `Name (${this.dataManagementBreak.clients.length})`,
       rec.left + 2,
       rec.top,
       rec.width - 2,
@@ -96,8 +96,8 @@ export class DrawRowHeaderService {
       BaselineAlignmentEnum.Center
     );
 
-    DrawHelper.drawBorder(
-      this.rowHeaderCtx,
+    this.drawRowHeaderCell.drawBorder(
+      this.rowHeaderCanvasManager.headerCtx!,
       rec.left,
       rec.top,
       rec.width,
@@ -107,25 +107,22 @@ export class DrawRowHeaderService {
       Gradient3DBorderStyleEnum.Raised
     );
 
-    this.drawFilterIcon(this.rowHeaderCtx);
+    this.drawFilterIcon();
   }
 
-  /* #endregion   init */
-
-  /* #region  render */
-
+  @CanvasAvailable()
   public renderRowHeader(): void {
-    if (!this.rowHeaderRenderCanvas || !this.rowHeaderRenderCanvasCtx) {
-      return;
-    }
-    this.rowHeaderRenderCanvas.height = this.height;
-    this.rowHeaderRenderCanvas.width = this.width;
+    this.rowHeaderCanvasManager.renderCanvas!.height =
+      this.rowHeaderCanvasManager.height;
+    this.rowHeaderCanvasManager.renderCanvas!.width =
+      this.rowHeaderCanvasManager.width;
 
-    this.rowHeaderRenderCanvasCtx.clearRect(
+    this.drawRowHeaderCell.clearRect(
+      this.rowHeaderCanvasManager.renderCanvasCtx!,
       0,
       0,
-      this.rowHeaderRenderCanvas.width,
-      this.rowHeaderRenderCanvas.height
+      this.rowHeaderCanvasManager.renderCanvas!.width,
+      this.rowHeaderCanvasManager.renderCanvas!.height
     );
 
     for (let i = 0; i < this.scroll.visibleRows + 1; i++) {
@@ -133,73 +130,64 @@ export class DrawRowHeaderService {
     }
   }
 
-  /* #endregion  render */
-
-  /* #region   draw */
-
-  drawCalendar() {
-    //Title
-    if (!DrawHelper.isCanvasReady(this.rowHeaderCanvas)) {
-      return;
-    }
-    if (!DrawHelper.isCanvasReady(this.rowHeaderRenderCanvas)) {
-      return;
-    }
-
-    this.ctx!.drawImage(this.rowHeaderCanvas!, 0, 0);
-    this.ctx!.drawImage(
-      this.rowHeaderRenderCanvas!,
+  @CanvasAvailable()
+  public drawCalendar() {
+    this.drawRowHeaderCell.drawImage(
+      this.rowHeaderCanvasManager.ctx!,
+      this.rowHeaderCanvasManager.headerCanvas!,
+      0,
+      0
+    );
+    this.drawRowHeaderCell.drawImage(
+      this.rowHeaderCanvasManager.ctx!,
+      this.rowHeaderCanvasManager.renderCanvas!,
       0,
       this.calendarSetting.cellHeaderHeight
     );
 
     this.drawSelectionRow();
   }
+
+  @CanvasAvailable()
   moveRow(directionY: number): void {
-    if (this.canvas && this.height) {
-      const dirY = directionY;
+    const dirY = directionY;
 
-      const visibleRow = Math.ceil(
-        this.height / this.calendarSetting.cellHeight
-      );
+    const visibleRow = Math.ceil(
+      this.rowHeaderCanvasManager.height / this.calendarSetting.cellHeight
+    );
 
-      this.zone.runOutsideAngular(() => {
-        try {
-          this.isBusy = true;
+    this.zone.runOutsideAngular(() => {
+      try {
+        this.isBusy = true;
 
-          // vertikale Verschiebung
-          if (dirY !== 0) {
-            // Nach Unten
-            if (dirY > 0) {
-              if (dirY < visibleRow / 2) {
-                this.moveIt(dirY);
-
-                return;
-              } else {
-                this.renderRowHeader();
-                return;
-              }
-            }
-            // Nach Oben
-            if (dirY < 0) {
-              if (dirY * -1 < visibleRow / 2) {
-                this.moveIt(dirY);
-
-                return;
-              } else {
-                this.renderRowHeader();
-              }
+        if (dirY !== 0) {
+          if (dirY > 0) {
+            if (dirY < visibleRow / 2) {
+              this.moveIt(dirY);
+              return;
+            } else {
+              this.renderRowHeader();
+              return;
             }
           }
-        } finally {
-          this.isBusy = false;
+          if (dirY < 0) {
+            if (dirY * -1 < visibleRow / 2) {
+              this.moveIt(dirY);
+              return;
+            } else {
+              this.renderRowHeader();
+            }
+          }
         }
-      });
+      } finally {
+        this.isBusy = false;
+      }
+    });
 
-      this.drawCalendar();
-    }
+    this.drawCalendar();
   }
 
+  @CanvasAvailable()
   private moveIt(directionY: number): void {
     const visibleRow = this.scroll.visibleRows;
 
@@ -209,23 +197,25 @@ export class DrawRowHeaderService {
         return;
       }
 
-      const tempCanvas: HTMLCanvasElement = document.createElement(
-        'canvas'
-      ) as HTMLCanvasElement;
-      tempCanvas.height = this.height;
-      tempCanvas.width = this.width;
+      const tempCanvas: HTMLCanvasElement = document.createElement('canvas');
+      tempCanvas.height = this.rowHeaderCanvasManager.height;
+      tempCanvas.width = this.rowHeaderCanvasManager.width;
 
       const ctx = tempCanvas.getContext('2d', { willReadFrequently: true });
-      ctx!.drawImage(this.rowHeaderRenderCanvas!, 0, 0);
+      if (ctx && this.rowHeaderCanvasManager.renderCanvas) {
+        ctx.drawImage(this.rowHeaderCanvasManager.renderCanvas, 0, 0);
+      }
 
-      this.rowHeaderRenderCanvasCtx!.clearRect(
+      this.drawRowHeaderCell.clearRect(
+        ctx!,
         0,
         0,
-        this.rowHeaderRenderCanvas!.width,
-        this.rowHeaderRenderCanvas!.height
+        this.rowHeaderCanvasManager.renderCanvas!.width,
+        this.rowHeaderCanvasManager.renderCanvas!.height
       );
 
-      this.rowHeaderRenderCanvasCtx!.drawImage(
+      this.drawRowHeaderCell.drawImage(
+        ctx!,
         tempCanvas,
         0,
         this.calendarSetting.cellHeight * diff
@@ -247,36 +237,30 @@ export class DrawRowHeaderService {
         this.drawName(row, directionDown);
       }
     }
-
-    this.drawCalendar();
   }
 
-  public drawName(index: number, directionDown: boolean): void {
-    if (!this.rowHeaderRenderCanvas || !this.rowHeaderRenderCanvasCtx) {
-      return;
-    }
-
+  @CanvasAvailable()
+  private drawName(index: number, directionDown: boolean): void {
     const dy = index - this.scroll.verticalScrollPosition;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height);
     const rec = new Rectangle(
       0,
       top,
-      this.rowHeaderRenderCanvas.width,
+      this.rowHeaderCanvasManager.renderCanvas!.width,
       top + height
     );
 
     if (index < this.dataManagementBreak.rows) {
-      DrawHelper.fillRectangle(
-        this.rowHeaderRenderCanvasCtx!,
+      this.drawRowHeaderCell.fillRectangle(
+        this.rowHeaderCanvasManager.renderCanvasCtx!,
         this.gridColors.controlBackGroundColor,
         rec
       );
 
       const diff = directionDown ? 0 : this.calendarSetting.borderWidth;
-      const diff1 = !directionDown ? this.calendarSetting.borderWidth : 0;
-      DrawHelper.drawBorder(
-        this.rowHeaderRenderCanvasCtx,
+      this.drawRowHeaderCell.drawBorder(
+        this.rowHeaderCanvasManager.renderCanvasCtx!,
         rec.left,
         rec.top,
         rec.width,
@@ -286,8 +270,8 @@ export class DrawRowHeaderService {
         Gradient3DBorderStyleEnum.Raised
       );
 
-      DrawHelper.drawText(
-        this.rowHeaderRenderCanvasCtx,
+      this.drawRowHeaderCell.drawText(
+        this.rowHeaderCanvasManager.renderCanvasCtx!,
         this.dataManagementBreak.readClientName(index),
         rec.left,
         rec.top,
@@ -300,8 +284,8 @@ export class DrawRowHeaderService {
         BaselineAlignmentEnum.Center
       );
     } else {
-      DrawHelper.fillRectangle(
-        this.rowHeaderRenderCanvasCtx!,
+      this.drawRowHeaderCell.fillRectangle(
+        this.rowHeaderCanvasManager.renderCanvasCtx!,
         this.gridColors.backGroundContainerColor,
         rec
       );
@@ -309,66 +293,16 @@ export class DrawRowHeaderService {
   }
 
   public deleteCanvas() {
-    this.ctx = undefined;
-    this.canvas = undefined;
-    this.rowHeaderRenderCanvasCtx = undefined;
-    this.rowHeaderRenderCanvas = undefined;
-    this.rowHeaderCtx = undefined;
-    this.rowHeaderCanvas = undefined;
+    this.rowHeaderCanvasManager.deleteCanvas();
   }
 
   public createCanvas() {
-    this.canvas = document.getElementById(
-      'rowHeaderCanvas'
-    ) as HTMLCanvasElement;
-    this.ctx = DrawHelper.createHiDPICanvas(
-      this.canvas,
-      this.width,
-      this.height
-    );
-
-    DrawHelper.setAntiAliasing(this.ctx);
-
-    this.rowHeaderRenderCanvas = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
-    this.rowHeaderRenderCanvasCtx = DrawHelper.createHiDPICanvas(
-      this.rowHeaderRenderCanvas,
-      this.width,
-      this.calendarSetting.cellHeaderHeight,
-      true
-    );
-
-    DrawHelper.setAntiAliasing(this.rowHeaderRenderCanvasCtx!);
-
-    this.rowHeaderCanvas = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
-    this.rowHeaderCtx = DrawHelper.createHiDPICanvas(
-      this.rowHeaderCanvas,
-      this.width,
-      this.calendarSetting.cellHeaderHeight,
-      true
-    );
-    DrawHelper.setAntiAliasing(this.rowHeaderCtx);
+    this.rowHeaderCanvasManager.createCanvas();
   }
 
   public isCanvasAvailable(): boolean {
-    if (!this.calendarSetting) {
-      return false;
-    }
-    if (!this.canvas) {
-      return false;
-    }
-    if (!(this.height || this.width)) {
-      return false;
-    }
-    return true;
+    return this.rowHeaderCanvasManager.isCanvasAvailable();
   }
-
-  /* #endregion   draw */
-
-  /* #region   select */
 
   set selectedRow(value: number) {
     if (value === this._selectedRow) {
@@ -391,91 +325,66 @@ export class DrawRowHeaderService {
   }
 
   drawSelectionRow(): void {
-    if (this.selectedRow > -1) {
-      if (this.isSelectedRowVisible()) {
-        this.ctx!.save();
-        this.ctx!.globalAlpha = 0.2;
-        this.ctx!.fillStyle = this.gridColorService.focusBorderColor;
-        const dy = this.selectedRow - this.scroll.verticalScrollPosition;
-        const height = this.calendarSetting.cellHeight;
-        const top =
-          Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
+    if (this.selectedRow > -1 && this.isSelectedRowVisible()) {
+      this.rowHeaderCanvasManager.save();
+      this.rowHeaderCanvasManager.setGlobalAlpha(0.2);
+      this.rowHeaderCanvasManager.setFillStyle(
+        this.gridColorService.focusBorderColor
+      );
+      const dy = this.selectedRow - this.scroll.verticalScrollPosition;
+      const height = this.calendarSetting.cellHeight;
+      const top =
+        Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
 
-        this.ctx!.fillRect(0, top, this.canvas!.width, height);
+      this.rowHeaderCanvasManager.fillRect(
+        0,
+        top,
+        this.rowHeaderCanvasManager.width,
+        height
+      );
 
-        this.ctx!.restore();
-      }
+      this.rowHeaderCanvasManager.restore();
     }
   }
 
-  unDrawSelectionRow(): void {
-    if (this.selectedRow > -1) {
-      if (this.isSelectedRowVisible())
-        this.ctx!.drawImage(
-          this.rowHeaderRenderCanvas!,
-          0,
-          this.calendarSetting.cellHeaderHeight
-        );
+  @CanvasAvailable()
+  private unDrawSelectionRow(): void {
+    if (this.selectedRow > -1 && this.isSelectedRowVisible()) {
+      this.drawRowHeaderCell.drawImage(
+        this.rowHeaderCanvasManager.renderCanvasCtx!,
+        this.rowHeaderCanvasManager.renderCanvas!,
+        0,
+        this.calendarSetting.cellHeaderHeight
+      );
     }
   }
 
   private isSelectedRowVisible(): boolean {
-    if (
+    return (
       this.selectedRow >= this.firstVisibleRow() &&
       this.selectedRow < this.firstVisibleRow() + this.visibleRow()
-    ) {
-      return true;
-    }
-    return false;
+    );
   }
 
-  /* #endregion   select */
-
-  /* #region Environment changes */
-
   public set width(value: number) {
-    this._width = value;
-    this.setMetrics();
-    this.resizeMainCanvas();
-
+    this.rowHeaderCanvasManager.width = value;
     this.createRuler();
   }
   public get width(): number {
-    return this._width;
+    return this.rowHeaderCanvasManager.width;
   }
 
   public set height(value: number) {
-    this._height = value;
-    this.setMetrics();
-    this.resizeMainCanvas();
+    this.rowHeaderCanvasManager.height = value;
+
+    this.renderRowHeader();
   }
   public get height(): number {
-    return this._height;
+    return this.rowHeaderCanvasManager.height;
   }
 
-  private resizeMainCanvas() {
-    if (this.isCanvasAvailable()) {
-      this.canvas!.style.width = `${this.width}px`;
-      this.canvas!.style.height = `${this.height}px`;
-      this.ctx!.canvas.height = this.height;
-      this.ctx!.canvas!.width = this.width;
-    }
-  }
-
-  /* #endregion Environment changes */
-
-  /* #region   metrics */
-
-  setMetrics(): void {
-    const visibleRows: number =
-      Math.floor(this.height / this.calendarSetting.cellHeight) - 1;
-  }
-
+  @CanvasAvailable()
   visibleRow(): number {
-    if (!this.isCanvasAvailable()) {
-      return 0;
-    }
-
     return Math.ceil(this.height / this.calendarSetting.cellHeight);
   }
 
@@ -486,6 +395,4 @@ export class DrawRowHeaderService {
   lastVisibleRow(): number {
     return this.firstVisibleRow() + this.visibleRow();
   }
-
-  /* #endregion   metrics */
 }

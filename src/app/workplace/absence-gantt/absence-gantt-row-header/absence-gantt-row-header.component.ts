@@ -17,6 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
+import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 
 @Component({
   selector: 'app-absence-gantt-row-header',
@@ -135,11 +136,11 @@ export class AbsenceGanttRowHeaderComponent
     }
   }
 
+  isCanvasAvailable(): boolean {
+    return this.drawRowHeader.isCanvasAvailable();
+  }
+  @CanvasAvailable()
   private redrawComponents(): void {
-    if (!this.drawRowHeader.isCanvasAvailable()) {
-      return;
-    }
-
     this.drawRowHeader.createRuler();
     this.drawRowHeader.renderRowHeader();
     this.drawRowHeader.drawCalendar();
@@ -148,19 +149,29 @@ export class AbsenceGanttRowHeaderComponent
   private updateDrawRowHeaderDimensions(element: HTMLElement): void {
     this.drawRowHeader.height = element.clientHeight;
     this.drawRowHeader.width = element.clientWidth;
+    console.log('updateDrawRowHeaderDimensions', element.clientHeight);
   }
 
   /* #endregion resize+visibility */
 
   /* #region   mouse event */
 
+  private getMousePos(event: MouseEvent) {
+    if (!this.drawRowHeader.rowHeaderCanvasManager.canvas) return;
+
+    const rect =
+      this.drawRowHeader.rowHeaderCanvasManager.canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
   onMouseMove(event: MouseEvent) {
-    if (
-      this.drawRowHeader.recFilterIcon.pointInRect(
-        event.clientX - this.drawRowHeader.rowHeaderCanvas!.offsetLeft,
-        event.clientY - this.drawRowHeader.rowHeaderCanvas!.offsetTop
-      )
-    ) {
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
       this.currentCursor = CursorEnum.pointer;
     } else {
       this.currentCursor = CursorEnum.default;
@@ -168,12 +179,10 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   onClick(event: MouseEvent) {
-    if (
-      this.drawRowHeader.recFilterIcon.pointInRect(
-        event.clientX - this.drawRowHeader.rowHeaderCanvas!.offsetLeft,
-        event.clientY - this.drawRowHeader.rowHeaderCanvas!.offsetTop
-      )
-    ) {
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
       this.showFilter();
     }
   }
@@ -188,16 +197,22 @@ export class AbsenceGanttRowHeaderComponent
 
   showFilter() {
     const width = 300;
+    const canvas = this.drawRowHeader.rowHeaderCanvasManager.canvas;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+
     let leftPos =
       this.drawRowHeader.recFilterIcon.left +
-      this.drawRowHeader.rowHeaderCanvas!.offsetLeft +
+      rect.left +
       this.drawRowHeader.recFilterIcon.width -
       width;
 
-    const diff = leftPos - this.drawRowHeader.rowHeaderCanvas!.offsetLeft;
+    const diff = leftPos - rect.left;
     if (diff < 0) {
       leftPos -= diff;
     }
+
     this.filterStyle = {
       width: width + 'px',
       visibility: 'visible',
@@ -205,7 +220,7 @@ export class AbsenceGanttRowHeaderComponent
       top:
         this.drawRowHeader.recFilterIcon.top +
         this.drawRowHeader.recFilterIcon.height +
-        this.drawRowHeader.rowHeaderCanvas!.offsetTop +
+        rect.top +
         'px',
     };
   }

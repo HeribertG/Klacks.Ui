@@ -12,10 +12,10 @@ import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
 import { DataService } from './data.service';
 import { CreateRowHeaderService } from './create-row-header.service';
-import { CanvasAvailable } from './canvasAvailable.decorator';
 import { CanvasManagerService } from './canvas-manager.service';
 import { GridRenderService } from './grid-render.service';
 import { CellRenderService } from './cell-render.service';
+import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 
 @Injectable()
 export class DrawScheduleService {

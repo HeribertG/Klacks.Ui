@@ -63,7 +63,7 @@ export class AbsenceGanttSurfaceComponent
   @Input() hScrollbar: AbsenceGanttHScrollbarComponent | undefined;
   @Input() absenceMask: AbsenceGanttMaskComponent | undefined;
   @Input() absenceRowHeader: AbsenceGanttRowHeaderComponent | undefined;
-  @ViewChild('calendarCanvas') calendarCanvas!: ElementRef<HTMLDivElement>;
+  @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
@@ -71,11 +71,8 @@ export class AbsenceGanttSurfaceComponent
   public isShift = false;
   public isCtrl = false;
 
-  private resizeObserver: ResizeObserver | undefined;
   private resizeSubject: Subject<void> = new Subject<void>();
   private ngUnsubscribe: Subject<void> = new Subject<void>();
-  resizeWindow: (() => void) | undefined;
-  visibilitychangeWindow: (() => void) | undefined;
 
   private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
@@ -84,7 +81,6 @@ export class AbsenceGanttSurfaceComponent
   private isAbsenceHeaderInit = false;
   private countServices = 0;
   private eventListeners: Array<() => void> = [];
-  private box: HTMLDivElement | undefined;
 
   constructor(
     public holidayCollection: HolidayCollectionService,
@@ -114,10 +110,10 @@ export class AbsenceGanttSurfaceComponent
   /* #region ng */
 
   ngOnInit(): void {
-    // this.spinnerService.showProgressSpinner = true;
+    this.spinnerService.showProgressSpinner = false;
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
-    this.drawCalendarGantt.createCanvas();
+    //this.drawCalendarGantt.refresh();
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
@@ -126,21 +122,6 @@ export class AbsenceGanttSurfaceComponent
         this.onUpdateMask();
       }
     );
-
-    this.drawCalendarGantt?.hScrollbarRefreshEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        if (this.hScrollbar) {
-          this.hScrollbar?.refresh();
-        }
-      });
-    this.drawCalendarGantt?.vScrollbarRefreshEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        if (this.vScrollbar) {
-          this.vScrollbar?.refresh();
-        }
-      });
   }
 
   ngAfterViewInit(): void {
@@ -169,7 +150,7 @@ export class AbsenceGanttSurfaceComponent
       .subscribe(() => {
         if (this.isAbsenceHeaderInit) {
           this.scroll.maxRows = this.dataManagementBreak.rows;
-          this.vScrollbar!.maximumRow = this.dataManagementBreak.rows;
+          // this.vScrollbar!.maximumRow = this.dataManagementBreak.rows;
 
           this.drawCalendarGantt.setMetrics();
           this.drawCalendarGantt.checkSelectedRowVisibility();
@@ -239,6 +220,14 @@ export class AbsenceGanttSurfaceComponent
 
   /* #region   resize+visibility */
 
+  private initializeDrawSchedule(): void {
+    this.drawCalendarGantt.createCanvas();
+    const box = this.boxCalendar.nativeElement;
+    this.drawCalendarGantt.width = box.clientWidth;
+    this.drawCalendarGantt.height = box.clientHeight;
+    // this.drawCalendarGantt.refresh();
+  }
+
   setFocus(): void {
     const x = this.el.nativeElement as HTMLDivElement;
     if (x) {
@@ -296,7 +285,7 @@ export class AbsenceGanttSurfaceComponent
   }
 
   private initializeDrawCalendarGantt(): void {
-    const box = this.calendarCanvas.nativeElement;
+    const box = this.boxCalendar.nativeElement;
     this.drawCalendarGantt.height = box.clientHeight;
     this.drawCalendarGantt.width = box.clientWidth;
     this.drawCalendarGantt.createCanvas();
@@ -641,8 +630,8 @@ export class AbsenceGanttSurfaceComponent
         return;
       }
 
-      this.drawCalendarGantt.renderCanvasCtx!.drawImage(
-        this.drawCalendarGantt.renderCanvas!,
+      this.drawCalendarGantt.ganttCanvasManager.renderCanvasCtx!.drawImage(
+        this.drawCalendarGantt.ganttCanvasManager.renderCanvas!,
         0,
         this.calendarSetting.cellHeight * diff
       );

@@ -27,33 +27,19 @@ import { GridSettingsService } from 'src/app/grid/services/grid-settings.service
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { Subject } from 'rxjs';
+import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
+import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 
 @Injectable()
 export class DrawCalendarGanttService {
   public vScrollbarRefreshEvent = new Subject<boolean>();
   public hScrollbarRefreshEvent = new Subject<boolean>();
 
-  public renderCanvasCtx: CanvasRenderingContext2D | undefined;
-  public renderCanvas: HTMLCanvasElement | undefined;
-  public headerCanvas: HTMLCanvasElement | undefined;
-  public headerCtx: CanvasRenderingContext2D | undefined;
-  public backgroundRowCanvas: HTMLCanvasElement | undefined;
-  public backgroundRowCtx: CanvasRenderingContext2D | undefined;
-  public rowCanvas: HTMLCanvasElement | undefined;
-  public rowCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderRenderCanvasCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderRenderCanvas: HTMLCanvasElement | undefined;
-  public rowHeaderCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderCanvas: HTMLCanvasElement | undefined;
   public pixelRatio = 1;
   public startDate: Date = new Date();
   public selectedBreakRec: Rectangle | undefined;
   public selectedBreak_dummy: IBreak | undefined;
 
-  private ctx: CanvasRenderingContext2D | undefined;
-  private canvas: HTMLCanvasElement | undefined;
-  private _height: number = 10;
-  private _width: number = 10;
   private _columns: number = 365;
   private _selectedRow = -1;
   private _vScrollbarValue = -1;
@@ -65,6 +51,7 @@ export class DrawCalendarGanttService {
   private _dragRow = -1;
 
   constructor(
+    public ganttCanvasManager: GanttCanvasManagerService,
     private gridColors: GridColorService,
     private holidayCollection: HolidayCollectionService,
     private calendarSetting: CalendarSettingService,
@@ -89,7 +76,11 @@ export class DrawCalendarGanttService {
     this.copyRulerOnHeadline();
     this.drawWeekendDayNumberOnHeadline(headerDayRank);
     this.drawMonthBarOnHeadline();
-    this.ctx!.drawImage(this.headerCanvas!, 0, 0);
+    this.ganttCanvasManager.ctx!.drawImage(
+      this.ganttCanvasManager.headerCanvas!,
+      0,
+      0
+    );
   }
 
   private initDate(): number {
@@ -98,23 +89,31 @@ export class DrawCalendarGanttService {
   }
 
   private initCanvas(maxWidth: number): void {
-    if (!this.backgroundRowCanvas || !this.headerCanvas || !this.rowCanvas) {
+    if (
+      !this.ganttCanvasManager.backgroundRowCanvas ||
+      !this.ganttCanvasManager.headerCanvas ||
+      !this.ganttCanvasManager.rowCanvas
+    ) {
       throw new Error('Canvas is not initialized.');
     }
 
     const cellHeight = this.calendarSetting.cellHeight;
-    this.backgroundRowCanvas.height = cellHeight;
-    this.rowCanvas.height = cellHeight;
+    this.ganttCanvasManager.backgroundRowCanvas.height = cellHeight;
+    this.ganttCanvasManager.rowCanvas.height = cellHeight;
     const headerHeight = this.calendarSetting.cellHeaderHeight;
-    this.headerCanvas.height = headerHeight;
+    this.ganttCanvasManager.headerCanvas.height = headerHeight;
 
-    this.backgroundRowCanvas.width = maxWidth;
-    this.rowCanvas.width = this.backgroundRowCanvas.width;
-    this.headerCanvas.width = maxWidth;
+    this.ganttCanvasManager.backgroundRowCanvas.width = maxWidth;
+    this.ganttCanvasManager.rowCanvas.width =
+      this.ganttCanvasManager.backgroundRowCanvas.width;
+    this.ganttCanvasManager.headerCanvas.width = maxWidth;
   }
 
   private setBackgroundColor() {
-    if (!this.backgroundRowCanvas || !this.backgroundRowCtx) {
+    if (
+      !this.ganttCanvasManager.backgroundRowCanvas ||
+      !this.ganttCanvasManager.backgroundRowCtx
+    ) {
       throw new Error(
         "CanvasRenderingContext2D and Canvas are'nt initialized."
       );
@@ -122,24 +121,25 @@ export class DrawCalendarGanttService {
     const rec = new Rectangle(
       0,
       0,
-      this.backgroundRowCanvas.width,
-      this.backgroundRowCanvas.height
+      this.ganttCanvasManager.backgroundRowCanvas.width,
+      this.ganttCanvasManager.backgroundRowCanvas.height
     );
     DrawHelper.fillRectangle(
-      this.backgroundRowCtx,
+      this.ganttCanvasManager.backgroundRowCtx,
       this.gridColors.controlBackGroundColor,
       rec
     );
   }
+
   private drawDayOnRuler(
     year: number,
     headerDayRank: CalendarHeaderDayRank[],
     monthsRect: Rectangle[]
   ) {
     if (
-      !this.backgroundRowCanvas ||
-      !this.headerCanvas ||
-      !this.backgroundRowCtx
+      !this.ganttCanvasManager.backgroundRowCanvas! ||
+      !this.ganttCanvasManager.backgroundRowCanvas! ||
+      !this.ganttCanvasManager.backgroundRowCtx!
     ) {
       throw new Error(
         "CanvasRenderingContext2D and Canvas are'nt initialized."
@@ -160,12 +160,12 @@ export class DrawCalendarGanttService {
         leftDayCell,
         0,
         leftDayCell + sizeDayCell,
-        this.backgroundRowCanvas.height
+        this.ganttCanvasManager.backgroundRowCanvas!.height
       );
       lastDays += actualDays;
 
       DrawHelper.fillRectangle(
-        this.backgroundRowCtx,
+        this.ganttCanvasManager.backgroundRowCtx!,
         i % 2 === 0
           ? this.gridColors.evenMonthColor
           : this.gridColors.oddMonthColor,
@@ -197,7 +197,7 @@ export class DrawCalendarGanttService {
         if (result) {
           isHoliday = true;
           DrawHelper.fillRectangle(
-            this.backgroundRowCtx,
+            this.ganttCanvasManager.backgroundRowCtx!,
             result.officially
               ? this.gridColors.backGroundColorOfficiallyHoliday
               : this.gridColors.backGroundColorHolyday,
@@ -205,7 +205,7 @@ export class DrawCalendarGanttService {
           );
 
           DrawHelper.drawBaseBorder(
-            this.backgroundRowCtx,
+            this.ganttCanvasManager.backgroundRowCtx!,
             this.gridColors.borderColor,
             this.calendarSetting.increaseBorder,
             rec2
@@ -218,13 +218,13 @@ export class DrawCalendarGanttService {
         case this.SUNDAY:
           if (!isHoliday) {
             DrawHelper.fillRectangle(
-              this.backgroundRowCtx,
+              this.ganttCanvasManager.backgroundRowCtx!,
               this.gridColors.backGroundColorSunday,
               rec2
             );
 
             DrawHelper.drawBaseBorder(
-              this.backgroundRowCtx,
+              this.ganttCanvasManager.backgroundRowCtx!,
               this.gridColors.borderColor,
               this.calendarSetting.increaseBorder,
               rec2
@@ -235,10 +235,11 @@ export class DrawCalendarGanttService {
           c.name = currDate.getDate().toString();
           c.rect = new Rectangle(
             d,
-            this.backgroundRowCanvas.height + borderSize,
+            this.ganttCanvasManager.backgroundRowCanvas!.height + borderSize,
             d + MINCELLWITHFORDAYNUMBER,
-            this.backgroundRowCanvas.height +
-              (this.headerCanvas.height - this.backgroundRowCanvas.height)
+            this.ganttCanvasManager.backgroundRowCanvas!.height +
+              (this.ganttCanvasManager.backgroundRowCanvas!.height -
+                this.ganttCanvasManager.backgroundRowCanvas!.height)
           );
           c.backColor = this.gridColors.backGroundColorSunday;
 
@@ -248,13 +249,13 @@ export class DrawCalendarGanttService {
         case this.SATURDAY:
           if (!isHoliday) {
             DrawHelper.fillRectangle(
-              this.backgroundRowCtx,
+              this.ganttCanvasManager.backgroundRowCtx!,
               this.gridColors.backGroundColorSaturday,
               rec2
             );
 
             DrawHelper.drawBaseBorder(
-              this.backgroundRowCtx,
+              this.ganttCanvasManager.backgroundRowCtx!,
               this.gridColors.borderColor,
               this.calendarSetting.increaseBorder,
               rec2
@@ -265,10 +266,11 @@ export class DrawCalendarGanttService {
           c1.name = currDate.getDate().toString();
           c1.rect = new Rectangle(
             rec2.right - MINCELLWITHFORDAYNUMBER,
-            this.backgroundRowCanvas.height + borderSize,
+            this.ganttCanvasManager.backgroundRowCanvas!.height + borderSize,
             rec2.right,
-            this.backgroundRowCanvas.height +
-              (this.headerCanvas.height - this.backgroundRowCanvas.height)
+            this.ganttCanvasManager.backgroundRowCanvas!.height +
+              (this.ganttCanvasManager.backgroundRowCanvas!.height -
+                this.ganttCanvasManager.backgroundRowCanvas!.height)
           );
           c1.backColor = this.gridColors.backGroundColorSaturday;
 
@@ -277,7 +279,7 @@ export class DrawCalendarGanttService {
           break;
         default:
           DrawHelper.drawBaseBorder(
-            this.backgroundRowCtx,
+            this.ganttCanvasManager.backgroundRowCtx!,
             this.gridColors.borderColor,
             LINEWIDTH,
             rec2
@@ -287,33 +289,37 @@ export class DrawCalendarGanttService {
   }
 
   private drawMonthBorderlineOnRuler(monthsRect: Rectangle[]) {
-    if (!this.backgroundRowCtx) {
+    if (!this.ganttCanvasManager.backgroundRowCtx!) {
       throw new Error("CanvasRenderingContext2D are'nt initialized.");
     }
-    this.backgroundRowCtx.save();
-    this.backgroundRowCtx.lineWidth = 1;
-    this.backgroundRowCtx.strokeStyle = this.gridColors.borderColorEndMonth;
+    this.ganttCanvasManager.backgroundRowCtx!.save();
+    this.ganttCanvasManager.backgroundRowCtx!.lineWidth = 1;
+    this.ganttCanvasManager.backgroundRowCtx!.strokeStyle =
+      this.gridColors.borderColorEndMonth;
 
     monthsRect.forEach((x) => {
-      if (this.backgroundRowCtx) {
-        this.backgroundRowCtx.moveTo(x.left, x.top);
-        this.backgroundRowCtx.lineTo(x.left, x.bottom);
-        this.backgroundRowCtx.stroke();
+      if (this.ganttCanvasManager.backgroundRowCtx!) {
+        this.ganttCanvasManager.backgroundRowCtx!.moveTo(x.left, x.top);
+        this.ganttCanvasManager.backgroundRowCtx!.lineTo(x.left, x.bottom);
+        this.ganttCanvasManager.backgroundRowCtx!.stroke();
       }
     });
-    this.backgroundRowCtx.restore();
+    this.ganttCanvasManager.backgroundRowCtx!.restore();
   }
 
   private copyRulerOnHeadline() {
-    if (!this.headerCtx || !this.backgroundRowCanvas) {
+    if (
+      !this.ganttCanvasManager.headerCtx! ||
+      !this.ganttCanvasManager.backgroundRowCanvas!
+    ) {
       throw new Error(
         "CanvasRenderingContext2D and Canvas are'nt initialized."
       );
     }
-    this.headerCtx.drawImage(
-      this.backgroundRowCanvas,
+    this.ganttCanvasManager.headerCtx!.drawImage(
+      this.ganttCanvasManager.backgroundRowCanvas!,
       0,
-      this.backgroundRowCanvas.height
+      this.ganttCanvasManager.backgroundRowCanvas!.height
     );
   }
 
@@ -324,11 +330,15 @@ export class DrawCalendarGanttService {
     //Zeichne Monatstage am Samstag und Sonntag
     if (this.calendarSetting.cellWidth * 2 >= MINCELLWITHFORDAYNUMBER) {
       headerDayRank.forEach((x) => {
-        if (this.headerCtx) {
-          DrawHelper.fillRectangle(this.headerCtx, x.backColor, x.rect);
+        if (this.ganttCanvasManager.headerCtx!) {
+          DrawHelper.fillRectangle(
+            this.ganttCanvasManager.headerCtx!,
+            x.backColor,
+            x.rect
+          );
 
           DrawHelper.drawText(
-            this.headerCtx,
+            this.ganttCanvasManager.headerCtx!,
             x.name,
             x.rect.left,
             x.rect.top,
@@ -346,7 +356,10 @@ export class DrawCalendarGanttService {
   }
 
   private drawMonthBarOnHeadline() {
-    if (!this.headerCtx || !this.backgroundRowCanvas) {
+    if (
+      !this.ganttCanvasManager.headerCtx! ||
+      !this.ganttCanvasManager.backgroundRowCanvas!
+    ) {
       throw new Error(
         "CanvasRenderingContext2D and Canvas are'nt initialized."
       );
@@ -366,17 +379,17 @@ export class DrawCalendarGanttService {
         leftMonthCell,
         0,
         leftMonthCell + sizeMonthCell,
-        this.backgroundRowCanvas.height
+        this.ganttCanvasManager.backgroundRowCanvas!.height
       );
       lastDays += actualDays;
       DrawHelper.fillRectangle(
-        this.headerCtx,
+        this.ganttCanvasManager.headerCtx!,
         this.gridColors.controlBackGroundColor,
         rec3
       );
 
       DrawHelper.drawText(
-        this.headerCtx,
+        this.ganttCanvasManager.headerCtx!,
         this.translateService.instant(this.gridSetting.monthsName[i]),
         rec3.left,
         rec3.top,
@@ -390,7 +403,7 @@ export class DrawCalendarGanttService {
       );
 
       DrawHelper.drawBorder(
-        this.headerCtx,
+        this.ganttCanvasManager.headerCtx!,
         rec3.left,
         rec3.top,
         rec3.width,
@@ -406,17 +419,22 @@ export class DrawCalendarGanttService {
   /* #region  render */
 
   public renderRowHeader(): void {
-    if (!this.rowHeaderRenderCanvas || !this.rowHeaderRenderCanvasCtx) {
+    if (
+      !this.ganttCanvasManager.rowHeaderRenderCanvas ||
+      !this.ganttCanvasManager.rowHeaderRenderCanvasCtx
+    ) {
       return;
     }
-    this.rowHeaderRenderCanvas.height = this.height;
-    this.rowHeaderRenderCanvas.width = this.width;
+    this.ganttCanvasManager.rowHeaderRenderCanvas.height =
+      this.ganttCanvasManager.height;
+    this.ganttCanvasManager.rowHeaderRenderCanvas.width =
+      this.ganttCanvasManager.width;
 
-    this.rowHeaderRenderCanvasCtx.clearRect(
+    this.ganttCanvasManager.rowHeaderRenderCanvasCtx.clearRect(
       0,
       0,
-      this.rowHeaderRenderCanvas.width,
-      this.rowHeaderRenderCanvas.height
+      this.ganttCanvasManager.rowHeaderRenderCanvas.width,
+      this.ganttCanvasManager.rowHeaderRenderCanvas.height
     );
 
     for (let i = 0; i < this.scroll.visibleRows + 1; i++) {
@@ -425,12 +443,13 @@ export class DrawCalendarGanttService {
   }
 
   renderCalendar(): void {
-    if (!this.renderCanvas) {
+    if (!this.ganttCanvasManager.renderCanvas) {
       return;
     }
 
-    this.renderCanvas.height = this.height;
-    this.renderCanvas!.width = this.getWidth();
+    this.ganttCanvasManager.renderCanvas.height =
+      this.ganttCanvasManager.height;
+    this.ganttCanvasManager.renderCanvas.width = this.getWidth();
 
     for (let i = 0; i < this.visibleRow() + 1; i++) {
       const posDelta = i + this.scroll.verticalScrollPosition!;
@@ -444,17 +463,17 @@ export class DrawCalendarGanttService {
 
   public drawRow(index: number, selectedBreak: IBreak | undefined): void {
     if (
-      !this.backgroundRowCanvas ||
-      !this.rowCanvas ||
-      !this.headerCanvas ||
-      !this.backgroundRowCtx ||
-      !this.rowCtx ||
-      !this.headerCtx
+      !this.ganttCanvasManager.backgroundRowCanvas! ||
+      !this.ganttCanvasManager.rowCanvas! ||
+      !this.ganttCanvasManager.backgroundRowCanvas! ||
+      !this.ganttCanvasManager.backgroundRowCtx! ||
+      !this.ganttCanvasManager.rowCtx! ||
+      !this.ganttCanvasManager.headerCtx!
     ) {
       return;
     }
 
-    if (!DrawHelper.isCanvasReady(this.renderCanvas)) {
+    if (!DrawHelper.isCanvasReady(this.ganttCanvasManager.renderCanvas!)) {
       return;
     }
     const rec = this.calcRowRec(
@@ -471,15 +490,19 @@ export class DrawCalendarGanttService {
     selectedBreak: IBreak | undefined
   ): void {
     if (
-      !this.renderCanvasCtx ||
-      !this.rowCtx ||
-      !this.backgroundRowCanvas ||
-      !this.rowCanvas
+      !this.ganttCanvasManager.renderCanvasCtx! ||
+      !this.ganttCanvasManager.rowCtx! ||
+      !this.ganttCanvasManager.backgroundRowCanvas! ||
+      !this.ganttCanvasManager.rowCanvas!
     ) {
       return;
     }
 
-    this.rowCtx.drawImage(this.backgroundRowCanvas, 0, 0);
+    this.ganttCanvasManager.rowCtx!.drawImage(
+      this.ganttCanvasManager.backgroundRowCanvas!,
+      0,
+      0
+    );
 
     this.drawRowBreaks(index, selectedBreak);
 
@@ -487,10 +510,14 @@ export class DrawCalendarGanttService {
       this.dataManagementBreak.rows &&
       index < this.dataManagementBreak.rows
     ) {
-      this.renderCanvasCtx.drawImage(this.rowCanvas, rec.x, rec.y);
+      this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+        this.ganttCanvasManager.rowCanvas!,
+        rec.x,
+        rec.y
+      );
     } else {
       DrawHelper.fillRectangle(
-        this.renderCanvasCtx,
+        this.ganttCanvasManager.renderCanvasCtx!,
         this.gridColors.backGroundContainerColor,
         rec
       );
@@ -522,13 +549,13 @@ export class DrawCalendarGanttService {
   }
 
   private drawRowBreak(rec: Rectangle, color: string) {
-    if (!this.rowCtx) {
+    if (!this.ganttCanvasManager.rowCtx!) {
       return;
     }
 
-    DrawHelper.fillRectangle(this.rowCtx, color, rec);
+    DrawHelper.fillRectangle(this.ganttCanvasManager.rowCtx!, color, rec);
     // DrawHelper.drawBorder(
-    //   this.rowCtx!,
+    //   this.ganttCanvasManager.rowCtx!!,
     //   rec.left,
     //   rec.top,
     //   rec.width,
@@ -539,7 +566,10 @@ export class DrawCalendarGanttService {
   }
 
   public drawName(index: number, directionDown: boolean): void {
-    if (!this.rowHeaderRenderCanvas || !this.rowHeaderRenderCanvasCtx) {
+    if (
+      !this.ganttCanvasManager.rowHeaderRenderCanvas! ||
+      !this.ganttCanvasManager.rowHeaderRenderCanvasCtx!
+    ) {
       return;
     }
 
@@ -549,13 +579,13 @@ export class DrawCalendarGanttService {
     const rec = new Rectangle(
       0,
       top,
-      this.rowHeaderRenderCanvas.width,
+      this.ganttCanvasManager.rowHeaderRenderCanvas!.width,
       top + height
     );
 
     if (index < this.dataManagementBreak.rows) {
       DrawHelper.fillRectangle(
-        this.rowHeaderRenderCanvasCtx!,
+        this.ganttCanvasManager.rowHeaderRenderCanvasCtx!!,
         this.gridColors.controlBackGroundColor,
         rec
       );
@@ -563,7 +593,7 @@ export class DrawCalendarGanttService {
       const diff = directionDown ? 0 : this.calendarSetting.borderWidth;
       const diff1 = !directionDown ? this.calendarSetting.borderWidth : 0;
       DrawHelper.drawBorder(
-        this.rowHeaderRenderCanvasCtx,
+        this.ganttCanvasManager.rowHeaderRenderCanvasCtx!,
         rec.left,
         rec.top,
         rec.width,
@@ -574,7 +604,7 @@ export class DrawCalendarGanttService {
       );
 
       DrawHelper.drawText(
-        this.rowHeaderRenderCanvasCtx,
+        this.ganttCanvasManager.rowHeaderRenderCanvasCtx!,
         this.dataManagementBreak.readClientName(index),
         rec.left,
         rec.top,
@@ -588,7 +618,7 @@ export class DrawCalendarGanttService {
       );
     } else {
       DrawHelper.fillRectangle(
-        this.rowHeaderRenderCanvasCtx!,
+        this.ganttCanvasManager.rowHeaderRenderCanvasCtx!!,
         this.gridColors.backGroundContainerColor,
         rec
       );
@@ -596,7 +626,9 @@ export class DrawCalendarGanttService {
   }
 
   drawCalendar(): void {
-    if (!DrawHelper.isCanvasReady(this.headerCanvas)) {
+    if (
+      !DrawHelper.isCanvasReady(this.ganttCanvasManager.backgroundRowCanvas!)
+    ) {
       return;
     }
 
@@ -604,10 +636,19 @@ export class DrawCalendarGanttService {
       this.scroll.horizontalScrollPosition *
       this.calendarSetting.cellWidth *
       -1;
-    this.ctx!.clearRect(0, 0, this.ctx!.canvas.width, this.ctx!.canvas!.height);
-    this.ctx!.drawImage(this.headerCanvas!, dx, 0);
-    this.ctx!.drawImage(
-      this.renderCanvas!,
+    this.ganttCanvasManager.ctx!.clearRect(
+      0,
+      0,
+      this.ganttCanvasManager.ctx!.canvas.width,
+      this.ganttCanvasManager.ctx!.canvas!.height
+    );
+    this.ganttCanvasManager.ctx!.drawImage(
+      this.ganttCanvasManager.backgroundRowCanvas!!,
+      dx,
+      0
+    );
+    this.ganttCanvasManager.ctx!.drawImage(
+      this.ganttCanvasManager.renderCanvas!!,
       dx,
       this.calendarSetting.cellHeaderHeight
     );
@@ -617,12 +658,12 @@ export class DrawCalendarGanttService {
 
     if (this.isFocused) {
       DrawHelper.drawSelectionBorder(
-        this.ctx!,
+        this.ganttCanvasManager.ctx!,
         new Rectangle(
           1,
           0,
-          this.ctx!.canvas.width - 1,
-          this.ctx!.canvas!.height
+          this.ganttCanvasManager.ctx!.canvas.width - 1,
+          this.ganttCanvasManager.ctx!.canvas!.height
         )
       );
     }
@@ -633,10 +674,10 @@ export class DrawCalendarGanttService {
       this.selectedRow !== -1 ||
       this.selectedRow >= this.dataManagementBreak.rows
     ) {
-      this.ctx!.save();
+      this.ganttCanvasManager.ctx!.save();
 
-      this.ctx!.globalAlpha = 0.2;
-      this.ctx!.fillStyle = this.gridColors.focusBorderColor;
+      this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
+      this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
       const dy = this.selectedRow - this.scroll.verticalScrollPosition;
       const height = this.calendarSetting.cellHeight;
       const top =
@@ -644,9 +685,9 @@ export class DrawCalendarGanttService {
       const width =
         (this.lastVisibleColumn() - this.firstVisibleColumn()) *
         this.calendarSetting.cellWidth;
-      this.ctx!.fillRect(0, top, width, height);
+      this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
       this.drawSelectedBreak();
-      this.ctx!.restore();
+      this.ganttCanvasManager.ctx!.restore();
     }
   }
 
@@ -677,7 +718,12 @@ export class DrawCalendarGanttService {
       -1;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
-    const rowRec = new Rectangle(left, top, this.canvas!.width, top + height);
+    const rowRec = new Rectangle(
+      left,
+      top,
+      this.ganttCanvasManager.canvas!.width,
+      top + height
+    );
 
     this.drawRowSubIntern(index, rowRec);
   }
@@ -685,14 +731,22 @@ export class DrawCalendarGanttService {
   private drawRowSubIntern(index: number, rowRec: Rectangle): void {
     if (index < this.dataManagementBreak.rows) {
       // lädt Hintergrund in rowCtx
-      this.rowCtx!.drawImage(this.backgroundRowCanvas!, 0, 0);
+      this.ganttCanvasManager.rowCtx!!.drawImage(
+        this.ganttCanvasManager.backgroundRowCanvas!!,
+        0,
+        0
+      );
       // Zeichnet alle  Breaks in rowCtx
       this.drawRowBreaks(index, this.selectedBreak);
       // Zeichnet rowCtx in ctx
-      this.ctx!.drawImage(this.rowCanvas!, rowRec.x, rowRec.y);
+      this.ganttCanvasManager.ctx!.drawImage(
+        this.ganttCanvasManager.rowCanvas!!,
+        rowRec.x,
+        rowRec.y
+      );
     } else {
       DrawHelper.fillRectangle(
-        this.ctx!,
+        this.ganttCanvasManager.ctx!,
         this.gridColors.backGroundContainerColor,
         rowRec
       );
@@ -741,16 +795,22 @@ export class DrawCalendarGanttService {
   }
 
   private drawBreakIntern(rec: Rectangle, color: string) {
-    DrawHelper.fillRectangle(this.ctx!, color, rec);
+    DrawHelper.fillRectangle(this.ganttCanvasManager.ctx!, color, rec);
   }
 
   private drawBreakSelectBorderIntern(rec: Rectangle) {
-    DrawHelper.drawSelectionBorder(this.ctx!, rec);
+    DrawHelper.drawSelectionBorder(this.ganttCanvasManager.ctx!, rec);
   }
 
   private drawBreakSelectBorderInternAnchor(rec: Rectangle) {
-    DrawHelper.drawAnchor(this.ctx!, this.calcLeftAnchorRectangle(rec));
-    DrawHelper.drawAnchor(this.ctx!, this.calcRightAnchorRectangle(rec));
+    DrawHelper.drawAnchor(
+      this.ganttCanvasManager.ctx!,
+      this.calcLeftAnchorRectangle(rec)
+    );
+    DrawHelper.drawAnchor(
+      this.ganttCanvasManager.ctx!,
+      this.calcRightAnchorRectangle(rec)
+    );
   }
 
   /* #endregion   draw intern */
@@ -758,71 +818,17 @@ export class DrawCalendarGanttService {
   /* #region   init */
 
   public deleteCanvas() {
-    this.renderCanvasCtx = undefined;
-    this.renderCanvas = undefined;
-    this.headerCanvas = undefined;
-    this.headerCtx = undefined;
-    this.backgroundRowCanvas = undefined;
-    this.backgroundRowCtx = undefined;
-    this.rowCanvas = undefined;
-    this.rowCtx = undefined;
-    this.ctx = undefined;
-    this.canvas = undefined;
+    this.ganttCanvasManager.deleteCanvas();
   }
 
   public createCanvas() {
-    this.canvas = document.getElementById(
-      'calendarCanvas'
-    ) as HTMLCanvasElement;
-    this.ctx = DrawHelper.createHiDPICanvas(
-      this.canvas,
-      this.width,
-      this.height
-    );
-
-    this.renderCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
-      this.renderCanvas,
-      this.width,
-      this.height,
-      true
-    );
-    DrawHelper.setAntiAliasing(this.renderCanvasCtx);
-
-    this.headerCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.headerCtx = DrawHelper.createHiDPICanvas(
-      this.headerCanvas,
-      this.width,
-      this.calendarSetting.cellHeaderHeight,
-      true
-    );
-    DrawHelper.setAntiAliasing(this.headerCtx);
-
-    this.backgroundRowCanvas = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
-    this.backgroundRowCtx = DrawHelper.createHiDPICanvas(
-      this.backgroundRowCanvas,
-      this.width,
-      this.calendarSetting.cellHeight,
-      true
-    );
-    DrawHelper.setAntiAliasing(this.backgroundRowCtx);
-
-    this.rowCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    this.rowCtx = DrawHelper.createHiDPICanvas(
-      this.rowCanvas,
-      this.width,
-      this.calendarSetting.cellHeight,
-      true
-    );
-    DrawHelper.setAntiAliasing(this.rowCtx);
+    this.ganttCanvasManager.createCanvas();
   }
 
   public resetAll(): void {
-    if (this.canvas) {
-      this.canvas.height = this.height;
-      this.canvas.width = this.width;
+    if (this.ganttCanvasManager.canvas) {
+      this.ganttCanvasManager.height = this.ganttCanvasManager.height;
+      this.ganttCanvasManager.width = this.ganttCanvasManager.width;
       this.setMetrics();
       this.createRuler();
       this.renderCalendar();
@@ -834,21 +840,21 @@ export class DrawCalendarGanttService {
 
   /* #region   calc */
 
+  @CanvasAvailable('queue')
   public calcRowRec(
     index: number,
     verticalScrollPosition: number,
     cellHeight: number
   ): Rectangle {
-    if (!this.renderCanvas) {
-      throw new Error(
-        'Render Canvas is not initialized. Dimensions cannot be calculated'
-      );
-    }
-
     const dy = index - verticalScrollPosition;
     const height = cellHeight;
     const top = Math.floor(dy * height);
-    return new Rectangle(0, top, this.renderCanvas.width, top + height);
+    return new Rectangle(
+      0,
+      top,
+      this.ganttCanvasManager.renderCanvas!.width,
+      top + height
+    );
   }
 
   public calcDateRectangle(beginDate: Date, endDate: Date): Rectangle {
@@ -882,10 +888,11 @@ export class DrawCalendarGanttService {
     return false;
   }
 
+  @CanvasAvailable('queue')
   calcCorrectCoordinate(event: MouseEvent) {
     let row = -1;
     let col = -1;
-    const rect = this.canvas!.getBoundingClientRect();
+    const rect = this.ganttCanvasManager.canvas!.getBoundingClientRect();
     const x: number = event.clientX - rect.left;
     const y: number = event.clientY - rect.top;
 
@@ -932,34 +939,25 @@ export class DrawCalendarGanttService {
 
   /* #region Environment changes */
 
+  public set width(value: number) {
+    this.ganttCanvasManager.width = value;
+  }
+
+  public get width(): number {
+    return this.ganttCanvasManager.width;
+  }
+
+  public set height(value: number) {
+    this.ganttCanvasManager.height = value;
+  }
   firstVisibleColumn(): number {
-    return this._hScrollbarValue;
+    return this.ganttCanvasManager.height;
   }
 
   lastVisibleColumn(): number {
     const last = this.firstVisibleColumn() + this.visibleCol();
     const max = isLeapYear(this.holidayCollection.currentYear) ? 366 : 365;
     return last < max ? last : max;
-  }
-
-  public set width(value: number) {
-    this._width = value;
-    this.setMetrics();
-    this.resizeMainCanvas();
-
-    this.createRuler();
-  }
-  public get width(): number {
-    return this._width;
-  }
-
-  public set height(value: number) {
-    this._height = value;
-    this.setMetrics();
-    this.resizeMainCanvas();
-  }
-  public get height(): number {
-    return this._height;
   }
 
   public get columns(): number {
@@ -1044,14 +1042,6 @@ export class DrawCalendarGanttService {
   public set hScrollbarValue(value: number) {
     this._hScrollbarValue = value;
   }
-  private resizeMainCanvas() {
-    if (this.isCanvasAvailable()) {
-      this.canvas!.style.width = `${this.width}px`;
-      this.canvas!.style.height = `${this.height}px`;
-      this.ctx!.canvas.height = this.height;
-      this.ctx!.canvas!.width = this.width;
-    }
-  }
 
   public get rows(): number {
     return this.dataManagementBreak.rows;
@@ -1076,10 +1066,15 @@ export class DrawCalendarGanttService {
     if (!this.calendarSetting) {
       return false;
     }
-    if (!this.canvas) {
+    if (!this.ganttCanvasManager.canvas) {
       return false;
     }
-    if (!(this.canvas!.clientHeight || this.canvas!.clientWidth)) {
+    if (
+      !(
+        this.ganttCanvasManager.canvas!.clientHeight ||
+        this.ganttCanvasManager.canvas!.clientWidth
+      )
+    ) {
       return false;
     }
     return true;
@@ -1091,10 +1086,15 @@ export class DrawCalendarGanttService {
     }
 
     const visibleRows: number =
-      Math.floor(this.canvas!.clientHeight / this.calendarSetting.cellHeight) -
-      1;
+      Math.floor(
+        this.ganttCanvasManager.canvas!.clientHeight /
+          this.calendarSetting.cellHeight
+      ) - 1;
     const visibleCols: number =
-      Math.floor(this.canvas!.clientWidth / this.calendarSetting.cellWidth) - 1;
+      Math.floor(
+        this.ganttCanvasManager.canvas!.clientWidth /
+          this.calendarSetting.cellWidth
+      ) - 1;
     this.scroll.setMetrics(
       visibleCols,
       this._columns,
@@ -1115,14 +1115,18 @@ export class DrawCalendarGanttService {
     if (!this.isCanvasAvailable()) {
       return 0;
     }
-    return Math.ceil(this.width / this.calendarSetting.cellWidth);
+    return Math.ceil(
+      this.ganttCanvasManager.width / this.calendarSetting.cellWidth
+    );
   }
 
   visibleRow(): number {
     if (!this.isCanvasAvailable()) {
       return 0;
     }
-    return Math.ceil(this.height / this.calendarSetting.cellHeight);
+    return Math.ceil(
+      this.ganttCanvasManager.height / this.calendarSetting.cellHeight
+    );
   }
 
   /* #endregion   metrics */
@@ -1149,17 +1153,23 @@ export class DrawCalendarGanttService {
   public drawDragRow(): void {
     if (this.dragRow > -1) {
       if (this.isDragRowVisible()) {
-        this.ctx!.save();
-        this.ctx!.globalAlpha = 0.08;
-        this.ctx!.fillStyle = this.gridColors.focusBorderColor;
+        this.ganttCanvasManager.ctx!.save();
+        this.ganttCanvasManager.ctx!.globalAlpha = 0.08;
+        this.ganttCanvasManager.ctx!.fillStyle =
+          this.gridColors.focusBorderColor;
         const dy = this.dragRow - this.scroll.verticalScrollPosition;
         const height = this.calendarSetting.cellHeight;
         const top =
           Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
 
-        this.ctx!.fillRect(0, top, this.canvas!.width, height);
+        this.ganttCanvasManager.ctx!.fillRect(
+          0,
+          top,
+          this.ganttCanvasManager.canvas!.width,
+          height
+        );
 
-        this.ctx!.restore();
+        this.ganttCanvasManager.ctx!.restore();
       }
     }
   }

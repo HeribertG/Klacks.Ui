@@ -40,25 +40,15 @@
                     #absenceBody
                     class="grid-canvas"
                     tabindex="0"
-                    [hScrollbar]="hScrollbar"
-                    [vScrollbar]="vScrollbar"
                     [absenceRowHeader]="absenceRowHeader"
                   >
                   </app-absence-gantt-surface>
                 </div>
-                <app-absence-gantt-v-scrollbar
-                  class="vScrollArea"
-                  [absenceBody]="absenceBody"
-                  #vScrollbar
-                >
-                </app-absence-gantt-v-scrollbar>
+                <app-v-scrollbar class="vScrollArea" #vScrollbar>
+                </app-v-scrollbar>
               </div>
-              <app-absence-gantt-h-scrollbar
-                class="hScrollArea"
-                [absenceBody]="absenceBody"
-                #hScrollbar
-              >
-              </app-absence-gantt-h-scrollbar>
+              <app-h-scrollbar class="hScrollArea" #hScrollbar>
+              </app-h-scrollbar>
             </div>
           </as-split-area>
         </as-split>
