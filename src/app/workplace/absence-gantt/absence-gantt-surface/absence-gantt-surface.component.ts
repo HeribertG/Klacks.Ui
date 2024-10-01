@@ -17,9 +17,7 @@ import {
   transformDateToNgbDateStruct,
 } from 'src/app/helpers/format-helper';
 
-import { AbsenceGanttHScrollbarComponent } from '../absence-gantt-h-scrollbar/absence-gantt-h-scrollbar.component';
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
-import { AbsenceGanttVScrollbarComponent } from '../absence-gantt-v-scrollbar/absence-gantt-v-scrollbar.component';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
@@ -59,8 +57,6 @@ export class AbsenceGanttSurfaceComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @Input() contextMenu: ContextMenuComponent | undefined;
-  @Input() vScrollbar: AbsenceGanttVScrollbarComponent | undefined;
-  @Input() hScrollbar: AbsenceGanttHScrollbarComponent | undefined;
   @Input() absenceMask: AbsenceGanttMaskComponent | undefined;
   @Input() absenceRowHeader: AbsenceGanttRowHeaderComponent | undefined;
   @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
@@ -246,9 +242,9 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.createCanvas();
     }
 
-    if (this.vScrollbar) {
-      this.vScrollbar.resize();
-    }
+    // if (this.vScrollbar) {
+    //   this.vScrollbar.resize();
+    // }
   };
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -853,12 +849,12 @@ export class AbsenceGanttSurfaceComponent
 
       if (this.drawCalendarGantt.firstVisibleColumn() > col1) {
         const m = col1;
-        this.hScrollbar!.value = m!;
+        //this.hScrollbar!.value = m!;
         this.scroll.horizontalScrollPosition = m;
         this.drawCalendarGantt.drawCalendar();
       } else if (this.drawCalendarGantt.lastVisibleColumn() < col2) {
         const m = col2 - this.drawCalendarGantt.visibleCol() + 2;
-        this.hScrollbar!.value = m!;
+        //this.hScrollbar!.value = m!;
         this.scroll.horizontalScrollPosition = m;
         this.drawCalendarGantt.drawCalendar();
       }

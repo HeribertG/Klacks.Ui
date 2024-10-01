@@ -10,7 +10,7 @@ import {
 @Injectable({
   providedIn: 'root',
 })
-export class DrawRowHeaderCellService {
+export class RenderRowHeaderCellService {
   constructor() {}
 
   public drawImage(

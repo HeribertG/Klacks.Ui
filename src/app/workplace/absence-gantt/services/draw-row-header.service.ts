@@ -13,7 +13,7 @@ import {
 } from 'src/app/grid/enums/cell-settings.enum';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
-import { DrawRowHeaderCellService } from './draw-row-header-cell.service';
+import { RenderRowHeaderCellService } from './render-row-header-cell.service';
 
 @Injectable()
 export class DrawRowHeaderService {
@@ -38,7 +38,7 @@ export class DrawRowHeaderService {
     private gridColors: GridColorService,
     private gridFonts: GridFontsService,
     public rowHeaderCanvasManager: RowHeaderCanvasManagerService,
-    private drawRowHeaderCell: DrawRowHeaderCellService
+    private drawRowHeaderCell: RenderRowHeaderCellService
   ) {}
 
   @CanvasAvailable()

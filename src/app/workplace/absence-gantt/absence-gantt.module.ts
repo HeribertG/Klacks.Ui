@@ -2,8 +2,6 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbsenceGanttHomeComponent } from './absence-gantt-home/absence-gantt-home.component';
 import { AbsenceGanttSurfaceComponent } from './absence-gantt-surface/absence-gantt-surface.component';
-import { AbsenceGanttHScrollbarComponent } from './absence-gantt-h-scrollbar/absence-gantt-h-scrollbar.component';
-import { AbsenceGanttVScrollbarComponent } from './absence-gantt-v-scrollbar/absence-gantt-v-scrollbar.component';
 import { AbsenceGanttRowHeaderComponent } from './absence-gantt-row-header/absence-gantt-row-header.component';
 import { AbsenceGanttContainerComponent } from './absence-gantt-container/absence-gantt-container.component';
 import { AbsenceGanttHeaderComponent } from './absence-gantt-header/absence-gantt-header.component';
@@ -32,8 +30,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   declarations: [
     AbsenceGanttHomeComponent,
     AbsenceGanttSurfaceComponent,
-    AbsenceGanttHScrollbarComponent,
-    AbsenceGanttVScrollbarComponent,
     AbsenceGanttRowHeaderComponent,
     AbsenceGanttContainerComponent,
     AbsenceGanttHeaderComponent,

@@ -128,11 +128,15 @@ export class VScrollbarComponent implements AfterViewInit, OnDestroy {
       if (this.MouseOverThumb) {
         this.ctx.putImageData(
           this.imgSelectedThumb,
-          this.margin,
-          this.scrollTop
+          Math.floor(this.margin),
+          Math.floor(this.scrollTop)
         );
       } else {
-        this.ctx.putImageData(this.imgThumb, this.margin, this.scrollTop);
+        this.ctx.putImageData(
+          this.imgThumb,
+          Math.floor(this.margin),
+          Math.floor(this.scrollTop)
+        );
       }
       this.ctx.restore();
     }

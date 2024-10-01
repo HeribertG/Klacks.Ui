@@ -303,7 +303,7 @@ export class AbsenceCalendarDirective {
 
       this.gridBody.drawCalendarGantt.selectedRow =
         this.gridBody.dataManagementBreak.rows - 1;
-      this.gridBody.vScrollbar!.value = this.gridBody.scroll.maxRows;
+      //this.gridBody.vScrollbar!.value = this.gridBody.scroll.maxRows;
 
       this.gridBody.drawCalendarGantt.renderCalendar();
 
@@ -326,7 +326,7 @@ export class AbsenceCalendarDirective {
 
       this.gridBody.scroll.verticalScrollPosition = 0;
       this.gridBody.drawCalendarGantt.selectedRow = 0;
-      this.gridBody.vScrollbar!.value = 0;
+      //this.gridBody.vScrollbar!.value = 0;
 
       this.gridBody.drawCalendarGantt.renderCalendar();
 

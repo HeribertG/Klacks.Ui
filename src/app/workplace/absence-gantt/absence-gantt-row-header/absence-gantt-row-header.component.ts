@@ -149,7 +149,6 @@ export class AbsenceGanttRowHeaderComponent
   private updateDrawRowHeaderDimensions(element: HTMLElement): void {
     this.drawRowHeader.height = element.clientHeight;
     this.drawRowHeader.width = element.clientWidth;
-    console.log('updateDrawRowHeaderDimensions', element.clientHeight);
   }
 
   /* #endregion resize+visibility */
