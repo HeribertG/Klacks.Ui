@@ -16,10 +16,6 @@ export class GanttCanvasManagerService {
   public backgroundRowCtx: CanvasRenderingContext2D | undefined;
   public rowCanvas: HTMLCanvasElement | undefined;
   public rowCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderRenderCanvasCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderRenderCanvas: HTMLCanvasElement | undefined;
-  public rowHeaderCtx: CanvasRenderingContext2D | undefined;
-  public rowHeaderCanvas: HTMLCanvasElement | undefined;
 
   private _width: number = 10;
   private _height: number = 10;
@@ -33,7 +29,6 @@ export class GanttCanvasManagerService {
     this.createHeaderCanvas();
     this.createBackgroundRowCanvas();
     this.createRowCanvas();
-    this.createRowHeaderCanvas();
   }
 
   public deleteCanvas(): void {
@@ -47,10 +42,6 @@ export class GanttCanvasManagerService {
     this.backgroundRowCtx = undefined;
     this.rowCanvas = undefined;
     this.rowCtx = undefined;
-    this.rowHeaderRenderCanvasCtx = undefined;
-    this.rowHeaderRenderCanvas = undefined;
-    this.rowHeaderCtx = undefined;
-    this.rowHeaderCanvas = undefined;
   }
 
   public resizeMainCanvas(): void {
@@ -189,33 +180,6 @@ export class GanttCanvasManagerService {
       DrawHelper.setAntiAliasing(this.rowCtx);
     } catch (error) {
       console.error('Error when creating the rowCanvas context:', error);
-    }
-  }
-
-  private createRowHeaderCanvas(): void {
-    this.rowHeaderCanvas = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
-    this.rowHeaderRenderCanvas = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
-    try {
-      this.rowHeaderCtx = DrawHelper.createHiDPICanvas(
-        this.rowHeaderCanvas,
-        this.width,
-        this.calendarSetting.cellHeight,
-        true
-      );
-      this.rowHeaderRenderCanvasCtx = DrawHelper.createHiDPICanvas(
-        this.rowHeaderRenderCanvas,
-        this.width,
-        this.height,
-        true
-      );
-      DrawHelper.setAntiAliasing(this.rowHeaderCtx);
-      DrawHelper.setAntiAliasing(this.rowHeaderRenderCanvasCtx);
-    } catch (error) {
-      console.error('Error when creating the rowHeaderCanvas context:', error);
     }
   }
 }

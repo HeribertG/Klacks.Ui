@@ -5,7 +5,7 @@ export class CalendarSettingService {
   @Output() zoomChangingEvent = new EventEmitter();
 
   cellHeight = 45;
-  cellWidth = 8;
+  cellWidth = 10;
   cellHeaderHeight = 55;
   increaseBorder = 0.5;
   borderWidth = 1;

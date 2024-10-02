@@ -18,11 +18,11 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit, OnChanges {
-  registerDropdown: HTMLDivElement | undefined;
-  selectedName = 'new-address';
-  authorised = false;
-  version = '';
-  searchString = '';
+  public registerDropdown: HTMLDivElement | undefined;
+  public selectedName = 'new-address';
+  public authorised = false;
+  public version = '';
+  public searchString = '';
 
   ImageName = 'ok-symbol.png';
 
