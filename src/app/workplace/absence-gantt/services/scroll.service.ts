@@ -6,8 +6,6 @@ export class ScrollService {
   public moveHorizontalEvent = new Subject<number>();
   public moveVerticalEvent = new Subject<number>();
 
-  public rowPercent = 0;
-  public colPercent = 0;
   public maxCols = 0;
   public maxRows = 0;
 
@@ -17,8 +15,6 @@ export class ScrollService {
   private _horizontalScrollPosition = 0;
   private _visibleCols = 0;
   private _visibleRows = 0;
-  private _gapAfterEndRows = 3;
-  private _gapAfterEndCols = 3;
 
   set verticalScrollPosition(value: number) {
     if (this._verticalScrollPosition !== value) {
@@ -85,31 +81,12 @@ export class ScrollService {
     return this._visibleRows;
   }
 
-  setMetrics(
-    visibleCols: number,
-    cols: number,
-    visibleRows: number,
-    rows: number
-  ) {
-    this.colPercent = 0;
-    this.rowPercent = 0;
+  set visibleCols(value: number) {
+    this._visibleCols = value;
+  }
 
-    this.maxCols = cols - visibleCols + this._gapAfterEndCols;
-    this.maxCols = Math.max(0, this.maxCols);
-
-    this.maxRows = rows - visibleRows + this._gapAfterEndRows;
-    this.maxRows = Math.max(0, this.maxRows);
-
-    if (this.maxRows > 0 && rows > 0) {
-      this.rowPercent = rows / this.maxRows;
-    }
-
-    if (this.maxCols > 0 && cols > 0) {
-      this.colPercent = cols / this.maxCols;
-    }
-
-    this._visibleCols = visibleCols;
-    this._visibleRows = visibleRows;
+  set visibleRows(value: number) {
+    this._visibleRows = value;
   }
 
   updateHorizontalScrollPosition(value: number): void {

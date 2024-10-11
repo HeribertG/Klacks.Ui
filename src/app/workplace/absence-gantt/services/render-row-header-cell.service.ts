@@ -7,9 +7,7 @@ import {
   TextAlignmentEnum,
 } from 'src/app/grid/enums/cell-settings.enum';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class RenderRowHeaderCellService {
   constructor() {}
 

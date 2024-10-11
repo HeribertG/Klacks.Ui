@@ -10,7 +10,7 @@
       unit="percent"
     >
       <!-- oberer Bereich -->
-      <as-split-area [size]="70" [minSize]="10">
+      <as-split-area [size]="70" [minSize]="10" [maxSize]="90">
         <as-split
           #splitElHorizontal
           [gutterSize]="6"
@@ -31,7 +31,7 @@
           </as-split-area>
 
           <!-- Rechts oben -->
-          <as-split-area>
+          <as-split-area [minSize]="100">
             <!-- Inhalt für Rechts oben -->
             <div class="container-box">
               <div class="surface">
@@ -41,13 +41,25 @@
                     class="grid-canvas"
                     tabindex="0"
                     [absenceRowHeader]="absenceRowHeader"
+                    [absenceRowHeader]="absenceRowHeader"
+                    [valueChangeHScrollbar]="hScrollbar.value"
+                    (valueHScrollbar)="hScrollbar.value = $event"
+                    (maxValueHScrollbar)="hScrollbar.maxValue = $event"
+                    (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
                   >
                   </app-absence-gantt-surface>
                 </div>
                 <app-v-scrollbar class="vScrollArea" #vScrollbar>
                 </app-v-scrollbar>
               </div>
-              <app-h-scrollbar class="hScrollArea" #hScrollbar>
+              <app-h-scrollbar
+                class="hScrollArea"
+                [(value)]="hScrollbar.value"
+                [maxValue]="hScrollbar.maxValue"
+                [visibleValue]="hScrollbar.visibleValue"
+                (valueChange)="absenceBody.valueChangeHScrollbar = $event"
+                #hScrollbar
+              >
               </app-h-scrollbar>
             </div>
           </as-split-area>

@@ -1,21 +1,25 @@
-<div class="hScrollbar-container">
+<div class="hScrollbar-container" appResize (resizeElement)="onResize($event)">
   <div
     class="arrow-thumb left"
     (mousedown)="onArrowThumbMouseDown($event, 0)"
     (mouseup)="onArrowThumbMouseUp($event)"
-  >
-    ◀
-  </div>
+    [innerHTML]="safeTriangleSvgLeft"
+    [class.disabled]="disableLeftArrow"
+    [attr.disabled]="disableLeftArrow ? true : null"
+    [attr.aria-disabled]="disableLeftArrow"
+  ></div>
 
   <div class="scrollbar-bar">
-    <canvas #canvas (mousedown)="onMouseDown($event)"></canvas>
+    <canvas #canvas></canvas>
   </div>
 
   <div
     class="arrow-thumb right"
     (mousedown)="onArrowThumbMouseDown($event, 1)"
     (mouseup)="onArrowThumbMouseUp($event)"
-  >
-    ▶
-  </div>
+    [innerHTML]="safeTriangleSvgRight"
+    [class.disabled]="disableRightArrow"
+    [attr.disabled]="disableRightArrow ? true : null"
+    [attr.aria-disabled]="disableRightArrow"
+  ></div>
 </div>

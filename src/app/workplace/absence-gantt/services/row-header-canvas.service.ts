@@ -2,9 +2,7 @@ import { Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CalendarSettingService } from './calendar-setting.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class RowHeaderCanvasManagerService {
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;

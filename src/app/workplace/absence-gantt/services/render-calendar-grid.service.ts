@@ -27,13 +27,12 @@ import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class RenderCalendarGridService {
+  public startDate: Date;
   private readonly SUNDAY = 0;
   private readonly SATURDAY = 6;
-  public startDate: Date;
+  private readonly MINCELLWITHFORDAYRANK = 20;
 
   constructor(
     private ganttCanvasManager: GanttCanvasManagerService,
@@ -99,22 +98,24 @@ export class RenderCalendarGridService {
   }
 
   @CanvasAvailable('queue')
-  private drawDaysBorderlineOnRuler(
+  drawDaysBorderlineOnRuler(
     daysPerYear: number,
     headerDayRank: CalendarHeaderDayRank[],
     monthsRect: Rectangle[]
   ) {
-    let lastDays = 0;
-    const LINEWIDTH = 0.5;
-    const MINCELLWITHFORDAYNUMBER = 20;
-    // durchläuft alle Monate im Jahr und zeichnet die Hintergrundsfarbe pro Monat
-    for (let i = 0; i < 12; i++) {
-      const actualDays = getDaysInMonth(daysPerYear, i);
+    this.drawMonthBackgrounds(monthsRect);
+    this.drawDayBackgrounds(daysPerYear, headerDayRank);
+  }
 
+  @CanvasAvailable('queue')
+  private drawMonthBackgrounds(monthsRect: Rectangle[]) {
+    let lastDays = 0;
+    for (let i = 0; i < 12; i++) {
+      const actualDays = getDaysInMonth(this.holidayCollection.currentYear, i);
       const leftDayCell = lastDays * this.calendarSetting.cellWidth;
       const sizeDayCell = actualDays * this.calendarSetting.cellWidth;
 
-      const rec1 = new Rectangle(
+      const monthRec = new Rectangle(
         leftDayCell,
         0,
         leftDayCell + sizeDayCell + this.calendarSetting.cellWidth,
@@ -122,128 +123,160 @@ export class RenderCalendarGridService {
       );
       lastDays += actualDays;
 
+      this.fillMonthRectangle(monthRec, i);
+      monthsRect.push(monthRec);
+    }
+  }
+
+  @CanvasAvailable('queue')
+  private fillMonthRectangle(rec: Rectangle, monthIndex: number) {
+    const color =
+      monthIndex % 2 === 0
+        ? this.gridColors.evenMonthColor
+        : this.gridColors.oddMonthColor;
+    DrawHelper.fillRectangle(
+      this.ganttCanvasManager.backgroundRowCtx!,
+      color,
+      rec
+    );
+  }
+
+  private calculateDayRectangle(dayIndex: number): Rectangle {
+    const d = dayIndex * this.calendarSetting.cellWidth;
+    return new Rectangle(
+      Math.floor(d),
+      0,
+      Math.floor(d + this.calendarSetting.cellWidth),
+      this.calendarSetting.cellHeaderHeight
+    );
+  }
+
+  private isHoliday(date: Date): boolean {
+    if (
+      !this.holidayCollection.holidays ||
+      this.holidayCollection.holidays.holidayList.length === 0
+    ) {
+      return false;
+    }
+    return this.holidayCollection.holidays.holidayList.some(
+      (x) => EqualDate(x.currentDate, date) === 0
+    );
+  }
+
+  @CanvasAvailable('queue')
+  private drawHolidayBackground(dayRect: Rectangle, date: Date) {
+    const holiday = this.holidayCollection.holidays!.holidayList.find(
+      (x) => EqualDate(x.currentDate, date) === 0
+    );
+    if (holiday) {
+      const color = holiday.officially
+        ? this.gridColors.backGroundColorOfficiallyHoliday
+        : this.gridColors.backGroundColorHolyday;
       DrawHelper.fillRectangle(
         this.ganttCanvasManager.backgroundRowCtx!,
-        i % 2 === 0
-          ? this.gridColors.evenMonthColor
-          : this.gridColors.oddMonthColor,
-        rec1
+        color,
+        dayRect
       );
-
-      monthsRect.push(rec1);
+      DrawHelper.drawBaseBorder(
+        this.ganttCanvasManager.backgroundRowCtx!,
+        this.gridColors.borderColor,
+        this.calendarSetting.increaseBorder,
+        dayRect
+      );
     }
+  }
 
+  @CanvasAvailable('queue')
+  private drawDayBackgrounds(
+    daysPerYear: number,
+    headerDayRank: CalendarHeaderDayRank[]
+  ) {
     for (let i = 0; i < daysPerYear; i++) {
       const currDate = addDays(this.startDate, i);
-      const d = i * this.calendarSetting.cellWidth;
-      const dayRec = new Rectangle(
-        Math.floor(d),
-        0,
-        Math.floor(d + this.calendarSetting.cellWidth),
-        this.calendarSetting.cellHeaderHeight
-      );
+      const dayRect = this.calculateDayRectangle(i);
 
-      let isHoliday = false;
-      if (
-        this.holidayCollection.holidays &&
-        this.holidayCollection.holidays.holidayList.length > 0
-      ) {
-        const result = this.holidayCollection.holidays.holidayList.find(
-          (x) => EqualDate(x.currentDate, currDate) === 0
-        );
-
-        if (result) {
-          isHoliday = true;
-          DrawHelper.fillRectangle(
-            this.ganttCanvasManager.backgroundRowCtx!,
-            result.officially
-              ? this.gridColors.backGroundColorOfficiallyHoliday
-              : this.gridColors.backGroundColorHolyday,
-            dayRec
-          );
-
-          DrawHelper.drawBaseBorder(
-            this.ganttCanvasManager.backgroundRowCtx!,
-            this.gridColors.borderColor,
-            this.calendarSetting.increaseBorder,
-            dayRec
-          );
+      if (this.isHoliday(currDate)) {
+        this.drawHolidayBackground(dayRect, currDate);
+      } else {
+        const dayOfWeek = currDate.getDay();
+        if (dayOfWeek === this.SUNDAY || dayOfWeek === this.SATURDAY) {
+          this.drawWeekendBackground(dayRect, dayOfWeek === this.SUNDAY);
+        } else {
+          this.drawWeekdayBorder(dayRect);
         }
       }
 
-      const borderSize = this.calendarSetting.increaseBorder;
-      switch (currDate.getDay()) {
-        case this.SUNDAY:
-          if (!isHoliday) {
-            DrawHelper.fillRectangle(
-              this.ganttCanvasManager.backgroundRowCtx!,
-              this.gridColors.backGroundColorSunday,
-              dayRec
-            );
-
-            DrawHelper.drawBaseBorder(
-              this.ganttCanvasManager.backgroundRowCtx!,
-              this.gridColors.borderColor,
-              this.calendarSetting.increaseBorder,
-              dayRec
-            );
-          }
-
-          const c = new CalendarHeaderDayRank();
-          c.name = currDate.getDate().toString();
-          c.rect = new Rectangle(
-            d,
-            this.ganttCanvasManager.backgroundRowCanvas!.height + borderSize,
-            d + MINCELLWITHFORDAYNUMBER,
-            this.ganttCanvasManager.backgroundRowCanvas!.height +
-              (this.ganttCanvasManager.backgroundRowCanvas!.height -
-                this.ganttCanvasManager.backgroundRowCanvas!.height)
-          );
-          c.backColor = this.gridColors.backGroundColorSunday;
-
-          headerDayRank.push(c);
-
-          break;
-        case this.SATURDAY:
-          if (!isHoliday) {
-            DrawHelper.fillRectangle(
-              this.ganttCanvasManager.backgroundRowCtx!,
-              this.gridColors.backGroundColorSaturday,
-              dayRec
-            );
-
-            DrawHelper.drawBaseBorder(
-              this.ganttCanvasManager.backgroundRowCtx!,
-              this.gridColors.borderColor,
-              this.calendarSetting.increaseBorder,
-              dayRec
-            );
-          }
-
-          const weekdayNumberRank = new CalendarHeaderDayRank();
-          weekdayNumberRank.name = currDate.getDate().toString();
-          weekdayNumberRank.rect = new Rectangle(
-            dayRec.right - MINCELLWITHFORDAYNUMBER,
-            this.ganttCanvasManager.backgroundRowCanvas!.height + borderSize,
-            dayRec.right,
-            this.ganttCanvasManager.backgroundRowCanvas!.height +
-              (this.ganttCanvasManager.backgroundRowCanvas!.height -
-                this.ganttCanvasManager.backgroundRowCanvas!.height)
-          );
-          weekdayNumberRank.backColor = this.gridColors.backGroundColorSaturday;
-
-          headerDayRank.push(weekdayNumberRank);
-
-          break;
-        default:
-          DrawHelper.drawBaseBorder(
-            this.ganttCanvasManager.backgroundRowCtx!,
-            this.gridColors.borderColor,
-            LINEWIDTH,
-            dayRec
-          );
-      }
+      this.addDayNumberToHeader(currDate, dayRect, headerDayRank);
     }
+  }
+
+  @CanvasAvailable('queue')
+  private drawWeekendBackground(dayRect: Rectangle, isWeekend: boolean) {
+    const backgroundColor = isWeekend
+      ? this.gridColors.backGroundColorSunday
+      : this.gridColors.backGroundColorSaturday;
+
+    DrawHelper.fillRectangle(
+      this.ganttCanvasManager.backgroundRowCtx!,
+      backgroundColor,
+      dayRect
+    );
+    DrawHelper.drawBaseBorder(
+      this.ganttCanvasManager.backgroundRowCtx!,
+      this.gridColors.borderColor,
+      this.calendarSetting.increaseBorder,
+      dayRect
+    );
+  }
+
+  private drawWeekdayBorder(dayRect: Rectangle) {
+    DrawHelper.drawBaseBorder(
+      this.ganttCanvasManager.backgroundRowCtx!,
+      this.gridColors.borderColor,
+      0.5,
+      dayRect
+    );
+  }
+
+  private addDayNumberToHeader(
+    date: Date,
+    dayRect: Rectangle,
+    headerDayRank: CalendarHeaderDayRank[]
+  ) {
+    const dayOfWeek = date.getDay();
+
+    if (dayOfWeek === this.SUNDAY || dayOfWeek === this.SATURDAY) {
+      const headerDay = new CalendarHeaderDayRank();
+      headerDay.name = date.getDate().toString();
+      headerDay.rect = this.calculateHeaderDayRect(
+        dayRect,
+        this.MINCELLWITHFORDAYRANK,
+        dayOfWeek === this.SATURDAY
+      );
+      headerDay.backColor =
+        dayOfWeek === this.SUNDAY
+          ? this.gridColors.backGroundColorSunday
+          : this.gridColors.backGroundColorSaturday;
+
+      headerDayRank.push(headerDay);
+    }
+  }
+
+  private calculateHeaderDayRect(
+    dayRect: Rectangle,
+    minWidth: number,
+    isSaturday: boolean
+  ): Rectangle {
+    const rankTop = this.ganttCanvasManager.backgroundRowCanvas!.height;
+    const rankHeight =
+      this.ganttCanvasManager.headerCanvas!.height -
+      this.ganttCanvasManager.backgroundRowCanvas!.height;
+    return new Rectangle(
+      isSaturday ? dayRect.right - minWidth : dayRect.left,
+      rankTop,
+      isSaturday ? dayRect.right : dayRect.left + minWidth,
+      rankTop + rankHeight
+    );
   }
 
   @CanvasAvailable('queue')
@@ -275,9 +308,8 @@ export class RenderCalendarGridService {
   private drawWeekendDayNumberOnHeadline(
     headerDayRank: CalendarHeaderDayRank[]
   ) {
-    const MINCELLWITHFORDAYNUMBER = 20;
     //Zeichne Monatstage am Samstag und Sonntag
-    if (this.calendarSetting.cellWidth * 2 >= MINCELLWITHFORDAYNUMBER) {
+    if (this.calendarSetting.cellWidth * 2 >= this.MINCELLWITHFORDAYRANK) {
       headerDayRank.forEach((x) => {
         if (this.ganttCanvasManager.headerCtx!) {
           DrawHelper.fillRectangle(

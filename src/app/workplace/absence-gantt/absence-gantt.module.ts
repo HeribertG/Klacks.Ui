@@ -25,6 +25,10 @@ import { AbsenceGanttPdfPreviewComponent } from './absence-gantt-pdf-preview/abs
 import { DrawCalendarGanttService } from './services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from './services/draw-row-header.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RenderCalendarGridService } from './services/render-calendar-grid.service';
+import { RenderRowHeaderCellService } from './services/render-row-header-cell.service';
+import { GanttCanvasManagerService } from './services/gantt-canvas-manager.service';
+import { RowHeaderCanvasManagerService } from './services/row-header-canvas.service';
 
 @NgModule({
   declarations: [
@@ -58,6 +62,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     ScrollService,
     HolidayCollectionService,
     DrawRowHeaderService,
+    RenderCalendarGridService,
+    RenderRowHeaderCellService,
+    GanttCanvasManagerService,
+    RowHeaderCanvasManagerService,
   ],
 })
 export class AbsenceGanttModule {}

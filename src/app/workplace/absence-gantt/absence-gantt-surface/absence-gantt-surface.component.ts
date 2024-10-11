@@ -2,11 +2,15 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  EventEmitter,
   Input,
   NgZone,
+  OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   Renderer2,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {
@@ -54,16 +58,22 @@ import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
   styleUrls: ['./absence-gantt-surface.component.scss'],
 })
 export class AbsenceGanttSurfaceComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() contextMenu: ContextMenuComponent | undefined;
   @Input() absenceMask: AbsenceGanttMaskComponent | undefined;
   @Input() absenceRowHeader: AbsenceGanttRowHeaderComponent | undefined;
+  @Input() valueChangeHScrollbar!: number;
+  @Input() valueChangeVScrollbar!: number;
+
+  @Output() valueHScrollbar = new EventEmitter<number>();
+  @Output() maxValueHScrollbar = new EventEmitter<number>();
+  @Output() visibleValueHScrollbar = new EventEmitter<number>();
+
   @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
-  public isBusy = false;
   public isShift = false;
   public isCtrl = false;
 
@@ -79,14 +89,13 @@ export class AbsenceGanttSurfaceComponent
   private eventListeners: Array<() => void> = [];
 
   constructor(
-    public holidayCollection: HolidayCollectionService,
     public calendarSetting: CalendarSettingService,
+    public holidayCollection: HolidayCollectionService,
     public dataManagementBreak: DataManagementBreakService,
     public dataManagementAbsence: DataManagementAbsenceGanttService,
     public drawRowHeader: DrawRowHeaderService,
     public scroll: ScrollService,
     public drawCalendarGantt: DrawCalendarGanttService,
-    private zone: NgZone,
     private renderer: Renderer2,
     private gridColors: GridColorService,
     private gridFonts: GridFontsService,
@@ -109,8 +118,6 @@ export class AbsenceGanttSurfaceComponent
     this.spinnerService.showProgressSpinner = false;
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
-    //this.drawCalendarGantt.refresh();
-
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
     this.absenceMask?.UpdateEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(
@@ -122,7 +129,6 @@ export class AbsenceGanttSurfaceComponent
 
   ngAfterViewInit(): void {
     this.initializeDrawCalendarGantt();
-    this.readServices();
 
     this.resizeSubject.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
       this.resize();
@@ -145,9 +151,7 @@ export class AbsenceGanttSurfaceComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         if (this.isAbsenceHeaderInit) {
-          this.scroll.maxRows = this.dataManagementBreak.rows;
-          // this.vScrollbar!.maximumRow = this.dataManagementBreak.rows;
-
+          this.setAllSrollValues();
           this.drawCalendarGantt.setMetrics();
           this.drawCalendarGantt.checkSelectedRowVisibility();
           this.drawCalendarGantt.renderCalendar();
@@ -201,6 +205,13 @@ export class AbsenceGanttSurfaceComponent
       });
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['valueChangeHScrollbar']) {
+      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
+      this.drawCalendarGantt.drawCalendar();
+    }
+  }
+
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -215,14 +226,6 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion ng */
 
   /* #region   resize+visibility */
-
-  private initializeDrawSchedule(): void {
-    this.drawCalendarGantt.createCanvas();
-    const box = this.boxCalendar.nativeElement;
-    this.drawCalendarGantt.width = box.clientWidth;
-    this.drawCalendarGantt.height = box.clientHeight;
-    // this.drawCalendarGantt.refresh();
-  }
 
   setFocus(): void {
     const x = this.el.nativeElement as HTMLDivElement;
@@ -241,10 +244,6 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.deleteCanvas();
       this.drawCalendarGantt.createCanvas();
     }
-
-    // if (this.vScrollbar) {
-    //   this.vScrollbar.resize();
-    // }
   };
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -263,6 +262,8 @@ export class AbsenceGanttSurfaceComponent
 
     this.drawCalendarGantt.height = element.clientHeight;
     this.drawCalendarGantt.width = element.clientWidth;
+
+    this.setAllSrollValues();
   }
 
   private checkPixelRatio(): void {
@@ -565,108 +566,18 @@ export class AbsenceGanttSurfaceComponent
 
   /* #endregion db*/
 
-  /* #region   render */
+  // // /* #region   draw */
 
-  moveCalendar(directionX: number, directionY: number): void {
-    if (this.isBusy) {
-      return;
-    }
+  // // // refreshCalendar(): void {
+  // // //   this.drawCalendarGantt.renderCalendar();
+  // // //   this.drawCalendarGantt.drawCalendar();
+  // // // }
 
-    const dirX = directionX;
-    const dirY = directionY;
-    const visibleRow = this.scroll.visibleRows;
+  // // /* #endregion   draw */
 
-    this.scroll.horizontalScrollPosition += dirX;
-    this.scroll.verticalScrollPosition += dirY;
+  // /* #region   create */
 
-    this.zone.runOutsideAngular(() => {
-      try {
-        this.isBusy = true;
-        // horizontale Verschiebung
-        if (dirX !== 0) {
-          this.drawCalendarGantt.drawCalendar();
-        }
-        // vertikale Verschiebung
-        if (dirY !== 0) {
-          // Nach Unten
-          if (dirY > 0) {
-            if (dirY < visibleRow / 2) {
-              this.moveIt(dirY);
-              return;
-            } else {
-              this.drawCalendarGantt.renderCalendar();
-              return;
-            }
-          }
-          // Nach Oben
-          if (dirY < 0) {
-            if (dirY * -1 < visibleRow / 2) {
-              this.moveIt(dirY);
-              return;
-            } else {
-              this.drawCalendarGantt.renderCalendar();
-            }
-          }
-        }
-      } finally {
-        this.isBusy = false;
-      }
-    });
-
-    this.drawCalendarGantt.drawCalendar();
-  }
-
-  private moveIt(directionY: number): void {
-    const visibleRow = this.scroll.visibleRows;
-
-    if (directionY !== 0) {
-      const diff = this.scroll.verticalScrollDelta;
-      if (diff === 0) {
-        return;
-      }
-
-      this.drawCalendarGantt.ganttCanvasManager.renderCanvasCtx!.drawImage(
-        this.drawCalendarGantt.ganttCanvasManager.renderCanvas!,
-        0,
-        this.calendarSetting.cellHeight * diff
-      );
-
-      let firstRow = 0;
-      let lastRow = 0;
-
-      if (directionY > 0) {
-        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
-        lastRow = firstRow + diff * -1 + 4;
-      } else {
-        firstRow = this.scroll.verticalScrollPosition;
-        lastRow = firstRow + diff + 1;
-      }
-
-      for (let row = firstRow; row < lastRow; row++) {
-        this.drawCalendarGantt.drawRow(
-          row,
-          this.drawCalendarGantt.selectedBreak
-        );
-      }
-    }
-
-    this.drawCalendarGantt.drawCalendar();
-  }
-
-  /* #endregion   render */
-
-  /* #region   draw */
-
-  refreshCalendar(): void {
-    this.drawCalendarGantt.renderCalendar();
-    this.drawCalendarGantt.drawCalendar();
-  }
-
-  /* #endregion   draw */
-
-  /* #region   create */
-
-  /* #endregion   create */
+  // /* #endregion   create */
 
   /* #region position and selection */
 
@@ -746,6 +657,9 @@ export class AbsenceGanttSurfaceComponent
           this.drawCalendarGantt.lastVisibleColumn();
 
         this.scroll.maxCols = this.drawCalendarGantt.columns;
+        this.scroll.visibleCols = this.drawCalendarGantt.visibleCol();
+        this.maxValueHScrollbar.emit(this.drawCalendarGantt.columns);
+        this.visibleValueHScrollbar.emit(this.drawCalendarGantt.visibleCol());
         this.addServicesCount();
       });
 
@@ -848,12 +762,13 @@ export class AbsenceGanttSurfaceComponent
 
       if (this.drawCalendarGantt.firstVisibleColumn() > col1) {
         const m = col1;
-        //this.hScrollbar!.value = m!;
+
         this.scroll.horizontalScrollPosition = m;
+        this.valueHScrollbar.emit(m);
         this.drawCalendarGantt.drawCalendar();
       } else if (this.drawCalendarGantt.lastVisibleColumn() < col2) {
         const m = col2 - this.drawCalendarGantt.visibleCol() + 2;
-        //this.hScrollbar!.value = m!;
+        this.valueHScrollbar.emit(m);
         this.scroll.horizontalScrollPosition = m;
         this.drawCalendarGantt.drawCalendar();
       }
@@ -1049,4 +964,25 @@ export class AbsenceGanttSurfaceComponent
     }
   }
   /* #endregion CopyCutPaste */
+
+  /* #region Scroll */
+
+  private setAllSrollValues(): void {
+    this.setRowsScrollValues();
+    this.setColumnsScrollValues();
+  }
+
+  private setColumnsScrollValues(): void {
+    this.scroll.maxCols = this.drawCalendarGantt.columns;
+    this.scroll.visibleCols = this.drawCalendarGantt.visibleCol();
+    this.maxValueHScrollbar.emit(this.drawCalendarGantt.columns);
+    this.visibleValueHScrollbar.emit(this.drawCalendarGantt.visibleCol());
+  }
+
+  private setRowsScrollValues(): void {
+    this.scroll.maxRows = this.dataManagementBreak.rows;
+    this.scroll.visibleRows = this.drawCalendarGantt.visibleRow();
+  }
+
+  /* #endregion Scroll */
 }

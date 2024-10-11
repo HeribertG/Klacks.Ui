@@ -84,7 +84,6 @@ export function addMonths(date: Date, value: number): Date {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
   }
 
-  // tslint:disable-next-line: typedef
   function getDaysInMonth(year: number, month: number) {
     return [
       31,

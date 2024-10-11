@@ -1,23 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Rectangle } from '../../../grid/classes/geometry';
-import {
-  EqualDate,
-  addDays,
-  daysBetweenDates,
-  getDaysInMonth,
-  isLeapYear,
-} from 'src/app/helpers/format-helper';
+import { daysBetweenDates, isLeapYear } from 'src/app/helpers/format-helper';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { HolidayCollectionService } from '../../../grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../grid/services/grid-color.service';
-import { GridFontsService } from '../../../grid/services/grid-fonts.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
-import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from './scroll.service';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { Subject } from 'rxjs';
@@ -31,6 +22,7 @@ export class DrawCalendarGanttService {
   public hScrollbarRefreshEvent = new Subject<boolean>();
 
   public pixelRatio = 1;
+  public isBusy = false;
   public startDate: Date = new Date();
   public selectedBreakRec: Rectangle | undefined;
   public selectedBreak_dummy: IBreak | undefined;
@@ -51,6 +43,7 @@ export class DrawCalendarGanttService {
     private dataManagementBreak: DataManagementBreakService,
     private dataManagementAbsence: DataManagementAbsenceGanttService,
     private scroll: ScrollService,
+    private zone: NgZone,
     private renderCalendarGrid: RenderCalendarGridService
   ) {}
 
@@ -62,6 +55,89 @@ export class DrawCalendarGanttService {
 
   public renderCalendar(): void {
     this.renderCalendarGrid.renderCalendar();
+  }
+
+  moveCalendar(directionX: number, directionY: number): void {
+    if (this.isBusy) {
+      return;
+    }
+
+    const dirX = directionX;
+    const dirY = directionY;
+    const visibleRow = this.scroll.visibleRows;
+
+    this.scroll.horizontalScrollPosition += dirX;
+    this.scroll.verticalScrollPosition += dirY;
+
+    this.zone.runOutsideAngular(() => {
+      try {
+        this.isBusy = true;
+        // horizontale Verschiebung
+        if (dirX !== 0) {
+          this.drawCalendar();
+        }
+        // vertikale Verschiebung
+        if (dirY !== 0) {
+          // Nach Unten
+          if (dirY > 0) {
+            if (dirY < visibleRow / 2) {
+              this.moveIt(dirY);
+              return;
+            } else {
+              this.renderCalendar();
+              return;
+            }
+          }
+          // Nach Oben
+          if (dirY < 0) {
+            if (dirY * -1 < visibleRow / 2) {
+              this.moveIt(dirY);
+              return;
+            } else {
+              this.renderCalendar();
+            }
+          }
+        }
+      } finally {
+        this.isBusy = false;
+      }
+    });
+
+    this.drawCalendar();
+  }
+
+  private moveIt(directionY: number): void {
+    const visibleRow = this.scroll.visibleRows;
+
+    if (directionY !== 0) {
+      const diff = this.scroll.verticalScrollDelta;
+      if (diff === 0) {
+        return;
+      }
+
+      this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+        this.ganttCanvasManager.renderCanvas!,
+        0,
+        this.calendarSetting.cellHeight * diff
+      );
+
+      let firstRow = 0;
+      let lastRow = 0;
+
+      if (directionY > 0) {
+        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
+        lastRow = firstRow + diff * -1 + 4;
+      } else {
+        firstRow = this.scroll.verticalScrollPosition;
+        lastRow = firstRow + diff + 1;
+      }
+
+      for (let row = firstRow; row < lastRow; row++) {
+        this.drawRow(row, this.selectedBreak);
+      }
+    }
+
+    this.drawCalendar();
   }
 
   /* #endregion  render */
@@ -521,12 +597,12 @@ export class DrawCalendarGanttService {
         this.ganttCanvasManager.canvas!.clientWidth /
           this.calendarSetting.cellWidth
       ) - 1;
-    this.scroll.setMetrics(
-      visibleCols,
-      this._columns,
-      visibleRows,
-      this.dataManagementBreak.rows
-    );
+    // this.scroll.setMetrics(
+    //   visibleCols,
+    //   this._columns,
+    //   visibleRows,
+    //   this.dataManagementBreak.rows
+    // );
 
     this.vScrollbarRefreshEvent.next(true);
     this.hScrollbarRefreshEvent.next(true);

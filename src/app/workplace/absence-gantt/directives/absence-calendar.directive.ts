@@ -65,7 +65,7 @@ export class AbsenceCalendarDirective {
     const moveY: number = event.deltaY === 0 ? 0 : event.deltaY > 0 ? 1 : -1;
     const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
-    this.gridBody.moveCalendar(moveX, moveY);
+    this.gridBody.drawCalendarGantt.moveCalendar(moveX, moveY);
     this.gridBody.scroll.updateVerticalScrollPosition(moveY);
     this.gridBody.scroll!.updateHorizontalScrollPosition(moveX);
 
@@ -161,7 +161,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'ArrowDown') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -177,7 +177,7 @@ export class AbsenceCalendarDirective {
         if (this.gridBody.drawCalendarGantt.selectedRow >= lastRow) {
           const diff = this.gridBody.drawCalendarGantt.selectedRow - lastRow;
 
-          this.gridBody.moveCalendar(0, diff);
+          this.gridBody.drawCalendarGantt.moveCalendar(0, diff);
           this.gridBody.scroll.updateVerticalScrollPosition(diff);
         }
       }
@@ -188,7 +188,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'PageDown') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -227,7 +227,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'ArrowUp') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -244,7 +244,7 @@ export class AbsenceCalendarDirective {
             this.gridBody.scroll.verticalScrollPosition >
             this.gridBody.drawCalendarGantt.selectedRow
           ) {
-            this.gridBody.moveCalendar(0, -1);
+            this.gridBody.drawCalendarGantt.moveCalendar(0, -1);
             this.gridBody.scroll.updateVerticalScrollPosition(-1);
           }
         }
@@ -256,7 +256,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'PageUp') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -292,7 +292,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'End') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -318,7 +318,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'Home') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -341,7 +341,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
@@ -368,7 +368,7 @@ export class AbsenceCalendarDirective {
 
     if (event.key === 'ArrowRight' || event.key === 'Tab') {
       if (event.repeat) {
-        if (this.gridBody.isBusy) {
+        if (this.gridBody.drawCalendarGantt.isBusy) {
           this.stopEvent(event);
           return;
         }
