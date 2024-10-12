@@ -99,7 +99,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
 
   /* #endregion Lifecycle Hooks */
 
-  /* #region Initialisation and updating */
+  /* #region Initialization and updating */
   private initCanvas() {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d');
@@ -135,7 +135,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     );
   }
 
-  /* #endregion Initialisation and updating */
+  /* #endregion Initialization and updating */
 
   /* #region Redraw */
   @CheckContext

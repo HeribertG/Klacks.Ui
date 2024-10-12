@@ -87,6 +87,18 @@ export class ScrollbarService {
   }
 
   public createThumbHorizontal(value: IMetrics, images: IImagesThumps): void {
+    this.createThumb(value, images, true);
+  }
+
+  public createThumbVertical(value: IMetrics, images: IImagesThumps): void {
+    this.createThumb(value, images, false);
+  }
+
+  private createThumb(
+    value: IMetrics,
+    images: IImagesThumps,
+    isHorizontal: boolean
+  ): void {
     if (value.thumbLength === -Infinity) {
       return;
     }
@@ -102,8 +114,13 @@ export class ScrollbarService {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
 
-    canvas.width = value.thumbLength;
-    canvas.height = this.scrollSize - this.margin * 2;
+    if (isHorizontal) {
+      canvas.width = value.thumbLength;
+      canvas.height = this.scrollSize - this.margin * 2;
+    } else {
+      canvas.height = value.thumbLength;
+      canvas.width = this.scrollSize - this.margin * 2;
+    }
 
     DrawHelper.roundRect(
       ctx,
