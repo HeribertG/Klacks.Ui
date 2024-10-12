@@ -98,6 +98,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
       const entry = entries[0];
       if (entry) {
         const canvas = this.canvasRef.nativeElement;
+
         (canvas.width = entry.contentRect.width - 50), this.refresh();
       }
     }
@@ -241,7 +242,9 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     canvas: HTMLCanvasElement
   ): void {
     this.moveAnimationValue =
-      event.clientX < this.value + canvas.offsetLeft ? -1 : 1;
+      event.clientX < this.value * this.metrics.tickSize + canvas.offsetLeft
+        ? -1
+        : 1;
     this.moveAnimationFrameModulo = this.maxFrameModuloNumber;
     this.shouldStopAnimation = false;
     this.moveAnimation(this.firstStepsByMoveAnimation);
@@ -330,12 +333,13 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     } else if (type === 1) {
       this.moveAnimationValue = 1;
     }
-    event.preventDefault();
-    event.stopPropagation();
 
     this.moveAnimationFrameModulo = 1;
     this.shouldStopAnimation = false;
     this.moveAnimation(1);
+
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   onArrowThumbMouseUp(event: MouseEvent) {
@@ -452,11 +456,14 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
 
   private isMouseOverThumbSub(x: number): boolean {
     const correctedX = Math.round(x / this.metrics.tickSize);
-    if (
-      correctedX >= this.value &&
-      correctedX <= this.value + this.metrics.visibleTicks
-    ) {
-      return true;
+
+    if (this.imagesThumps.imgThumb) {
+      const thumpsTicks = Math.round(
+        this.imagesThumps.imgThumb!.width / this.metrics.tickSize
+      );
+      if (correctedX >= this.value && correctedX <= this.value + thumpsTicks) {
+        return true;
+      }
     }
 
     return false;

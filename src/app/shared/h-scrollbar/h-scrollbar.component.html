@@ -1,6 +1,7 @@
 <div class="hScrollbar-container" appResize (resizeElement)="onResize($event)">
   <div
     class="arrow-thumb left"
+    role="button"
     (mousedown)="onArrowThumbMouseDown($event, 0)"
     (mouseup)="onArrowThumbMouseUp($event)"
     [innerHTML]="safeTriangleSvgLeft"
@@ -15,6 +16,7 @@
 
   <div
     class="arrow-thumb right"
+    role="button"
     (mousedown)="onArrowThumbMouseDown($event, 1)"
     (mouseup)="onArrowThumbMouseUp($event)"
     [innerHTML]="safeTriangleSvgRight"
