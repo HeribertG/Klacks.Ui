@@ -7,118 +7,86 @@ import {
 import { HScrollbarComponent } from './h-scrollbar.component';
 import { ScrollbarService } from 'src/app/services/scrollbar.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import {
-  NgZone,
-  ChangeDetectorRef,
-  ApplicationRef,
-  Injector,
-} from '@angular/core';
-import { BehaviorSubject, of } from 'rxjs';
+import { NgZone } from '@angular/core';
+import { GridColorService } from 'src/app/grid/services/grid-color.service';
 
 describe('HScrollbarComponent', () => {
   let component: HScrollbarComponent;
   let fixture: ComponentFixture<HScrollbarComponent>;
+  let scrollbarService: jasmine.SpyObj<ScrollbarService>;
+  let ngZone: NgZone;
 
   beforeEach(async () => {
     const scrollbarServiceSpy = jasmine.createSpyObj('ScrollbarService', [
       'calcMetrics',
       'createThumbHorizontal',
     ]);
-    const mockNgZone = jasmine.createSpyObj('NgZone', [
-      'run',
-      'runOutsideAngular',
-    ]);
-    mockNgZone.run.and.callFake((fn: Function) => fn());
-    mockNgZone.runOutsideAngular.and.callFake((fn: Function) => fn());
-
-    const mockChangeDetectionScheduler = {
-      notify: new BehaviorSubject(null),
-      subscribe: jasmine
-        .createSpy('subscribe')
-        .and.returnValue({ unsubscribe: () => {} }),
-      schedule: jasmine.createSpy('schedule'),
-      ngOnDestroy: jasmine.createSpy('ngOnDestroy'),
-    };
 
     await TestBed.configureTestingModule({
       declarations: [HScrollbarComponent],
       providers: [
         { provide: ScrollbarService, useValue: scrollbarServiceSpy },
         {
+          provide: GridColorService,
+          useValue: jasmine.createSpyObj('GridColorService', ['getColor']),
+        },
+        {
           provide: DomSanitizer,
           useValue: jasmine.createSpyObj('DomSanitizer', [
             'bypassSecurityTrustHtml',
           ]),
         },
-        { provide: NgZone, useValue: mockNgZone },
-        {
-          provide: ChangeDetectorRef,
-          useValue: jasmine.createSpyObj('ChangeDetectorRef', [
-            'detectChanges',
-            'markForCheck',
-          ]),
-        },
-        {
-          provide: ApplicationRef,
-          useValue: jasmine.createSpyObj('ApplicationRef', {
-            tick: null,
-            isStable: of(true),
-          }),
-        },
-        {
-          provide: Injector,
-          useFactory: () => {
-            const injector = TestBed.inject(Injector);
-            spyOn(injector, 'get').and.callFake(
-              (token: any, notFoundValue?: any) => {
-                if (token === 'ChangeDetectionScheduler') {
-                  return mockChangeDetectionScheduler;
-                }
-                return injector.get(token, notFoundValue);
-              }
-            );
-            return injector;
-          },
-        },
+        NgZone,
       ],
     }).compileComponents();
 
+    scrollbarService = TestBed.inject(
+      ScrollbarService
+    ) as jasmine.SpyObj<ScrollbarService>;
+    ngZone = TestBed.inject(NgZone);
+
     fixture = TestBed.createComponent(HScrollbarComponent);
     component = fixture.componentInstance;
+
+    // Mock canvas element
+    const mockCanvas = document.createElement('canvas');
+    const mockContext = mockCanvas.getContext('2d');
+    spyOn(mockCanvas, 'getContext').and.returnValue(mockContext);
+    component.canvasRef = { nativeElement: mockCanvas } as any;
   });
 
-  it('should create', fakeAsync(() => {
-    fixture.detectChanges();
-    tick();
+  it('should create', () => {
     expect(component).toBeTruthy();
-  }));
+  });
 
   it('should emit valueChange when value is updated', fakeAsync(() => {
-    fixture.detectChanges();
-    tick();
+    let emittedValue: number | undefined;
+    component.valueChange.subscribe((value) => (emittedValue = value));
 
-    spyOn(component.valueChange, 'emit');
-    component.value = 50;
-    fixture.detectChanges();
-    tick();
+    ngZone.run(() => {
+      component.value = 50;
+      fixture.detectChanges();
+    });
 
-    expect(component.valueChange.emit).toHaveBeenCalledWith(50);
+    tick(); // This processes pending asynchronous activities
+
+    expect(emittedValue).toBe(50);
   }));
 
   it('should not emit valueChange when the same value is set', fakeAsync(() => {
-    fixture.detectChanges();
-    tick();
+    let emitCount = 0;
+    component.valueChange.subscribe(() => emitCount++);
 
-    component.value = 50;
-    fixture.detectChanges();
-    tick();
+    ngZone.run(() => {
+      component.value = 50;
+      fixture.detectChanges();
+      component.value = 50;
+      fixture.detectChanges();
+    });
 
-    spyOn(component.valueChange, 'emit');
-    component.value = 50;
-    fixture.detectChanges();
-    tick();
+    tick(); // This processes pending asynchronous activities
 
-    expect(component.valueChange.emit).not.toHaveBeenCalled();
+    expect(emitCount).toBe(1);
   }));
 
   // Fügen Sie hier weitere Tests hinzu...

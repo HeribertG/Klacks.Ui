@@ -4,7 +4,6 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  NgZone,
   OnChanges,
   OnDestroy,
   OnInit,
@@ -69,6 +68,9 @@ export class AbsenceGanttSurfaceComponent
   @Output() valueHScrollbar = new EventEmitter<number>();
   @Output() maxValueHScrollbar = new EventEmitter<number>();
   @Output() visibleValueHScrollbar = new EventEmitter<number>();
+  @Output() valueVScrollbar = new EventEmitter<number>();
+  @Output() maxValueVScrollbar = new EventEmitter<number>();
+  @Output() visibleValueVScrollbar = new EventEmitter<number>();
 
   @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
 
@@ -209,6 +211,13 @@ export class AbsenceGanttSurfaceComponent
     if (changes['valueChangeHScrollbar']) {
       this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
       this.drawCalendarGantt.drawCalendar();
+    }
+    if (changes['valueChangeVScrollbar']) {
+      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+      this.drawCalendarGantt.moveCalendar(
+        this.valueChangeHScrollbar,
+        this.valueChangeVScrollbar
+      );
     }
   }
 

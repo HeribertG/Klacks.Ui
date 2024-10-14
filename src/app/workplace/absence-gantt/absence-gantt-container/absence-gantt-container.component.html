@@ -46,10 +46,21 @@
                     (valueHScrollbar)="hScrollbar.value = $event"
                     (maxValueHScrollbar)="hScrollbar.maxValue = $event"
                     (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
+                    [valueChangeVScrollbar]="vScrollbar.value"
+                    (valueVScrollbar)="vScrollbar.value = $event"
+                    (maxValueVScrollbar)="vScrollbar.maxValue = $event"
+                    (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
                   >
                   </app-absence-gantt-surface>
                 </div>
-                <app-v-scrollbar class="vScrollArea" #vScrollbar>
+                <app-v-scrollbar
+                  class="vScrollArea"
+                  [(value)]="vScrollbar.value"
+                  [maxValue]="vScrollbar.maxValue"
+                  [visibleValue]="vScrollbar.visibleValue"
+                  (valueChange)="absenceBody.valueChangeVScrollbar = $event"
+                  #vScrollbar
+                >
                 </app-v-scrollbar>
               </div>
               <app-h-scrollbar

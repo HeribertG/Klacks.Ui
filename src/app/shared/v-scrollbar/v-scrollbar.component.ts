@@ -4,270 +4,336 @@ import {
   HostListener,
   Input,
   NgZone,
-  OnDestroy,
   Output,
   EventEmitter,
   ElementRef,
   ViewChild,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
+
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {
+  IMetrics,
+  Metrics,
+  ScrollbarService,
+} from 'src/app/services/scrollbar.service';
+import { CheckContext } from 'src/app/services/check-context.decorator';
 
 @Component({
   selector: 'app-v-scrollbar',
   templateUrl: './v-scrollbar.component.html',
   styleUrls: ['./v-scrollbar.component.scss'],
 })
-export class VScrollbarComponent implements AfterViewInit, OnDestroy {
-  @Input() value = 0;
-  @Input() maxValue = 0;
+export class VScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
+  @Input() value: number = 0;
+  @Input() maxValue: number = 200;
+  @Input() visibleValue: number = 20;
+
   @Output() valueChange = new EventEmitter<number>();
 
   @ViewChild('canvas', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
+  public safeTriangleSvgTop!: SafeHtml;
+  public safeTriangleSvgBottom!: SafeHtml;
+  public disableTopArrow: boolean = false;
+  public disableBottomArrow: boolean = false;
 
-  private ctx: CanvasRenderingContext2D | undefined;
-  private canvas: HTMLCanvasElement | undefined;
-  private _scrollValue = 0;
-  private thumbLength = 0;
-  private tickSize = 0;
-  private MouseEnterThumb = false;
-  private MousePointThumb = false;
-  private MouseYToThumbY = 0;
-  private MouseOverThumb = false;
-  private imgThumb: ImageData | undefined;
-  private imgSelectedThumb: ImageData | undefined;
-  private isDirty = false;
+  private imagesThumps: ImagesThumps = new ImagesThumps();
+  private metrics: IMetrics = new Metrics(); // Contains metrics for the scrollbar (e.g. size, position)
+  private ctx: CanvasRenderingContext2D | null = null;
+  private maxFrameModuloNumber = 10; // Maximum number of frames for the modulo calculation in the animation
   private moveAnimationValue = 0;
-  private margin = 3;
-  private scrollTrackColor = this.gridColor.scrollTrack;
-  private scrollTrackColorDark = DrawHelper.GetDarkColor(
-    this.gridColor.scrollTrack,
-    40
-  );
-
-  private maxFrameModuloNumber = 10;
-  private minimumThumbLength = 15;
   private moveAnimationFrameCount = 0;
-  private moveAnimationFrameModulo = this.maxFrameModuloNumber;
+  private moveAnimationFrameModulo = 10; // Determines how often the value is updated during the animation
   private frameRequests: number[] = [];
   private shouldStopAnimation = false;
+  private mouseEnterThumb = false;
+  private mousePointThumb = false;
+  private mouseYToThumbY = 0;
+  private mouseOverThumb = false;
+  private firstStepByMoveAnimationInBar = 3; // Number of steps for the first movement when clicking in the scrollbar
+  private firstStepsByMoveAnimationOnButton = 1; // Number of steps for the first movement when clicking on an arrow button
+  private ticksOutsideMaximumRange = 5; // Additional ticks outside the visible range
 
-  private ngUnsubscribe = new Subject<void>();
+  constructor(
+    private zone: NgZone,
+    private sanitizer: DomSanitizer,
+    private scrollbarService: ScrollbarService
+  ) {}
 
-  constructor(private zone: NgZone, private gridColor: GridColorService) {}
+  /* #region Lifecycle Hooks */
+
+  ngOnInit() {
+    this.safeTriangleSvgTop = this.sanitizer.bypassSecurityTrustHtml(
+      this.scrollbarService.triangleTopSvg
+    );
+    this.safeTriangleSvgBottom = this.sanitizer.bypassSecurityTrustHtml(
+      this.scrollbarService.triangleBottomSvg
+    );
+  }
 
   ngAfterViewInit() {
-    this.createCanvas();
-    this.init();
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-    this.deleteCanvas();
-    this.imgThumb = undefined;
-    this.imgSelectedThumb = undefined;
-  }
-
-  init(): void {
-    this.scrollTop = 0;
+    this.initCanvas();
     this.refresh();
   }
 
-  resize(): void {
-    this.refresh();
+  @CheckContext
+  ngOnChanges(changes: SimpleChanges) {
+    this.handleMaxValueOrVisibleValueChanges(changes);
+    this.handleValueChanges(changes);
+    this.updateArrowButtonsState();
   }
 
-  private set scrollTop(_value: number) {
-    if (this.isDirty) {
-      return;
-    }
-
-    if (_value === undefined || Number.isNaN(_value)) {
-      _value = 0;
-    }
-
-    if (this._scrollValue !== _value) {
-      this._scrollValue = _value;
-      let newValue = Math.ceil(this._scrollValue / this.tickSize);
-      if (newValue === undefined || Number.isNaN(newValue)) {
-        newValue = 0;
-      }
-      newValue = Math.max(0, Math.min(newValue, this.maxValue));
-
-      if (newValue !== this.value) {
-        this.value = newValue;
-        this.valueChange.emit(this.value);
-      }
+  private handleMaxValueOrVisibleValueChanges(changes: SimpleChanges): void {
+    if (changes['maxValue'] || changes['visibleValue']) {
+      this.refresh();
     }
   }
 
-  private get scrollTop(): number {
-    return Math.ceil(this.value * this.tickSize);
+  private handleValueChanges(changes: SimpleChanges): void {
+    if (changes['value']) {
+      this.reDraw();
+    }
+  }
+
+  /* #endregion Lifecycle Hooks */
+
+  /* #region Initialization and updating */
+  private initCanvas() {
+    const canvas = this.canvasRef.nativeElement;
+    this.ctx = canvas.getContext('2d');
+    if (this.ctx) {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      this.refresh();
+    }
   }
 
   refresh() {
-    this.calcMetrics();
+    this.updateMetrics();
+    this.createThumb();
     this.reDraw();
+    this.updateArrowButtonsState();
   }
 
-  private reDraw() {
-    if (this.thumbLength === Infinity || this.tickSize === Infinity) {
-      return;
-    }
-
-    if (this.canvas && this.ctx && this.imgSelectedThumb && this.imgThumb) {
-      this.canvas.width = this.canvas.clientWidth;
-      this.canvas.height = this.canvas.clientHeight;
-
-      this.ctx.save();
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      if (this.MouseOverThumb) {
-        this.ctx.putImageData(
-          this.imgSelectedThumb,
-          Math.floor(this.margin),
-          Math.floor(this.scrollTop)
-        );
-      } else {
-        this.ctx.putImageData(
-          this.imgThumb,
-          Math.floor(this.margin),
-          Math.floor(this.scrollTop)
-        );
-      }
-      this.ctx.restore();
-    }
+  private updateMetrics(): void {
+    const percent = Math.round((this.visibleValue / this.maxValue) * 100);
+    const canvas = this.canvasRef.nativeElement;
+    this.metrics = this.scrollbarService.calcMetrics(
+      canvas.height,
+      percent,
+      this.visibleValue,
+      this.maxValue
+    );
   }
 
   private createThumb(): void {
-    if (this.thumbLength === -Infinity || this.thumbLength === Infinity) {
+    this.scrollbarService.createThumbVertical(this.metrics, this.imagesThumps);
+  }
+
+  /* #endregion Initialization and updating */
+
+  /* #region Redraw */
+  @CheckContext
+  private reDraw(): void {
+    if (!this.isDrawingPossible()) {
       return;
     }
 
-    this.imgThumb = undefined;
-    this.imgSelectedThumb = undefined;
+    const canvas = this.canvasRef.nativeElement;
+    this.ctx = canvas.getContext('2d');
 
-    const canvas = document.createElement('canvas') as HTMLCanvasElement;
-    const ctx = canvas.getContext('2d', {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
+    if (!this.ctx) {
+      return;
+    }
 
-    canvas.width = this.canvas!.clientWidth - this.margin * 2;
-    canvas.height = this.thumbLength;
+    this.ctx.save();
+    this.clearCanvas(canvas);
+    this.drawThumb(canvas);
+    this.ctx.restore();
+  }
 
-    DrawHelper.roundRect(
-      ctx,
-      0,
-      0,
-      canvas.width - this.margin,
-      canvas.height - this.margin,
-      this.margin * 2
+  private isDrawingPossible(): boolean {
+    return (
+      (!!this.imagesThumps.imgThumb || !!this.imagesThumps.imgSelectedThumb) &&
+      this.metrics.thumbLength !== Infinity &&
+      this.metrics.tickSize !== Infinity
     );
-
-    ctx.fillStyle = this.scrollTrackColor;
-    ctx.fill();
-
-    this.imgThumb = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = this.scrollTrackColorDark;
-    ctx.fill();
-
-    this.imgSelectedThumb = ctx.getImageData(0, 0, canvas.width, canvas.height);
   }
 
-  private calcMetrics(): void {
-    if (this.canvas) {
-      const h: number = this.canvas.clientHeight;
-      let moveZoneLength = 0;
-      if (this.maxValue > 0) {
-        moveZoneLength = h / (this.maxValue / h);
+  private clearCanvas(canvas: HTMLCanvasElement): void {
+    this.ctx!.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  private drawThumb(canvas: HTMLCanvasElement): void {
+    const thumbImage = this.getThumbImage();
+    if (!thumbImage) {
+      return;
+    }
+    const yPosition = this.calculateYPosition(
+      canvas,
+      this.value,
+      this.metrics.tickSize,
+      thumbImage.height
+    );
+    const xPosition = this.calculateXPosition(canvas, thumbImage);
+
+    this.ctx!.putImageData(thumbImage, xPosition, yPosition);
+  }
+
+  private getThumbImage(): ImageData | undefined {
+    return this.mouseOverThumb
+      ? this.imagesThumps.imgSelectedThumb
+      : this.imagesThumps.imgThumb;
+  }
+
+  private calculateXPosition(
+    canvas: HTMLCanvasElement,
+    thumbImage: ImageData
+  ): number {
+    return (canvas.width - thumbImage.width) / 2 + 1;
+  }
+
+  private calculateYPosition(
+    canvas: HTMLCanvasElement,
+    value: number,
+    tickSize: number,
+    trackHeight: number
+  ): number {
+    let tmpY = value * tickSize;
+    if (tmpY + trackHeight > canvas.height) {
+      tmpY = canvas.height - trackHeight;
+    }
+
+    return tmpY;
+  }
+
+  /* #endregion Redraw */
+
+  /* #region Events */
+
+  onResize(entries: ResizeObserverEntry[]): void {
+    if (entries && entries.length > 0) {
+      const entry = entries[0];
+      if (entry) {
+        const canvas = this.canvasRef.nativeElement;
+
+        (canvas.height = entry.contentRect.height - 50), this.refresh();
       }
-
-      this.thumbLength = this.canvas.clientHeight - moveZoneLength;
-
-      if (this.thumbLength < this.minimumThumbLength) {
-        this.thumbLength = this.minimumThumbLength;
-        moveZoneLength -= this.minimumThumbLength;
-      }
-
-      this.tickSize = moveZoneLength / this.maxValue;
-      this.createThumb();
     }
   }
 
-  @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
-    this.MouseEnterThumb = this.isMouseOverThumb(event);
-    this.MouseOverThumb = this.MouseEnterThumb;
+  @HostListener('mousedown', ['$event'])
+  onMouseDown(event: MouseEvent): void {
+    this.updateMouseState(event);
 
-    if (this.MouseEnterThumb) {
-    } else {
-      if (event.clientY < this.scrollTop + this.canvas!.offsetTop) {
-        this.moveAnimationValue = -1;
-      } else {
-        this.moveAnimationValue = 1;
-      }
+    this.handleNonThumbClick(event);
+  }
 
-      this.moveAnimationFrameModulo = this.maxFrameModuloNumber;
-      this.shouldStopAnimation = false;
-      this.moveAnimation(5);
+  private updateMouseState(event: MouseEvent): void {
+    this.mouseEnterThumb = this.isMouseOverThumb(event);
+    this.mouseOverThumb = this.mouseEnterThumb;
+  }
+
+  private handleNonThumbClick(event: MouseEvent): void {
+    const canvas = this.canvasRef.nativeElement;
+    if (canvas && !this.mouseEnterThumb) {
+      this.initiateMoveAnimation(event, canvas);
     }
+  }
+
+  // Only called up if mouse is not on thumb bar
+  private initiateMoveAnimation(
+    event: MouseEvent,
+    canvas: HTMLCanvasElement
+  ): void {
+    this.moveAnimationValue =
+      event.clientY < this.value * this.metrics.tickSize + canvas.offsetTop
+        ? -1
+        : 1;
+    this.moveAnimationFrameModulo = this.maxFrameModuloNumber;
+    this.shouldStopAnimation = false;
+    this.moveAnimation(this.firstStepByMoveAnimationInBar);
   }
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
-    this.MouseEnterThumb = false;
-    this.MouseYToThumbY = 0;
-    this.canvas!.onpointermove = null;
+    this.mouseEnterThumb = false;
+    this.mouseYToThumbY = 0;
+    const canvas = this.canvasRef.nativeElement;
+    if (canvas) {
+      canvas.onpointermove = null;
+    }
     this.stopMoveAnimation();
+  }
+
+  @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
+    this.mouseOverThumb = this.isMouseOverThumb(event);
+
+    if (this.mouseOverThumb) {
+      this.stopMoveAnimation();
+    }
+
+    this.reDraw();
+    this.updateArrowButtonsState();
+  }
+
+  @HostListener('mouseleave', ['$event']) onMouseLeave(
+    event: MouseEvent
+  ): void {
+    this.mouseOverThumb = false;
+    this.stopMoveAnimation();
+    this.refresh();
+  }
+
+  @HostListener('mouseenter', ['$event']) onMouseEnter(
+    event: MouseEvent
+  ): void {
+    if (this.mouseYToThumbY > 0) {
+      this.mouseOverThumb = this.isMouseOverThumb(event);
+      this.refresh();
+    }
   }
 
   @HostListener('pointerdown', ['$event']) onPointerDown(
     event: PointerEvent
   ): void {
-    if (this.isMouseOverThumb(event) && event.buttons === 1) {
-      this.MousePointThumb = true;
-      this.MouseYToThumbY = event.clientY - this.scrollTop;
-      this.canvas!.setPointerCapture(event.pointerId);
+    this.mousePointThumb = this.isMouseOverThumb(event);
+    if (this.mousePointThumb && event.buttons === 1) {
+      this.mouseYToThumbY = event.clientY - this.value;
+      const canvas = this.canvasRef.nativeElement;
+      if (canvas) {
+        canvas.setPointerCapture(event.pointerId);
+      }
     }
   }
 
   @HostListener('pointerup', ['$event']) onPointerUp(
     event: PointerEvent
   ): void {
-    this.MousePointThumb = false;
-    this.canvas!.releasePointerCapture(event.pointerId);
+    this.mousePointThumb = false;
+    const canvas = this.canvasRef.nativeElement;
+    if (canvas) {
+      canvas.releasePointerCapture(event.pointerId);
+    }
   }
 
-  @HostListener('pointermove', ['$event']) onPointerMove(
-    event: PointerEvent
-  ): void {
-    const y = event.clientY - this.MouseYToThumbY;
+  @HostListener('pointermove', ['$event'])
+  onPointerMove(event: PointerEvent): void {
+    if (this.mousePointThumb) {
+      this.updateValueFromPointerMove(event);
+    }
+  }
+
+  private updateValueFromPointerMove(event: PointerEvent): void {
+    const y = event.clientY - this.mouseYToThumbY;
     this.zone.runOutsideAngular(() => {
-      if (this.MousePointThumb) {
-        this.scrollTop = y;
+      if (this.mousePointThumb) {
+        const correctValue = Math.round(y / this.metrics.tickSize);
+        this.updateValue(correctValue);
       }
     });
-  }
-
-  @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
-    this.MouseOverThumb = this.isMouseOverThumb(event);
-    this.refresh();
-  }
-
-  @HostListener('mouseleave', ['$event']) onMouseLeave(
-    event: MouseEvent
-  ): void {
-    this.MouseOverThumb = false;
-    this.stopMoveAnimation();
-  }
-
-  @HostListener('mouseenter', ['$event']) onMouseEnter(
-    event: MouseEvent
-  ): void {
-    this.MouseOverThumb = this.isMouseOverThumb(event);
-    this.refresh();
   }
 
   onArrowThumbMouseDown(event: MouseEvent, type: number) {
@@ -276,84 +342,185 @@ export class VScrollbarComponent implements AfterViewInit, OnDestroy {
     } else if (type === 1) {
       this.moveAnimationValue = 1;
     }
-    event.preventDefault();
-    event.stopPropagation();
 
     this.moveAnimationFrameModulo = 1;
     this.shouldStopAnimation = false;
-    this.moveAnimation(1);
+    this.moveAnimation(this.firstStepsByMoveAnimationOnButton);
+
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   onArrowThumbMouseUp(event: MouseEvent) {
     this.stopMoveAnimation();
     event.preventDefault();
+    event.stopPropagation();
   }
 
-  isMouseOverThumb(event: MouseEvent): boolean {
-    const y: number = event.clientY - this.canvas!.offsetTop;
+  /* #endregion Events */
 
-    if (y >= this.scrollTop && y <= this.scrollTop + this.thumbLength) {
-      return true;
-    }
+  /* #region animation */
 
-    return false;
-  }
-
-  moveAnimation(steps: number) {
+  @CheckContext
+  private moveAnimation(steps: number): void {
     this.zone.runOutsideAngular(() => {
-      this.moveAnimationFrameCount++;
-
-      if (this.shouldStopAnimation) {
-        return;
-      }
-
-      if (
-        this.moveAnimationFrameModulo <= 1 ||
-        this.moveAnimationFrameCount % this.moveAnimationFrameModulo === 0
-      ) {
-        if (this.moveAnimationFrameModulo > 1) {
-          this.moveAnimationFrameModulo--;
-        }
-        this.animationSteps(steps);
-      }
-
-      const requestId = window.requestAnimationFrame((x) => {
-        this.frameRequests.push(requestId);
-        this.moveAnimation(steps);
-      });
+      this.processAnimationFrame(steps);
     });
   }
 
-  stopMoveAnimation(): void {
+  private processAnimationFrame(steps: number): void {
+    this.incrementFrameCount();
+
+    if (this.shouldStopAnimation) {
+      return;
+    }
+
+    if (this.shouldUpdateValue()) {
+      this.updateAnimationState(steps);
+      this.emitValueChange();
+    }
+
+    this.scheduleNextFrame(steps);
+  }
+
+  // Increments the frame counter
+  private incrementFrameCount(): void {
+    this.moveAnimationFrameCount++;
+  }
+
+  // Checks whether the value is to be updated
+  private shouldUpdateValue(): boolean {
+    return (
+      this.moveAnimationFrameModulo <= 1 ||
+      this.moveAnimationFrameCount % this.moveAnimationFrameModulo === 0
+    );
+  }
+
+  // Updates the state of the animation
+  private updateAnimationState(steps: number): void {
+    this.decreaseFrameModulo();
+    this.updateScrollValue(steps);
+  }
+
+  // Reduces the frame modulo value
+  private decreaseFrameModulo(): void {
+    if (this.moveAnimationFrameModulo > 1) {
+      this.moveAnimationFrameModulo--;
+    }
+  }
+
+  // Updates the scroll value
+  private updateScrollValue(steps: number): void {
+    const newValue = this.value + steps * this.moveAnimationValue;
+    this.updateValue(newValue);
+  }
+
+  private emitValueChange(): void {
+    this.zone.run(() => {
+      this.valueChange.emit(this.value);
+    });
+  }
+
+  // Plan the next animation frame
+  private scheduleNextFrame(steps: number): void {
+    const requestId = window.requestAnimationFrame(() => {
+      this.frameRequests.push(requestId);
+      this.moveAnimation(steps);
+    });
+  }
+
+  // Stops the animation
+  private stopMoveAnimation(): void {
     this.shouldStopAnimation = true;
+    this.resetAnimationState();
+    this.cancelAnimationFrames();
+  }
+
+  // Resets the animation state
+  private resetAnimationState(): void {
     this.moveAnimationFrameCount = 0;
     this.moveAnimationValue = 0;
+  }
+
+  // Cancels all running animation frames
+  private cancelAnimationFrames(): void {
     this.frameRequests.forEach((requestId) =>
       window.cancelAnimationFrame(requestId)
     );
     this.frameRequests = [];
   }
 
-  animationSteps(steps: number) {
-    if (this.moveAnimationValue < 0) {
-      this.scrollTop -= steps * this.tickSize;
-    } else if (this.moveAnimationValue > 0) {
-      this.scrollTop += steps * this.tickSize;
+  /* #endregion animation */
+
+  /* #region Help functions */
+  private clampValue(value: number): number {
+    return Math.max(
+      0,
+      Math.min(
+        value,
+        this.imagesThumps.invisibleTicks + this.ticksOutsideMaximumRange
+      )
+    );
+  }
+
+  private updateValue(newValue: number) {
+    newValue = this.clampValue(newValue);
+    if (newValue !== this.value) {
+      this.value = newValue;
+
+      this.valueChange.emit(this.value);
     }
   }
 
-  private deleteCanvas() {
-    this.ctx = undefined;
-    this.canvas = undefined;
+  isMouseOverThumb(event: MouseEvent): boolean {
+    const canvas = this.canvasRef.nativeElement;
+    if (canvas) {
+      const y: number = event.clientY - canvas.offsetTop;
+      return this.isMouseOverThumbSub(y);
+    }
+
+    return false;
   }
 
-  private createCanvas() {
-    this.canvas = this.canvasRef.nativeElement;
-    this.ctx = DrawHelper.createHiDPICanvas(
-      this.canvas,
-      this.canvas.clientWidth,
-      this.canvas.clientHeight,
-      false
-    );
+  private isMouseOverThumbSub(y: number): boolean {
+    const correctedY = Math.round(y / this.metrics.tickSize);
+
+    if (this.imagesThumps.imgThumb) {
+      const thumpsTicks = Math.round(
+        this.imagesThumps.imgThumb!.height / this.metrics.tickSize
+      );
+      if (correctedY >= this.value && correctedY <= this.value + thumpsTicks) {
+        return true;
+      }
+    }
+
+    return false;
   }
+
+  private isAtStart(): boolean {
+    return this.value <= 0;
+  }
+
+  private isAtEnd(): boolean {
+    return this.value >= this.maxValue - this.visibleValue;
+  }
+
+  @CheckContext
+  private updateArrowButtonsState(): void {
+    this.disableTopArrow = this.isAtStart();
+    this.disableBottomArrow = this.isAtEnd();
+  }
+
+  /* #endregion Help functions */
+}
+
+export interface IImagesThumps {
+  invisibleTicks: number;
+  imgThumb: ImageData | undefined;
+  imgSelectedThumb: ImageData | undefined;
+}
+export class ImagesThumps implements IImagesThumps {
+  invisibleTicks: number = 0;
+  imgThumb: ImageData | undefined = undefined;
+  imgSelectedThumb: ImageData | undefined = undefined;
 }

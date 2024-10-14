@@ -1,21 +1,27 @@
-<div class="vScrollbar-container">
+<div class="hScrollbar-container" appResize (resizeElement)="onResize($event)">
   <div
-    class="arrow-thumb top"
+    class="arrow-thumb"
+    role="button"
     (mousedown)="onArrowThumbMouseDown($event, 0)"
     (mouseup)="onArrowThumbMouseUp($event)"
-  >
-    ▲
-  </div>
+    [innerHTML]="safeTriangleSvgTop"
+    [class.disabled]="disableTopArrow"
+    [attr.disabled]="disableTopArrow ? true : null"
+    [attr.aria-disabled]="disableTopArrow"
+  ></div>
 
   <div class="scrollbar-bar">
-    <canvas #canvas (mousedown)="onMouseDown($event)"></canvas>
+    <canvas #canvas></canvas>
   </div>
 
   <div
-    class="arrow-thumb bottom"
+    class="arrow-thumb"
+    role="button"
     (mousedown)="onArrowThumbMouseDown($event, 1)"
     (mouseup)="onArrowThumbMouseUp($event)"
-  >
-    ▼
-  </div>
+    [innerHTML]="safeTriangleSvgBottom"
+    [class.disabled]="disableBottomArrow"
+    [attr.disabled]="disableBottomArrow ? true : null"
+    [attr.aria-disabled]="disableBottomArrow"
+  ></div>
 </div>

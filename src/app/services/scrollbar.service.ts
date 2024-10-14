@@ -14,7 +14,7 @@ export class ScrollbarService {
   );
   public scrollTrackColor = this.gridColor.scrollTrack;
   public trackColor = this.gridColor.controlBackGroundColor;
-  public triangleTopSvg = `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  public triangleTopSvg = `<svg width="10px" height="10px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
   <path d="
     M4,17.32
     L16,17.32
@@ -25,7 +25,7 @@ export class ScrollbarService {
     A2,2 0 0 0 4,17.32
     Z" fill="#a9a9a9" stroke="#a9a9a9" stroke-width="1"/>
 </svg>`;
-  public triangleBottomSvg = `<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  public triangleBottomSvg = `<svg width="10px" height="10px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
   <path d="
     M4,2.68
     L16,2.68
