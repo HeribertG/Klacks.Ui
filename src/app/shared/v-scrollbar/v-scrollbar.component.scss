@@ -26,11 +26,10 @@
   -webkit-user-select: none; /* Safari, Chrome */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
-  border: 1px black solid;
 }
 
 .arrow-thumb:hover {
-  color: red; // #424949;
+  color: #424949;
   cursor: default;
 }
 
@@ -44,5 +43,4 @@
 canvas {
   height: 100%;
   width: 100%;
-  border: 1px black solid;
 }

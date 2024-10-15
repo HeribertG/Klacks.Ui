@@ -26,7 +26,10 @@
             aria-label="as-split-area top left"
           >
             <!-- Inhalt für Links oben -->
-            <app-absence-gantt-row-header #absenceRowHeader>
+            <app-absence-gantt-row-header
+              #absenceRowHeader
+              [valueChangeVScrollbar]="vScrollbar.value"
+            >
             </app-absence-gantt-row-header>
           </as-split-area>
 
@@ -40,7 +43,6 @@
                     #absenceBody
                     class="grid-canvas"
                     tabindex="0"
-                    [absenceRowHeader]="absenceRowHeader"
                     [absenceRowHeader]="absenceRowHeader"
                     [valueChangeHScrollbar]="hScrollbar.value"
                     (valueHScrollbar)="hScrollbar.value = $event"
@@ -79,22 +81,20 @@
 
       <!-- unterer Bereich -->
       <as-split-area>
-        <!-- <app-absence-gantt-mask
+        <app-absence-gantt-mask
           #absenceMask
-          [selectedRow]="absenceBody.drawCalendarGanttService.selectedRow"
+          [selectedRow]="absenceBody.drawCalendarGantt.selectedRow"
           [selectedBreakIndex]="
-            absenceBody.drawCalendarGanttService.selectedBreakIndex
+            absenceBody.drawCalendarGantt.selectedBreakIndex
           "
           [selectedRowBreaksMaxIndex]="
-            absenceBody.drawCalendarGanttService.selectedRowBreaksMaxIndex
+            absenceBody.drawCalendarGantt.selectedRowBreaksMaxIndex
           "
-          (UpdateEvent)="
-            onUpdate(absenceBody.drawCalendarGanttService.selectedBreak!)
-          "
+          (UpdateEvent)="onUpdate(absenceBody.drawCalendarGantt.selectedBreak!)"
           (selectedBreakIndexEvent)="absenceBody.onChangeIndex($event)"
           (ErrorMessageEvent)="onShowErrorMessage($event)"
         >
-        </app-absence-gantt-mask> -->
+        </app-absence-gantt-mask>
       </as-split-area>
     </as-split>
   </as-split-area>

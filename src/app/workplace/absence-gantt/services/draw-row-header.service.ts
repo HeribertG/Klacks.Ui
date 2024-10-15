@@ -151,6 +151,7 @@ export class DrawRowHeaderService {
   @CanvasAvailable()
   moveRow(directionY: number): void {
     const dirY = directionY;
+    console.log('moveRow', directionY);
 
     const visibleRow = Math.ceil(
       this.rowHeaderCanvasManager.height / this.calendarSetting.cellHeight
@@ -189,6 +190,12 @@ export class DrawRowHeaderService {
 
   @CanvasAvailable()
   private moveIt(directionY: number): void {
+    console.log(
+      'moveIt',
+      this.scroll.visibleRows,
+      this.scroll.verticalScrollDelta,
+      this.scroll.verticalScrollPosition
+    );
     const visibleRow = this.scroll.visibleRows;
 
     if (directionY !== 0) {

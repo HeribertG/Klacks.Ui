@@ -29,6 +29,7 @@ import { RenderCalendarGridService } from './services/render-calendar-grid.servi
 import { RenderRowHeaderCellService } from './services/render-row-header-cell.service';
 import { GanttCanvasManagerService } from './services/gantt-canvas-manager.service';
 import { RowHeaderCanvasManagerService } from './services/row-header-canvas.service';
+import { NgxSliderModule } from '@angular-slider/ngx-slider';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { RowHeaderCanvasManagerService } from './services/row-header-canvas.serv
     IconsModule,
     TranslateModule,
     FontAwesomeModule,
+    NgxSliderModule,
   ],
   providers: [
     TranslateService,

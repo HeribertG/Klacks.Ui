@@ -23,7 +23,7 @@ export class ScrollbarService {
     A2,2 0 0 0 8,3.464
     L2,13.856
     A2,2 0 0 0 4,17.32
-    Z" fill="#a9a9a9" stroke="#a9a9a9" stroke-width="1"/>
+    Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
 </svg>`;
   public triangleBottomSvg = `<svg width="10px" height="10px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
   <path d="
@@ -34,7 +34,7 @@ export class ScrollbarService {
     A2,2 0 0 1 8,16.536
     L2,6.144
     A2,2 0 0 1 4,2.68
-    Z" fill="#a9a9a9" stroke="#a9a9a9" stroke-width="1"/>
+    Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
 </svg>`;
   public triangleLeftSvg = `<svg width="10px" height="10px" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
   <path d="

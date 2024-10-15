@@ -2,8 +2,11 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  Input,
+  OnChanges,
   OnDestroy,
   OnInit,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { Size } from 'src/app/grid/classes/geometry';
@@ -25,8 +28,10 @@ import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
   styleUrls: ['./absence-gantt-row-header.component.scss'],
 })
 export class AbsenceGanttRowHeaderComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
+  @Input() valueChangeVScrollbar!: number;
+
   @ViewChild('ganttFilter', { static: false }) filter:
     | AbsenceGanttFilterComponent
     | undefined;
@@ -99,6 +104,12 @@ export class AbsenceGanttRowHeaderComponent
       .subscribe((x: number) => {
         this.drawRowHeader.moveRow(x);
       });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['valueChangeVScrollbar']) {
+      this.drawRowHeader.moveRow(changes['valueChangeVScrollbar'].currentValue);
+    }
   }
 
   ngOnDestroy(): void {
