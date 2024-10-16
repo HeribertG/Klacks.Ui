@@ -29,8 +29,6 @@ export class DrawCalendarGanttService {
 
   private _columns: number = 365;
   private _selectedRow = -1;
-  private _vScrollbarValue = -1;
-  private _hScrollbarValue = -1;
   private _selectedBreakIndex = -1;
   private _isFocused = false;
   private _dragRow = -1;
@@ -516,7 +514,7 @@ export class DrawCalendarGanttService {
   }
 
   public get firstVisibleRow(): number {
-    return this._vScrollbarValue;
+    return this.scroll.verticalScrollPosition;
   }
 
   public set selectedBreakIndex(value: number) {
@@ -554,11 +552,11 @@ export class DrawCalendarGanttService {
   }
 
   public set vScrollbarValue(value: number) {
-    this._vScrollbarValue = value;
+    this.scroll.verticalScrollPosition = value;
   }
 
   public set hScrollbarValue(value: number) {
-    this._hScrollbarValue = value;
+    this.scroll.horizontalScrollPosition = value;
   }
 
   public get rows(): number {

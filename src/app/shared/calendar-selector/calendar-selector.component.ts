@@ -21,6 +21,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface TranslationResults {
   headerCalendarDropdown: string;
@@ -44,6 +45,9 @@ enum ActionType {
 export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   @Output() openMenu = new EventEmitter();
   @Output() change = new EventEmitter();
+
+  public faPlus = faPlus;
+  public faTrash = faTrash;
 
   public addButtonEnabled = false;
   public delButtonEnabled = false;

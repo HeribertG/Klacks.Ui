@@ -9,6 +9,7 @@ import {
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-search',
@@ -19,6 +20,8 @@ export class SearchComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostListener('search', ['$event']) onsearch(event: KeyboardEvent) {
     this.onClickSearch();
   }
+
+  public faSearch = faSearch;
 
   private ngUnsubscribe = new Subject<void>();
 

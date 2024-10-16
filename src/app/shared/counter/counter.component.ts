@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-counter',
@@ -9,6 +10,9 @@ export class CounterComponent implements OnInit {
   @Output() isChanged = new EventEmitter<number>();
   @Input() maxNumber: number | undefined = 99;
   @Input() currentNumber: number = 1;
+
+  public faAngleRight = faAngleRight;
+  public faAngleLeft = faAngleLeft;
 
   constructor() {}
 

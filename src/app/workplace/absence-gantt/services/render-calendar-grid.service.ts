@@ -29,7 +29,7 @@ import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-
 
 @Injectable()
 export class RenderCalendarGridService {
-  public startDate: Date;
+  public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
   private readonly SUNDAY = 0;
   private readonly SATURDAY = 6;
   private readonly MINCELLWITHFORDAYRANK = 20;
@@ -45,11 +45,11 @@ export class RenderCalendarGridService {
     private dataManagementAbsence: DataManagementAbsenceGanttService,
     private translateService: TranslateService,
     private scroll: ScrollService
-  ) {
-    this.startDate = new Date(this.holidayCollection.currentYear, 0, 1);
-  }
+  ) {}
 
   public renderRuler(): void {
+    this.startDate = new Date(this.holidayCollection.currentYear, 0, 1);
+
     let headerDayRank = new Array<CalendarHeaderDayRank>();
     let monthsRect = new Array<Rectangle>();
 

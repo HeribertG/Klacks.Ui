@@ -32,7 +32,7 @@
     [disabled]="!addButtonEnabled"
     (click)="onOpen(modalTypeInput)"
   >
-    <i class="fa fa-plus" aria-hidden="true"></i>
+    <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
   </button>
 
   <button
@@ -40,7 +40,7 @@
     [disabled]="!delButtonEnabled"
     (click)="onOpen(modalTypeDelete)"
   >
-    <i class="fa fa-trash" aria-hidden="true"></i>
+    <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
   </button>
 </div>
 <div class="row-line center">

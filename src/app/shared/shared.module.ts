@@ -22,6 +22,7 @@ import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
 import { ResizeDirective } from '../directives/resize.directive';
 import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
     IconsModule,
     TranslateModule,
     OverlayModule,
+    FontAwesomeModule,
   ],
   exports: [
     ButtonExcelComponent,
