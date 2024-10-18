@@ -19,6 +19,7 @@ import {
   dateWithLocalTimeCorrection,
 } from '../helpers/format-helper';
 import { StateCountryToken } from '../core/calendar-rule-class';
+import { GenderEnum } from '../helpers/enums/client-enum';
 
 @Injectable({
   providedIn: 'root',
@@ -89,6 +90,7 @@ export class DataClientService {
   }
 
   addClient(value: IClient) {
+    this.setCorrectGender(value);
     this.setCorrectDate(value);
     this.deleteIds(value);
     this.deleteUnnecessaryCommunication(value);
@@ -191,6 +193,21 @@ export class DataClientService {
     value.addresses.forEach((x) => {
       x.validFrom = dateWithLocalTimeCorrection(x.validFrom)!;
     });
+  }
+
+  private setCorrectGender(value: IClient) {
+    // switch (value.gender.toString()) {
+    //   case 'GenderEnum.female':
+    //     value.gender = GenderEnum.female;
+    //     break;
+    //   case 'GenderEnum.male':
+    //     value.gender = GenderEnum.male;
+    //     break;
+    //   case 'GenderEnum.legalEntity':
+    //     value.gender = GenderEnum.legalEntity;
+    //     break;
+    // }
+    value.gender = Number(value.gender);
   }
 
   private deleteIds(value: IClient) {

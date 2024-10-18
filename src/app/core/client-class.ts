@@ -11,6 +11,7 @@ import { transformDateToNgbDateStruct } from '../helpers/format-helper';
 import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';
+import { GenderEnum } from '../helpers/enums/client-enum';
 
 export interface IPostCodeCH {
   id: number;
@@ -104,7 +105,7 @@ export interface IClient extends BaseEntity {
   maidenName: string;
   birthdate: Date | undefined;
   membership: IMembership | undefined;
-  gender: string;
+  gender: number;
   legalEntity: boolean;
   type: number | string;
   addresses: Array<IAddress>;
@@ -233,7 +234,7 @@ export class Client extends BaseEntity implements IClient {
   secondName = '';
   maidenName = '';
   birthdate = new Date();
-  gender = '0';
+  gender: number = GenderEnum.female;
   legalEntity = false;
   type = 0;
 

@@ -39,12 +39,10 @@ import {
   AddressTypeEnum,
   CommunicationTypeDefaultIndexEnum,
   GenderEnum,
-  InitFinished,
 } from 'src/app/helpers/enums/client-enum';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
-import { Gender } from 'src/app/core/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -96,7 +94,6 @@ export class DataManagementClientService {
   maxAddressType = 3;
 
   private isInit = false;
-  initCount = 0;
 
   editClientLastMutation = '';
   editClientDeleted = false;
@@ -125,80 +122,102 @@ export class DataManagementClientService {
 
   init() {
     if (this.isInit === false) {
-      this.initCount = 0;
-
       this.currentFilter.countries = [];
       this.currentFilter.countriesHaveBeenReadIn = false;
 
-      this.dataClientService
-        .getStateTokenList(true)
-        .subscribe((x: StateCountryToken[]) => {
-          this.stateList = x.filter((c) => c.state !== c.country);
-          this.currentFilter.filteredStateToken = this.stateList;
-          this.currentFilter.list = this.stateList;
-
-          this.isInitFinished(1);
+      forkJoin({
+        stateTokens: this.dataClientService.getStateTokenList(true),
+        countries: this.dataCountryStateService.getCountryList(),
+        communicationTypes: this.dataClientService.readCommunicationTypeList(),
+      })
+        .pipe(
+          tap((results) => {
+            // Verarbeiten Sie hier die Ergebnisse
+            this.processStateTokens(results.stateTokens);
+            this.processCountries(results.countries);
+            this.processCommunicationTypes(results.communicationTypes);
+          }),
+          catchError((error) => {
+            console.error('Error initializing data:', error);
+            return EMPTY;
+          })
+        )
+        .subscribe(() => {
+          this.isInit = true;
+          this.filterState();
+          this.initIsRead.next(true);
         });
-
-      this.dataCountryStateService
-        .getCountryList()
-        .subscribe((x: ICountry[]) => {
-          if (x) {
-            x.forEach((s) => (s.select = true));
-            this.currentFilter.countries = x;
-
-            this.currentFilter.countriesHaveBeenReadIn = x.length > 0;
-
-            this.communicationPrefixList = [];
-            this.currentFilter.countries.forEach((y) => {
-              const c = new CommunicationPrefix();
-              c.id = y.id!;
-              c.name = y.name!.en!;
-              c.prefix = y.prefix;
-              this.communicationPrefixList.push(c);
-
-              if (y.abbreviation === this.isSwissAbbreviation) {
-                this.isSwissPrefixId = y.prefix;
-              }
-            });
-
-            this.communicationPrefixList.unshift(new CommunicationPrefix());
-            this.isInitFinished(1);
-          }
-        });
-
-      this.dataClientService.readCommunicationTypeList().subscribe((x) => {
-        if (x) {
-          this.communicationTypePhoneList = x.filter((y) => y.category === 0);
-          this.communicationTypeEmailList = x.filter((y) => y.category === 1);
-
-          const tmp = x.find(
-            (y) => y.defaultIndex === CommunicationTypeDefaultIndexEnum.phone
-          );
-          if (tmp) {
-            this.defaultTypePhone = tmp.type;
-          }
-
-          const tmp1 = x.find(
-            (y) => y.defaultIndex === CommunicationTypeDefaultIndexEnum.email
-          );
-          if (tmp1) {
-            this.defaultTypeEmail = tmp1.type;
-          }
-
-          this.isInitFinished(1);
-        }
-      });
-
-      this.isInit = true;
     }
   }
 
-  private isInitFinished(hit: number): void {
-    this.initCount += hit;
-    if (this.initCount === InitFinished.Finished) {
-      this.filterState();
-      this.initIsRead.next(true);
+  private processStateTokens(stateTokens: StateCountryToken[]) {
+    this.stateList = stateTokens.filter((c) => c.state !== c.country);
+    this.currentFilter.filteredStateToken = this.stateList;
+    this.currentFilter.list = this.stateList;
+  }
+
+  private processCountries(countries: ICountry[]) {
+    if (countries && countries.length > 0) {
+      countries.forEach((country) => (country.select = true));
+      this.currentFilter.countries = countries;
+      this.currentFilter.countriesHaveBeenReadIn = true;
+
+      // Create CommunicationPrefix list
+      this.communicationPrefixList = countries.map((country) => {
+        const prefix = new CommunicationPrefix();
+        prefix.id = country.id!;
+        prefix.name = country.name!.en!;
+        prefix.prefix = country.prefix;
+        return prefix;
+      });
+
+      const swissCountry = countries.find(
+        (country) => country.abbreviation === this.isSwissAbbreviation
+      );
+      if (swissCountry) {
+        this.isSwissPrefixId = swissCountry.prefix;
+      }
+
+      this.communicationPrefixList.unshift(new CommunicationPrefix());
+    } else {
+      console.warn('No countries received from the API');
+      this.currentFilter.countries = [];
+      this.currentFilter.countriesHaveBeenReadIn = false;
+    }
+  }
+
+  private processCommunicationTypes(communicationTypes: ICommunicationType[]) {
+    if (communicationTypes && communicationTypes.length > 0) {
+      this.communicationTypePhoneList = communicationTypes.filter(
+        (type) => type.category === 0
+      );
+      this.communicationTypeEmailList = communicationTypes.filter(
+        (type) => type.category === 1
+      );
+
+      const defaultPhone = communicationTypes.find(
+        (type) => type.defaultIndex === CommunicationTypeDefaultIndexEnum.phone
+      );
+      if (defaultPhone) {
+        this.defaultTypePhone = defaultPhone.type;
+      } else {
+        console.warn('No standard phone type found');
+      }
+
+      const defaultEmail = communicationTypes.find(
+        (type) => type.defaultIndex === CommunicationTypeDefaultIndexEnum.email
+      );
+      if (defaultEmail) {
+        this.defaultTypeEmail = defaultEmail.type;
+      } else {
+        console.warn('No standard e-mail type found');
+      }
+    } else {
+      console.warn('No communication types received from the API');
+      this.communicationTypePhoneList = [];
+      this.communicationTypeEmailList = [];
+      this.defaultTypePhone = -1;
+      this.defaultTypeEmail = -1;
     }
   }
 
@@ -815,7 +834,7 @@ export class DataManagementClientService {
 
   isValid(): boolean {
     if (
-      this.editClient?.gender === Gender.LegalEntity &&
+      this.editClient?.gender === GenderEnum.legalEntity &&
       !this.editClient?.company
     ) {
       return false;

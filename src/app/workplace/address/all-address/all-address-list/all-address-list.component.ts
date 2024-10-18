@@ -26,7 +26,6 @@ import {
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { measureTableHeight } from 'src/app/helpers/tableResize';
-import { InitFinished } from 'src/app/helpers/enums/client-enum';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
@@ -126,10 +125,6 @@ export class AllAddressListComponent
     this.resizeWindow = this.renderer.listen('window', 'resize', (event) => {
       this.resize(event);
     });
-
-    if (this.dataManagementClientService.initCount === InitFinished.Finished) {
-      this.isInit();
-    }
 
     this.dataManagementClientService.initIsRead
       .pipe(takeUntil(this.ngUnsubscribe))

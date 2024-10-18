@@ -89,7 +89,7 @@ export class CreateRowHeaderService {
       }
     }
 
-    if (client.gender === GenderEnum.unknown && !client.company) {
+    if (client.gender === GenderEnum.legalEntity && !client.company) {
       const diversSexPicto = this.rowIcons.diversSexPicto;
       if (diversSexPicto) {
         tmpWidth += this.iconWidth + this.margin;
@@ -191,7 +191,7 @@ export class CreateRowHeaderService {
         return '\u2640';
       }
 
-      if (value.gender === GenderEnum.unknown) {
+      if (value.gender === GenderEnum.legalEntity) {
         return '\u26A5';
       }
 

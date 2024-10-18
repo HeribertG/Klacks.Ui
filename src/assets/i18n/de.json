@@ -62,6 +62,7 @@
   "address.edit-address.address-persona.male": "Herr",
   "address.edit-address.address-persona.female": "Frau",
   "address.edit-address.address-persona.unknow": "Unbekannt",
+  "address.edit-address.address-persona.intersexuality": "Neutrale Anrede",
   "address.edit-address.address-persona.legal-entity": "Juristische Person",
   "address.edit-address.address-persona.title": "Titel",
   "address.edit-address.address-persona.firstname": "Vorname",

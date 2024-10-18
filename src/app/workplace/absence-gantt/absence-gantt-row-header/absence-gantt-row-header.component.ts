@@ -108,7 +108,12 @@ export class AbsenceGanttRowHeaderComponent
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['valueChangeVScrollbar']) {
-      this.drawRowHeader.moveRow(changes['valueChangeVScrollbar'].currentValue);
+      const currentValue = changes['valueChangeVScrollbar'].currentValue;
+      const previousValue = changes['valueChangeVScrollbar'].previousValue;
+      const diff = currentValue - previousValue;
+
+      console.log('ngOnChanges', currentValue, previousValue, diff);
+      this.drawRowHeader.moveRow(diff);
     }
   }
 

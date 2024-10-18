@@ -4,10 +4,6 @@ export enum AtributeTypeEnum {
   AnnualFee,
 }
 
-export enum InitFinished {
-  Finished = 3,
-}
-
 export enum AddressTypeEnum {
   customer,
   workplace,
@@ -51,6 +47,6 @@ export enum AttributebaseEnum {
 export enum GenderEnum {
   female = 0,
   male = 1,
-  unknown = 2,
-  intersexuality = 3,
+  legalEntity = 3,
+  intersexuality = 2,
 }

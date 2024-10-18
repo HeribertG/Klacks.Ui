@@ -307,14 +307,20 @@
               "
               name="client.gender"
             >
-              <option value="Gender.Male">
+              <option value="1">
                 {{ "address.edit-address.address-persona.male" | translate }}
               </option>
-              <option value="Gender.Female">
+              <option value="0">
                 {{ "address.edit-address.address-persona.female" | translate }}
               </option>
+              <option value="2">
+                {{
+                  "address.edit-address.address-persona.intersexuality"
+                    | translate
+                }}
+              </option>
               <option
-                value="Gender.LegalEntity"
+                value="3"
                 *ngIf="
                   dataManagementClientService.editClient.legalEntity === true
                 "
@@ -338,7 +344,7 @@
       <div
         class="row-line"
         *ngIf="
-          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress() === true
         "
       >
@@ -362,12 +368,14 @@
       <div
         class="row-line"
         *ngIf="
-          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress() === true
         "
       >
         <div class="form-group firstColumn">
-          <label for="firstname">Vorname</label>
+          <label for="firstname">{{
+            "address.edit-address.address-persona.firstname" | translate
+          }}</label>
           <div class="custom-control-inline">
             <input
               type="text"
@@ -395,7 +403,7 @@
         class="row-line"
         *ngIf="
           addFirstNameLine2 == true &&
-          +dataManagementClientService.editClient.gender !== 2 &&
+          +dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress()
         "
       >
@@ -427,7 +435,7 @@
       <div
         class="row-line"
         *ngIf="
-          +dataManagementClientService.editClient.gender !== 2 &&
+          +dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress()
         "
       >
@@ -461,7 +469,7 @@
         class="row-line"
         *ngIf="
           addNameLine2 &&
-          +dataManagementClientService.editClient.gender !== 2 &&
+          +dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress()
         "
       >
@@ -921,7 +929,7 @@
       <div
         class="row-line"
         *ngIf="
-          dataManagementClientService.editClient.gender.toString() !== '2' &&
+          dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress() === true
         "
       >
