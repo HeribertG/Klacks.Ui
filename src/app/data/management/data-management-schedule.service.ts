@@ -7,7 +7,6 @@ import {
   WorkFilter,
 } from 'src/app/core/schedule-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataScheduleService } from '../data-schedule.service';
 import {
@@ -29,16 +28,13 @@ export class DataManagementScheduleService {
 
   constructor(
     public toastService: ToastService,
-    private dataSchedule: DataScheduleService,
-    private spinnerService: SpinnerService
+    private dataSchedule: DataScheduleService
   ) {}
 
   readDatas() {
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject(this.workFilter);
-      setTimeout(() => (this.spinnerService.showProgressSpinner = false), 50);
-
       this.isRead.next(true);
     });
   }

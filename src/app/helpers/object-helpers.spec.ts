@@ -170,5 +170,87 @@ describe('Utility Functions', () => {
     });
   });
 
-  // Weitere Tests für compareComplexObjects, isNumberLike, lettersOnly, saveFilter, restoreFilter, copyObjectValues, createStringId, sortMultiFields...
+  // Beispiel für einen erweiterten Test für cloneObject
+  describe('cloneObject', () => {
+    it('should clone deeply nested objects', () => {
+      const obj = { a: 1, b: { c: { d: 2 } } };
+      const clonedObj = cloneObject(obj);
+      expect(clonedObj).toEqual(obj);
+      expect(clonedObj.b).not.toBe(obj.b);
+      expect(clonedObj.b.c).not.toBe(obj.b.c);
+    });
+  });
+
+  // Beispiel für Tests von saveFilter und restoreFilter
+  describe('saveFilter and restoreFilter', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('should save and restore a filter', () => {
+      const filter = { key: 'value' };
+      const token = 'testToken';
+
+      expect(saveFilter(filter, token)).toBeTrue();
+      expect(restoreFilter(token)).toEqual(filter);
+    });
+
+    it('should handle localStorage unavailability', () => {
+      spyOn(localStorage, 'setItem').and.throwError(
+        'localStorage is not available'
+      );
+
+      expect(saveFilter({ key: 'value' }, 'token')).toBeFalse();
+      expect(restoreFilter('token')).toBeNull();
+    });
+  });
+
+  // Beispiel für einen Test von createStringId
+  describe('createStringId', () => {
+    it('should create a unique string ID', () => {
+      const id1 = createStringId();
+      const id2 = createStringId();
+
+      expect(id1).toMatch(/^[A-Z0-9]+$/);
+      expect(id2).toMatch(/^[A-Z0-9]+$/);
+      expect(id1).not.toEqual(id2);
+    });
+  });
+
+  // Beispiel für Tests von sortMultiFields
+  describe('sortMultiFields', () => {
+    it('should sort by a single field', () => {
+      const data = [{ name: 'B' }, { name: 'A' }, { name: 'C' }];
+      const sortFn = sortMultiFields(['name']);
+      expect(data.sort(sortFn)).toEqual([
+        { name: 'A' },
+        { name: 'B' },
+        { name: 'C' },
+      ]);
+    });
+
+    it('should sort by multiple fields', () => {
+      const data = [
+        { name: 'A', age: 30 },
+        { name: 'B', age: 25 },
+        { name: 'A', age: 20 },
+      ];
+      const sortFn = sortMultiFields(['name', 'age']);
+      expect(data.sort(sortFn)).toEqual([
+        { name: 'A', age: 20 },
+        { name: 'A', age: 30 },
+        { name: 'B', age: 25 },
+      ]);
+    });
+
+    it('should handle descending sort', () => {
+      const data = [{ value: 1 }, { value: 3 }, { value: 2 }];
+      const sortFn = sortMultiFields(['-value']);
+      expect(data.sort(sortFn)).toEqual([
+        { value: 3 },
+        { value: 2 },
+        { value: 1 },
+      ]);
+    });
+  });
 });

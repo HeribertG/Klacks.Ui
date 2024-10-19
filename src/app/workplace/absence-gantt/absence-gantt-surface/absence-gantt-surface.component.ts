@@ -103,8 +103,7 @@ export class AbsenceGanttSurfaceComponent
     private gridFonts: GridFontsService,
     private translateService: TranslateService,
     private el: ElementRef,
-    private clipboard: Clipboard,
-    private spinnerService: SpinnerService
+    private clipboard: Clipboard
   ) {}
 
   /* #region dom */
@@ -117,7 +116,6 @@ export class AbsenceGanttSurfaceComponent
   /* #region ng */
 
   ngOnInit(): void {
-    this.spinnerService.showProgressSpinner = false;
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
@@ -675,7 +673,6 @@ export class AbsenceGanttSurfaceComponent
     if (this.countServices === 4) {
       this.countServices = 0;
       this.drawCalendarGantt.resetAll();
-      this.spinnerService.showProgressSpinner = false;
     }
   }
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { DataClientService } from '../data-client.service';
 import {
   ITruncatedClient,
@@ -48,13 +48,14 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
   providedIn: 'root',
 })
 export class DataManagementClientService {
-  public isReset = new Subject<boolean>();
-  public isRead = new Subject<boolean>();
+  public isReset = signal(false);
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
   public isReadChangeList = new Subject<boolean>();
   public isF5ReRead = new Subject<boolean>();
   public initIsRead = new Subject<boolean>();
   public restoreSearch = new Subject<string>();
-  public startToReadPage = new Subject<boolean>();
+  public startToReadPage = signal(false);
 
   currentFilter: Filter = new Filter();
   currentFilterDummy: Filter | undefined;
@@ -245,7 +246,7 @@ export class DataManagementClientService {
 
   readPage(isSecondRead: boolean = false) {
     if (!isSecondRead) {
-      this.startToReadPage.next(true);
+      this.startToReadPage.set(true);
     }
 
     // Hack, vieleicht hilfst es
@@ -255,6 +256,7 @@ export class DataManagementClientService {
     }
 
     if (this.currentFilter.isFilterValid() && this.isInit) {
+      this.showProgressSpinner.set(true);
       this.dataClientService
         .readClientList(this.currentFilter)
         .subscribe((x) => {
@@ -273,11 +275,10 @@ export class DataManagementClientService {
           if (this.isFilter_Dirty()) {
             this.currentFilterDummy = cloneObject(this.currentFilter);
           }
-        });
-    }
 
-    if (!isSecondRead) {
-      this.isRead.next(true);
+          this.isRead.set(true);
+          this.showProgressSpinner.set(false);
+        });
     }
   }
 
@@ -449,10 +450,10 @@ export class DataManagementClientService {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
 
-    this.isReset.next(true);
     setTimeout(() => {
-      this.isRead.next(true);
-    }, 300);
+      this.isReset.set(true);
+      this.showProgressSpinner.set(false);
+    }, 200);
   }
 
   createUrl(): string {
@@ -502,7 +503,8 @@ export class DataManagementClientService {
       this.router.navigate(['/workplace/edit-address']);
 
       setTimeout(() => {
-        this.isRead.next(true);
+        this.isRead.set(true);
+        this.showProgressSpinner.set(false);
       }, 300);
     });
   }

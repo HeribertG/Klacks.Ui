@@ -48,7 +48,6 @@ export class ScheduleContainerComponent
   }
 
   private readData() {
-    this.spinnerService.showProgressSpinner = true;
     this.dataManagementScheduleService.readDatas();
   }
 }

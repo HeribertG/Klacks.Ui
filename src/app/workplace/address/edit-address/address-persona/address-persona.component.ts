@@ -4,12 +4,11 @@ import {
   EventEmitter,
   Inject,
   LOCALE_ID,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
-  SimpleChanges,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -75,6 +74,15 @@ export class AddressPersonaComponent
     private modalService: ModalService
   ) {
     this.locale = MessageLibrary.DEFAULT_LANG;
+
+    effect(() => {
+      if (this.dataManagementClientService.isRead()) {
+        setTimeout(() => this.setEnvironmentVariable(), 100);
+      }
+      if (this.dataManagementClientService.isReset()) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -114,18 +122,6 @@ export class AddressPersonaComponent
         ele.focus();
       }
     }
-
-    this.dataManagementClientService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        setTimeout(() => this.setEnvironmentVariable(), 100);
-      });
-
-    this.dataManagementClientService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      });
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))

@@ -52,14 +52,12 @@ export class ScheduleScheduleSurfaceComponent
     public scroll: ScrollService,
     public drawSchedule: DrawScheduleService,
     private el: ElementRef,
-    private spinnerService: SpinnerService,
     private settings: SettingsService,
     private cdr: ChangeDetectorRef
   ) {}
 
   /* #region ng */
   ngOnInit(): void {
-    this.spinnerService.showProgressSpinner = false;
     this._pixelRatio = DrawHelper.pixelRatio();
 
     this.drawSchedule.refresh();
@@ -98,7 +96,6 @@ export class ScheduleScheduleSurfaceComponent
     this.dataService.refreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.spinnerService.showProgressSpinner = false;
         this.drawSchedule.redraw();
       });
 

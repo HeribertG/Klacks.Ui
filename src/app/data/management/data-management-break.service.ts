@@ -12,7 +12,6 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { Subject } from 'rxjs';
 
@@ -35,8 +34,7 @@ export class DataManagementBreakService {
 
   constructor(
     public dataBreakService: DataBreakService,
-    public toastService: ToastService,
-    private spinnerService: SpinnerService
+    public toastService: ToastService
   ) {}
 
   reRead() {
@@ -44,15 +42,11 @@ export class DataManagementBreakService {
   }
   readYear() {
     if (this.isFilter_Dirty() && this.canReadBreaks) {
-      setTimeout(() => (this.spinnerService.showProgressSpinner = true), 50);
-
       this.clients = [];
 
       this.dataBreakService.getClientList(this.breakFilter).subscribe((x) => {
         this.clients = x;
         this.breakFilterDummy = cloneObject(this.breakFilter);
-        setTimeout(() => (this.spinnerService.showProgressSpinner = false), 50);
-
         this.isRead.next(true);
       });
     }

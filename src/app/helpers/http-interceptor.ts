@@ -1,4 +1,10 @@
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpInterceptor,
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { MessageLibrary } from './string-constants';
@@ -33,8 +39,7 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   constructor(
     private dataManagementSwitchboardService: DataManagementSwitchboardService,
-    @Inject(AuthService) private authService: AuthService,
-    private spinnerService: SpinnerService
+    @Inject(AuthService) private authService: AuthService
   ) {}
 
   intercept(
@@ -58,7 +63,7 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
 
         this.dataManagementSwitchboardService.isDirty = false;
-        this.spinnerService.showProgressSpinner = false;
+        this.dataManagementSwitchboardService.showProgressSpinner(false);
         this.dataManagementSwitchboardService.isSavedOrReset = false;
 
         // error in PostcodeCH occurs if no postcode is found-> IT IS NO ERROR

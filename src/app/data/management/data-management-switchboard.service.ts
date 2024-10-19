@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, effect } from '@angular/core';
 import { DataManagementAbsenceService } from './data-management-absence.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementProfileService } from './data-management-profile.service';
@@ -33,72 +33,39 @@ export class DataManagementSwitchboardService {
 
     private spinnerService: SpinnerService
   ) {
-    this.dataManagementClientService.startToReadPage
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
-      });
+    effect(() => {
+      if (this.dataManagementClientService.showProgressSpinner()) {
+        this.showProgressSpinner(true);
+      } else if (!this.dataManagementClientService.showProgressSpinner()) {
+        this.showProgressSpinner(false);
+      }
+    });
 
-    this.dataManagementClientService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
-      });
-
-    this.dataManagementClientService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
-      });
-    this.dataManagementSettingsService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
-      });
     this.dataManagementProfileService.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
+        this.showProgressSpinner(false);
       });
     this.dataManagementAbsenceService.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
+        this.showProgressSpinner(false);
       });
-    this.dataManagementScheduleService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
-      });
+    this.dataManagementScheduleService.isRead.pipe(
+      takeUntil(this.ngUnsubscribe)
+    );
+    this.showProgressSpinner(false);
 
     this.dataManagementGroupService.startToReadPage
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
+        this.showProgressSpinner(true);
       });
 
     this.dataManagementGroupService.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = false;
-        }, 200);
+        this.showProgressSpinner(false);
       });
   }
 
@@ -107,6 +74,9 @@ export class DataManagementSwitchboardService {
     this.ngUnsubscribe.complete();
   }
 
+  public showProgressSpinner(value: boolean): void {
+    this.spinnerService.showProgressSpinner = value;
+  }
   public get nameOfVisibleEntity(): string {
     return this._nameOfVisibleEntity;
   }
@@ -160,9 +130,7 @@ export class DataManagementSwitchboardService {
 
     if (!this.isDirty) {
       this.isDisabled = false;
-      setTimeout(() => {
-        this.spinnerService.showProgressSpinner = false;
-      }, 200);
+      this.showProgressSpinner(false);
     }
   }
 
@@ -170,43 +138,27 @@ export class DataManagementSwitchboardService {
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':
         this.isDisabled = true;
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
-
         this.isSavedOrReset = true;
         this.dataManagementClientService.save();
 
         break;
       case 'DataManagementSettingsService':
         this.isDisabled = true;
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         this.isSavedOrReset = true;
         this.dataManagementSettingsService.save();
         break;
       case 'DataManagementProfileService':
         this.isDisabled = true;
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         this.isSavedOrReset = true;
         this.dataManagementProfileService.save();
         break;
       case 'DataManagementGroupService_Edit':
         this.isDisabled = true;
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         this.isSavedOrReset = true;
         this.dataManagementGroupService.save();
         break;
       case 'DataManagementShiftService_Edit':
         this.isDisabled = true;
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         this.isSavedOrReset = true;
         this.dataManagementShiftService.save();
         break;

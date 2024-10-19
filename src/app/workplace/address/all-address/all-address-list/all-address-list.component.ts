@@ -6,6 +6,7 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -95,7 +96,18 @@ export class AllAddressListComponent
     private translateService: TranslateService,
     private localStorageService: LocalStorageService,
     private modalService: ModalService
-  ) {}
+  ) {
+    effect(() => {
+      if (this.dataManagementClientService.isRead()) {
+        if (this.isFirstRead) {
+          setTimeout(() => this.recalcHeight(), 100);
+          this.isFirstRead = false;
+        } else {
+          this.isMeasureTable = true;
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.dataManagementClientService.init();
@@ -130,17 +142,6 @@ export class AllAddressListComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.isInit();
-      });
-
-    this.dataManagementClientService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-          return;
-        }
-        this.isMeasureTable = true;
       });
 
     this.modalService.resultEvent

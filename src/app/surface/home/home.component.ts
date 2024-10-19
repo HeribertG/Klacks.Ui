@@ -38,7 +38,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     private dataSettingsVariousService: DataSettingsVariousService,
     @Inject(DataLoadFileService)
     private dataLoadFileService: DataLoadFileService,
-    private spinnerService: SpinnerService,
     private localStorageService: LocalStorageService
   ) {}
 
@@ -155,7 +154,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private reset(): void {
-    this.spinnerService.showProgressSpinner = false;
+    this.dataManagementSwitchboardService.showProgressSpinner(false);
     this.isDashboard = false;
     this.isProfile = false;
     this.isSetting = false;
@@ -183,24 +182,16 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = false;
         this.setContainerWithMax();
 
-        // setTimeout(() => {
-        //   this.spinnerService.showProgressSpinner = true;
-        // }, 200);
         break;
       case 'dashboard':
         pushOnStack('workplace/dashboard');
-        // setTimeout(() => {
-        //   this.spinnerService.showProgressSpinner = true;
-        // }, 200);
+
         this.setContainerWithNormal();
         this.isDashboard = true;
         this.isSavebarVisible = false;
 
         break;
       case 'edit-address':
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         import('../../workplace/address/address.module').then(
           (m) => m.AddressModule
         );
@@ -214,9 +205,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'client':
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         pushOnStack('workplace/client');
         import('../../workplace/address/address.module').then(
           (m) => m.AddressModule
@@ -231,9 +219,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'schedule':
-        // setTimeout(() => {
-        //   this.spinnerService.showProgressSpinner = true;
-        // }, 200);
         import('../../workplace/schedule/schedule.module').then(
           (m) => m.ScheduleModule
         );
@@ -247,9 +232,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'profile':
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         import('../../workplace/profile/profile.module').then(
           (m) => m.ProfileModule
         );
@@ -264,9 +246,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'settings':
-        setTimeout(() => {
-          this.spinnerService.showProgressSpinner = true;
-        }, 200);
         import('./../../workplace/settings/settings.module').then(
           (m) => m.SettingsModule
         );
@@ -321,8 +300,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     } else {
       this.saveBarWrapper!.style.setProperty('--footer_height', '0px');
     }
-
-    this.spinnerService.showProgressSpinner = false;
   }
 
   open(content: any): Promise<boolean> | void {}
