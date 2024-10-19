@@ -1,4 +1,4 @@
-import { Injectable, effect } from '@angular/core';
+import { Injectable, effect, signal } from '@angular/core';
 import { DataManagementAbsenceService } from './data-management-absence.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementProfileService } from './data-management-profile.service';
@@ -13,13 +13,13 @@ import { Subject, takeUntil } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementSwitchboardService {
-  public isFocusChangedEvent = new Subject<boolean>();
+  public isFocusChanged = signal(false);
+  public lastNameOfVisibleEntity = '';
+  public isDirty = false;
+  public isDisabled = false;
+  public isSavedOrReset = false;
 
   private _nameOfVisibleEntity = '';
-  lastNameOfVisibleEntity = '';
-  isDirty = false;
-  isDisabled = false;
-  isSavedOrReset = false;
   private ngUnsubscribe = new Subject<void>();
 
   constructor(
@@ -33,13 +33,18 @@ export class DataManagementSwitchboardService {
 
     private spinnerService: SpinnerService
   ) {
-    effect(() => {
-      if (this.dataManagementClientService.showProgressSpinner()) {
-        this.showProgressSpinner(true);
-      } else if (!this.dataManagementClientService.showProgressSpinner()) {
-        this.showProgressSpinner(false);
-      }
-    });
+    effect(
+      () => {
+        const showSpinner =
+          this.dataManagementClientService.showProgressSpinner();
+        if (showSpinner) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
 
     this.dataManagementProfileService.isRead
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -80,10 +85,11 @@ export class DataManagementSwitchboardService {
   public get nameOfVisibleEntity(): string {
     return this._nameOfVisibleEntity;
   }
+
   public set nameOfVisibleEntity(value: string) {
     this.lastNameOfVisibleEntity = this._nameOfVisibleEntity;
     this._nameOfVisibleEntity = value;
-    this.isFocusChangedEvent.next(true);
+    this.isFocusChanged.set(true);
   }
 
   areObjectsDirty(): void {

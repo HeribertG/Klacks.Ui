@@ -410,7 +410,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     copyObjectValues(this.dataManagementGroupService.currentFilter, value);
 
     if (this.dataManagementGroupService.currentFilter.searchString) {
-      this.dataManagementGroupService.restoreSearch.next(
+      this.dataManagementGroupService.restoreSearch.set(
         this.dataManagementGroupService.currentFilter.searchString
       );
     }

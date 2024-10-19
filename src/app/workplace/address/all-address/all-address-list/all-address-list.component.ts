@@ -89,7 +89,6 @@ export class AllAddressListComponent
   private ngUnsubscribe = new Subject<void>();
 
   constructor(
-    private ngbModal: NgbModal,
     public dataManagementClientService: DataManagementClientService,
     private router: Router,
     private renderer: Renderer2,
@@ -97,16 +96,30 @@ export class AllAddressListComponent
     private localStorageService: LocalStorageService,
     private modalService: ModalService
   ) {
-    effect(() => {
-      if (this.dataManagementClientService.isRead()) {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-        } else {
-          this.isMeasureTable = true;
+    effect(
+      () => {
+        if (this.dataManagementClientService.isRead()) {
+          if (this.isFirstRead) {
+            setTimeout(() => this.recalcHeight(), 100);
+            this.isFirstRead = false;
+          } else {
+            this.isMeasureTable = true;
+          }
         }
-      }
-    });
+
+        if (this.dataManagementClientService.initIsRead()) {
+          this.isInit();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        this.isInit();
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   ngOnInit(): void {
@@ -137,12 +150,6 @@ export class AllAddressListComponent
     this.resizeWindow = this.renderer.listen('window', 'resize', (event) => {
       this.resize(event);
     });
-
-    this.dataManagementClientService.initIsRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.isInit();
-      });
 
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -348,7 +355,7 @@ export class AllAddressListComponent
       this.dataManagementClientService.currentFilter.countries;
 
     if (this.dataManagementClientService.currentFilter.searchString) {
-      this.dataManagementClientService.restoreSearch.next(
+      this.dataManagementClientService.restoreSearch.set(
         this.dataManagementClientService.currentFilter.searchString
       );
     }

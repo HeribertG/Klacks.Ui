@@ -1,37 +1,24 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { DataManagementSwitchboardService } from './data-management-switchboard.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementGroupService } from './data-management-group.service';
-import { Subject, takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementSearchService {
-  public restoreSearch = new Subject<string>();
-
-  private ngUnsubscribe = new Subject<void>();
+  private _restoreSearch = signal('');
 
   constructor(
     private dataManagementSwitchboard: DataManagementSwitchboardService,
     private dataManagementClient: DataManagementClientService,
-    private DataManagementBreak: DataManagementBreakService,
+    private dataManagementBreak: DataManagementBreakService,
     private dataManagementGroup: DataManagementGroupService
-  ) {
-    this.dataManagementClient.restoreSearch
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x: string) => {
-        this.restoreSearch.next(x);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-  }
+  ) {}
 
   public globalSearch(value: string, isIncludeAddress: boolean = false): void {
+    this._restoreSearch.set(value);
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
       case 'DataManagementClientService':
         this.dataManagementClient.currentFilter.searchString = value;
@@ -40,8 +27,8 @@ export class DataManagementSearchService {
         this.dataManagementClient.readPage();
         break;
       case 'DataManagementBreakService':
-        this.DataManagementBreak.breakFilter.search = value;
-        this.DataManagementBreak.readYear();
+        this.dataManagementBreak.breakFilter.search = value;
+        this.dataManagementBreak.readYear();
         break;
       case 'DataManagementGroupService':
         this.dataManagementGroup.currentFilter.searchString = value;
@@ -51,6 +38,11 @@ export class DataManagementSearchService {
   }
 
   public resetFilter(): void {
+    this._restoreSearch.set('');
+    this.resetFilterWithoutSignalWrite();
+  }
+
+  public resetFilterWithoutSignalWrite(): void {
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
       case 'DataManagementClientService':
         this.dataManagementClient.currentFilter.searchString = '';
@@ -58,13 +50,17 @@ export class DataManagementSearchService {
         this.dataManagementClient.readPage();
         break;
       case 'DataManagementBreakService':
-        this.DataManagementBreak.breakFilter.search = '';
-        this.DataManagementBreak.readYear();
+        this.dataManagementBreak.breakFilter.search = '';
+        this.dataManagementBreak.readYear();
         break;
       case 'DataManagementGroupService':
         this.dataManagementGroup.currentFilter.searchString = '';
         this.dataManagementGroup.readPage();
         break;
     }
+  }
+
+  public restoreSearch(): string {
+    return this._restoreSearch();
   }
 }

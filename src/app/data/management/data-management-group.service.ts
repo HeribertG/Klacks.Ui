@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {
   CheckBoxValue,
   Client,
@@ -44,7 +44,7 @@ export class DataManagementGroupService {
   public isRead = new Subject<boolean>();
   public isF5ReRead = new Subject<boolean>();
   public initIsRead = new Subject<boolean>();
-  public restoreSearch = new Subject<string>();
+  public restoreSearch = signal('');
   public startToReadPage = new Subject<boolean>();
 
   currentClientFilter: Filter = new Filter();

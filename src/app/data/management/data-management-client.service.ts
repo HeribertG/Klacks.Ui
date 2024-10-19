@@ -41,7 +41,7 @@ import {
   GenderEnum,
 } from 'src/app/helpers/enums/client-enum';
 import { Router } from '@angular/router';
-import { EMPTY, Observable, Subject, catchError, forkJoin, tap } from 'rxjs';
+import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 
 @Injectable({
@@ -51,10 +51,8 @@ export class DataManagementClientService {
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
-  public isReadChangeList = new Subject<boolean>();
-  public isF5ReRead = new Subject<boolean>();
-  public initIsRead = new Subject<boolean>();
-  public restoreSearch = new Subject<string>();
+  public initIsRead = signal(false);
+  public restoreSearch = signal('');
   public startToReadPage = signal(false);
 
   currentFilter: Filter = new Filter();
@@ -146,7 +144,7 @@ export class DataManagementClientService {
         .subscribe(() => {
           this.isInit = true;
           this.filterState();
-          this.initIsRead.next(true);
+          this.initIsRead.set(true);
         });
     }
   }
@@ -249,7 +247,7 @@ export class DataManagementClientService {
       this.startToReadPage.set(true);
     }
 
-    // Hack, vieleicht hilfst es
+    // Hack, vielleicht hilft es
     if (!this.currentFilter.countries) {
       this.isInit = false;
       this.init();
@@ -257,9 +255,8 @@ export class DataManagementClientService {
 
     if (this.currentFilter.isFilterValid() && this.isInit) {
       this.showProgressSpinner.set(true);
-      this.dataClientService
-        .readClientList(this.currentFilter)
-        .subscribe((x) => {
+      this.dataClientService.readClientList(this.currentFilter).subscribe({
+        next: (x) => {
           x.clients.forEach((z) => {
             const res = this.clientAttribute.find((y) => +y.type === +z.type);
             if (res) {
@@ -267,19 +264,28 @@ export class DataManagementClientService {
             }
           });
 
-          this.listWrapper = x;
-          this.maxItems = x.maxItems;
-          this.firstItem = x.firstItemOnPage;
-          this.maxPages = x.maxPages;
-
-          if (this.isFilter_Dirty()) {
-            this.currentFilterDummy = cloneObject(this.currentFilter);
-          }
-
-          this.isRead.set(true);
+          this.updateListWrapper(x);
+        },
+        error: (err) => {
+          console.error('Error reading client list:', err);
           this.showProgressSpinner.set(false);
-        });
+        },
+      });
     }
+  }
+
+  private updateListWrapper(x: ITruncatedClient) {
+    this.listWrapper = x;
+    this.maxItems = x.maxItems;
+    this.firstItem = x.firstItemOnPage;
+    this.maxPages = x.maxPages;
+
+    if (this.isFilter_Dirty()) {
+      this.currentFilterDummy = cloneObject(this.currentFilter);
+    }
+
+    this.isRead.set(true);
+    this.showProgressSpinner.set(false);
   }
 
   deleteClient(key: string): Observable<IClient> {
@@ -343,10 +349,6 @@ export class DataManagementClientService {
           locale
         )}, bearbeitet von ${x.editor}`;
         this.lastChangeMaxItems = x.maxItems;
-
-        if (!isSecondRead) {
-          this.isReadChangeList.next(true);
-        }
       });
   }
 
@@ -446,6 +448,23 @@ export class DataManagementClientService {
       this.editClientDummy = cloneObject(this.editClient);
     }
 
+    /**
+     * Updates the URL to reflect the current state of the edited client.
+     *
+     * This function is called when a client is being edited. It performs the following actions:
+     * 1. Checks if there's an active client being edited (this.editClient.id exists).
+     * 2. If so, it updates the URL after a short delay.
+     *
+     * @remarks
+     * - The 100ms delay (setTimeout) is used to ensure that other asynchronous operations
+     *   have completed before updating the URL. This helps prevent potential timing issues.
+     * - history.pushState is used to update the URL without triggering a page reload,
+     *   which is typical behavior in Single Page Applications (SPAs).
+     * - The createUrl() method is assumed to generate the appropriate URL based on the current state.
+     *
+     *  @see {@link https://developer.mozilla.org/en-US/docs/Web/API/History/pushState|MDN docs on history.pushState}
+     */
+
     if (this.editClient.id) {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
@@ -463,8 +482,6 @@ export class DataManagementClientService {
   readClient(id: string) {
     if (id !== '') {
       this.dataClientService.getClient(id).subscribe((x) => {
-        // dirty hack
-        this.isF5ReRead.next(true);
         this.prepareClient(x);
       });
     }
@@ -829,12 +846,12 @@ export class DataManagementClientService {
     const b = this.editClientDummy as IClient;
 
     if (!compareComplexObjects(a, b)) {
-      return this.isValid();
+      return this.isDirtyClientValid();
     }
     return false;
   }
 
-  isValid(): boolean {
+  isDirtyClientValid(): boolean {
     if (
       this.editClient?.gender === GenderEnum.legalEntity &&
       !this.editClient?.company

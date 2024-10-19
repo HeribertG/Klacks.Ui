@@ -6,6 +6,7 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -48,6 +49,11 @@ export class AllAddressNavComponent
     private localStorageService: LocalStorageService
   ) {
     this.iterableDiffer = iterableDiffers.find([]).create(undefined);
+    effect(() => {
+      if (this.dataManagementClientService.initIsRead()) {
+        this.isInit();
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -64,12 +70,6 @@ export class AllAddressNavComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
-      });
-
-    this.dataManagementClientService.initIsRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.isInit();
       });
 
     const res = this.localStorageService.get(MessageLibrary.TOKEN) !== null;
