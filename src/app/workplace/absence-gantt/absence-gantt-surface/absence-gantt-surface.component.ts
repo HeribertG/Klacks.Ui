@@ -950,7 +950,6 @@ export class AbsenceGanttSurfaceComponent
         const isReset = this.gridColors.isReset();
         if (isReset) {
           this.addServicesCount();
-          this.gridColors.isReset.set(false);
         }
       },
       { allowSignalWrites: true }
@@ -961,7 +960,6 @@ export class AbsenceGanttSurfaceComponent
         const isReset = this.gridFonts.isReset();
         if (isReset) {
           this.addServicesCount();
-          this.gridFonts.isReset.set(false);
         }
       },
       { allowSignalWrites: true }
@@ -979,7 +977,6 @@ export class AbsenceGanttSurfaceComponent
             1
           );
           this.drawCalendarGantt.resetAll();
-          this.holidayCollection.isReset.set(false);
         }
       },
       { allowSignalWrites: true }
@@ -1002,7 +999,6 @@ export class AbsenceGanttSurfaceComponent
             this.drawCalendarGantt.selectedBreak
           );
         }
-        this.dataManagementBreak.isUpdate.set(undefined);
       },
       { allowSignalWrites: true }
     );

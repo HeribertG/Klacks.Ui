@@ -42,6 +42,7 @@ export class DataManagementAbsenceGanttService {
     this.initCount += 1;
     if (this.initCount === 1) {
       this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     }
   }
 }

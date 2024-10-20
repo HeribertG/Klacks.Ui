@@ -55,6 +55,7 @@ export class HolidayCollectionService {
     }
     this.holidays.computeHolidays();
     this.isReset.set(true);
+    setTimeout(() => this.isReset.set(false), 100);
   }
 
   selection(): PossibleHolidayRule[] {

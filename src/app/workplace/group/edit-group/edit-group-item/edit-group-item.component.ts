@@ -83,7 +83,6 @@ export class EditGroupItemComponent
         const isReset = this.dataManagementGroupService.isReset();
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
-          this.dataManagementGroupService.isReset.set(false);
         }
       },
       { allowSignalWrites: true }

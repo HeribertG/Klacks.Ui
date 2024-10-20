@@ -154,7 +154,6 @@ export class AbsenceGanttAbsenceListComponent
         const isReset = this.dataManagementAbsence.isReset();
         if (isReset) {
           this.fillImageMap();
-          this.dataManagementAbsence.isReset.set(false);
         }
       },
       { allowSignalWrites: true }

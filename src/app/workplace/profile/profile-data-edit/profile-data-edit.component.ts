@@ -116,7 +116,6 @@ export class ProfileDataEditComponent implements OnInit {
         const isReset = this.dataManagementProfileService.isReset();
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
-          this.dataManagementProfileService.isReset.set(false);
         }
       },
       { allowSignalWrites: true }

@@ -486,16 +486,12 @@ export class AddressPersonaComponent
         setTimeout(() => this.setEnvironmentVariable(), 100);
         this.dataManagementClientService.isRead.set(false);
       }
-      if (this.dataManagementClientService.isReset()) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
     });
     effect(
       () => {
         const isReset = this.dataManagementClientService.isReset();
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
-          this.dataManagementClientService.isReset.set(false);
         }
       },
       { allowSignalWrites: true }

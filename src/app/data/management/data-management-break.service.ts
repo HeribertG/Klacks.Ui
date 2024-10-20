@@ -19,7 +19,6 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementBreakService {
-  public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public isUpdate = signal<IBreak | undefined>(undefined); //Zeichnet die selektierte Zeile neu
@@ -93,6 +92,7 @@ export class DataManagementBreakService {
         client.breaks.push(x);
         client.breaks = this.sortBreaks(client.breaks);
         this.isUpdate.set(x);
+        setTimeout(() => this.isUpdate.set(undefined), 100);
       });
     }
   }
@@ -105,6 +105,7 @@ export class DataManagementBreakService {
           client.breaks.filter((obj) => obj.id !== value.id)
         );
         this.isUpdate.set(value);
+        setTimeout(() => this.isUpdate.set(undefined), 100);
       });
     }
   }
@@ -124,6 +125,7 @@ export class DataManagementBreakService {
       const client = this.clients[index];
       client.breaks = this.sortBreaks(client.breaks);
       this.isUpdate.set(value);
+      setTimeout(() => this.isUpdate.set(undefined), 100);
     });
   }
 

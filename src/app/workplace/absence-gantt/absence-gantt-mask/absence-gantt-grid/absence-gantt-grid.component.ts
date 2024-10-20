@@ -205,7 +205,6 @@ export class AbsenceGanttGridComponent
         const isReset = this.dataManagementAbsence.isReset();
         if (isReset) {
           this.absence = this.dataManagementAbsence.absenceList;
-          this.dataManagementAbsence.isReset.set(false);
         }
       },
       { allowSignalWrites: true }

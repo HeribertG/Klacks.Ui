@@ -472,6 +472,7 @@ export class DataManagementClientService {
     setTimeout(() => {
       this.isReset.set(true);
       this.showProgressSpinner.set(false);
+      setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
 

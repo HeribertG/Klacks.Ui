@@ -8,7 +8,6 @@ import { ToastService } from '../../toast/toast.service';
 import { UserAdministrationService } from '../user-administration.service';
 import {
   IAuthentication,
-  Authentication,
   ChangePassword,
   ChangeRole,
 } from '../../core/authentification-class';
@@ -632,6 +631,7 @@ export class DataManagementSettingsService {
         this.countriesList = x as ICountry[];
         this.countriesListDummy = cloneObject(this.countriesList);
         this.isReset.set(true);
+        setTimeout(() => this.isReset.set(false), 100);
       }
     });
   }
@@ -721,6 +721,7 @@ export class DataManagementSettingsService {
         this.statesList = x as IState[];
         this.statesListDummy = cloneObject(this.statesList);
         this.isReset.set(true);
+        setTimeout(() => this.isReset.set(false), 100);
       }
     });
   }
@@ -819,6 +820,7 @@ export class DataManagementSettingsService {
       this.macroListDummy = cloneObject(this.macroList);
 
       this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     });
   }
 
@@ -947,6 +949,7 @@ export class DataManagementSettingsService {
           this.bankDetailListDummy = cloneObject(this.bankDetailList);
 
           this.isReset.set(true);
+          setTimeout(() => this.isReset.set(false), 100);
         }
       }
     });
@@ -1082,6 +1085,7 @@ export class DataManagementSettingsService {
     if (this.settingsCount === 0) {
       this.isDirty = this.areObjectsDirty();
       this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     }
   }
 

@@ -43,6 +43,7 @@ export class DataManagementProfileService {
       .changePassword(this.changePasswordWrapper!)
       .subscribe((x) => {
         this.isReset.set(true);
+        setTimeout(() => this.isReset.set(false), 100);
         this.showSuccess(
           MessageLibrary.REGISTER_CHANGE_PASSWORD,
           MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
@@ -67,6 +68,7 @@ export class DataManagementProfileService {
       this.changePasswordWrapper!.oldPassword = '';
       this.changePasswordWrapper!.password = '';
       this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     }
   }
 

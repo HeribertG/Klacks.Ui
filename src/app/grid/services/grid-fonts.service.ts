@@ -190,6 +190,7 @@ export class GridFontsService {
 
         this.isReset.set(true);
         this.isChangingEvent.next(false);
+        setTimeout(() => this.isReset.set(false), 100);
       }
     });
   }

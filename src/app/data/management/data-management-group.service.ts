@@ -13,7 +13,6 @@ import {
   GroupFilter,
   GroupItem,
   IGroup,
-  IGroupItem,
   ITruncatedGroup,
 } from 'src/app/core/group-class';
 import { DataClientService } from '../data-client.service';
@@ -26,10 +25,8 @@ import {
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
 import {
-  isDateStringValid,
   isNgbDateStructValid,
   transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
 } from 'src/app/helpers/format-helper';
 import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
@@ -237,6 +234,7 @@ export class DataManagementGroupService {
     }
 
     this.isReset.set(true);
+    setTimeout(() => this.isReset.set(false), 100);
   }
 
   saveEditGroup(withoutUpdateDummy = false) {

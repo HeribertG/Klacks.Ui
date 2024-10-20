@@ -164,6 +164,7 @@ export class DataManagementCalendarSelectionService {
         this.chipsDummy = cloneObject(this.chips);
       }
     }
+    setTimeout(() => this.isChanged.set(false), 100);
   }
 
   isFilterDirty(): boolean {

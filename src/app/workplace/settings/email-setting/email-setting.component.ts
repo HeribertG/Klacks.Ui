@@ -55,7 +55,6 @@ export class EmailSettingComponent implements OnInit {
         const isReset = this.dataManagementSettingsService.isReset();
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
-          this.dataManagementSettingsService.isReset.set(false);
         }
       },
       { allowSignalWrites: true }
