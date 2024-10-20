@@ -39,6 +39,7 @@ export class DataManagementScheduleService {
       this.workFilterDummy = cloneObject(this.workFilter);
       this.isRead.set(true);
       this.showProgressSpinner.set(false);
+      setTimeout(() => this.isRead.set(false), 100);
     });
   }
   readData(index: number): IWork[] | undefined {

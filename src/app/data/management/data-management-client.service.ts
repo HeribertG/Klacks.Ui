@@ -522,6 +522,7 @@ export class DataManagementClientService {
       setTimeout(() => {
         this.isRead.set(true);
         this.showProgressSpinner.set(false);
+        setTimeout(() => this.isRead.set(false), 100);
       }, 300);
     });
   }

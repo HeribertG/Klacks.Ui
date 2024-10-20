@@ -127,7 +127,7 @@ export class DataManagementGroupService {
         this.maxPages = x.maxPages;
       });
     this.showProgressSpinner.set(false);
-    this.isRead.set(true);
+    this.fireIsReadEvent();
   }
 
   clearCheckedArray() {
@@ -191,7 +191,7 @@ export class DataManagementGroupService {
     });
 
     if (isSecondRead) {
-      this.isRead.set(true);
+      this.fireIsReadEvent();
     }
     this.showProgressSpinner.set(false);
   }
@@ -212,8 +212,9 @@ export class DataManagementGroupService {
     this.router.navigate(['/workplace/edit-group']);
 
     setTimeout(() => {
-      this.isRead.set(true);
+      this.fireIsReadEvent();
     }, 300);
+
     this.showProgressSpinner.set(false);
   }
 
@@ -399,5 +400,10 @@ export class DataManagementGroupService {
       autohide: true,
       headertext: MessageLibrary.ERROR_TOASTTITLE,
     });
+  }
+
+  fireIsReadEvent() {
+    this.isRead.set(true);
+    setTimeout(() => this.isRead.set(false), 100);
   }
 }

@@ -49,6 +49,7 @@ export class DataManagementCalendarRulesService {
         new Set(x.map((x) => x.country))
       );
       this.isRead.set(true);
+      setTimeout(() => this.isRead.set(false), 100);
     });
   }
   public setTemporaryFilter(): void {

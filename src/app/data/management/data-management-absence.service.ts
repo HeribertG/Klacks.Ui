@@ -70,6 +70,7 @@ export class DataManagementAbsenceService {
           this.firstItem = x.firstItemOnPage;
           this.showProgressSpinner.set(false);
           this.isRead.set(true);
+          setTimeout(() => this.isRead.set(false), 100);
         }
       });
   }

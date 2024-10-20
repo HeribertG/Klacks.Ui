@@ -321,7 +321,6 @@ export class ScheduleScheduleSurfaceComponent
       () => {
         if (this.dataManagementSchedule.isRead()) {
           this.dataService.setMetrics();
-          this.dataManagementSchedule.isRead.set(false);
         }
       },
       { allowSignalWrites: true }

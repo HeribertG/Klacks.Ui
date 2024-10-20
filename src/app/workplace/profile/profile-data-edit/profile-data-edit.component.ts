@@ -42,6 +42,7 @@ export class ProfileDataEditComponent implements OnInit {
 
   ngOnInit(): void {
     this.dataManagementProfileService.isRead.set(true);
+    setTimeout(() => this.dataManagementProfileService.isRead.set(false), 100);
   }
 
   ngDoCheck(): void {

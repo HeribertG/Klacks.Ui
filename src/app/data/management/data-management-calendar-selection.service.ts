@@ -75,6 +75,7 @@ export class DataManagementCalendarSelectionService {
           this.calendarsSelections.push(...x);
         }
         this.isRead.set(true);
+        setTimeout(() => this.isRead.set(false), 100);
       });
   }
 
