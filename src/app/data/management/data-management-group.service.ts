@@ -30,7 +30,6 @@ import {
 } from 'src/app/helpers/format-helper';
 import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Injectable({
@@ -40,10 +39,8 @@ export class DataManagementGroupService {
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
-  public isF5ReRead = new Subject<boolean>();
   public initIsRead = new Subject<boolean>();
   public restoreSearch = signal('');
-  public startToReadPage = new Subject<boolean>();
 
   currentClientFilter: Filter = new Filter();
   currentClientFilterDummy: Filter | undefined;
@@ -113,7 +110,6 @@ export class DataManagementGroupService {
   }
   readPageClient() {
     this.showProgressSpinner.set(true);
-    this.startToReadPage.next(true);
 
     this.dataClientService
       .readClientList(this.currentClientFilter)
@@ -176,9 +172,6 @@ export class DataManagementGroupService {
   }
 
   readPage(isSecondRead: boolean = false) {
-    if (!isSecondRead) {
-      this.startToReadPage.next(true);
-    }
     this.showProgressSpinner.set(true);
     this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;
@@ -268,8 +261,6 @@ export class DataManagementGroupService {
   readGroup(id: string) {
     if (id) {
       this.dataGroupService.getGroup(id).subscribe((x) => {
-        // dirty hack
-        this.isF5ReRead.next(true);
         this.prepareGroup(x);
       });
     }

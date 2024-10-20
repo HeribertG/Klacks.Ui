@@ -55,47 +55,44 @@ export class DataManagementClientService {
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
 
-  currentFilter: Filter = new Filter();
-  currentFilterDummy: Filter | undefined;
-  temporaryFilterDummy: Filter | undefined;
-  LastChangeFilter: Filter = new Filter();
-  listWrapper: ITruncatedClient | undefined;
-  lastChangeListWrapper: ITruncatedClient | undefined;
-  editClient: IClient | undefined;
-  editClientDummy: IClient | undefined;
-  checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
-  headerCheckBoxValue: boolean = false;
-  maxItems = 0;
-  firstItem = 0;
-  maxPages = 0;
+  public currentFilter: Filter = new Filter();
+  public lastChangeFilter: Filter = new Filter();
+  public listWrapper: ITruncatedClient | undefined;
+  public lastChangeListWrapper: ITruncatedClient | undefined;
+  public editClient: IClient | undefined;
+  public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
+  public headerCheckBoxValue: boolean = false;
+  public maxItems = 0;
+  public firstItem = 0;
+  public maxPages = 0;
 
-  lastChangeMaxItems: number | undefined;
-  subTitleLastChanges = '';
-  subTitleLastChangesAllAddress = '';
-  stateList: StateCountryToken[] | undefined;
+  public lastChangeMaxItems: number | undefined;
+  public subTitleLastChanges = '';
+  public subTitleLastChangesAllAddress = '';
+  public stateList: StateCountryToken[] | undefined;
+  public communicationTypePhoneList: ICommunicationType[] = [];
+  public communicationTypeEmailList: ICommunicationType[] = [];
+  public communicationPrefixList: ICommunicationPrefix[] = [];
+  public communicationPhoneList: ICommunication[] = [];
+  public communicationEmailList: ICommunication[] = [];
+  public clientAttribute: IClientAttribute[] = [];
+  public clientAddressListWithoutQueryFilter: IAddress[] = [];
+  public lastCountries: IPostCodeCH[] = [];
 
-  communicationTypePhoneList: ICommunicationType[] = [];
-  communicationTypeEmailList: ICommunicationType[] = [];
-  communicationPrefixList: ICommunicationPrefix[] = [];
-  communicationPhoneList: ICommunication[] = [];
-  communicationEmailList: ICommunication[] = [];
-  clientAttribute: IClientAttribute[] = [];
-  clientAddressListWithoutQueryFilter: IAddress[] = [];
-
-  lastCountries: IPostCodeCH[] = [];
-
-  isSwissAbbreviation = 'CH';
-  isSwissPrefixId = '';
-  defaultTypePhone = -1;
-  defaultTypeEmail = -1;
-  currentAddressIndex = -1;
-  currentAnnotationIndex = -1;
-  maxAddressType = 3;
+  public isSwissAbbreviation = 'CH';
+  public isSwissPrefixId = '';
+  public defaultTypePhone = -1;
+  public defaultTypeEmail = -1;
+  public currentAddressIndex = -1;
+  public currentAnnotationIndex = -1;
+  public maxAddressType = 3;
+  public editClientLastMutation = '';
+  public editClientDeleted = false;
 
   private isInit = false;
-
-  editClientLastMutation = '';
-  editClientDeleted = false;
+  private editClientDummy: IClient | undefined;
+  private currentFilterDummy: Filter | undefined;
+  private temporaryFilterDummy: Filter | undefined;
 
   // Ist für die Ansicht der gefundenen Mitglieder beim
   // Neuanlegen einer Adresse
@@ -333,7 +330,7 @@ export class DataManagementClientService {
     locale: string = MessageLibrary.DEFAULT_LANG
   ) {
     this.dataClientService
-      .readChangeList(this.LastChangeFilter)
+      .readChangeList(this.lastChangeFilter)
       .subscribe((x) => {
         x.clients.forEach((z) => {
           const res = this.clientAttribute.find((y) => +y.type === +z.type);

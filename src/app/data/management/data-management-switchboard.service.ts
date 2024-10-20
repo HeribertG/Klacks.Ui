@@ -29,7 +29,6 @@ export class DataManagementSwitchboardService {
     public dataManagementScheduleService: DataManagementScheduleService,
     public dataManagementGroupService: DataManagementGroupService,
     public dataManagementShiftService: DataManagementShiftService,
-
     private spinnerService: SpinnerService
   ) {
     this.readSignals();

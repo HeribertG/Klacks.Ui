@@ -105,7 +105,7 @@ export class AbsenceGanttAbsenceListComponent
   }
 
   private fillImageMap() {
-    this.dataManagementBreak.isAbsenceHeaderInit.next(false);
+    this.dataManagementBreak.isAbsenceHeaderInit.set(false);
     this.imageMap.clear();
 
     this.dataManagementBreak.breakFilter.absences = [];
@@ -122,7 +122,7 @@ export class AbsenceGanttAbsenceListComponent
       this.imageMap.set(x.id!, img);
     });
 
-    this.dataManagementBreak.isAbsenceHeaderInit.next(true);
+    this.dataManagementBreak.isAbsenceHeaderInit.set(true);
   }
 
   private createImage(item: IAbsence): string {

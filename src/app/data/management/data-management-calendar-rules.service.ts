@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Subject, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import {
   CalendarRule,
   CalendarRulesFilter,

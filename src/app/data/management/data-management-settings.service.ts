@@ -33,87 +33,85 @@ import { MultiLanguage } from 'src/app/core/multi-language-class';
 export class DataManagementSettingsService {
   public isReset = signal(false);
 
-  accountsList: IAuthentication[] = [];
+  public accountsList: IAuthentication[] = [];
+  public accountCount = 0;
+  public CurrentAccountId = '';
 
-  accountCount = 0;
+  public countriesList: ICountry[] = new Array<ICountry>();
+  public countriesListDummy: ICountry[] = new Array<ICountry>();
+  public countriesListCount = 0;
 
-  CurrentAccountId = '';
+  public statesList: IState[] = new Array<IState>();
+  public statesListDummy: IState[] = new Array<IState>();
+  public statesListCount = 0;
 
-  countriesList: ICountry[] = new Array<ICountry>();
-  countriesListDummy: ICountry[] = new Array<ICountry>();
-  countriesListCount = 0;
+  public macroList: IMacro[] = [];
+  public macroListDummy: IMacro[] = [];
+  public macroListCount = 0;
 
-  statesList: IState[] = new Array<IState>();
-  statesListDummy: IState[] = new Array<IState>();
-  statesListCount = 0;
+  public originalMacroTypeList: any[] = [];
 
-  macroList: IMacro[] = [];
-  macroListDummy: IMacro[] = [];
-  macroListCount = 0;
+  public appName = '';
+  public appAddressName = '';
+  public appSupplementAddress = '';
+  public appAddressAddress = '';
+  public appAddressZip = '';
+  public appAddressPlace = '';
+  public appAddressPhone = '';
+  public appAddressMail = '';
+  public appAddressAccountingStart = 0;
 
-  originalMacroTypeList: any[] = [];
+  public outgoingServer = '';
+  public outgoingServerPort = '';
+  public enabledSSL = '';
+  public outgoingServerTimeout = '';
+  public authenticationType = '';
+  public readReceipt = '';
+  public replyTo = '';
+  public dispositionNotification = '';
+  public mark = '';
+  public outgoingserverUsername = '';
+  public outgoingserverPassword = '';
+  public mailPriority = '';
 
-  appName = '';
-  appAddressName = '';
-  appSupplementAddress = '';
-  appAddressAddress = '';
-  appAddressZip = '';
-  appAddressPlace = '';
-  appAddressPhone = '';
-  appAddressMail = '';
-  appAddressAccountingStart = 0;
+  public appMandantNumber = '';
+  public appBusinessArea = '';
 
-  outgoingServer = '';
-  outgoingServerPort = '';
-  enabledSSL = '';
-  outgoingServerTimeout = '';
-  authenticationType = '';
-  readReceipt = '';
-  replyTo = '';
-  dispositionNotification = '';
-  mark = '';
-  outgoingserverUsername = '';
-  outgoingserverPassword = '';
-  mailPriority = '';
+  public appNameDummy = '';
+  public appAddressNameDummy = '';
+  public appSupplementAddressDummy = '';
+  public appAddressAddressDummy = '';
+  public appAddressZipDummy = '';
+  public appAddressPlaceDummy = '';
+  public appAddressPhoneDummy = '';
+  public appAddressMailDummy = '';
+  public appAddressAccountingStartDummy = 0;
+  public markDummy = '';
 
-  appMandantNumber = '';
-  appBusinessArea = '';
+  public outgoingServerDummy = '';
+  public outgoingServerPortDummy = '';
+  public enabledSSLDummy = '';
+  public outgoingServerTimeoutDummy = '';
+  public authenticationTypeDummy = '';
+  public readReceiptDummy = '';
+  public replyToDummy = '';
+  public dispositionNotificationDummy = '';
+  public outgoingserverUsernameDummy = '';
+  public outgoingserverPasswordDummy = '';
+  public mailPriorityDummy = '';
 
-  appNameDummy = '';
-  appAddressNameDummy = '';
-  appSupplementAddressDummy = '';
-  appAddressAddressDummy = '';
-  appAddressZipDummy = '';
-  appAddressPlaceDummy = '';
-  appAddressPhoneDummy = '';
-  appAddressMailDummy = '';
-  appAddressAccountingStartDummy = 0;
-  markDummy = '';
+  public appMandantNumberDummy = '';
+  public appBusinessAreaDummy = '';
 
-  outgoingServerDummy = '';
-  outgoingServerPortDummy = '';
-  enabledSSLDummy = '';
-  outgoingServerTimeoutDummy = '';
-  authenticationTypeDummy = '';
-  readReceiptDummy = '';
-  replyToDummy = '';
-  dispositionNotificationDummy = '';
-  outgoingserverUsernameDummy = '';
-  outgoingserverPasswordDummy = '';
-  mailPriorityDummy = '';
-
-  appMandantNumberDummy = '';
-  appBusinessAreaDummy = '';
-
-  bankDetailList: IBankDetail[] = [];
-  bankDetailListDummy: IBankDetail[] = [];
-  bankDetailCount = 0;
+  public bankDetailList: IBankDetail[] = [];
+  public bankDetailListDummy: IBankDetail[] = [];
+  public bankDetailCount = 0;
   public isBankDetailRowFocusIndex = -1;
 
-  settingList: ISetting[] = [];
-  settingsCount = 0;
+  public settingList: ISetting[] = [];
+  public settingsCount = 0;
 
-  isDirty = false;
+  public isDirty = false;
 
   constructor(
     public userAdministrationService: UserAdministrationService,

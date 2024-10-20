@@ -21,15 +21,14 @@ export class DataManagementCalendarSelectionService {
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
-
-  currentCalendarSelection: ICalendarSelection | undefined =
+  public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
-  chips: StateCountryToken[] = [];
-  chipsDummy: StateCountryToken[] = [];
+  public chips: StateCountryToken[] = [];
+  public emptyPlaceholder = '<Kein>';
+  public calendarsSelections: ICalendarSelection[] = [];
 
-  emptyPlaceholder = '<Kein>';
+  private chipsDummy: StateCountryToken[] = [];
 
-  calendarsSelections: ICalendarSelection[] = [];
   constructor(
     public toastService: ToastService,
     private dataCalendarSelectionService: DataCalendarSelectionService

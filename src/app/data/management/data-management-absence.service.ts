@@ -22,14 +22,14 @@ export class DataManagementAbsenceService {
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
 
-  maxItems = 0;
-  firstItem = 0;
+  public maxItems = 0;
+  public firstItem = 0;
 
-  listWrapper: TruncatedAbsence | undefined;
+  public listWrapper: TruncatedAbsence | undefined;
+  public currentFilter: AbsenceFilter = new AbsenceFilter();
 
-  currentFilter: AbsenceFilter = new AbsenceFilter();
-  currentFilterDummy: AbsenceFilter | undefined;
-  temporaryFilterDummy: AbsenceFilter | undefined;
+  private currentFilterDummy: AbsenceFilter | undefined;
+  private temporaryFilterDummy: AbsenceFilter | undefined;
 
   constructor(
     public dataAbsenceService: DataAbsenceService,

@@ -23,8 +23,9 @@ export class DataManagementScheduleService {
   public isUpdate = new Subject<IWork>(); //Zeichnet die selektierte Zeile neu
   public showProgressSpinner = signal(false);
 
-  workFilter: IWorkFilter = new WorkFilter();
-  clients: IClientWork[] = [];
+  public workFilter: IWorkFilter = new WorkFilter();
+  public clients: IClientWork[] = [];
+
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
   constructor(

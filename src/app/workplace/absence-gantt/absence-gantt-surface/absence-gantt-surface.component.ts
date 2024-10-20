@@ -139,17 +139,6 @@ export class AbsenceGanttSurfaceComponent
 
     this.readServices();
 
-    this.dataManagementBreak.isAbsenceHeaderInit
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.isAbsenceHeaderInit = x;
-        if (x) {
-          this.drawCalendarGantt.selectedRow = -1;
-          this.dataManagementBreak.canReadBreaks = true;
-          this.dataManagementBreak.readYear();
-        }
-      });
-
     this.calendarSetting.zoomChangingEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -998,6 +987,19 @@ export class AbsenceGanttSurfaceComponent
             this.drawCalendarGantt.selectedRow,
             this.drawCalendarGantt.selectedBreak
           );
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        this.isAbsenceHeaderInit =
+          this.dataManagementBreak.isAbsenceHeaderInit();
+        if (this.isAbsenceHeaderInit) {
+          this.drawCalendarGantt.selectedRow = -1;
+          this.dataManagementBreak.canReadBreaks = true;
+          this.dataManagementBreak.readYear();
         }
       },
       { allowSignalWrites: true }

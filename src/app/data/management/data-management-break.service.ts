@@ -13,7 +13,6 @@ import {
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -22,10 +21,10 @@ export class DataManagementBreakService {
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public isUpdate = signal<IBreak | undefined>(undefined); //Zeichnet die selektierte Zeile neu
-  public isAbsenceHeaderInit = new Subject<boolean>();
+  public isAbsenceHeaderInit = signal(false);
 
-  breakFilter: IBreakFilter = new BreakFilter();
-  clients: IClientBreak[] = [];
+  public breakFilter: IBreakFilter = new BreakFilter();
+  public clients: IClientBreak[] = [];
   private breakFilterDummy: IBreakFilter | undefined = undefined;
 
   // erst wenn DataManagementAbsenceGanttService seine AbsenceFilter geladen hat,
@@ -45,14 +44,16 @@ export class DataManagementBreakService {
     if (this.isFilter_Dirty() && this.canReadBreaks) {
       this.clients = [];
 
-      this.dataBreakService.getClientList(this.breakFilter).subscribe((x) => {
-        this.clients = x;
-        this.breakFilterDummy = cloneObject(this.breakFilter);
-        this.showProgressSpinner.set(false);
-        this.isRead.set(true);
+      this.dataBreakService
+        .getClientList(this.breakFilter)
+        .subscribe((clientBreaks) => {
+          this.clients = clientBreaks;
+          this.breakFilterDummy = cloneObject(this.breakFilter);
+          this.showProgressSpinner.set(false);
+          this.isRead.set(true);
 
-        setTimeout(() => this.isRead.set(false), 100);
-      });
+          setTimeout(() => this.isRead.set(false), 100);
+        });
     }
   }
 
