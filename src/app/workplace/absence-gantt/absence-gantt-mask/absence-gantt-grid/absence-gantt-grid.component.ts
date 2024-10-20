@@ -206,4 +206,6 @@ export class AbsenceGanttGridComponent
   }
 
   /* #endregion   header */
+
+  private readSignals(): void {}
 }

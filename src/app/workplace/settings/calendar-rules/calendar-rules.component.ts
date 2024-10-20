@@ -468,4 +468,6 @@ export class CalendarRulesComponent
   }
 
   /* #endregion   header */
+
+  private readSignals(): void {}
 }

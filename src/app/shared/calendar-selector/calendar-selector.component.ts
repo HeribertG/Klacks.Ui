@@ -435,4 +435,6 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
       );
     });
   }
+
+  private readSignals(): void {}
 }

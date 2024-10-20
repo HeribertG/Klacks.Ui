@@ -33,27 +33,9 @@ export class SearchComponent {
     private dataManagementSearch: DataManagementSearchService,
     private cdr: ChangeDetectorRef
   ) {
-    effect(
-      () => {
-        const restored = this.dataManagementSearch.restoreSearch();
-        console.log('restoreSearch:', restored);
-        this.searchString = restored;
-        this.cdr.detectChanges();
-      },
-      { allowSignalWrites: true }
-    );
-
-    effect(
-      () => {
-        const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
-        console.log('Fokus geändert:', focusChanged);
-        if (focusChanged) {
-          this.handleFocusChange();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
+
   onClickSearch() {
     this.dataManagementSearch.globalSearch(
       this.searchString,
@@ -86,5 +68,32 @@ export class SearchComponent {
       'DataManagementClientService';
     this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
+  }
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const restored = this.dataManagementSearch.restoreSearch();
+        if (restored) {
+          console.log('restoreSearch:', restored);
+          this.searchString = restored;
+          this.cdr.detectChanges();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
+
+        if (focusChanged) {
+          console.log('Fokus geändert:', focusChanged);
+          this.handleFocusChange();
+          this.dataManagementSwitchboard.isFocusChanged.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 }

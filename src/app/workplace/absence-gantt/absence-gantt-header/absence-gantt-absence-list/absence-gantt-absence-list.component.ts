@@ -155,4 +155,6 @@ export class AbsenceGanttAbsenceListComponent
       (item.defaultLength === 0 ? 1 : item.defaultLength)
     );
   }
+
+  private readSignals(): void {}
 }

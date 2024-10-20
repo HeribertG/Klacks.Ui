@@ -7,13 +7,13 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataManagementShiftService } from './data-management-shift.service';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementSwitchboardService {
   public isFocusChanged = signal(false);
+
   public lastNameOfVisibleEntity = '';
   public isDirty = false;
   public isDisabled = false;
@@ -32,42 +32,7 @@ export class DataManagementSwitchboardService {
 
     private spinnerService: SpinnerService
   ) {
-    effect(
-      () => {
-        const showSpinner =
-          this.dataManagementClientService.showProgressSpinner();
-        if (showSpinner) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-
-        const showSpinner1 =
-          this.dataManagementGroupService.showProgressSpinner();
-        if (showSpinner1) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-
-        const showSpinner2 =
-          this.dataManagementAbsenceService.showProgressSpinner();
-        if (showSpinner2) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-
-        const showSpinner3 =
-          this.dataManagementScheduleService.showProgressSpinner();
-        if (showSpinner3) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   public showProgressSpinner(value: boolean): void {
@@ -189,4 +154,58 @@ export class DataManagementSwitchboardService {
   }
 
   refresh(): void {}
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const showSpinner =
+          this.dataManagementClientService.showProgressSpinner();
+        if (showSpinner) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const showSpinner =
+          this.dataManagementGroupService.showProgressSpinner();
+        if (showSpinner) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const showSpinner =
+          this.dataManagementAbsenceService.showProgressSpinner();
+        if (showSpinner) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const showSpinner =
+          this.dataManagementScheduleService.showProgressSpinner();
+        if (showSpinner) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

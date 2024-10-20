@@ -986,4 +986,6 @@ export class AbsenceGanttSurfaceComponent
   }
 
   /* #endregion Scroll */
+
+  private readSignals(): void {}
 }

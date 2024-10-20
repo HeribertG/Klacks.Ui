@@ -497,4 +497,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.readPage();
       });
   }
+
+  private readSignals(): void {}
 }

@@ -117,8 +117,10 @@ export class AbsenceGanttRowHeaderComponent
       const previousValue = changes['valueChangeVScrollbar'].previousValue;
       const diff = currentValue - previousValue;
 
-      console.log('ngOnChanges', currentValue, previousValue, diff);
-      this.drawRowHeader.moveRow(diff);
+      if (diff) {
+        console.log('ngOnChanges', currentValue, previousValue, diff);
+        this.drawRowHeader.moveRow(diff);
+      }
     }
   }
 
@@ -252,4 +254,6 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   /* #endregion Filter */
+
+  private readSignals(): void {}
 }
