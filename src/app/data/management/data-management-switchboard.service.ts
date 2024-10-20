@@ -7,7 +7,7 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataManagementShiftService } from './data-management-shift.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +20,6 @@ export class DataManagementSwitchboardService {
   public isSavedOrReset = false;
 
   private _nameOfVisibleEntity = '';
-  private ngUnsubscribe = new Subject<void>();
 
   constructor(
     public dataManagementClientService: DataManagementClientService,
@@ -42,41 +41,33 @@ export class DataManagementSwitchboardService {
         } else if (!showSpinner) {
           this.showProgressSpinner(false);
         }
+
+        const showSpinner1 =
+          this.dataManagementGroupService.showProgressSpinner();
+        if (showSpinner1) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+
+        const showSpinner2 =
+          this.dataManagementAbsenceService.showProgressSpinner();
+        if (showSpinner2) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
+
+        const showSpinner3 =
+          this.dataManagementScheduleService.showProgressSpinner();
+        if (showSpinner3) {
+          this.showProgressSpinner(true);
+        } else if (!showSpinner) {
+          this.showProgressSpinner(false);
+        }
       },
       { allowSignalWrites: true }
     );
-
-    this.dataManagementProfileService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.showProgressSpinner(false);
-      });
-    this.dataManagementAbsenceService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.showProgressSpinner(false);
-      });
-    this.dataManagementScheduleService.isRead.pipe(
-      takeUntil(this.ngUnsubscribe)
-    );
-    this.showProgressSpinner(false);
-
-    this.dataManagementGroupService.startToReadPage
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.showProgressSpinner(true);
-      });
-
-    this.dataManagementGroupService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.showProgressSpinner(false);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   public showProgressSpinner(value: boolean): void {

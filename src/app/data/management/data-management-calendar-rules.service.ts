@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Subject, lastValueFrom } from 'rxjs';
 import {
   CalendarRule,
@@ -20,17 +20,19 @@ import { DataLoadFileService } from '../data-load-file.service';
   providedIn: 'root',
 })
 export class DataManagementCalendarRulesService {
-  public isRead = new Subject<boolean>();
-  maxItems = 0;
-  firstItem = 0;
+  public isRead = signal(false);
 
-  listWrapper: TruncatedCalendarRule | undefined;
+  public maxItems = 0;
+  public firstItem = 0;
 
-  selectedCountry: string = '';
-  currentFilter: CalendarRulesFilter = new CalendarRulesFilter();
-  currentFilterDummy: CalendarRulesFilter | undefined;
-  temporaryFilterDummy: CalendarRulesFilter | undefined;
-  filteredRulesToken: StateCountryToken[] = [];
+  public listWrapper: TruncatedCalendarRule | undefined;
+
+  public selectedCountry: string = '';
+  public currentFilter: CalendarRulesFilter = new CalendarRulesFilter();
+  public filteredRulesToken: StateCountryToken[] = [];
+
+  private currentFilterDummy: CalendarRulesFilter | undefined;
+  private temporaryFilterDummy: CalendarRulesFilter | undefined;
 
   constructor(
     public dataCalendarRuleService: DataCalendarRuleService,
@@ -46,7 +48,7 @@ export class DataManagementCalendarRulesService {
       this.currentFilter.countries = Array.from(
         new Set(x.map((x) => x.country))
       );
-      this.isRead.next(true);
+      this.isRead.set(true);
     });
   }
   public setTemporaryFilter(): void {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Subject, lastValueFrom } from 'rxjs';
 import {
   Absence,
@@ -19,7 +19,8 @@ import { DataLoadFileService } from '../data-load-file.service';
   providedIn: 'root',
 })
 export class DataManagementAbsenceService {
-  public isRead = new Subject<boolean>();
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
 
   maxItems = 0;
   firstItem = 0;
@@ -55,6 +56,7 @@ export class DataManagementAbsenceService {
   /* #endregion   temporary check is Filter dirty */
 
   readPage(language: string) {
+    this.showProgressSpinner.set(true);
     this.currentFilter.language = language;
 
     this.dataAbsenceService
@@ -66,7 +68,8 @@ export class DataManagementAbsenceService {
           this.currentFilterDummy = cloneObject(this.currentFilter);
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
-          this.isRead.next(true);
+          this.showProgressSpinner.set(false);
+          this.isRead.set(true);
         }
       });
   }

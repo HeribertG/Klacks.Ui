@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  effect,
 } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -69,31 +70,58 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
     private dataManagementCalendarRulesService: DataManagementCalendarRulesService,
     private localStorageService: LocalStorageService,
     private modalService: ModalService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isRead = this.dataManagementCalendarRulesService.isRead();
+        if (isRead) {
+          this.onChangeSelection();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isNew = this.dataManagementCalendarSelectionService.isNew();
+        if (isNew) {
+          this.addButtonEnabled = false;
+          this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
+            isNew
+          );
+          this.setCurrentSelector();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isChanged =
+          this.dataManagementCalendarSelectionService.isChanged();
+        if (isChanged) {
+          this.addButtonEnabled = true;
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isRead = this.dataManagementCalendarSelectionService.isRead();
+        if (isRead) {
+          this.addButtonEnabled = false;
+          this.dataManagementCalendarSelectionService.readSChips();
+          this.setCurrentSelector();
+          this.change.emit();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
-
-    this.dataManagementCalendarSelectionService.isNew
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.addButtonEnabled = false;
-        this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
-          x
-        );
-        this.setCurrentSelector();
-      });
-
-    this.dataManagementCalendarRulesService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.onChangeSelection();
-      });
-    this.dataManagementCalendarSelectionService.isChanged
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.addButtonEnabled = true;
-      });
 
     forkJoin({
       headerCalendarDropdown: this.translateService.get(
@@ -117,14 +145,6 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataManagementCalendarSelectionService.readData();
-    this.dataManagementCalendarSelectionService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.addButtonEnabled = false;
-        this.dataManagementCalendarSelectionService.readSChips();
-        this.setCurrentSelector();
-        this.change.emit();
-      });
 
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))

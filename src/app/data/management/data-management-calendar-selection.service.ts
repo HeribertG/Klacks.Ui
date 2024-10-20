@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import {
   CalendarSelection,
@@ -7,7 +7,7 @@ import {
 } from 'src/app/core/calendar-selection-class';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataCalendarSelectionService } from '../data-calendar-selection.service';
-import { Subject, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import {
   cloneObject,
@@ -18,9 +18,9 @@ import {
   providedIn: 'root',
 })
 export class DataManagementCalendarSelectionService {
-  public isRead = new Subject<boolean>();
-  public isChanged = new Subject<boolean>();
-  public isNew = new Subject<CalendarSelection>();
+  public isRead = signal(false);
+  public isChanged = signal(false);
+  public isNew = signal<CalendarSelection | undefined>(undefined);
 
   currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
@@ -59,7 +59,7 @@ export class DataManagementCalendarSelectionService {
       .subscribe((x: CalendarSelection | undefined) => {
         if (x) {
           this.readData();
-          this.isNew.next(x);
+          this.isNew.set(x);
         }
       });
   }
@@ -74,8 +74,7 @@ export class DataManagementCalendarSelectionService {
           this.sort(x);
           this.calendarsSelections.push(...x);
         }
-
-        this.isRead.next(true);
+        this.isRead.set(true);
       });
   }
 
@@ -146,7 +145,7 @@ export class DataManagementCalendarSelectionService {
 
   readSChips(checkIfDirty = false) {
     if (checkIfDirty && this.isFilterDirty()) {
-      this.isChanged.next(true);
+      this.isChanged.set(true);
     }
 
     this.chips = [];

@@ -41,7 +41,8 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 })
 export class DataManagementGroupService {
   public isReset = new Subject<boolean>();
-  public isRead = new Subject<boolean>();
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
   public isF5ReRead = new Subject<boolean>();
   public initIsRead = new Subject<boolean>();
   public restoreSearch = signal('');
@@ -114,6 +115,7 @@ export class DataManagementGroupService {
     });
   }
   readPageClient() {
+    this.showProgressSpinner.set(true);
     this.startToReadPage.next(true);
 
     this.dataClientService
@@ -124,8 +126,8 @@ export class DataManagementGroupService {
         this.firstItem = x.firstItemOnPage;
         this.maxPages = x.maxPages;
       });
-
-    this.isRead.next(true);
+    this.showProgressSpinner.set(false);
+    this.isRead.set(true);
   }
 
   clearCheckedArray() {
@@ -180,7 +182,7 @@ export class DataManagementGroupService {
     if (!isSecondRead) {
       this.startToReadPage.next(true);
     }
-
+    this.showProgressSpinner.set(true);
     this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;
       this.maxItems = x.maxItems;
@@ -188,9 +190,10 @@ export class DataManagementGroupService {
       this.maxPages = x.maxPages;
     });
 
-    if (!isSecondRead) {
-      this.isRead.next(true);
+    if (isSecondRead) {
+      this.isRead.set(true);
     }
+    this.showProgressSpinner.set(false);
   }
 
   deleteGroup(key: string): Observable<IGroup> {
@@ -200,6 +203,7 @@ export class DataManagementGroupService {
   /* #region   edit Group */
 
   createGroup() {
+    this.showProgressSpinner.set(true);
     const c = new Group();
     c.validFrom = new Date();
 
@@ -208,8 +212,9 @@ export class DataManagementGroupService {
     this.router.navigate(['/workplace/edit-group']);
 
     setTimeout(() => {
-      this.isRead.next(true);
+      this.isRead.set(true);
     }, 300);
+    this.showProgressSpinner.set(false);
   }
 
   prepareGroup(value: IGroup, withoutUpdateDummy = false) {
@@ -231,9 +236,6 @@ export class DataManagementGroupService {
     }
 
     this.isReset.next(true);
-    setTimeout(() => {
-      this.isRead.next(true);
-    }, 300);
   }
 
   saveEditGroup(withoutUpdateDummy = false) {

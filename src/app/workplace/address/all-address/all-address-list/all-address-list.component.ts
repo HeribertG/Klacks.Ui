@@ -9,7 +9,6 @@ import {
   effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient, IFilter } from 'src/app/core/client-class';
 import {
@@ -107,16 +106,10 @@ export class AllAddressListComponent
           }
         }
 
-        if (this.dataManagementClientService.initIsRead()) {
+        const initIsRead = this.dataManagementClientService.initIsRead();
+        if (initIsRead) {
           this.isInit();
         }
-      },
-      { allowSignalWrites: true }
-    );
-
-    effect(
-      () => {
-        this.isInit();
       },
       { allowSignalWrites: true }
     );

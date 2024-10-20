@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {
   Break,
   BreakFilter,
@@ -20,7 +20,8 @@ import { Subject } from 'rxjs';
 })
 export class DataManagementBreakService {
   public isReset = new Subject<boolean>();
-  public isRead = new Subject<boolean>();
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
   public isUpdate = new Subject<IBreak>(); //Zeichnet die selektierte Zeile neu
   public isAbsenceHeaderInit = new Subject<boolean>();
 
@@ -41,13 +42,15 @@ export class DataManagementBreakService {
     this.readYear();
   }
   readYear() {
+    this.showProgressSpinner.set(true);
     if (this.isFilter_Dirty() && this.canReadBreaks) {
       this.clients = [];
 
       this.dataBreakService.getClientList(this.breakFilter).subscribe((x) => {
         this.clients = x;
         this.breakFilterDummy = cloneObject(this.breakFilter);
-        this.isRead.next(true);
+        this.showProgressSpinner.set(false);
+        this.isRead.set(true);
       });
     }
   }

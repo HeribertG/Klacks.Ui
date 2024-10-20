@@ -4,6 +4,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  effect,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -53,7 +54,17 @@ export class AbsenceGanttGridComponent
   constructor(
     public dataManagementAbsence: DataManagementAbsenceGanttService,
     private translateService: TranslateService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.absence = this.dataManagementAbsence.absenceList;
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     this.absence = this.dataManagementAbsence.absenceList;
@@ -61,9 +72,6 @@ export class AbsenceGanttGridComponent
   }
 
   ngAfterViewInit(): void {
-    this.dataManagementAbsence.isResetEvent.subscribe(() => {
-      this.absence = this.dataManagementAbsence.absenceList;
-    });
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {

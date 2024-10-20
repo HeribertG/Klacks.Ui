@@ -8,6 +8,7 @@ import {
   OnInit,
   SimpleChanges,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { Size } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
@@ -49,7 +50,23 @@ export class AbsenceGanttRowHeaderComponent
     private dataManagementBreak: DataManagementBreakService,
     private drawCalendarGanttService: DrawCalendarGanttService,
     private drawRowHeader: DrawRowHeaderService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isRead = this.dataManagementBreak.isRead();
+        if (isRead) {
+          if (!this.drawRowHeader.isCanvasAvailable()) {
+            return;
+          }
+
+          this.drawRowHeader.createRuler();
+          this.drawRowHeader.renderRowHeader();
+          this.drawRowHeader.drawCalendar();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   /* #region dom */
   private set currentCursor(cursor: CursorEnum) {
@@ -73,18 +90,6 @@ export class AbsenceGanttRowHeaderComponent
     );
 
     this.drawRowHeader.createCanvas();
-
-    this.dataManagementBreak.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        if (!this.drawRowHeader.isCanvasAvailable()) {
-          return;
-        }
-
-        this.drawRowHeader.createRuler();
-        this.drawRowHeader.renderRowHeader();
-        this.drawRowHeader.drawCalendar();
-      });
   }
 
   ngAfterViewInit(): void {

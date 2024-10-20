@@ -11,6 +11,7 @@ import {
   Renderer2,
   SimpleChanges,
   ViewChild,
+  effect,
 } from '@angular/core';
 import {
   EqualDate,
@@ -104,7 +105,23 @@ export class AbsenceGanttSurfaceComponent
     private translateService: TranslateService,
     private el: ElementRef,
     private clipboard: Clipboard
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isRead = this.dataManagementBreak.isRead();
+        if (isRead) {
+          if (this.isAbsenceHeaderInit) {
+            this.setAllScrollValues();
+            this.drawCalendarGantt.setMetrics();
+            this.drawCalendarGantt.checkSelectedRowVisibility();
+            this.drawCalendarGantt.renderCalendar();
+            this.drawCalendarGantt.drawCalendar();
+          }
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   /* #region dom */
   setBodyCursorStyle(cursorStyle: string): void {
@@ -144,18 +161,6 @@ export class AbsenceGanttSurfaceComponent
           this.drawCalendarGantt.selectedRow = -1;
           this.dataManagementBreak.canReadBreaks = true;
           this.dataManagementBreak.readYear();
-        }
-      });
-
-    this.dataManagementBreak.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        if (this.isAbsenceHeaderInit) {
-          this.setAllScrollValues();
-          this.drawCalendarGantt.setMetrics();
-          this.drawCalendarGantt.checkSelectedRowVisibility();
-          this.drawCalendarGantt.renderCalendar();
-          this.drawCalendarGantt.drawCalendar();
         }
       });
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/core/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -12,11 +12,11 @@ import { Subject } from 'rxjs';
 })
 export class DataManagementProfileService {
   public isReset = new Subject<boolean>();
-  public isRead = new Subject<boolean>();
+  public isRead = signal(false);
 
-  changePasswordWrapper: ChangePassword = new ChangePassword();
-  changePasswordWrapperDummy: ChangePassword = new ChangePassword();
-  isPasswordDirty = false;
+  public changePasswordWrapper: ChangePassword = new ChangePassword();
+  public changePasswordWrapperDummy: ChangePassword = new ChangePassword();
+  public isPasswordDirty = false;
 
   constructor(
     @Inject(UserAdministrationService)

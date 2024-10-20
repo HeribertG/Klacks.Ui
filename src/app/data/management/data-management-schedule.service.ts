@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import {
   IClientWork,
   IWork,
@@ -21,6 +21,7 @@ import { Subject } from 'rxjs';
 export class DataManagementScheduleService {
   public isRead = new Subject<boolean>();
   public isUpdate = new Subject<IWork>(); //Zeichnet die selektierte Zeile neu
+  public showProgressSpinner = signal(false);
 
   workFilter: IWorkFilter = new WorkFilter();
   clients: IClientWork[] = [];
@@ -32,10 +33,12 @@ export class DataManagementScheduleService {
   ) {}
 
   readDatas() {
+    this.showProgressSpinner.set(true);
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject(this.workFilter);
       this.isRead.next(true);
+      this.showProgressSpinner.set(false);
     });
   }
   readData(index: number): IWork[] | undefined {

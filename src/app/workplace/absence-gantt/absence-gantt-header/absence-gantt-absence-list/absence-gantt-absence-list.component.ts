@@ -1,4 +1,10 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  effect,
+} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/core/absence-class';
@@ -29,16 +35,23 @@ export class AbsenceGanttAbsenceListComponent
     public calendarSetting: CalendarSettingService,
     private dataManagementBreak: DataManagementBreakService,
     private translateService: TranslateService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.fillImageMap();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
   }
 
   ngAfterViewInit(): void {
-    this.dataManagementAbsence.isResetEvent.subscribe(() => {
-      this.fillImageMap();
-    });
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {

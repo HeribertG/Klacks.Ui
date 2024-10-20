@@ -22,7 +22,6 @@ import { DataMacroService } from '../data-macro.service';
 })
 export class DataManagementShiftService {
   public isReset = new Subject<boolean>();
-  public isRead = new Subject<boolean>();
   public initIsRead = new Subject<boolean>();
 
   // shiftFilter: ShiftFilter = new ShiftFilter();

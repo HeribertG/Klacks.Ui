@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -91,7 +92,17 @@ export class CalendarRulesComponent
     private ngbModal: NgbModal,
     private translateService: TranslateService,
     private modalService: ModalService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isRead = this.dataManagementCalendarRulesService.isRead();
+        if (isRead) {
+          this.readPage();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
@@ -103,12 +114,6 @@ export class CalendarRulesComponent
       });
     this.holidaysListHelper.currentYear = new Date().getFullYear();
     this.reReadSortData();
-
-    this.dataManagementCalendarRulesService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.readPage();
-      });
   }
 
   ngAfterViewInit(): void {

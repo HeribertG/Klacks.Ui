@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { IAbsence } from 'src/app/core/absence-class';
 import { DataAbsenceService } from '../data-absence.service';
 import { Subject } from 'rxjs';
@@ -7,8 +7,8 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementAbsenceGanttService {
-  public isResetEvent = new Subject<boolean>();
-  public currentYearChangingEvent = new Subject<boolean>();
+  public isReset = signal(false);
+  public currentYearChanging = signal(false);
 
   absenceList: IAbsence[] = [];
 
@@ -36,13 +36,13 @@ export class DataManagementAbsenceGanttService {
   set currentYear(value: number) {
     this._currentYear = value;
 
-    this.currentYearChangingEvent.next(true);
+    this.currentYearChanging.set(true);
   }
 
   private isInitFinished(): void {
     this.initCount += 1;
     if (this.initCount === 1) {
-      this.isResetEvent.next(true);
+      this.isReset.set(true);
     }
   }
 }

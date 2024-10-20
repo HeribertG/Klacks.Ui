@@ -6,6 +6,7 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -91,7 +92,22 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     private translateService: TranslateService,
     private localStorageService: LocalStorageService,
     private modalService: ModalService
-  ) {}
+  ) {
+    effect(
+      () => {
+        const isRead = this.dataManagementGroupService.isRead();
+        if (isRead) {
+          if (this.isFirstRead) {
+            setTimeout(() => this.recalcHeight(), 100);
+            this.isFirstRead = false;
+            return;
+          }
+          this.isMeasureTable = true;
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 
   ngOnInit(): void {
     const tmp = restoreFilter('edit-group');
@@ -112,17 +128,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.dataManagementGroupService.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-          return;
-        }
-        this.isMeasureTable = true;
-      });
-
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {

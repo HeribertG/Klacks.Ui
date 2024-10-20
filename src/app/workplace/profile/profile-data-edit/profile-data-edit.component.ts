@@ -42,7 +42,7 @@ export class ProfileDataEditComponent
   ) {}
 
   ngOnInit(): void {
-    this.dataManagementProfileService.isRead.next(true);
+    this.dataManagementProfileService.isRead.set(true);
   }
 
   ngAfterViewInit(): void {
