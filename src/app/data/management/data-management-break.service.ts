@@ -22,7 +22,7 @@ export class DataManagementBreakService {
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
-  public isUpdate = new Subject<IBreak>(); //Zeichnet die selektierte Zeile neu
+  public isUpdate = signal<IBreak | undefined>(undefined); //Zeichnet die selektierte Zeile neu
   public isAbsenceHeaderInit = new Subject<boolean>();
 
   breakFilter: IBreakFilter = new BreakFilter();
@@ -51,6 +51,8 @@ export class DataManagementBreakService {
         this.breakFilterDummy = cloneObject(this.breakFilter);
         this.showProgressSpinner.set(false);
         this.isRead.set(true);
+
+        setTimeout(() => this.isRead.set(false), 100);
       });
     }
   }
@@ -90,7 +92,7 @@ export class DataManagementBreakService {
       this.dataBreakService.addBreak(tmp).subscribe((x) => {
         client.breaks.push(x);
         client.breaks = this.sortBreaks(client.breaks);
-        this.isUpdate.next(x);
+        this.isUpdate.set(x);
       });
     }
   }
@@ -102,7 +104,7 @@ export class DataManagementBreakService {
         client.breaks = this.sortBreaks(
           client.breaks.filter((obj) => obj.id !== value.id)
         );
-        this.isUpdate.next(value);
+        this.isUpdate.set(value);
       });
     }
   }
@@ -121,7 +123,7 @@ export class DataManagementBreakService {
     return this.dataBreakService.updateBreak(value as Break).subscribe(() => {
       const client = this.clients[index];
       client.breaks = this.sortBreaks(client.breaks);
-      this.isUpdate.next(value);
+      this.isUpdate.set(value);
     });
   }
 

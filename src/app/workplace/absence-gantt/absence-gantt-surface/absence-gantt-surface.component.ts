@@ -150,23 +150,6 @@ export class AbsenceGanttSurfaceComponent
         }
       });
 
-    //Zeichnet die selektierte Zeile neu
-    this.dataManagementBreak.isUpdate
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        this.drawCalendarGantt.selectedBreakIndex =
-          this.dataManagementBreak.indexOfBreak(x);
-        this.drawCalendarGantt.unDrawSelectionRow();
-        if (this.drawCalendarGantt.isSelectedRowVisible()) {
-          this.drawCalendarGantt.drawSelectionRow();
-        }
-        this.drawCalendarGantt.drawSelectedBreak();
-        this.drawCalendarGantt.drawRow(
-          this.drawCalendarGantt.selectedRow,
-          this.drawCalendarGantt.selectedBreak
-        );
-      });
-
     this.calendarSetting.zoomChangingEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -998,6 +981,28 @@ export class AbsenceGanttSurfaceComponent
           this.drawCalendarGantt.resetAll();
           this.holidayCollection.isReset.set(false);
         }
+      },
+      { allowSignalWrites: true }
+    );
+
+    //Zeichnet die selektierte Zeile neu
+    effect(
+      () => {
+        const isUpdate = this.dataManagementBreak.isUpdate();
+        if (isUpdate) {
+          this.drawCalendarGantt.selectedBreakIndex =
+            this.dataManagementBreak.indexOfBreak(isUpdate);
+          this.drawCalendarGantt.unDrawSelectionRow();
+          if (this.drawCalendarGantt.isSelectedRowVisible()) {
+            this.drawCalendarGantt.drawSelectionRow();
+          }
+          this.drawCalendarGantt.drawSelectedBreak();
+          this.drawCalendarGantt.drawRow(
+            this.drawCalendarGantt.selectedRow,
+            this.drawCalendarGantt.selectedBreak
+          );
+        }
+        this.dataManagementBreak.isUpdate.set(undefined);
       },
       { allowSignalWrites: true }
     );

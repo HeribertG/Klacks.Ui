@@ -19,7 +19,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementScheduleService {
-  public isRead = new Subject<boolean>();
+  public isRead = signal(false);
   public isUpdate = new Subject<IWork>(); //Zeichnet die selektierte Zeile neu
   public showProgressSpinner = signal(false);
 
@@ -37,7 +37,7 @@ export class DataManagementScheduleService {
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject(this.workFilter);
-      this.isRead.next(true);
+      this.isRead.set(true);
       this.showProgressSpinner.set(false);
     });
   }

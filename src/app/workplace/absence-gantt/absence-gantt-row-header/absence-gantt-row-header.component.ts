@@ -247,8 +247,6 @@ export class AbsenceGanttRowHeaderComponent
           this.drawRowHeader.createRuler();
           this.drawRowHeader.renderRowHeader();
           this.drawRowHeader.drawCalendar();
-
-          this.dataManagementBreak.isRead.set(false);
         }
       },
       { allowSignalWrites: true }

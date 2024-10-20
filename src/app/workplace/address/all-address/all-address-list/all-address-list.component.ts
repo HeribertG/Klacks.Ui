@@ -95,24 +95,7 @@ export class AllAddressListComponent
     private localStorageService: LocalStorageService,
     private modalService: ModalService
   ) {
-    effect(
-      () => {
-        if (this.dataManagementClientService.isRead()) {
-          if (this.isFirstRead) {
-            setTimeout(() => this.recalcHeight(), 100);
-            this.isFirstRead = false;
-          } else {
-            this.isMeasureTable = true;
-          }
-        }
-
-        const initIsRead = this.dataManagementClientService.initIsRead();
-        if (initIsRead) {
-          this.isInit();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   ngOnInit(): void {
@@ -603,5 +586,24 @@ export class AllAddressListComponent
       });
   }
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(
+      () => {
+        if (this.dataManagementClientService.isRead()) {
+          if (this.isFirstRead) {
+            setTimeout(() => this.recalcHeight(), 100);
+            this.isFirstRead = false;
+          } else {
+            this.isMeasureTable = true;
+          }
+        }
+
+        const initIsRead = this.dataManagementClientService.initIsRead();
+        if (initIsRead) {
+          this.isInit();
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

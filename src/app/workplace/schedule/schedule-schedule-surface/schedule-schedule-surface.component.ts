@@ -8,6 +8,7 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
@@ -54,7 +55,9 @@ export class ScheduleScheduleSurfaceComponent
     private el: ElementRef,
     private settings: SettingsService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.readSignals();
+  }
 
   /* #region ng */
   ngOnInit(): void {
@@ -68,17 +71,6 @@ export class ScheduleScheduleSurfaceComponent
   ngAfterViewInit(): void {
     this.drawSchedule.createCanvas();
     this.initializeDrawSchedule();
-
-    this.dataManagementSchedule.isRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(
-        () => {
-          this.dataService.setMetrics();
-        },
-        (error) => {
-          console.error('Error loading the data:', error);
-        }
-      );
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
@@ -323,4 +315,16 @@ export class ScheduleScheduleSurfaceComponent
     //  this.subMenus = [];
   }
   /* #endregion context menu */
+
+  private readSignals(): void {
+    effect(
+      () => {
+        if (this.dataManagementSchedule.isRead()) {
+          this.dataService.setMetrics();
+          this.dataManagementSchedule.isRead.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }
