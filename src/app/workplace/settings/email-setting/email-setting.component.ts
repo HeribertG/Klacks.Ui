@@ -4,6 +4,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -26,7 +27,9 @@ export class EmailSettingComponent implements OnInit {
 
   constructor(
     public dataManagementSettingsService: DataManagementSettingsService
-  ) {}
+  ) {
+    this.readSignals();
+  }
 
   ngOnInit(): void {}
 
@@ -38,17 +41,24 @@ export class EmailSettingComponent implements OnInit {
         }
       }
     );
-
-    this.dataManagementSettingsService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      });
   }
 
   ngOnDestroy(): void {
     this.objectForUnsubscribe.unsubscribe();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.dataManagementSettingsService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+          this.dataManagementSettingsService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 }

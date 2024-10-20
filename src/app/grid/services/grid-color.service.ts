@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { ISetting, Setting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class GridColorService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
 
   settingList: ISetting[] = [];
 
@@ -75,7 +75,7 @@ export class GridColorService {
 
         this.settingListDummy = cloneObject(this.settingList);
 
-        this.isReset.next(true);
+        this.isReset.set(true);
       }
     });
   }

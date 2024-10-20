@@ -55,15 +55,7 @@ export class AbsenceGanttGridComponent
     public dataManagementAbsence: DataManagementAbsenceGanttService,
     private translateService: TranslateService
   ) {
-    effect(
-      () => {
-        const isReset = this.dataManagementAbsence.isReset();
-        if (isReset) {
-          this.absence = this.dataManagementAbsence.absenceList;
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   ngOnInit(): void {
@@ -207,5 +199,16 @@ export class AbsenceGanttGridComponent
 
   /* #endregion   header */
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.absence = this.dataManagementAbsence.absenceList;
+          this.dataManagementAbsence.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

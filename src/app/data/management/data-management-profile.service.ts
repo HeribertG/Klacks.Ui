@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementProfileService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
   public isRead = signal(false);
 
   public changePasswordWrapper: ChangePassword = new ChangePassword();
@@ -42,7 +42,7 @@ export class DataManagementProfileService {
     this.userAdministrationService
       .changePassword(this.changePasswordWrapper!)
       .subscribe((x) => {
-        this.isReset.next(true);
+        this.isReset.set(true);
         this.showSuccess(
           MessageLibrary.REGISTER_CHANGE_PASSWORD,
           MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
@@ -66,7 +66,7 @@ export class DataManagementProfileService {
       this.changePassword();
       this.changePasswordWrapper!.oldPassword = '';
       this.changePasswordWrapper!.password = '';
-      this.isReset.next(true);
+      this.isReset.set(true);
     }
   }
 

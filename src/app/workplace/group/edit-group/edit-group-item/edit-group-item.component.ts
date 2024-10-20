@@ -8,6 +8,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -45,6 +46,7 @@ export class EditGroupItemComponent
     private modalService: ModalService
   ) {
     this.locale = MessageLibrary.DEFAULT_LANG;
+    this.readSignals();
   }
 
   ngOnInit(): void {
@@ -58,12 +60,6 @@ export class EditGroupItemComponent
         setTimeout(() => this.isChangingEvent.emit(true), 100);
       }
     });
-
-    this.dataManagementGroupService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      });
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -79,5 +75,18 @@ export class EditGroupItemComponent
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.dataManagementGroupService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+          this.dataManagementGroupService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 }

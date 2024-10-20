@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, effect, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
@@ -27,13 +27,12 @@ import { IBankDetail } from 'src/app/core/bank-detail-class';
 import { IMacro } from 'src/app/core/macro-class';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
-import { Subject, takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementSettingsService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
 
   accountsList: IAuthentication[] = [];
 
@@ -117,8 +116,6 @@ export class DataManagementSettingsService {
 
   isDirty = false;
 
-  private ngUnsubscribe = new Subject<void>();
-
   constructor(
     public userAdministrationService: UserAdministrationService,
     public dataSettingsVariousService: DataSettingsVariousService,
@@ -128,16 +125,7 @@ export class DataManagementSettingsService {
     public toastService: ToastService,
     public gridColorService: GridColorService
   ) {
-    this.gridColorService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.isReset.next(true);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
+    this.readSignals();
   }
 
   /* #region  UserAdministration */
@@ -643,7 +631,7 @@ export class DataManagementSettingsService {
       if (x) {
         this.countriesList = x as ICountry[];
         this.countriesListDummy = cloneObject(this.countriesList);
-        this.isReset.next(true);
+        this.isReset.set(true);
       }
     });
   }
@@ -732,7 +720,7 @@ export class DataManagementSettingsService {
       if (x) {
         this.statesList = x as IState[];
         this.statesListDummy = cloneObject(this.statesList);
-        this.isReset.next(true);
+        this.isReset.set(true);
       }
     });
   }
@@ -830,7 +818,7 @@ export class DataManagementSettingsService {
 
       this.macroListDummy = cloneObject(this.macroList);
 
-      this.isReset.next(true);
+      this.isReset.set(true);
     });
   }
 
@@ -958,7 +946,7 @@ export class DataManagementSettingsService {
 
           this.bankDetailListDummy = cloneObject(this.bankDetailList);
 
-          this.isReset.next(true);
+          this.isReset.set(true);
         }
       }
     });
@@ -1093,7 +1081,7 @@ export class DataManagementSettingsService {
   IfStorageIsSuccessful() {
     if (this.settingsCount === 0) {
       this.isDirty = this.areObjectsDirty();
-      this.isReset.next(true);
+      this.isReset.set(true);
     }
   }
 
@@ -1148,5 +1136,18 @@ export class DataManagementSettingsService {
     const isNotEmpty = value.de! + value.en! + value.fr! + value.it!;
 
     return isNotEmpty === '';
+  }
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.gridColorService.isReset();
+        if (isReset) {
+          this.isReset.set(true);
+          this.gridColorService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 }

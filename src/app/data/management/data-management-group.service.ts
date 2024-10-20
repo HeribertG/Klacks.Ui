@@ -40,7 +40,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   providedIn: 'root',
 })
 export class DataManagementGroupService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public isF5ReRead = new Subject<boolean>();
@@ -235,7 +235,7 @@ export class DataManagementGroupService {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
 
-    this.isReset.next(true);
+    this.isReset.set(true);
   }
 
   saveEditGroup(withoutUpdateDummy = false) {

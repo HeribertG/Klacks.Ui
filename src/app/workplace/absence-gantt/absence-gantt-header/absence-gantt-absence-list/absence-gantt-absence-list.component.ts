@@ -36,15 +36,7 @@ export class AbsenceGanttAbsenceListComponent
     private dataManagementBreak: DataManagementBreakService,
     private translateService: TranslateService
   ) {
-    effect(
-      () => {
-        const isReset = this.dataManagementAbsence.isReset();
-        if (isReset) {
-          this.fillImageMap();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   ngOnInit(): void {
@@ -156,5 +148,16 @@ export class AbsenceGanttAbsenceListComponent
     );
   }
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.fillImageMap();
+          this.dataManagementAbsence.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IShift, Shift } from 'src/app/core/schedule-class';
 import {
@@ -21,7 +21,7 @@ import { DataMacroService } from '../data-macro.service';
   providedIn: 'root',
 })
 export class DataManagementShiftService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
   public initIsRead = new Subject<boolean>();
 
   // shiftFilter: ShiftFilter = new ShiftFilter();

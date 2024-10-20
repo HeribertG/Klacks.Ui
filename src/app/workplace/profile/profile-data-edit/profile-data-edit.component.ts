@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
@@ -14,7 +15,6 @@ import {
   checkPasswordStrength,
   PasswordCheckStrength,
 } from 'src/app/helpers/password';
-import { Subject, takeUntil } from 'rxjs';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -22,9 +22,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './profile-data-edit.component.html',
   styleUrls: ['./profile-data-edit.component.scss'],
 })
-export class ProfileDataEditComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class ProfileDataEditComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
 
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
@@ -35,27 +33,15 @@ export class ProfileDataEditComponent
   public showOldPassword = false;
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
-  private ngUnsubscribe = new Subject<void>();
 
   constructor(
     public dataManagementProfileService: DataManagementProfileService
-  ) {}
+  ) {
+    this.readSignals();
+  }
 
   ngOnInit(): void {
     this.dataManagementProfileService.isRead.set(true);
-  }
-
-  ngAfterViewInit(): void {
-    this.dataManagementProfileService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x) => {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
   }
 
   ngDoCheck(): void {
@@ -121,5 +107,18 @@ export class ProfileDataEditComponent
     }
 
     this.isChangingEvent.emit(true);
+  }
+
+  private readSignals(): void {
+    effect(
+      () => {
+        const isReset = this.dataManagementProfileService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+          this.dataManagementProfileService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 }

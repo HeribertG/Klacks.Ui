@@ -106,21 +106,7 @@ export class AbsenceGanttSurfaceComponent
     private el: ElementRef,
     private clipboard: Clipboard
   ) {
-    effect(
-      () => {
-        const isRead = this.dataManagementBreak.isRead();
-        if (isRead) {
-          if (this.isAbsenceHeaderInit) {
-            this.setAllScrollValues();
-            this.drawCalendarGantt.setMetrics();
-            this.drawCalendarGantt.checkSelectedRowVisibility();
-            this.drawCalendarGantt.renderCalendar();
-            this.drawCalendarGantt.drawCalendar();
-          }
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   /* #region dom */
@@ -186,14 +172,6 @@ export class AbsenceGanttSurfaceComponent
       .subscribe(() => {
         this.drawCalendarGantt.resetAll();
         this.setAllScrollValues();
-      });
-    this.holidayCollection.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((value: any) => {
-        this.drawCalendarGantt.selectedRow = -1;
-        this.dataManagementBreak.readYear();
-        this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
-        this.drawCalendarGantt.resetAll();
       });
 
     const bc = this.readProperty('$gridBackgroundColor');
@@ -650,26 +628,6 @@ export class AbsenceGanttSurfaceComponent
     this.gridFonts.readData();
     this.holidayCollection.readData();
     this.dataManagementAbsence.readData();
-
-    this.holidayCollection.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.drawCalendarGantt.columns =
-          this.drawCalendarGantt.lastVisibleColumn();
-
-        this.scroll.maxCols = this.drawCalendarGantt.columns;
-        this.scroll.visibleCols = this.drawCalendarGantt.visibleCol();
-        this.maxValueHScrollbar.emit(this.drawCalendarGantt.columns);
-        this.visibleValueHScrollbar.emit(this.drawCalendarGantt.visibleCol());
-        this.addServicesCount();
-      });
-
-    this.gridColors.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.addServicesCount());
-    this.gridFonts.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.addServicesCount());
   }
 
   private addServicesCount(): void {
@@ -987,5 +945,61 @@ export class AbsenceGanttSurfaceComponent
 
   /* #endregion Scroll */
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(
+      () => {
+        const isRead = this.dataManagementBreak.isRead();
+        if (isRead) {
+          if (this.isAbsenceHeaderInit) {
+            this.setAllScrollValues();
+            this.drawCalendarGantt.setMetrics();
+            this.drawCalendarGantt.checkSelectedRowVisibility();
+            this.drawCalendarGantt.renderCalendar();
+            this.drawCalendarGantt.drawCalendar();
+          }
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isReset = this.gridColors.isReset();
+        if (isReset) {
+          this.addServicesCount();
+          this.gridColors.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isReset = this.gridFonts.isReset();
+        if (isReset) {
+          this.addServicesCount();
+          this.gridFonts.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isReset = this.holidayCollection.isReset();
+        if (isReset) {
+          this.drawCalendarGantt.selectedRow = -1;
+          this.dataManagementBreak.readYear();
+          this.firstDayDate = new Date(
+            this.holidayCollection.currentYear,
+            0,
+            1
+          );
+          this.drawCalendarGantt.resetAll();
+          this.holidayCollection.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

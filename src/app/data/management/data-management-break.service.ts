@@ -19,7 +19,7 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class DataManagementBreakService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public isUpdate = new Subject<IBreak>(); //Zeichnet die selektierte Zeile neu

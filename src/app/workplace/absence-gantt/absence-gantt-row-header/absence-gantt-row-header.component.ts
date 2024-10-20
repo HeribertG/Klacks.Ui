@@ -51,21 +51,7 @@ export class AbsenceGanttRowHeaderComponent
     private drawCalendarGanttService: DrawCalendarGanttService,
     private drawRowHeader: DrawRowHeaderService
   ) {
-    effect(
-      () => {
-        const isRead = this.dataManagementBreak.isRead();
-        if (isRead) {
-          if (!this.drawRowHeader.isCanvasAvailable()) {
-            return;
-          }
-
-          this.drawRowHeader.createRuler();
-          this.drawRowHeader.renderRowHeader();
-          this.drawRowHeader.drawCalendar();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    this.readSignals();
   }
 
   /* #region dom */
@@ -93,12 +79,6 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   ngAfterViewInit(): void {
-    this.gridColorService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.onResize([]));
-    this.gridFontsService.isReset
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => this.onResize([]));
     this.gridColorService.readData();
     this.gridFontsService.readData();
 
@@ -255,5 +235,45 @@ export class AbsenceGanttRowHeaderComponent
 
   /* #endregion Filter */
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(
+      () => {
+        const isRead = this.dataManagementBreak.isRead();
+        if (isRead) {
+          if (!this.drawRowHeader.isCanvasAvailable()) {
+            return;
+          }
+
+          this.drawRowHeader.createRuler();
+          this.drawRowHeader.renderRowHeader();
+          this.drawRowHeader.drawCalendar();
+
+          this.dataManagementBreak.isRead.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isReset = this.gridColorService.isReset();
+        if (isReset) {
+          this.onResize([]);
+          this.gridColorService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const isReset = this.gridFontsService.isReset();
+        if (isReset) {
+          this.onResize([]);
+          this.gridColorService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

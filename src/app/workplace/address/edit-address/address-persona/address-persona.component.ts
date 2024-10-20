@@ -74,15 +74,7 @@ export class AddressPersonaComponent
     private modalService: ModalService
   ) {
     this.locale = MessageLibrary.DEFAULT_LANG;
-
-    effect(() => {
-      if (this.dataManagementClientService.isRead()) {
-        setTimeout(() => this.setEnvironmentVariable(), 100);
-      }
-      if (this.dataManagementClientService.isReset()) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
-    });
+    this.readSignals();
   }
 
   ngOnInit(): void {
@@ -487,5 +479,26 @@ export class AddressPersonaComponent
     return 'address.edit-address.address-persona.state';
   }
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(() => {
+      const isRead = this.dataManagementClientService.isRead();
+      if (isRead) {
+        setTimeout(() => this.setEnvironmentVariable(), 100);
+        this.dataManagementClientService.isRead.set(false);
+      }
+      if (this.dataManagementClientService.isReset()) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
+    effect(
+      () => {
+        const isReset = this.dataManagementClientService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+          this.dataManagementClientService.isReset.set(false);
+        }
+      },
+      { allowSignalWrites: true }
+    );
+  }
 }

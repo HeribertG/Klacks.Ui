@@ -1,7 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { IAbsence } from 'src/app/core/absence-class';
 import { DataAbsenceService } from '../data-absence.service';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

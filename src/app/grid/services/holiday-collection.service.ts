@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
   PossibleHolidayRuleWrapper,
@@ -13,7 +13,7 @@ import { DataCalendarRuleService } from 'src/app/data/data-calendar-rule.service
   providedIn: 'root',
 })
 export class HolidayCollectionService {
-  public isReset = new Subject<boolean>();
+  public isReset = signal(false);
   holidays = new HolidaysListHelper();
 
   possibleHolidayRule = new PossibleHolidayRuleWrapper();
@@ -28,7 +28,7 @@ export class HolidayCollectionService {
   set currentYear(value: number) {
     this.holidays.currentYear = value;
     this.holidays.computeHolidays();
-    this.isReset.next(true);
+    this.isReset.set(true);
   }
 
   readData() {
@@ -54,7 +54,7 @@ export class HolidayCollectionService {
       this.holidays.addRange(rules as ICalendarRule[]);
     }
     this.holidays.computeHolidays();
-    this.isReset.next(true);
+    this.isReset.set(true);
   }
 
   selection(): PossibleHolidayRule[] {
