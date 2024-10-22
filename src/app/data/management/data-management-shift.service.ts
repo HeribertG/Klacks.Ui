@@ -13,7 +13,6 @@ import {
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataShiftService } from '../data-shift.service';
-import { Subject } from 'rxjs';
 import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
 
@@ -21,7 +20,7 @@ import { DataMacroService } from '../data-macro.service';
   providedIn: 'root',
 })
 export class DataManagementShiftService {
-  public initIsRead = new Subject<boolean>();
+  public initIsRead = signal(false);
 
   // shiftFilter: ShiftFilter = new ShiftFilter();
   // private shiftFilterDummy: shiftFilter | undefined = undefined;
@@ -55,7 +54,8 @@ export class DataManagementShiftService {
   private isInitFinished(hit: number): void {
     this.initCount += hit;
     if (this.initCount === this.initFinished) {
-      this.initIsRead.next(true);
+      this.initIsRead.set(true);
+      setTimeout(() => this.initIsRead.set(false), 100);
     }
   }
 

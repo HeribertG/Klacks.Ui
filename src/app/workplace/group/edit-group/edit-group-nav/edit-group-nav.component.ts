@@ -6,6 +6,7 @@ import {
   OnInit,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -60,12 +61,6 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
-      });
-
-    this.dataManagementGroupService.initIsRead
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.isInit();
       });
 
     const res = this.localStorageService.get(MessageLibrary.TOKEN) !== null;
@@ -182,5 +177,13 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataManagementGroupService.currentClientFilter.female ||
       this.dataManagementGroupService.currentClientFilter.legalEntity
     );
+  }
+
+  private readSignals(): void {
+    effect(() => {
+      if (this.dataManagementGroupService.initIsRead()) {
+        this.isInit();
+      }
+    });
   }
 }

@@ -18,7 +18,7 @@ import {
 import { DataClientService } from '../data-client.service';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataGroupService } from '../data-group.service';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import {
   cloneObject,
@@ -39,33 +39,34 @@ export class DataManagementGroupService {
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
-  public initIsRead = new Subject<boolean>();
+  public initIsRead = signal(false);
   public restoreSearch = signal('');
 
-  currentClientFilter: Filter = new Filter();
-  currentClientFilterDummy: Filter | undefined;
-  temporaryClientFilterDummy: Filter | undefined;
-  checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
-  clientAttribute: IClientAttribute[] = [];
-  headerCheckBoxValue: boolean = false;
-  stateList: StateCountryToken[] | undefined;
-  orderBy = 'name';
-  sortOrder = 'desc';
-  requiredPage = 1;
-  numberOfItemsPerPage = 5;
-  maxItems = 0;
-  maxPages = 0;
-  firstItem = 0;
+  public currentClientFilter: Filter = new Filter();
+  public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
+  public clientAttribute: IClientAttribute[] = [];
+  public headerCheckBoxValue: boolean = false;
+  public stateList: StateCountryToken[] | undefined;
 
-  orderByGroupItem = 'name';
-  sortOrderGroupItem = 'desc';
+  public orderBy = 'name';
+  public sortOrder = 'desc';
+  public requiredPage = 1;
+  public numberOfItemsPerPage = 5;
+  public maxItems = 0;
+  public maxPages = 0;
+  public firstItem = 0;
+  public orderByGroupItem = 'name';
+  public sortOrderGroupItem = 'desc';
 
-  listClientWrapper: ITruncatedClient | undefined;
-  listWrapper: ITruncatedGroup | undefined;
-  currentFilter: GroupFilter = new GroupFilter();
-  currentFilterDummy: GroupFilter | undefined;
-  editGroup: IGroup | undefined;
-  editGroupDummy: IGroup | undefined;
+  public listClientWrapper: ITruncatedClient | undefined;
+  public listWrapper: ITruncatedGroup | undefined;
+  public currentFilter: GroupFilter = new GroupFilter();
+  public editGroup: IGroup | undefined;
+
+  private currentFilterDummy: GroupFilter | undefined;
+  private editGroupDummy: IGroup | undefined;
+  private currentClientFilterDummy: Filter | undefined;
+  private temporaryClientFilterDummy: Filter | undefined;
 
   constructor(
     public dataClientService: DataClientService,

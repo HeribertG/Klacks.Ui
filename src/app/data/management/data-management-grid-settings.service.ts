@@ -7,22 +7,22 @@ import { DataSettingsVariousService } from '../data-settings-various.service';
   providedIn: 'root',
 })
 export class DataManagementGridSettingsService {
-  backgroundColorHoliday = '';
-  backgroundColor = '';
-  backgroundColorHolidayOfficially = '';
-  backgroundColorSaturday = '';
-  backgroundColorSunday = '';
-  borderColor = '';
+  public backgroundColorHoliday = '';
+  public backgroundColor = '';
+  public backgroundColorHolidayOfficially = '';
+  public backgroundColorSaturday = '';
+  public backgroundColorSunday = '';
+  public borderColor = '';
 
-  backgroundColorHolidayDummy = '';
-  backgroundColorDummy = '';
-  backgroundColorHolidayOfficiallyDummy = '';
-  backgroundColorSaturdayDummy = '';
-  backgroundColorSundayDummy = '';
-  borderColorDummy = '';
+  public settingList: ISetting[] = [];
+  public settingsCount = 0;
 
-  settingList: ISetting[] = [];
-  settingsCount = 0;
+  private backgroundColorHolidayDummy = '';
+  private backgroundColorDummy = '';
+  private backgroundColorHolidayOfficiallyDummy = '';
+  private backgroundColorSaturdayDummy = '';
+  private backgroundColorSundayDummy = '';
+  private borderColorDummy = '';
 
   constructor(public dataSettingsVariousService: DataSettingsVariousService) {}
 

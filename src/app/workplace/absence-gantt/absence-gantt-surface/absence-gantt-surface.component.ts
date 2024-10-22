@@ -918,58 +918,37 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion Scroll */
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isRead = this.dataManagementBreak.isRead();
-        if (isRead) {
-          if (this.isAbsenceHeaderInit) {
-            this.setAllScrollValues();
-            this.drawCalendarGantt.setMetrics();
-            this.drawCalendarGantt.checkSelectedRowVisibility();
-            this.drawCalendarGantt.renderCalendar();
-            this.drawCalendarGantt.drawCalendar();
-          }
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (this.dataManagementBreak.isRead()) {
+        this.setAllScrollValues();
+        this.drawCalendarGantt.setMetrics();
+        this.drawCalendarGantt.checkSelectedRowVisibility();
+        this.drawCalendarGantt.renderCalendar();
+        this.drawCalendarGantt.drawCalendar();
+      }
+    });
 
-    effect(
-      () => {
-        const isReset = this.gridColors.isReset();
-        if (isReset) {
-          this.addServicesCount();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (this.gridColors.isReset()) {
+        this.addServicesCount();
+      }
+    });
 
-    effect(
-      () => {
-        const isReset = this.gridFonts.isReset();
-        if (isReset) {
-          this.addServicesCount();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (this.gridFonts.isReset()) {
+        this.addServicesCount();
+      }
+    });
 
-    effect(
-      () => {
-        const isReset = this.holidayCollection.isReset();
-        if (isReset) {
-          this.drawCalendarGantt.selectedRow = -1;
-          this.dataManagementBreak.readYear();
-          this.firstDayDate = new Date(
-            this.holidayCollection.currentYear,
-            0,
-            1
-          );
-          this.drawCalendarGantt.resetAll();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (this.holidayCollection.isReset()) {
+        this.drawCalendarGantt.selectedRow = -1;
+
+        this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
+        this.drawCalendarGantt.resetAll();
+        this.dataManagementBreak.readYear();
+      }
+    });
 
     //Zeichnet die selektierte Zeile neu
     effect(

@@ -13,14 +13,13 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementScheduleService {
   public isRead = signal(false);
-  public isUpdate = new Subject<IWork>(); //Zeichnet die selektierte Zeile neu
+  public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
   public showProgressSpinner = signal(false);
 
   public workFilter: IWorkFilter = new WorkFilter();
@@ -65,7 +64,8 @@ export class DataManagementScheduleService {
       this.dataSchedule.addWork(tmp).subscribe((x) => {
         client.works.push(x);
         client.works = this.sortWorks(client.works);
-        this.isUpdate.next(x);
+        this.isUpdate.set(x);
+        setTimeout(() => this.isUpdate.set(undefined), 100);
       });
     }
   }
@@ -77,7 +77,8 @@ export class DataManagementScheduleService {
         client.works = this.sortWorks(
           client.works.filter((obj) => obj.id !== value.id)
         );
-        this.isUpdate.next(value);
+        this.isUpdate.set(value);
+        setTimeout(() => this.isUpdate.set(undefined), 100);
       });
     }
   }
@@ -96,7 +97,8 @@ export class DataManagementScheduleService {
     return this.dataSchedule.updateWork(value as Work).subscribe(() => {
       const client = this.clients[index];
       client.works = this.sortWorks(client.works);
-      this.isUpdate.next(value);
+      this.isUpdate.set(value);
+      setTimeout(() => this.isUpdate.set(undefined), 100);
     });
   }
 

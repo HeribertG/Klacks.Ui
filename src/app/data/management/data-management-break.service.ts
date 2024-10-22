@@ -41,7 +41,7 @@ export class DataManagementBreakService {
   }
   readYear() {
     this.showProgressSpinner.set(true);
-    if (this.isFilter_Dirty() && this.canReadBreaks) {
+    if (this.canReadBreaks) {
       this.clients = [];
 
       this.dataBreakService

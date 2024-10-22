@@ -29,6 +29,7 @@ export class HolidayCollectionService {
     this.holidays.currentYear = value;
     this.holidays.computeHolidays();
     this.isReset.set(true);
+    setTimeout(() => this.isReset.set(false), 100);
   }
 
   readData() {

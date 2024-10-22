@@ -21,6 +21,7 @@ export class DataManagementCalendarSelectionService {
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
+
   public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
   public chips: StateCountryToken[] = [];

@@ -51,6 +51,7 @@ export class AbsenceGanttHeaderComponent implements OnInit {
   changeYear(event: number) {
     this.dataManagementBreak.breakFilter.currentYear = event;
     this.holidayCollection.currentYear = event;
+    this.dataManagementBreak.readYear();
   }
 
   onOpenMenu() {
