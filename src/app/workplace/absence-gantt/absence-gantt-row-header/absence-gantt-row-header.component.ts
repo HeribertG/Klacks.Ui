@@ -83,12 +83,6 @@ export class AbsenceGanttRowHeaderComponent
     this.gridFontsService.readData();
 
     this.initializeDrawRowHeader();
-
-    this.scroll.moveVerticalEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x: number) => {
-        this.drawRowHeader.moveRow(x);
-      });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

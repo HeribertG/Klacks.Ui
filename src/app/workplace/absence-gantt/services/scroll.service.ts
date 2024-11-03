@@ -1,11 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
 @Injectable()
 export class ScrollService {
-  public moveHorizontalEvent = new Subject<number>();
-  public moveVerticalEvent = new Subject<number>();
-
   public maxCols = 0;
   public maxRows = 0;
 
@@ -87,12 +84,5 @@ export class ScrollService {
 
   set visibleRows(value: number) {
     this._visibleRows = value;
-  }
-
-  updateHorizontalScrollPosition(value: number): void {
-    this.moveHorizontalEvent.next(value);
-  }
-  updateVerticalScrollPosition(value: number): void {
-    this.moveVerticalEvent.next(value);
   }
 }

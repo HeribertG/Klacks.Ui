@@ -75,7 +75,6 @@ export class SearchComponent {
       () => {
         const restored = this.dataManagementSearch.restoreSearch();
         if (restored) {
-          console.log('restoreSearch:', restored);
           this.searchString = restored;
           this.cdr.detectChanges();
         }
@@ -88,7 +87,6 @@ export class SearchComponent {
         const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
 
         if (focusChanged) {
-          console.log('Fokus geändert:', focusChanged);
           this.handleFocusChange();
           this.dataManagementSwitchboard.isFocusChanged.set(false);
         }

@@ -19,6 +19,7 @@ import {
   ScrollbarService,
 } from 'src/app/services/scrollbar.service';
 import { CheckContext } from 'src/app/services/check-context.decorator';
+import { SCROLLBAR_CONSTANTS } from './constants';
 
 @Component({
   selector: 'app-h-scrollbar',
@@ -42,7 +43,6 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   private imagesThumps: ImagesThumps = new ImagesThumps();
   private metrics: IMetrics = new Metrics(); // Contains metrics for the scrollbar (e.g. size, position)
   private ctx: CanvasRenderingContext2D | null = null;
-  private maxFrameModuloNumber = 10; // Maximum number of frames for the modulo calculation in the animation
   private moveAnimationValue = 0;
   private moveAnimationFrameCount = 0;
   private moveAnimationFrameModulo = 10; // Determines how often the value is updated during the animation
@@ -52,9 +52,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   private mousePointThumb = false;
   private MouseXToThumbX = 0;
   private mouseOverThumb = false;
-  private firstStepByMoveAnimationInBar = 3; // Number of steps for the first movement when clicking in the scrollbar
-  private firstStepsByMoveAnimationOnButton = 1; // Number of steps for the first movement when clicking on an arrow button
-  private ticksOutsideMaximumRange = 5; // Additional ticks outside the visible range
+  private lastMouseEvent: MouseEvent | null = null;
+  private isScrollbarClick: boolean = false;
 
   constructor(
     private zone: NgZone,
@@ -242,6 +241,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   private handleNonThumbClick(event: MouseEvent): void {
     const canvas = this.canvasRef.nativeElement;
     if (canvas && !this.mouseEnterThumb) {
+      this.lastMouseEvent = event;
+      this.isScrollbarClick = true;
       this.initiateMoveAnimation(event, canvas);
     }
   }
@@ -255,9 +256,9 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
       event.clientX < this.value * this.metrics.tickSize + canvas.offsetLeft
         ? -1
         : 1;
-    this.moveAnimationFrameModulo = this.maxFrameModuloNumber;
+    this.moveAnimationFrameModulo = SCROLLBAR_CONSTANTS.MAX_FRAME_MODULO;
     this.shouldStopAnimation = false;
-    this.moveAnimation(this.firstStepByMoveAnimationInBar);
+    this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BAR);
   }
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
@@ -286,6 +287,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   ): void {
     this.mouseOverThumb = false;
     this.stopMoveAnimation();
+    this.lastMouseEvent = null;
     this.refresh();
   }
 
@@ -298,12 +300,13 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     }
   }
 
-  @HostListener('pointerdown', ['$event']) onPointerDown(
-    event: PointerEvent
-  ): void {
+  @HostListener('pointerdown', ['$event'])
+  onPointerDown(event: PointerEvent): void {
     this.mousePointThumb = this.isMouseOverThumb(event);
     if (this.mousePointThumb && event.buttons === 1) {
-      this.MouseXToThumbX = event.clientX - this.value;
+      const thumbPosition = this.value * this.metrics.tickSize;
+      this.MouseXToThumbX = event.clientX - thumbPosition;
+
       const canvas = this.canvasRef.nativeElement;
       if (canvas) {
         canvas.setPointerCapture(event.pointerId);
@@ -347,7 +350,9 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
 
     this.moveAnimationFrameModulo = 1;
     this.shouldStopAnimation = false;
-    this.moveAnimation(this.firstStepsByMoveAnimationOnButton);
+    this.lastMouseEvent = null;
+    this.isScrollbarClick = false;
+    this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BUTTON);
 
     event.preventDefault();
     event.stopPropagation();
@@ -378,13 +383,31 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     if (this.shouldUpdateValue()) {
+      if (this.isScrollbarClick && this.lastMouseEvent) {
+        const canvas = this.canvasRef.nativeElement;
+        const mousePosition = this.lastMouseEvent.clientX - canvas.offsetLeft;
+
+        const trackerWidth = this.imagesThumps.imgThumb?.width || 0;
+        const trackerPosition = this.value * this.metrics.tickSize;
+        const trackerRight = trackerPosition + trackerWidth;
+
+        if (
+          (this.moveAnimationValue < 0 && trackerPosition <= mousePosition) ||
+          (this.moveAnimationValue > 0 && trackerRight >= mousePosition)
+        ) {
+          this.stopMoveAnimation();
+          this.lastMouseEvent = null;
+          this.isScrollbarClick = false;
+          return;
+        }
+      }
+
       this.updateAnimationState(steps);
       this.emitValueChange();
     }
 
     this.scheduleNextFrame(steps);
   }
-
   // Increments the frame counter
   private incrementFrameCount(): void {
     this.moveAnimationFrameCount++;
@@ -414,6 +437,17 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   // Updates the scroll value
   private updateScrollValue(steps: number): void {
     const newValue = this.value + steps * this.moveAnimationValue;
+
+    // Prüfen ob wir am Ende oder Anfang sind
+    if (
+      (this.moveAnimationValue > 0 &&
+        newValue >= this.maxValue - this.visibleValue) ||
+      (this.moveAnimationValue < 0 && newValue <= 0)
+    ) {
+      this.stopMoveAnimation();
+      return;
+    }
+
     this.updateValue(newValue);
   }
 
@@ -436,6 +470,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     this.shouldStopAnimation = true;
     this.resetAnimationState();
     this.cancelAnimationFrames();
+    this.lastMouseEvent = null;
+    this.isScrollbarClick = false;
   }
 
   // Resets the animation state
@@ -460,7 +496,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
       0,
       Math.min(
         value,
-        this.imagesThumps.invisibleTicks + this.ticksOutsideMaximumRange
+        this.imagesThumps.invisibleTicks +
+          SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE
       )
     );
   }

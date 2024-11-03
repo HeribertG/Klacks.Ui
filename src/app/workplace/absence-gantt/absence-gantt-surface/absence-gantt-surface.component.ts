@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -47,7 +48,6 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 import { Subject, takeUntil } from 'rxjs';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
@@ -104,7 +104,8 @@ export class AbsenceGanttSurfaceComponent
     private gridFonts: GridFontsService,
     private translateService: TranslateService,
     private el: ElementRef,
-    private clipboard: Clipboard
+    private clipboard: Clipboard,
+    private cd: ChangeDetectorRef
   ) {
     this.readSignals();
   }
@@ -146,8 +147,6 @@ export class AbsenceGanttSurfaceComponent
         this.setAllScrollValues();
       });
 
-    const bc = this.readProperty('$gridBackgroundColor');
-
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -168,11 +167,11 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.drawCalendar();
     }
     if (changes['valueChangeVScrollbar']) {
+      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
       this.drawCalendarGantt.moveCalendar(
         this.valueChangeHScrollbar,
         this.valueChangeVScrollbar
       );
-      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
     }
   }
 
@@ -940,15 +939,22 @@ export class AbsenceGanttSurfaceComponent
       }
     });
 
-    effect(() => {
-      if (this.holidayCollection.isReset()) {
-        this.drawCalendarGantt.selectedRow = -1;
+    effect(
+      () => {
+        if (this.holidayCollection.isReset()) {
+          this.drawCalendarGantt.selectedRow = -1;
 
-        this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
-        this.drawCalendarGantt.resetAll();
-        this.dataManagementBreak.readYear();
-      }
-    });
+          this.firstDayDate = new Date(
+            this.holidayCollection.currentYear,
+            0,
+            1
+          );
+          this.drawCalendarGantt.resetAll();
+          this.dataManagementBreak.readYear();
+        }
+      },
+      { allowSignalWrites: true }
+    );
 
     //Zeichnet die selektierte Zeile neu
     effect(
@@ -966,6 +972,7 @@ export class AbsenceGanttSurfaceComponent
             this.drawCalendarGantt.selectedRow,
             this.drawCalendarGantt.selectedBreak
           );
+          this.cd.detectChanges();
         }
       },
       { allowSignalWrites: true }
@@ -979,6 +986,7 @@ export class AbsenceGanttSurfaceComponent
           this.drawCalendarGantt.selectedRow = -1;
           this.dataManagementBreak.canReadBreaks = true;
           this.dataManagementBreak.readYear();
+          this.cd.detectChanges();
         }
       },
       { allowSignalWrites: true }

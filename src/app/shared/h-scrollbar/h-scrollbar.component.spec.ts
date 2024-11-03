@@ -88,6 +88,4 @@ describe('HScrollbarComponent', () => {
 
     expect(emitCount).toBe(1);
   }));
-
-  // Fügen Sie hier weitere Tests hinzu...
 });

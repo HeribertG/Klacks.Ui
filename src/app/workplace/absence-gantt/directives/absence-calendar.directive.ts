@@ -47,12 +47,6 @@ export class AbsenceCalendarDirective {
     }
 
     this.gridBody.destroyToolTip();
-
-    const rect = new Rectangle();
-    // this.gridBody.clientLeft,
-    // this.gridBody.clientTop,
-    // this.gridBody.clientWidth,
-    // this.gridBody.clientHeight
   }
 
   @HostListener('mousewheel', ['$event']) onMouseWheel(
@@ -66,8 +60,6 @@ export class AbsenceCalendarDirective {
     const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
     this.gridBody.drawCalendarGantt.moveCalendar(moveX, moveY);
-    this.gridBody.scroll.updateVerticalScrollPosition(moveY);
-    this.gridBody.scroll!.updateHorizontalScrollPosition(moveX);
 
     this.stopEvent(event);
   }
@@ -177,8 +169,9 @@ export class AbsenceCalendarDirective {
         if (this.gridBody.drawCalendarGantt.selectedRow >= lastRow) {
           const diff = this.gridBody.drawCalendarGantt.selectedRow - lastRow;
 
+          this.gridBody.scroll.verticalScrollPosition += diff;
+
           this.gridBody.drawCalendarGantt.moveCalendar(0, diff);
-          this.gridBody.scroll.updateVerticalScrollPosition(diff);
         }
       }
 
@@ -244,8 +237,8 @@ export class AbsenceCalendarDirective {
             this.gridBody.scroll.verticalScrollPosition >
             this.gridBody.drawCalendarGantt.selectedRow
           ) {
+            this.gridBody.scroll.verticalScrollPosition += -1;
             this.gridBody.drawCalendarGantt.moveCalendar(0, -1);
-            this.gridBody.scroll.updateVerticalScrollPosition(-1);
           }
         }
 
