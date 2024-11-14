@@ -1,9 +1,4 @@
-import {
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HScrollbarComponent } from './h-scrollbar.component';
 import { ScrollbarService } from 'src/app/services/scrollbar.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -71,7 +66,7 @@ describe('HScrollbarComponent', () => {
   });
 
   it('should update metrics on refresh', () => {
-    spyOn(component as any, 'updateMetrics');
+    spyOn(component as never, 'updateMetrics');
     component.refresh();
     expect((component as any).updateMetrics).toHaveBeenCalled();
   });
