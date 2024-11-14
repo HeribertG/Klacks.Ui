@@ -10,7 +10,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   styleUrls: ['./edit-shift-home.component.scss'],
 })
 export class EditShiftHomeComponent implements OnInit {
-  @Input() isCreateShift: boolean = false;
+  @Input() isCreateShift = false;
   @Output() isChangingEvent = new EventEmitter();
 
   isComplex = false;

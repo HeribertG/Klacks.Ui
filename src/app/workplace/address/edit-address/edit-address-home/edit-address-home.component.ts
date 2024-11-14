@@ -16,8 +16,8 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
   styleUrls: ['./edit-address-home.component.scss'],
 })
 export class EditAddressHomeComponent implements OnInit {
-  @Input() isEditClient: boolean = false;
-  @Output() isChangingEvent = new EventEmitter();
+  @Input() isEditClient = false;
+  @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
 
   @HostListener('keyup', ['$event']) onkeyup(event: KeyboardEvent) {
@@ -50,7 +50,7 @@ export class EditAddressHomeComponent implements OnInit {
       'DataManagementClientService_Edit';
   }
 
-  onIsChanging(event: any) {
+  onIsChanging(event: boolean) {
     this.isChangingEvent.emit(event);
   }
 }

@@ -7,7 +7,6 @@ import { EditGroupHomeComponent } from './edit-group/edit-group-home/edit-group-
 import { EditGroupItemComponent } from './edit-group/edit-group-item/edit-group-item.component';
 import { EditGroupNavComponent } from './edit-group/edit-group-nav/edit-group-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { ToastModule } from 'src/app/toast/toast.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -33,7 +32,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     NgbModule,
     SpinnerModule,
     SharedModule,
-    ToastModule,
     TranslateModule,
     FontAwesomeModule,
   ],

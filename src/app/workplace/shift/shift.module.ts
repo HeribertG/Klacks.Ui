@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { IconsModule } from 'src/app/icons/icons.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ToastModule } from 'src/app/toast/toast.module';
 import { TranslateModule } from '@ngx-translate/core';
 import { EditShiftHomeComponent } from './edit-shift/edit-shift-home/edit-shift-home.component';
 import { EditShiftItemComponent } from './edit-shift/edit-shift-item/edit-shift-item.component';
@@ -31,7 +30,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     IconsModule,
     NgbModule,
     SharedModule,
-    ToastModule,
     TranslateModule,
     FontAwesomeModule,
   ],

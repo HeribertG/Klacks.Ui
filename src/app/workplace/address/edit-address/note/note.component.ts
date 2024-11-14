@@ -1,3 +1,6 @@
+import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
+import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { TranslateService } from '@ngx-translate/core';
 import {
   AfterViewInit,
   Component,
@@ -5,9 +8,6 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
   selector: 'app-note',

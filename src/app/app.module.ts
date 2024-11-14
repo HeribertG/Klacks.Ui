@@ -37,7 +37,7 @@ import {
   CurrencyPipe,
   registerLocaleData,
 } from '@angular/common';
-import { ToastModule } from './toast/toast.module';
+
 import { IconsModule } from './icons/icons.module';
 import { FormsModule } from '@angular/forms';
 import { AddressModule } from './workplace/address/address.module';
@@ -58,6 +58,7 @@ import { ScheduleModule } from './workplace/schedule/schedule.module';
 import { AbsenceGanttModule } from './workplace/absence-gantt/absence-gantt.module';
 import { LocaleService } from './services/locale.service';
 import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
+import { ToastsContainer } from './toast/toast.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -84,6 +85,7 @@ export function localeFactory(localeService: LocaleService) {
     FooterComponent,
     DashboardHomeComponent,
     SearchComponent,
+    ToastsContainer,
   ],
   bootstrap: [AppComponent],
   imports: [
@@ -91,7 +93,6 @@ export function localeFactory(localeService: LocaleService) {
     FormsModule,
     BrowserModule,
     AppRoutingModule,
-    ToastModule,
     IconsModule,
     SpinnerModule,
     FormsModule,

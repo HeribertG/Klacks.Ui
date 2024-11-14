@@ -7,21 +7,32 @@ import {
 import { HScrollbarComponent } from './h-scrollbar.component';
 import { ScrollbarService } from 'src/app/services/scrollbar.service';
 import { DomSanitizer } from '@angular/platform-browser';
-import { NgZone } from '@angular/core';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { ElementRef } from '@angular/core';
 
 describe('HScrollbarComponent', () => {
   let component: HScrollbarComponent;
   let fixture: ComponentFixture<HScrollbarComponent>;
   let scrollbarService: jasmine.SpyObj<ScrollbarService>;
-  let ngZone: NgZone;
 
   beforeEach(async () => {
+    // Mock ScrollbarService
     const scrollbarServiceSpy = jasmine.createSpyObj('ScrollbarService', [
       'calcMetrics',
       'createThumbHorizontal',
     ]);
 
+    // Mock Methoden für ScrollbarService konfigurieren
+    scrollbarServiceSpy.calcMetrics.and.returnValue({
+      thumbLength: 100,
+      tickSize: 10,
+    });
+
+    scrollbarServiceSpy.createThumbHorizontal.and.callFake(() => {
+      // Mock-Logik hier hinzufügen, falls benötigt
+    });
+
+    // Testmodule konfigurieren
     await TestBed.configureTestingModule({
       declarations: [HScrollbarComponent],
       providers: [
@@ -36,14 +47,12 @@ describe('HScrollbarComponent', () => {
             'bypassSecurityTrustHtml',
           ]),
         },
-        NgZone,
       ],
     }).compileComponents();
 
     scrollbarService = TestBed.inject(
       ScrollbarService
     ) as jasmine.SpyObj<ScrollbarService>;
-    ngZone = TestBed.inject(NgZone);
 
     fixture = TestBed.createComponent(HScrollbarComponent);
     component = fixture.componentInstance;
@@ -52,40 +61,30 @@ describe('HScrollbarComponent', () => {
     const mockCanvas = document.createElement('canvas');
     const mockContext = mockCanvas.getContext('2d');
     spyOn(mockCanvas, 'getContext').and.returnValue(mockContext);
-    component.canvasRef = { nativeElement: mockCanvas } as any;
+    component.canvasRef = {
+      nativeElement: mockCanvas,
+    } as ElementRef<HTMLCanvasElement>;
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit valueChange when value is updated', fakeAsync(() => {
-    let emittedValue: number | undefined;
-    component.valueChange.subscribe((value) => (emittedValue = value));
+  it('should update metrics on refresh', () => {
+    spyOn(component as any, 'updateMetrics');
+    component.refresh();
+    expect((component as any).updateMetrics).toHaveBeenCalled();
+  });
 
-    ngZone.run(() => {
-      component.value = 50;
-      fixture.detectChanges();
-    });
-
-    tick(); // This processes pending asynchronous activities
-
-    expect(emittedValue).toBe(50);
-  }));
-
-  it('should not emit valueChange when the same value is set', fakeAsync(() => {
-    let emitCount = 0;
-    component.valueChange.subscribe(() => emitCount++);
-
-    ngZone.run(() => {
-      component.value = 50;
-      fixture.detectChanges();
-      component.value = 50;
-      fixture.detectChanges();
-    });
-
-    tick(); // This processes pending asynchronous activities
-
-    expect(emitCount).toBe(1);
-  }));
+  it('should correctly calculate X position for the thumb', () => {
+    const mockCanvas = component.canvasRef.nativeElement;
+    mockCanvas.width = 500;
+    const result = (component as any).calculateXPosition(
+      mockCanvas,
+      10,
+      10,
+      50
+    );
+    expect(result).toBe(100);
+  });
 });

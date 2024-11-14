@@ -90,7 +90,7 @@
         <div
           [ngClass]="{
             'container-box  ':
-              this.dataManagementClientService.currentAnnotationIndex != i,
+              this.dataManagementClientService.currentAnnotationIndex !== i,
             'container-box-focus ':
               this.dataManagementClientService.currentAnnotationIndex === i
           }"

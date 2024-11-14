@@ -6,7 +6,6 @@ import { ProfilePictureComponent } from './profile-picture/profile-picture.compo
 import { ProfileCustomSettingComponent } from './profile-custom-setting/profile-custom-setting.component';
 import { FormsModule } from '@angular/forms';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { ToastModule } from 'src/app/toast/toast.module';
 import { RouterModule } from '@angular/router';
 import { IconsModule } from 'src/app/icons/icons.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -30,7 +29,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     IconsModule,
     SharedModule,
     SpinnerModule,
-    ToastModule,
     TranslateModule,
     FontAwesomeModule,
   ],

@@ -17,7 +17,6 @@ import { OwnerAddressComponent } from './owner-address/owner-address.component';
 import { SettingsGeneralComponent } from './settings-general/settings-general.component';
 import { SettingsHomeComponent } from './settings-home/settings-home.component';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { ToastModule } from 'src/app/toast/toast.module';
 import { UserAdministrationComponent } from './user-administration/user-administration.component';
 import { UserAdministrationHeaderComponent } from './user-administration/user-administration-header/user-administration-header.component';
 import { UserAdministrationRowComponent } from './user-administration/user-administration-row/user-administration-row.component';
@@ -64,7 +63,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     IconsModule,
     NgbModule,
     SpinnerModule,
-    ToastModule,
     SharedModule,
     CodemirrorModule,
     TranslateModule,

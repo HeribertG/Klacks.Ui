@@ -27,9 +27,9 @@ import { SCROLLBAR_CONSTANTS } from './constants';
   styleUrls: ['./h-scrollbar.component.scss'],
 })
 export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() value: number = 0;
-  @Input() maxValue: number = 365;
-  @Input() visibleValue: number = 180;
+  @Input() value = 0;
+  @Input() maxValue = 365;
+  @Input() visibleValue = 180;
 
   @Output() valueChange = new EventEmitter<number>();
 
@@ -37,8 +37,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   canvasRef!: ElementRef<HTMLCanvasElement>;
   public safeTriangleSvgLeft!: SafeHtml;
   public safeTriangleSvgRight!: SafeHtml;
-  public disableLeftArrow: boolean = false;
-  public disableRightArrow: boolean = false;
+  public disableLeftArrow = false;
+  public disableRightArrow = false;
 
   private imagesThumps: ImagesThumps = new ImagesThumps();
   private metrics: IMetrics = new Metrics(); // Contains metrics for the scrollbar (e.g. size, position)
@@ -53,7 +53,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
   private MouseXToThumbX = 0;
   private mouseOverThumb = false;
   private lastMouseEvent: MouseEvent | null = null;
-  private isScrollbarClick: boolean = false;
+  private isScrollbarClick = false;
 
   constructor(
     private zone: NgZone,
@@ -221,7 +221,8 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
       if (entry) {
         const canvas = this.canvasRef.nativeElement;
 
-        (canvas.width = entry.contentRect.width - 50), this.refresh();
+        canvas.width = entry.contentRect.width - 50;
+        this.refresh();
       }
     }
   }
@@ -261,7 +262,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BAR);
   }
 
-  @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
+  @HostListener('mouseup', ['$event']) onMouseUp(): void {
     this.mouseEnterThumb = false;
     this.MouseXToThumbX = 0;
     const canvas = this.canvasRef.nativeElement;
@@ -282,9 +283,7 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     this.updateArrowButtonsState();
   }
 
-  @HostListener('mouseleave', ['$event']) onMouseLeave(
-    event: MouseEvent
-  ): void {
+  @HostListener('mouseleave', ['$event']) onMouseLeave(): void {
     this.mouseOverThumb = false;
     this.stopMoveAnimation();
     this.lastMouseEvent = null;
@@ -506,7 +505,6 @@ export class HScrollbarComponent implements OnInit, AfterViewInit, OnChanges {
     newValue = this.clampValue(newValue);
     if (newValue !== this.value) {
       this.value = newValue;
-
       this.valueChange.emit(this.value);
     }
   }
@@ -559,7 +557,7 @@ export interface IImagesThumps {
   imgSelectedThumb: ImageData | undefined;
 }
 export class ImagesThumps implements IImagesThumps {
-  invisibleTicks: number = 0;
+  invisibleTicks = 0;
   imgThumb: ImageData | undefined = undefined;
   imgSelectedThumb: ImageData | undefined = undefined;
 }

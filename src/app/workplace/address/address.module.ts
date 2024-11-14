@@ -13,7 +13,6 @@ import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { FormsModule } from '@angular/forms';
 import { AddressListComponent } from './edit-address/address-list/address-list.component';
-import { ToastModule } from 'src/app/toast/toast.module';
 import { NgbDateCustomParserFormatter } from 'src/app/helpers/NgbDateParserFormatter';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SharedModule } from 'src/app/shared/shared.module';
@@ -38,7 +37,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     NgbModule,
     SpinnerModule,
     SharedModule,
-    ToastModule,
     TranslateModule,
     FontAwesomeModule,
   ],
