@@ -10,7 +10,6 @@ import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-hea
 import { CreateHeaderService } from './create-header.service';
 import { DataService } from './data.service';
 import { CreateRowHeaderService } from './create-row-header.service';
-import { Subject, Subscription, takeUntil } from 'rxjs';
 
 @Injectable()
 export class DrawRowHeaderService {

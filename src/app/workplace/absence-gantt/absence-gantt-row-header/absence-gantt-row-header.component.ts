@@ -86,13 +86,19 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    console.log('ngOnChanges row-header');
     if (changes['valueChangeVScrollbar']) {
       const currentValue = changes['valueChangeVScrollbar'].currentValue;
       const previousValue = changes['valueChangeVScrollbar'].previousValue;
       const diff = currentValue - previousValue;
 
       if (diff) {
-        console.log('ngOnChanges', currentValue, previousValue, diff);
+        console.log(
+          'ngOnChanges row-header',
+          currentValue,
+          previousValue,
+          diff
+        );
         this.drawRowHeader.moveRow(diff);
       }
     }
@@ -138,6 +144,7 @@ export class AbsenceGanttRowHeaderComponent
   }
   @CanvasAvailable()
   private redrawComponents(): void {
+    console.log('redrawComponents');
     this.drawRowHeader.createRuler();
     this.drawRowHeader.renderRowHeader();
     this.drawRowHeader.drawCalendar();
@@ -167,19 +174,22 @@ export class AbsenceGanttRowHeaderComponent
     const pos = this.getMousePos(event);
     if (!pos) return;
 
-    if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
-      this.currentCursor = CursorEnum.pointer;
-    } else {
-      this.currentCursor = CursorEnum.default;
+    if (this.drawRowHeader.recFilterIcon) {
+      if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
+        this.currentCursor = CursorEnum.pointer;
+      } else {
+        this.currentCursor = CursorEnum.default;
+      }
     }
   }
 
   onClick(event: MouseEvent) {
     const pos = this.getMousePos(event);
     if (!pos) return;
-
-    if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
-      this.showFilter();
+    if (this.drawRowHeader.recFilterIcon) {
+      if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
+        this.showFilter();
+      }
     }
   }
 

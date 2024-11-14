@@ -30,6 +30,7 @@ import { RenderRowHeaderCellService } from './services/render-row-header-cell.se
 import { GanttCanvasManagerService } from './services/gantt-canvas-manager.service';
 import { RowHeaderCanvasManagerService } from './services/row-header-canvas.service';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { RenderRowHeaderService } from './services/render-row-header.service';
 
 @NgModule({
   declarations: [
@@ -68,6 +69,7 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     RenderRowHeaderCellService,
     GanttCanvasManagerService,
     RowHeaderCanvasManagerService,
+    RenderRowHeaderService,
   ],
 })
 export class AbsenceGanttModule {}

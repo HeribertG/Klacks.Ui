@@ -79,7 +79,7 @@ export class DrawCalendarGanttService {
           // Nach Unten
           if (dirY > 0) {
             if (dirY < visibleRow / 2) {
-              this.moveIt(dirY);
+              this.moveGridVertical(dirY);
               return;
             } else {
               this.renderCalendar();
@@ -89,7 +89,7 @@ export class DrawCalendarGanttService {
           // Nach Oben
           if (dirY < 0) {
             if (dirY * -1 < visibleRow / 2) {
-              this.moveIt(dirY);
+              this.moveGridVertical(dirY);
               return;
             } else {
               this.renderCalendar();
@@ -104,7 +104,7 @@ export class DrawCalendarGanttService {
     this.drawCalendar();
   }
 
-  private moveIt(directionY: number): void {
+  private moveGridVertical(directionY: number): void {
     const visibleRow = this.scroll.visibleRows;
 
     if (directionY !== 0) {

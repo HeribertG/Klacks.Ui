@@ -1,5 +1,4 @@
-import { Injectable, signal } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class ScrollService {

@@ -162,6 +162,7 @@ export class AbsenceGanttSurfaceComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    //console.log('ngOnChanges surface');
     if (changes['valueChangeHScrollbar']) {
       this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
       this.drawCalendarGantt.drawCalendar();
