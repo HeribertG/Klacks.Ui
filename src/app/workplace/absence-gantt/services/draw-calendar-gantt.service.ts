@@ -2,14 +2,13 @@ import { Injectable, NgZone } from '@angular/core';
 import { Rectangle } from '../../../grid/classes/geometry';
 import { daysBetweenDates, isLeapYear } from 'src/app/helpers/format-helper';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { Break, IBreak } from 'src/app/core/break-class';
+import { IBreak } from 'src/app/core/break-class';
 import { HolidayCollectionService } from '../../../grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../grid/services/grid-color.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { ScrollService } from './scroll.service';
-import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { Subject } from 'rxjs';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
@@ -27,9 +26,7 @@ export class DrawCalendarGanttService {
   public selectedBreakRec: Rectangle | undefined;
   public selectedBreak_dummy: IBreak | undefined;
 
-  private _columns: number = 365;
-  private _selectedRow = -1;
-  private _selectedBreakIndex = -1;
+  private _columns = 365;
   private _isFocused = false;
   private _dragRow = -1;
 
@@ -61,11 +58,7 @@ export class DrawCalendarGanttService {
     }
 
     const dirX = directionX;
-    const dirY = directionY;
     const visibleRow = this.scroll.visibleRows;
-
-    this.scroll.horizontalScrollPosition += dirX;
-    this.scroll.verticalScrollPosition += dirY;
 
     this.zone.runOutsideAngular(() => {
       try {
@@ -75,25 +68,18 @@ export class DrawCalendarGanttService {
           this.drawCalendar();
         }
         // vertikale Verschiebung
-        if (dirY !== 0) {
-          // Nach Unten
-          if (dirY > 0) {
-            if (dirY < visibleRow / 2) {
-              this.moveGridVertical(dirY);
-              return;
-            } else {
-              this.renderCalendar();
-              return;
-            }
-          }
-          // Nach Oben
-          if (dirY < 0) {
-            if (dirY * -1 < visibleRow / 2) {
-              this.moveGridVertical(dirY);
-              return;
-            } else {
-              this.renderCalendar();
-            }
+        if (directionY !== 0) {
+          const diffY = this.scroll.verticalScrollDelta;
+          const moveCondition =
+            (directionY > 0 && diffY * -1 < visibleRow / 2) ||
+            (directionY < 0 && diffY < visibleRow / 2);
+
+          if (moveCondition) {
+            this.renderCalendarGrid.moveGridVertical(directionY);
+            return;
+          } else {
+            this.renderCalendarGrid.renderCalendar();
+            return;
           }
         }
       } finally {
@@ -103,52 +89,9 @@ export class DrawCalendarGanttService {
 
     this.drawCalendar();
   }
-
-  private moveGridVertical(directionY: number): void {
-    const visibleRow = this.scroll.visibleRows;
-
-    if (directionY !== 0) {
-      const diff = this.scroll.verticalScrollDelta;
-      if (diff === 0) {
-        return;
-      }
-
-      this.ganttCanvasManager.renderCanvasCtx!.drawImage(
-        this.ganttCanvasManager.renderCanvas!,
-        0,
-        this.calendarSetting.cellHeight * diff
-      );
-
-      let firstRow = 0;
-      let lastRow = 0;
-
-      if (directionY > 0) {
-        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
-        lastRow = firstRow + diff * -1 + 4;
-      } else {
-        firstRow = this.scroll.verticalScrollPosition;
-        lastRow = firstRow + diff + 1;
-      }
-
-      for (let row = firstRow; row < lastRow; row++) {
-        this.drawRow(row, this.selectedBreak);
-      }
-    }
-
-    this.drawCalendar();
-  }
-
   /* #endregion  render */
 
   /* #region   draw */
-
-  public drawRow(index: number, selectedBreak: IBreak | undefined): void {
-    this.renderCalendarGrid.drawRow(index, selectedBreak);
-  }
-
-  public drawRowBreaks(index: number, selectedBreak: IBreak | undefined) {
-    this.renderCalendarGrid.drawRowBreaks(index, selectedBreak);
-  }
 
   @CanvasAvailable('queue')
   drawCalendar(): void {
@@ -194,40 +137,23 @@ export class DrawCalendarGanttService {
   }
 
   drawSelectionRow(): void {
-    if (
-      this.selectedRow !== -1 ||
-      this.selectedRow >= this.dataManagementBreak.rows
-    ) {
-      this.ganttCanvasManager.ctx!.save();
-
-      this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
-      this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
-      const dy = this.selectedRow - this.scroll.verticalScrollPosition;
-      const height = this.calendarSetting.cellHeight;
-      const top =
-        Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
-      const width =
-        (this.lastVisibleColumn() - this.firstVisibleColumn()) *
-        this.calendarSetting.cellWidth;
-      this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
-      this.drawSelectedBreak();
-      this.ganttCanvasManager.ctx!.restore();
-    }
+    this.renderCalendarGrid.drawSelectionRow();
   }
 
   unDrawSelectionRow(): void {
-    if (this.selectedRow > -1) {
-      if (this.isSelectedRowVisible()) {
-        this.drawRowIntern(this.selectedRow);
-        this.drawRow(this.selectedRow, this.selectedBreak);
-      }
-    }
+    this.renderCalendarGrid.unDrawSelectionRow();
   }
 
   drawSelectedBreak(): void {
-    if (this.selectedBreakIndex !== -1 && this.isSelectedRowVisible()) {
-      this.drawBreaksIntern();
-    }
+    this.renderCalendarGrid.drawSelectedBreak();
+  }
+
+  public drawRow(index: number, selectedBreak: IBreak | undefined): void {
+    this.renderCalendarGrid.drawRow(index, selectedBreak);
+  }
+
+  public get selectedBreak(): IBreak | undefined {
+    return this.renderCalendarGrid.selectedBreak;
   }
   /* #endregion   draw */
 
@@ -235,87 +161,7 @@ export class DrawCalendarGanttService {
   // Zeichnet direkt auf Anzeige-Canvas
 
   public drawRowIntern(index: number): void {
-    const dy = index - this.scroll.verticalScrollPosition;
-    const left =
-      this.scroll.horizontalScrollPosition *
-      this.calendarSetting.cellWidth *
-      -1;
-    const height = this.calendarSetting.cellHeight;
-    const top = Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
-    const rowRec = new Rectangle(
-      left,
-      top,
-      this.ganttCanvasManager.canvas!.width,
-      top + height
-    );
-
-    this.drawRowSubIntern(index, rowRec);
-  }
-
-  private drawRowSubIntern(index: number, rowRec: Rectangle): void {
-    if (index < this.dataManagementBreak.rows) {
-      // lädt Hintergrund in rowCtx
-      this.ganttCanvasManager.rowCtx!!.drawImage(
-        this.ganttCanvasManager.backgroundRowCanvas!!,
-        0,
-        0
-      );
-      // Zeichnet alle  Breaks in rowCtx
-      this.drawRowBreaks(index, this.selectedBreak);
-      // Zeichnet rowCtx in ctx
-      this.ganttCanvasManager.ctx!.drawImage(
-        this.ganttCanvasManager.rowCanvas!!,
-        rowRec.x,
-        rowRec.y
-      );
-    } else {
-      DrawHelper.fillRectangle(
-        this.ganttCanvasManager.ctx!,
-        this.gridColors.backGroundContainerColor,
-        rowRec
-      );
-    }
-  }
-
-  drawBreaksIntern() {
-    if (
-      this.selectedRow !== -1 ||
-      this.selectedRow >= this.dataManagementBreak.rows
-    ) {
-      const dy =
-        this.calendarSetting.cellHeaderHeight +
-        (this.selectedRow - this.scroll.verticalScrollPosition) *
-          this.calendarSetting.cellHeight;
-      const dx =
-        this.scroll.horizontalScrollPosition *
-        this.calendarSetting.cellWidth *
-        -1;
-      const tmpBreak = this.dataManagementBreak.readData(this.selectedRow)![
-        this.selectedBreakIndex
-      ];
-
-      if (tmpBreak) {
-        const tmpRec = this.calcDateRectangle(
-          tmpBreak.from as Date,
-          tmpBreak.until as Date
-        );
-        const rec = tmpRec.translate(dx, dy);
-        this.selectedBreakRec = rec.setBounds(
-          rec.left - 1,
-          rec.top - 1,
-          rec.right + 1,
-          rec.bottom + 1
-        );
-        const abs = this.dataManagementAbsence.absenceList.find(
-          (as) => as.id === tmpBreak.absenceId
-        );
-        if (abs) {
-          this.drawBreakIntern(rec, abs.color!);
-          this.drawBreakSelectBorderIntern(this.selectedBreakRec);
-          this.drawBreakSelectBorderInternAnchor(this.selectedBreakRec);
-        }
-      }
-    }
+    this.renderCalendarGrid.drawRowIntern(index);
   }
 
   private drawBreakIntern(rec: Rectangle, color: string) {
@@ -352,8 +198,8 @@ export class DrawCalendarGanttService {
   @CanvasAvailable('queue')
   public resetAll(): void {
     this.setMetrics();
-    this.createRuler();
-    this.renderCalendar();
+    this.renderCalendarGrid.renderRuler();
+    this.renderCalendarGrid.renderCalendar();
     this.drawCalendar();
   }
 
@@ -374,7 +220,7 @@ export class DrawCalendarGanttService {
   }
 
   public calcDateRectangle(beginDate: Date, endDate: Date): Rectangle {
-    let diff = +Math.floor(daysBetweenDates(beginDate, endDate));
+    const diff = +Math.floor(daysBetweenDates(beginDate, endDate));
 
     const col1 = Math.floor(daysBetweenDates(this.startDate, beginDate));
     const col2 = col1 + diff;
@@ -394,9 +240,10 @@ export class DrawCalendarGanttService {
 
   public isSelectedRowVisible(): boolean {
     if (
-      this.selectedRow >= this.firstVisibleRow &&
-      this.selectedRow < this.firstVisibleRow + this.visibleRow() &&
-      this.selectedRow < this.dataManagementBreak.rows
+      this.renderCalendarGrid.selectedRow >= this.firstVisibleRow &&
+      this.renderCalendarGrid.selectedRow <
+        this.firstVisibleRow + this.visibleRow() &&
+      this.renderCalendarGrid.selectedRow < this.dataManagementBreak.rows
     ) {
       return true;
     }
@@ -476,6 +323,14 @@ export class DrawCalendarGanttService {
     return last < max ? last : max;
   }
 
+  public get selectedRow(): number {
+    return this.renderCalendarGrid.selectedRow;
+  }
+
+  public set selectedRow(value: number) {
+    this.renderCalendarGrid.selectedRow = value;
+  }
+
   public get columns(): number {
     return this._columns;
   }
@@ -488,63 +343,15 @@ export class DrawCalendarGanttService {
     this.scroll.maxCols = this._columns;
   }
 
-  public set selectedRow(value: number) {
-    if (value === this._selectedRow) {
-      return;
-    }
-
-    // Die letzte Absenz wird desektiert
-    this._selectedBreakIndex = -1;
-    this.selectedRow = -1;
-    this.unDrawSelectionRow();
-
-    if (value < 0) {
-      this._selectedRow = 0;
-    } else if (value > this.dataManagementBreak.rows) {
-      this._selectedRow = this.dataManagementBreak.rows;
-    } else {
-      this._selectedRow = value;
-    }
-    this.drawSelectionRow();
-    this.selectedRow = this._selectedRow;
-  }
-
-  public get selectedRow(): number {
-    return this._selectedRow;
-  }
-
   public get firstVisibleRow(): number {
     return this.scroll.verticalScrollPosition;
   }
 
   public set selectedBreakIndex(value: number) {
-    if (value === this._selectedBreakIndex) {
-      return;
-    }
-    this._selectedBreakIndex = value;
-    this.unDrawSelectionRow();
-    this.drawSelectionRow();
-    this.drawSelectedBreak();
+    this.renderCalendarGrid.selectedBreakIndex = value;
   }
   public get selectedBreakIndex() {
-    return this._selectedBreakIndex;
-  }
-
-  public get selectedBreak(): IBreak | undefined {
-    if (
-      this.selectedRow > -1 &&
-      this.selectedRow < this.dataManagementBreak.rows
-    ) {
-      const br = this.dataManagementBreak.readData(this.selectedRow)![
-        this._selectedBreakIndex
-      ];
-      this.selectedBreak_dummy = undefined;
-      if (br) {
-        this.selectedBreak_dummy = cloneObject(br as Break);
-      }
-      return br;
-    }
-    return undefined;
+    return this.renderCalendarGrid.selectedBreakIndex;
   }
 
   public lastVisibleRow(): number {
@@ -564,14 +371,17 @@ export class DrawCalendarGanttService {
   }
 
   public checkSelectedRowVisibility(): void {
-    if (this.selectedRow > this.dataManagementBreak.rows) {
-      this.selectedRow = -1;
-    }
+    this.renderCalendarGrid.checkSelectedRowVisibility();
   }
 
   public get selectedRowBreaksMaxIndex(): number {
-    if (this.dataManagementBreak.readData(this.selectedRow)) {
-      return this.dataManagementBreak.readData(this.selectedRow)!.length - 1;
+    if (
+      this.dataManagementBreak.readData(this.renderCalendarGrid.selectedRow)
+    ) {
+      return (
+        this.dataManagementBreak.readData(this.renderCalendarGrid.selectedRow)!
+          .length - 1
+      );
     }
     return -1;
   }
@@ -584,24 +394,6 @@ export class DrawCalendarGanttService {
 
   @CanvasAvailable('queue')
   public setMetrics(): void {
-    this.ganttCanvasManager;
-    const visibleRows: number =
-      Math.floor(
-        this.ganttCanvasManager.canvas!.clientHeight /
-          this.calendarSetting.cellHeight
-      ) - 1;
-    const visibleCols: number =
-      Math.floor(
-        this.ganttCanvasManager.canvas!.clientWidth /
-          this.calendarSetting.cellWidth
-      ) - 1;
-    // this.scroll.setMetrics(
-    //   visibleCols,
-    //   this._columns,
-    //   visibleRows,
-    //   this.dataManagementBreak.rows
-    // );
-
     this.vScrollbarRefreshEvent.next(true);
     this.hScrollbarRefreshEvent.next(true);
   }

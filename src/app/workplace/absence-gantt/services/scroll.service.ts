@@ -14,14 +14,17 @@ export class ScrollService {
 
   set verticalScrollPosition(value: number) {
     if (this._verticalScrollPosition !== value) {
+      console.log(
+        'verticalScrollPosition',
+        value,
+        this._verticalScrollPosition
+      );
       let oldValue: number = this._verticalScrollPosition;
       oldValue = Math.max(0, oldValue);
 
       this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
 
-      oldValue
-        ? this.difference(oldValue, false)
-        : (this._verticalScrollDelta = 0);
+      this.difference(oldValue, false);
     }
   }
 
@@ -39,9 +42,7 @@ export class ScrollService {
         Math.min(value, this.maxCols)
       );
 
-      oldValue
-        ? this.difference(oldValue, true)
-        : (this._horizontalScrollDelta = 0);
+      this.difference(oldValue, true);
     }
   }
 
@@ -52,6 +53,8 @@ export class ScrollService {
   resetScrollPosition(): void {
     this._horizontalScrollPosition = 0;
     this._verticalScrollPosition = 0;
+    this._horizontalScrollDelta = 0;
+    this._verticalScrollDelta = 0;
   }
 
   private difference(oldValue: number, isHorizontal: boolean) {

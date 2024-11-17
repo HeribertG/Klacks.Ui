@@ -17,9 +17,9 @@ import {
   Metrics,
   IMetrics,
   ScrollbarService,
-} from 'src/app/services/scrollbar.service';
+} from '../scrollbar/scrollbar.service';
 import { CheckContext } from 'src/app/services/check-context.decorator';
-import { SCROLLBAR_CONSTANTS } from './constants';
+import { SCROLLBAR_CONSTANTS } from '../scrollbar/constants';
 import {
   Subject,
   debounceTime,
@@ -173,7 +173,8 @@ export class HScrollbarComponent
   /* #endregion Lifecycle Hooks */
 
   /* #region Initialization and updating */
-  private initCanvas() {
+
+  private initCanvas(): void {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext('2d');
 
@@ -187,7 +188,7 @@ export class HScrollbarComponent
     this.refresh();
   }
 
-  refresh() {
+  refresh(): void {
     this.updateMetrics();
     this.createThumb();
     this.reDraw();
@@ -519,13 +520,16 @@ export class HScrollbarComponent
 
   // Updates the scroll value
   private updateScrollValue(steps: number): void {
+    const IS_LEFT = -1;
     const newValue = this.value + steps * this.moveAnimationValue;
 
-    // Prüfen ob wir am Ende oder Anfang sind
+    const realMax =
+      this.maxValue -
+      this.visibleValue +
+      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     if (
-      (this.moveAnimationValue > 0 &&
-        newValue >= this.maxValue - this.visibleValue) ||
-      (this.moveAnimationValue < 0 && newValue <= 0)
+      (this.moveAnimationValue > 0 && newValue >= realMax) ||
+      (this.moveAnimationValue < 0 && newValue <= IS_LEFT)
     ) {
       this.stopMoveAnimation();
       return;

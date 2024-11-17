@@ -24,15 +24,23 @@ import {
 } from '../../../grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from '../../../grid/enums/gradient-3d-border-style';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
-import { IBreak } from 'src/app/core/break-class';
+import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
+import { cloneObject } from 'src/app/helpers/object-helpers';
 
 @Injectable()
 export class RenderCalendarGridService {
   public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
+
+  public selectedBreakRec: Rectangle | undefined;
+  public selectedBreak_dummy: IBreak | undefined;
+
   private readonly SUNDAY = 0;
   private readonly SATURDAY = 6;
   private readonly MINCELLWITHFORDAYRANK = 20;
+
+  private _selectedRow = -1;
+  private _selectedBreakIndex = -1;
 
   constructor(
     private ganttCanvasManager: GanttCanvasManagerService,
@@ -47,11 +55,16 @@ export class RenderCalendarGridService {
     private scroll: ScrollService
   ) {}
 
+  public isCanvasAvailable(): boolean {
+    return this.ganttCanvasManager.isCanvasAvailable();
+  }
+
+  @CanvasAvailable('queue')
   public renderRuler(): void {
     this.startDate = new Date(this.holidayCollection.currentYear, 0, 1);
 
-    let headerDayRank = new Array<CalendarHeaderDayRank>();
-    let monthsRect = new Array<Rectangle>();
+    const headerDayRank = new Array<CalendarHeaderDayRank>();
+    const monthsRect = new Array<Rectangle>();
 
     const daysPerYear = this.calcDaysPerYear();
     this.sizeCanvas(this.getWidth());
@@ -74,12 +87,305 @@ export class RenderCalendarGridService {
     }
   }
 
-  public isCanvasAvailable(): boolean {
-    return this.ganttCanvasManager.isCanvasAvailable();
+  @CanvasAvailable('queue')
+  public moveGridVertical(directionY: number): void {
+    const visibleRow = this.scroll.visibleRows;
+
+    if (directionY !== 0) {
+      const diff = this.scroll.verticalScrollDelta;
+      if (diff === 0) {
+        return;
+      }
+
+      this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+        this.ganttCanvasManager.renderCanvas!,
+        0,
+        this.calendarSetting.cellHeight * diff
+      );
+
+      let firstRow = 0;
+      let lastRow = 0;
+
+      if (directionY > 0) {
+        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
+        lastRow = firstRow + diff * -1 + 4;
+      } else {
+        firstRow = this.scroll.verticalScrollPosition;
+        lastRow = firstRow + diff + 1;
+      }
+
+      for (let row = firstRow; row < lastRow; row++) {
+        this.drawRow(row, this.selectedBreak);
+      }
+    }
+  }
+
+  public get selectedBreak(): IBreak | undefined {
+    if (
+      this.selectedRow > -1 &&
+      this.selectedRow < this.dataManagementBreak.rows
+    ) {
+      const br = this.dataManagementBreak.readData(this.selectedRow)![
+        this._selectedBreakIndex
+      ];
+      this.selectedBreak_dummy = undefined;
+      if (br) {
+        this.selectedBreak_dummy = cloneObject(br as Break);
+      }
+      return br;
+    }
+    return undefined;
+  }
+
+  public set selectedRow(value: number) {
+    if (value === this._selectedRow) {
+      return;
+    }
+
+    // Die letzte Absenz wird desektiert
+    this._selectedBreakIndex = -1;
+    this.selectedRow = -1;
+    this.unDrawSelectionRow();
+
+    if (value < 0) {
+      this._selectedRow = 0;
+    } else if (value > this.dataManagementBreak.rows) {
+      this._selectedRow = this.dataManagementBreak.rows;
+    } else {
+      this._selectedRow = value;
+    }
+    this.drawSelectionRow();
+    this.selectedRow = this._selectedRow;
+  }
+
+  public get selectedRow(): number {
+    return this._selectedRow;
+  }
+
+  public get firstVisibleRow(): number {
+    return this.scroll.verticalScrollPosition;
+  }
+
+  public drawSelectionRow(): void {
+    if (
+      this.selectedRow !== -1 ||
+      this.selectedRow >= this.dataManagementBreak.rows
+    ) {
+      this.ganttCanvasManager.ctx!.save();
+
+      this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
+      this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
+      const dy = this.selectedRow - this.scroll.verticalScrollPosition;
+      const height = this.calendarSetting.cellHeight;
+      const top =
+        Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
+      const width =
+        (this.lastVisibleColumn() - this.firstVisibleColumn()) *
+        this.calendarSetting.cellWidth;
+      this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
+      this.drawSelectedBreak();
+      this.ganttCanvasManager.ctx!.restore();
+    }
+  }
+
+  public unDrawSelectionRow(): void {
+    if (this.selectedRow > -1) {
+      if (this.isSelectedRowVisible()) {
+        this.drawRowIntern(this.selectedRow);
+        this.drawRow(this.selectedRow, this.selectedBreak);
+      }
+    }
+  }
+
+  public drawSelectedBreak(): void {
+    if (this.selectedBreakIndex !== -1 && this.isSelectedRowVisible()) {
+      this.drawBreaksIntern();
+    }
+  }
+
+  public isSelectedRowVisible(): boolean {
+    if (
+      this.selectedRow >= this.firstVisibleRow &&
+      this.selectedRow < this.firstVisibleRow + this.visibleRow() &&
+      this.selectedRow < this.dataManagementBreak.rows
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  public set selectedBreakIndex(value: number) {
+    if (value === this._selectedBreakIndex) {
+      return;
+    }
+    this._selectedBreakIndex = value;
+    this.unDrawSelectionRow();
+    this.drawSelectionRow();
+    this.drawSelectedBreak();
+  }
+  public get selectedBreakIndex() {
+    return this._selectedBreakIndex;
+  }
+
+  public drawBreaksIntern() {
+    if (
+      this.selectedRow !== -1 ||
+      this.selectedRow >= this.dataManagementBreak.rows
+    ) {
+      const dy =
+        this.calendarSetting.cellHeaderHeight +
+        (this.selectedRow - this.scroll.verticalScrollPosition) *
+          this.calendarSetting.cellHeight;
+      const dx =
+        this.scroll.horizontalScrollPosition *
+        this.calendarSetting.cellWidth *
+        -1;
+      const tmpBreak = this.dataManagementBreak.readData(this.selectedRow)![
+        this.selectedBreakIndex
+      ];
+
+      if (tmpBreak) {
+        const tmpRec = this.calcDateRectangle(
+          tmpBreak.from as Date,
+          tmpBreak.until as Date
+        );
+        const rec = tmpRec.translate(dx, dy);
+        this.selectedBreakRec = rec.setBounds(
+          rec.left - 1,
+          rec.top - 1,
+          rec.right + 1,
+          rec.bottom + 1
+        );
+        const abs = this.dataManagementAbsence.absenceList.find(
+          (as) => as.id === tmpBreak.absenceId
+        );
+        if (abs) {
+          this.drawBreakIntern(rec, abs.color!);
+          this.drawBreakSelectBorderIntern(this.selectedBreakRec);
+          this.drawBreakSelectBorderInternAnchor(this.selectedBreakRec);
+        }
+      }
+    }
+  }
+
+  public calcLeftAnchorRectangle(rec: Rectangle): Rectangle {
+    const top = rec.top + rec.height / 2 - this.calendarSetting.anchorWidth / 2;
+    return new Rectangle(
+      rec.left - this.calendarSetting.anchorWidth,
+      top,
+      rec.left,
+      top + this.calendarSetting.anchorWidth
+    );
+  }
+
+  public calcRightAnchorRectangle(rec: Rectangle): Rectangle {
+    const top = rec.top + rec.height / 2 - this.calendarSetting.anchorWidth / 2;
+    return new Rectangle(
+      rec.right,
+      top,
+      rec.right + this.calendarSetting.anchorWidth,
+      top + this.calendarSetting.anchorWidth
+    );
+  }
+
+  public drawRowIntern(index: number): void {
+    const dy = index - this.scroll.verticalScrollPosition;
+    const left =
+      this.scroll.horizontalScrollPosition *
+      this.calendarSetting.cellWidth *
+      -1;
+    const height = this.calendarSetting.cellHeight;
+    const top = Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
+    const rowRec = new Rectangle(
+      left,
+      top,
+      this.ganttCanvasManager.canvas!.width,
+      top + height
+    );
+
+    this.drawRowSubIntern(index, rowRec);
+  }
+
+  public firstVisibleColumn(): number {
+    return this.ganttCanvasManager.height;
+  }
+
+  public lastVisibleColumn(): number {
+    const last = this.firstVisibleColumn() + this.visibleCol();
+    const max = isLeapYear(this.holidayCollection.currentYear) ? 366 : 365;
+    return last < max ? last : max;
+  }
+
+  public visibleCol(): number {
+    if (!this.isCanvasAvailable()) {
+      return 0;
+    }
+    return Math.ceil(
+      this.ganttCanvasManager.width / this.calendarSetting.cellWidth
+    );
+  }
+
+  public visibleRow(): number {
+    if (!this.isCanvasAvailable()) {
+      return 0;
+    }
+    return Math.ceil(
+      this.ganttCanvasManager.height / this.calendarSetting.cellHeight
+    );
+  }
+
+  public checkSelectedRowVisibility(): void {
+    if (this.selectedRow > this.dataManagementBreak.rows) {
+      this.selectedRow = -1;
+    }
+  }
+
+  private drawBreakIntern(rec: Rectangle, color: string) {
+    DrawHelper.fillRectangle(this.ganttCanvasManager.ctx!, color, rec);
+  }
+
+  private drawBreakSelectBorderIntern(rec: Rectangle) {
+    DrawHelper.drawSelectionBorder(this.ganttCanvasManager.ctx!, rec);
+  }
+
+  private drawBreakSelectBorderInternAnchor(rec: Rectangle) {
+    DrawHelper.drawAnchor(
+      this.ganttCanvasManager.ctx!,
+      this.calcLeftAnchorRectangle(rec)
+    );
+    DrawHelper.drawAnchor(
+      this.ganttCanvasManager.ctx!,
+      this.calcRightAnchorRectangle(rec)
+    );
+  }
+
+  private drawRowSubIntern(index: number, rowRec: Rectangle): void {
+    if (index < this.dataManagementBreak.rows) {
+      // lädt Hintergrund in rowCtx
+      this.ganttCanvasManager.rowCtx!.drawImage(
+        this.ganttCanvasManager.backgroundRowCanvas!,
+        0,
+        0
+      );
+      // Zeichnet alle  Breaks in rowCtx
+      this.drawRowBreaks(index, this.selectedBreak);
+      // Zeichnet rowCtx in ctx
+      this.ganttCanvasManager.ctx!.drawImage(
+        this.ganttCanvasManager.rowCanvas!,
+        rowRec.x,
+        rowRec.y
+      );
+    } else {
+      DrawHelper.fillRectangle(
+        this.ganttCanvasManager.ctx!,
+        this.gridColors.backGroundContainerColor,
+        rowRec
+      );
+    }
   }
 
   private calcDaysPerYear(): number {
-    const startDate = new Date(this.holidayCollection.currentYear, 0, 1);
     return isLeapYear(this.holidayCollection.currentYear) ? 366 : 365;
   }
 
@@ -405,15 +711,6 @@ export class RenderCalendarGridService {
     return this.calendarSetting.cellWidth * year + 1;
   }
 
-  private visibleRow(): number {
-    if (!this.ganttCanvasManager.isCanvasAvailable()) {
-      return 0;
-    }
-    return Math.ceil(
-      this.ganttCanvasManager.height / this.calendarSetting.cellHeight
-    );
-  }
-
   @CanvasAvailable('queue')
   public calcRowRec(
     index: number,
@@ -493,7 +790,7 @@ export class RenderCalendarGridService {
   }
 
   private calcDateRectangle(beginDate: Date, endDate: Date): Rectangle {
-    let diff = +Math.floor(daysBetweenDates(beginDate, endDate));
+    const diff = +Math.floor(daysBetweenDates(beginDate, endDate));
 
     const col1 = Math.floor(daysBetweenDates(this.startDate, beginDate));
     const col2 = col1 + diff;

@@ -1,7 +1,12 @@
 @import "../../../assets/standard-styles/colors.scss";
 
+:host {
+  --scrollbar-padding: 50px;
+  --arrow-thumb-width: 25px;
+}
+
 .scrollbar-bar {
-  height: calc(100% - 50px);
+  height: calc(100% - var(--scrollbar-padding));
   width: 100%;
 }
 .hScrollbar-container {
@@ -18,7 +23,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 25px;
+  height: var(--arrow-thumb-width);
   width: 100%;
   margin: 0;
   color: #a9a9a9;

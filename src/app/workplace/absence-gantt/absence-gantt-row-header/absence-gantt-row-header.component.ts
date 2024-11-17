@@ -17,7 +17,7 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScrollService } from 'src/app/workplace/absence-gantt/services/scroll.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
@@ -39,9 +39,9 @@ export class AbsenceGanttRowHeaderComponent
   @ViewChild('boxCalendarRowHeader')
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
 
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private ngUnsubscribe = new Subject<void>();
 
-  filterStyle: any = {};
+  filterStyle = {};
 
   constructor(
     public scroll: ScrollService,
@@ -86,20 +86,13 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('ngOnChanges row-header');
     if (changes['valueChangeVScrollbar']) {
       const currentValue = changes['valueChangeVScrollbar'].currentValue;
       const previousValue = changes['valueChangeVScrollbar'].previousValue;
       const diff = currentValue - previousValue;
-
+      console.log('ngOnChanges', currentValue, previousValue, diff);
       if (diff) {
-        console.log(
-          'ngOnChanges row-header',
-          currentValue,
-          previousValue,
-          diff
-        );
-        this.drawRowHeader.moveRow(diff);
+        setTimeout(() => this.drawRowHeader.moveRow(diff), 100);
       }
     }
   }
@@ -144,7 +137,6 @@ export class AbsenceGanttRowHeaderComponent
   }
   @CanvasAvailable()
   private redrawComponents(): void {
-    console.log('redrawComponents');
     this.drawRowHeader.createRuler();
     this.drawRowHeader.renderRowHeader();
     this.drawRowHeader.drawCalendar();
@@ -193,7 +185,7 @@ export class AbsenceGanttRowHeaderComponent
     }
   }
 
-  onMouseLeave(event: MouseEvent) {
+  onMouseLeave() {
     this.destroyFilter();
   }
 

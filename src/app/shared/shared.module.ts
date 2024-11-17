@@ -23,6 +23,7 @@ import { ResizeDirective } from '../directives/resize.directive';
 import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ScrollbarService } from './scrollbar/scrollbar.service';
 
 @NgModule({
   declarations: [
@@ -72,5 +73,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     HScrollbarComponent,
     VScrollbarComponent,
   ],
+  providers: [ScrollbarService],
 })
 export class SharedModule {}

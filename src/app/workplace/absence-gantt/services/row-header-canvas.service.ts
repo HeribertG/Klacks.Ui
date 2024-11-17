@@ -11,8 +11,8 @@ export class RowHeaderCanvasManagerService {
   public headerCanvas: HTMLCanvasElement | undefined;
   public headerCtx: CanvasRenderingContext2D | undefined;
 
-  private _width: number = 10;
-  private _height: number = 10;
+  private _width = 10;
+  private _height = 10;
   public pixelRatio = 1;
 
   constructor(private calendarSetting: CalendarSettingService) {}

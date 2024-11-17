@@ -20,7 +20,7 @@ export class AbsenceGanttContainerComponent implements OnInit {
   @Output() changeCalendar = new EventEmitter();
 
   public IsInfoVisible = false;
-  public maxSize: number = 0;
+  public maxSize = 0;
 
   constructor(
     private dataManagementBreakService: DataManagementBreakService,

@@ -1,11 +1,9 @@
 import { Injectable } from '@angular/core';
-import { DrawHelper } from '../helpers/draw-helper';
-import { GridColorService } from '../grid/services/grid-color.service';
-import { IImagesThumps } from '../shared/h-scrollbar/h-scrollbar.component';
+import { DrawHelper } from '../../helpers/draw-helper';
+import { GridColorService } from '../../grid/services/grid-color.service';
+import { IImagesThumps } from '../h-scrollbar/h-scrollbar.component';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ScrollbarService {
   constructor(private gridColor: GridColorService) {}
   public scrollTrackColorDark = DrawHelper.GetDarkColor(
@@ -155,8 +153,8 @@ export interface IMetrics {
   thumbLength: number;
 }
 export class Metrics implements IMetrics {
-  visibleTicks: number = 0;
-  invisibleTicks: number = 0;
-  tickSize: number = 0;
-  thumbLength: number = 0;
+  visibleTicks = 0;
+  invisibleTicks = 0;
+  tickSize = 0;
+  thumbLength = 0;
 }

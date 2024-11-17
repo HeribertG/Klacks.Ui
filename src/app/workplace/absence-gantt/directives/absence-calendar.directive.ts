@@ -20,9 +20,9 @@ export class AbsenceCalendarDirective {
     private drawCalendarGanttService: DrawCalendarGanttService
   ) {}
 
-  @HostListener('mouseenter', ['$event']) onMouseEnter(
-    event: MouseEvent
-  ): void {}
+  // @HostListener('mouseenter', ['$event']) onMouseEnter(
+  //   event: MouseEvent
+  // ): void {}
 
   @HostListener('clickOutside', ['$event']) onClickOutside(
     event: MouseEvent
@@ -474,21 +474,21 @@ export class AbsenceCalendarDirective {
   //   event: KeyboardEvent
   // ): void {}
 
-  @HostListener('contextmenu', ['$event']) onContextMenu(event: any): void {
+  @HostListener('contextmenu', ['$event']) onContextMenu(event: Event): void {
     if (!this.isOwnElement(event)) {
       return;
     }
     this.stopEvent(event);
   }
 
-  @HostListener('focus', ['$event']) onFocus(event: any): void {
+  @HostListener('focus', ['$event']) onFocus(event: Event): void {
     if (!this.isOwnElement(event)) {
       return;
     }
     this.gridBody.drawCalendarGantt.isFocused = true;
   }
 
-  @HostListener('blur', ['$event']) onBlur(event: any): void {
+  @HostListener('blur', ['$event']) onBlur(event: Event): void {
     if (!this.isOwnElement(event)) {
       return;
     }
@@ -542,13 +542,13 @@ export class AbsenceCalendarDirective {
   //   this.gridBody.simpleContextMenu!.showContextMenu(event);
   // }
 
-  private stopEvent(event: any): void {
+  private stopEvent(event: Event): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
     if (event.cancelBubble) event.cancelBubble = true;
   }
 
-  private isOwnElement(event: any): boolean {
+  private isOwnElement(event: Event): boolean {
     const targetElement = event.target as HTMLElement;
     if (targetElement === (this.el.nativeElement as HTMLElement)) {
       return true;

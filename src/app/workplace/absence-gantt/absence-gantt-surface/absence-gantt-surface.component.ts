@@ -80,8 +80,8 @@ export class AbsenceGanttSurfaceComponent
   public isShift = false;
   public isCtrl = false;
 
-  private resizeSubject: Subject<void> = new Subject<void>();
-  private ngUnsubscribe: Subject<void> = new Subject<void>();
+  private resizeSubject = new Subject<void>();
+  private ngUnsubscribe = new Subject<void>();
 
   private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
@@ -89,7 +89,7 @@ export class AbsenceGanttSurfaceComponent
   private firstDayDate = new Date(2023, 0, 1);
   private isAbsenceHeaderInit = false;
   private countServices = 0;
-  private eventListeners: Array<() => void> = [];
+  private eventListeners = new Array<() => void>();
 
   constructor(
     public calendarSetting: CalendarSettingService,
@@ -384,7 +384,7 @@ export class AbsenceGanttSurfaceComponent
   }
 
   isMouseOverSelectedBreak(event: MouseEvent): boolean {
-    var isSelected = false;
+    let isSelected = false;
 
     this.existActiveSelection(event);
     if (this.selectedArea === SelectedArea.AbsenceBar) {
@@ -590,7 +590,7 @@ export class AbsenceGanttSurfaceComponent
   /* #region   private */
 
   private readProperty(name: string): string {
-    let bodyStyles = window.getComputedStyle(document.body);
+    const bodyStyles = window.getComputedStyle(document.body);
     return bodyStyles.getPropertyValue(name);
   }
 
@@ -638,7 +638,7 @@ export class AbsenceGanttSurfaceComponent
     }
   }
 
-  drop(ev: any) {
+  drop(ev: DragEvent) {
     ev.preventDefault();
     if (ev.dataTransfer) {
       const absenceId = ev.dataTransfer.getData('text/plain');
@@ -771,7 +771,7 @@ export class AbsenceGanttSurfaceComponent
       menuData.list.push(...MenuDataTemplate.paste()); //1
     }
 
-    var pastMenu = menuData.list.find((x) => x.key === 'paste');
+    const pastMenu = menuData.list.find((x) => x.key === 'paste');
     if (pastMenu) {
       pastMenu.disabled = !this.hasCopiedBreaks();
     }
@@ -866,7 +866,7 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.selectedRow > -1 &&
       this.drawCalendarGantt.selectedBreak
     ) {
-      var tmp = cloneObject(this.drawCalendarGantt.selectedBreak) as Break;
+      const tmp = cloneObject(this.drawCalendarGantt.selectedBreak) as Break;
 
       delete tmp.client;
       delete tmp.absence;

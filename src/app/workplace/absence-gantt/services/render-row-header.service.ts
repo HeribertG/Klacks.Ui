@@ -32,10 +32,7 @@ export class RenderRowHeaderService {
   ) {}
 
   public createRuler(): void {
-    this.rowHeaderCanvasManager.headerCanvas!.height =
-      this.calendarSetting.cellHeaderHeight;
-    this.rowHeaderCanvasManager.headerCanvas!.width =
-      this.rowHeaderCanvasManager.width;
+    this.ShapeHeaderCanvasSurface();
 
     const rec = new Rectangle(
       0,
@@ -44,62 +41,30 @@ export class RenderRowHeaderService {
       this.rowHeaderCanvasManager.headerCanvas!.height
     );
 
-    this.renderRowHeaderCell.fillRectangle(
-      this.rowHeaderCanvasManager.headerCtx!,
-      this.gridColors.controlBackGroundColor,
-      rec
-    );
+    this.ClearHeaderCanvasSurface(rec);
 
-    this.renderRowHeaderCell.drawText(
-      this.rowHeaderCanvasManager.headerCtx!,
-      `Name (${this.dataManagementBreak.clients.length})`,
-      rec.left + 2,
-      rec.top,
-      rec.width - 2,
-      rec.height,
-      this.gridFonts.mainFontString,
-      12,
-      this.gridColors.foreGroundColor,
-      TextAlignmentEnum.Left,
-      BaselineAlignmentEnum.Center
-    );
+    this.DrawHeaderCanvas(rec);
 
-    this.renderRowHeaderCell.drawBorder(
-      this.rowHeaderCanvasManager.headerCtx!,
-      rec.left,
-      rec.top,
-      rec.width,
-      rec.height,
-      this.gridColors.controlBackGroundColor,
-      2,
-      Gradient3DBorderStyleEnum.Raised
-    );
-
-    this.drawFilterIcon();
+    this.drawFilterIcon(rec);
   }
 
   public renderRowHeader(): void {
-    this.rowHeaderCanvasManager.renderCanvas!.height =
-      this.rowHeaderCanvasManager.height;
-    this.rowHeaderCanvasManager.renderCanvas!.width =
-      this.rowHeaderCanvasManager.width;
+    this.ShapeRenderCanvasSurface();
+    this.ClearRenderCanvasSurface();
 
-    this.renderRowHeaderCell.clearRect(
-      this.rowHeaderCanvasManager.renderCanvasCtx!,
-      0,
-      0,
-      this.rowHeaderCanvasManager.renderCanvas!.width,
-      this.rowHeaderCanvasManager.renderCanvas!.height
-    );
-
-    var first = this.scroll.verticalScrollPosition;
-    var last = this.scroll.verticalScrollPosition + this.scroll.visibleRows + 1;
+    const first = this.scroll.verticalScrollPosition;
+    const last =
+      this.scroll.verticalScrollPosition + this.scroll.visibleRows + 1;
     for (let i = first; i < last; i++) {
-      this.drawName(i, true);
+      this.drawName(i, true, false);
     }
   }
 
-  public drawName(index: number, directionDown: boolean): void {
+  public drawName(
+    index: number,
+    directionDown: boolean,
+    isMoveGrid: boolean
+  ): void {
     const dy = index - this.scroll.verticalScrollPosition;
     const height = this.calendarSetting.cellHeight;
     const top = Math.floor(dy * height);
@@ -110,10 +75,12 @@ export class RenderRowHeaderService {
       top + height
     );
 
+    console.log('drawName', index, rec, isMoveGrid);
+
     if (index < this.dataManagementBreak.rows) {
       this.renderRowHeaderCell.fillRectangle(
         this.rowHeaderCanvasManager.renderCanvasCtx!,
-        this.gridColors.controlBackGroundColor,
+        isMoveGrid ? 'red' : this.gridColors.controlBackGroundColor,
         rec
       );
 
@@ -152,6 +119,9 @@ export class RenderRowHeaderService {
   }
 
   public moveGrid(directionY: number): void {
+    const lineAdjustmentMinus = -1;
+    const lineAdjustmentPlus = 1;
+
     console.log(
       'moveIt',
       this.scroll.visibleRows,
@@ -159,44 +129,101 @@ export class RenderRowHeaderService {
       this.scroll.verticalScrollPosition
     );
     const visibleRow = this.scroll.visibleRows;
-    const height = this.calendarSetting.cellHeight;
-    const img = this.rowHeaderCanvasManager.renderCanvas;
+    const diff = this.scroll.verticalScrollDelta;
 
-    if (directionY !== 0) {
-      const diff = this.scroll.verticalScrollDelta;
-      if (diff === 0) {
-        return;
-      }
+    if (directionY === 0 || diff === 0) {
+      return;
+    }
 
-      this.moveImage(diff);
+    this.moveImage(diff);
 
-      //   let firstRow = 0;
-      //   let lastRow = 0;
-      //   const directionDown = directionY > 0;
+    let firstRow = 0;
+    let lastRow = 0;
+    const directionDown = directionY > 0;
 
-      //   if (directionY > 0) {
-      //     firstRow = visibleRow + this.scroll.verticalScrollPosition;
-      //     lastRow = firstRow + diff * -1 + 1;
-      //   } else {
-      //     firstRow = this.scroll.verticalScrollPosition;
-      //     lastRow = firstRow + diff + 1;
-      //   }
+    if (directionDown) {
+      firstRow =
+        visibleRow +
+        this.scroll.verticalScrollPosition +
+        diff +
+        lineAdjustmentMinus;
+      lastRow = firstRow + diff * -1 + lineAdjustmentPlus;
+    } else {
+      firstRow = this.scroll.verticalScrollPosition;
+      lastRow = firstRow + diff + lineAdjustmentPlus;
+    }
 
-      //   for (let row = firstRow; row < lastRow; row++) {
-      //     this.drawName(row, directionDown);
-      //   }
+    for (let row = firstRow; row < lastRow; row++) {
+      this.drawName(row, directionDown, true);
     }
   }
 
-  private drawFilterIcon() {
+  private ShapeRenderCanvasSurface(): void {
+    this.rowHeaderCanvasManager.renderCanvas!.height =
+      this.rowHeaderCanvasManager.height;
+    this.rowHeaderCanvasManager.renderCanvas!.width =
+      this.rowHeaderCanvasManager.width;
+  }
+
+  private ClearRenderCanvasSurface(): void {
+    this.renderRowHeaderCell.clearRect(
+      this.rowHeaderCanvasManager.renderCanvasCtx!,
+      0,
+      0,
+      this.rowHeaderCanvasManager.renderCanvas!.width,
+      this.rowHeaderCanvasManager.renderCanvas!.height
+    );
+  }
+
+  private ShapeHeaderCanvasSurface(): void {
+    this.rowHeaderCanvasManager.headerCanvas!.height =
+      this.calendarSetting.cellHeaderHeight;
+    this.rowHeaderCanvasManager.headerCanvas!.width =
+      this.rowHeaderCanvasManager.width;
+  }
+
+  private ClearHeaderCanvasSurface(rec: Rectangle): void {
+    this.renderRowHeaderCell.fillRectangle(
+      this.rowHeaderCanvasManager.headerCtx!,
+      this.gridColors.controlBackGroundColor,
+      rec
+    );
+  }
+
+  private DrawHeaderCanvas(rec: Rectangle): void {
+    this.renderRowHeaderCell.drawText(
+      this.rowHeaderCanvasManager.headerCtx!,
+      `Name (${this.dataManagementBreak.clients.length})`,
+      rec.left + 2,
+      rec.top,
+      rec.width - 2,
+      rec.height,
+      this.gridFonts.mainFontString,
+      12,
+      this.gridColors.foreGroundColor,
+      TextAlignmentEnum.Left,
+      BaselineAlignmentEnum.Center
+    );
+
+    this.renderRowHeaderCell.drawBorder(
+      this.rowHeaderCanvasManager.headerCtx!,
+      rec.left,
+      rec.top,
+      rec.width,
+      rec.height,
+      this.gridColors.controlBackGroundColor,
+      2,
+      Gradient3DBorderStyleEnum.Raised
+    );
+  }
+
+  private drawFilterIcon(rec: Rectangle) {
     if (!this.filterImage) {
       return;
     }
 
-    const dy =
-      this.rowHeaderCanvasManager.headerCanvas!.height / 2 - this.iconSize / 2;
-    const dx =
-      this.rowHeaderCanvasManager.headerCanvas!.width - (this.iconSize + 6);
+    const dy = rec.height / 2 - this.iconSize / 2;
+    const dx = rec.width - (this.iconSize + 6);
 
     this.recFilterIcon = new Rectangle(
       dx,
