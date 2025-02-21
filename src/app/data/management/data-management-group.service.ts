@@ -220,7 +220,7 @@ export class DataManagementGroupService {
     this.sortGroupItems();
 
     if (!withoutUpdateDummy) {
-      this.editGroupDummy = cloneObject(this.editGroup);
+      this.editGroupDummy = cloneObject<IGroup>(this.editGroup);
     }
 
     if (this.editGroup.id) {
@@ -362,7 +362,9 @@ export class DataManagementGroupService {
   /* #region   temporary check is Filter dirty */
 
   public setTemporaryFilter() {
-    this.temporaryClientFilterDummy = cloneObject(this.currentClientFilter);
+    this.temporaryClientFilterDummy = cloneObject<Filter>(
+      this.currentClientFilter
+    );
   }
 
   public isTemoraryFilter_Dirty(): boolean {

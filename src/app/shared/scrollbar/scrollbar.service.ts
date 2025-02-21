@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { GridColorService } from '../../grid/services/grid-color.service';
 import { IImagesThumps } from '../h-scrollbar/h-scrollbar.component';
+import { SCROLLBAR_CONSTANTS } from './constants';
 
 @Injectable()
 export class ScrollbarService {
@@ -56,9 +57,6 @@ export class ScrollbarService {
     A2,2 0 0 1 2.68,16
     Z" fill="currentColor" stroke="currentColor" stroke-width="1"/>
 </svg>`;
-  private margin = 3;
-  private scrollSize = 20;
-  private minimumThumbLength = 14;
 
   public calcMetrics(
     width: number,
@@ -72,8 +70,8 @@ export class ScrollbarService {
       res.thumbLength = Math.round((width * colPercent) / 100);
     }
 
-    if (res.thumbLength < this.minimumThumbLength) {
-      res.thumbLength = this.minimumThumbLength;
+    if (res.thumbLength < SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH) {
+      res.thumbLength = SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH;
     }
 
     const invisibleWidth = width - res.thumbLength;
@@ -97,12 +95,10 @@ export class ScrollbarService {
     images: IImagesThumps,
     isHorizontal: boolean
   ): void {
-    if (value.thumbLength === -Infinity) {
+    if (value.thumbLength === -Infinity || value.thumbLength === Infinity) {
       return;
     }
-    if (value.thumbLength === Infinity) {
-      return;
-    }
+
     images.imgThumb = undefined;
     images.imgSelectedThumb = undefined;
     images.invisibleTicks = value.invisibleTicks;
@@ -112,31 +108,34 @@ export class ScrollbarService {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
 
+    const thumbWidth =
+      SCROLLBAR_CONSTANTS.MARGINS.SCROLL -
+      SCROLLBAR_CONSTANTS.MARGINS.THUMB * 2;
     if (isHorizontal) {
       canvas.width = value.thumbLength;
-      canvas.height = this.scrollSize - this.margin * 2;
+      canvas.height = thumbWidth;
     } else {
+      canvas.width = thumbWidth;
       canvas.height = value.thumbLength;
-      canvas.width = this.scrollSize - this.margin * 2;
     }
 
     DrawHelper.roundRect(
       ctx,
       0,
       0,
-      canvas.width - this.margin,
-      canvas.height - this.margin,
-      this.margin * 2
+      canvas.width,
+      canvas.height,
+      SCROLLBAR_CONSTANTS.MARGINS.THUMB * 2
     );
 
+    // Normaler Zustand
     ctx.fillStyle = this.scrollTrackColor;
     ctx.fill();
-
     images.imgThumb = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
+    // Hover Zustand
     ctx.fillStyle = this.scrollTrackColorDark;
     ctx.fill();
-
     images.imgSelectedThumb = ctx.getImageData(
       0,
       0,

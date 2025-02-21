@@ -12,7 +12,7 @@ import {
 } from 'src/app/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { ScrollService } from './scroll.service';
+import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 
 @Injectable()
 export class RenderRowHeaderService {
@@ -74,8 +74,6 @@ export class RenderRowHeaderService {
       this.rowHeaderCanvasManager.renderCanvas!.width,
       top + height
     );
-
-    console.log('drawName', index, rec, isMoveGrid);
 
     if (index < this.dataManagementBreak.rows) {
       this.renderRowHeaderCell.fillRectangle(

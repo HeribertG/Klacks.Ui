@@ -3,4 +3,10 @@ export const SCROLLBAR_CONSTANTS = {
   FIRST_STEP_BAR: 3,
   FIRST_STEP_BUTTON: 1,
   TICKS_OUTSIDE_RANGE: 5,
+
+  MARGINS: {
+    SCROLL: 20,
+    THUMB: 3,
+    MINIMUM_LENGTH: 14,
+  },
 } as const;

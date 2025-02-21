@@ -171,7 +171,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCopyAbsence(content: any, data: Absence) {
-    this.currentAbsence = cloneObject(data);
+    this.currentAbsence = cloneObject<Absence>(data);
     this.currentAbsence.id = undefined;
 
     this.openNewAbsence(content);

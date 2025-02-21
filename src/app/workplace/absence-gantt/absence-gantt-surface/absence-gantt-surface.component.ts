@@ -29,7 +29,6 @@ import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
-import { ScrollService } from 'src/app/workplace/absence-gantt/services/scroll.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/core/break-class';
@@ -51,6 +50,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
   selector: 'app-absence-gantt-surface',
@@ -194,7 +194,6 @@ export class AbsenceGanttSurfaceComponent
   setFocus(): void {
     const x = this.el.nativeElement as HTMLDivElement;
     if (x) {
-      x.autofocus === true;
       x.focus();
       this.drawCalendarGantt.isFocused = true;
     }
@@ -342,9 +341,9 @@ export class AbsenceGanttSurfaceComponent
             break;
           case SelectedArea.AbsenceBar:
             if (this.mouseToBarAlpha) {
-              const diffA = cloneObject(this.mouseToBarAlpha) as
-                | { x: number; y: number }
-                | undefined;
+              const diffA = cloneObject<{ x: number; y: number } | undefined>(
+                this.mouseToBarAlpha
+              ) as { x: number; y: number } | undefined;
               if (diffA) {
                 const diffDay = Math.floor(
                   (x - this.drawCalendarGantt.selectedBreakRec.left - diffA.x) /
@@ -866,7 +865,9 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.selectedRow > -1 &&
       this.drawCalendarGantt.selectedBreak
     ) {
-      const tmp = cloneObject(this.drawCalendarGantt.selectedBreak) as Break;
+      const tmp = cloneObject<IBreak>(
+        this.drawCalendarGantt.selectedBreak
+      ) as Break;
 
       delete tmp.client;
       delete tmp.absence;

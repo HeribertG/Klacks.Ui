@@ -8,7 +8,7 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../grid/services/grid-color.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
-import { ScrollService } from './scroll.service';
+import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { Subject } from 'rxjs';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';

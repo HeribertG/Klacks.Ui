@@ -161,7 +161,7 @@ export class DataManagementCalendarSelectionService {
       });
 
       if (checkIfDirty) {
-        this.chipsDummy = cloneObject(this.chips);
+        this.chipsDummy = cloneObject<StateCountryToken[]>(this.chips);
       }
     }
     setTimeout(() => this.isChanged.set(false), 100);

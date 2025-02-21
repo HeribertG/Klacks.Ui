@@ -122,7 +122,7 @@ export class DataManagementShiftService {
     this.setTimeStruc();
 
     if (!withoutUpdateDummy) {
-      this.editShiftDummy = cloneObject(this.editShift);
+      this.editShiftDummy = cloneObject<Shift>(this.editShift);
     }
 
     if (this.editShift.id) {

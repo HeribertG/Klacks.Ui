@@ -57,7 +57,7 @@ export class VScrollbarComponent
 
   private readonly CANVAS_PADDING = 50;
   private readonly INITIAL_ANIMATION_FRAME_MODULO = 10;
-  private readonly X_POSITION_OFFSET = 1;
+  private readonly Y_POSITION_OFFSET = 1;
   private readonly FPS_THROTTLE = 16; // ~60fps for mousemove
   private readonly MOUSE_PRIMARY_BUTTON = 1;
 
@@ -248,18 +248,22 @@ export class VScrollbarComponent
     if (!thumbImage) {
       return;
     }
-    const yPosition = this.calculateYPosition(
+
+    const yPosition = this.calculateXPosition(
       canvas,
       this.value,
       this.metrics.tickSize,
       thumbImage.height
     );
-    const xPosition = this.calculateXPosition(canvas, thumbImage);
 
-    // console.log('drawThumb', thumbImage, xPosition, yPosition);
-    // console.log('Thumb Width:', thumbImage.width);
-    // console.log('Thumb Height:', thumbImage.height);
-    ctx.putImageData(thumbImage, xPosition, yPosition);
+    const xPosition = (canvas.width - thumbImage.width) / 2;
+
+    if (yPosition + thumbImage.height > canvas.height) {
+      const adjustedYPosition = canvas.height - thumbImage.height;
+      ctx.putImageData(thumbImage, xPosition, adjustedYPosition);
+    } else {
+      ctx.putImageData(thumbImage, xPosition, yPosition);
+    }
   }
 
   private getThumbImage(): ImageData | undefined {
@@ -268,25 +272,22 @@ export class VScrollbarComponent
       : this.imagesThumps.imgThumb;
   }
 
-  private calculateXPosition(
+  private calculateYPosition(
     canvas: HTMLCanvasElement,
     thumbImage: ImageData
   ): number {
-    return (canvas.height - thumbImage.width) / 2 + this.X_POSITION_OFFSET;
+    return (canvas.width - thumbImage.width) / 2 + this.Y_POSITION_OFFSET;
   }
 
-  private calculateYPosition(
+  private calculateXPosition(
     canvas: HTMLCanvasElement,
     value: number,
     tickSize: number,
     trackHeight: number
   ): number {
-    let tmpY = value * tickSize;
-    if (tmpY + trackHeight > canvas.height) {
-      tmpY = canvas.height - trackHeight;
-    }
-
-    return tmpY;
+    const maxY = canvas.height - trackHeight;
+    const rawY = value * tickSize;
+    return Math.max(0, Math.min(rawY, maxY));
   }
 
   private assertContext(): CanvasRenderingContext2D {
@@ -300,27 +301,31 @@ export class VScrollbarComponent
 
   /* #region Event Handling */
 
-  private updateCanvasSize(width: number, height?: number): void {
+  private updateCanvasSize(width: number, height: number): void {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
 
-    this.zone.run(() => {
-      canvas.width = width;
-      canvas.height = height ?? canvas.offsetHeight;
-      this.refresh();
-    });
+    canvas.width = width;
+    canvas.height = height;
+    this.refresh();
   }
 
   private handleWindowResize(): void {
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
-    this.updateCanvasSize(canvas.offsetWidth);
+    this.updateCanvasSize(canvas.offsetWidth, canvas.offsetHeight);
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
-    if (entries?.[0]) {
-      this.updateCanvasSize(entries[0].contentRect.width - this.CANVAS_PADDING);
-    }
+    if (!entries?.[0]) return;
+
+    const entry = entries[0];
+    const newWidth = entry.contentRect.width;
+    const newHeight = entry.contentRect.height;
+
+    setTimeout(() => {
+      this.updateCanvasSize(newWidth, newHeight);
+    }, 0);
   }
 
   private onMouseDown(event: MouseEvent): void {
@@ -453,7 +458,6 @@ export class VScrollbarComponent
   }
 
   onArrowThumbMouseDown(event: MouseEvent, direction: ArrowDirection) {
-    console.log('Arrow Thumb Mouse Down:', direction);
     this.moveAnimationValue = direction;
 
     this.moveAnimationFrameModulo = this.INITIAL_ANIMATION_FRAME_MODULO;

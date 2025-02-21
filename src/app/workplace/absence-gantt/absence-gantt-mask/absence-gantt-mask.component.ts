@@ -138,7 +138,9 @@ export class AbsenceGanttMaskComponent
     }
     this.selectedBreak_dummy = undefined;
     if (this.selectedBreak) {
-      this.selectedBreak_dummy = cloneObject(this.selectedBreak as Break);
+      this.selectedBreak_dummy = cloneObject<Break>(
+        this.selectedBreak as Break
+      );
     }
   }
 
@@ -215,7 +217,9 @@ export class AbsenceGanttMaskComponent
         this.selectedRow,
         this.selectedBreak!
       );
-      this.selectedBreak_dummy = cloneObject(this.selectedBreak as Break);
+      this.selectedBreak_dummy = cloneObject<Break>(
+        this.selectedBreak as Break
+      );
     }
   }
 

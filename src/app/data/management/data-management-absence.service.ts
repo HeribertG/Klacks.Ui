@@ -40,7 +40,7 @@ export class DataManagementAbsenceService {
   /* #region   temporary check is Filter dirty */
 
   public setTemporaryFilter() {
-    this.temporaryFilterDummy = cloneObject(this.currentFilter);
+    this.temporaryFilterDummy = cloneObject<AbsenceFilter>(this.currentFilter);
   }
 
   public isTemoraryFilter_Dirty(): boolean {
@@ -65,7 +65,9 @@ export class DataManagementAbsenceService {
         if (x) {
           this.listWrapper = x;
 
-          this.currentFilterDummy = cloneObject(this.currentFilter);
+          this.currentFilterDummy = cloneObject<AbsenceFilter>(
+            this.currentFilter
+          );
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
           this.showProgressSpinner.set(false);

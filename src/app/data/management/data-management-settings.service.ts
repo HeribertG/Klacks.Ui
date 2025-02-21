@@ -627,7 +627,7 @@ export class DataManagementSettingsService {
     this.dataCountryStateService.getCountryList().subscribe((x) => {
       if (x) {
         this.countriesList = x as ICountry[];
-        this.countriesListDummy = cloneObject(this.countriesList);
+        this.countriesListDummy = cloneObject<ICountry[]>(this.countriesList);
         this.isReset.set(true);
         setTimeout(() => this.isReset.set(false), 100);
       }
@@ -717,7 +717,7 @@ export class DataManagementSettingsService {
     this.dataCountryStateService.GetStateList().subscribe((x) => {
       if (x) {
         this.statesList = x as IState[];
-        this.statesListDummy = cloneObject(this.statesList);
+        this.statesListDummy = cloneObject<IState[]>(this.statesList);
         this.isReset.set(true);
         setTimeout(() => this.isReset.set(false), 100);
       }
@@ -815,7 +815,7 @@ export class DataManagementSettingsService {
         }
       }
 
-      this.macroListDummy = cloneObject(this.macroList);
+      this.macroListDummy = cloneObject<IMacro[]>(this.macroList);
 
       this.isReset.set(true);
       setTimeout(() => this.isReset.set(false), 100);
@@ -930,7 +930,7 @@ export class DataManagementSettingsService {
   }
 
   readBankDetailList() {
-    this.bankDetailListDummy = cloneObject(this.bankDetailList);
+    this.bankDetailListDummy = cloneObject<IBankDetail[]>(this.bankDetailList);
 
     this.dataBankDetailsService.readBankDetailList().subscribe((x) => {
       if (x) {
@@ -944,7 +944,9 @@ export class DataManagementSettingsService {
             return first < second ? -1 : first > second ? 0 : 1;
           });
 
-          this.bankDetailListDummy = cloneObject(this.bankDetailList);
+          this.bankDetailListDummy = cloneObject<IBankDetail[]>(
+            this.bankDetailList
+          );
 
           this.isReset.set(true);
           setTimeout(() => this.isReset.set(false), 100);

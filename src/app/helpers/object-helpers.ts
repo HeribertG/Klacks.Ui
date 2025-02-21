@@ -1,4 +1,10 @@
-export function cloneObject(o: any): any {
+/// <summary>
+/// Erzeugt ein tiefes Klon eines Objekts, indem es in JSON konvertiert und anschließend wieder geparst wird.
+/// Achtung: Funktioniert nur mit JSON-kompatiblen Objekten; Funktionen, Date-Objekte, undefined oder spezielle Klassen gehen verloren.
+/// </summary>
+/// <param name="o">Das zu klonende Objekt.</param>
+/// <returns>Ein tief geklontes Objekt.</returns>
+export function cloneObject<T>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }
 

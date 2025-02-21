@@ -411,7 +411,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementGroupService.currentFilter.isNextPage = this.isNextPage;
   }
   private restoreFilter(value: IGroupFilter) {
-    const filter = cloneObject(this.dataManagementGroupService.currentFilter);
+    const filter = cloneObject<IGroupFilter>(
+      this.dataManagementGroupService.currentFilter
+    );
     copyObjectValues(this.dataManagementGroupService.currentFilter, value);
 
     if (this.dataManagementGroupService.currentFilter.searchString) {

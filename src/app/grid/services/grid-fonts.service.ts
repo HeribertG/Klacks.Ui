@@ -186,7 +186,7 @@ export class GridFontsService {
           }
         });
 
-        this.settingListDummy = cloneObject(this.settingList);
+        this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
         this.isReset.set(true);
         this.isChangingEvent.next(false);

@@ -14,7 +14,6 @@ import { Size } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { ScrollService } from 'src/app/workplace/absence-gantt/services/scroll.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
 import { Subject } from 'rxjs';
@@ -22,6 +21,7 @@ import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/servic
 import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
   selector: 'app-absence-gantt-row-header',

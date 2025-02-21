@@ -8,7 +8,6 @@ import { AbsenceGanttHeaderComponent } from './absence-gantt-header/absence-gant
 import { AngularSplitModule } from 'angular-split';
 
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
-import { ScrollService } from 'src/app/workplace/absence-gantt/services/scroll.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { AbsenceCalendarDirective } from './directives/absence-calendar.directive';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-header/absence-gantt-absence-list/absence-gantt-absence-list.component';
@@ -31,6 +30,7 @@ import { GanttCanvasManagerService } from './services/gantt-canvas-manager.servi
 import { RowHeaderCanvasManagerService } from './services/row-header-canvas.service';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { RenderRowHeaderService } from './services/render-row-header.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @NgModule({
   declarations: [

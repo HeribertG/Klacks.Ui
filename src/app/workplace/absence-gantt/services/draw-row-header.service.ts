@@ -1,5 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { ScrollService } from './scroll.service';
+import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
 import { CalendarSettingService } from './calendar-setting.service';

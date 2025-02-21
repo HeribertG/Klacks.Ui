@@ -53,7 +53,9 @@ export class DataManagementCalendarRulesService {
     });
   }
   public setTemporaryFilter(): void {
-    this.temporaryFilterDummy = cloneObject(this.currentFilter);
+    this.temporaryFilterDummy = cloneObject<CalendarRulesFilter>(
+      this.currentFilter
+    );
   }
 
   public isTemoraryFilter_Dirty(): boolean {
@@ -69,7 +71,7 @@ export class DataManagementCalendarRulesService {
   /* #endregion   temporary check is Filter dirty */
 
   selectStates(country: string, valueState: boolean) {
-    var res: StateCountryToken[] = [];
+    let res: StateCountryToken[] = [];
     if (country === '') {
       res = this.filteredRulesToken;
     } else {
@@ -109,7 +111,9 @@ export class DataManagementCalendarRulesService {
         if (x) {
           this.listWrapper = x;
           if (this.isFilter_Dirty()) {
-            this.currentFilterDummy = cloneObject(this.currentFilter);
+            this.currentFilterDummy = cloneObject<CalendarRulesFilter>(
+              this.currentFilter
+            );
           }
 
           this.maxItems = x.maxItems;

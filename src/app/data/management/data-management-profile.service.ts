@@ -5,7 +5,6 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastService } from 'src/app/toast/toast.service';
 import { UserAdministrationService } from '../user-administration.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +83,9 @@ export class DataManagementProfileService {
       this.changePasswordWrapper.email = subject;
     }
 
-    this.changePasswordWrapperDummy = cloneObject(this.changePasswordWrapper);
+    this.changePasswordWrapperDummy = cloneObject<ChangePassword>(
+      this.changePasswordWrapper
+    );
   }
 
   showSuccess(message: string, header: string) {

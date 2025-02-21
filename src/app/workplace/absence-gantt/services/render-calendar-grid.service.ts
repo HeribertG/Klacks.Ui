@@ -7,7 +7,7 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../grid/services/grid-color.service';
 import { GridFontsService } from '../../../grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
-import { ScrollService } from './scroll.service';
+import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
@@ -28,6 +28,28 @@ import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 
+/**
+ * Hauptklasse für das Rendering des Kalender-Grids
+ *
+ * Funktionen:
+ * - Rendert Jahreskalender mit Monaten, Wochen, Tagen
+ * - Verwaltet Selektionen von Zeilen und Breaks (Zeiträume)
+ * - Implementiert horizontales/vertikales Scrolling
+ * - Zeichnet Wochenenden und Feiertage
+ * - Berechnet Schaltjahre und Monatslängen
+ *
+ * Properties:
+ * startDate: Startdatum des Kalenders (1. Januar)
+ * selectedRow: Aktuell selektierte Zeile
+ * selectedBreak: Aktuell selektierter Zeitraum
+ *
+ * Hauptmethoden:
+ * renderRuler(): Zeichnet Kopfzeilenraster
+ * renderCalendar(): Rendert den kompletten Kalender
+ * moveGridVertical(): Handhabt vertikales Scrolling
+ * drawRow(): Zeichnet eine Zeile
+ * drawBreaksIntern(): Rendert Breaks/Zeiträume
+ */
 @Injectable()
 export class RenderCalendarGridService {
   public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
@@ -90,33 +112,34 @@ export class RenderCalendarGridService {
   @CanvasAvailable('queue')
   public moveGridVertical(directionY: number): void {
     const visibleRow = this.scroll.visibleRows;
+    const diff = this.scroll.verticalScrollDelta;
 
-    if (directionY !== 0) {
-      const diff = this.scroll.verticalScrollDelta;
-      if (diff === 0) {
-        return;
-      }
+    if (directionY === 0 || diff === 0) return;
 
-      this.ganttCanvasManager.renderCanvasCtx!.drawImage(
-        this.ganttCanvasManager.renderCanvas!,
-        0,
-        this.calendarSetting.cellHeight * diff
-      );
+    // Bestehenden Content verschieben
+    this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+      this.ganttCanvasManager.renderCanvas!,
+      0,
+      this.calendarSetting.cellHeight * diff // Problem: Vorzeichen
+    );
 
-      let firstRow = 0;
-      let lastRow = 0;
+    // Neue Rows berechnen
+    let firstRow: number;
+    let lastRow: number;
 
-      if (directionY > 0) {
-        firstRow = visibleRow + this.scroll.verticalScrollPosition - 4;
-        lastRow = firstRow + diff * -1 + 4;
-      } else {
-        firstRow = this.scroll.verticalScrollPosition;
-        lastRow = firstRow + diff + 1;
-      }
+    if (directionY > 0) {
+      // Scroll nach unten
+      firstRow = this.scroll.verticalScrollPosition;
+      lastRow = firstRow + Math.abs(diff);
+    } else {
+      // Scroll nach oben
+      firstRow = this.scroll.verticalScrollPosition;
+      lastRow = firstRow + Math.abs(diff);
+    }
 
-      for (let row = firstRow; row < lastRow; row++) {
-        this.drawRow(row, this.selectedBreak);
-      }
+    // Neue Rows zeichnen
+    for (let row = firstRow; row < lastRow; row++) {
+      this.drawRow(row, this.selectedBreak);
     }
   }
 
@@ -130,7 +153,7 @@ export class RenderCalendarGridService {
       ];
       this.selectedBreak_dummy = undefined;
       if (br) {
-        this.selectedBreak_dummy = cloneObject(br as Break);
+        this.selectedBreak_dummy = cloneObject<Break>(br as Break);
       }
       return br;
     }
@@ -224,6 +247,7 @@ export class RenderCalendarGridService {
     this.drawSelectionRow();
     this.drawSelectedBreak();
   }
+
   public get selectedBreakIndex() {
     return this._selectedBreakIndex;
   }
@@ -739,6 +763,17 @@ export class RenderCalendarGridService {
       0,
       0
     );
+
+    // Index anzeigen
+    this.ganttCanvasManager.rowCtx!.save();
+    this.ganttCanvasManager.rowCtx!.font = '24px Arial';
+    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080';
+    this.ganttCanvasManager.rowCtx!.fillText(
+      index.toString(),
+      10,
+      this.calendarSetting.cellHeight / 2 + 8
+    );
+    this.ganttCanvasManager.rowCtx!.restore();
 
     this.drawRowBreaks(index, selectedBreak);
 

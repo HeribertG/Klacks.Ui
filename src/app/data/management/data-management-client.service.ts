@@ -222,7 +222,7 @@ export class DataManagementClientService {
   /* #region   temporary check is Filter dirty */
 
   public setTemporaryFilter() {
-    this.temporaryFilterDummy = cloneObject(this.currentFilter);
+    this.temporaryFilterDummy = cloneObject<Filter>(this.currentFilter);
   }
 
   public isTemoraryFilter_Dirty(): boolean {
@@ -278,7 +278,7 @@ export class DataManagementClientService {
     this.maxPages = x.maxPages;
 
     if (this.isFilter_Dirty()) {
-      this.currentFilterDummy = cloneObject(this.currentFilter);
+      this.currentFilterDummy = cloneObject<Filter>(this.currentFilter);
     }
 
     this.isRead.set(true);
@@ -442,7 +442,7 @@ export class DataManagementClientService {
     this.filterState();
 
     if (!withoutUpdateDummy) {
-      this.editClientDummy = cloneObject(this.editClient);
+      this.editClientDummy = cloneObject<IClient>(this.editClient);
     }
 
     /**
@@ -1062,15 +1062,19 @@ export class DataManagementClientService {
 
   replaceClient(id: string) {
     this.backupFindClient = cloneObject(this.editClient);
-    this.backupFindClientDummy = cloneObject(this.editClientDummy);
-    this.backupFindClientList = cloneObject(this.findClient);
+    this.backupFindClientDummy = cloneObject<IClient | undefined>(
+      this.editClientDummy
+    );
+    this.backupFindClientList = cloneObject<IClient[]>(this.findClient);
     this.readClient(id);
   }
 
   resetFindClient() {
-    this.editClient = cloneObject(this.backupFindClient);
-    this.editClientDummy = cloneObject(this.backupFindClientDummy);
-    this.findClient = cloneObject(this.backupFindClientList);
+    this.editClient = cloneObject<IClient | undefined>(this.backupFindClient);
+    this.editClientDummy = cloneObject<IClient | undefined>(
+      this.backupFindClientDummy
+    );
+    this.findClient = cloneObject<IClient[]>(this.backupFindClientList);
 
     this.resetFindListBackup();
     this.prepareClient(this.editClient!, true);

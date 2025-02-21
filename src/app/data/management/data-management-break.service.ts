@@ -48,7 +48,7 @@ export class DataManagementBreakService {
         .getClientList(this.breakFilter)
         .subscribe((clientBreaks) => {
           this.clients = clientBreaks;
-          this.breakFilterDummy = cloneObject(this.breakFilter);
+          this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
           this.showProgressSpinner.set(false);
           this.isRead.set(true);
 
@@ -169,8 +169,8 @@ export class DataManagementBreakService {
 
   private sortBreaks(value: IBreak[]): IBreak[] {
     return value.sort((a: IBreak, b: IBreak) => {
-      var da = new Date(a.from!).getTime();
-      var db = new Date(b.from!).getTime();
+      const da = new Date(a.from!).getTime();
+      const db = new Date(b.from!).getTime();
 
       return da < db ? -1 : da > db ? 1 : 0;
     });

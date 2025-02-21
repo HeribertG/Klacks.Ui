@@ -36,7 +36,7 @@ export class DataManagementScheduleService {
     this.showProgressSpinner.set(true);
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
-      this.workFilterDummy = cloneObject(this.workFilter);
+      this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this.isRead.set(true);
       this.showProgressSpinner.set(false);
       setTimeout(() => this.isRead.set(false), 100);

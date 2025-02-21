@@ -10,7 +10,12 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { CheckBoxValue, IClient, IFilter } from 'src/app/core/client-class';
+import {
+  CheckBoxValue,
+  Filter,
+  IClient,
+  IFilter,
+} from 'src/app/core/client-class';
 import {
   HeaderDirection,
   HeaderProperties,
@@ -324,7 +329,9 @@ export class AllAddressListComponent
     this.dataManagementClientService.currentFilter.isNextPage = this.isNextPage;
   }
   private restoreFilter(value: IFilter) {
-    const filter = cloneObject(this.dataManagementClientService.currentFilter);
+    const filter = cloneObject<IFilter>(
+      this.dataManagementClientService.currentFilter
+    );
     copyObjectValues(this.dataManagementClientService.currentFilter, value);
 
     const countriesArray =

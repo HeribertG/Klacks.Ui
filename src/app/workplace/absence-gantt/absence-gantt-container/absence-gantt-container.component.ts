@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
