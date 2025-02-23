@@ -1,6 +1,6 @@
-@import "../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors.scss";
 
 input {
   width: 300px;
@@ -57,7 +57,7 @@ label {
   padding-right: 50px;
   font-size: 13px;
   text-decoration: underline;
-  color: $standartGreenColor;
+  color: colors.$standartGreenColor;
 }
 
 .delete-button {

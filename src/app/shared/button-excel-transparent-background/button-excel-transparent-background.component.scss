@@ -1,4 +1,4 @@
-@import '../../../assets/standard-styles/colors.scss';
+@use '../../../assets/standard-styles/colors.scss';
 
 .ownStyle-button {
 
@@ -12,7 +12,7 @@
     
   }
   .ownStyle-button:hover {
-    background-color:$standartBlueColor;
+    background-color:colors.$standartBlueColor;
     
   }
   .ownStyle-button:after {

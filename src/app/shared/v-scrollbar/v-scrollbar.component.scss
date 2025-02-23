@@ -1,4 +1,4 @@
-@import "../../../assets/standard-styles/colors.scss";
+@use "../../../assets/standard-styles/colors.scss";
 
 :host {
   --scrollbar-padding: 50px;
@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   box-sizing: content-box;
-  background-color: $objectSurfaceBackgroundColor;
+  background-color: colors.$objectSurfaceBackgroundColor;
   cursor: default;
 }
 .arrow-thumb {

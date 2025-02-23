@@ -1,12 +1,12 @@
-@import '../../assets/standard-styles/colors.scss';
-@import '../../assets/standard-styles/standard-controls.scss';
+@use '../../assets/standard-styles/colors.scss';
+@use '../../assets/standard-styles/standard-controls.scss';
 
 .fileupload {
     // background-image: url("./assets/Upload.svg");
   
     background-repeat: no-repeat;
     background-position: center;
-    background-color: $standartWhiteColor;
+    background-color: colors.$standartWhiteColor;
     
     margin-left: 30px;
     cursor: pointer;

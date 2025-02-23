@@ -1,4 +1,4 @@
-@import "../../assets/standard-styles/colors.scss";
+@use "../../assets/standard-styles/colors.scss";
 
 ::ng-deep .modal-content {
   background-color: var(--backgroundColorCard);
@@ -29,7 +29,7 @@
   font-size: 13px;
   margin-top: 10px;
   padding-right: 30px;
-  color: $standartBlueColor;
+  color: colors.$standartBlueColor;
 }
 
 .darkgrey-font {
@@ -45,22 +45,22 @@
 
 .save-btn {
   font-size: 13px;
-  background-color: $standartBlueColor;
-  color: $standartWhiteColor;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
   margin-right: 20px;
 }
 
 .delete-btn {
   font-size: 13px;
   background-color: var(--standartRedColor);
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
   margin-right: 20px;
 }
 
 .edit-btn {
   font-size: 13px;
-  background-color: $standartGreenColor;
-  color: $standartWhiteColor;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
   margin-right: 20px;
 }
 
@@ -80,15 +80,15 @@
 }
 
 .ownStyle-add {
-  background-color: $standartGreenColor;
+  background-color: colors.$standartGreenColor;
   font-size: 13px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 .ownStyle-save {
-  background-color: $standartBlueColor;
+  background-color: colors.$standartBlueColor;
   font-size: 13px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 .normal-btn {
@@ -109,5 +109,5 @@
 }
 
 .color-blue {
-  color: $standartBlueColor;
+  color: colors.$standartBlueColor;
 }

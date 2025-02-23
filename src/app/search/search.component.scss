@@ -1,5 +1,5 @@
-@import "../../assets/standard-styles/standard-controls.scss";
-@import "../../assets/standard-styles/colors.scss";
+@forward "../../assets/standard-styles/standard-controls.scss";
+@forward "../../assets/standard-styles/colors.scss";
 
 .container-search {
   margin-top: 10px;
@@ -11,8 +11,8 @@
 }
 
 .container-search-button {
-  background-color: $standartBlueColor;
-  color: $standartWhiteColor;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
   font-size: 13px;
   font-weight: normal;
 }

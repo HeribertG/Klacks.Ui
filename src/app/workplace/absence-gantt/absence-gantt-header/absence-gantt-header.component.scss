@@ -1,6 +1,6 @@
-@import "../../../../assets/standard-styles/colors.scss";
-@import "../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../assets/standard-styles/navigation.scss";
+@forward "../../../../assets/standard-styles/colors.scss";
+@forward "../../../../assets/standard-styles/standard-controls.scss";
+@forward "../../../../assets/standard-styles/navigation.scss";
 
 .absence-reason {
   width: calc(100% - 200px);

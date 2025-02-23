@@ -1,6 +1,8 @@
-@import '../../../../../assets/standard-styles/standard-card-interior.scss';
-@import '../../../../../assets/standard-styles/standard-controls.scss';
-@import '../../../../../assets/standard-styles/standard-modal.scss';
+@use '../../../../../assets/standard-styles/standard-card-interior.scss';
+@use '../../../../../assets/standard-styles/standard-controls.scss';
+@use '../../../../../assets/standard-styles/standard-modal.scss';
+@use "../../../../../assets/standard-styles/colors";
+
 
 
 input {
@@ -71,10 +73,10 @@ label {
 
   width: 180px;
   height: 40px;
-  background-color: $standartBlueColor;
+  background-color: colors.$standartBlueColor;
   font-weight: 600;
   font-size: 14px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 
 }
 
@@ -96,7 +98,7 @@ label {
 
 .add-credits {
   margin-left: 180px;
-  color: $standartBlueColor;
+  color: colors.$standartBlueColor;
   font-weight: 500;
   font-size: 12px;
   text-decoration: underline;

@@ -1,6 +1,6 @@
-@import "../../../assets/standard-styles/standard-controls.scss";
-@import "../../../assets/standard-styles/standard-modal.scss";
-@import "../../../assets/standard-styles/navigation.scss";
+@forward "../../../assets/standard-styles/standard-controls.scss";
+@forward "../../../assets/standard-styles/standard-modal.scss";
+@forward "../../../assets/standard-styles/navigation.scss";
 
 select {
   min-width: 100%;

@@ -1,4 +1,4 @@
-@import '../../assets/standard-styles/colors.scss';
+@use '../../assets/standard-styles/colors.scss';
 
 .messageFeed {
     width: 100%;
@@ -15,31 +15,31 @@
   
   .header {
     padding:4px;
-    border-bottom: 1px solid $standartRedBorderDarkColor;
-    border-right: 1px solid $standartRedBorderDarkColor;
-    border-left: 1px solid $standartRedBorderLiteColor;
-    border-top: 1px solid $standartRedBorderLiteColor;
+    border-bottom: 1px solid colors.$standartRedBorderDarkColor;
+    border-right: 1px solid colors.$standartRedBorderDarkColor;
+    border-left: 1px solid colors.$standartRedBorderLiteColor;
+    border-top: 1px solid colors.$standartRedBorderLiteColor;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
   
     font-weight: 700;
     min-height: 25px;
     width: calc(100% - 3px);
-    color:$standartWhiteColor;
-    background-color: $standartRedColor;
+    color:colors.$standartWhiteColor;
+    background-color: colors.$standartRedColor;
   }
   
   .message {
     padding:4px;
-    border-bottom: 1px solid $standartRedBorderDarkColor;
-    border-right: 1px solid $standartRedBorderDarkColor;
-    border-left: 1px solid $standartRedBorderLiteColor;
-    border-top: 1px solid $standartRedBorderLiteColor;
+    border-bottom: 1px solid colors.$standartRedBorderDarkColor;
+    border-right: 1px solid colors.$standartRedBorderDarkColor;
+    border-left: 1px solid colors.$standartRedBorderLiteColor;
+    border-top: 1px solid colors.$standartRedBorderLiteColor;
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
     font-weight: 400;
     width: calc(100% - 3px);
-    color:$standartWhiteColor;
-    background-color: $standartRedBorderLiteColor;
+    color:colors.$standartWhiteColor;
+    background-color: colors.$standartRedBorderLiteColor;
   }
   

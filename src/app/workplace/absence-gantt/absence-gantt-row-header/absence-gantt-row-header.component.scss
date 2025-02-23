@@ -1,4 +1,4 @@
-@import "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/colors.scss";
 
 .box-calendar {
   display: flex;
@@ -7,7 +7,7 @@
 }
 
 canvas {
-  background-color: $gridBackgroundColor;
+  background-color: colors.$gridBackgroundColor;
 }
 
 .gantt-filter-windows {

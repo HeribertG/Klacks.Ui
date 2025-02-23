@@ -1,4 +1,4 @@
-@import '../../../assets/standard-styles/colors.scss';
+@use '../../../assets/standard-styles/colors.scss';
 
 .ownStyle-button {
 
@@ -7,7 +7,7 @@
   background-color: #c9f7f5;
   font-weight: 600;
   font-size: 14px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
   margin-right: 10px;
 
 }

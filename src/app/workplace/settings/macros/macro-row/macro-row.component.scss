@@ -1,8 +1,8 @@
-@import "../../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
 @import "../../../../../assets/standard-styles/ayu-dark.css";
-@import "../../../../../assets/standard-styles/colors.scss";
 
 .first {
   margin-left: 30px;
@@ -91,7 +91,7 @@ label {
 
   font-size: 13px;
   text-decoration: underline;
-  color: $standartGreenColor;
+  color: colors.$standartGreenColor;
 }
 
 .abbreviation {
@@ -103,7 +103,7 @@ label {
 .attribute-name {
   width: 250px;
   margin-right: 10px;
-  background-color: $standartGreenColor !important;
+  background-color: colors.$standartGreenColor !important;
 }
 
 .preview {
@@ -124,7 +124,7 @@ label {
 
 .preview-color {
   background-color: #273746;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 button {
   border-radius: 5px;

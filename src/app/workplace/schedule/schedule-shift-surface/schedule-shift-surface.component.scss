@@ -1,19 +1,19 @@
-@import "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/colors.scss";
 
 .box-schedule {
   height: 100%;
   width: 100%;
-  background-color: $gridBackgroundColor;
+  background-color: colors.$gridBackgroundColor;
 }
 
 .div-tooltip {
   opacity: 0;
   position: fixed;
   border-radius: 4px;
-  background-color: $tooltipBackgroundColor;
+  background-color: colors.$tooltipBackgroundColor;
   padding: 5px 10px;
   margin: 20px;
-  border: $tooltipBorder;
+  border: colors.$tooltipBorder;
   z-index: 99999;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   font-size: 12px;

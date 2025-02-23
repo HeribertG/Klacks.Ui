@@ -1,23 +1,21 @@
-@import '../../assets/standard-styles/colors.scss';
+// @forward "../../../../assets/standard-styles/standard-controls.scss";
 
 select {
   font-weight: 500;
   font-size: 14px;
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-
 }
 
 select:focus {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-
 }
 
 select:disabled {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackgroundReadOnly);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
 
 input {
@@ -25,59 +23,54 @@ input {
   font-size: 14px;
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-  caret-color:  var(--standartTextCaretColor);
-  
+  caret-color: var(--standartTextCaretColor);
 }
 
-input:focus{
+input:focus {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
-
 
 input:read-only {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackgroundReadOnly);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
 
 input:disabled {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackgroundReadOnly);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
-
- 
 
 textarea {
   font-weight: 500;
   font-size: 14px;
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
 
 textarea:focus {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackground);
-  caret-color:  var(--standartTextCaretColor);
-
+  caret-color: var(--standartTextCaretColor);
 }
 
 textarea:read-only {
   color: var(--standartTextColor);
   background-color: var(--standartTextBackgroundReadOnly);
-  caret-color:  var(--standartTextCaretColor);
+  caret-color: var(--standartTextCaretColor);
 }
 
-label  {
+label {
   font-weight: 500;
   font-size: 13px;
   color: var(--colorLabel);
 }
 
-em  {
+em {
   font-weight: 500;
   font-size: 13px;
   color: var(--colorLabel);
@@ -90,8 +83,6 @@ option {
   background-color: var(--backgroundOption);
 }
 
-
-
 .checkbox-label {
   padding-right: 25px;
   white-space: nowrap;
@@ -101,7 +92,6 @@ option {
 :host ::ng-deep ngb-datepicker {
   font-weight: 500;
   font-size: 13px;
-
 }
 
 button {
@@ -109,7 +99,7 @@ button {
   -webkit-appearance: none;
 }
 
-span[type='button'] {
+span[type="button"] {
   -moz-appearance: none;
   -webkit-appearance: none;
 }

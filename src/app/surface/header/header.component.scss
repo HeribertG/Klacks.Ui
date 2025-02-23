@@ -1,6 +1,6 @@
-@import "./../../../assets/standard-styles/colors.scss";
-@import "./../../../assets/standard-styles/standard-controls.scss";
-@import "./../../../assets/standard-styles/menu.scss";
+@use "../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../assets/standard-styles/standard-controls.scss";
+@use "../../../assets/standard-styles/menu.scss";
 
 .icon {
   cursor: pointer;
@@ -19,20 +19,20 @@
   margin-top: 12px;
   width: 213px;
   height: 40px;
-  background-color: $standartGreenColor;
+  background-color: colors.$standartGreenColor;
 
   font-size: 13px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 .ownStyle-split {
   margin-top: 12px;
   height: 40px;
   width: 30px;
-  background-color: $splitButtonGreenColor;
+  background-color: colors.$splitButtonGreenColor;
 
   font-size: 13px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
   margin-right: 20px;
 }
 
@@ -51,4 +51,9 @@
   font-size: small;
   color: var(--VersionNumberColor);
   display: none;
+}
+
+app-search {
+  margin-left: 35px;
+  width: 200px;
 }

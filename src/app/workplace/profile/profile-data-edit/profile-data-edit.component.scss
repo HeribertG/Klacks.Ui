@@ -1,6 +1,6 @@
-@import '../../../../assets/standard-styles/standard-card-interior.scss';
-@import '../../../../assets/standard-styles/standard-controls.scss';
-@import '../../../../assets/standard-styles/colors.scss';
+@use '../../../../assets/standard-styles/standard-card-interior.scss';
+@use '../../../../assets/standard-styles/standard-controls.scss';
+@use '../../../../assets/standard-styles/colors.scss';
 
 
 
@@ -18,8 +18,8 @@
   .container-search-button {
     font-weight: 600;
     font-size: 13px;
-    background-color: $standartBlueColor;
-    color: $standartWhiteColor;
+    background-color: colors.$standartBlueColor;
+    color: colors.$standartWhiteColor;
   }
 
 

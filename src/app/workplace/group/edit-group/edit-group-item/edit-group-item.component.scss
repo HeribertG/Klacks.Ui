@@ -1,10 +1,10 @@
-@import "../../../../../assets/standard-styles/standard-grid.scss";
-@import "../../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../../assets/standard-styles/standard-modal.scss";
-@import "../../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../../assets/standard-styles/colors.scss";
-@import "../../../../../assets/standard-styles/menu.scss";
-@import "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/menu.scss";
+@use "../../../../../assets/standard-styles/datepicker.scss";
 
 .default-width {
   width: 390px;
@@ -80,10 +80,10 @@ label {
 .ownStyle-button {
   width: 180px;
   height: 40px;
-  background-color: $standartBlueColor;
+  background-color: colors.$standartBlueColor;
   font-weight: 600;
   font-size: 14px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 .first-row {
@@ -106,7 +106,7 @@ label {
 .add-button {
   margin-left: 5px;
   margin-top: 5px;
-  color: $standartGreenColor;
+  color: colors.$standartGreenColor;
   font-weight: 800;
   font-size: 18px;
 }

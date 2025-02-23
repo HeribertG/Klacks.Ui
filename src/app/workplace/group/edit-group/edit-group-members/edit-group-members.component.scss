@@ -1,10 +1,10 @@
-@import "../../../../../assets/standard-styles/standard-grid.scss";
-@import "../../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../../assets/standard-styles/standard-modal.scss";
-@import "../../../../../assets/standard-styles/spinner.scss";
-@import "../../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../../assets/standard-styles/pagination.scss";
-@import "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/spinner.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/pagination.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .container-bank-box {
   margin-top: 40px;
@@ -32,14 +32,14 @@
 .container-search-button {
   font-weight: 600;
   font-size: 13px;
-  background-color: $standartBlueColor;
-  color: $standartWhiteColor;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
 }
 .container-search-button-disabled {
   font-weight: 600;
   font-size: 13px;
   background-color: #b6b6c3;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 input[type="checkbox"]:indeterminate {

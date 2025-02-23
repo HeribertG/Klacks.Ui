@@ -1,5 +1,5 @@
-@import "../../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
 
 .first {
   margin-left: 30px;
@@ -35,6 +35,6 @@ select {
   font-weight: 500;
   font-size: 13px;
   text-decoration: underline;
-  color: $standartBlueColor;
+  color: colors.$standartBlueColor;
   cursor: pointer;
 }

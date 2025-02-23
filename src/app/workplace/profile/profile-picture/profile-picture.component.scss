@@ -1,6 +1,6 @@
-@import "../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors.scss";
 
 .container-line {
   margin-top: 25px;
@@ -14,7 +14,7 @@
   background-repeat: no-repeat;
   background-size: 100px;
   background-position: center;
-  background-color: $standartWhiteColor;
+  background-color: colors.$standartWhiteColor;
   height: 314px;
   width: 340px;
   margin-left: 30px;

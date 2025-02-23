@@ -1,4 +1,4 @@
-@import "../../assets/standard-styles/colors.scss";
+@use "../../assets/standard-styles/colors.scss";
 .dropdown-menu {
   background-color: var(--backgroundColorCard);
   border: 1px solid var(--cardBorderColor);

@@ -1,9 +1,10 @@
-@import "../../../../assets/standard-styles/standard-controls.scss";
-@import "../../../../assets/standard-styles/standard-modal.scss";
-@import "../../../../assets/standard-styles/standard-card-interior.scss";
-@import "../../../../assets/standard-styles/standard-grid.scss";
-@import "../../../../assets/standard-styles/pagination.scss";
-@import "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../assets/standard-styles/pagination.scss";
+// @use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors";
 
 .first {
   padding-top: 10px;
@@ -15,7 +16,7 @@
   padding-right: 50px;
   font-size: 13px;
   text-decoration: underline;
-  color: $standartGreenColor;
+  color: colors.$standartGreenColor;
 }
 
 .rule-result {

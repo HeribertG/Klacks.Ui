@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-    selector: 'app-all-address-home',
-    templateUrl: './all-address-home.component.html',
-    styleUrls: ['./all-address-home.component.scss'],
-    standalone: false
+  selector: 'app-all-address-home',
+  templateUrl: './all-address-home.component.html',
+  styleUrls: ['./all-address-home.component.scss'],
+  standalone: false,
 })
 export class AllAddressHomeComponent implements OnInit {
   @Input() isClient: boolean = false;

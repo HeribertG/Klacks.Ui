@@ -1,4 +1,4 @@
-@import './../../assets/standard-styles/colors.scss';
+@use '../../assets/standard-styles/colors.scss';
 
 .imgzentriert {
   display: block;
@@ -21,7 +21,7 @@
   font-size: 56px;
   font-weight: 500;
   letter-spacing: 10px;
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 .info{
@@ -31,7 +31,7 @@
   font-size: 20px;
   font-weight: 400;
 
-  color: $standartWhiteColor;
+  color: colors.$standartWhiteColor;
 }
 
 button {
