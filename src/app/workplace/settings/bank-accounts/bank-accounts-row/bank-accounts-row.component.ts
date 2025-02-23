@@ -12,9 +12,10 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 
 @Component({
-  selector: 'app-bank-accounts-row',
-  templateUrl: './bank-accounts-row.component.html',
-  styleUrls: ['./bank-accounts-row.component.scss'],
+    selector: 'app-bank-accounts-row',
+    templateUrl: './bank-accounts-row.component.html',
+    styleUrls: ['./bank-accounts-row.component.scss'],
+    standalone: false
 })
 export class BankAccountsRowComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();

@@ -20,9 +20,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-absence-gantt-grid',
-  templateUrl: './absence-gantt-grid.component.html',
-  styleUrls: ['./absence-gantt-grid.component.scss'],
+    selector: 'app-absence-gantt-grid',
+    templateUrl: './absence-gantt-grid.component.html',
+    styleUrls: ['./absence-gantt-grid.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy

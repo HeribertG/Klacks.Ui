@@ -18,9 +18,10 @@ import {
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-profile-data-edit',
-  templateUrl: './profile-data-edit.component.html',
-  styleUrls: ['./profile-data-edit.component.scss'],
+    selector: 'app-profile-data-edit',
+    templateUrl: './profile-data-edit.component.html',
+    styleUrls: ['./profile-data-edit.component.scss'],
+    standalone: false
 })
 export class ProfileDataEditComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();

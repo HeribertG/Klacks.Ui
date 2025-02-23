@@ -10,9 +10,10 @@ import {
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 
 @Component({
-  selector: 'app-schedule-shift-row-header',
-  templateUrl: './schedule-shift-row-header.component.html',
-  styleUrls: ['./schedule-shift-row-header.component.scss'],
+    selector: 'app-schedule-shift-row-header',
+    templateUrl: './schedule-shift-row-header.component.html',
+    styleUrls: ['./schedule-shift-row-header.component.scss'],
+    standalone: false
 })
 export class ScheduleShiftRowHeaderComponent
   implements OnInit, AfterViewInit, OnDestroy

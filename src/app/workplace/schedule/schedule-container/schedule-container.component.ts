@@ -12,9 +12,10 @@ import { DataManagementScheduleService } from 'src/app/data/management/data-mana
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
 @Component({
-  selector: 'app-schedule-container',
-  templateUrl: './schedule-container.component.html',
-  styleUrls: ['./schedule-container.component.scss'],
+    selector: 'app-schedule-container',
+    templateUrl: './schedule-container.component.html',
+    styleUrls: ['./schedule-container.component.scss'],
+    standalone: false
 })
 export class ScheduleContainerComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -17,9 +17,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-edit-shift-macro',
-  templateUrl: './edit-shift-macro.component.html',
-  styleUrls: ['./edit-shift-macro.component.scss'],
+    selector: 'app-edit-shift-macro',
+    templateUrl: './edit-shift-macro.component.html',
+    styleUrls: ['./edit-shift-macro.component.scss'],
+    standalone: false
 })
 export class EditShiftMacroComponent
   implements OnInit, AfterViewInit, OnDestroy

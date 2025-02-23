@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-workshop',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-workshop',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
   width="24px" height="24px"	 viewBox="0 0 64 64" enable-background="new 0 0 64 64" xml:space="preserve">
 <g>
@@ -31,7 +31,8 @@ import { Component, OnInit } from '@angular/core';
 	</g>
 </g>
 </svg>
-`
+`,
+    standalone: false
 })
 export class IconWorkshopComponent implements OnInit {
 

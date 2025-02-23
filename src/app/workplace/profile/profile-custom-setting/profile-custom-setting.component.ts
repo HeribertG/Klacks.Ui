@@ -10,9 +10,10 @@ import {
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
-  selector: 'app-profile-custom-setting',
-  templateUrl: './profile-custom-setting.component.html',
-  styleUrls: ['./profile-custom-setting.component.scss'],
+    selector: 'app-profile-custom-setting',
+    templateUrl: './profile-custom-setting.component.html',
+    styleUrls: ['./profile-custom-setting.component.scss'],
+    standalone: false
 })
 export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;

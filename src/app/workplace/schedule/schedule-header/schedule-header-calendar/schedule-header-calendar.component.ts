@@ -4,9 +4,10 @@ import { GridSettingsService } from 'src/app/grid/services/grid-settings.service
 import { DataService } from '../../services/data.service';
 
 @Component({
-  selector: 'app-schedule-header-calendar',
-  templateUrl: './schedule-header-calendar.component.html',
-  styleUrls: ['./schedule-header-calendar.component.scss'],
+    selector: 'app-schedule-header-calendar',
+    templateUrl: './schedule-header-calendar.component.html',
+    styleUrls: ['./schedule-header-calendar.component.scss'],
+    standalone: false
 })
 export class ScheduleHeaderCalendarComponent {
   currentYear: number = new Date().getFullYear();

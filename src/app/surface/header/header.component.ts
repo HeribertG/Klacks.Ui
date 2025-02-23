@@ -13,9 +13,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    standalone: false
 })
 export class HeaderComponent implements OnInit, OnChanges {
   public registerDropdown: HTMLDivElement | undefined;

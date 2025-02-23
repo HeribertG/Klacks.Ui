@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-pdf-icon',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-pdf-icon',
+    styleUrls: ['./buttons.scss'],
+    template: `
     <svg
       data-name="Layer 1"
       xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,8 @@ import { Component, OnInit } from '@angular/core';
       />
     </svg>
   `,
-  styles: [''],
+    styles: [''],
+    standalone: false
 })
 export class PdfIconComponent implements OnInit {
   constructor() {}

@@ -1,9 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-button-excel',
-  templateUrl: './button-excel.component.html',
-  styleUrls: ['./button-excel.component.scss']
+    selector: 'app-button-excel',
+    templateUrl: './button-excel.component.html',
+    styleUrls: ['./button-excel.component.scss'],
+    standalone: false
 })
 export class ButtonExcelComponent implements OnInit {
   @Input() buttonDisabled = false;

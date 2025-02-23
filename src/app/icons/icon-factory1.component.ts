@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-factory1',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-factory1',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
    <desc>Created with Sketch.</desc>
   <defs></defs>
@@ -13,7 +13,8 @@ import { Component, OnInit } from '@angular/core';
       <rect id="Rectangle-Copy-2" fill="var(--backgroundOption)" x="13" y="8" width="3" height="3" rx="1"></rect>
       <path d="M4,21 L20,21 C20.5522847,21 21,21.4477153 21,22 L21,22.4 C21,22.7313708 20.7313708,23 20.4,23 L3.6,23 C3.26862915,23 3,22.7313708 3,22.4 L3,22 C3,21.4477153 3.44771525,21 4,21 Z" id="Rectangle-2" fill="var(--iconBlackColor)" opacity="0.3"></path>
   </g>
-</svg>`
+</svg>`,
+    standalone: false
 })
 export class IconFactory1Component implements OnInit {
 

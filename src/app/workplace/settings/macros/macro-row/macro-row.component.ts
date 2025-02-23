@@ -20,9 +20,10 @@ import { IMacro, Macro } from 'src/app/core/macro-class';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 
 @Component({
-  selector: 'app-macro-row',
-  templateUrl: './macro-row.component.html',
-  styleUrls: ['./macro-row.component.scss'],
+    selector: 'app-macro-row',
+    templateUrl: './macro-row.component.html',
+    styleUrls: ['./macro-row.component.scss'],
+    standalone: false
 })
 export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;

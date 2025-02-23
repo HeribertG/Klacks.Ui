@@ -37,9 +37,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-all-address-list',
-  templateUrl: './all-address-list.component.html',
-  styleUrls: ['./all-address-list.component.scss'],
+    selector: 'app-all-address-list',
+    templateUrl: './all-address-list.component.html',
+    styleUrls: ['./all-address-list.component.scss'],
+    standalone: false
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy

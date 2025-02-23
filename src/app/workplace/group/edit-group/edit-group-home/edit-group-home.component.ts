@@ -4,9 +4,10 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-  selector: 'app-edit-group-home',
-  templateUrl: './edit-group-home.component.html',
-  styleUrls: ['./edit-group-home.component.scss'],
+    selector: 'app-edit-group-home',
+    templateUrl: './edit-group-home.component.html',
+    styleUrls: ['./edit-group-home.component.scss'],
+    standalone: false
 })
 export class EditGroupHomeComponent implements OnInit {
   @Input() isEditGroup: boolean = false;

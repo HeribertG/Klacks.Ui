@@ -11,9 +11,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
-  selector: 'app-email-setting',
-  templateUrl: './email-setting.component.html',
-  styleUrls: ['./email-setting.component.scss'],
+    selector: 'app-email-setting',
+    templateUrl: './email-setting.component.html',
+    styleUrls: ['./email-setting.component.scss'],
+    standalone: false
 })
 export class EmailSettingComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();

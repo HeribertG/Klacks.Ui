@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-journal-icon',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-journal-icon',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="24px" height="18px" viewBox="0 0 48 48"><g >
 <path fill="#b6b6c3" d="M43,13c0-1.10457-0.89543-2-2-2H6c-1.6543,0-3-1.3457-3-3c0-0.55225-0.44775-1-1-1S1,7.44775,1,8v32
 	c0,3.86599,3.13401,7,7,7h33c1.10457,0,2-0.89543,2-2V13z"/>
@@ -17,7 +17,8 @@ import { Component, OnInit } from '@angular/core';
 </g></svg>
 
 `,
-  styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class JournalIconComponent implements OnInit {
 

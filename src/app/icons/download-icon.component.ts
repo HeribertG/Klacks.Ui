@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-download-icon',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-download-icon',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <desc>Created with Sketch.</desc>
     <defs></defs>
@@ -15,7 +15,8 @@ import { Component, OnInit } from '@angular/core';
         <path d="M7.70710678,15.7071068 C7.31658249,16.0976311 6.68341751,16.0976311 6.29289322,15.7071068 C5.90236893,15.3165825 5.90236893,14.6834175 6.29289322,14.2928932 L11.2928932,9.29289322 C11.6689749,8.91681153 12.2736364,8.90091039 12.6689647,9.25670585 L17.6689647,13.7567059 C18.0794748,14.1261649 18.1127532,14.7584547 17.7432941,15.1689647 C17.3738351,15.5794748 16.7415453,15.6127532 16.3310353,15.2432941 L12.0362375,11.3779761 L7.70710678,15.7071068 Z" id="Path-102" fill="var(--iconBlackColor)" fill-rule="nonzero" transform="translate(12.000004, 12.499999) rotate(-180.000000) translate(-12.000004, -12.499999) "></path>
     </g>
 </svg>
-`
+`,
+    standalone: false
 })
 export class DownloadIconComponent  {
 

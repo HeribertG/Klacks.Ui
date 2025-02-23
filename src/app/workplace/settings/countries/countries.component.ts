@@ -5,9 +5,10 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 
 @Component({
-  selector: 'app-countries',
-  templateUrl: './countries.component.html',
-  styleUrls: ['./countries.component.scss'],
+    selector: 'app-countries',
+    templateUrl: './countries.component.html',
+    styleUrls: ['./countries.component.scss'],
+    standalone: false
 })
 export class CountriesComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();

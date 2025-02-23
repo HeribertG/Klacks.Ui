@@ -3,9 +3,10 @@ import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
-  selector: 'app-settings-general',
-  templateUrl: './settings-general.component.html',
-  styleUrls: ['./settings-general.component.scss'],
+    selector: 'app-settings-general',
+    templateUrl: './settings-general.component.html',
+    styleUrls: ['./settings-general.component.scss'],
+    standalone: false
 })
 export class SettingsGeneralComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();

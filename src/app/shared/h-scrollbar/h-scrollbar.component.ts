@@ -35,9 +35,10 @@ enum ArrowDirection {
 }
 
 @Component({
-  selector: 'app-h-scrollbar',
-  templateUrl: './h-scrollbar.component.html',
-  styleUrls: ['./h-scrollbar.component.scss'],
+    selector: 'app-h-scrollbar',
+    templateUrl: './h-scrollbar.component.html',
+    styleUrls: ['./h-scrollbar.component.scss'],
+    standalone: false
 })
 export class HScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

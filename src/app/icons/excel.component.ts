@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-excel',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-excel',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512; width:24px; height 24px" xml:space="preserve">
 <path style="fill:#ECEFF1;" d="M496,432.011H272c-8.832,0-16-7.168-16-16s0-311.168,0-320s7.168-16,16-16h224
@@ -66,7 +66,8 @@ import { Component, OnInit } from '@angular/core';
 <g>
 </g>
 </svg>`,
-  styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class ExcelComponent  {
 

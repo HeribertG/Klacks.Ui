@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-absence-gantt-pdf-preview',
-  templateUrl: './absence-gantt-pdf-preview.component.html',
-  styleUrls: ['./absence-gantt-pdf-preview.component.scss']
+    selector: 'app-absence-gantt-pdf-preview',
+    templateUrl: './absence-gantt-pdf-preview.component.html',
+    styleUrls: ['./absence-gantt-pdf-preview.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttPdfPreviewComponent {
 

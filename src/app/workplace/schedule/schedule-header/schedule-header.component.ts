@@ -7,9 +7,10 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
 import { SettingsService } from '../services/settings.service';
 
 @Component({
-  selector: 'app-schedule-header',
-  templateUrl: './schedule-header.component.html',
-  styleUrls: ['./schedule-header.component.scss'],
+    selector: 'app-schedule-header',
+    templateUrl: './schedule-header.component.html',
+    styleUrls: ['./schedule-header.component.scss'],
+    standalone: false
 })
 export class ScheduleHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;

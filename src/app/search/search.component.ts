@@ -11,9 +11,10 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss'],
+    selector: 'app-search',
+    templateUrl: './search.component.html',
+    styleUrls: ['./search.component.scss'],
+    standalone: false
 })
 export class SearchComponent {
   @HostListener('search', ['$event'])

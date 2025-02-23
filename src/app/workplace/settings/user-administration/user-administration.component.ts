@@ -13,9 +13,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
-  selector: 'app-user-administration',
-  templateUrl: './user-administration.component.html',
-  styleUrls: ['./user-administration.component.scss'],
+    selector: 'app-user-administration',
+    templateUrl: './user-administration.component.html',
+    styleUrls: ['./user-administration.component.scss'],
+    standalone: false
 })
 export class UserAdministrationComponent implements OnInit {
   @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;

@@ -19,9 +19,10 @@ import { ScrollService } from '../services/scroll.service';
 import { DataScheduleService } from 'src/app/data/data-schedule.service';
 
 @Component({
-  selector: 'app-schedule-shift-surface',
-  templateUrl: './schedule-shift-surface.component.html',
-  styleUrls: ['./schedule-shift-surface.component.scss'],
+    selector: 'app-schedule-shift-surface',
+    templateUrl: './schedule-shift-surface.component.html',
+    styleUrls: ['./schedule-shift-surface.component.scss'],
+    standalone: false
 })
 export class ScheduleShiftSurfaceComponent
   implements OnInit, AfterViewInit, OnDestroy

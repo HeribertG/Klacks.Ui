@@ -16,9 +16,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-state-row',
-  templateUrl: './state-row.component.html',
-  styleUrls: ['./state-row.component.scss'],
+    selector: 'app-state-row',
+    templateUrl: './state-row.component.html',
+    styleUrls: ['./state-row.component.scss'],
+    standalone: false
 })
 export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: IState | undefined;

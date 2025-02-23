@@ -22,9 +22,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastService } from 'src/app/toast/toast.service';
 
 @Component({
-  selector: 'app-edit-group-members',
-  templateUrl: './edit-group-members.component.html',
-  styleUrls: ['./edit-group-members.component.scss'],
+    selector: 'app-edit-group-members',
+    templateUrl: './edit-group-members.component.html',
+    styleUrls: ['./edit-group-members.component.scss'],
+    standalone: false
 })
 export class EditGroupMembersComponent
   implements OnInit, AfterViewInit, OnDestroy

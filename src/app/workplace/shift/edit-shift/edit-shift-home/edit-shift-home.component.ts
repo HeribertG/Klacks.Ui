@@ -5,9 +5,10 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
-  selector: 'app-edit-shift-home',
-  templateUrl: './edit-shift-home.component.html',
-  styleUrls: ['./edit-shift-home.component.scss'],
+    selector: 'app-edit-shift-home',
+    templateUrl: './edit-shift-home.component.html',
+    styleUrls: ['./edit-shift-home.component.scss'],
+    standalone: false
 })
 export class EditShiftHomeComponent implements OnInit {
   @Input() isCreateShift = false;

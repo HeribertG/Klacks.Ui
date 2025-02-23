@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-pencil-icon-black',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-pencil-icon-black',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" overflow="visible"
   preserveAspectRatio="none" viewBox="0 0 24 24" width="24" height="24">
   <g>
@@ -19,7 +19,8 @@ import { Component } from '@angular/core';
       style="fill: rgb(#FFA400);" vector-effect="non-scaling-stroke" />
   </g>
 </svg>`,
-  styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class PencilIconBlackComponent  {
 

@@ -23,9 +23,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    standalone: false
 })
 export class HomeComponent implements OnInit, OnDestroy {
   constructor(

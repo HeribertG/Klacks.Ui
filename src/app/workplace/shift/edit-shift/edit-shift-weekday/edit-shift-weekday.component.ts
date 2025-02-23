@@ -14,9 +14,10 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
-  selector: 'app-edit-shift-weekday',
-  templateUrl: './edit-shift-weekday.component.html',
-  styleUrls: ['./edit-shift-weekday.component.scss'],
+    selector: 'app-edit-shift-weekday',
+    templateUrl: './edit-shift-weekday.component.html',
+    styleUrls: ['./edit-shift-weekday.component.scss'],
+    standalone: false
 })
 export class EditShiftWeekdayComponent
   implements OnInit, AfterViewInit, OnDestroy

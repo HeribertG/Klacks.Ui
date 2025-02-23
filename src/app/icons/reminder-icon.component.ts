@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-reminder-icon',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-reminder-icon',
+    styleUrls: ['./buttons.scss'],
+    template: `
 
 
 <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -69,7 +69,8 @@ import { Component, OnInit } from '@angular/core';
 </svg>
 
   `,
-  styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class ReminderIconComponent implements OnInit {
 

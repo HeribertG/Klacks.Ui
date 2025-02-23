@@ -14,9 +14,10 @@ import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-state',
-  templateUrl: './state.component.html',
-  styleUrls: ['./state.component.scss'],
+    selector: 'app-state',
+    templateUrl: './state.component.html',
+    styleUrls: ['./state.component.scss'],
+    standalone: false
 })
 export class StateComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();

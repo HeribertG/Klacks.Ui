@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-copy-grey',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-copy-grey',
+    styleUrls: ['./buttons.scss'],
+    template: `
     <svg
       x="0px"
       y="0px"
@@ -20,6 +20,7 @@ import { Component, OnInit } from '@angular/core';
       </g>
     </svg>
   `,
+    standalone: false
 })
 export class IconCopyGreyComponent implements OnInit {
   constructor() {}

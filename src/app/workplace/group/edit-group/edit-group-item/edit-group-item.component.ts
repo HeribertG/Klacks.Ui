@@ -21,9 +21,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-edit-group-item',
-  templateUrl: './edit-group-item.component.html',
-  styleUrls: ['./edit-group-item.component.scss'],
+    selector: 'app-edit-group-item',
+    templateUrl: './edit-group-item.component.html',
+    styleUrls: ['./edit-group-item.component.scss'],
+    standalone: false
 })
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit, OnDestroy

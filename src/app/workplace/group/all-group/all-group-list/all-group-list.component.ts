@@ -33,9 +33,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
 @Component({
-  selector: 'app-all-group-list',
-  templateUrl: './all-group-list.component.html',
-  styleUrls: ['./all-group-list.component.scss'],
+    selector: 'app-all-group-list',
+    templateUrl: './all-group-list.component.html',
+    styleUrls: ['./all-group-list.component.scss'],
+    standalone: false
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myGridTable', { static: true }) myGridTable:

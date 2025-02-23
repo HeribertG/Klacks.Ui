@@ -13,9 +13,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-all-group-nav',
-  templateUrl: './all-group-nav.component.html',
-  styleUrls: ['./all-group-nav.component.scss'],
+    selector: 'app-all-group-nav',
+    templateUrl: './all-group-nav.component.html',
+    styleUrls: ['./all-group-nav.component.scss'],
+    standalone: false
 })
 export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:

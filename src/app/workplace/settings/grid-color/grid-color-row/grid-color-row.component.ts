@@ -11,9 +11,10 @@ import { ISetting } from 'src/app/core/settings-various-class';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 
 @Component({
-  selector: 'app-grid-color-row',
-  templateUrl: './grid-color-row.component.html',
-  styleUrls: ['./grid-color-row.component.scss'],
+    selector: 'app-grid-color-row',
+    templateUrl: './grid-color-row.component.html',
+    styleUrls: ['./grid-color-row.component.scss'],
+    standalone: false
 })
 export class GridColorRowComponent implements OnInit {
   @Input() data: ISetting | undefined;

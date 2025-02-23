@@ -14,7 +14,8 @@ import { MyPosition } from 'src/app/grid/classes/position';
 import { CellManipulationService } from '../services/cell-manipulation.service';
 
 @Directive({
-  selector: '[cellEvents]',
+    selector: '[cellEvents]',
+    standalone: false
 })
 export class CellEventsDirective {
   private keyDown = false;

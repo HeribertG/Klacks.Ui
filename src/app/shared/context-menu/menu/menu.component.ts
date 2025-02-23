@@ -4,9 +4,10 @@ import { Rectangle } from 'src/app/grid/classes/geometry';
 import { Timer } from 'src/app/helpers/timer';
 
 @Component({
-  selector: 'app-menu',
-  templateUrl: './menu.component.html',
-  styleUrls: ['./menu.component.scss'],
+    selector: 'app-menu',
+    templateUrl: './menu.component.html',
+    styleUrls: ['./menu.component.scss'],
+    standalone: false
 })
 export class MenuComponent {
   @Input() menu: Menu | undefined;

@@ -24,9 +24,10 @@ import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
-  selector: 'app-absence-gantt-row-header',
-  templateUrl: './absence-gantt-row-header.component.html',
-  styleUrls: ['./absence-gantt-row-header.component.scss'],
+    selector: 'app-absence-gantt-row-header',
+    templateUrl: './absence-gantt-row-header.component.html',
+    styleUrls: ['./absence-gantt-row-header.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

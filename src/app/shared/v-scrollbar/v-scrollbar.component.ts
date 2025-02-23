@@ -35,9 +35,10 @@ enum ArrowDirection {
 }
 
 @Component({
-  selector: 'app-v-scrollbar',
-  templateUrl: './v-scrollbar.component.html',
-  styleUrls: ['./v-scrollbar.component.scss'],
+    selector: 'app-v-scrollbar',
+    templateUrl: './v-scrollbar.component.html',
+    styleUrls: ['./v-scrollbar.component.scss'],
+    standalone: false
 })
 export class VScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

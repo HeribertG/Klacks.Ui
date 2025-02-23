@@ -13,9 +13,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-membership',
-  templateUrl: './membership.component.html',
-  styleUrls: ['./membership.component.scss'],
+    selector: 'app-membership',
+    templateUrl: './membership.component.html',
+    styleUrls: ['./membership.component.scss'],
+    standalone: false
 })
 export class MembershipComponent implements OnInit {
   @ViewChild('membershipForm', { static: false }) membershipForm:

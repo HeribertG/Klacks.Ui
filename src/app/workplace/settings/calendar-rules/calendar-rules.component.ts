@@ -30,9 +30,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 
 @Component({
-  selector: 'app-calendar-rules',
-  templateUrl: './calendar-rules.component.html',
-  styleUrls: ['./calendar-rules.component.scss'],
+    selector: 'app-calendar-rules',
+    templateUrl: './calendar-rules.component.html',
+    styleUrls: ['./calendar-rules.component.scss'],
+    standalone: false
 })
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy

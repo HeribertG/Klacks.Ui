@@ -1,9 +1,9 @@
 import { Component} from '@angular/core';
 
 @Component({
-  selector: 'icon-attention-icon-grey',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'icon-attention-icon-grey',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
   <title>Stockholm-icons / Code / Warning-2</title>
@@ -15,7 +15,8 @@ import { Component} from '@angular/core';
       <rect id="Rectangle-9" fill="var(--iconBlackColor)" x="11" y="9" width="2" height="7" rx="1"></rect>
       <rect id="Rectangle-9-Copy" fill="var(--iconBlackColor)" x="11" y="17" width="2" height="2" rx="1"></rect>
   </g>
-</svg>`
+</svg>`,
+    standalone: false
 })
 export class AttentionGreyComponent {
 

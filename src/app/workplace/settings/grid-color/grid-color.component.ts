@@ -9,9 +9,10 @@ import {
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 
 @Component({
-  selector: 'app-grid-color',
-  templateUrl: './grid-color.component.html',
-  styleUrls: ['./grid-color.component.scss'],
+    selector: 'app-grid-color',
+    templateUrl: './grid-color.component.html',
+    styleUrls: ['./grid-color.component.scss'],
+    standalone: false
 })
 export class GridColorComponent implements OnInit, OnChanges {
   @Output() isChangingEvent = new EventEmitter<boolean>();

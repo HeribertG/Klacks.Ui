@@ -6,9 +6,10 @@ import {
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 
 @Component({
-  selector: 'app-absence-gantt-filter',
-  templateUrl: './absence-gantt-filter.component.html',
-  styleUrls: ['./absence-gantt-filter.component.scss'],
+    selector: 'app-absence-gantt-filter',
+    templateUrl: './absence-gantt-filter.component.html',
+    styleUrls: ['./absence-gantt-filter.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttFilterComponent {
   arrowCompany = '';

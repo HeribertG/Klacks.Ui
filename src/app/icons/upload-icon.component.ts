@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
-  selector: 'icon-uplaod-icon',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    // tslint:disable-next-line: component-selector
+    selector: 'icon-uplaod-icon',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 50.2 (55047) - http://www.bohemiancoding.com/sketch -->
     <title>Stockholm-icons / Files / Upload</title>
@@ -18,7 +18,8 @@ import { Component, OnInit } from '@angular/core';
     </g>
 </svg>
   `,
-  styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class UploadIconComponent {
 

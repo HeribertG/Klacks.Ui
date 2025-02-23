@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-user',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-user',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg version="1.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         overflow="visible" preserveAspectRatio="none" viewBox="0 0 26 26" height="24" width="24">
         <g transform="translate(1, 1)">
@@ -20,7 +20,8 @@ import { Component, OnInit } from '@angular/core';
               vector-effect="non-scaling-stroke" />
           </g>
         </g>
-      </svg>`
+      </svg>`,
+    standalone: false
 })
 export class IconUserComponent implements OnInit {
 

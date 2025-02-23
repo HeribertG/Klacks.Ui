@@ -11,9 +11,10 @@ import { NgForm } from '@angular/forms';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 
 @Component({
-  selector: 'app-edit-shift-address',
-  templateUrl: './edit-shift-address.component.html',
-  styleUrls: ['./edit-shift-address.component.scss'],
+    selector: 'app-edit-shift-address',
+    templateUrl: './edit-shift-address.component.html',
+    styleUrls: ['./edit-shift-address.component.scss'],
+    standalone: false
 })
 export class EditShiftAddressComponent
   implements OnInit, AfterViewInit, OnDestroy

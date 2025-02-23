@@ -11,9 +11,10 @@ import { DataManagementClientService } from 'src/app/data/management/data-manage
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-  selector: 'app-edit-address-home',
-  templateUrl: './edit-address-home.component.html',
-  styleUrls: ['./edit-address-home.component.scss'],
+    selector: 'app-edit-address-home',
+    templateUrl: './edit-address-home.component.html',
+    styleUrls: ['./edit-address-home.component.scss'],
+    standalone: false
 })
 export class EditAddressHomeComponent implements OnInit {
   @Input() isEditClient = false;

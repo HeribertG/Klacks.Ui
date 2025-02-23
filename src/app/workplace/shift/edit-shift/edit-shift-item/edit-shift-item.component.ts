@@ -14,9 +14,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-edit-shift-item',
-  templateUrl: './edit-shift-item.component.html',
-  styleUrls: ['./edit-shift-item.component.scss'],
+    selector: 'app-edit-shift-item',
+    templateUrl: './edit-shift-item.component.html',
+    styleUrls: ['./edit-shift-item.component.scss'],
+    standalone: false
 })
 export class EditShiftItemComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -13,9 +13,10 @@ import { ScrollService } from '../services/scroll.service';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 
 @Component({
-  selector: 'app-schedule-h-scrollbar',
-  templateUrl: './schedule-h-scrollbar.component.html',
-  styleUrls: ['./schedule-h-scrollbar.component.scss'],
+    selector: 'app-schedule-h-scrollbar',
+    templateUrl: './schedule-h-scrollbar.component.html',
+    styleUrls: ['./schedule-h-scrollbar.component.scss'],
+    standalone: false
 })
 export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
   public maximumCol: number = 0;

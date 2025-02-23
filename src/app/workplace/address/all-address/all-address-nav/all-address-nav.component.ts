@@ -18,9 +18,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-all-address-nav',
-  templateUrl: './all-address-nav.component.html',
-  styleUrls: ['./all-address-nav.component.scss'],
+    selector: 'app-all-address-nav',
+    templateUrl: './all-address-nav.component.html',
+    styleUrls: ['./all-address-nav.component.scss'],
+    standalone: false
 })
 export class AllAddressNavComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -5,9 +5,10 @@ import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-macros',
-  templateUrl: './macros.component.html',
-  styleUrls: ['./macros.component.scss'],
+    selector: 'app-macros',
+    templateUrl: './macros.component.html',
+    styleUrls: ['./macros.component.scss'],
+    standalone: false
 })
 export class MacrosComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();

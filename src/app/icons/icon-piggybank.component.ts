@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-piggybank',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-piggybank',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
   width="24px" height="24px" fill="red" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
 <g>
@@ -51,7 +51,8 @@ import { Component, OnInit } from '@angular/core';
 </g>
 <g>
 </g>
-</svg>`
+</svg>`,
+    standalone: false
 })
 export class IconPiggybankComponent implements OnInit {
 

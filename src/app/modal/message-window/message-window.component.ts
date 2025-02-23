@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-message-window',
-  templateUrl: './message-window.component.html',
-  styleUrls: ['./message-window.component.scss'],
+    selector: 'app-message-window',
+    templateUrl: './message-window.component.html',
+    styleUrls: ['./message-window.component.scss'],
+    standalone: false
 })
 export class MessageWindowComponent {
   @Input() title = 'Message';

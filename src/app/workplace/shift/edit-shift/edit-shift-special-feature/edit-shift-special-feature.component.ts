@@ -11,9 +11,10 @@ import { NgForm } from '@angular/forms';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 
 @Component({
-  selector: 'app-edit-shift-special-feature',
-  templateUrl: './edit-shift-special-feature.component.html',
-  styleUrls: ['./edit-shift-special-feature.component.scss'],
+    selector: 'app-edit-shift-special-feature',
+    templateUrl: './edit-shift-special-feature.component.html',
+    styleUrls: ['./edit-shift-special-feature.component.scss'],
+    standalone: false
 })
 export class EditShiftSpecialFeatureComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -22,9 +22,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 
 @Component({
-  selector: 'app-absence',
-  templateUrl: './absence.component.html',
-  styleUrls: ['./absence.component.scss'],
+    selector: 'app-absence',
+    templateUrl: './absence.component.html',
+    styleUrls: ['./absence.component.scss'],
+    standalone: false
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) absenceForm: NgForm | undefined;

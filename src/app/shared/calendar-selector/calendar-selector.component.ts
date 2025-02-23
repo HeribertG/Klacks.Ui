@@ -39,9 +39,10 @@ enum ActionType {
 }
 
 @Component({
-  selector: 'app-calendar-selector',
-  templateUrl: './calendar-selector.component.html',
-  styleUrls: ['./calendar-selector.component.scss'],
+    selector: 'app-calendar-selector',
+    templateUrl: './calendar-selector.component.html',
+    styleUrls: ['./calendar-selector.component.scss'],
+    standalone: false
 })
 export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   @Output() openMenu = new EventEmitter();

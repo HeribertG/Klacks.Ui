@@ -10,9 +10,10 @@ import { DataManagementProfileService } from 'src/app/data/management/data-manag
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-  selector: 'app-profile-home',
-  templateUrl: './profile-home.component.html',
-  styleUrls: ['./profile-home.component.scss'],
+    selector: 'app-profile-home',
+    templateUrl: './profile-home.component.html',
+    styleUrls: ['./profile-home.component.scss'],
+    standalone: false
 })
 export class ProfileHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();

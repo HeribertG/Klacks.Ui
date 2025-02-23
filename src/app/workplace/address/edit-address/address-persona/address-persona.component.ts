@@ -28,9 +28,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-address-persona',
-  templateUrl: './address-persona.component.html',
-  styleUrls: ['./address-persona.component.scss'],
+    selector: 'app-address-persona',
+    templateUrl: './address-persona.component.html',
+    styleUrls: ['./address-persona.component.scss'],
+    standalone: false
 })
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy

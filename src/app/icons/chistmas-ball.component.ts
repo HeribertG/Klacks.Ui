@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'christmas-ball',
-  styleUrls: ['./buttons.scss'],
-  template: ` <svg
+    selector: 'christmas-ball',
+    styleUrls: ['./buttons.scss'],
+    template: ` <svg
     xmlns="http://www.w3.org/2000/svg"
     version="1.0"
     width="20px"
@@ -40,6 +40,7 @@ import { Component } from '@angular/core';
       />
     </g>
   </svg>`,
+    standalone: false
 })
 export class ChristmasBallComponent {
   constructor() {}

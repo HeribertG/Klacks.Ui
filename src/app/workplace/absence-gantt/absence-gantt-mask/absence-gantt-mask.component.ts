@@ -30,9 +30,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-absence-gantt-mask',
-  templateUrl: './absence-gantt-mask.component.html',
-  styleUrls: ['./absence-gantt-mask.component.scss'],
+    selector: 'app-absence-gantt-mask',
+    templateUrl: './absence-gantt-mask.component.html',
+    styleUrls: ['./absence-gantt-mask.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttMaskComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

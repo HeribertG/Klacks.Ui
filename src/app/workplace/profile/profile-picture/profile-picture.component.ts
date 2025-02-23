@@ -5,9 +5,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
-  selector: 'app-profile-picture',
-  templateUrl: './profile-picture.component.html',
-  styleUrls: ['./profile-picture.component.scss'],
+    selector: 'app-profile-picture',
+    templateUrl: './profile-picture.component.html',
+    styleUrls: ['./profile-picture.component.scss'],
+    standalone: false
 })
 export class ProfilePictureComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();

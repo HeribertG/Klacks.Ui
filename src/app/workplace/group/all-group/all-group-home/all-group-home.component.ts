@@ -4,9 +4,10 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-  selector: 'app-all-group-home',
-  templateUrl: './all-group-home.component.html',
-  styleUrls: ['./all-group-home.component.scss'],
+    selector: 'app-all-group-home',
+    templateUrl: './all-group-home.component.html',
+    styleUrls: ['./all-group-home.component.scss'],
+    standalone: false
 })
 export class AllGroupHomeComponent {
   @Input() isGroup: boolean = false;

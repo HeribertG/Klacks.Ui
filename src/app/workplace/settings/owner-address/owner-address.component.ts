@@ -11,9 +11,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
-  selector: 'app-owner-address',
-  templateUrl: './owner-address.component.html',
-  styleUrls: ['./owner-address.component.scss'],
+    selector: 'app-owner-address',
+    templateUrl: './owner-address.component.html',
+    styleUrls: ['./owner-address.component.scss'],
+    standalone: false
 })
 export class OwnerAddressComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();

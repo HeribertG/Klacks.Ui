@@ -53,9 +53,10 @@ import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
-  selector: 'app-absence-gantt-surface',
-  templateUrl: './absence-gantt-surface.component.html',
-  styleUrls: ['./absence-gantt-surface.component.scss'],
+    selector: 'app-absence-gantt-surface',
+    templateUrl: './absence-gantt-surface.component.html',
+    styleUrls: ['./absence-gantt-surface.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttSurfaceComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

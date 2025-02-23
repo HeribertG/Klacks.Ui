@@ -5,7 +5,8 @@ import { Rectangle } from '../../../grid/classes/geometry';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 
 @Directive({
-  selector: '[appAbsenceCalendar]',
+    selector: '[appAbsenceCalendar]',
+    standalone: false
 })
 export class AbsenceCalendarDirective {
   private keyDown = false;

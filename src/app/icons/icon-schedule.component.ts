@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'icon-schedule',
-  styleUrls: ['./buttons.scss'],
-  template: ` <svg
+    selector: 'icon-schedule',
+    styleUrls: ['./buttons.scss'],
+    template: ` <svg
     version="1"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 48 48"
@@ -48,6 +48,7 @@ import { Component, OnInit } from '@angular/core';
       <rect x="31" y="32" width="4" height="4" />
     </g>
   </svg>`,
+    standalone: false
 })
 export class IconScheduleComponent implements OnInit {
   constructor() {}

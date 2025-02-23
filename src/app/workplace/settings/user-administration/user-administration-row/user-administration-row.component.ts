@@ -2,9 +2,10 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IAuthentication } from 'src/app/core/authentification-class';
 
 @Component({
-  selector: 'app-user-administration-row',
-  templateUrl: './user-administration-row.component.html',
-  styleUrls: ['./user-administration-row.component.scss'],
+    selector: 'app-user-administration-row',
+    templateUrl: './user-administration-row.component.html',
+    styleUrls: ['./user-administration-row.component.scss'],
+    standalone: false
 })
 export class UserAdministrationRowComponent implements OnInit {
   @Input() user: IAuthentication | undefined;

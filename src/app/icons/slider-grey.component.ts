@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-slider-grey',
-  styleUrls: ['./buttons.scss'],
-  template: ` <svg
+    selector: 'icon-slider-grey',
+    styleUrls: ['./buttons.scss'],
+    template: ` <svg
     style="margin-top: -5px; margin-left: -4px; "
     version="1.2"
     xmlns="http://www.w3.org/2000/svg"
@@ -60,6 +60,7 @@ import { Component } from '@angular/core';
       vector-effect="non-scaling-stroke" />
     </g>
   </svg>`,
+    standalone: false
 })
 export class SliderGreyComponent {
   constructor() {}

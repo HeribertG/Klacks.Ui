@@ -18,9 +18,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-edit-group-nav',
-  templateUrl: './edit-group-nav.component.html',
-  styleUrls: ['./edit-group-nav.component.scss'],
+    selector: 'app-edit-group-nav',
+    templateUrl: './edit-group-nav.component.html',
+    styleUrls: ['./edit-group-nav.component.scss'],
+    standalone: false
 })
 export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:

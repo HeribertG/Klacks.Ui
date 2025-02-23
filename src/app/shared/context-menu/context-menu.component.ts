@@ -14,9 +14,10 @@ import { Timer } from 'src/app/helpers/timer';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-  selector: 'app-context-menu',
-  templateUrl: './context-menu.component.html',
-  styleUrls: ['./context-menu.component.scss'],
+    selector: 'app-context-menu',
+    templateUrl: './context-menu.component.html',
+    styleUrls: ['./context-menu.component.scss'],
+    standalone: false
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
   @ViewChild('main', { static: true }) main!: MenuComponent;

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-sign-out',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-sign-out',
+    styleUrls: ['./buttons.scss'],
+    template: `
   <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs></defs>
@@ -22,7 +22,8 @@ import { Component } from '@angular/core';
           id="Path-104" fill="var(--iconBlackColor)" fill-rule="nonzero"
           transform="translate(19.500000, 12.000000) rotate(-90.000000) translate(-19.500000, -12.000000) "></path>
       </g>
-    </svg>`
+    </svg>`,
+    standalone: false
 })
 export class IconSignOutComponent  {
 

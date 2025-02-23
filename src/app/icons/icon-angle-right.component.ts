@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-angle-right',
-  styleUrls: ['./buttons.scss'],
-  template: `
+    selector: 'app-icon-angle-right',
+    styleUrls: ['./buttons.scss'],
+    template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -30,6 +30,7 @@ import { Component, OnInit } from '@angular/core';
       </g>
     </svg>
   `,
+    standalone: false
 })
 export class IconAngleRightComponent implements OnInit {
   constructor() {}

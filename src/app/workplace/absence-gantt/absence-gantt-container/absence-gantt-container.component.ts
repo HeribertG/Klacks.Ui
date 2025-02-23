@@ -4,9 +4,10 @@ import { DataManagementBreakService } from 'src/app/data/management/data-managem
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-  selector: 'app-absence-gantt-container',
-  templateUrl: './absence-gantt-container.component.html',
-  styleUrls: ['./absence-gantt-container.component.scss'],
+    selector: 'app-absence-gantt-container',
+    templateUrl: './absence-gantt-container.component.html',
+    styleUrls: ['./absence-gantt-container.component.scss'],
+    standalone: false
 })
 export class AbsenceGanttContainerComponent implements OnInit {
   @Output() refreshEvent = new EventEmitter();

@@ -13,9 +13,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../services/settings.service';
 
 @Component({
-  selector: 'app-schedule-schedule-row-header',
-  templateUrl: './schedule-schedule-row-header.component.html',
-  styleUrls: ['./schedule-schedule-row-header.component.scss'],
+    selector: 'app-schedule-schedule-row-header',
+    templateUrl: './schedule-schedule-row-header.component.html',
+    styleUrls: ['./schedule-schedule-row-header.component.scss'],
+    standalone: false
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnDestroy

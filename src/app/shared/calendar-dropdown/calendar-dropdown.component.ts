@@ -15,9 +15,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-  selector: 'app-calendar-dropdown',
-  templateUrl: './calendar-dropdown.component.html',
-  styleUrls: ['./calendar-dropdown.component.scss'],
+    selector: 'app-calendar-dropdown',
+    templateUrl: './calendar-dropdown.component.html',
+    styleUrls: ['./calendar-dropdown.component.scss'],
+    standalone: false
 })
 export class CalendarDropdownComponent
   implements OnInit, AfterViewInit, OnDestroy

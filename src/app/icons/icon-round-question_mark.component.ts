@@ -16,7 +16,8 @@ import { Component } from '@angular/core';
     </g>
 </svg>
 `,
-    styles: ['']
+    styles: [''],
+    standalone: false
 })
 export class QuestionMarkRoundComponent {
 

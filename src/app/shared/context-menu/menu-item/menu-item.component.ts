@@ -12,9 +12,10 @@ import { ContextMenuService } from '../context-menu.service';
 import { Timer } from 'src/app/helpers/timer';
 
 @Component({
-  selector: 'app-menu-item',
-  templateUrl: './menu-item.component.html',
-  styleUrls: ['./menu-item.component.scss'],
+    selector: 'app-menu-item',
+    templateUrl: './menu-item.component.html',
+    styleUrls: ['./menu-item.component.scss'],
+    standalone: false
 })
 export class MenuItemComponent {
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;

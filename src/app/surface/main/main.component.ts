@@ -18,9 +18,10 @@ import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-
 import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 
 @Component({
-  selector: 'app-main',
-  templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss'],
+    selector: 'app-main',
+    templateUrl: './main.component.html',
+    styleUrls: ['./main.component.scss'],
+    standalone: false
 })
 export class MainComponent implements OnChanges {
   @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })

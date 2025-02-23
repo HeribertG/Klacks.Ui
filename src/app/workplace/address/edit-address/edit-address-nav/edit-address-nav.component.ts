@@ -6,9 +6,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-  selector: 'app-edit-address-nav',
-  templateUrl: './edit-address-nav.component.html',
-  styleUrls: ['./edit-address-nav.component.scss'],
+    selector: 'app-edit-address-nav',
+    templateUrl: './edit-address-nav.component.html',
+    styleUrls: ['./edit-address-nav.component.scss'],
+    standalone: false
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
   public validFrom = MessageLibrary.VALID_FROM;
