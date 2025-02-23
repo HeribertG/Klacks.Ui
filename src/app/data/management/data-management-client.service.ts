@@ -61,7 +61,7 @@ export class DataManagementClientService {
   public lastChangeListWrapper: ITruncatedClient | undefined;
   public editClient: IClient | undefined;
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
-  public headerCheckBoxValue: boolean = false;
+  public headerCheckBoxValue = false;
   public maxItems = 0;
   public firstItem = 0;
   public maxPages = 0;
@@ -239,7 +239,7 @@ export class DataManagementClientService {
 
   /* #region   list client */
 
-  readPage(isSecondRead: boolean = false) {
+  readPage(isSecondRead = false) {
     if (!isSecondRead) {
       this.startToReadPage.set(true);
     }
@@ -299,7 +299,7 @@ export class DataManagementClientService {
     return false;
   }
 
-  exportExcel(type: number = 0) {
+  exportExcel(type = 0) {
     const filter = new ExportClient();
     filter.filter = this.currentFilter;
     filter.selectAll = !this.checkBoxIndeterminate();
@@ -326,7 +326,7 @@ export class DataManagementClientService {
   /* #region   last Change client */
 
   readChangeList(
-    isSecondRead: boolean = false,
+    isSecondRead = false,
     locale: string = MessageLibrary.DEFAULT_LANG
   ) {
     this.dataClientService
@@ -744,7 +744,7 @@ export class DataManagementClientService {
     this.currentAddressIndex = -1;
     try {
       this.currentAddressIndex = this.setCurrentAddressIndex();
-    } catch (e) {
+    } catch {
       isError = true;
       this.currentAddressIndex = 0;
     }
