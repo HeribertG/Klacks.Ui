@@ -6,7 +6,7 @@ export const SCROLLBAR_CONSTANTS = {
 
   MARGINS: {
     SCROLL: 20,
-    THUMB: 3,
+    THUMB: 4,
     MINIMUM_LENGTH: 14,
   },
 } as const;

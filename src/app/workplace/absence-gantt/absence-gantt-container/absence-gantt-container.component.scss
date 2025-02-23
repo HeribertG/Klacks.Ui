@@ -66,3 +66,17 @@ $v-scrollbar_width: var(--v-scrollbar_width);
     }
   }
 }
+
+.as-split-area {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE */
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  /* WebKit */
+  width: 0;
+  height: 0;
+  display: none;
+}

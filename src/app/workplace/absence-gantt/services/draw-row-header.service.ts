@@ -59,33 +59,11 @@ export class DrawRowHeaderService {
 
   @CanvasAvailable()
   moveRow(directionY: number): void {
-    console.log('moveRow', directionY);
-
     const visibleRow = Math.ceil(
       this.rowHeaderCanvasManager.height / this.calendarSetting.cellHeight
     );
 
-    const diff = this.scroll.verticalScrollDelta;
-
-    if (diff) {
-      this.zone.runOutsideAngular(() => {
-        try {
-          this.isBusy = true;
-
-          const moveCondition =
-            (directionY > 0 && diff * -1 < visibleRow / 2) ||
-            (directionY < 0 && diff < visibleRow / 2);
-
-          if (moveCondition) {
-            this.renderRowHeaderService.moveGrid(directionY);
-          } else {
-            this.renderRowHeader();
-          }
-        } finally {
-          this.isBusy = false;
-        }
-      });
-    }
+    this.renderRowHeader();
     this.drawCalendar();
   }
 

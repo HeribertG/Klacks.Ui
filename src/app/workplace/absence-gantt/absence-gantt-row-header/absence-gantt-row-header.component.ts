@@ -90,9 +90,9 @@ export class AbsenceGanttRowHeaderComponent
       const currentValue = changes['valueChangeVScrollbar'].currentValue;
       const previousValue = changes['valueChangeVScrollbar'].previousValue;
       const diff = currentValue - previousValue;
-      console.log('ngOnChanges', currentValue, previousValue, diff);
+
       if (diff) {
-        setTimeout(() => this.drawRowHeader.moveRow(diff), 100);
+        setTimeout(() => this.drawRowHeader.moveRow(diff), 50);
       }
     }
   }

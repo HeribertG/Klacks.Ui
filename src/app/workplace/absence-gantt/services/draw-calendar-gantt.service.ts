@@ -65,22 +65,11 @@ export class DrawCalendarGanttService {
         this.isBusy = true;
         // horizontale Verschiebung
         if (dirX !== 0) {
-          this.drawCalendar();
+          //this.drawCalendar();
         }
         // vertikale Verschiebung
         if (directionY !== 0) {
-          const diffY = this.scroll.verticalScrollDelta;
-          const moveCondition =
-            (directionY > 0 && diffY * -1 < visibleRow / 2) ||
-            (directionY < 0 && diffY < visibleRow / 2);
-
-          if (moveCondition) {
-            this.renderCalendarGrid.moveGridVertical(directionY);
-            return;
-          } else {
-            this.renderCalendarGrid.renderCalendar();
-            return;
-          }
+          this.renderCalendarGrid.renderCalendar();
         }
       } finally {
         this.isBusy = false;

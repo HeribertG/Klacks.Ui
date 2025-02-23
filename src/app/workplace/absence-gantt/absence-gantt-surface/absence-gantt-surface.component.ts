@@ -169,6 +169,7 @@ export class AbsenceGanttSurfaceComponent
     }
     if (changes['valueChangeVScrollbar']) {
       this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+
       this.drawCalendarGantt.moveCalendar(
         this.valueChangeHScrollbar,
         this.valueChangeVScrollbar

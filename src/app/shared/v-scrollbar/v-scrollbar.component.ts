@@ -553,11 +553,6 @@ export class VScrollbarComponent
   private updateScrollValue(steps: number): void {
     const IS_TOP = -1;
     const newValue = this.value + steps * this.moveAnimationValue;
-    console.log(
-      'updateScrollValue',
-      newValue,
-      this.maxValue - this.visibleValue
-    );
 
     const realMax =
       this.maxValue -
@@ -572,7 +567,6 @@ export class VScrollbarComponent
     }
 
     this.updateValue(newValue);
-    console.log('updateScrollValue2', this.value);
   }
 
   private emitValueChange(): void {
@@ -628,7 +622,6 @@ export class VScrollbarComponent
   }
 
   private updateValue(newValue: number) {
-    console.log('updateValue', newValue);
     newValue = this.clampValue(newValue);
     if (newValue !== this.value) {
       this.value = newValue;

@@ -119,13 +119,6 @@ export class RenderRowHeaderService {
   public moveGrid(directionY: number): void {
     const lineAdjustmentMinus = -1;
     const lineAdjustmentPlus = 1;
-
-    console.log(
-      'moveIt',
-      this.scroll.visibleRows,
-      this.scroll.verticalScrollDelta,
-      this.scroll.verticalScrollPosition
-    );
     const visibleRow = this.scroll.visibleRows;
     const diff = this.scroll.verticalScrollDelta;
 

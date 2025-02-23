@@ -11,7 +11,7 @@ export class ResizeService {
 
   observe(element: HTMLElement): Observable<void> {
     return new Observable((observer) => {
-      const resizeObserver = new ResizeObserver((entries) => {
+      const resizeObserver = new ResizeObserver(() => {
         this.ngZone.run(() => {
           this.resizeSubject.next();
           observer.next();
