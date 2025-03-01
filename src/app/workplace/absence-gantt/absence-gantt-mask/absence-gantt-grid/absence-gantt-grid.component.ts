@@ -20,10 +20,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-absence-gantt-grid',
-    templateUrl: './absence-gantt-grid.component.html',
-    styleUrls: ['./absence-gantt-grid.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-grid',
+  templateUrl: './absence-gantt-grid.component.html',
+  styleUrls: ['./absence-gantt-grid.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -201,14 +201,11 @@ export class AbsenceGanttGridComponent
   /* #endregion   header */
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementAbsence.isReset();
-        if (isReset) {
-          this.absence = this.dataManagementAbsence.absenceList;
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementAbsence.isReset();
+      if (isReset) {
+        this.absence = this.dataManagementAbsence.absenceList;
+      }
+    });
   }
 }

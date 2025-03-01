@@ -33,10 +33,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
 @Component({
-    selector: 'app-all-group-list',
-    templateUrl: './all-group-list.component.html',
-    styleUrls: ['./all-group-list.component.scss'],
-    standalone: false
+  selector: 'app-all-group-list',
+  templateUrl: './all-group-list.component.html',
+  styleUrls: ['./all-group-list.component.scss'],
+  standalone: false,
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myGridTable', { static: true }) myGridTable:
@@ -94,20 +94,17 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     private localStorageService: LocalStorageService,
     private modalService: ModalService
   ) {
-    effect(
-      () => {
-        const isRead = this.dataManagementGroupService.isRead();
-        if (isRead) {
-          if (this.isFirstRead) {
-            setTimeout(() => this.recalcHeight(), 100);
-            this.isFirstRead = false;
-            return;
-          }
-          this.isMeasureTable = true;
+    effect(() => {
+      const isRead = this.dataManagementGroupService.isRead();
+      if (isRead) {
+        if (this.isFirstRead) {
+          setTimeout(() => this.recalcHeight(), 100);
+          this.isFirstRead = false;
+          return;
         }
-      },
-      { allowSignalWrites: true }
-    );
+        this.isMeasureTable = true;
+      }
+    });
   }
 
   ngOnInit(): void {

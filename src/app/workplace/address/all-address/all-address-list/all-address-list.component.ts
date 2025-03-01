@@ -37,10 +37,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
-    selector: 'app-all-address-list',
-    templateUrl: './all-address-list.component.html',
-    styleUrls: ['./all-address-list.component.scss'],
-    standalone: false
+  selector: 'app-all-address-list',
+  templateUrl: './all-address-list.component.html',
+  styleUrls: ['./all-address-list.component.scss'],
+  standalone: false,
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -595,23 +595,20 @@ export class AllAddressListComponent
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        if (this.dataManagementClientService.isRead()) {
-          if (this.isFirstRead) {
-            setTimeout(() => this.recalcHeight(), 100);
-            this.isFirstRead = false;
-          } else {
-            this.isMeasureTable = true;
-          }
+    effect(() => {
+      if (this.dataManagementClientService.isRead()) {
+        if (this.isFirstRead) {
+          setTimeout(() => this.recalcHeight(), 100);
+          this.isFirstRead = false;
+        } else {
+          this.isMeasureTable = true;
         }
+      }
 
-        const initIsRead = this.dataManagementClientService.initIsRead();
-        if (initIsRead) {
-          this.isInit();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+      const initIsRead = this.dataManagementClientService.initIsRead();
+      if (initIsRead) {
+        this.isInit();
+      }
+    });
   }
 }

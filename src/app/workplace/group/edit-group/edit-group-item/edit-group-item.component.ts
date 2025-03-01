@@ -21,10 +21,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-edit-group-item',
-    templateUrl: './edit-group-item.component.html',
-    styleUrls: ['./edit-group-item.component.scss'],
-    standalone: false
+  selector: 'app-edit-group-item',
+  templateUrl: './edit-group-item.component.html',
+  styleUrls: ['./edit-group-item.component.scss'],
+  standalone: false,
 })
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -79,14 +79,11 @@ export class EditGroupItemComponent
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementGroupService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementGroupService.isReset();
+      if (isReset) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 }

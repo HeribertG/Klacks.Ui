@@ -53,10 +53,10 @@ import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
-    selector: 'app-absence-gantt-surface',
-    templateUrl: './absence-gantt-surface.component.html',
-    styleUrls: ['./absence-gantt-surface.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-surface',
+  templateUrl: './absence-gantt-surface.component.html',
+  styleUrls: ['./absence-gantt-surface.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttSurfaceComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -943,57 +943,43 @@ export class AbsenceGanttSurfaceComponent
       }
     });
 
-    effect(
-      () => {
-        if (this.holidayCollection.isReset()) {
-          this.drawCalendarGantt.selectedRow = -1;
+    effect(() => {
+      if (this.holidayCollection.isReset()) {
+        this.drawCalendarGantt.selectedRow = -1;
 
-          this.firstDayDate = new Date(
-            this.holidayCollection.currentYear,
-            0,
-            1
-          );
-          this.drawCalendarGantt.resetAll();
-          this.dataManagementBreak.readYear();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+        this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
+        this.drawCalendarGantt.resetAll();
+        this.dataManagementBreak.readYear();
+      }
+    });
 
     //Zeichnet die selektierte Zeile neu
-    effect(
-      () => {
-        const isUpdate = this.dataManagementBreak.isUpdate();
-        if (isUpdate) {
-          this.drawCalendarGantt.selectedBreakIndex =
-            this.dataManagementBreak.indexOfBreak(isUpdate);
-          this.drawCalendarGantt.unDrawSelectionRow();
-          if (this.drawCalendarGantt.isSelectedRowVisible()) {
-            this.drawCalendarGantt.drawSelectionRow();
-          }
-          this.drawCalendarGantt.drawSelectedBreak();
-          this.drawCalendarGantt.drawRow(
-            this.drawCalendarGantt.selectedRow,
-            this.drawCalendarGantt.selectedBreak
-          );
-          this.cd.detectChanges();
+    effect(() => {
+      const isUpdate = this.dataManagementBreak.isUpdate();
+      if (isUpdate) {
+        this.drawCalendarGantt.selectedBreakIndex =
+          this.dataManagementBreak.indexOfBreak(isUpdate);
+        this.drawCalendarGantt.unDrawSelectionRow();
+        if (this.drawCalendarGantt.isSelectedRowVisible()) {
+          this.drawCalendarGantt.drawSelectionRow();
         }
-      },
-      { allowSignalWrites: true }
-    );
+        this.drawCalendarGantt.drawSelectedBreak();
+        this.drawCalendarGantt.drawRow(
+          this.drawCalendarGantt.selectedRow,
+          this.drawCalendarGantt.selectedBreak
+        );
+        this.cd.detectChanges();
+      }
+    });
 
-    effect(
-      () => {
-        this.isAbsenceHeaderInit =
-          this.dataManagementBreak.isAbsenceHeaderInit();
-        if (this.isAbsenceHeaderInit) {
-          this.drawCalendarGantt.selectedRow = -1;
-          this.dataManagementBreak.canReadBreaks = true;
-          this.dataManagementBreak.readYear();
-          this.cd.detectChanges();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      this.isAbsenceHeaderInit = this.dataManagementBreak.isAbsenceHeaderInit();
+      if (this.isAbsenceHeaderInit) {
+        this.drawCalendarGantt.selectedRow = -1;
+        this.dataManagementBreak.canReadBreaks = true;
+        this.dataManagementBreak.readYear();
+        this.cd.detectChanges();
+      }
+    });
   }
 }

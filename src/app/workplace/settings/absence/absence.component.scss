@@ -3,8 +3,8 @@
 @use "../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../assets/standard-styles/pagination.scss";
-// @use "../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../assets/standard-styles/navigation.scss";
+@use "../../../../assets/standard-styles/colors.scss" as colors;
 
 .first {
   padding-top: 10px;

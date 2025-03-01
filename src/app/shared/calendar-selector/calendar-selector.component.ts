@@ -39,10 +39,10 @@ enum ActionType {
 }
 
 @Component({
-    selector: 'app-calendar-selector',
-    templateUrl: './calendar-selector.component.html',
-    styleUrls: ['./calendar-selector.component.scss'],
-    standalone: false
+  selector: 'app-calendar-selector',
+  templateUrl: './calendar-selector.component.html',
+  styleUrls: ['./calendar-selector.component.scss'],
+  standalone: false,
 })
 export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   @Output() openMenu = new EventEmitter();
@@ -72,53 +72,40 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
     private localStorageService: LocalStorageService,
     private modalService: ModalService
   ) {
-    effect(
-      () => {
-        const isRead = this.dataManagementCalendarRulesService.isRead();
-        if (isRead) {
-          this.onChangeSelection();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isRead = this.dataManagementCalendarRulesService.isRead();
+      if (isRead) {
+        this.onChangeSelection();
+      }
+    });
 
-    effect(
-      () => {
-        const isNew = this.dataManagementCalendarSelectionService.isNew();
-        if (isNew) {
-          this.addButtonEnabled = false;
-          this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
-            isNew
-          );
-          this.setCurrentSelector();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isNew = this.dataManagementCalendarSelectionService.isNew();
+      if (isNew) {
+        this.addButtonEnabled = false;
+        this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
+          isNew
+        );
+        this.setCurrentSelector();
+      }
+    });
 
-    effect(
-      () => {
-        const isChanged =
-          this.dataManagementCalendarSelectionService.isChanged();
-        if (isChanged) {
-          this.addButtonEnabled = true;
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isChanged = this.dataManagementCalendarSelectionService.isChanged();
+      if (isChanged) {
+        this.addButtonEnabled = true;
+      }
+    });
 
-    effect(
-      () => {
-        const isRead = this.dataManagementCalendarSelectionService.isRead();
-        if (isRead) {
-          this.addButtonEnabled = false;
-          this.dataManagementCalendarSelectionService.readSChips();
-          this.setCurrentSelector();
-          this.change.emit();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isRead = this.dataManagementCalendarSelectionService.isRead();
+      if (isRead) {
+        this.addButtonEnabled = false;
+        this.dataManagementCalendarSelectionService.readSChips();
+        this.setCurrentSelector();
+        this.change.emit();
+      }
+    });
   }
 
   ngOnInit(): void {

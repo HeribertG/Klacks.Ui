@@ -6,6 +6,8 @@ import {
   ViewContainerRef,
   ViewChild,
   OnChanges,
+  inject,
+  EnvironmentInjector,
 } from '@angular/core';
 import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
 import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
@@ -18,25 +20,27 @@ import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-
 import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 
 @Component({
-    selector: 'app-main',
-    templateUrl: './main.component.html',
-    styleUrls: ['./main.component.scss'],
-    standalone: false
+  selector: 'app-main',
+  templateUrl: './main.component.html',
+  styleUrls: ['./main.component.scss'],
+  standalone: false,
 })
 export class MainComponent implements OnChanges {
   @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })
   viewContainer!: ViewContainerRef;
 
-  @Input() isDashboard: boolean = false;
-  @Input() isProfile: boolean = false;
-  @Input() isClient: boolean = false;
-  @Input() isEditClient: boolean = false;
-  @Input() isSetting: boolean = false;
-  @Input() isAbsence: boolean = false;
-  @Input() isSchedule: boolean = false;
-  @Input() isGroup: boolean = false;
-  @Input() isEditGroup: boolean = false;
-  @Input() isCreateShift: boolean = false;
+  private environmentInjector = inject(EnvironmentInjector);
+
+  @Input() isDashboard = false;
+  @Input() isProfile = false;
+  @Input() isClient = false;
+  @Input() isEditClient = false;
+  @Input() isSetting = false;
+  @Input() isAbsence = false;
+  @Input() isSchedule = false;
+  @Input() isGroup = false;
+  @Input() isEditGroup = false;
+  @Input() isCreateShift = false;
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
@@ -51,7 +55,7 @@ export class MainComponent implements OnChanges {
   compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
   compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
 
-  ngOnChanges(changes: any): void {
+  ngOnChanges(): void {
     if (this.isSetting && !this.compInstanceSettingHome) {
       import(
         '../../workplace/settings/settings-home/settings-home.component'
@@ -69,14 +73,16 @@ export class MainComponent implements OnChanges {
         });
       });
     }
+
     if (this.isProfile && !this.compInstanceProfileHome) {
       import(
         '../../workplace/profile/profile-home/profile-home.component'
       ).then((m) => {
         const comp = m.ProfileHomeComponent;
 
-        const compRef =
-          this.viewContainer.createComponent<ProfileHomeComponent>(comp);
+        const compRef = this.viewContainer.createComponent(comp, {
+          environmentInjector: this.environmentInjector,
+        });
 
         this.compInstanceProfileHome = compRef.instance;
         this.compInstanceProfileHome.isProfile = this.isProfile;

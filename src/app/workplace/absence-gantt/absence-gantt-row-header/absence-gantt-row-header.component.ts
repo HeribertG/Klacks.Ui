@@ -24,10 +24,10 @@ import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
-    selector: 'app-absence-gantt-row-header',
-    templateUrl: './absence-gantt-row-header.component.html',
-    styleUrls: ['./absence-gantt-row-header.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-row-header',
+  templateUrl: './absence-gantt-row-header.component.html',
+  styleUrls: ['./absence-gantt-row-header.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -233,42 +233,33 @@ export class AbsenceGanttRowHeaderComponent
   /* #endregion Filter */
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isRead = this.dataManagementBreak.isRead();
-        if (isRead) {
-          if (!this.drawRowHeader.isCanvasAvailable()) {
-            return;
-          }
-
-          this.drawRowHeader.createRuler();
-          this.drawRowHeader.renderRowHeader();
-          this.drawRowHeader.drawCalendar();
+    effect(() => {
+      const isRead = this.dataManagementBreak.isRead();
+      if (isRead) {
+        if (!this.drawRowHeader.isCanvasAvailable()) {
+          return;
         }
-      },
-      { allowSignalWrites: true }
-    );
 
-    effect(
-      () => {
-        const isReset = this.gridColorService.isReset();
-        if (isReset) {
-          this.onResize([]);
-          this.gridColorService.isReset.set(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+        this.drawRowHeader.createRuler();
+        this.drawRowHeader.renderRowHeader();
+        this.drawRowHeader.drawCalendar();
+      }
+    });
 
-    effect(
-      () => {
-        const isReset = this.gridFontsService.isReset();
-        if (isReset) {
-          this.onResize([]);
-          this.gridColorService.isReset.set(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.gridColorService.isReset();
+      if (isReset) {
+        this.onResize([]);
+        this.gridColorService.isReset.set(false);
+      }
+    });
+
+    effect(() => {
+      const isReset = this.gridFontsService.isReset();
+      if (isReset) {
+        this.onResize([]);
+        this.gridColorService.isReset.set(false);
+      }
+    });
   }
 }

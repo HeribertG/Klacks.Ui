@@ -155,56 +155,43 @@ export class DataManagementSwitchboardService {
   refresh(): void {}
 
   private readSignals(): void {
-    effect(
-      () => {
-        const showSpinner =
-          this.dataManagementClientService.showProgressSpinner();
-        if (showSpinner) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const showSpinner =
+        this.dataManagementClientService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
 
-    effect(
-      () => {
-        const showSpinner =
-          this.dataManagementGroupService.showProgressSpinner();
-        if (showSpinner) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const showSpinner = this.dataManagementGroupService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
 
-    effect(
-      () => {
-        const showSpinner =
-          this.dataManagementAbsenceService.showProgressSpinner();
-        if (showSpinner) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const showSpinner =
+        this.dataManagementAbsenceService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
 
-    effect(
-      () => {
-        const showSpinner =
-          this.dataManagementScheduleService.showProgressSpinner();
-        if (showSpinner) {
-          this.showProgressSpinner(true);
-        } else if (!showSpinner) {
-          this.showProgressSpinner(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const showSpinner =
+        this.dataManagementScheduleService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
   }
 }

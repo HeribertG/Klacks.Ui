@@ -11,10 +11,10 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-search',
-    templateUrl: './search.component.html',
-    styleUrls: ['./search.component.scss'],
-    standalone: false
+  selector: 'app-search',
+  templateUrl: './search.component.html',
+  styleUrls: ['./search.component.scss'],
+  standalone: false,
 })
 export class SearchComponent {
   @HostListener('search', ['$event'])
@@ -72,27 +72,21 @@ export class SearchComponent {
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const restored = this.dataManagementSearch.restoreSearch();
-        if (restored) {
-          this.searchString = restored;
-          this.cdr.detectChanges();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const restored = this.dataManagementSearch.restoreSearch();
+      if (restored) {
+        this.searchString = restored;
+        this.cdr.detectChanges();
+      }
+    });
 
-    effect(
-      () => {
-        const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
+    effect(() => {
+      const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
 
-        if (focusChanged) {
-          this.handleFocusChange();
-          this.dataManagementSwitchboard.isFocusChanged.set(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+      if (focusChanged) {
+        this.handleFocusChange();
+        this.dataManagementSwitchboard.isFocusChanged.set(false);
+      }
+    });
   }
 }

@@ -11,10 +11,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
-    selector: 'app-email-setting',
-    templateUrl: './email-setting.component.html',
-    styleUrls: ['./email-setting.component.scss'],
-    standalone: false
+  selector: 'app-email-setting',
+  templateUrl: './email-setting.component.html',
+  styleUrls: ['./email-setting.component.scss'],
+  standalone: false,
 })
 export class EmailSettingComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
@@ -51,14 +51,11 @@ export class EmailSettingComponent implements OnInit {
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementSettingsService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementSettingsService.isReset();
+      if (isReset) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 }

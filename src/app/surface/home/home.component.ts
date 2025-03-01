@@ -10,7 +10,6 @@ import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import {
-  countItemInStack,
   deleteStack,
   popFromStack,
   pushOnStack,
@@ -18,15 +17,14 @@ import {
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { AppSetting, ISetting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   constructor(
@@ -233,9 +231,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'profile':
-        import('../../workplace/profile/profile.module').then(
-          (m) => m.ProfileModule
-        );
         this.setContainerWithNormal();
         this.isProfile = true;
         this.isSavebarVisible = true;
@@ -303,6 +298,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   open(content: any): Promise<boolean> | void {}
 
   setContainerWithNormal() {

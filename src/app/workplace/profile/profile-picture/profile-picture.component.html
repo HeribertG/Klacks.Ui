@@ -1,15 +1,18 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <div class="container-dashboard">
   <div class="container-header">
-    {{ "setting.picture.header" | translate }}
+    {{ translate.instant("setting.picture.header") }}
   </div>
 
   <div class="container-line"></div>
 
   <div class="row" *ngIf="!dataLoadFileService.profileImage">
-    <label>{{ "setting.picture.upload" | translate }} </label>
+    <label>{{ translate.instant("setting.picture.upload") }} </label>
   </div>
   <div class="row" *ngIf="dataLoadFileService.profileImage">
-    <label>{{ "setting.picture.picture" | translate }} </label>
+    <label>{{ translate.instant("setting.picture.picture") }} </label>
   </div>
   <div class="row">
     <div class="image-container" *ngIf="dataLoadFileService.profileImage">
@@ -23,7 +26,9 @@
         (click)="fileField.click()"
         (fileDropped)="onUpload($event)"
       >
-        <span class="ddinfo">{{ "setting.picture.info" | translate }} </span>
+        <span class="ddinfo"
+          >{{ translate.instant("setting.picture.info") }}
+        </span>
         <input
           type="file"
           name="avatars"
@@ -41,7 +46,7 @@
       class="delete-button firstColumn"
       type="button"
       (click)="onDeleteImg()"
-      >{{ "setting.picture.delete" | translate }}
+      >{{ translate.instant("setting.picture.delete") }}
     </span>
   </div>
 </div>

@@ -1143,15 +1143,12 @@ export class DataManagementSettingsService {
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.gridColorService.isReset();
-        if (isReset) {
-          this.isReset.set(true);
-          this.gridColorService.isReset.set(false);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.gridColorService.isReset();
+      if (isReset) {
+        this.isReset.set(true);
+        this.gridColorService.isReset.set(false);
+      }
+    });
   }
 }

@@ -28,10 +28,10 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-address-persona',
-    templateUrl: './address-persona.component.html',
-    styleUrls: ['./address-persona.component.scss'],
-    standalone: false
+  selector: 'app-address-persona',
+  templateUrl: './address-persona.component.html',
+  styleUrls: ['./address-persona.component.scss'],
+  standalone: false,
 })
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -488,14 +488,11 @@ export class AddressPersonaComponent
         this.dataManagementClientService.isRead.set(false);
       }
     });
-    effect(
-      () => {
-        const isReset = this.dataManagementClientService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementClientService.isReset();
+      if (isReset) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 }

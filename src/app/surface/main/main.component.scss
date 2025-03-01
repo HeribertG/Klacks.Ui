@@ -1,5 +1,7 @@
 .container-main {
   display: flex;
   box-sizing: content-box;
-  overflow: hidden;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
 }

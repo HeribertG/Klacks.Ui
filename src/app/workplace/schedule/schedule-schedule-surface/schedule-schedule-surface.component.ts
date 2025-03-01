@@ -25,11 +25,11 @@ import { DataManagementScheduleService } from 'src/app/data/management/data-mana
 import { SettingsService } from '../services/settings.service';
 
 @Component({
-    selector: 'app-schedule-schedule-surface',
-    templateUrl: './schedule-schedule-surface.component.html',
-    styleUrls: ['./schedule-schedule-surface.component.scss'],
-    providers: [DrawScheduleService],
-    standalone: false
+  selector: 'app-schedule-schedule-surface',
+  templateUrl: './schedule-schedule-surface.component.html',
+  styleUrls: ['./schedule-schedule-surface.component.scss'],
+  providers: [DrawScheduleService],
+  standalone: false,
 })
 export class ScheduleScheduleSurfaceComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -318,13 +318,10 @@ export class ScheduleScheduleSurfaceComponent
   /* #endregion context menu */
 
   private readSignals(): void {
-    effect(
-      () => {
-        if (this.dataManagementSchedule.isRead()) {
-          this.dataService.setMetrics();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      if (this.dataManagementSchedule.isRead()) {
+        this.dataService.setMetrics();
+      }
+    });
   }
 }

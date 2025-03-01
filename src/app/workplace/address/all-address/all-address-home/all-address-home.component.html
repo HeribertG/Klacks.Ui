@@ -1,18 +1,20 @@
 <ng-container *ngIf="isClient">
   <div class="container-dashboard">
-
     <div class="container-headline">
-      {{'address.all-address.all-address-home.header'| translate}}
+      {{ "address.all-address.all-address-home.header" | translate }}
     </div>
-
 
     <div class="container-profilline">
-      <app-all-address-list class="container-profile first border-right-card border-bottom-card">
+      <app-all-address-list
+        class="container-profile first border-right-card border-bottom-card"
+      >
       </app-all-address-list>
-
     </div>
 
-    <div id="address-nav" class="container-address-nav border-right-card border-bottom-card">
+    <div
+      id="address-nav"
+      class="container-address-nav border-right-card border-bottom-card"
+    >
       <app-all-address-nav></app-all-address-nav>
     </div>
 

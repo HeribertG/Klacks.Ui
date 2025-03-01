@@ -1,14 +1,11 @@
 import {
-  AfterViewInit,
   Component,
   EventEmitter,
-  OnDestroy,
   OnInit,
   Output,
   ViewChild,
   effect,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import {
@@ -17,11 +14,32 @@ import {
 } from 'src/app/helpers/password';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+import { TranslateModule } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 @Component({
-    selector: 'app-profile-data-edit',
-    templateUrl: './profile-data-edit.component.html',
-    styleUrls: ['./profile-data-edit.component.scss'],
-    standalone: false
+  selector: 'app-profile-data-edit',
+  templateUrl: './profile-data-edit.component.html',
+  styleUrls: ['./profile-data-edit.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+    SpinnerModule,
+    TranslateModule,
+    FontAwesomeModule,
+  ],
 })
 export class ProfileDataEditComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
@@ -112,14 +130,11 @@ export class ProfileDataEditComponent implements OnInit {
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementProfileService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementProfileService.isReset();
+      if (isReset) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 }

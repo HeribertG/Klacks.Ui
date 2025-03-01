@@ -11,10 +11,10 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
-    selector: 'app-owner-address',
-    templateUrl: './owner-address.component.html',
-    styleUrls: ['./owner-address.component.scss'],
-    standalone: false
+  selector: 'app-owner-address',
+  templateUrl: './owner-address.component.html',
+  styleUrls: ['./owner-address.component.scss'],
+  standalone: false,
 })
 export class OwnerAddressComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
@@ -50,14 +50,11 @@ export class OwnerAddressComponent implements OnInit {
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementSettingsService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementSettingsService.isReset();
+      if (isReset) {
+        setTimeout(() => this.isChangingEvent.emit(false), 100);
+      }
+    });
   }
 }

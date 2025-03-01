@@ -30,10 +30,10 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 
 @Component({
-    selector: 'app-calendar-rules',
-    templateUrl: './calendar-rules.component.html',
-    styleUrls: ['./calendar-rules.component.scss'],
-    standalone: false
+  selector: 'app-calendar-rules',
+  templateUrl: './calendar-rules.component.html',
+  styleUrls: ['./calendar-rules.component.scss'],
+  standalone: false,
 })
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -94,15 +94,12 @@ export class CalendarRulesComponent
     private translateService: TranslateService,
     private modalService: ModalService
   ) {
-    effect(
-      () => {
-        const isRead = this.dataManagementCalendarRulesService.isRead();
-        if (isRead) {
-          this.readPage();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isRead = this.dataManagementCalendarRulesService.isRead();
+      if (isRead) {
+        this.readPage();
+      }
+    });
   }
 
   ngOnInit(): void {

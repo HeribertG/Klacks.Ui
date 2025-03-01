@@ -4,11 +4,32 @@ import { getFileExtension } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+import { RouterModule } from '@angular/router';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 @Component({
-    selector: 'app-profile-picture',
-    templateUrl: './profile-picture.component.html',
-    styleUrls: ['./profile-picture.component.scss'],
-    standalone: false
+  selector: 'app-profile-picture',
+  templateUrl: './profile-picture.component.html',
+  styleUrls: ['./profile-picture.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+    SpinnerModule,
+    TranslateModule,
+    FontAwesomeModule,
+  ],
 })
 export class ProfilePictureComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
@@ -18,6 +39,7 @@ export class ProfilePictureComponent implements OnInit {
   profileImage: any;
 
   constructor(
+    public translate: TranslateService,
     public dataLoadFileService: DataLoadFileService,
     private localStorageService: LocalStorageService
   ) {}

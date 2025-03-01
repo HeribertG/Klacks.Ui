@@ -18,10 +18,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-absence-gantt-absence-list',
-    templateUrl: './absence-gantt-absence-list.component.html',
-    styleUrls: ['./absence-gantt-absence-list.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-absence-list',
+  templateUrl: './absence-gantt-absence-list.component.html',
+  styleUrls: ['./absence-gantt-absence-list.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttAbsenceListComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -150,14 +150,11 @@ export class AbsenceGanttAbsenceListComponent
   }
 
   private readSignals(): void {
-    effect(
-      () => {
-        const isReset = this.dataManagementAbsence.isReset();
-        if (isReset) {
-          this.fillImageMap();
-        }
-      },
-      { allowSignalWrites: true }
-    );
+    effect(() => {
+      const isReset = this.dataManagementAbsence.isReset();
+      if (isReset) {
+        this.fillImageMap();
+      }
+    });
   }
 }

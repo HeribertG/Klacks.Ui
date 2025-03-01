@@ -12,13 +12,13 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
-    selector: 'app-settings-home',
-    templateUrl: './settings-home.component.html',
-    styleUrls: ['./settings-home.component.scss'],
-    standalone: false
+  selector: 'app-settings-home',
+  templateUrl: './settings-home.component.html',
+  styleUrls: ['./settings-home.component.scss'],
+  standalone: false,
 })
 export class SettingsHomeComponent implements OnInit {
-  @Input() isSetting: boolean | undefined;
+  @Input() isSetting: boolean = false;
   @Output() isChangingEvent = new EventEmitter();
   constructor(
     @Inject(DataManagementSwitchboardService)
