@@ -19,12 +19,15 @@
         />
         <div class="slider round"></div>
       </label>
-      <em>{{ "setting.profile-custom.dark-mode" | translate }}</em>
+      <em>{{ translate.instant("setting.profile-custom.dark-mode") }}</em>
     </div>
 
     <div class="language-select">
-      <label>{{ "header.selected-language" | translate }}</label>
+      <label for="selectedLanguage">
+        {{ translate.instant("header.selected-language") }}</label
+      >
       <select
+        id="selectedLanguage"
         [ngModel]="selectedLanguage"
         (ngModelChange)="onChange(); selectedLanguage = $event"
       >

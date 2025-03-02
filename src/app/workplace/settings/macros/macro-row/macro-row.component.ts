@@ -1,56 +1,74 @@
 import {
   Component,
-  OnInit,
-  Input,
-  Output,
   EventEmitter,
-  NgZone,
+  Input,
   OnChanges,
-  ViewChild,
   OnDestroy,
+  OnInit,
+  Output,
+  ViewChild,
+  inject,
 } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
+import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { IMacro, Macro } from 'src/app/core/macro-class';
+import { MultiLanguage } from 'src/app/core/multi-language-class';
+import { Subscription } from 'rxjs';
+
+// Codemirror imports
 import 'codemirror/mode/vbscript/vbscript';
 import 'codemirror/mode/css/css';
 import 'codemirror/mode/javascript/javascript';
-import { NgForm } from '@angular/forms';
-import { IMacro, Macro } from 'src/app/core/macro-class';
-import { MultiLanguage } from 'src/app/core/multi-language-class';
 
 @Component({
-    selector: 'app-macro-row',
-    templateUrl: './macro-row.component.html',
-    styleUrls: ['./macro-row.component.scss'],
-    standalone: false
+  selector: 'app-macro-row',
+  templateUrl: './macro-row.component.html',
+  styleUrls: ['./macro-row.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+    CodemirrorModule,
+  ],
 })
 export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
-
   @Input() data: IMacro = new Macro();
-
   @Output() isChangingEvent = new EventEmitter<true>();
-  @Output() isDeleteEvent = new EventEmitter();
+  @Output() isDeleteEvent = new EventEmitter<void>();
+
+  public translate = inject(TranslateService);
+  private modalService = inject(NgbModal);
 
   macroName = '';
   macroType = 0;
   macroKey = 0;
   obj = '';
-  description?: MultiLanguage | undefined;
+  description?: MultiLanguage;
   tabId = 'macro';
   currentData = '';
   myData: any;
 
   test = '';
 
-  objectForUnsubscribe: any;
+  private formSubscription?: Subscription;
 
   isReadOwnerDefinedValues = false;
   isReadStatusTemplateList = false;
   isReadSectionTemplateList = false;
 
-  codeMirrorOptions: any = {
+  codeMirrorOptions = {
     mode: 'vbscript',
     lineNumbers: true,
     lineWrapping: true,
@@ -64,7 +82,7 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
     lint: true,
   };
 
-  codeMirrorOptions1: any = {
+  codeMirrorOptions1 = {
     theme: 'material',
     mode: 'javascript',
     lineNumbers: true,
@@ -75,84 +93,81 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
       'CodeMirror-foldgutter',
       'CodeMirror-lint-markers',
     ],
-
     lint: true,
   };
+
   dialogRef: any;
 
-  constructor(private modalService: NgbModal, private zone: NgZone) {}
-
   ngOnInit(): void {
-    if (this.macroForm) {
-      this.objectForUnsubscribe = this.macroForm.valueChanges!.subscribe(
-        (x) => {
-          if (this.macroForm!.dirty) {
-            this.onChange(true);
-          }
+    if (this.macroForm?.valueChanges) {
+      this.formSubscription = this.macroForm.valueChanges.subscribe(() => {
+        if (this.macroForm?.dirty) {
+          this.onChange(true);
         }
-      );
+      });
     }
   }
 
-  ngOnChanges(changes: any) {}
+  ngOnChanges(): void {}
 
   ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
+    if (this.formSubscription) {
+      this.formSubscription.unsubscribe();
     }
   }
-  onClickDelete() {
+
+  onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
 
-  onChange(event: any) {
-    this.zone.runOutsideAngular(() => {
-      if (
-        this.data!.isDirty === undefined ||
-        this.data!.isDirty === CreateEntriesEnum.undefined
-      ) {
-        this.data!.isDirty = CreateEntriesEnum.rewrite;
-      }
+  onChange(event: boolean): void {
+    if (
+      this.data &&
+      (this.data.isDirty === undefined ||
+        this.data.isDirty === CreateEntriesEnum.undefined)
+    ) {
+      this.data.isDirty = CreateEntriesEnum.rewrite;
+    }
 
-      this.onIsChanging(true);
-    });
+    this.onIsChanging(true);
   }
 
-  onIsChanging(event: any) {
-    this.isChangingEvent.emit(event);
+  onIsChanging(event: boolean): void {
+    this.isChangingEvent.emit(true);
   }
 
-  open(content: any) {
-    this.macroName = this.data.name!;
-    this.macroType = this.data.type;
-    this.obj = this.data.content!;
-    this.description = this.data.description;
-
-    const tmp = document.getElementById('codeMirror') as HTMLElement;
+  open(content: any): void {
+    if (this.data) {
+      this.macroName = this.data.name || '';
+      this.macroType = this.data.type;
+      this.obj = this.data.content || '';
+      this.description = this.data.description;
+    }
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
-        this.data.name = this.macroName;
-        this.data.type = +this.macroType;
-        this.data.content = this.obj;
-        this.data.description = this.description;
+        if (this.data) {
+          this.data.name = this.macroName;
+          this.data.type = +this.macroType;
+          this.data.content = this.obj;
+          this.data.description = this.description;
+        }
 
         this.onChange(true);
       },
-      () => {}
+      () => {} // Dismiss handler
     );
   }
 
-  onClickData() {
+  onClickData(): void {
     this.tabId = 'data';
-    const codemirror: HTMLElement | null =
-      document.getElementById('codemirror1');
+    const codemirror = document.getElementById('codemirror1');
     if (codemirror) {
       codemirror.focus();
     }
   }
 
-  private macroFilter() {
+  private macroFilter(): void {
     this.currentData = JSON.stringify(this.myData);
 
     this.currentData = this.currentData.split('{').join('{\n\t');

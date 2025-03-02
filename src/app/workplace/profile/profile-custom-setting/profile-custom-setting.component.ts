@@ -1,4 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -8,16 +16,6 @@ import {
 } from 'src/app/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
 @Component({
   selector: 'app-profile-custom-setting',
   templateUrl: './profile-custom-setting.component.html',
@@ -26,13 +24,11 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule,
+    TranslateModule,
     NgbModule,
     IconsModule,
     SharedModule,
     SpinnerModule,
-    TranslateModule,
-    FontAwesomeModule,
   ],
 })
 export class ProfileCustomSettingComponent implements OnInit {
@@ -47,12 +43,12 @@ export class ProfileCustomSettingComponent implements OnInit {
     en: 'English',
   };
 
-  constructor(
-    private translateService: TranslateService,
-    private translateStringConstantsService: TranslateStringConstantsService,
-    private localStorageService: LocalStorageService,
-    private localeService: LocaleService
-  ) {}
+  public translate = inject(TranslateService);
+  private translateStringConstantsService = inject(
+    TranslateStringConstantsService
+  );
+  private localStorageService = inject(LocalStorageService);
+  private localeService = inject(LocaleService);
 
   ngOnInit(): void {
     const lang =
@@ -74,7 +70,7 @@ export class ProfileCustomSettingComponent implements OnInit {
 
   onChangeLanguage(lang: string) {
     this.selectedLanguage = lang as Language;
-    this.translateService.use(lang);
+    this.translate.use(lang);
     this.localStorageService.set(MessageLibrary.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang as SupportedLocales);

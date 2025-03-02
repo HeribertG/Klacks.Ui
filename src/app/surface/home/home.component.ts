@@ -242,9 +242,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'settings':
-        import('./../../workplace/settings/settings.module').then(
-          (m) => m.SettingsModule
-        );
         this.setContainerWithNormal();
 
         this.isSetting = true;

@@ -1,24 +1,39 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+
 @Component({
-    selector: 'app-settings-general',
-    templateUrl: './settings-general.component.html',
-    styleUrls: ['./settings-general.component.scss'],
-    standalone: false
+  selector: 'app-settings-general',
+  templateUrl: './settings-general.component.html',
+  styleUrls: ['./settings-general.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    FormsModule,
+    NgbModule,
+    IconsModule,
+    SpinnerModule,
+    SharedModule,
+  ],
 })
 export class SettingsGeneralComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
-  // tslint:disable-next-line: no-trailing-whitespace
 
   selectedFileIcon: File | undefined;
   selectedFileLogo: File | undefined;
 
-  constructor(
-    public dataLoadFileService: DataLoadFileService,
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {}
+  public dataLoadFileService = inject(DataLoadFileService);
+  public translate = inject(TranslateService);
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
 
   ngOnInit(): void {}
 

@@ -1,58 +1,76 @@
-import {
-  Component,
-  EventEmitter,
-  Inject,
-  Input,
-  OnInit,
-  Output,
-} from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
+import { StateHeaderComponent } from './state-header/state-header.component';
+import { StateRowComponent } from './state-row/state-row.component';
+
 import { State } from 'src/app/core/client-class';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-state',
-    templateUrl: './state.component.html',
-    styleUrls: ['./state.component.scss'],
-    standalone: false
+  selector: 'app-state',
+  templateUrl: './state.component.html',
+  styleUrls: ['./state.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    FormsModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+    SpinnerModule,
+    StateHeaderComponent,
+    StateRowComponent,
+  ],
 })
-export class StateComponent implements OnInit {
+export class StateComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
-  constructor(
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {}
+  public translate = inject(TranslateService);
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
 
-  ngOnInit(): void {}
+  onClickAdd(): void {
+    const state = new State();
+    state.name = new MultiLanguage();
+    state.isDirty = CreateEntriesEnum.new;
 
-  onClickAdd() {
-    const c = new State();
-    c.name = new MultiLanguage();
-
-    c.isDirty = CreateEntriesEnum.new;
-    this.dataManagementSettingsService.statesList.push(c);
+    this.dataManagementSettingsService.statesList.push(state);
     this.onIsChanging(true);
   }
 
-  onClickDelete(index: number) {
-    const c = this.dataManagementSettingsService.statesList[index];
+  onClickDelete(index: number): void {
+    const states = this.dataManagementSettingsService.statesList;
 
-    if (c) {
-      if (c.isDirty && c.isDirty === CreateEntriesEnum.new) {
-        this.dataManagementSettingsService.statesList.splice(index, 1);
-      } else {
-        c.name!.de = c.name!.de + '--isDeleted';
-        c.isDirty = CreateEntriesEnum.delete;
+    if (index >= 0 && index < states.length) {
+      const state = states[index];
+
+      if (state) {
+        // Wenn es ein neuer Eintrag ist, komplett entfernen
+        if (state.isDirty === CreateEntriesEnum.new) {
+          states.splice(index, 1);
+        } else {
+          // Sonst als gelöscht markieren
+          if (state.name?.de) {
+            state.name.de = state.name.de + '--isDeleted';
+          }
+          state.isDirty = CreateEntriesEnum.delete;
+        }
       }
-    }
 
-    this.onIsChanging(true);
+      this.onIsChanging(true);
+    }
   }
 
-  onIsChanging(value: any) {
+  onIsChanging(value: boolean): void {
     this.isChangingEvent.emit(value);
   }
 }

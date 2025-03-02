@@ -1,20 +1,38 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { BankDetail, IBankDetail } from 'src/app/core/bank-detail-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { BankAccountsRowComponent } from './bank-accounts-row/bank-accounts-row.component';
+
 @Component({
-    selector: 'app-bank-accounts',
-    templateUrl: './bank-accounts.component.html',
-    styleUrls: ['./bank-accounts.component.scss'],
-    standalone: false
+  selector: 'app-bank-accounts',
+  templateUrl: './bank-accounts.component.html',
+  styleUrls: ['./bank-accounts.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    FormsModule,
+    NgbModule,
+    IconsModule,
+    SpinnerModule,
+    SharedModule,
+    BankAccountsRowComponent,
+  ],
 })
 export class BankAccountsComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
-  constructor(
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {}
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  public translate = inject(TranslateService);
 
   ngOnInit(): void {}
 

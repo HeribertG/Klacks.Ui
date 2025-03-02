@@ -62,8 +62,9 @@ export class MainComponent implements OnChanges {
       ).then((m) => {
         const comp = m.SettingsHomeComponent;
 
-        const compRef =
-          this.viewContainer.createComponent<SettingsHomeComponent>(comp);
+        const compRef = this.viewContainer.createComponent(comp, {
+          environmentInjector: this.environmentInjector,
+        });
 
         this.compInstanceSettingHome = compRef.instance;
         this.compInstanceSettingHome.isSetting = this.isSetting;

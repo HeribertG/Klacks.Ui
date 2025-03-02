@@ -1,21 +1,36 @@
 import {
   Component,
   EventEmitter,
+  inject,
   Input,
   OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { BankDetail } from 'src/app/core/bank-detail-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+
 @Component({
-    selector: 'app-bank-accounts-row',
-    templateUrl: './bank-accounts-row.component.html',
-    styleUrls: ['./bank-accounts-row.component.scss'],
-    standalone: false
+  selector: 'app-bank-accounts-row',
+  templateUrl: './bank-accounts-row.component.html',
+  styleUrls: ['./bank-accounts-row.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+  ],
 })
 export class BankAccountsRowComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -29,9 +44,8 @@ export class BankAccountsRowComponent implements OnInit {
   addStreetLine2 = false;
   addStreetLine3 = false;
 
-  constructor(
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {}
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  public translate = inject(TranslateService);
 
   ngOnInit(): void {}
 

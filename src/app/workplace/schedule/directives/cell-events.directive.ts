@@ -9,13 +9,12 @@ import { Overlay } from '@angular/cdk/overlay';
 import { ScrollService } from '../services/scroll.service';
 import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 import { DataService } from '../services/data.service';
-import { SettingsService } from '../services/settings.service';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { CellManipulationService } from '../services/cell-manipulation.service';
 
 @Directive({
-    selector: '[cellEvents]',
-    standalone: false
+  selector: '[cellEvents]',
+  standalone: false,
 })
 export class CellEventsDirective {
   private keyDown = false;

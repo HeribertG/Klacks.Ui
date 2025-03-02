@@ -5,24 +5,30 @@ import {
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
+
+// Angular und Bibliotheksmodule
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
+// Anwendungsmodule
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
+// Services und Utilities
 import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import {
   checkPasswordStrength,
   PasswordCheckStrength,
 } from 'src/app/helpers/password';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-
-import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { TranslateModule } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-profile-data-edit',
@@ -43,20 +49,20 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 })
 export class ProfileDataEditComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
-
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 
+  public faEye = faEye;
+  public faEyeSlash = faEyeSlash;
   public newPassword1 = '';
   public passwordStrength = '';
   public passwordStrengthFlag = false;
   public showOldPassword = false;
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
 
-  constructor(
-    public dataManagementProfileService: DataManagementProfileService
-  ) {
-    this.readSignals();
+  public translate = inject(TranslateService);
+  public dataManagementProfileService = inject(DataManagementProfileService);
+
+  constructor() {
+    this.setupResetSignalEffect();
   }
 
   ngOnInit(): void {
@@ -129,7 +135,7 @@ export class ProfileDataEditComponent implements OnInit {
     this.isChangingEvent.emit(true);
   }
 
-  private readSignals(): void {
+  private setupResetSignalEffect(): void {
     effect(() => {
       const isReset = this.dataManagementProfileService.isReset();
       if (isReset) {

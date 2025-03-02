@@ -1,18 +1,24 @@
 import {
   Component,
   EventEmitter,
-  Inject,
   Input,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
-import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+
+// Angular und Bibliotheksmodule
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+// Anwendungskomponenten
 import { ProfilePictureComponent } from '../profile-picture/profile-picture.component';
 import { ProfileDataEditComponent } from '../profile-data-edit/profile-data-edit.component';
 import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile-custom-setting.component';
+
+// Services
+import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
+import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
   selector: 'app-profile-home',
@@ -31,18 +37,18 @@ export class ProfileHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
   @Input() isProfile: boolean = false;
 
-  constructor(
-    @Inject(DataManagementSwitchboardService)
-    public dataManagementSwitchboardService: DataManagementSwitchboardService,
-    @Inject(DataManagementProfileService)
-    public dataManagementProfileService: DataManagementProfileService
-  ) {}
+  public translate = inject(TranslateService);
+  public dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  public dataManagementProfileService = inject(DataManagementProfileService);
 
   ngOnInit(): void {
     this.dataManagementSwitchboardService.nameOfVisibleEntity =
       'DataManagementProfileService';
     this.dataManagementProfileService.readData();
   }
+
   onIsChanging(event: any): void {
     this.isChangingEvent.emit(event);
   }

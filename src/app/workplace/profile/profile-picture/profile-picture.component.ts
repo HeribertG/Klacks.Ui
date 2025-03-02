@@ -1,18 +1,23 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
+
+// Angular und Bibliotheksmodule
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
+// Anwendungsmodule
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
+// Services und Utilities
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { getFileExtension } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { RouterModule } from '@angular/router';
-import { IconsModule } from 'src/app/icons/icons.module';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-profile-picture',
@@ -31,24 +36,18 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     FontAwesomeModule,
   ],
 })
-export class ProfilePictureComponent implements OnInit {
+export class ProfilePictureComponent {
   @Output() isChangingEvent = new EventEmitter();
 
   selectedFile: File | undefined = undefined;
-
   profileImage: any;
 
-  constructor(
-    public translate: TranslateService,
-    public dataLoadFileService: DataLoadFileService,
-    private localStorageService: LocalStorageService
-  ) {}
-
-  ngOnInit(): void {}
+  public translate = inject(TranslateService);
+  public dataLoadFileService = inject(DataLoadFileService);
+  private localStorageService = inject(LocalStorageService);
 
   onFileSelected(event: { target: { files: File[] } }): void {
     this.selectedFile = event.target.files[0] as File;
-
     this.upload();
   }
 
@@ -81,12 +80,11 @@ export class ProfilePictureComponent implements OnInit {
 
   onUpload(event: any): void {
     this.selectedFile = event[0] as File;
-
     this.upload();
   }
+
   onUpload1(event: any): void {
     this.selectedFile = event.target.files[0] as File;
-
     this.upload();
   }
 

@@ -5,29 +5,47 @@ import {
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-owner-address',
   templateUrl: './owner-address.component.html',
   styleUrls: ['./owner-address.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    FormsModule,
+    NgbModule,
+    IconsModule,
+    SpinnerModule,
+    SharedModule,
+  ],
 })
 export class OwnerAddressComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
 
   @ViewChild(NgForm, { static: false }) ownerAddressForm: NgForm | undefined;
 
+  public translate = inject(TranslateService);
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+
   keyValueDiffers: any;
   objectForUnsubscribe: any;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {
+  constructor() {
     this.readSignals();
   }
 

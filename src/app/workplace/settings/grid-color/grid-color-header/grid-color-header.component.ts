@@ -1,16 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'app-grid-color-header',
-    templateUrl: './grid-color-header.component.html',
-    styleUrls: ['./grid-color-header.component.scss'],
-    standalone: false
+  selector: 'app-grid-color-header',
+  templateUrl: './grid-color-header.component.html',
+  styleUrls: ['./grid-color-header.component.scss'],
+  standalone: true,
+  imports: [CommonModule, TranslateModule],
 })
-export class GridColorHeaderComponent implements OnInit {
-
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+export class GridColorHeaderComponent {
+  public translate = inject(TranslateService);
 }

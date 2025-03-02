@@ -1,7 +1,10 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #ruleModal let-modal role="dialog" class="modal-window">
   <div class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title1">
-      {{ "setting.holiday-rules.create-rules" | translate }}
+      {{ translate.instant("setting.holiday-rules.create-rules") }}
     </div>
   </div>
 
@@ -9,7 +12,7 @@
     <form>
       <div class="row-line">
         <label for="ruleName">{{
-          "setting.holiday-rules.name" | translate
+          translate.instant("setting.holiday-rules.name")
         }}</label>
         <input
           type="text"
@@ -55,7 +58,7 @@
 
       <div class="row-line">
         <label for="ruleName">{{
-          "setting.holiday-rules.rule" | translate
+          translate.instant("setting.holiday-rules.rule")
         }}</label>
         <input
           type="text"
@@ -70,7 +73,7 @@
 
       <div class="row-line">
         <label for="subRule">{{
-          "setting.holiday-rules.sub-rule" | translate
+          translate.instant("setting.holiday-rules.sub-rule")
         }}</label>
         <input
           type="text"
@@ -86,7 +89,7 @@
         <div class="single-line">
           <div class="row-line gap">
             <label for="state" class="col-form-label">{{
-              "setting.holiday-rules.states-modal" | translate
+              translate.instant("setting.holiday-rules.states-modal")
             }}</label>
 
             <select
@@ -110,7 +113,7 @@
           </div>
           <div class="row-line">
             <label for="state" class="col-form-label">{{
-              "setting.holiday-rules.country-modal" | translate
+              translate.instant("setting.holiday-rules.country-modal")
             }}</label>
 
             <input
@@ -132,7 +135,7 @@
               [(ngModel)]="currentRule.isMandatory"
               name="isMandatory"
             />
-            {{ "setting.holiday-rules.is-holyday" | translate }}
+            {{ translate.instant("setting.holiday-rules.is-holyday") }}
           </label>
         </div>
 
@@ -143,7 +146,7 @@
               [(ngModel)]="currentRule.isPaid"
               name="isPaid"
             />
-            {{ "setting.holiday-rules.is-paid" | translate }}
+            {{ translate.instant("setting.holiday-rules.is-paid") }}
           </label>
         </div>
       </div>
@@ -151,7 +154,7 @@
       <div class="row-line"></div>
       <div class="row-line">
         <label for="description">{{
-          "setting.absence.modal.description" | translate
+          translate.instant("setting.absence.modal.description")
         }}</label>
         <textarea
           class="form-control rule-description"
@@ -203,7 +206,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ "cancel" | translate }}</span
+      >{{ translate.instant("cancel") }}</span
     >
     <button
       type="button"
@@ -213,7 +216,7 @@
         onName() === '' || currentRule.rule === '' || currentRule.state === ''
       "
     >
-      {{ "setting.absence.modal.add" | translate }}
+      {{ translate.instant("setting.absence.modal.add") }}
     </button>
   </div>
 </ng-template>
@@ -221,7 +224,7 @@
 <form #calendarRulesForm="ngForm">
   <div class="container-dashboard">
     <div class="container-header header-container">
-      {{ "setting.calendar-rule.title" | translate }}
+      {{ translate.instant("setting.calendar-rule.title") }}
 
       <span class="filler"></span>
       <app-calendar-dropdown
@@ -250,7 +253,7 @@
             >
               <div class="table-header-cell form-inline">
                 <p class="gap noselect">
-                  {{ "default.grid.name" | translate }}
+                  {{ translate.instant("default.grid.name") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
               </div>
@@ -261,7 +264,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ "setting.holiday-rules.country" | translate }}
+                  {{ translate.instant("setting.holiday-rules.country") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
                   {{ arrowCountry }}
@@ -274,7 +277,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ "setting.holiday-rules.states" | translate }}
+                  {{ translate.instant("setting.holiday-rules.states") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">{{ arrowState }}</p>
               </div>
@@ -285,7 +288,7 @@
             >
               <div class="table-header-cell custom-control-inline">
                 <p class="gap noselect">
-                  {{ "default.grid.description" | translate }}
+                  {{ translate.instant("default.grid.description") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
                   {{ arrowDescription }}
@@ -306,7 +309,7 @@
               index as i
             "
             (click)="onClickedRow(data)"
-            [class.active]="data.id == highlightRowId"
+            [class.active]="data.id === highlightRowId"
           >
             <td class="table-cell">{{ data.name | fallback : currentLang }}</td>
             <td class="table-cell cell-center">
@@ -350,12 +353,12 @@
         class="first add-button"
         type="button"
         (click)="createNewRule(ruleModal)"
-        >{{ "setting.holiday-rules.add-rule" | translate }}
+        >{{ translate.instant("setting.holiday-rules.add-rule") }}
       </span>
       <span class="filler"></span>
 
       <label class="entry-info"
-        >{{ "pagination.sum" | translate }}
+        >{{ translate.instant("pagination.sum") }}
         {{ dataManagementCalendarRulesService.maxItems }}</label
       >
       <ngb-pagination

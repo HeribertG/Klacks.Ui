@@ -1,6 +1,8 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="container-dashboard">
   <div class="container-header">
-    {{ "setting.bank.headline" | translate }}
+    {{ translate.instant("setting.bank.headline") }}
   </div>
 
   <div class="container-line"></div>
@@ -41,7 +43,7 @@
         dataManagementSettingsService.bankDetailList!.length > 1
       "
       >-
-      {{ "setting.bank.delete" | translate }}
+      {{ translate.instant("setting.bank.delete") }}
     </span>
     <span class="add-button first" type="button" (click)="onAdd()"
       >+ Bankverbindung hinzufügen

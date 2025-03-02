@@ -1,6 +1,8 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form>
   <div class="container-header">
-    {{ "setting.country.headline" | translate }}
+    {{ translate.instant("setting.country.headline") }}
   </div>
 
   <div class="container-line"></div>
@@ -28,7 +30,7 @@
 
   <div class="row">
     <span class="add-button" type="button" (click)="onClickAdd()"
-      >{{ "setting.country.add" | translate }}
+      >{{ translate.instant("setting.country.add") }}
     </span>
   </div>
 </form>

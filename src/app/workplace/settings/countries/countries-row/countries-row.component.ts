@@ -3,12 +3,18 @@ import {
   Component,
   EventEmitter,
   Input,
-  NgZone,
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+
 import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/core/client-class';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
@@ -16,25 +22,30 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-countries-row',
-    templateUrl: './countries-row.component.html',
-    styleUrls: ['./countries-row.component.scss'],
-    standalone: false
+  selector: 'app-countries-row',
+  templateUrl: './countries-row.component.html',
+  styleUrls: ['./countries-row.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+  ],
 })
 export class CountriesRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: ICountry | undefined;
-
   @Output() isChangingEvent = new EventEmitter<true>();
-  @Output() isDeleteEvent = new EventEmitter();
+  @Output() isDeleteEvent = new EventEmitter<void>();
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
-  private ngUnsubscribe = new Subject<void>();
+  public translate = inject(TranslateService);
 
-  constructor(
-    private zone: NgZone,
-    private translateService: TranslateService
-  ) {}
+  private ngUnsubscribe = new Subject<void>();
+  private translateService = inject(TranslateService);
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -53,37 +64,28 @@ export class CountriesRowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  onClickDelete() {
+  onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
 
-  onChange(event: any) {
-    this.zone.runOutsideAngular(() => {
-      if (this.data) {
-        if (
-          this.data!.isDirty === undefined ||
-          this.data!.isDirty === CreateEntriesEnum.undefined
-        ) {
-          this.data!.isDirty = CreateEntriesEnum.rewrite;
-        }
-      }
-
-      this.isChangingEvent.emit(true);
-    });
+  onChange(event: any): void {
+    this.updateDataDirtyState();
+    this.isChangingEvent.emit(true);
   }
 
-  onKeyUp(event: any) {
-    this.zone.runOutsideAngular(() => {
-      if (this.data) {
-        if (
-          this.data.isDirty === undefined ||
-          this.data.isDirty === CreateEntriesEnum.undefined
-        ) {
-          this.data.isDirty = CreateEntriesEnum.rewrite;
-        }
-      }
+  onKeyUp(event: any): void {
+    this.updateDataDirtyState();
+    this.isChangingEvent.emit(true);
+  }
 
-      this.isChangingEvent.emit(true);
-    });
+  private updateDataDirtyState(): void {
+    if (this.data) {
+      if (
+        this.data.isDirty === undefined ||
+        this.data.isDirty === CreateEntriesEnum.undefined
+      ) {
+        this.data.isDirty = CreateEntriesEnum.rewrite;
+      }
+    }
   }
 }

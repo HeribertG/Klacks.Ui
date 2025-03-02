@@ -1,13 +1,16 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/eqeqeq -->
 <form
   #bankForm="ngForm"
   [ngClass]="{
-    'container-bank-box  ': isFocusIndex != position,
+    'container-bank-box  ': isFocusIndex !== position,
     'container-bank-box-focus ': isFocusIndex === position
   }"
 >
   <div class="container-bank-value">
     <label [for]="'accountdescription' + position">{{
-      "setting.bank.description" | translate
+      translate.instant("setting.bank.description")
     }}</label>
     <textarea
       class="form-control account-description"
@@ -18,7 +21,7 @@
       [id]="'accountdescription' + position"
     ></textarea>
     <label [for]="'accountNumber' + position">{{
-      "setting.bank.number" | translate
+      translate.instant("setting.bank.number")
     }}</label>
     <input
       type="text"
@@ -30,7 +33,7 @@
     />
 
     <label [for]="'subscriberNumber' + position">{{
-      "setting.bank.subscriber-number" | translate
+      translate.instant("setting.bank.subscriber-number")
     }}</label>
     <input
       type="text"
@@ -56,7 +59,7 @@
 
   <div class="container-bank-value" class="secondColumn">
     <label [for]="'name' + position">{{
-      "setting.bank.name" | translate
+      translate.instant("setting.bank.name")
     }}</label>
     <input
       type="text"
@@ -67,7 +70,9 @@
       aria-label="name"
     />
 
-    <label [for]="'additionLine' + position">Zusatz</label>
+    <label [for]="'additionLine' + position">{{
+      translate.instant("setting.bank.addition-line")
+    }}</label>
     <input
       type="text"
       [(ngModel)]="bankDetail!.additionLine"
@@ -79,7 +84,7 @@
 
     <div>
       <label [for]="'street' + position">{{
-        "setting.bank.street" | translate
+        translate.instant("setting.bank.street")
       }}</label>
       <div class="custom-control-inline">
         <input
@@ -102,7 +107,7 @@
 
     <div *ngIf="addStreetLine2 == true">
       <label [for]="'street2' + position">{{
-        "setting.bank.street2" | translate
+        translate.instant("setting.bank.street2")
       }}</label>
       <div class="custom-control-inline">
         <input
@@ -133,7 +138,7 @@
     <div class="row-line" *ngIf="addStreetLine3 == true">
       <div class="form-group">
         <label [for]="'street3' + position">{{
-          "setting.bank.street3" | translate
+          translate.instant("setting.bank.street3")
         }}</label>
         <div class="custom-control-inline">
           <input
@@ -158,7 +163,7 @@
     <div class="custom-control-inline">
       <div>
         <label class="container-bank-zip" [for]="'bankzip' + position">{{
-          "setting.bank.zip" | translate
+          translate.instant("setting.bank.zip")
         }}</label>
         <input
           type="text"
@@ -172,7 +177,7 @@
 
       <div>
         <label class="container-bank-city" [for]="'bankcity' + position">{{
-          "setting.bank.place" | translate
+          translate.instant("setting.bank.place")
         }}</label>
         <input
           type="text"

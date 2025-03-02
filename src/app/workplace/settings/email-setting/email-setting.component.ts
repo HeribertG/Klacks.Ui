@@ -1,56 +1,80 @@
 import {
   Component,
   EventEmitter,
+  OnDestroy,
   OnInit,
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Subject, takeUntil } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
+import { Subject, Subscription } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 @Component({
   selector: 'app-email-setting',
   templateUrl: './email-setting.component.html',
   styleUrls: ['./email-setting.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    IconsModule,
+    SharedModule,
+    SpinnerModule,
+  ],
 })
-export class EmailSettingComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter();
-
+export class EmailSettingComponent implements OnInit, OnDestroy {
+  @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild(NgForm, { static: false }) emailSettingsForm: NgForm | undefined;
+
   ruleName = '';
   showPassword = false;
-  keyValueDiffers: any;
-  objectForUnsubscribe: any;
+
+  private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementSettingsService: DataManagementSettingsService
-  ) {
-    this.readSignals();
+  public translate = inject(TranslateService);
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+
+  constructor() {
+    this.setupResetSignalEffect();
   }
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.emailSettingsForm!.valueChanges!.subscribe(
-      (x) => {
-        if (this.emailSettingsForm!.dirty) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
+    if (this.emailSettingsForm?.valueChanges) {
+      this.formSubscription = this.emailSettingsForm.valueChanges.subscribe(
+        () => {
+          if (this.emailSettingsForm?.dirty) {
+            setTimeout(() => this.isChangingEvent.emit(true), 100);
+          }
         }
-      }
-    );
+      );
+    }
   }
 
   ngOnDestroy(): void {
-    this.objectForUnsubscribe.unsubscribe();
+    if (this.formSubscription) {
+      this.formSubscription.unsubscribe();
+    }
+
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
 
-  private readSignals(): void {
+  private setupResetSignalEffect(): void {
     effect(() => {
       const isReset = this.dataManagementSettingsService.isReset();
       if (isReset) {

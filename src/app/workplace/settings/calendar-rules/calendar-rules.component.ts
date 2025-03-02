@@ -5,10 +5,20 @@ import {
   OnInit,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  NgbModal,
+  NgbModule,
+  NgbPaginationModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { IconsModule } from 'src/app/icons/icons.module';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { SpinnerModule } from 'src/app/spinner/spinner.module';
+
 import { Subject, takeUntil } from 'rxjs';
 import {
   CalendarRule,
@@ -33,7 +43,17 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
   selector: 'app-calendar-rules',
   templateUrl: './calendar-rules.component.html',
   styleUrls: ['./calendar-rules.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbModule,
+    NgbPaginationModule,
+    IconsModule,
+    SharedModule,
+    SpinnerModule,
+  ],
 })
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -42,58 +62,57 @@ export class CalendarRulesComponent
     | NgForm
     | undefined;
 
+  public dataManagementCalendarRulesService = inject(
+    DataManagementCalendarRulesService
+  );
+  private modalService = inject(ModalService);
+  private ngbModal = inject(NgbModal);
+  private translateService = inject(TranslateService);
+
+  // Pagination properties
   highlightRowId: string | undefined = undefined;
   page = 1;
   firstItemOnLastPage: number | undefined = undefined;
   isPreviousPage: boolean | undefined = undefined;
   isNextPage: boolean | undefined = undefined;
-
   numberOfItemsPerPage = 7;
-  numberOfItemsPerPageMap = new Map();
+  numberOfItemsPerPageMap = new Map<number, number>();
 
+  // Sorting properties
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
-
   arrowName = '';
   arrowState = '';
   arrowCountry = '';
   arrowDescription = '';
-
   orderBy = 'name';
   sortOrder = 'asc';
 
-  modalSelectedState: StateCountryToken | undefined = undefined;
+  // Modal properties
+  modalSelectedState: StateCountryToken | undefined;
   currentRule = new CalendarRule();
   currentResult = 'kein Ergebnis';
 
+  // State properties
   holidaysListHelper = new HolidaysListHelper();
-
   message = MessageLibrary.DELETE_ENTRY;
   checkBoxIndeterminate = false;
-
-  nameHeader: HeaderProperties = new HeaderProperties();
-  stateHeader: HeaderProperties = new HeaderProperties();
-  countryHeader: HeaderProperties = new HeaderProperties();
-  descriptionHeader: HeaderProperties = new HeaderProperties();
-
-  objectForUnsubscribe: any;
-
+  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  selectedCountry = '';
+  headerCalendarDropdown = '';
   isComboBoxOpen = false;
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  // Header properties
+  nameHeader = new HeaderProperties();
+  stateHeader = new HeaderProperties();
+  countryHeader = new HeaderProperties();
+  descriptionHeader = new HeaderProperties();
 
-  selectedCountry: string = '';
-  headerCalendarDropdown = '';
-
+  // Clean up resources
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementCalendarRulesService: DataManagementCalendarRulesService,
-    private ngbModal: NgbModal,
-    private translateService: TranslateService,
-    private modalService: ModalService
-  ) {
+  constructor() {
+    // Reaktiver Effekt für Datenzustände
     effect(() => {
       const isRead = this.dataManagementCalendarRulesService.isRead();
       if (isRead) {
@@ -105,26 +124,32 @@ export class CalendarRulesComponent
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
     this.currentLang = this.translateService.currentLang as Language;
+
     this.translateService
       .get('setting.holiday-rules.filter-states')
       .subscribe((x) => {
         this.headerCalendarDropdown = x;
       });
+
     this.holidaysListHelper.currentYear = new Date().getFullYear();
     this.reReadSortData();
   }
 
   ngAfterViewInit(): void {
+    // Subscribe to language changes
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
+
         this.translateService
           .get('setting.holiday-rules.filter-states')
           .subscribe((x) => {
             this.headerCalendarDropdown = x;
           });
       });
+
+    // Subscribe to modal results
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
@@ -139,31 +164,37 @@ export class CalendarRulesComponent
     this.ngUnsubscribe.complete();
   }
 
-  private readPage() {
-    this.dataManagementCalendarRulesService.currentFilter.firstItemOnLastPage =
-      this.firstItemOnLastPage;
-    this.dataManagementCalendarRulesService.currentFilter.isPreviousPage =
-      this.isPreviousPage;
-    this.dataManagementCalendarRulesService.currentFilter.isNextPage =
-      this.isNextPage;
+  /**
+   * Read page data with current filter settings
+   */
+  private readPage(): void {
+    const filter = this.dataManagementCalendarRulesService.currentFilter;
 
-    this.dataManagementCalendarRulesService.currentFilter.orderBy =
-      this.orderBy;
-    this.dataManagementCalendarRulesService.currentFilter.sortOrder =
-      this.sortOrder;
-    this.dataManagementCalendarRulesService.currentFilter.requiredPage =
-      this.page - 1;
-    this.dataManagementCalendarRulesService.currentFilter.numberOfItemsPerPage =
-      this.numberOfItemsPerPage;
+    // Set pagination parameters
+    filter.firstItemOnLastPage = this.firstItemOnLastPage;
+    filter.isPreviousPage = this.isPreviousPage;
+    filter.isNextPage = this.isNextPage;
 
+    // Set sorting parameters
+    filter.orderBy = this.orderBy;
+    filter.sortOrder = this.sortOrder;
+
+    // Set page parameters
+    filter.requiredPage = this.page - 1;
+    filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
+
+    // Read data for the current language
     this.dataManagementCalendarRulesService.readPage(this.currentLang);
   }
 
-  onChangeFilter() {
+  onChangeFilter(): void {
     this.dataManagementCalendarRulesService.readPage(this.currentLang);
   }
 
-  onPageChange(event: number) {
+  /**
+   * Handle page change events from pagination control
+   */
+  onPageChange(event: number): void {
     this.firstItemOnLastPage = undefined;
     this.isPreviousPage = undefined;
     this.isNextPage = undefined;
@@ -188,11 +219,11 @@ export class CalendarRulesComponent
     }, 200);
   }
 
-  onClickedRow(value: ICalendarRule) {
+  onClickedRow(value: ICalendarRule): void {
     this.highlightRowId = value.id;
   }
 
-  onClickExportExcel() {
+  onClickExportExcel(): void {
     this.dataManagementCalendarRulesService.exportExcel();
   }
 
@@ -201,7 +232,7 @@ export class CalendarRulesComponent
   }
 
   /* #region Filter */
-  onOpenChange(event: boolean) {
+  onOpenChange(event: boolean): void {
     this.isComboBoxOpen = event;
     if (this.isComboBoxOpen) {
       this.dataManagementCalendarRulesService.setTemporaryFilter();
@@ -216,27 +247,30 @@ export class CalendarRulesComponent
     }
   }
   /* #endregion Filter */
-  /* #region   MsgBox */
 
-  onModalChange() {
-    this.currentRule.state = this.modalSelectedState!.state;
-    this.currentRule.country = this.modalSelectedState!.country;
+  /* #region Modal Handling */
+  onModalChange(): void {
+    if (this.modalSelectedState) {
+      this.currentRule.state = this.modalSelectedState.state;
+      this.currentRule.country = this.modalSelectedState.country;
 
-    this.holidaysListHelper.clear();
+      this.holidaysListHelper.clear();
+      this.holidaysListHelper.add(this.currentRule);
+      this.holidaysListHelper.computeHolidays();
 
-    this.holidaysListHelper.add(this.currentRule);
-    this.holidaysListHelper.computeHolidays();
-    this.currentResult =
-      this.holidaysListHelper.holidayList.length == 1
-        ? this.holidaysListHelper.holidayList[0].currentDate.toDateString()
-        : 'kein Ergebnis';
+      this.currentResult =
+        this.holidaysListHelper.holidayList.length == 1
+          ? this.holidaysListHelper.holidayList[0].currentDate.toDateString()
+          : 'kein Ergebnis';
+    }
   }
 
-  onSelectionChange(id: string) {
+  onSelectionChange(id: string): void {
     const token =
       this.dataManagementCalendarRulesService.filteredRulesToken.find(
         (x) => x.id === id
       );
+
     if (token) {
       this.modalSelectedState = token;
       this.currentRule.state = token.state;
@@ -244,28 +278,32 @@ export class CalendarRulesComponent
     }
   }
 
-  openDeleteRule(data: ICalendarRule) {
-    this.modalService.Filing = data.id!;
-    this.modalService.deleteMessage = this.message;
-    this.modalService.setDefault(ModalType.Delete);
-    this.modalService.openModel(ModalType.Delete);
+  openDeleteRule(data: ICalendarRule): void {
+    if (data.id) {
+      this.modalService.Filing = data.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
   }
+
   onCountryName(value: string): string {
     return value;
   }
 
-  onCopyRule(content: any, data: CalendarRule) {
+  onCopyRule(content: any, data: CalendarRule): void {
     this.holidaysListHelper.clear();
-    this.currentRule = data;
-    this.currentRule.id = '';
+    this.currentRule = { ...data, id: '' }; // Kopie erstellen mit neuem ID
     this.initMultiLanguage();
     this.onModalChange();
     this.openNewRule(content);
   }
 
-  onEditRule(content: any, data: CalendarRule) {
+  onEditRule(content: any, data: CalendarRule): void {
     this.holidaysListHelper.clear();
     this.currentRule = data;
+
+    // Finde den passenden State/Country Token
     const token =
       this.dataManagementCalendarRulesService.filteredRulesToken.find(
         (x) =>
@@ -282,15 +320,14 @@ export class CalendarRulesComponent
     this.openNewRule(content);
   }
 
-  createNewRule(content: any) {
+  createNewRule(content: any): void {
     this.holidaysListHelper.clear();
     this.currentRule = new CalendarRule();
     this.initMultiLanguage();
-
     this.openNewRule(content);
   }
 
-  openNewRule(content: any) {
+  openNewRule(content: any): void {
     this.ngbModal
       .open(content, {
         size: 'md',
@@ -314,23 +351,26 @@ export class CalendarRulesComponent
 
           this.readPage();
         },
-        () => {}
+        () => {} // Dismiss handler (leere Funktion)
       );
   }
 
-  private initMultiLanguage() {
+  private initMultiLanguage(): void {
     if (!this.currentRule.name) {
       this.currentRule.name = new MultiLanguage();
     }
+
     if (
       this.currentRule.name[this.currentLang as keyof IMultiLanguage] ===
       undefined
     ) {
       this.currentRule.name[this.currentLang as keyof IMultiLanguage] = '';
     }
+
     if (!this.currentRule.description) {
       this.currentRule.description = new MultiLanguage();
     }
+
     if (
       this.currentRule.description[this.currentLang as keyof IMultiLanguage] ===
       undefined
@@ -340,56 +380,40 @@ export class CalendarRulesComponent
     }
   }
 
-  private deleteRule(id: string) {
+  private deleteRule(id: string): void {
     this.dataManagementCalendarRulesService.deleteCalendarRule(
       id,
       this.currentLang
     );
   }
+  /* #endregion Modal Handling */
 
-  /* #endregion   MsgBox */
-
-  /* #region   header */
-
-  onClickHeader(orderBy: string) {
+  /* #region Header Sorting */
+  onClickHeader(orderBy: string): void {
     let sortOrder = '';
+    let headerProp: HeaderProperties | undefined;
 
-    if (orderBy === 'name') {
-      this.nameHeader.DirectionSwitch();
+    switch (orderBy) {
+      case 'name':
+        headerProp = this.nameHeader;
+        break;
+      case 'country':
+        headerProp = this.countryHeader;
+        break;
+      case 'state':
+        headerProp = this.stateHeader;
+        break;
+      case 'description':
+        headerProp = this.descriptionHeader;
+        break;
+    }
 
-      if (this.nameHeader.order === HeaderDirection.Down) {
+    if (headerProp) {
+      headerProp.DirectionSwitch();
+
+      if (headerProp.order === HeaderDirection.Down) {
         sortOrder = 'asc';
-      } else if (this.nameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'country') {
-      this.countryHeader.DirectionSwitch();
-
-      if (this.countryHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.countryHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'state') {
-      this.stateHeader.DirectionSwitch();
-
-      if (this.stateHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.stateHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'description') {
-      this.descriptionHeader.DirectionSwitch();
-
-      if (this.descriptionHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.descriptionHeader.order === HeaderDirection.Up) {
+      } else if (headerProp.order === HeaderDirection.Up) {
         sortOrder = 'desc';
       } else {
         sortOrder = '';
@@ -400,29 +424,32 @@ export class CalendarRulesComponent
     this.readPage();
   }
 
-  private sort(orderBy: string, sortOrder: string) {
+  private sort(orderBy: string, sortOrder: string): void {
     this.orderBy = orderBy;
     this.sortOrder = sortOrder;
     this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
+
+    const header = this.setPosition(orderBy);
+    if (header) {
+      this.setDirection(sortOrder, header);
+    }
+
     this.setHeaderArrowTemplate();
   }
 
   private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'name') {
-      return this.nameHeader;
+    switch (orderBy) {
+      case 'name':
+        return this.nameHeader;
+      case 'state':
+        return this.stateHeader;
+      case 'country':
+        return this.countryHeader;
+      case 'description':
+        return this.descriptionHeader;
+      default:
+        return undefined;
     }
-    if (orderBy === 'state') {
-      return this.stateHeader;
-    }
-    if (orderBy === 'country') {
-      return this.countryHeader;
-    }
-    if (orderBy === 'description') {
-      return this.descriptionHeader;
-    }
-
-    return undefined;
   }
 
   private setDirection(sortOrder: string, value: HeaderProperties): void {
@@ -434,7 +461,7 @@ export class CalendarRulesComponent
     }
   }
 
-  private setHeaderArrowTemplate() {
+  private setHeaderArrowTemplate(): void {
     this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
     this.arrowState = this.setHeaderArrowTemplateSub(this.stateHeader);
     this.arrowCountry = this.setHeaderArrowTemplateSub(this.countryHeader);
@@ -450,22 +477,19 @@ export class CalendarRulesComponent
       case HeaderDirection.Up:
         return this.tmplateArrowUp;
       case HeaderDirection.None:
-        return ''; // this.tmplateArrowUndefined;
+        return ''; // Leerer String statt this.tmplateArrowUndefined
     }
   }
 
-  private reReadSortData() {
+  private reReadSortData(): void {
     this.sort(this.orderBy, this.sortOrder);
   }
 
-  private setHeaderArrowToUndefined() {
+  private setHeaderArrowToUndefined(): void {
     this.nameHeader.order = HeaderDirection.None;
     this.stateHeader.order = HeaderDirection.None;
     this.countryHeader.order = HeaderDirection.None;
     this.descriptionHeader.order = HeaderDirection.None;
   }
-
-  /* #endregion   header */
-
-  private readSignals(): void {}
+  /* #endregion Header Sorting */
 }
