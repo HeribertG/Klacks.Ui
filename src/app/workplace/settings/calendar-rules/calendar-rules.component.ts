@@ -62,12 +62,12 @@ export class CalendarRulesComponent
     | NgForm
     | undefined;
 
+  public translate = inject(TranslateService);
   public dataManagementCalendarRulesService = inject(
     DataManagementCalendarRulesService
   );
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
-  private translateService = inject(TranslateService);
 
   // Pagination properties
   highlightRowId: string | undefined = undefined;
@@ -123,13 +123,11 @@ export class CalendarRulesComponent
 
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
-    this.currentLang = this.translateService.currentLang as Language;
+    this.currentLang = this.translate.currentLang as Language;
 
-    this.translateService
-      .get('setting.holiday-rules.filter-states')
-      .subscribe((x) => {
-        this.headerCalendarDropdown = x;
-      });
+    this.translate.get('setting.holiday-rules.filter-states').subscribe((x) => {
+      this.headerCalendarDropdown = x;
+    });
 
     this.holidaysListHelper.currentYear = new Date().getFullYear();
     this.reReadSortData();
@@ -137,12 +135,12 @@ export class CalendarRulesComponent
 
   ngAfterViewInit(): void {
     // Subscribe to language changes
-    this.translateService.onLangChange
+    this.translate.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.currentLang = this.translateService.currentLang as Language;
+        this.currentLang = this.translate.currentLang as Language;
 
-        this.translateService
+        this.translate
           .get('setting.holiday-rules.filter-states')
           .subscribe((x) => {
             this.headerCalendarDropdown = x;

@@ -1,9 +1,13 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #content id="content" let-modal>
   <form #macroForm="ngForm">
     <div class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
-        {{ "setting.macro.headline-modal" | translate }}
+        {{ translate.instant("setting.macro.headline-modal") }}
       </div>
+      <span class="filler"></span>
+
       <div
         type="button"
         class="close"
@@ -13,6 +17,7 @@
         <span
           aria-hidden="true"
           style="
+            font-size: 13px;
             border: 1px transparent solid;
             color: var(--colorWorkplaceHeadline);
           "
@@ -24,7 +29,7 @@
       <div class="row-line-modal-inline">
         <div style="margin-left: 30px; width: 150px">
           <label for="macroName">{{
-            "setting.macro.name-modal" | translate
+            translate.instant("setting.macro.name-modal")
           }}</label>
           <input
             type="text"
@@ -37,7 +42,9 @@
         </div>
 
         <div style="margin-left: 30px; width: 80px">
-          <label for="type">{{ "setting.macro.type-modal" | translate }}</label>
+          <label for="type">{{
+            translate.instant("setting.macro.type-modal")
+          }}</label>
           <input
             class="form-control"
             style="width: 80px"
@@ -62,7 +69,7 @@
               class="nav-link"
               [ngClass]="{ active: tabId === 'data' }"
               (click)="onClickData()"
-              >{{ "setting.macro.data-modal" | translate }}</a
+              >{{ translate.instant("setting.macro.data-modal") }}</a
             >
           </li>
 
@@ -71,7 +78,7 @@
               class="nav-link"
               [ngClass]="{ active: tabId === 'test' }"
               (click)="tabId = 'test'"
-              >{{ "setting.macro.test-modal" | translate }}</a
+              >{{ translate.instant("setting.macro.test-modal") }}</a
             >
           </li>
           <li class="nav-item">
@@ -79,7 +86,7 @@
               class="nav-link"
               [ngClass]="{ active: tabId === 'description' }"
               (click)="tabId = 'description'"
-              >{{ "setting.macro.description-modal" | translate }}</a
+              >{{ translate.instant("setting.macro.description-modal") }}</a
             >
           </li>
         </ul>
@@ -148,7 +155,7 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ "cancel" | translate }}</span
+      >{{ translate.instant("cancel") }}</span
     >
     <button type="button" class="btn save-btn" (click)="modal.close()">
       Macro erfassen

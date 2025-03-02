@@ -23,9 +23,16 @@ import { MultiLanguage } from 'src/app/core/multi-language-class';
 import { Subscription } from 'rxjs';
 
 // Codemirror imports
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/addon/fold/foldgutter.css';
+import 'codemirror/addon/lint/lint.css';
 import 'codemirror/mode/vbscript/vbscript';
 import 'codemirror/mode/css/css';
 import 'codemirror/mode/javascript/javascript';
+import 'codemirror/addon/fold/foldgutter';
+import 'codemirror/addon/fold/foldcode';
+import 'codemirror/addon/lint/lint';
+import 'codemirror/addon/display/autorefresh';
 
 @Component({
   selector: 'app-macro-row',
@@ -78,8 +85,10 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
       'CodeMirror-foldgutter',
       'CodeMirror-lint-markers',
     ],
-    setSize: 'width: 100% , height:200px',
     lint: true,
+    viewportMargin: Infinity, // Hilft bei der Anzeige in dynamischen Containern
+    autoRefresh: true, // Wichtig für Modals
+    theme: 'default', // Verwende das Standard-Theme
   };
 
   codeMirrorOptions1 = {

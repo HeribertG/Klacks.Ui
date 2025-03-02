@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="first custom-control-inline">
   <div class="form-group">
     <input
@@ -20,7 +22,7 @@
       aria-label="email"
     />
     <span class="send-to" (click)="onClickSentTo()">{{
-      "setting.user-admin.row.send" | translate
+      translate.instant("setting.user-admin.row.send")
     }}</span>
   </div>
   <div class="form-group">
@@ -33,10 +35,10 @@
       aria-label="isAuthorised"
     >
       <option value="true" [selected]="user!.isAuthorised === true">
-        {{ "setting.user-admin.row.yes" | translate }}
+        {{ translate.instant("setting.user-admin.row.yes") }}
       </option>
       <option value="false" [selected]="user!.isAuthorised === false">
-        {{ "setting.user-admin.row.no" | translate }}
+        {{ translate.instant("setting.user-admin.row.no") }}
       </option>
     </select>
   </div>

@@ -1,13 +1,16 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form>
   <div class="container-header">
-    {{ "setting.setting-general.headline" | translate }}
+    {{ translate.instant("setting.setting-general.headline") }}
   </div>
 
   <div class="container-line"></div>
 
   <div class="form-group first">
     <label for="setting-genaral-name">{{
-      "setting.setting-general.title" | translate
+      translate.instant("setting.setting-general.title")
     }}</label>
     <input
       type="text"
@@ -42,7 +45,7 @@
       autoClose="true"
     >
       <label class="first">{{
-        "setting.setting-general.icon" | translate
+        translate.instant("setting.setting-general.icon")
       }}</label>
 
       <div
@@ -52,7 +55,7 @@
         (fileDropped)="onUploadIcon($event)"
       >
         <span class="ddinfo">{{
-          "setting.setting-general.info-icon" | translate
+          translate.instant("setting.setting-general.info-icon")
         }}</span>
         <input
           type="file"
@@ -74,7 +77,7 @@
           class="delete-button delete-button-icon"
           type="button"
           (click)="onClickDeleteLogo()"
-          >{{ "setting.setting-general.remove-logo" | translate }}</span
+          >{{ translate.instant("setting.setting-general.remove-logo") }}</span
         >
       </div>
     </div>
@@ -86,7 +89,7 @@
       autoClose="true"
     >
       <label class="first">{{
-        "setting.setting-general.logo" | translate
+        translate.instant("setting.setting-general.logo")
       }}</label>
       <div
         class="fileupload-ico"
@@ -95,7 +98,7 @@
         (fileDropped)="onUploadLogo($event)"
       >
         <span class="ddinfo"
-          >{{ "setting.setting-general.info-logo" | translate }}
+          >{{ translate.instant("setting.setting-general.info-logo") }}
         </span>
         <input
           type="file"

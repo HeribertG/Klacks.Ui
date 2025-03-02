@@ -44,7 +44,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
 
-  public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
 
   constructor() {
