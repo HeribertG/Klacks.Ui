@@ -21,6 +21,7 @@ import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { IMacro, Macro } from 'src/app/core/macro-class';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 import { Subscription } from 'rxjs';
+import { PropertyGridComponent } from '../property-grid/property-grid.component';
 
 // Codemirror imports
 import 'codemirror/lib/codemirror.css';
@@ -33,6 +34,7 @@ import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldcode';
 import 'codemirror/addon/lint/lint';
 import 'codemirror/addon/display/autorefresh';
+import { ShiftData } from 'src/app/core/shift-data-class';
 
 @Component({
   selector: 'app-macro-row',
@@ -47,6 +49,7 @@ import 'codemirror/addon/display/autorefresh';
     IconsModule,
     SharedModule,
     CodemirrorModule,
+    PropertyGridComponent,
   ],
 })
 export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
@@ -67,6 +70,8 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
   currentData = '';
   myData: any;
 
+  shiftData = new ShiftData();
+
   test = '';
 
   private formSubscription?: Subscription;
@@ -86,23 +91,9 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
       'CodeMirror-lint-markers',
     ],
     lint: true,
-    viewportMargin: Infinity, // Hilft bei der Anzeige in dynamischen Containern
-    autoRefresh: true, // Wichtig für Modals
-    theme: 'default', // Verwende das Standard-Theme
-  };
-
-  codeMirrorOptions1 = {
-    theme: 'material',
-    mode: 'javascript',
-    lineNumbers: true,
-    lineWrapping: true,
-    foldGutter: true,
-    gutters: [
-      'CodeMirror-linenumbers',
-      'CodeMirror-foldgutter',
-      'CodeMirror-lint-markers',
-    ],
-    lint: true,
+    viewportMargin: Infinity,
+    autoRefresh: true,
+    theme: 'default',
   };
 
   dialogRef: any;

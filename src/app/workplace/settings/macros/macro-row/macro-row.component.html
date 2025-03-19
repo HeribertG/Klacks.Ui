@@ -104,21 +104,15 @@
         >
         </ngx-codemirror>
       </div>
-
       <div
         class="collapse"
         [ngStyle]="{ display: tabId === 'data' ? 'inline' : 'none' }"
       >
-        <ngx-codemirror
-          #codemirror1
-          [options]="codeMirrorOptions"
-          [(ngModel)]="currentData"
-          id="codemirror1"
-          name="codemirrorData1"
-        >
-        </ngx-codemirror>
+        <app-property-grid
+          [object]="shiftData"
+          [excludeProps]="['isDirty']"
+        ></app-property-grid>
       </div>
-
       <div
         class="collapse"
         [ngStyle]="{ display: tabId === 'test' ? 'inline' : 'none' }"

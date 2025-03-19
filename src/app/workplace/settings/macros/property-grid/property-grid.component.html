@@ -1,0 +1,95 @@
+<div class="property-grid">
+  <table class="property-table">
+    <thead class="property-header">
+      <tr>
+        <th>Eigenschaft</th>
+        <th>Wert</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let prop of properties(); trackBy: trackByKey">
+        <td class="property-name">{{ prop.key }}</td>
+        <td class="property-value">
+          <!-- String -->
+          <input
+            class="property-value"
+            *ngIf="prop.type === 'string' && prop.editable"
+            type="text"
+            [(ngModel)]="prop.value"
+            (change)="updateProperty(prop.key, prop.value)"
+          />
+
+          <!-- Number mit Validierung -->
+          <input
+            class="form-control"
+            *ngIf="prop.type === 'number' && prop.editable"
+            type="number"
+            [min]="prop.metadata?.min"
+            [max]="prop.metadata?.max"
+            [step]="
+              prop.metadata?.step ||
+              (prop.metadata?.decimals
+                ? Math.pow(0.1, prop.metadata.decimals)
+                : 1)
+            "
+            [(ngModel)]="prop.value"
+            (change)="handleNumberChange($event, prop)"
+          />
+
+          <!-- Boolean -->
+          <input
+            class="form-control"
+            *ngIf="prop.type === 'boolean' && prop.editable"
+            type="checkbox"
+            [checked]="prop.value"
+            (change)="handleCheckboxChange($event, prop.key)"
+          />
+
+          <!-- ShiftType Dropdown -->
+          <select
+            class="form-select enum-select"
+            *ngIf="prop.type === 'shiftType' && prop.editable"
+            [(ngModel)]="prop.value"
+            (change)="handleEnumChange($event, prop.key)"
+          >
+            <option
+              *ngFor="let option of shiftTypeOptions"
+              [value]="option.value"
+            >
+              {{ option.name }}
+            </option>
+          </select>
+
+          <!-- Weekday Dropdown -->
+          <select
+            class="form-select enum-select"
+            *ngIf="prop.type === 'weekday' && prop.editable"
+            [(ngModel)]="prop.value"
+            (change)="handleEnumChange($event, prop.key)"
+          >
+            <option
+              *ngFor="let option of weekdayOptions"
+              [value]="option.value"
+            >
+              {{ option.name }}
+            </option>
+          </select>
+
+          <!-- Date -->
+          <input
+            class="form-control"
+            *ngIf="prop.type === 'date' && prop.editable"
+            type="date"
+            [ngModel]="formatDate(prop.value)"
+            (change)="handleDateChange($event, prop.key)"
+          />
+
+          <!-- Read-only values -->
+          <span class="form-control" *ngIf="!prop.editable">
+            {{ displayValue(prop) }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
