@@ -39,21 +39,43 @@ export class DataManagementBreakService {
   reRead() {
     this.readYear();
   }
+
   readYear() {
     this.showProgressSpinner.set(true);
     if (this.canReadBreaks) {
       this.clients = [];
 
-      this.dataBreakService
-        .getClientList(this.breakFilter)
-        .subscribe((clientBreaks) => {
-          this.clients = clientBreaks;
+      this.dataBreakService.getClientList(this.breakFilter).subscribe({
+        next: (clientBreaks) => {
+          // Bereinige die Daten vor dem Speichern
+          this.clients = clientBreaks.map((client) => {
+            if (client.breaks && Array.isArray(client.breaks)) {
+              // Filtere ungültige Breaks
+              client.breaks = client.breaks.filter(
+                (brk) =>
+                  brk &&
+                  typeof brk === 'object' &&
+                  Object.keys(brk).length > 0 &&
+                  brk.from &&
+                  brk.until
+              );
+            } else {
+              client.breaks = [];
+            }
+            return client;
+          });
+
           this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
           this.showProgressSpinner.set(false);
           this.isRead.set(true);
 
           setTimeout(() => this.isRead.set(false), 100);
-        });
+        },
+        error: (err) => {
+          console.error('Fehler beim Laden der Breaks:', err);
+          this.showProgressSpinner.set(false);
+        },
+      });
     }
   }
 
@@ -78,6 +100,7 @@ export class DataManagementBreakService {
     }
     return undefined;
   }
+
   get rows(): number {
     return this.clients.length;
   }

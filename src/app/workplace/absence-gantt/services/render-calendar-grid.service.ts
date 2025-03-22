@@ -167,7 +167,7 @@ export class RenderCalendarGridService {
 
     // Die letzte Absenz wird desektiert
     this._selectedBreakIndex = -1;
-    this.selectedRow = -1;
+    this._selectedRow = -1;
     this.unDrawSelectionRow();
 
     if (value < 0) {
@@ -178,7 +178,6 @@ export class RenderCalendarGridService {
       this._selectedRow = value;
     }
     this.drawSelectionRow();
-    this.selectedRow = this._selectedRow;
   }
 
   public get selectedRow(): number {
@@ -191,23 +190,46 @@ export class RenderCalendarGridService {
 
   public drawSelectionRow(): void {
     if (
-      this.selectedRow !== -1 ||
-      this.selectedRow >= this.dataManagementBreak.rows
+      this.selectedRow !== -1 &&
+      this.selectedRow < this.dataManagementBreak.rows
     ) {
-      this.ganttCanvasManager.ctx!.save();
+      // Überprüfen, ob der Canvas-Kontext existiert
+      if (!this.ganttCanvasManager.ctx) {
+        console.error('Canvas context is null in drawSelectionRow');
+        return;
+      }
 
-      this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
-      this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
+      this.ganttCanvasManager.ctx.save();
+
       const dy = this.selectedRow - this.scroll.verticalScrollPosition;
       const height = this.calendarSetting.cellHeight;
       const top =
         Math.floor(dy * height) + this.calendarSetting.cellHeaderHeight;
-      const width =
+
+      const calculatedWidth =
         (this.lastVisibleColumn() - this.firstVisibleColumn()) *
         this.calendarSetting.cellWidth;
-      this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
+
+      const width =
+        calculatedWidth > 0 ? calculatedWidth : this.ganttCanvasManager.width;
+
+      // Wichtig: Setze einen Clipping-Bereich, der den Header ausschließt
+      this.ganttCanvasManager.ctx.beginPath();
+      this.ganttCanvasManager.ctx.rect(
+        0,
+        this.calendarSetting.cellHeaderHeight,
+        this.ganttCanvasManager.width,
+        this.ganttCanvasManager.height - this.calendarSetting.cellHeaderHeight
+      );
+      this.ganttCanvasManager.ctx.clip();
+
+      // Zeichne die Auswahl
+      this.ganttCanvasManager.ctx.globalAlpha = 0.2;
+      this.ganttCanvasManager.ctx.fillStyle = this.gridColors.focusBorderColor;
+      this.ganttCanvasManager.ctx.fillRect(0, top, width, height);
+
       this.drawSelectedBreak();
-      this.ganttCanvasManager.ctx!.restore();
+      this.ganttCanvasManager.ctx.restore();
     }
   }
 
@@ -331,8 +353,8 @@ export class RenderCalendarGridService {
     this.drawRowSubIntern(index, rowRec);
   }
 
-  public firstVisibleColumn(): number {
-    return this.ganttCanvasManager.height;
+  firstVisibleColumn(): number {
+    return this.scroll.horizontalScrollPosition;
   }
 
   public lastVisibleColumn(): number {
@@ -797,19 +819,30 @@ export class RenderCalendarGridService {
 
   public drawRowBreaks(index: number, selectedBreak: IBreak | undefined) {
     const breaks = this.dataManagementBreak.readData(index);
-    if (breaks) {
-      breaks.forEach((x) => {
+    if (breaks && Array.isArray(breaks) && breaks.length > 0) {
+      // Filtere nur valide Breaks
+      const validBreaks = breaks.filter(
+        (x) => x && typeof x === 'object' && x.from && x.until
+      );
+
+      validBreaks.forEach((x, i) => {
         let drawBreak = true;
         if (selectedBreak && x.id === selectedBreak.id) {
           drawBreak = false;
         }
+
         if (drawBreak) {
-          const rec = this.calcDateRectangle(x.from as Date, x.until as Date);
-          const abs = this.dataManagementAbsence.absenceList.find(
-            (as) => as.id === x.absenceId
-          );
-          if (abs && abs.color) {
-            this.drawRowBreak(rec, abs.color);
+          try {
+            const rec = this.calcDateRectangle(x.from as Date, x.until as Date);
+            const abs = this.dataManagementAbsence.absenceList?.find(
+              (as) => as && as.id === x.absenceId
+            );
+
+            if (abs && abs.color) {
+              this.drawRowBreak(rec, abs.color);
+            }
+          } catch (error) {
+            console.error(`Error drawing break ${i}:`, error);
           }
         }
       });

@@ -528,9 +528,20 @@ export function getDaysInMonth(year: number, month: number): number {
   ][month];
 }
 
-export function daysBetweenDates(a: Date, b: Date): number {
+export function daysBetweenDates(
+  a: Date | null | undefined,
+  b: Date | null | undefined
+): number {
+  if (!a || !b) {
+    return 0;
+  }
+
   const aa = dateWithUTCCorrection(a) as Date;
   const bb = dateWithUTCCorrection(b) as Date;
+
+  if (!aa || !bb) {
+    return 0;
+  }
 
   const Difference_In_Time = bb.getTime() - aa.getTime();
   return Difference_In_Time / (1000 * 60 * 60 * 24);

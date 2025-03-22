@@ -405,9 +405,16 @@ export class AbsenceGanttSurfaceComponent
       const tmpRow = Math.floor(dy / height);
       const tmpSelectedRow = tmpRow + this.drawCalendarGantt.firstVisibleRow;
 
+      // Debug-Ausgabe hinzufügen
+      console.log('Selecting row:', tmpSelectedRow);
+
       if (this.drawCalendarGantt.selectedRow !== tmpSelectedRow) {
         this.drawCalendarGantt.selectedRow = tmpSelectedRow;
         this.selectedArea = SelectedArea.None;
+
+        // Explizites Neuzeichnen der ausgewählten Zeile erzwingen
+        this.drawCalendarGantt.unDrawSelectionRow();
+        this.drawCalendarGantt.drawSelectionRow();
       }
 
       this.existActiveSelection(event);

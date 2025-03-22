@@ -39,12 +39,19 @@ export class DataBreakService {
   }
 
   getClientList(filter: IBreakFilter) {
-    return this.httpClient
+    const result = this.httpClient
       .post<IClientBreak[]>(
         `${environment.baseUrl}Breaks/GetClientList/`,
         filter
       )
       .pipe(retry(3));
+
+    result.subscribe((data) => {
+      console.log('Daten im getClientList:', data);
+      // Hier kannst du die Daten analysieren
+    });
+
+    return result;
   }
 
   private setCorrectDate(value: Break) {
