@@ -35,15 +35,37 @@ enum ArrowDirection {
 }
 
 @Component({
-    selector: 'app-h-scrollbar',
-    templateUrl: './h-scrollbar.component.html',
-    styleUrls: ['./h-scrollbar.component.scss'],
-    standalone: false
+  selector: 'app-h-scrollbar',
+  templateUrl: './h-scrollbar.component.html',
+  styleUrls: ['./h-scrollbar.component.scss'],
+  standalone: false,
 })
 export class HScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Input() value = 0;
+  @Input()
+  get value(): number {
+    return this._value;
+  }
+
+  set value(newValue: number) {
+    const clampedValue = Math.max(
+      0,
+      Math.min(
+        newValue,
+        this.maxValue -
+          this.visibleValue +
+          SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE
+      )
+    );
+
+    if (this._value !== clampedValue) {
+      this._value = clampedValue;
+      this.valueChange.emit(this._value);
+      this.reDraw();
+      this.updateArrowButtonsState();
+    }
+  }
   @Input() maxValue = 365;
   @Input() visibleValue = 180;
 
@@ -56,6 +78,7 @@ export class HScrollbarComponent
   public disableLeftArrow = false;
   public disableRightArrow = false;
 
+  private _value = 0;
   private readonly CANVAS_PADDING = 50;
   private readonly INITIAL_ANIMATION_FRAME_MODULO = 10;
   private readonly Y_POSITION_OFFSET = 1;

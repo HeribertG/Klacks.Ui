@@ -22,7 +22,7 @@ export class DrawCalendarGanttService {
 
   public pixelRatio = 1;
   public isBusy = false;
-  public startDate: Date = new Date();
+  public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
   public selectedBreakRec: Rectangle | undefined;
   public selectedBreak_dummy: IBreak | undefined;
 
@@ -52,23 +52,20 @@ export class DrawCalendarGanttService {
     this.renderCalendarGrid.renderCalendar();
   }
 
-  moveCalendar(directionX: number, directionY: number): void {
+  moveCalendar(moveX: boolean, moveY: boolean): void {
     if (this.isBusy) {
       return;
     }
-
-    const dirX = directionX;
-    const visibleRow = this.scroll.visibleRows;
 
     this.zone.runOutsideAngular(() => {
       try {
         this.isBusy = true;
         // horizontale Verschiebung
-        if (dirX !== 0) {
+        if (moveX) {
           //this.drawCalendar();
         }
         // vertikale Verschiebung
-        if (directionY !== 0) {
+        if (moveY) {
           this.renderCalendarGrid.renderCalendar();
         }
       } finally {
@@ -291,6 +288,10 @@ export class DrawCalendarGanttService {
 
   /* #region Environment changes */
 
+  public set updateStartDate(value: number) {
+    this.renderCalendarGrid.updateStartDate(value);
+  }
+
   public set width(value: number) {
     this.ganttCanvasManager.width = value;
   }
@@ -302,8 +303,9 @@ export class DrawCalendarGanttService {
   public set height(value: number) {
     this.ganttCanvasManager.height = value;
   }
+
   firstVisibleColumn(): number {
-    return this.ganttCanvasManager.height;
+    return this.scroll.horizontalScrollPosition;
   }
 
   lastVisibleColumn(): number {

@@ -5,8 +5,8 @@ import { Rectangle } from '../../../grid/classes/geometry';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 
 @Directive({
-    selector: '[appAbsenceCalendar]',
-    standalone: false
+  selector: '[appAbsenceCalendar]',
+  standalone: false,
 })
 export class AbsenceCalendarDirective {
   private keyDown = false;
@@ -56,11 +56,20 @@ export class AbsenceCalendarDirective {
     if (!this.isOwnElement(event)) {
       return;
     }
-
     const moveY: number = event.deltaY === 0 ? 0 : event.deltaY > 0 ? 1 : -1;
     const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
 
-    this.gridBody.drawCalendarGantt.moveCalendar(moveX, moveY);
+    if (moveX !== 0) {
+      const newValue = this.gridBody.valueChangeHScrollbar + moveX;
+
+      this.gridBody.valueHScrollbar.emit(newValue);
+    }
+
+    if (moveY !== 0) {
+      const newValue = this.gridBody.valueChangeVScrollbar + moveY;
+
+      this.gridBody.valueVScrollbar.emit(newValue);
+    }
 
     this.stopEvent(event);
   }
@@ -172,7 +181,7 @@ export class AbsenceCalendarDirective {
 
           this.gridBody.scroll.verticalScrollPosition += diff;
 
-          this.gridBody.drawCalendarGantt.moveCalendar(0, diff);
+          this.gridBody.drawCalendarGantt.moveCalendar(false, true);
         }
       }
 
@@ -239,7 +248,7 @@ export class AbsenceCalendarDirective {
             this.gridBody.drawCalendarGantt.selectedRow
           ) {
             this.gridBody.scroll.verticalScrollPosition += -1;
-            this.gridBody.drawCalendarGantt.moveCalendar(0, -1);
+            this.gridBody.drawCalendarGantt.moveCalendar(false, true);
           }
         }
 

@@ -87,7 +87,6 @@ export class AbsenceGanttSurfaceComponent
   private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
   private copiedBreaks: IBreak[] = [];
-  private firstDayDate = new Date(2023, 0, 1);
   private isAbsenceHeaderInit = false;
   private countServices = 0;
   private eventListeners = new Array<() => void>();
@@ -163,18 +162,21 @@ export class AbsenceGanttSurfaceComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    //console.log('ngOnChanges surface');
+    let vDirection: boolean = false;
+    let hDirection: boolean = false;
+
     if (changes['valueChangeHScrollbar']) {
       this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
-      this.drawCalendarGantt.drawCalendar();
+      hDirection = true;
     }
+
     if (changes['valueChangeVScrollbar']) {
       this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+      vDirection = true;
+    }
 
-      this.drawCalendarGantt.moveCalendar(
-        this.valueChangeHScrollbar,
-        this.valueChangeVScrollbar
-      );
+    if (vDirection || hDirection) {
+      this.drawCalendarGantt.moveCalendar(hDirection, vDirection);
     }
   }
 
@@ -293,7 +295,7 @@ export class AbsenceGanttSurfaceComponent
               if (diffDay !== 0) {
                 if (this.drawCalendarGantt.selectedBreak) {
                   this.drawCalendarGantt.selectedBreak.from = addDays(
-                    this.firstDayDate,
+                    this.drawCalendarGantt.startDate,
                     diffDay
                   );
 
@@ -320,7 +322,7 @@ export class AbsenceGanttSurfaceComponent
               if (diffDay !== 0) {
                 if (this.drawCalendarGantt.selectedBreak) {
                   this.drawCalendarGantt.selectedBreak.until = addDays(
-                    this.firstDayDate,
+                    this.drawCalendarGantt.startDate,
                     diffDay
                   );
 
@@ -394,19 +396,39 @@ export class AbsenceGanttSurfaceComponent
 
     return isSelected;
   }
+
   onSelectByMouse(event: MouseEvent): void {
     const x = event.offsetX;
     const y = event.offsetY;
 
+    console.debug('-- Mouse Click Event --');
+    console.debug('Raw click coordinates:', x, y);
+
     const dy = y - this.calendarSetting.cellHeaderHeight;
     const height = this.calendarSetting.cellHeight;
+
+    console.debug(
+      'dy calculation:',
+      y,
+      '-',
+      this.calendarSetting.cellHeaderHeight,
+      '=',
+      dy
+    );
+    console.debug('Cell height:', height);
 
     if (dy >= 0) {
       const tmpRow = Math.floor(dy / height);
       const tmpSelectedRow = tmpRow + this.drawCalendarGantt.firstVisibleRow;
 
-      // Debug-Ausgabe hinzufügen
-      console.log('Selecting row:', tmpSelectedRow);
+      console.debug(
+        'Calculated row:',
+        tmpRow,
+        '+',
+        this.drawCalendarGantt.firstVisibleRow,
+        '=',
+        tmpSelectedRow
+      );
 
       if (this.drawCalendarGantt.selectedRow !== tmpSelectedRow) {
         this.drawCalendarGantt.selectedRow = tmpSelectedRow;
@@ -425,6 +447,13 @@ export class AbsenceGanttSurfaceComponent
         return;
       }
 
+      // Hier den Debug für die createBreakSelection-Methode hinzufügen
+      console.debug(
+        'Calling createBreakSelection with row:',
+        tmpSelectedRow,
+        'x:',
+        x
+      );
       this.createBreakSelection(tmpSelectedRow, x);
       this.drawCalendarGantt.drawSelectedBreak();
     }
@@ -440,18 +469,37 @@ export class AbsenceGanttSurfaceComponent
 
   private createBreakSelection(selectedRow: number, x: number): void {
     const width = this.calendarSetting.cellWidth;
+    console.debug('createBreakSelection - cell width:', width);
 
     if (x >= 0) {
       const tmpCol =
         Math.floor(x / width) + this.drawCalendarGantt.firstVisibleColumn();
+      console.debug(
+        'Calculated column:',
+        Math.floor(x / width),
+        '+',
+        this.drawCalendarGantt.firstVisibleColumn(),
+        '=',
+        tmpCol
+      );
+
+      // Debug-Ausgabe für das Datum dieser Spalte
+      const date = new Date(this.drawCalendarGantt.startDate);
+      date.setDate(date.getDate() + tmpCol);
+      console.debug('Date for this column:', date.toISOString().slice(0, 10));
 
       if (tmpCol === this.drawCalendarGantt.selectedBreakIndex) {
+        console.debug('Column already selected, returning');
         return;
       }
 
       this.drawCalendarGantt.selectedBreakIndex = -1;
       this.selectedArea = SelectedArea.None;
+
+      // Breaks für diese Zeile suchen
       const allBreaks = this.dataManagementBreak.readData(selectedRow);
+      console.debug('Found breaks for row:', allBreaks ? allBreaks.length : 0);
+
       let index = 0;
       if (allBreaks) {
         allBreaks.forEach((abs) => {
@@ -463,10 +511,21 @@ export class AbsenceGanttSurfaceComponent
           );
           const col2 = col1 + diff;
 
+          console.debug(
+            'Break',
+            index,
+            'spans columns:',
+            col1,
+            'to',
+            col2,
+            'clicked column:',
+            tmpCol
+          );
+
           if (tmpCol >= col1 && tmpCol <= col2) {
+            console.debug('Found break at index:', index);
             this.drawCalendarGantt.selectedBreakIndex = index;
             this.selectedArea = SelectedArea.AbsenceBar;
-
             return;
           }
 
@@ -954,7 +1013,8 @@ export class AbsenceGanttSurfaceComponent
       if (this.holidayCollection.isReset()) {
         this.drawCalendarGantt.selectedRow = -1;
 
-        this.firstDayDate = new Date(this.holidayCollection.currentYear, 0, 1);
+        this.drawCalendarGantt.updateStartDate =
+          this.holidayCollection.currentYear;
         this.drawCalendarGantt.resetAll();
         this.dataManagementBreak.readYear();
       }

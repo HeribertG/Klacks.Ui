@@ -81,6 +81,10 @@ export class RenderCalendarGridService {
     return this.ganttCanvasManager.isCanvasAvailable();
   }
 
+  public updateStartDate(year: number): void {
+    this.startDate = new Date(year, 0, 1);
+  }
+
   @CanvasAvailable('queue')
   public renderRuler(): void {
     this.startDate = new Date(this.holidayCollection.currentYear, 0, 1);
@@ -103,6 +107,14 @@ export class RenderCalendarGridService {
       this.ganttCanvasManager.height;
     this.ganttCanvasManager.renderCanvas!.width = this.getWidth();
 
+    // Überprüfen wir, welche Zeilen tatsächlich gerendert werden sollen
+    const rowsToRender = [];
+    for (let i = 0; i < this.visibleRow() + 1; i++) {
+      const posDelta = i + this.scroll.verticalScrollPosition!;
+      rowsToRender.push(posDelta);
+    }
+
+    // Jetzt das tatsächliche Rendering
     for (let i = 0; i < this.visibleRow() + 1; i++) {
       const posDelta = i + this.scroll.verticalScrollPosition!;
       this.drawRow(posDelta, undefined);
@@ -120,7 +132,7 @@ export class RenderCalendarGridService {
     this.ganttCanvasManager.renderCanvasCtx!.drawImage(
       this.ganttCanvasManager.renderCanvas!,
       0,
-      this.calendarSetting.cellHeight * diff // Problem: Vorzeichen
+      this.calendarSetting.cellHeight * diff
     );
 
     // Neue Rows berechnen
@@ -193,13 +205,7 @@ export class RenderCalendarGridService {
       this.selectedRow !== -1 &&
       this.selectedRow < this.dataManagementBreak.rows
     ) {
-      // Überprüfen, ob der Canvas-Kontext existiert
-      if (!this.ganttCanvasManager.ctx) {
-        console.error('Canvas context is null in drawSelectionRow');
-        return;
-      }
-
-      this.ganttCanvasManager.ctx.save();
+      this.ganttCanvasManager.ctx!.save();
 
       const dy = this.selectedRow - this.scroll.verticalScrollPosition;
       const height = this.calendarSetting.cellHeight;
@@ -214,22 +220,22 @@ export class RenderCalendarGridService {
         calculatedWidth > 0 ? calculatedWidth : this.ganttCanvasManager.width;
 
       // Wichtig: Setze einen Clipping-Bereich, der den Header ausschließt
-      this.ganttCanvasManager.ctx.beginPath();
-      this.ganttCanvasManager.ctx.rect(
+      this.ganttCanvasManager.ctx!.beginPath();
+      this.ganttCanvasManager.ctx!.rect(
         0,
         this.calendarSetting.cellHeaderHeight,
         this.ganttCanvasManager.width,
         this.ganttCanvasManager.height - this.calendarSetting.cellHeaderHeight
       );
-      this.ganttCanvasManager.ctx.clip();
+      this.ganttCanvasManager.ctx!.clip();
 
       // Zeichne die Auswahl
-      this.ganttCanvasManager.ctx.globalAlpha = 0.2;
-      this.ganttCanvasManager.ctx.fillStyle = this.gridColors.focusBorderColor;
-      this.ganttCanvasManager.ctx.fillRect(0, top, width, height);
+      this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
+      this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
+      this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
 
       this.drawSelectedBreak();
-      this.ganttCanvasManager.ctx.restore();
+      this.ganttCanvasManager.ctx!.restore();
     }
   }
 
