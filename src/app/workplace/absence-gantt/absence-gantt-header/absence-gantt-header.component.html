@@ -16,7 +16,7 @@
       ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
       autoClose="true"
     >
-      <christmas-ball></christmas-ball>
+      <choose-calendar (change)="onChangeCalendar()"></choose-calendar>
     </button>
     <div ngbDropdownMenu>
       <div class="px-3 py-3">

@@ -10,10 +10,10 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-absence-gantt-header',
-    templateUrl: './absence-gantt-header.component.html',
-    styleUrls: ['./absence-gantt-header.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-header',
+  templateUrl: './absence-gantt-header.component.html',
+  styleUrls: ['./absence-gantt-header.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
@@ -62,8 +62,10 @@ export class AbsenceGanttHeaderComponent implements OnInit {
   }
 
   onChangeCalendar() {
-    const chips = this.dataManagementCalendarSelectionService.chips;
-    this.holidayCollection.setSelection(chips);
+    setTimeout(() => {
+      const chips = this.dataManagementCalendarSelectionService.chips;
+      this.holidayCollection.setSelection(chips);
+    }, 300);
   }
 
   onReRead() {

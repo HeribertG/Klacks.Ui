@@ -4,10 +4,10 @@ import { GridSettingsService } from 'src/app/grid/services/grid-settings.service
 import { DataService } from '../../services/data.service';
 
 @Component({
-    selector: 'app-schedule-header-calendar',
-    templateUrl: './schedule-header-calendar.component.html',
-    styleUrls: ['./schedule-header-calendar.component.scss'],
-    standalone: false
+  selector: 'app-schedule-header-calendar',
+  templateUrl: './schedule-header-calendar.component.html',
+  styleUrls: ['./schedule-header-calendar.component.scss'],
+  standalone: false,
 })
 export class ScheduleHeaderCalendarComponent {
   currentYear: number = new Date().getFullYear();
@@ -19,6 +19,7 @@ export class ScheduleHeaderCalendarComponent {
     private dataManagementSchedule: DataManagementScheduleService,
     private dataService: DataService
   ) {}
+
   changeYear(event: number) {
     this.currentYear = event;
     this.dataManagementSchedule.workFilter.currentYear = this.currentYear;

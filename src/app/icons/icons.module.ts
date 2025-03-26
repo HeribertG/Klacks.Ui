@@ -40,7 +40,7 @@ import { IconScheduleComponent } from './icon-schedule.component';
 import { IconCopyGreyComponent } from './icon-copy-grey.component';
 import { IconGanttComponent } from './icon-gantt.component';
 import { SliderGreyComponent } from './slider-grey.component';
-import { ChristmasBallComponent } from './chistmas-ball.component';
+import { ChooseCalendarComponent } from './choose-calendar.component';
 import { IconGroupComponent } from './icon-group.component';
 import { IconScheduleComponent2 } from './icon-schedule2.component';
 import { IconBriefCaseComponent } from './icon-briefcase.component';
@@ -90,7 +90,7 @@ import { CalendarIconComponent } from './calendar-icon.component';
     IconCopyGreyComponent,
     IconGanttComponent,
     SliderGreyComponent,
-    ChristmasBallComponent,
+    ChooseCalendarComponent,
     IconGroupComponent,
     IconScheduleComponent2,
     IconBriefCaseComponent,
@@ -139,7 +139,7 @@ import { CalendarIconComponent } from './calendar-icon.component';
     IconCopyGreyComponent,
     IconGanttComponent,
     SliderGreyComponent,
-    ChristmasBallComponent,
+    ChooseCalendarComponent,
     IconGroupComponent,
     IconScheduleComponent2,
     IconBriefCaseComponent,

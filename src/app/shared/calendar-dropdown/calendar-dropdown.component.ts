@@ -7,6 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { faMagnifyingGlassChart } from '@fortawesome/free-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
@@ -15,20 +16,21 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
-    selector: 'app-calendar-dropdown',
-    templateUrl: './calendar-dropdown.component.html',
-    styleUrls: ['./calendar-dropdown.component.scss'],
-    standalone: false
+  selector: 'app-calendar-dropdown',
+  templateUrl: './calendar-dropdown.component.html',
+  styleUrls: ['./calendar-dropdown.component.scss'],
+  standalone: false,
 })
 export class CalendarDropdownComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input() header: string = '';
+  @Input() header: string = 'Versuch';
 
   @Output() isOpening = new EventEmitter();
   @Output() isClosing = new EventEmitter();
   @Output() changed = new EventEmitter();
 
+  public faMagnifyingGlassChart = faMagnifyingGlassChart;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 

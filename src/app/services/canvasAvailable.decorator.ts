@@ -48,7 +48,6 @@ export function CanvasAvailable(
         } else if (errorHandling === 'warn') {
           console.warn(message);
         } else if (errorHandling === 'queue') {
-          console.log(`Queueing ${propertyKey} until canvas is available.`);
           methodQueue.push({ method: originalMethod!, args });
         }
       }

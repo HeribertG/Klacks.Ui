@@ -22,9 +22,6 @@ export class DrawCalendarGanttService {
 
   public pixelRatio = 1;
   public isBusy = false;
-  public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
-  public selectedBreakRec: Rectangle | undefined;
-  public selectedBreak_dummy: IBreak | undefined;
 
   private _columns = 365;
   private _isFocused = false;
@@ -32,17 +29,29 @@ export class DrawCalendarGanttService {
 
   constructor(
     public ganttCanvasManager: GanttCanvasManagerService,
+    private renderCalendarGrid: RenderCalendarGridService,
     private gridColors: GridColorService,
     private holidayCollection: HolidayCollectionService,
     private calendarSetting: CalendarSettingService,
     private dataManagementBreak: DataManagementBreakService,
     private dataManagementAbsence: DataManagementAbsenceGanttService,
     private scroll: ScrollService,
-    private zone: NgZone,
-    private renderCalendarGrid: RenderCalendarGridService
+    private zone: NgZone
   ) {}
 
   /* #region  render */
+
+  public get selectedBreakRec(): Rectangle | undefined {
+    return this.renderCalendarGrid.selectedBreakRec;
+  }
+
+  public set selectedBreakRec(value: Rectangle | undefined) {
+    this.renderCalendarGrid.selectedBreakRec = value;
+  }
+
+  public get isSelectedBreak_Dirty(): boolean {
+    return this.renderCalendarGrid.isSelectedBreak_Dirty();
+  }
 
   public createRuler(): void {
     this.renderCalendarGrid.renderRuler();
@@ -253,7 +262,6 @@ export class DrawCalendarGanttService {
         ) + this.scroll.verticalScrollPosition;
       col = this.calcX2Column(x);
     }
-
     return new MyPosition(row, col);
   }
 
@@ -290,6 +298,9 @@ export class DrawCalendarGanttService {
 
   public set updateStartDate(value: number) {
     this.renderCalendarGrid.updateStartDate(value);
+  }
+  public get startDate(): Date {
+    return this.renderCalendarGrid.startDate;
   }
 
   public set width(value: number) {

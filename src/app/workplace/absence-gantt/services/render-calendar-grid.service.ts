@@ -26,7 +26,10 @@ import { Gradient3DBorderStyleEnum } from '../../../grid/enums/gradient-3d-borde
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
-import { cloneObject } from 'src/app/helpers/object-helpers';
+import {
+  cloneObject,
+  compareComplexObjects,
+} from 'src/app/helpers/object-helpers';
 
 /**
  * Hauptklasse für das Rendering des Kalender-Grids
@@ -391,6 +394,18 @@ export class RenderCalendarGridService {
     if (this.selectedRow > this.dataManagementBreak.rows) {
       this.selectedRow = -1;
     }
+  }
+
+  public isSelectedBreak_Dirty(): boolean {
+    if (this.selectedBreak) {
+      const a = this.selectedBreak as Break;
+      const b = this.selectedBreak_dummy as Break;
+
+      if (!compareComplexObjects(a, b)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private drawBreakIntern(rec: Rectangle, color: string) {

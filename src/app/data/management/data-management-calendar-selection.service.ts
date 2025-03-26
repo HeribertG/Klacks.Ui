@@ -79,7 +79,21 @@ export class DataManagementCalendarSelectionService {
       });
   }
 
-  getCalendarSelection(id: string) {}
+  getCalendarSelection(id: string) {
+    this.dataCalendarSelectionService
+      .getCalendarSelection(id)
+      .subscribe((calendarSelection: CalendarSelection | undefined) => {
+        if (calendarSelection) {
+          this.currentCalendarSelection = calendarSelection;
+          this.readSChips(true);
+          this.isChanged.set(false);
+          setTimeout(() => {
+            this.isRead.set(true);
+            setTimeout(() => this.isRead.set(false), 100);
+          }, 0);
+        }
+      });
+  }
 
   updateCalendarSelection() {
     if (this.currentCalendarSelection) {
@@ -162,9 +176,13 @@ export class DataManagementCalendarSelectionService {
 
       if (checkIfDirty) {
         this.chipsDummy = cloneObject<StateCountryToken[]>(this.chips);
+        if (this.isFilterDirty()) {
+          this.isChanged.set(true);
+        } else {
+          this.isChanged.set(false);
+        }
       }
     }
-    setTimeout(() => this.isChanged.set(false), 100);
   }
 
   isFilterDirty(): boolean {
@@ -172,10 +190,9 @@ export class DataManagementCalendarSelectionService {
     const b = this.chipsDummy as StateCountryToken[];
     const list: string[] = Array(1).fill('select');
 
-    if (!compareComplexObjects(a, b, list)) {
-      return true;
-    }
-    return false;
+    const result = !compareComplexObjects(a, b, list);
+
+    return result;
   }
 
   private sort(values: CalendarSelection[]): void {

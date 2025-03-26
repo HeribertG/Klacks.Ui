@@ -35,8 +35,11 @@ export class AbsenceCalendarDirective {
     // this.gridBody.clientTop,
     // this.gridBody.clientWidth,
     // this.gridBody.clientHeight
-    if (!rect.pointInRect(event.clientX, event.clientY)) {
-      this.gridBody.contextMenu!.closeMenu();
+    if (
+      !rect.pointInRect(event.clientX, event.clientY) &&
+      this.gridBody.contextMenu
+    ) {
+      this.gridBody.contextMenu.closeMenu();
     }
   }
 
@@ -87,12 +90,14 @@ export class AbsenceCalendarDirective {
       this.gridBody.onMouseDown(event);
     }
     if (event.buttons === 2) {
-      this.gridBody.contextMenu!.closeMenu();
-      this.stopEvent(event);
-      if (this.gridBody.drawCalendarGantt.rows > 0) {
-        this.gridBody.onSelectByMouse(event);
-        this.gridBody.createContextMenu(event);
-        this.gridBody.contextMenu!.openMenu(event);
+      if (this.gridBody.contextMenu) {
+        this.gridBody.contextMenu.closeMenu();
+        this.stopEvent(event);
+        if (this.gridBody.drawCalendarGantt.rows > 0) {
+          this.gridBody.onSelectByMouse(event);
+          this.gridBody.createContextMenu(event);
+          this.gridBody.contextMenu.openMenu(event);
+        }
       }
     }
     this.gridBody.setFocus();
@@ -154,7 +159,10 @@ export class AbsenceCalendarDirective {
     this.gridBody.drawCalendarGantt.isFocused = true;
 
     this.keyDown = true;
-    this.gridBody.contextMenu!.closeMenu();
+
+    if (this.gridBody.contextMenu) {
+      this.gridBody.contextMenu.closeMenu();
+    }
 
     if (event.shiftKey) {
       this.gridBody.setShiftKey();

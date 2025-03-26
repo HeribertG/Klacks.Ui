@@ -29,7 +29,7 @@
 
   <button
     class="crud-button btn btn-success"
-    [disabled]="!addButtonEnabled"
+    [disabled]="!shouldEnableAddButton"
     (click)="onOpen(modalTypeInput)"
   >
     <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
@@ -43,7 +43,7 @@
     <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
   </button>
 </div>
-<div class="row-line center">
+<div class="row-line right">
   <app-calendar-dropdown
     [header]="headerCalendarDropdown"
     (changed)="onChangeFilter()"
