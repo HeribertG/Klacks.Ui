@@ -25,23 +25,23 @@ export class AbsenceCalendarDirective {
   //   event: MouseEvent
   // ): void {}
 
-  @HostListener('clickOutside', ['$event']) onClickOutside(
-    event: MouseEvent
-  ): void {
-    this.gridBody.destroyToolTip();
+  // @HostListener('clickOutside', ['$event']) onClickOutside(
+  //   event: MouseEvent
+  // ): void {
+  //   this.gridBody.destroyToolTip();
 
-    const rect = new Rectangle();
-    // this.gridBody.clientLeft,
-    // this.gridBody.clientTop,
-    // this.gridBody.clientWidth,
-    // this.gridBody.clientHeight
-    if (
-      !rect.pointInRect(event.clientX, event.clientY) &&
-      this.gridBody.contextMenu
-    ) {
-      this.gridBody.contextMenu.closeMenu();
-    }
-  }
+  //   const rect = new Rectangle();
+  //   // this.gridBody.clientLeft,
+  //   // this.gridBody.clientTop,
+  //   // this.gridBody.clientWidth,
+  //   // this.gridBody.clientHeight
+  //   if (
+  //     !rect.pointInRect(event.clientX, event.clientY) &&
+  //     this.gridBody.contextMenu
+  //   ) {
+  //     this.gridBody.contextMenu.closeMenu();
+  //   }
+  // }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(
     event: MouseEvent

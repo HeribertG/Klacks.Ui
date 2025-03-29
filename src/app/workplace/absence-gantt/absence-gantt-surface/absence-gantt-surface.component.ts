@@ -33,10 +33,7 @@ import { DataManagementBreakService } from 'src/app/data/management/data-managem
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+import { cloneObject } from 'src/app/helpers/object-helpers';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';

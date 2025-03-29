@@ -9,13 +9,9 @@ import { ButtonNewComponent } from './button-new/button-new.component';
 import { ButtonPdfComponent } from './button-pdf/button-pdf.component';
 import { DragDropFileUploadDirective } from '../directives/drag-drop-file-upload.directive';
 import { ButtonSettingComponent } from './button-setting/button-setting.component';
-import { CounterComponent } from './counter/counter.component';
-import { ContextMenuComponent } from './context-menu/context-menu.component';
 import { CalendarDropdownComponent } from './calendar-dropdown/calendar-dropdown.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { MenuComponent } from './context-menu/menu/menu.component';
-import { MenuItemComponent } from './context-menu/menu-item/menu-item.component';
 import { ChipsComponent } from './chips/chips.component';
 import { CalendarSelectorComponent } from './calendar-selector/calendar-selector.component';
 import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
@@ -24,6 +20,11 @@ import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ScrollbarService } from './scrollbar/scrollbar.service';
+import { CounterComponent } from './counter/counter.component';
+import { ClickOutsideDirective } from '../directives/click-outside.directive';
+import { MenuItemComponent } from './context-menu/menu-item/menu-item.component';
+import { MenuComponent } from './context-menu/menu/menu.component';
+import { ContextMenuComponent } from './context-menu/context-menu.component';
 
 @NgModule({
   declarations: [
@@ -33,17 +34,18 @@ import { ScrollbarService } from './scrollbar/scrollbar.service';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    CounterComponent,
-    ContextMenuComponent,
     CalendarDropdownComponent,
     FallbackPipe,
-    MenuComponent,
-    MenuItemComponent,
     ChipsComponent,
     CalendarSelectorComponent,
     ResizeDirective,
     HScrollbarComponent,
     VScrollbarComponent,
+    CounterComponent,
+    ContextMenuComponent,
+    MenuComponent,
+    MenuItemComponent,
+    ClickOutsideDirective,
   ],
   imports: [
     CommonModule,
@@ -61,17 +63,18 @@ import { ScrollbarService } from './scrollbar/scrollbar.service';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    CounterComponent,
-    ContextMenuComponent,
     CalendarDropdownComponent,
     FallbackPipe,
-    MenuComponent,
-    MenuItemComponent,
     ChipsComponent,
     CalendarSelectorComponent,
     ResizeDirective,
     HScrollbarComponent,
     VScrollbarComponent,
+    CounterComponent,
+    ContextMenuComponent,
+    MenuComponent,
+    MenuItemComponent,
+    ClickOutsideDirective,
   ],
   providers: [ScrollbarService],
 })

@@ -2,9 +2,11 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  Injector,
   OnInit,
   Output,
   effect,
+  runInInjectionContext,
 } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
@@ -69,7 +71,8 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
     private translateService: TranslateService,
     private dataManagementCalendarRulesService: DataManagementCalendarRulesService,
     private localStorageService: LocalStorageService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private injector: Injector
   ) {}
 
   ngOnInit(): void {
@@ -429,50 +432,52 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   }
 
   private readSignals(): void {
-    this.effects.push(
-      effect(() => {
-        const isRead = this.dataManagementCalendarRulesService.isRead();
-        if (isRead) {
-          this.onChangeSelection();
-        }
-      })
-    );
+    runInInjectionContext(this.injector, () => {
+      this.effects.push(
+        effect(() => {
+          const isRead = this.dataManagementCalendarRulesService.isRead();
+          if (isRead) {
+            this.onChangeSelection();
+          }
+        })
+      );
 
-    this.effects.push(
-      effect(() => {
-        const isChanged =
-          this.dataManagementCalendarSelectionService.isChanged();
-        if (isChanged) {
-          this.addButtonEnabled = true;
-        } else {
-          this.addButtonEnabled = this.shouldEnableAddButton;
-        }
-      })
-    );
+      this.effects.push(
+        effect(() => {
+          const isChanged =
+            this.dataManagementCalendarSelectionService.isChanged();
+          if (isChanged) {
+            this.addButtonEnabled = true;
+          } else {
+            this.addButtonEnabled = this.shouldEnableAddButton;
+          }
+        })
+      );
 
-    this.effects.push(
-      effect(() => {
-        const isRead = this.dataManagementCalendarSelectionService.isRead();
-        if (isRead) {
-          this.addButtonEnabled = false;
-          this.dataManagementCalendarSelectionService.readSChips();
-          this.setCurrentSelector();
-          this.change.emit();
-        }
-      })
-    );
+      this.effects.push(
+        effect(() => {
+          const isRead = this.dataManagementCalendarSelectionService.isRead();
+          if (isRead) {
+            this.addButtonEnabled = false;
+            this.dataManagementCalendarSelectionService.readSChips();
+            this.setCurrentSelector();
+            this.change.emit();
+          }
+        })
+      );
 
-    this.effects.push(
-      effect(() => {
-        const isNew = this.dataManagementCalendarSelectionService.isNew();
-        if (isNew) {
-          this.addButtonEnabled = false;
-          this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
-            isNew
-          );
-          this.setCurrentSelector();
-        }
-      })
-    );
+      this.effects.push(
+        effect(() => {
+          const isNew = this.dataManagementCalendarSelectionService.isNew();
+          if (isNew) {
+            this.addButtonEnabled = false;
+            this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
+              isNew
+            );
+            this.setCurrentSelector();
+          }
+        })
+      );
+    });
   }
 }

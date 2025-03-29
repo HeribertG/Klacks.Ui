@@ -11,6 +11,7 @@ import {
   NgZone,
   OnInit,
   OnDestroy,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
@@ -106,7 +107,8 @@ export class VScrollbarComponent
   constructor(
     private zone: NgZone,
     private sanitizer: DomSanitizer,
-    private scrollbarService: ScrollbarService
+    private scrollbarService: ScrollbarService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   /* #region Lifecycle Hooks */
@@ -665,6 +667,7 @@ export class VScrollbarComponent
   private updateArrowButtonsState(): void {
     this.disableTopArrow = this.isAtStart();
     this.disableBottomArrow = this.isAtEnd();
+    this.cdr.detectChanges();
   }
 
   /* #endregion Help functions */
