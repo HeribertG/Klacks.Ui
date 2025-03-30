@@ -20,5 +20,27 @@
   width: 10px;
   margin-left: 10px;
   margin-right: 10px;
-  font-weight: bold;
+}
+
+.button-as-div {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  display: block;
+
+  &:hover {
+    background: var(--gridBackgroundColorRowHover);
+    cursor: pointer;
+  }
+
+  &:focus {
+    outline: none;
+    border: none;
+    box-shadow: none;
+  }
 }

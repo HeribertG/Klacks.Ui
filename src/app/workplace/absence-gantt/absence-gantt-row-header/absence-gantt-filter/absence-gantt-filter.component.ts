@@ -6,10 +6,10 @@ import {
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 
 @Component({
-    selector: 'app-absence-gantt-filter',
-    templateUrl: './absence-gantt-filter.component.html',
-    styleUrls: ['./absence-gantt-filter.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-filter',
+  templateUrl: './absence-gantt-filter.component.html',
+  styleUrls: ['./absence-gantt-filter.component.scss'],
+  standalone: false,
 })
 export class AbsenceGanttFilterComponent {
   arrowCompany = '';
@@ -22,8 +22,8 @@ export class AbsenceGanttFilterComponent {
 
   orderBy = 'name';
   sortOrder = 'asc';
-  private templateArrowDown = '↓';
-  private templateArrowUp = '↑';
+  templateArrowDown = '↓';
+  templateArrowUp = '↑';
   private templateArrowUndefined = ''; //'↕';
 
   constructor(public dataManagementBreak: DataManagementBreakService) {}

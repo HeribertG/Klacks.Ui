@@ -118,9 +118,13 @@ export class AbsenceGanttRowHeaderComponent
   onResize(entries: ResizeObserverEntry[]): void {
     if (entries && entries.length > 0) {
       const entry = entries[0];
-      this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
-      this.checkPixelRatio();
-      this.redrawComponents();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.updateDrawRowHeaderDimensions(entry.target as HTMLElement);
+          this.checkPixelRatio();
+          this.redrawComponents();
+        });
+      });
     }
   }
 
@@ -195,7 +199,7 @@ export class AbsenceGanttRowHeaderComponent
   /* #region Filter */
 
   showFilter() {
-    const width = 300;
+    const width = 150;
     const canvas = this.drawRowHeader.rowHeaderCanvasManager.canvas;
     if (!canvas) return;
 

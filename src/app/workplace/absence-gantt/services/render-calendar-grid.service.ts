@@ -110,14 +110,12 @@ export class RenderCalendarGridService {
       this.ganttCanvasManager.height;
     this.ganttCanvasManager.renderCanvas!.width = this.getWidth();
 
-    // Überprüfen wir, welche Zeilen tatsächlich gerendert werden sollen
     const rowsToRender = [];
     for (let i = 0; i < this.visibleRow() + 1; i++) {
       const posDelta = i + this.scroll.verticalScrollPosition!;
       rowsToRender.push(posDelta);
     }
 
-    // Jetzt das tatsächliche Rendering
     for (let i = 0; i < this.visibleRow() + 1; i++) {
       const posDelta = i + this.scroll.verticalScrollPosition!;
       this.drawRow(posDelta, undefined);
@@ -126,35 +124,81 @@ export class RenderCalendarGridService {
 
   @CanvasAvailable('queue')
   public moveGridVertical(directionY: number): void {
-    const visibleRow = this.scroll.visibleRows;
+    const visibleRows = this.visibleRow();
     const diff = this.scroll.verticalScrollDelta;
 
     if (directionY === 0 || diff === 0) return;
 
+    // Die Verschiebung ist in Pixeln, daher multiplizieren mit Zellhöhe und in die richtige Richtung verschieben
+    const pixelOffset = -1 * diff * this.calendarSetting.cellHeight;
+
     // Bestehenden Content verschieben
+    // Die Y-Koordinate bestimmt, wohin der bestehende Inhalt verschoben wird
     this.ganttCanvasManager.renderCanvasCtx!.drawImage(
       this.ganttCanvasManager.renderCanvas!,
-      0,
-      this.calendarSetting.cellHeight * diff
+      0, // source x (unverändert)
+      0, // source y (unverändert)
+      this.ganttCanvasManager.renderCanvas!.width, // source width
+      this.ganttCanvasManager.renderCanvas!.height, // source height
+      0, // dest x (unverändert)
+      pixelOffset, // dest y (verschoben um die Scrollmenge)
+      this.ganttCanvasManager.renderCanvas!.width, // dest width
+      this.ganttCanvasManager.renderCanvas!.height
     );
 
-    // Neue Rows berechnen
-    let firstRow: number;
-    let lastRow: number;
-
-    if (directionY > 0) {
-      // Scroll nach unten
-      firstRow = this.scroll.verticalScrollPosition;
-      lastRow = firstRow + Math.abs(diff);
+    if (diff > 0) {
+      this.ganttCanvasManager.renderCanvasCtx!.clearRect(
+        0,
+        0,
+        this.ganttCanvasManager.renderCanvas!.width,
+        Math.abs(pixelOffset)
+      );
     } else {
-      // Scroll nach oben
-      firstRow = this.scroll.verticalScrollPosition;
-      lastRow = firstRow + Math.abs(diff);
+      this.ganttCanvasManager.renderCanvasCtx!.clearRect(
+        0,
+        this.ganttCanvasManager.renderCanvas!.height + pixelOffset,
+        this.ganttCanvasManager.renderCanvas!.width,
+        Math.abs(pixelOffset)
+      );
     }
 
-    // Neue Rows zeichnen
-    for (let row = firstRow; row < lastRow; row++) {
-      this.drawRow(row, this.selectedBreak);
+    if (diff > 0) {
+      const firstNewRow =
+        this.scroll.verticalScrollPosition + visibleRows - diff;
+      const lastNewRow = this.scroll.verticalScrollPosition + visibleRows;
+
+      for (let row = firstNewRow; row < lastNewRow; row++) {
+        if (row >= 0 && row < this.dataManagementBreak.rows) {
+          const rowPosition =
+            (row - this.scroll.verticalScrollPosition) *
+            this.calendarSetting.cellHeight;
+          const rowRect = new Rectangle(
+            0,
+            rowPosition,
+            this.ganttCanvasManager.renderCanvas!.width,
+            this.calendarSetting.cellHeight
+          );
+          this.drawRowSub(row, rowRect, this.selectedBreak);
+        }
+      }
+    } else {
+      const firstNewRow = this.scroll.verticalScrollPosition;
+      const lastNewRow = this.scroll.verticalScrollPosition - diff;
+
+      for (let row = firstNewRow; row < lastNewRow; row++) {
+        if (row >= 0 && row < this.dataManagementBreak.rows) {
+          const rowPosition =
+            (row - this.scroll.verticalScrollPosition) *
+            this.calendarSetting.cellHeight;
+          const rowRect = new Rectangle(
+            0,
+            rowPosition,
+            this.ganttCanvasManager.renderCanvas!.width,
+            this.calendarSetting.cellHeight
+          );
+          this.drawRowSub(row, rowRect, this.selectedBreak);
+        }
+      }
     }
   }
 

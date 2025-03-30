@@ -214,9 +214,13 @@ export class AbsenceGanttSurfaceComponent
   onResize(entries: ResizeObserverEntry[]): void {
     if (entries && entries.length > 0) {
       const entry = entries[0];
-      this.updateDrawCalendarGanttDimensions(entry.target as HTMLElement);
-      this.checkPixelRatio();
-      this.redrawComponents();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          this.updateDrawCalendarGanttDimensions(entry.target as HTMLElement);
+          this.checkPixelRatio();
+          this.redrawComponents();
+        });
+      });
     }
   }
 

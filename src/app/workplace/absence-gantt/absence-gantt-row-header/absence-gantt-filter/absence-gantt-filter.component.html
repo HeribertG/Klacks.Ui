@@ -1,26 +1,42 @@
 <div class="container">
-  <div class="input-group" (click)="onClickHeader('firstName')">
+  <button
+    class="input-group button-as-div"
+    (click)="onClickHeader('firstName')"
+  >
     <div class="row-line">
-      <p class="arrow">{{ arrowFirstName }}</p>
+      <p class="arrow">
+        <app-icon-asc
+          *ngIf="arrowFirstName === templateArrowDown"
+        ></app-icon-asc>
+        <app-icon-desc
+          *ngIf="arrowFirstName === templateArrowUp"
+        ></app-icon-desc>
+      </p>
       <p>
         {{ "address.edit-address.address-persona.firstname" | translate }}
       </p>
     </div>
-  </div>
-  <div class="input-group" (click)="onClickHeader('name')">
+  </button>
+  <button class="input-group button-as-div" (click)="onClickHeader('name')">
     <div class="row-line">
-      <p class="arrow">{{ arrowName }}</p>
+      <p class="arrow">
+        <app-icon-asc *ngIf="arrowName === templateArrowDown"></app-icon-asc>
+        <app-icon-desc *ngIf="arrowName === templateArrowUp"></app-icon-desc>
+      </p>
       <p>
         {{ "address.edit-address.address-persona.name" | translate }}
       </p>
     </div>
-  </div>
-  <div class="input-group" (click)="onClickHeader('company')">
+  </button>
+  <button class="input-group button-as-div" (click)="onClickHeader('company')">
     <div class="row-line">
-      <p class="arrow">{{ arrowCompany }}</p>
+      <p class="arrow">
+        <app-icon-asc *ngIf="arrowCompany === templateArrowDown"></app-icon-asc>
+        <app-icon-desc *ngIf="arrowCompany === templateArrowUp"></app-icon-desc>
+      </p>
       <p>
         {{ "address.all-address.all-address-list.table.company" | translate }}
       </p>
     </div>
-  </div>
+  </button>
 </div>

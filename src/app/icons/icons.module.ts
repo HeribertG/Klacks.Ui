@@ -49,6 +49,8 @@ import { IconAngleRightComponent } from './icon-angle-right.component';
 import { IconAngleDownComponent } from './icon-angle-down.component';
 import { CalendarIconComponent } from './calendar-icon.component';
 import { IconSortingComponent } from './icon-sorting.component';
+import { IconAscComponent } from './icon-asc.component';
+import { IconDescComponent } from './icon-desc.component';
 
 @NgModule({
   declarations: [
@@ -100,6 +102,8 @@ import { IconSortingComponent } from './icon-sorting.component';
     IconAngleDownComponent,
     CalendarIconComponent,
     IconSortingComponent,
+    IconAscComponent,
+    IconDescComponent,
   ],
   exports: [
     TrashIconComponent,
@@ -150,6 +154,8 @@ import { IconSortingComponent } from './icon-sorting.component';
     IconAngleDownComponent,
     CalendarIconComponent,
     IconSortingComponent,
+    IconAscComponent,
+    IconDescComponent,
   ],
   imports: [CommonModule],
 })
