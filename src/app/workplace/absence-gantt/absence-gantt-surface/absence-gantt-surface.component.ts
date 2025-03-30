@@ -281,11 +281,7 @@ export class AbsenceGanttSurfaceComponent
     const x = event.offsetX;
     const y = event.offsetY;
 
-    console.debug('onMouseMove', x, y, 'selectedArea:', this.selectedArea);
-
     if (this.selectedArea !== SelectedArea.None) {
-      console.debug('Selected area is not None:', this.selectedArea);
-
       if (
         this.drawCalendarGantt.selectedBreakRec &&
         !this.drawCalendarGantt.selectedBreakRec.isEmpty()
@@ -300,10 +296,8 @@ export class AbsenceGanttSurfaceComponent
 
         switch (this.selectedArea) {
           case SelectedArea.LeftAnchor:
-            console.debug('Moving left anchor');
-            // Hier wird der linke Anker (Start des Breaks) verschoben
+            // The left anchor (start of the break) is moved here
             const leftDiffDay = this.drawCalendarGantt.calcX2Column(x);
-            console.debug('Left anchor calculated column:', leftDiffDay);
 
             if (this.drawCalendarGantt.selectedBreak) {
               this.drawCalendarGantt.selectedBreak.from = addDays(
@@ -315,7 +309,7 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.selectedBreak.from
               );
 
-              // Stelle sicher, dass from nicht nach until liegt
+              // Make sure that from is not located until
               if (
                 equalDate(
                   this.drawCalendarGantt.selectedBreak.from!,
@@ -334,10 +328,8 @@ export class AbsenceGanttSurfaceComponent
             break;
 
           case SelectedArea.RightAnchor:
-            console.debug('Moving right anchor');
-            // Hier wird der rechte Anker (Ende des Breaks) verschoben
+            // The right-hand anchor (end of the break) is moved here
             const rightDiffDay = this.drawCalendarGantt.calcX2Column(x);
-            console.debug('Right anchor calculated column:', rightDiffDay);
 
             if (this.drawCalendarGantt.selectedBreak) {
               this.drawCalendarGantt.selectedBreak.until = addDays(
@@ -349,7 +341,7 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.selectedBreak.until
               );
 
-              // Stelle sicher, dass until nicht vor from liegt
+              // Make sure that until is not in front of from
               if (
                 equalDate(
                   this.drawCalendarGantt.selectedBreak.until!,
@@ -368,7 +360,6 @@ export class AbsenceGanttSurfaceComponent
             break;
 
           case SelectedArea.AbsenceBar:
-            console.debug('Moving entire absence bar');
             // Hier wird der gesamte Break verschoben
             if (this.mouseToBarAlpha) {
               const diffA = cloneObject<{ x: number; y: number } | undefined>(
@@ -381,22 +372,6 @@ export class AbsenceGanttSurfaceComponent
                   x - this.drawCalendarGantt.selectedBreakRec.left - diffA.x;
                 const diffDay = Math.floor(
                   moveOffset / this.calendarSetting.cellWidth
-                );
-
-                console.debug(
-                  'Move calculation:',
-                  'x:',
-                  x,
-                  'rect.left:',
-                  this.drawCalendarGantt.selectedBreakRec.left,
-                  'diffA.x:',
-                  diffA.x,
-                  'moveOffset:',
-                  moveOffset,
-                  'cellWidth:',
-                  this.calendarSetting.cellWidth,
-                  'diffDay:',
-                  diffDay
                 );
 
                 if (diffDay !== 0 && this.drawCalendarGantt.selectedBreak) {
@@ -710,6 +685,7 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion   private */
 
   /* #region   drag-drop */
+
   dragOver(ev: DragEvent) {
     ev.preventDefault();
     if (ev.dataTransfer) {
@@ -737,6 +713,16 @@ export class AbsenceGanttSurfaceComponent
     }
   }
 
+  /**
+   * Calculates grid coordinates from mouse coordinates (pixels)
+   *
+   * @param offsetX - X-coordinate of mouse click (in pixels)
+   * @param offsetY - Y-coordinate of mouse click (in pixels)
+   * @returns number[] - Array with [columnIndex, rowIndex]
+   *   - First number [0]: Horizontal day index (X-axis)
+   *   - Second number [1]: Vertical client/employee index (Y-axis)
+   *   - Returns [-1, -1] if canvas is invalid
+   */
   private calcDroppedCell(offsetX: number, offsetY: number): number[] {
     if (this.drawCalendarGantt.isCanvasAvailable()) {
       let deltaX = Math.ceil(offsetX / this.calendarSetting.cellWidth) - 1;
@@ -836,8 +822,8 @@ export class AbsenceGanttSurfaceComponent
     const isOverSelection = this.isMouseOverSelectedBreak(event);
 
     if (isOverSelection) {
-      menuData.list.push(...MenuDataTemplate.copyCutPaste()); //3 menuitem
       menuData.list.push(...MenuDataTemplate.divider()); // menuitem
+      menuData.list.push(...MenuDataTemplate.copyCutPaste()); //3 menuitem
       menuData.list.push(...MenuDataTemplate.delete()); //1 menuitem
       menuData.list.push(...MenuDataTemplate.divider()); // 1 menuitem
 
@@ -893,6 +879,8 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion   context Menu */
 
   /* #region   CRUD */
+
+  // position[0]: day index, position[1]: client/employee index
   private addBreak(position: number[], absenceId: string) {
     const client = this.dataManagementBreak.clients[position[1]];
     const absence = this.dataManagementAbsence.absenceList.find(
@@ -981,6 +969,11 @@ export class AbsenceGanttSurfaceComponent
       });
     }
   }
+
+  public cut(): void {
+    this.copy();
+    this.Delete();
+  }
   /* #endregion CopyCutPaste */
 
   /* #region Scroll */
@@ -1035,11 +1028,10 @@ export class AbsenceGanttSurfaceComponent
         this.drawCalendarGantt.updateStartDate =
           this.holidayCollection.currentYear;
         this.drawCalendarGantt.resetAll();
-        // this.dataManagementBreak.readYear();
       }
     });
 
-    //Zeichnet die selektierte Zeile neu
+    //Redraws the selected line
     effect(() => {
       const isUpdate = this.dataManagementBreak.isUpdate();
       if (isUpdate) {

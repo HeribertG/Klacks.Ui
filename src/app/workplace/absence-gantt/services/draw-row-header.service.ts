@@ -12,7 +12,7 @@ import { RenderRowHeaderService } from './render-row-header.service';
 
 @Injectable()
 export class DrawRowHeaderService {
-  public readonly iconSize = 16;
+  public readonly iconSize = 24;
 
   public isBusy = false;
   public isShift = false;

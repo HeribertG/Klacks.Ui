@@ -20,15 +20,15 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 export class DataManagementBreakService {
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
-  public isUpdate = signal<IBreak | undefined>(undefined); //Zeichnet die selektierte Zeile neu
+  public isUpdate = signal<IBreak | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
 
   public breakFilter: IBreakFilter = new BreakFilter();
   public clients: IClientBreak[] = [];
   private breakFilterDummy: IBreakFilter | undefined = undefined;
 
-  // erst wenn DataManagementAbsenceGanttService seine AbsenceFilter geladen hat,
-  // kann gelesen werden. Der AbsenceFilter wird im breakFilter integriert.
+  // only when DataManagementAbsenceGanttService has loaded its AbsenceFilter,
+  // can be read. The AbsenceFilter is integrated in the breakFilter.
   canReadBreaks = false;
 
   constructor(
@@ -47,10 +47,8 @@ export class DataManagementBreakService {
 
       this.dataBreakService.getClientList(this.breakFilter).subscribe({
         next: (clientBreaks) => {
-          // Bereinige die Daten vor dem Speichern
           this.clients = clientBreaks.map((client) => {
             if (client.breaks && Array.isArray(client.breaks)) {
-              // Filtere ungültige Breaks
               client.breaks = client.breaks.filter(
                 (brk) =>
                   brk &&
@@ -72,7 +70,7 @@ export class DataManagementBreakService {
           setTimeout(() => this.isRead.set(false), 100);
         },
         error: (err) => {
-          console.error('Fehler beim Laden der Breaks:', err);
+          console.error('Error loading the breaks:', err);
           this.showProgressSpinner.set(false);
         },
       });
@@ -115,8 +113,8 @@ export class DataManagementBreakService {
       this.dataBreakService.addBreak(tmp).subscribe((x) => {
         client.breaks.push(x);
         client.breaks = this.sortBreaks(client.breaks);
+
         this.isUpdate.set(x);
-        setTimeout(() => this.isUpdate.set(undefined), 100);
       });
     }
   }

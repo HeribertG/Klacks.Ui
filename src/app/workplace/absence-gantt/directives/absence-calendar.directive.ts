@@ -25,23 +25,23 @@ export class AbsenceCalendarDirective {
   //   event: MouseEvent
   // ): void {}
 
-  // @HostListener('clickOutside', ['$event']) onClickOutside(
-  //   event: MouseEvent
-  // ): void {
-  //   this.gridBody.destroyToolTip();
+  @HostListener('clickOutside', ['$event']) onClickOutside(
+    event: MouseEvent
+  ): void {
+    this.gridBody.destroyToolTip();
 
-  //   const rect = new Rectangle();
-  //   // this.gridBody.clientLeft,
-  //   // this.gridBody.clientTop,
-  //   // this.gridBody.clientWidth,
-  //   // this.gridBody.clientHeight
-  //   if (
-  //     !rect.pointInRect(event.clientX, event.clientY) &&
-  //     this.gridBody.contextMenu
-  //   ) {
-  //     this.gridBody.contextMenu.closeMenu();
-  //   }
-  // }
+    const rect = new Rectangle();
+    // this.gridBody.clientLeft,
+    // this.gridBody.clientTop,
+    // this.gridBody.clientWidth,
+    // this.gridBody.clientHeight
+    if (
+      !rect.pointInRect(event.clientX, event.clientY) &&
+      this.gridBody.contextMenu
+    ) {
+      this.gridBody.contextMenu.closeMenu();
+    }
+  }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(
     event: MouseEvent
@@ -420,23 +420,25 @@ export class AbsenceCalendarDirective {
     if (event.key.toLocaleLowerCase() === 'x' && event.ctrlKey) {
       this.keyDown = false;
       this.stopEvent(event);
+      this.gridBody.cut();
       return;
     }
 
     // Copy
-    // if (event.key === 'c' && event.ctrlKey) {
-    //   this.gridBody.cellManipulation!.copy();
-    //   this.keyDown = false;
-    //   this.stopEvent(event);
-    //   return;
-    // }
+    if (event.key === 'c' && event.ctrlKey) {
+      this.keyDown = false;
+      this.stopEvent(event);
+      this.gridBody.copy();
+      return;
+    }
 
-    // // Paste
-    // if (event.key.toLocaleLowerCase() === 'v' && event.ctrlKey) {
-    //   this.keyDown = false;
-    //   this.stopEvent(event);
-    //   return;
-    // }
+    // Paste
+    if (event.key.toLocaleLowerCase() === 'v' && event.ctrlKey) {
+      this.keyDown = false;
+      this.stopEvent(event);
+      this.gridBody.paste();
+      return;
+    }
 
     // if (event.key === 'Enter' ) {
     //   this.keyDown = false;
@@ -568,9 +570,18 @@ export class AbsenceCalendarDirective {
 
   private isOwnElement(event: Event): boolean {
     const targetElement = event.target as HTMLElement;
+
+    const hasId = targetElement.hasAttribute('id');
+    const idValue = hasId ? targetElement.getAttribute('id') : '';
+
+    if (idValue === 'absence-gantt-surface-id') {
+      return true;
+    }
+
     if (targetElement === (this.el.nativeElement as HTMLElement)) {
       return true;
     }
+
     if (this.el.nativeElement.parentElement) {
       if (
         targetElement === (this.el.nativeElement.parentElement as HTMLElement)

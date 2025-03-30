@@ -180,7 +180,7 @@ export class RenderCalendarGridService {
       return;
     }
 
-    // Die letzte Absenz wird desektiert
+    // The last absence is deselected
     this._selectedBreakIndex = -1;
     this._selectedRow = -1;
     this.unDrawSelectionRow();
@@ -246,7 +246,8 @@ export class RenderCalendarGridService {
     if (this.selectedRow > -1) {
       if (this.isSelectedRowVisible()) {
         this.drawRowIntern(this.selectedRow);
-        this.drawRow(this.selectedRow, this.selectedBreak);
+
+        this.drawRow(this.selectedRow, undefined);
       }
     }
   }
@@ -429,15 +430,15 @@ export class RenderCalendarGridService {
 
   private drawRowSubIntern(index: number, rowRec: Rectangle): void {
     if (index < this.dataManagementBreak.rows) {
-      // lädt Hintergrund in rowCtx
+      // loads background in rowCtx
       this.ganttCanvasManager.rowCtx!.drawImage(
         this.ganttCanvasManager.backgroundRowCanvas!,
         0,
         0
       );
-      // Zeichnet alle  Breaks in rowCtx
+      // Draws all breaks in rowCtx
       this.drawRowBreaks(index, this.selectedBreak);
-      // Zeichnet rowCtx in ctx
+      // Draws rowCtx in ctx
       this.ganttCanvasManager.ctx!.drawImage(
         this.ganttCanvasManager.rowCanvas!,
         rowRec.x,
@@ -807,15 +808,6 @@ export class RenderCalendarGridService {
       0
     );
 
-    // Index anzeigen
-    this.ganttCanvasManager.rowCtx!.save();
-    this.ganttCanvasManager.rowCtx!.font = '24px Arial';
-    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080';
-    this.ganttCanvasManager.rowCtx!.fillText(
-      index.toString(),
-      10,
-      this.calendarSetting.cellHeight / 2 + 8
-    );
     this.ganttCanvasManager.rowCtx!.restore();
 
     this.drawRowBreaks(index, selectedBreak);
@@ -840,15 +832,20 @@ export class RenderCalendarGridService {
 
   public drawRowBreaks(index: number, selectedBreak: IBreak | undefined) {
     const breaks = this.dataManagementBreak.readData(index);
+
     if (breaks && Array.isArray(breaks) && breaks.length > 0) {
-      // Filtere nur valide Breaks
       const validBreaks = breaks.filter(
         (x) => x && typeof x === 'object' && x.from && x.until
       );
 
       validBreaks.forEach((x, i) => {
         let drawBreak = true;
-        if (selectedBreak && x.id === selectedBreak.id) {
+        if (
+          selectedBreak &&
+          x.id &&
+          selectedBreak.id &&
+          x.id === selectedBreak.id
+        ) {
           drawBreak = false;
         }
 

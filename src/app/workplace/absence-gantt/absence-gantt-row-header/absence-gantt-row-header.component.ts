@@ -73,7 +73,7 @@ export class AbsenceGanttRowHeaderComponent
 
     this.drawRowHeader.filterImage = DrawHelper.createImage(
       new Size(this.drawRowHeader.iconSize, this.drawRowHeader.iconSize),
-      'assets/svg/filter.svg'
+      'assets/svg/sorting.svg'
     );
 
     this.drawRowHeader.createCanvas();
