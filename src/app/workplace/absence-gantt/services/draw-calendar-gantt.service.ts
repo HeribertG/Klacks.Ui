@@ -75,7 +75,7 @@ export class DrawCalendarGanttService {
         }
         // vertikale Verschiebung
         if (moveY) {
-          this.renderCalendarGrid.renderCalendar();
+          this.handleVerticalScroll();
         }
       } finally {
         this.isBusy = false;
@@ -92,13 +92,7 @@ export class DrawCalendarGanttService {
    */
   @CanvasAvailable('queue')
   public handleVerticalScroll(): void {
-    if (this.isBusy) {
-      return;
-    }
-
     try {
-      this.isBusy = true;
-
       const scrollDelta = this.scroll.verticalScrollDelta;
 
       if (scrollDelta === 0) {
@@ -107,24 +101,22 @@ export class DrawCalendarGanttService {
 
       const direction = scrollDelta > 0 ? 1 : -1;
 
-      // Wenn die Scroll-Distanz kleiner als die Hälfte der sichtbaren Zeilen ist,
-      // verwende moveGridVertical für bessere Performance
       if (Math.abs(scrollDelta) < this.visibleRow() / 2) {
         console.debug(
           `Optimiertes Scrollen mit moveGridVertical: delta=${scrollDelta}`
         );
         this.renderCalendarGrid.moveGridVertical(direction);
       } else {
-        // Bei größeren Bewegungen ist es effizienter, alles neu zu rendern
         console.debug(
           `Komplettes Neurendern mit renderCalendar: delta=${scrollDelta}`
         );
         this.renderCalendarGrid.renderCalendar();
       }
-    } finally {
-      this.isBusy = false;
+    } catch (e) {
+      this.renderCalendarGrid.renderCalendar();
     }
   }
+
   /* #endregion  render */
 
   /* #region   draw */

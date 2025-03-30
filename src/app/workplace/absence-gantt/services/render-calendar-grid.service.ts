@@ -124,81 +124,130 @@ export class RenderCalendarGridService {
 
   @CanvasAvailable('queue')
   public moveGridVertical(directionY: number): void {
+    const SAFETY_MARGIN = 3;
     const visibleRows = this.visibleRow();
     const diff = this.scroll.verticalScrollDelta;
 
     if (directionY === 0 || diff === 0) return;
 
-    // Die Verschiebung ist in Pixeln, daher multiplizieren mit Zellhöhe und in die richtige Richtung verschieben
-    const pixelOffset = -1 * diff * this.calendarSetting.cellHeight;
+    try {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = this.ganttCanvasManager.renderCanvas!.width;
+      tempCanvas.height = this.ganttCanvasManager.renderCanvas!.height;
+      const tempCtx = tempCanvas.getContext('2d');
 
-    // Bestehenden Content verschieben
-    // Die Y-Koordinate bestimmt, wohin der bestehende Inhalt verschoben wird
-    this.ganttCanvasManager.renderCanvasCtx!.drawImage(
-      this.ganttCanvasManager.renderCanvas!,
-      0, // source x (unverändert)
-      0, // source y (unverändert)
-      this.ganttCanvasManager.renderCanvas!.width, // source width
-      this.ganttCanvasManager.renderCanvas!.height, // source height
-      0, // dest x (unverändert)
-      pixelOffset, // dest y (verschoben um die Scrollmenge)
-      this.ganttCanvasManager.renderCanvas!.width, // dest width
-      this.ganttCanvasManager.renderCanvas!.height
-    );
+      if (!tempCtx) {
+        console.error('Could not create 2D context for temporary canvas');
+        return;
+      }
 
-    if (diff > 0) {
+      tempCtx.drawImage(this.ganttCanvasManager.renderCanvas!, 0, 0);
+
+      // Lösche den Canvas
       this.ganttCanvasManager.renderCanvasCtx!.clearRect(
         0,
         0,
         this.ganttCanvasManager.renderCanvas!.width,
-        Math.abs(pixelOffset)
+        this.ganttCanvasManager.renderCanvas!.height
       );
-    } else {
-      this.ganttCanvasManager.renderCanvasCtx!.clearRect(
-        0,
-        this.ganttCanvasManager.renderCanvas!.height + pixelOffset,
-        this.ganttCanvasManager.renderCanvas!.width,
-        Math.abs(pixelOffset)
-      );
-    }
 
-    if (diff > 0) {
-      const firstNewRow =
-        this.scroll.verticalScrollPosition + visibleRows - diff;
-      const lastNewRow = this.scroll.verticalScrollPosition + visibleRows;
+      if (diff > 0) {
+        // SCROLL DOWN
+        // ---------------------
+        const pixelDelta = diff * this.calendarSetting.cellHeight;
 
-      for (let row = firstNewRow; row < lastNewRow; row++) {
-        if (row >= 0 && row < this.dataManagementBreak.rows) {
-          const rowPosition =
-            (row - this.scroll.verticalScrollPosition) *
-            this.calendarSetting.cellHeight;
-          const rowRect = new Rectangle(
-            0,
-            rowPosition,
-            this.ganttCanvasManager.renderCanvas!.width,
-            this.calendarSetting.cellHeight
-          );
-          this.drawRowSub(row, rowRect, this.selectedBreak);
+        this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+          tempCanvas,
+          0,
+          pixelDelta,
+          tempCanvas.width,
+          tempCanvas.height - pixelDelta,
+          0,
+          0,
+          tempCanvas.width,
+          tempCanvas.height - pixelDelta
+        );
+
+        const startRow =
+          this.scroll.verticalScrollPosition +
+          visibleRows -
+          diff -
+          SAFETY_MARGIN;
+        const endRow =
+          this.scroll.verticalScrollPosition + visibleRows + SAFETY_MARGIN;
+
+        for (let row = startRow; row < endRow; row++) {
+          if (row >= 0 && row < this.dataManagementBreak.rows) {
+            const rowPosition =
+              (row - this.scroll.verticalScrollPosition) *
+              this.calendarSetting.cellHeight;
+
+            if (
+              rowPosition >= -SAFETY_MARGIN * this.calendarSetting.cellHeight &&
+              rowPosition <
+                this.ganttCanvasManager.renderCanvas!.height +
+                  SAFETY_MARGIN * this.calendarSetting.cellHeight
+            ) {
+              const rowRect = this.calcRowRec(
+                row,
+                this.scroll.verticalScrollPosition,
+                this.calendarSetting.cellHeight
+              );
+
+              this.drawRowSub(row, rowRect, this.selectedBreak);
+            }
+          }
+        }
+      } else {
+        // SCROLL UP
+        // ---------------------
+        const absDiff = Math.abs(diff);
+
+        const pixelDelta = absDiff * this.calendarSetting.cellHeight;
+
+        this.ganttCanvasManager.renderCanvasCtx!.drawImage(
+          tempCanvas,
+          0,
+          0,
+          tempCanvas.width,
+          tempCanvas.height - pixelDelta,
+          0,
+          pixelDelta,
+          tempCanvas.width,
+          tempCanvas.height - pixelDelta
+        );
+
+        const startRow = this.scroll.verticalScrollPosition - SAFETY_MARGIN;
+        const endRow =
+          this.scroll.verticalScrollPosition + absDiff + SAFETY_MARGIN;
+
+        for (let row = startRow; row < endRow; row++) {
+          if (row >= 0 && row < this.dataManagementBreak.rows) {
+            const rowPosition =
+              (row - this.scroll.verticalScrollPosition) *
+              this.calendarSetting.cellHeight;
+
+            if (
+              rowPosition >= -SAFETY_MARGIN * this.calendarSetting.cellHeight &&
+              rowPosition <
+                this.ganttCanvasManager.renderCanvas!.height +
+                  SAFETY_MARGIN * this.calendarSetting.cellHeight
+            ) {
+              const rowRect = this.calcRowRec(
+                row,
+                this.scroll.verticalScrollPosition,
+                this.calendarSetting.cellHeight
+              );
+
+              this.drawRowSub(row, rowRect, this.selectedBreak);
+            }
+          }
         }
       }
-    } else {
-      const firstNewRow = this.scroll.verticalScrollPosition;
-      const lastNewRow = this.scroll.verticalScrollPosition - diff;
+    } catch (error) {
+      console.error('Fehler in moveGridVertical:', error);
 
-      for (let row = firstNewRow; row < lastNewRow; row++) {
-        if (row >= 0 && row < this.dataManagementBreak.rows) {
-          const rowPosition =
-            (row - this.scroll.verticalScrollPosition) *
-            this.calendarSetting.cellHeight;
-          const rowRect = new Rectangle(
-            0,
-            rowPosition,
-            this.ganttCanvasManager.renderCanvas!.width,
-            this.calendarSetting.cellHeight
-          );
-          this.drawRowSub(row, rowRect, this.selectedBreak);
-        }
-      }
+      this.renderCalendar();
     }
   }
 

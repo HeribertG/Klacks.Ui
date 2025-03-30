@@ -246,6 +246,7 @@ export class AbsenceGanttSurfaceComponent
 
   private redrawComponents(): void {
     this.drawCalendarGantt.createRuler();
+    this.drawCalendarGantt.renderCalendar();
     this.drawCalendarGantt.drawCalendar();
   }
 
