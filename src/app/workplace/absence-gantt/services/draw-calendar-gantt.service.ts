@@ -86,9 +86,9 @@ export class DrawCalendarGanttService {
   }
 
   /**
-   * Entscheidet basierend auf der Scroll-Distanz, welche Render-Methode verwendet werden soll.
-   * Bei kleinen Scroll-Bewegungen (weniger als die Hälfte der sichtbaren Zeilen) wird
-   * moveGridVertical verwendet, ansonsten renderCalendar.
+   * Decides which render method should be used based on the scroll distance.
+   For small scroll movements (less than half of the visible rows), * moveGridVertical is used.
+   * moveGridVertical is used, otherwise renderCalendar.
    */
   @CanvasAvailable('queue')
   public handleVerticalScroll(): void {
@@ -102,14 +102,8 @@ export class DrawCalendarGanttService {
       const direction = scrollDelta > 0 ? 1 : -1;
 
       if (Math.abs(scrollDelta) < this.visibleRow() / 2) {
-        console.debug(
-          `Optimiertes Scrollen mit moveGridVertical: delta=${scrollDelta}`
-        );
         this.renderCalendarGrid.moveGridVertical(direction);
       } else {
-        console.debug(
-          `Komplettes Neurendern mit renderCalendar: delta=${scrollDelta}`
-        );
         this.renderCalendarGrid.renderCalendar();
       }
     } catch (e) {

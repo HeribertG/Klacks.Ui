@@ -122,7 +122,6 @@ export class RenderCalendarGridService {
     }
   }
 
-  @CanvasAvailable('queue')
   public moveGridVertical(directionY: number): void {
     const SAFETY_MARGIN = 3;
     const visibleRows = this.visibleRow();
