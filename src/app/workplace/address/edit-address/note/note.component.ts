@@ -5,33 +5,32 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnInit,
   Output,
 } from '@angular/core';
 
 @Component({
-    selector: 'app-note',
-    templateUrl: './note.component.html',
-    styleUrls: ['./note.component.scss'],
-    standalone: false
+  selector: 'app-note',
+  templateUrl: './note.component.html',
+  styleUrls: ['./note.component.scss'],
+  standalone: false,
 })
 export class NoteComponent implements OnInit, AfterViewInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
-  note_new = MessageLibrary.NOTE_NEW;
+  public note_new = MessageLibrary.NOTE_NEW;
 
-  visibleTable = 'inline';
+  public visibleTable = 'inline';
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private translateService: TranslateService
-  ) {}
+  public dataManagementClientService = inject(DataManagementClientService);
+  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
   }
 
   ngAfterViewInit(): void {
-    this.translateService.onLangChange.subscribe(() => {
+    this.translate.onLangChange.subscribe(() => {
       setTimeout(() => {
         this.note_new = MessageLibrary.NOTE_NEW;
       }, 200);

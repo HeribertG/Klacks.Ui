@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   HostListener,
+  inject,
   Input,
   OnInit,
   Output,
@@ -11,10 +12,10 @@ import { DataManagementClientService } from 'src/app/data/management/data-manage
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-    selector: 'app-edit-address-home',
-    templateUrl: './edit-address-home.component.html',
-    styleUrls: ['./edit-address-home.component.scss'],
-    standalone: false
+  selector: 'app-edit-address-home',
+  templateUrl: './edit-address-home.component.html',
+  styleUrls: ['./edit-address-home.component.scss'],
+  standalone: false,
 })
 export class EditAddressHomeComponent implements OnInit {
   @Input() isEditClient = false;
@@ -29,11 +30,11 @@ export class EditAddressHomeComponent implements OnInit {
     }
   }
 
-  constructor(
-    public dataManagementSwitchboardService: DataManagementSwitchboardService,
-    public dataManagementClientService: DataManagementClientService,
-    private router: Router
-  ) {}
+  public dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  public dataManagementClientService = inject(DataManagementClientService);
+  private router = inject(Router);
 
   ngOnInit(): void {
     if (this.dataManagementClientService.editClient === undefined) {

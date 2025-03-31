@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { IClient } from 'src/app/core/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
@@ -6,19 +6,18 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-edit-address-nav',
-    templateUrl: './edit-address-nav.component.html',
-    styleUrls: ['./edit-address-nav.component.scss'],
-    standalone: false
+  selector: 'app-edit-address-nav',
+  templateUrl: './edit-address-nav.component.html',
+  styleUrls: ['./edit-address-nav.component.scss'],
+  standalone: false,
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
   public validFrom = MessageLibrary.VALID_FROM;
   public faCalendar = faCalendar;
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private translateService: TranslateService
-  ) {}
+  public dataManagementClientService = inject(DataManagementClientService);
+  private translate = inject(TranslateService);
+
   ngOnInit(): void {
     this.validFrom = MessageLibrary.VALID_FROM;
   }

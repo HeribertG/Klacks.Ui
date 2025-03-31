@@ -46,11 +46,11 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
 
   public dataManagementSettingsService = inject(DataManagementSettingsService);
 
-  constructor() {
-    this.setupResetSignalEffect();
-  }
+  constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.readSignal();
+  }
 
   ngAfterViewInit(): void {
     if (this.emailSettingsForm?.valueChanges) {
@@ -73,7 +73,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  private setupResetSignalEffect(): void {
+  private readSignal(): void {
     effect(() => {
       const isReset = this.dataManagementSettingsService.isReset();
       if (isReset) {

@@ -1,7 +1,7 @@
 import {
   Component,
   EventEmitter,
-  IterableDiffers,
+  inject,
   OnInit,
   Output,
   ViewChild,
@@ -13,10 +13,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
-    selector: 'app-membership',
-    templateUrl: './membership.component.html',
-    styleUrls: ['./membership.component.scss'],
-    standalone: false
+  selector: 'app-membership',
+  templateUrl: './membership.component.html',
+  styleUrls: ['./membership.component.scss'],
+  standalone: false,
 })
 export class MembershipComponent implements OnInit {
   @ViewChild('membershipForm', { static: false }) membershipForm:
@@ -28,15 +28,9 @@ export class MembershipComponent implements OnInit {
   public isAuthorised = false;
   public now = new Date();
   public objectForUnsubscribe: any;
-  public iterableDiffer: any;
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private iterableDiffers: IterableDiffers,
-    private localStorageService: LocalStorageService
-  ) {
-    this.iterableDiffer = iterableDiffers.find([]).create(undefined);
-  }
+  public dataManagementClientService = inject(DataManagementClientService);
+  private localStorageService = inject(LocalStorageService);
 
   ngOnInit(): void {}
 

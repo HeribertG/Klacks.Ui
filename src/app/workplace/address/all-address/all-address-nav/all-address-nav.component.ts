@@ -1,27 +1,46 @@
 import {
   AfterViewInit,
   Component,
-  IterableDiffers,
+  EffectRef,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { SharedModule } from 'src/app/shared/shared.module';
+import {
+  NgbDatepickerModule,
+  NgbDropdownModule,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-all-address-nav',
-    templateUrl: './all-address-nav.component.html',
-    styleUrls: ['./all-address-nav.component.scss'],
-    standalone: false
+  selector: 'app-all-address-nav',
+  templateUrl: './all-address-nav.component.html',
+  styleUrls: ['./all-address-nav.component.scss'],
+  standalone: false,
+  // imports: [
+  //   CommonModule,
+  //   FormsModule,
+  //   TranslateModule,
+  //   FontAwesomeModule,
+  //   NgbDropdownModule,
+  //   NgbDatepickerModule,
+  //   NgbTooltipModule,
+  //   SharedModule,
+  // ],
 })
 export class AllAddressNavComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -41,21 +60,12 @@ export class AllAddressNavComponent
   public defaultTop: number = 0;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
+  private effectRef: EffectRef | null = null;
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private iterableDiffers: IterableDiffers,
-    private renderer: Renderer2,
-    private translateService: TranslateService,
-    private localStorageService: LocalStorageService
-  ) {
-    this.iterableDiffer = iterableDiffers.find([]).create(undefined);
-    effect(() => {
-      if (this.dataManagementClientService.initIsRead()) {
-        this.isInit();
-      }
-    });
-  }
+  dataManagementClientService = inject(DataManagementClientService);
+  private renderer = inject(Renderer2);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -64,6 +74,8 @@ export class AllAddressNavComponent
       this.dataManagementClientService.currentFilter.clientType
     );
     this.navClient = document.getElementById('navClientForm')!;
+
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -91,6 +103,11 @@ export class AllAddressNavComponent
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
+    }
   }
 
   private isInit(): void {
@@ -191,5 +208,11 @@ export class AllAddressNavComponent
     }, 100);
   }
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    this.effectRef = effect(() => {
+      if (this.dataManagementClientService.initIsRead()) {
+        this.isInit();
+      }
+    });
+  }
 }

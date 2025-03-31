@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  EffectRef,
   EventEmitter,
   Inject,
   LOCALE_ID,
@@ -66,6 +67,7 @@ export class AddressPersonaComponent
   public isPhoneValueSeals = false;
 
   private ngUnsubscribe = new Subject<void>();
+  private effectRef: EffectRef | null = null;
 
   constructor(
     public dataManagementClientService: DataManagementClientService,
@@ -73,17 +75,16 @@ export class AddressPersonaComponent
     @Inject(LOCALE_ID) private locale: string,
     private translateService: TranslateService,
     private modalService: ModalService
-  ) {
-    this.locale = MessageLibrary.DEFAULT_LANG;
-    this.readSignals();
-  }
+  ) {}
 
   ngOnInit(): void {
+    this.locale = MessageLibrary.DEFAULT_LANG;
     this.currentLang = this.translateService.currentLang as Language;
     this.dataManagementClientService.init();
     this.message = MessageLibrary.DEACTIVE_ADDRESS;
     this.title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
     this.newAddressString = MessageLibrary.NEW_ADDRESS;
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -142,6 +143,11 @@ export class AddressPersonaComponent
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
+    }
   }
 
   isWeekend(date: NgbDateStruct) {
@@ -481,14 +487,14 @@ export class AddressPersonaComponent
   }
 
   private readSignals(): void {
-    effect(() => {
+    this.effectRef = effect(() => {
       const isRead = this.dataManagementClientService.isRead();
       if (isRead) {
         setTimeout(() => this.setEnvironmentVariable(), 100);
         this.dataManagementClientService.isRead.set(false);
       }
     });
-    effect(() => {
+    this.effectRef = effect(() => {
       const isReset = this.dataManagementClientService.isReset();
       if (isReset) {
         setTimeout(() => this.isChangingEvent.emit(false), 100);

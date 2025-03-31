@@ -1,12 +1,14 @@
 import {
   AfterViewInit,
   Component,
+  EffectRef,
   ElementRef,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -58,10 +60,6 @@ export class AllAddressListComponent
   numberOfItemsPerPage = 5;
   numberOfItemsPerPageMap = new Map();
 
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
-
   arrowNo = '';
   arrowCompany = '';
   arrowFirstName = '';
@@ -91,18 +89,18 @@ export class AllAddressListComponent
 
   resizeWindow: (() => void) | undefined;
 
-  private ngUnsubscribe = new Subject<void>();
+  private tmplateArrowDown = '↓';
+  private tmplateArrowUp = '↑';
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private router: Router,
-    private renderer: Renderer2,
-    private translateService: TranslateService,
-    private localStorageService: LocalStorageService,
-    private modalService: ModalService
-  ) {
-    this.readSignals();
-  }
+  private ngUnsubscribe = new Subject<void>();
+  private effectRef: EffectRef | null = null;
+
+  public dataManagementClientService = inject(DataManagementClientService);
+  private router = inject(Router);
+  private renderer = inject(Renderer2);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
+  private modalService = inject(ModalService);
 
   ngOnInit(): void {
     this.dataManagementClientService.init();
@@ -116,6 +114,7 @@ export class AllAddressListComponent
     this.visibleRow = visibleRow();
 
     window.addEventListener('resize', this.resize, true);
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -151,6 +150,11 @@ export class AllAddressListComponent
       }
     } catch {
       this.resizeWindow = undefined;
+    }
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
     }
   }
 
@@ -595,7 +599,7 @@ export class AllAddressListComponent
   }
 
   private readSignals(): void {
-    effect(() => {
+    this.effectRef = effect(() => {
       if (this.dataManagementClientService.isRead()) {
         if (this.isFirstRead) {
           setTimeout(() => this.recalcHeight(), 100);
