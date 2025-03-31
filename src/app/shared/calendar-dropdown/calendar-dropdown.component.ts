@@ -7,7 +7,10 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { faMagnifyingGlassChart } from '@fortawesome/free-solid-svg-icons';
+import {
+  faMagnifyingGlassChart,
+  faSearch,
+} from '@fortawesome/free-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
@@ -31,6 +34,7 @@ export class CalendarDropdownComponent
   @Output() changed = new EventEmitter();
 
   public faMagnifyingGlassChart = faMagnifyingGlassChart;
+  faSearch = faSearch;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
