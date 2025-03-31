@@ -22,7 +22,6 @@ $v-scrollbar_width: var(--v-scrollbar_width);
     width: 100%;
     height: calc(100% - 20px);
     .box {
-      background-color: yellow;
       overflow: hidden;
       width: calc(100% - 20px);
       height: 100%;
@@ -30,14 +29,12 @@ $v-scrollbar_width: var(--v-scrollbar_width);
     }
 
     .vScrollArea {
-      background-color: greenyellow;
       width: 20px;
       height: 100%;
     }
   }
 
   .hScrollArea {
-    background-color: greenyellow;
     width: calc(100% - 20px);
     height: 20px;
   }

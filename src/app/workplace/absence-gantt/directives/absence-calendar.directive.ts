@@ -13,6 +13,8 @@ export class AbsenceCalendarDirective {
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
+  private readonly SCROLL_THRESHOLD = 2;
+  private readonly INDEX_CORRECTION = 1;
 
   constructor(
     private el: ElementRef,
@@ -181,15 +183,22 @@ export class AbsenceCalendarDirective {
         this.gridBody.drawCalendarGantt.selectedRow <
         this.gridBody.dataManagementBreak.rows - 1
       ) {
-        this.gridBody.drawCalendarGantt.selectedRow =
-          this.gridBody.drawCalendarGantt.selectedRow + 1;
-        const lastRow = this.gridBody.drawCalendarGantt.lastVisibleRow() - 3;
-        if (this.gridBody.drawCalendarGantt.selectedRow >= lastRow) {
-          const diff = this.gridBody.drawCalendarGantt.selectedRow - lastRow;
+        const tmp =
+          this.gridBody.drawCalendarGantt.selectedRow + this.INDEX_CORRECTION;
 
-          this.gridBody.scroll.verticalScrollPosition += diff;
+        const nextRow =
+          tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
+            ? tmp
+            : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
 
-          this.gridBody.drawCalendarGantt.moveCalendar(false, true);
+        this.drawCalendarGanttService.unDrawSelectionRow();
+        this.drawCalendarGanttService.selectedRow = nextRow;
+
+        if (
+          this.drawCalendarGanttService.lastVisibleRow() <=
+          this.drawCalendarGanttService.selectedRow + this.SCROLL_THRESHOLD
+        ) {
+          this.gridBody.valueVScrollbar.emit(nextRow);
         }
       }
 
@@ -245,24 +254,24 @@ export class AbsenceCalendarDirective {
       }
 
       if (this.gridBody.drawCalendarGantt.selectedRow > 0) {
-        this.gridBody.drawCalendarGantt.selectedRow =
-          this.gridBody.drawCalendarGantt.selectedRow - 1;
+        const tmp =
+          this.gridBody.drawCalendarGantt.selectedRow - this.INDEX_CORRECTION;
 
-        if (this.gridBody.scroll.maxRows <= 1) {
-          this.gridBody.scroll.verticalScrollPosition = 0;
-        } else {
-          if (
-            this.gridBody.scroll.verticalScrollPosition >
-            this.gridBody.drawCalendarGantt.selectedRow
-          ) {
-            this.gridBody.scroll.verticalScrollPosition += -1;
-            this.gridBody.drawCalendarGantt.moveCalendar(false, true);
-          }
+        const nextRow =
+          tmp <= this.drawCalendarGanttService.rows - this.INDEX_CORRECTION
+            ? tmp
+            : this.drawCalendarGanttService.rows - this.INDEX_CORRECTION;
+
+        this.drawCalendarGanttService.unDrawSelectionRow();
+        this.drawCalendarGanttService.selectedRow = nextRow;
+
+        if (
+          this.drawCalendarGanttService.firstVisibleColumn() >
+          this.drawCalendarGanttService.selectedRow - this.INDEX_CORRECTION
+        ) {
+          this.gridBody.valueVScrollbar.emit(nextRow);
         }
-
-        this.stopEvent(event);
       }
-      return;
     }
 
     if (event.key === 'PageUp') {
@@ -272,56 +281,13 @@ export class AbsenceCalendarDirective {
           return;
         }
       }
-
-      let previousVisibleRow: number =
-        this.gridBody.scroll.verticalScrollPosition -
-        this.gridBody.scroll.visibleRows +
-        1;
-
-      if (previousVisibleRow < 0) {
-        previousVisibleRow = 0;
-      }
-
-      if (this.gridBody.scroll.maxRows <= 1) {
-        this.gridBody.scroll.verticalScrollPosition = 0;
-      } else {
-        this.gridBody.scroll.verticalScrollPosition = previousVisibleRow;
-      }
-
-      this.gridBody.drawCalendarGantt.selectedRow = previousVisibleRow;
-
-      this.gridBody.drawCalendarGantt.renderCalendar();
-
-      if (this.gridBody.absenceRowHeader) {
-        this.gridBody.drawRowHeader.createRuler();
-        this.gridBody.drawRowHeader.drawCalendar();
-      }
-
-      this.stopEvent(event);
-      return;
     }
 
     if (event.key === 'End') {
-      if (event.repeat) {
-        if (this.gridBody.drawCalendarGantt.isBusy) {
-          this.stopEvent(event);
-          return;
-        }
-      }
-
-      this.gridBody.scroll.verticalScrollPosition =
-        this.gridBody.scroll.maxRows;
-
-      this.gridBody.drawCalendarGantt.selectedRow =
-        this.gridBody.dataManagementBreak.rows - 1;
-      //this.gridBody.vScrollbar!.value = this.gridBody.scroll.maxRows;
-
-      this.gridBody.drawCalendarGantt.renderCalendar();
-
-      if (this.gridBody.absenceRowHeader) {
-        this.gridBody.drawRowHeader.createRuler();
-        this.gridBody.drawRowHeader.drawCalendar();
-      }
+      const newValue = this.gridBody.scroll.maxRows;
+      this.drawCalendarGanttService.selectedRow =
+        this.drawCalendarGanttService.rows - 1;
+      this.gridBody.valueVScrollbar.emit(newValue);
 
       this.stopEvent(event);
       return;
@@ -334,17 +300,8 @@ export class AbsenceCalendarDirective {
           return;
         }
       }
-
-      this.gridBody.scroll.verticalScrollPosition = 0;
-      this.gridBody.drawCalendarGantt.selectedRow = 0;
-      //this.gridBody.vScrollbar!.value = 0;
-
-      this.gridBody.drawCalendarGantt.renderCalendar();
-
-      if (this.gridBody.absenceRowHeader) {
-        this.gridBody.drawRowHeader.createRuler();
-        this.gridBody.drawRowHeader.drawCalendar();
-      }
+      this.drawCalendarGanttService.selectedRow = 0;
+      this.gridBody.valueVScrollbar.emit(0);
 
       this.stopEvent(event);
       return;
@@ -439,40 +396,6 @@ export class AbsenceCalendarDirective {
       this.gridBody.paste();
       return;
     }
-
-    // if (event.key === 'Enter' ) {
-    //   this.keyDown = false;
-    //   this.stopEvent(event);
-    //   this.gridBody.closeEditableCell();
-    //   if(this.gridBody.position.column < this.gridBody.calendarSetting.columns!){
-    //     const pos = new Position(this.gridBody.position.row, this.gridBody.position.column +1);
-    //     this.gridBody.position = pos;
-    //     if (
-    //       this.gridBody.position.column >
-    //       this.gridBody.scroll.horizontalScrollPosition + this.gridBody.scroll.visibleCols
-    //     ) {
-    //       this.gridBody.moveCalendar(1, 0);
-    //     }
-    //   }
-    //   return;
-    // }
-
-    // if (!event.ctrlKey) {
-    //   if (this.gridBody.calendarSetting.gridSetting.isEditabled) {
-    //     const pos = this.gridBody.position;
-    //     if (pos) {
-    //       const mode = this.gridBody.calendarSetting.cellMode(pos.row, pos.column);
-    //       if (mode == EditableModeEnum.Default || mode == EditableModeEnum.AnyKey) {
-
-    //         if (this.gridBody.calendarSetting.cellMode(pos.row, pos.column) != EditableModeEnum.None) {
-    //           if (this.gridBody.isActivCellVisible()) {
-    //             this.gridBody.createEditableCell();
-    //           }
-
-    //         }
-    //       }
-    //     }
-    //   }
   }
 
   @HostListener('window:keyup', ['$event']) onKeyUp(
@@ -489,10 +412,6 @@ export class AbsenceCalendarDirective {
     }
     this.gridBody.isCtrl = false;
   }
-
-  // @HostListener('window:keypress', ['$event']) onKeyPress(
-  //   event: KeyboardEvent
-  // ): void {}
 
   @HostListener('contextmenu', ['$event']) onContextMenu(event: Event): void {
     if (!this.isOwnElement(event)) {
@@ -516,56 +435,9 @@ export class AbsenceCalendarDirective {
     this.gridBody.drawCalendarGantt.isFocused = false;
   }
 
-  // scrollOnPoint(pos: Position) {
-  //   if (pos.column < this.gridBody.scroll.horizontalScrollPosition) {
-  //     this.gridBody.moveCalendar(-1, 0);
-  //     return;
-  //   }
-
-  //   const lastVisibleColum =
-  //     this.gridBody.scroll.visibleCols + this.gridBody.scroll.horizontalScrollPosition;
-
-  //   if (pos.column > lastVisibleColum) {
-  //     this.gridBody.moveCalendar(1, 0);
-  //     return;
-  //   }
-
-  //   if (pos.row < this.gridBody.scroll.verticalScrollPosition) {
-  //     this.gridBody.moveCalendar(0, -1);
-  //     return;
-  //   }
-
-  //   const lastVisibleRow =
-  //     this.gridBody.scroll.visibleRows + this.gridBody.scroll.verticalScrollPosition;
-
-  //   if (pos.row >= lastVisibleRow) {
-  //     this.gridBody.moveCalendar(0, 1);
-  //     return;
-  //   }
-  // }
-
-  // private respondToLeftMouseDown(event: MouseEvent): void {
-  //   this.gridBody.destroySelection();
-
-  //   const pos: Position = this.gridBody.calcCorrectCoordinate(event);
-
-  //   this.isDrawing = true;
-
-  //   if (this.gridBody.position !== pos) {
-  //     this.gridBody.closeEditableCell();
-  //     this.gridBody.position = pos;
-  //   }
-  // }
-
-  // private respondToRightMouseDown(event: MouseEvent): void {
-  //   this.gridBody.closeEditableCell();
-  //   this.gridBody.simpleContextMenu!.showContextMenu(event);
-  // }
-
   private stopEvent(event: Event): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();
-    if (event.cancelBubble) event.cancelBubble = true;
   }
 
   private isOwnElement(event: Event): boolean {
