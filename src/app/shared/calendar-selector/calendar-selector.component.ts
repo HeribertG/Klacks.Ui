@@ -138,7 +138,12 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
       this.dataManagementCalendarSelectionService.getCalendarSelection(
         this.dataManagementCalendarSelectionService.currentCalendarSelection.id
       );
-    } else {
+      // Hinzufügen eines Debug-Logs
+      console.log(
+        'Fetching calendar selection with ID:',
+        this.dataManagementCalendarSelectionService.currentCalendarSelection.id
+      );
+
       this.resetCalendarRule();
       this.reReadChips();
       setTimeout(() => this.setCalendarRule(), this.timeToWait);

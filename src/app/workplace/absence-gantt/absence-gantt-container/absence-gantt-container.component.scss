@@ -1,10 +1,7 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
-$h-scrollbar_height: var(--h-scrollbar_height);
-$v-scrollbar_width: var(--v-scrollbar_width);
-
 .info {
-  background-color: yellow;
+  background-color: var(--gridBackgroundColorInfo);
   height: 100%;
   width: 100%;
 }

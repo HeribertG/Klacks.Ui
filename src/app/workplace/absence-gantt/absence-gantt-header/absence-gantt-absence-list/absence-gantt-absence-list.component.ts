@@ -132,7 +132,12 @@ export class AbsenceGanttAbsenceListComponent
     const cellLayerHeight = Math.floor(clientHeight / 4);
     const cellHeight = cellLayerHeight * 3;
     const canvas = document.createElement('canvas') as HTMLCanvasElement;
-    const ctx = DrawHelper.createHiDPICanvas(canvas, clientWidth, cellHeight);
+    const ctx = DrawHelper.createHiDPICanvas(
+      canvas,
+      clientWidth,
+      cellHeight,
+      false
+    );
 
     ctx.fillStyle = item.color!;
     ctx.fillRect(0, 0, clientWidth, cellHeight);
