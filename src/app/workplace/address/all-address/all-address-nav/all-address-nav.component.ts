@@ -30,17 +30,17 @@ import { CommonModule } from '@angular/common';
   selector: 'app-all-address-nav',
   templateUrl: './all-address-nav.component.html',
   styleUrls: ['./all-address-nav.component.scss'],
-  standalone: false,
-  // imports: [
-  //   CommonModule,
-  //   FormsModule,
-  //   TranslateModule,
-  //   FontAwesomeModule,
-  //   NgbDropdownModule,
-  //   NgbDatepickerModule,
-  //   NgbTooltipModule,
-  //   SharedModule,
-  // ],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    FontAwesomeModule,
+    NgbDropdownModule,
+    NgbDatepickerModule,
+    NgbTooltipModule,
+    SharedModule,
+  ],
 })
 export class AllAddressNavComponent
   implements OnInit, AfterViewInit, OnDestroy

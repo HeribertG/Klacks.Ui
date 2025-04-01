@@ -40,7 +40,6 @@ import {
 
 import { IconsModule } from './icons/icons.module';
 import { FormsModule } from '@angular/forms';
-import { AddressModule } from './workplace/address/address.module';
 import { ModalModule } from './modal/modal.module';
 import { SpinnerModule } from './spinner/spinner.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -96,7 +95,6 @@ export function localeFactory(localeService: LocaleService) {
     IconsModule,
     SpinnerModule,
     FormsModule,
-    AddressModule,
     CommonModule,
     ModalModule,
     ScheduleModule,

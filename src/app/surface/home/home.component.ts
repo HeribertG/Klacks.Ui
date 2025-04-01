@@ -191,9 +191,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'edit-address':
-        import('../../workplace/address/address.module').then(
-          (m) => m.AddressModule
-        );
         this.setContainerWithNormal();
         this.isEditClient = true;
         this.isSavebarVisible = true;
@@ -205,9 +202,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       case 'client':
         pushOnStack('workplace/client');
-        import('../../workplace/address/address.module').then(
-          (m) => m.AddressModule
-        );
+
         this.setContainerWithNormal();
         this.isClient = true;
         this.isSavebarVisible = false;

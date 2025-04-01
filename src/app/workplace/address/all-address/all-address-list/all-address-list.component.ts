@@ -11,7 +11,7 @@ import {
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   CheckBoxValue,
   Filter,
@@ -37,12 +37,25 @@ import { isNumeric } from 'src/app/helpers/format-helper';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { IconsModule } from 'src/app/icons/icons.module';
 
 @Component({
   selector: 'app-all-address-list',
   templateUrl: './all-address-list.component.html',
   styleUrls: ['./all-address-list.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbPaginationModule,
+    SharedModule,
+    IconsModule,
+  ],
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy

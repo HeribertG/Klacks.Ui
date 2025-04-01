@@ -10,12 +10,26 @@ import {
 import { Router } from '@angular/router';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
+import { NoteComponent } from '../note/note.component';
+import { MembershipComponent } from '../membership/membership.component';
+import { AddressPersonaComponent } from '../address-persona/address-persona.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-edit-address-home',
   templateUrl: './edit-address-home.component.html',
   styleUrls: ['./edit-address-home.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    AddressPersonaComponent,
+    MembershipComponent,
+    NoteComponent,
+    EditAddressNavComponent,
+  ],
 })
 export class EditAddressHomeComponent implements OnInit {
   @Input() isEditClient = false;

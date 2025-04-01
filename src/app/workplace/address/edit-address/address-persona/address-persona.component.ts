@@ -11,9 +11,14 @@ import {
   ViewChild,
   effect,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import {
+  NgbDatepickerModule,
+  NgbDateStruct,
+  NgbModal,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { Address, ICommunication } from 'src/app/core/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
@@ -27,12 +32,26 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CommonModule } from '@angular/common';
+import { IconsModule } from 'src/app/icons/icons.module';
 
 @Component({
   selector: 'app-address-persona',
   templateUrl: './address-persona.component.html',
   styleUrls: ['./address-persona.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbTooltipModule,
+    NgbDatepickerModule,
+    FontAwesomeModule,
+    SharedModule,
+    IconsModule,
+  ],
 })
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy

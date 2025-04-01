@@ -1,6 +1,6 @@
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AfterViewInit,
   Component,
@@ -9,12 +9,25 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { IconsModule } from 'src/app/icons/icons.module';
 
 @Component({
   selector: 'app-note',
   templateUrl: './note.component.html',
   styleUrls: ['./note.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbTooltipModule,
+    SharedModule,
+    IconsModule,
+  ],
 })
 export class NoteComponent implements OnInit, AfterViewInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
