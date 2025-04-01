@@ -13,7 +13,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
@@ -46,7 +45,6 @@ import { ShiftData } from 'src/app/core/shift-data-class';
     FormsModule,
     TranslateModule,
     NgbModule,
-    IconsModule,
     SharedModule,
     CodemirrorModule,
     PropertyGridComponent,

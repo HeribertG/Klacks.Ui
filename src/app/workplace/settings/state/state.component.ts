@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
@@ -25,7 +24,6 @@ import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
     TranslateModule,
     FormsModule,
     NgbModule,
-    IconsModule,
     SharedModule,
     SpinnerModule,
     StateHeaderComponent,

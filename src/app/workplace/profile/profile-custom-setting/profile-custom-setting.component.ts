@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
@@ -26,7 +25,6 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
     FormsModule,
     TranslateModule,
     NgbModule,
-    IconsModule,
     SharedModule,
     SpinnerModule,
   ],

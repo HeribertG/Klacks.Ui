@@ -15,7 +15,6 @@ import { AbsenceGanttMaskComponent } from './absence-gantt-mask/absence-gantt-ma
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { AbsenceGanttGridComponent } from './absence-gantt-mask/absence-gantt-grid/absence-gantt-grid.component';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ResizeObserverDirective } from './directives/resize-observer.directive';
@@ -31,6 +30,19 @@ import { RowHeaderCanvasManagerService } from './services/row-header-canvas.serv
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
 import { RenderRowHeaderService } from './services/render-row-header.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
+import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
+import { ExcelComponent } from 'src/app/icons/excel.component';
+import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
+import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.component ';
+import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
+import { IconDescComponent } from 'src/app/icons/icon-desc.component';
+import { IconAscComponent } from 'src/app/icons/icon-asc.component';
+import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
 
 @NgModule({
   declarations: [
@@ -53,10 +65,22 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
     AngularSplitModule,
     NgbModule,
     SharedModule,
-    IconsModule,
     TranslateModule,
     FontAwesomeModule,
     NgxSliderModule,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
+    TrashIconRedComponent,
+    IconCopyGreyComponent,
+    PencilIconGreyComponent,
+    ExcelComponent,
+    CalendarIconComponent,
+    ChooseCalendarComponent,
+    TrashIconLightRedComponent,
+    GearGreyComponent,
+    IconDescComponent,
+    IconAscComponent,
+    PdfIconComponent,
   ],
   providers: [
     TranslateService,

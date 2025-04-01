@@ -28,7 +28,7 @@ import { Component } from '@angular/core';
       fill="var(--iconBlackColor)"
     />
   </svg>`,
-  standalone: false,
+  standalone: true,
 })
 export class ChooseCalendarComponent {
   constructor() {}

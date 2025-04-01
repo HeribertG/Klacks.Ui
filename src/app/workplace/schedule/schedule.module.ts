@@ -13,7 +13,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { AngularSplitModule } from 'angular-split';
 import { FormsModule } from '@angular/forms';
 import { ResizeObserverDirective } from './directives/resize-observer.directive';
@@ -30,6 +29,14 @@ import { DrawRowHeaderService } from './services/draw-row-header.service';
 import { CellEventsDirective } from './directives/cell-events.directive';
 import { CanvasManagerService } from './services/canvas-manager.service';
 import { NgxSliderModule } from '@angular-slider/ngx-slider';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
+import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
+import { ExcelComponent } from 'src/app/icons/excel.component';
+import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 
 @NgModule({
   declarations: [
@@ -52,9 +59,16 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider';
     AngularSplitModule,
     NgbModule,
     SharedModule,
-    IconsModule,
     TranslateModule,
     NgxSliderModule,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
+    TrashIconRedComponent,
+    IconCopyGreyComponent,
+    PencilIconGreyComponent,
+    ExcelComponent,
+    CalendarIconComponent,
+    ChooseCalendarComponent,
   ],
   providers: [
     TranslateService,

@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'calendar-icon-ball',
-    styleUrls: ['./buttons.scss'],
-    template: `<svg
+  selector: 'calendar-icon-ball',
+  styleUrls: ['./buttons.scss'],
+  template: `<svg
     width="20px"
     height="20px"
     version="1.1"
@@ -33,7 +33,7 @@ import { Component } from '@angular/core';
     <rect x="20" y="21" class="st0" width="8" height="6" />
     <line class="st0" x1="4" y1="5" x2="28" y2="5" />
   </svg>`,
-    standalone: false
+  standalone: true,
 })
 export class CalendarIconComponent {
   constructor() {}

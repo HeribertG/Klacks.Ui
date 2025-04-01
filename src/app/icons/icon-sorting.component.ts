@@ -27,7 +27,7 @@ import { Component } from '@angular/core';
       opacity="0.3"
     />
   </svg>`,
-  standalone: false,
+  standalone: true,
 })
 export class IconSortingComponent {
   constructor() {}

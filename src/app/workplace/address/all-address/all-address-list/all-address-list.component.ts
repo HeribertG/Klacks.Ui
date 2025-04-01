@@ -41,7 +41,16 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { IconsModule } from 'src/app/icons/icons.module';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
+import { ExcelComponent } from 'src/app/icons/excel.component';
+import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
+import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
+import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.component ';
+import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 
 @Component({
   selector: 'app-all-address-list',
@@ -54,7 +63,9 @@ import { IconsModule } from 'src/app/icons/icons.module';
     TranslateModule,
     NgbPaginationModule,
     SharedModule,
-    IconsModule,
+    TrashIconRedComponent,
+    PencilIconGreyComponent,
+    ExcelComponent,
   ],
 })
 export class AllAddressListComponent

@@ -15,7 +15,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
@@ -28,7 +27,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     TranslateModule,
     NgbModule,
-    IconsModule,
     SharedModule,
   ],
 })

@@ -35,7 +35,9 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
-import { IconsModule } from 'src/app/icons/icons.module';
+import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -50,7 +52,9 @@ import { IconsModule } from 'src/app/icons/icons.module';
     NgbDatepickerModule,
     FontAwesomeModule,
     SharedModule,
-    IconsModule,
+    TrashIconRedComponent,
+    CalendarIconComponent,
+    GearGreyComponent,
   ],
 })
 export class AddressPersonaComponent

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,6 +12,8 @@ import { EditShiftAddressComponent } from './edit-shift/edit-shift-address/edit-
 import { EditShiftSpecialFeatureComponent } from './edit-shift/edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftMacroComponent } from './edit-shift/edit-shift-macro/edit-shift-macro.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 
 @NgModule({
   declarations: [
@@ -27,11 +28,12 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   imports: [
     CommonModule,
     FormsModule,
-    IconsModule,
     NgbModule,
     SharedModule,
     TranslateModule,
     FontAwesomeModule,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
   ],
   exports: [
     EditShiftHomeComponent,

@@ -18,7 +18,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // Anwendungsmodule
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
@@ -40,7 +39,6 @@ import {
     FormsModule,
     RouterModule,
     NgbModule,
-    IconsModule,
     SharedModule,
     SpinnerModule,
     TranslateModule,

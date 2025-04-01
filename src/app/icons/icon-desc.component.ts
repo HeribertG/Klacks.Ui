@@ -43,7 +43,7 @@ import { Component, OnInit } from '@angular/core';
       <polygon points="12,14 14,18 16,14" fill="var(--iconBlackColor)" />
     </svg>
   `,
-  standalone: false,
+  standalone: true,
 })
 export class IconDescComponent implements OnInit {
   constructor() {}

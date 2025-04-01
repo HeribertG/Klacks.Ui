@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-    selector: 'app-gantt',
-    styleUrls: ['./buttons.scss'],
-    template: ` <svg
+  selector: 'app-gantt',
+  styleUrls: ['./buttons.scss'],
+  template: ` <svg
     width="28px"
     height="28px"
     width="28px"
@@ -21,7 +21,7 @@ import { Component, OnInit } from '@angular/core';
       fill="var(--iconBlackColor)"
     />
   </svg>`,
-    standalone: false
+  standalone: true,
 })
 export class IconGanttComponent implements OnInit {
   constructor() {}

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-    selector: 'app-icon-briefcase',
-    styleUrls: ['./buttons.scss'],
-    template: `
+  selector: 'app-icon-briefcase',
+  styleUrls: ['./buttons.scss'],
+  template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="30px"
@@ -34,7 +34,7 @@ import { Component, OnInit } from '@angular/core';
       />
     </svg>
   `,
-    standalone: false
+  standalone: true,
 })
 export class IconBriefCaseComponent implements OnInit {
   constructor() {}

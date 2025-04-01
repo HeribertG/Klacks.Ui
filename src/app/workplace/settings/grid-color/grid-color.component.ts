@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { GridColorHeaderComponent } from './grid-color-header/grid-color-header.component';
@@ -21,7 +20,6 @@ import { GridColorService } from 'src/app/grid/services/grid-color.service';
     TranslateModule,
     FormsModule,
     NgbModule,
-    IconsModule,
     SharedModule,
     SpinnerModule,
     GridColorHeaderComponent,

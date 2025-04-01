@@ -14,7 +14,6 @@ import {
   NgbModule,
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { IconsModule } from 'src/app/icons/icons.module';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
@@ -30,6 +29,12 @@ import { cloneObject } from 'src/app/helpers/object-helpers';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
+import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
+import { ExcelComponent } from 'src/app/icons/excel.component';
 
 @Component({
   selector: 'app-absence',
@@ -42,9 +47,14 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
     TranslateModule,
     NgbModule,
     NgbPaginationModule,
-    IconsModule,
     SharedModule,
     SpinnerModule,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
+    TrashIconRedComponent,
+    IconCopyGreyComponent,
+    PencilIconGreyComponent,
+    ExcelComponent,
   ],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
