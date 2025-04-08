@@ -46,3 +46,53 @@ textarea {
 .expand-button {
   margin-right: 30px;
 }
+
+.note-container {
+  position: relative;
+  width: calc(100% - 30px);
+}
+
+.collapsed-note {
+  border: 1px solid var(--gridColorLine);
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+  background-color: var(--standartTextBackground);
+  color: var(--standartTextColor);
+  width: calc(100% - 30px);
+  position: relative;
+  min-height: 38px;
+}
+
+.first-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toggle-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toggle-note-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  z-index: 1000;
+}
+.header {
+  width: calc(100% - 60px);
+  display: flex;
+  flex-flow: row;
+}
+
+button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}

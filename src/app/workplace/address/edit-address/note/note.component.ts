@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
@@ -23,6 +22,8 @@ import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.component ';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
+import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-note',
@@ -30,35 +31,42 @@ import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
   styleUrls: ['./note.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    TranslateModule,
+    CommonModule,
     NgbTooltipModule,
     SharedModule,
     IconAngleRightComponent,
     IconAngleDownComponent,
+    IconAngleUpComponent,
     TrashIconRedComponent,
     IconCopyGreyComponent,
     PencilIconGreyComponent,
     ExcelComponent,
-    IconCopyGreyComponent,
     CalendarIconComponent,
     ChooseCalendarComponent,
     TrashIconLightRedComponent,
     GearGreyComponent,
+    TranslateModule,
   ],
 })
 export class NoteComponent implements OnInit, AfterViewInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   public note_new = MessageLibrary.NOTE_NEW;
-
   public visibleTable = 'inline';
+  public expandedNotes: boolean[] = [];
 
   public dataManagementClientService = inject(DataManagementClientService);
   private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
+    if (this.dataManagementClientService.editClient?.annotations) {
+      this.expandedNotes = new Array(
+        this.dataManagementClientService.editClient.annotations.length
+      ).fill(false);
+    } else {
+      this.expandedNotes = [];
+    }
   }
 
   ngAfterViewInit(): void {
@@ -69,30 +77,52 @@ export class NoteComponent implements OnInit, AfterViewInit {
     });
   }
 
-  setName(index: number): string {
-    return 'note' + index.toString();
+  getFirstLine(text: string | undefined): string {
+    if (!text) return '';
+    const firstLineEnd = text.indexOf('\n');
+    return firstLineEnd > -1 ? text.substring(0, firstLineEnd) : text;
   }
 
-  onChange(index: number, event: any) {
-    const txt = event.srcElement.value;
-    this.dataManagementClientService.editClient!.annotations[index].note = txt;
-    this.isChangingEvent.emit(true);
+  toggleNoteExpansion(index: number, event: MouseEvent | KeyboardEvent): void {
+    event.stopPropagation();
+
+    if (event instanceof KeyboardEvent && event.code === 'Space') {
+      event.preventDefault();
+    }
+
+    this.expandedNotes[index] = !this.expandedNotes[index];
+
+    setTimeout(() => {
+      const button = (event.target as HTMLElement).closest(
+        '.toggle-note-button'
+      );
+      if (button) {
+        (button as HTMLElement).focus();
+      }
+    }, 0);
   }
 
-  onKeyUp(index: number, event: any) {
-    event.cancelBubble = true;
-
-    const txt = event.srcElement.value;
-    this.dataManagementClientService.editClient!.annotations[index].note = txt;
-    this.isChangingEvent.emit(true);
+  onChange(index: number, event: Event) {
+    const target = event.target as HTMLTextAreaElement;
+    if (target) {
+      this.dataManagementClientService.editClient!.annotations[index].note =
+        target.value;
+      this.isChangingEvent.emit(true);
+    }
   }
 
   newAnnotation() {
     this.dataManagementClientService.addAnnotation();
+    this.expandedNotes.push(false);
   }
 
   onDeleteCurrentAnnotation() {
+    const currentIndex =
+      this.dataManagementClientService.currentAnnotationIndex;
     this.dataManagementClientService.removeCurrentAnnotation();
+    if (currentIndex > -1 && currentIndex < this.expandedNotes.length) {
+      this.expandedNotes.splice(currentIndex, 1);
+    }
     this.isChangingEvent.emit(true);
   }
 
@@ -102,5 +132,14 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
+  }
+
+  handleKeyDown(index: number, event: Event): void {
+    if (
+      (event as KeyboardEvent).key === 'Enter' ||
+      (event as KeyboardEvent).key === ' '
+    ) {
+      this.toggleNoteExpansion(index, event as KeyboardEvent);
+    }
   }
 }

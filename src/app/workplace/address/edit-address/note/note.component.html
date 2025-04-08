@@ -63,59 +63,90 @@
       </ul>
     </div>
 
-    <div class="expand-button" (click)="onClickVisibleTable()">
+    <button class="expand-button" (click)="onClickVisibleTable()">
       <app-icon-angle-down
         *ngIf="visibleTable === 'inline'"
       ></app-icon-angle-down>
       <app-icon-angle-right
         *ngIf="visibleTable === 'none'"
       ></app-icon-angle-right>
-    </div>
+    </button>
   </div>
-
   <div class="container-line"></div>
-
   <div [ngStyle]="{ display: visibleTable }">
     <div
       class="container-main"
-      *ngIf="dataManagementClientService.editClient !== undefined"
+      *ngIf="dataManagementClientService.editClient?.annotations"
     >
       <div
         class="row-line"
         *ngFor="
-          let c of dataManagementClientService.editClient.annotations;
+          let annotation of dataManagementClientService.editClient
+            ?.annotations || [];
           index as i
         "
       >
-        <div
+        <button
           [ngClass]="{
-            'container-box  ':
-              this.dataManagementClientService.currentAnnotationIndex !== i,
-            'container-box-focus ':
-              this.dataManagementClientService.currentAnnotationIndex === i
+            'container-box':
+              dataManagementClientService.currentAnnotationIndex !== i,
+            'container-box-focus':
+              dataManagementClientService.currentAnnotationIndex === i
           }"
           (click)="onFocus(i)"
         >
-          <div class="firstColumn">
+          <div class="header firstColumn">
             <label>{{ "address.edit-address.note.notepad" | translate }}</label>
-          </div>
-          <div class="firstColumn">
-            <textarea
-              [value]="c.note"
-              (change)="onChange(i, $event)"
-              (keyup)="onKeyUp(i, $event)"
-              aria-labelledby="Freitextfeld"
-              [disabled]="dataManagementClientService.editClientDeleted"
-              class="form-control freetext"
-              name="setName(i)"
+            <span class="filler"></span>
+            <button
+              class="toggle-note-button"
+              (click)="toggleNoteExpansion(i, $event)"
+              (keydown.enter)="handleKeyDown(i, $event)"
+              (keydown.space)="handleKeyDown(i, $event)"
+              [attr.aria-expanded]="expandedNotes[i]"
+              [attr.aria-controls]="'noteContent' + i"
+              [attr.aria-label]="
+                expandedNotes[i] ? 'Notiz einklappen' : 'Notiz ausklappen'
+              "
+              tabindex="0"
             >
-            </textarea>
+              <app-icon-angle-right
+                *ngIf="!expandedNotes[i]"
+              ></app-icon-angle-right>
+              <app-icon-angle-down
+                *ngIf="expandedNotes[i]"
+              ></app-icon-angle-down>
+            </button>
           </div>
-        </div>
+          <div class="firstColumn note-container">
+            <div
+              *ngIf="!expandedNotes[i]"
+              class="collapsed-note"
+              [attr.id]="'noteContent' + i"
+            >
+              <div
+                class="first-line"
+                (click)="toggleNoteExpansion(i, $event)"
+                (keydown.enter)="handleKeyDown(i, $event)"
+                (keydown.space)="handleKeyDown(i, $event)"
+              >
+                {{ getFirstLine(annotation.note) }}
+              </div>
+            </div>
+            <div *ngIf="expandedNotes[i]" [attr.id]="'noteContent' + i">
+              <textarea
+                [id]="'note' + i"
+                [value]="annotation.note"
+                (input)="onChange(i, $event)"
+                aria-labelledby="Freitextfeld"
+                [disabled]="dataManagementClientService.editClientDeleted"
+                class="form-control freetext"
+                [name]="'note' + i"
+              ></textarea>
+            </div>
+          </div>
+        </button>
       </div>
     </div>
-    <p></p>
-    <p></p>
-    <p></p>
   </div>
 </form>

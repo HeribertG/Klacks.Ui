@@ -11,7 +11,7 @@ export function cloneObject<T>(o: T): T {
 export function compareProperty(o1: any, o2: any, property: string): boolean {
   // Helper function to log mismatches and return false
   function logMismatch(reason: string) {
-    console.info(`Property "${property}" does not match: ${reason}`);
+    // console.info(`Property "${property}" does not match: ${reason}`);
     return false;
   }
 
