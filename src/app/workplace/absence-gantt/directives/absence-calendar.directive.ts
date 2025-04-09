@@ -6,7 +6,7 @@ import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/servic
 
 @Directive({
   selector: '[appAbsenceCalendar]',
-  standalone: false,
+  standalone: true,
 })
 export class AbsenceCalendarDirective {
   private keyDown = false;

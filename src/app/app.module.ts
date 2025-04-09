@@ -53,7 +53,6 @@ import { SearchComponent } from './search/search.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
 import { ScheduleModule } from './workplace/schedule/schedule.module';
-import { AbsenceGanttModule } from './workplace/absence-gantt/absence-gantt.module';
 import { LocaleService } from './services/locale.service';
 import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
 import { ToastsContainer } from './toast/toast.component';
@@ -118,7 +117,6 @@ export function localeFactory(localeService: LocaleService) {
     CommonModule,
     ModalModule,
     ScheduleModule,
-    AbsenceGanttModule,
     FontAwesomeModule,
     TranslateModule.forRoot({
       loader: {

@@ -36,8 +36,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
-import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
-import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-address-persona',
@@ -53,6 +52,7 @@ import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
     FontAwesomeModule,
     SharedModule,
     GearGreyComponent,
+    FallbackPipe,
   ],
 })
 export class AddressPersonaComponent

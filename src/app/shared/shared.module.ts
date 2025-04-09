@@ -13,8 +13,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { ChipsComponent } from './chips/chips.component';
 import { CalendarSelectorComponent } from './calendar-selector/calendar-selector.component';
-import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
-import { ResizeDirective } from '../directives/resize.directive';
 import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -39,6 +37,8 @@ import { IconAscComponent } from '../icons/icon-asc.component';
 import { PdfIconComponent } from '../icons/pdf-icon.component';
 import { IconUserComponent } from '../icons/icon-user.component';
 import { IconSignOutComponent } from '../icons/icon-sign-out.component';
+import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
+import { ResizeDirective } from '../directives/resize.directive';
 
 @NgModule({
   declarations: [
@@ -49,10 +49,8 @@ import { IconSignOutComponent } from '../icons/icon-sign-out.component';
     DragDropFileUploadDirective,
     ButtonSettingComponent,
     CalendarDropdownComponent,
-    FallbackPipe,
     ChipsComponent,
     CalendarSelectorComponent,
-    ResizeDirective,
     HScrollbarComponent,
     VScrollbarComponent,
     CounterComponent,
@@ -83,6 +81,8 @@ import { IconSignOutComponent } from '../icons/icon-sign-out.component';
     PdfIconComponent,
     IconUserComponent,
     IconSignOutComponent,
+    FallbackPipe,
+    ResizeDirective,
   ],
   exports: [
     ButtonExcelComponent,
@@ -92,10 +92,8 @@ import { IconSignOutComponent } from '../icons/icon-sign-out.component';
     DragDropFileUploadDirective,
     ButtonSettingComponent,
     CalendarDropdownComponent,
-    FallbackPipe,
     ChipsComponent,
     CalendarSelectorComponent,
-    ResizeDirective,
     HScrollbarComponent,
     VScrollbarComponent,
     CounterComponent,
@@ -103,6 +101,8 @@ import { IconSignOutComponent } from '../icons/icon-sign-out.component';
     MenuComponent,
     MenuItemComponent,
     ClickOutsideDirective,
+    FallbackPipe,
+    ResizeDirective,
   ],
   providers: [ScrollbarService],
 })

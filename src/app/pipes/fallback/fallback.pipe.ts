@@ -2,8 +2,8 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { IMultiLanguage } from '../../core/multi-language-class';
 
 @Pipe({
-    name: 'fallback',
-    standalone: false
+  name: 'fallback',
+  standalone: true,
 })
 export class FallbackPipe implements PipeTransform {
   transform(

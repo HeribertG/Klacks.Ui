@@ -5,7 +5,7 @@ import {
   OnDestroy,
   effect,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/core/absence-class';
 import { AbsenceTokenFilter } from 'src/app/core/break-class';
@@ -16,12 +16,15 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { invertColor } from 'src/app/helpers/format-helper';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { NgFor, NgIf, NgStyle } from '@angular/common';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-absence-gantt-absence-list',
   templateUrl: './absence-gantt-absence-list.component.html',
   styleUrls: ['./absence-gantt-absence-list.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [NgIf, NgFor, NgStyle, TranslateModule, FallbackPipe],
 })
 export class AbsenceGanttAbsenceListComponent
   implements OnInit, AfterViewInit, OnDestroy

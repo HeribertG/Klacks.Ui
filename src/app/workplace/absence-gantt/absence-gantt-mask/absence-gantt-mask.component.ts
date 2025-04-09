@@ -9,7 +9,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/core/absence-class';
 import { Break, IBreak } from 'src/app/core/break-class';
@@ -28,12 +28,38 @@ import {
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-grid.component';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import {
+  NgbDatepickerModule,
+  NgbPaginationModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
-    selector: 'app-absence-gantt-mask',
-    templateUrl: './absence-gantt-mask.component.html',
-    styleUrls: ['./absence-gantt-mask.component.scss'],
-    standalone: false
+  selector: 'app-absence-gantt-mask',
+  templateUrl: './absence-gantt-mask.component.html',
+  styleUrls: ['./absence-gantt-mask.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NgStyle,
+    NgFor,
+    NgClass,
+    FormsModule,
+    NgbDatepickerModule,
+    NgbPaginationModule,
+    FontAwesomeModule,
+    TranslateModule,
+    PdfIconComponent,
+    FallbackPipe,
+    AbsenceGanttGridComponent,
+    SharedModule,
+  ],
 })
 export class AbsenceGanttMaskComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

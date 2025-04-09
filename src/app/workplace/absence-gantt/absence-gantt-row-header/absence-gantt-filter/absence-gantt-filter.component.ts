@@ -1,15 +1,20 @@
+import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   HeaderDirection,
   HeaderProperties,
 } from 'src/app/core/headerProperties';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+import { IconAscComponent } from 'src/app/icons/icon-asc.component';
+import { IconDescComponent } from 'src/app/icons/icon-desc.component';
 
 @Component({
   selector: 'app-absence-gantt-filter',
   templateUrl: './absence-gantt-filter.component.html',
   styleUrls: ['./absence-gantt-filter.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [TranslateModule, IconAscComponent, IconDescComponent, NgIf],
 })
 export class AbsenceGanttFilterComponent {
   arrowCompany = '';

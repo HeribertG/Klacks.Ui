@@ -25,6 +25,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-all-address-nav',
@@ -40,6 +41,7 @@ import { CommonModule } from '@angular/common';
     NgbDatepickerModule,
     NgbTooltipModule,
     SharedModule,
+    FallbackPipe,
   ],
 })
 export class AllAddressNavComponent

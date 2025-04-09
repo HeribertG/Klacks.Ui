@@ -41,6 +41,7 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-calendar-rules',
@@ -59,6 +60,7 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
     IconCopyGreyComponent,
     PencilIconGreyComponent,
     ExcelComponent,
+    FallbackPipe,
   ],
 })
 export class CalendarRulesComponent

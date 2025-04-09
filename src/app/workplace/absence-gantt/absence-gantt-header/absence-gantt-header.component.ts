@@ -1,19 +1,39 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { Options } from '@angular-slider/ngx-slider';
+import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
-import { NgbDropdown } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDropdown,
+  NgbDropdownModule,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { CounterComponent } from 'src/app/shared/counter/counter.component';
+import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
+import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
+import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-absence-gantt-header',
   templateUrl: './absence-gantt-header.component.html',
   styleUrls: ['./absence-gantt-header.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    AbsenceGanttAbsenceListComponent,
+    PdfIconComponent,
+    ChooseCalendarComponent,
+    NgbDropdownModule,
+    NgbTooltipModule,
+    NgxSliderModule,
+    TranslateModule,
+    SharedModule,
+  ],
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;

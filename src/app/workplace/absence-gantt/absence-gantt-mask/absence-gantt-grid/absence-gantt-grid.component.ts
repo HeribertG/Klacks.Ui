@@ -1,3 +1,4 @@
+import { DatePipe, NgClass, NgFor } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -6,7 +7,7 @@ import {
   OnInit,
   effect,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/core/absence-class';
 import { IBreak } from 'src/app/core/break-class';
@@ -23,7 +24,8 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   selector: 'app-absence-gantt-grid',
   templateUrl: './absence-gantt-grid.component.html',
   styleUrls: ['./absence-gantt-grid.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [NgFor, DatePipe, TranslateModule],
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy

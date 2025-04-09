@@ -174,9 +174,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     switch (value) {
       case 'absence':
         pushOnStack('workplace/absence');
-        import('../../workplace/absence-gantt/absence-gantt.module').then(
-          (m) => m.AbsenceGanttModule
-        );
+
         this.isAbsence = true;
         this.isSavebarVisible = false;
         this.setContainerWithMax();

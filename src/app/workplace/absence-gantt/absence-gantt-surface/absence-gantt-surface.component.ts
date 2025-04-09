@@ -48,12 +48,16 @@ import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/servic
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
+import { SharedModule } from 'src/app/shared/shared.module';
+import { ResizeDirective } from 'src/app/directives/resize.directive';
 
 @Component({
   selector: 'app-absence-gantt-surface',
   templateUrl: './absence-gantt-surface.component.html',
   styleUrls: ['./absence-gantt-surface.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [ResizeDirective, AbsenceCalendarDirective, SharedModule],
 })
 export class AbsenceGanttSurfaceComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

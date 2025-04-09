@@ -20,8 +20,8 @@ const ro = new ResizeObserver((entries) => {
 
 // tslint:disable-next-line: directive-selector
 @Directive({
-    selector: '[resizeObserver]',
-    standalone: false
+  selector: '[resizeObserver]',
+  standalone: true,
 })
 export class ResizeObserverDirective implements OnDestroy {
   @Output() resizeElement = new EventEmitter<DOMRectReadOnly>();
