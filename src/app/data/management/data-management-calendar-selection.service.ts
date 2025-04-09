@@ -87,9 +87,9 @@ export class DataManagementCalendarSelectionService {
           this.currentCalendarSelection = calendarSelection;
           this.readSChips(true);
           this.isChanged.set(false);
+          this.isRead.set(false);
           setTimeout(() => {
             this.isRead.set(true);
-            setTimeout(() => this.isRead.set(false), 100);
           }, 0);
         }
       });

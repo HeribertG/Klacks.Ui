@@ -49,8 +49,6 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
     NgbPaginationModule,
     SharedModule,
     SpinnerModule,
-    IconAngleRightComponent,
-    IconAngleDownComponent,
     TrashIconRedComponent,
     IconCopyGreyComponent,
     PencilIconGreyComponent,

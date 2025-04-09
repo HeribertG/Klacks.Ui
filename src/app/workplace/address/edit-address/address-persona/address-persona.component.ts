@@ -52,8 +52,6 @@ import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
     NgbDatepickerModule,
     FontAwesomeModule,
     SharedModule,
-    TrashIconRedComponent,
-    CalendarIconComponent,
     GearGreyComponent,
   ],
 })
