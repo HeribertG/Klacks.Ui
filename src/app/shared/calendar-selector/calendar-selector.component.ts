@@ -143,8 +143,6 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
       this.reReadChips();
       setTimeout(() => this.setCalendarRule(), this.timeToWait);
     }
-
-    this.change.emit();
   }
 
   onChangeFilter(checkIfDirty = false): void {
@@ -437,7 +435,10 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
         effect(() => {
           const isRead = this.dataManagementCalendarRulesService.isRead();
           if (isRead) {
-            this.onChangeSelection();
+            // this.onChangeSelection();
+            this.resetCalendarRule();
+            this.reReadChips();
+            setTimeout(() => this.setCalendarRule(), this.timeToWait);
           }
         })
       );
