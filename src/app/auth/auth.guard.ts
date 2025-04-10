@@ -1,15 +1,18 @@
-import { Injectable, Inject } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+import { Injectable, inject } from '@angular/core';
+import {
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+  Router,
+} from '@angular/router';
 import { AuthService } from './auth.service';
+import { NavigationService } from '../services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard  {
-  constructor(
-    @Inject(AuthService) private authService: AuthService,
-    private router: Router
-  ) {}
+export class AuthGuard {
+  private navigationService = inject(NavigationService);
+  private authService = inject(AuthService);
 
   canActivate(
     next: ActivatedRouteSnapshot,
@@ -21,7 +24,7 @@ export class AuthGuard  {
     ) {
       return true;
     } else {
-      this.router.navigate(['/']);
+      this.navigationService.navigateToRoot();
       return false;
     }
   }

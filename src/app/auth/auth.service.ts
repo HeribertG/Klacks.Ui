@@ -1,23 +1,21 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { MyToken } from '../core/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
 import { ToastService } from '../toast/toast.service';
 import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from '../services/local-storage.service';
+import { NavigationService } from '../services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  constructor(
-    public toastService: ToastService,
-    private httpClient: HttpClient,
-    private router: Router,
-    private localStorageService: LocalStorageService
-  ) {}
+  public toastService = inject(ToastService);
+  private httpClient = inject(HttpClient);
+  private navigationService = inject(NavigationService);
+  private localStorageService = inject(LocalStorageService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     const user = {
@@ -60,7 +58,7 @@ export class AuthService {
 
   logOut() {
     this.removeToken();
-    this.router.navigate(['/']);
+    this.navigationService.navigateToRoot();
   }
 
   authenticated(): boolean {
@@ -91,17 +89,17 @@ export class AuthService {
         try {
           this.refreshToken().then((x) => {
             if (x! === true) {
-              this.router.navigate(['/workplace']);
+              this.navigationService.navigateToWorkplace();
             } else {
               this.logOut();
             }
           });
         } catch {
-          this.router.navigate(['/']);
+          this.navigationService.navigateToRoot();
           this.showInfo(MessageLibrary.EXPIRED_TOKEN);
         }
       } else {
-        this.router.navigate(['/workplace']);
+        this.navigationService.navigateToWorkplace();
       }
     } else {
       this.logOut();
@@ -207,7 +205,7 @@ export class AuthService {
 
     switch (error) {
       case 'Unknown Error':
-        this.router.navigate(['/error']);
+        this.navigationService.navigateToError();
         this.showError(MessageLibrary.SERVER_NOT_VALID);
 
         break;
@@ -227,7 +225,7 @@ export class AuthService {
 
       case '401':
         this.logOut();
-        this.router.navigate(['/']);
+        this.navigationService.navigateToRoot();
         this.showError(MessageLibrary.HTTP401);
 
         break;
@@ -238,13 +236,13 @@ export class AuthService {
         break;
 
       case '404':
-        this.router.navigate(['/error']);
+        this.navigationService.navigateToError();
         this.showError(MessageLibrary.HTTP404);
 
         break;
 
       default:
-        this.router.navigate(['/error']);
+        this.navigationService.navigateToError();
         this.showError(MessageLibrary.UNKNOWN_ERROR);
     }
   }

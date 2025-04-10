@@ -1,14 +1,20 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Inject,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
-import { deleteStack } from 'src/app/helpers/local-storage-stack';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import {
   LocaleService,
   SupportedLocales,
 } from 'src/app/services/locale.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
@@ -18,6 +24,8 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
   standalone: false,
 })
 export class NavComponent implements OnInit, AfterViewInit {
+  private navigationService = inject(NavigationService);
+
   profileImage: any;
   isAdmin = false;
   authorised = false;
@@ -80,38 +88,38 @@ export class NavComponent implements OnInit, AfterViewInit {
   }
 
   onClickAbsence(): void {
-    this.router.navigate(['/workplace/absence']);
+    this.navigationService.navigateToAbsence();
   }
 
   onClickGroup(): void {
-    this.router.navigate(['/workplace/group']);
+    this.navigationService.navigateToGroup();
   }
 
   onClickShift(): void {
-    this.router.navigate(['/workplace/shift']);
+    this.navigationService.navigateToShift();
   }
 
   onClickSchedule(): void {
-    this.router.navigate(['/workplace/schedule']);
+    this.navigationService.navigateToSchedule();
   }
 
   onClickClients(): void {
-    deleteStack();
-    this.router.navigate(['/workplace/client']);
+    this.navigationService.navigateToClient();
   }
 
   onClickProviders(): void {}
 
   onClickProfile(): void {
-    deleteStack();
-    this.router.navigate(['/workplace/profile']);
-  }
-  onClickSettings(): void {
-    deleteStack();
-    this.router.navigate(['/workplace/settings']);
+    this.navigationService.navigateToProfile();
   }
 
-  onClickStatistic(): void {}
+  onClickSettings(): void {
+    this.navigationService.navigateToSettings();
+  }
+
+  onClickStatistic(): void {
+    this.navigationService.navigateToStatistic();
+  }
 
   private tryLoadProfileImage() {
     const id = localStorage.getItem(MessageLibrary.TOKEN_USERID);

@@ -1,16 +1,23 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  Inject,
+  OnInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styleUrls: ['./login.component.scss'],
-    standalone: false
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
+  standalone: false,
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   public isClicked = false;
@@ -22,13 +29,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
   public showPassword = false;
   public currentLang = MessageLibrary.CURRENT_LANG;
 
-  constructor(
-    @Inject(AuthService) private auth: AuthService,
-    @Inject(Router) private router: Router,
-    @Inject(TranslateService) private translateService: TranslateService,
-    @Inject(LocalStorageService)
-    private localStorageService: LocalStorageService
-  ) {}
+  private auth = inject(AuthService);
+  private navigationService = inject(NavigationService);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
@@ -53,7 +57,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.isClicked = true;
 
     if (await this.auth.logIn(this.username, this.password)) {
-      this.router.navigate(['/workplace']);
+      this.navigationService.navigateToWorkplace();
       this.isClicked = false;
     } else {
       this.isClicked = false;
