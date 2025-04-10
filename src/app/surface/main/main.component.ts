@@ -196,6 +196,7 @@ export class MainComponent implements OnChanges {
         });
       });
     }
+
     if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
       import(
         '../../workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component'
@@ -214,7 +215,7 @@ export class MainComponent implements OnChanges {
       });
     }
 
-    if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
+    if (this.isShift && !this.compInstanceAllShiftHome) {
       import(
         '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component'
       ).then((m) => {

@@ -1,11 +1,12 @@
-<div class="main-container">
+<div class="main-container" role="navigation" aria-label="Main navigation">
   <div class="main-cell">
     <div class="icon_group">
       <app-gantt
         (click)="onClickAbsence()"
         placement="right"
         autoClose="true"
-        ngbTooltip="{{ absence }}"
+        ngbTooltip="{{ absence }} (Alt+1)"
+        aria-label="Manage absences (Alt+1)"
       >
       </app-gantt>
     </div>
@@ -14,7 +15,8 @@
       <app-icon-group
         (click)="onClickGroup()"
         placement="right"
-        ngbTooltip="{{ all_group }}"
+        ngbTooltip="{{ all_group }} (Alt+2)"
+        aria-label="Manage groups (Alt+2)"
       >
       </app-icon-group>
     </div>
@@ -23,7 +25,8 @@
       <app-icon-order
         (click)="onClickShift()"
         placement="right"
-        ngbTooltip="{{ all_shift }}"
+        ngbTooltip="{{ all_shift }} (Alt+3)"
+        aria-label="Manage shifts (Alt+3)"
       >
       </app-icon-order>
     </div>
@@ -32,7 +35,8 @@
       <icon-schedule2
         (click)="onClickSchedule()"
         placement="right"
-        ngbTooltip="{{ all_schedule }}"
+        ngbTooltip="{{ all_schedule }} (Alt+4)"
+        aria-label="Manage schedules (Alt+4)"
       >
       </icon-schedule2>
     </div>
@@ -41,8 +45,9 @@
       <app-icon-clients
         (click)="onClickClients()"
         placement="right"
-        ngbTooltip="{{ all_employee }}"
+        ngbTooltip="{{ all_employee }} (Alt+5)"
         autoClose="true"
+        aria-label="Manage employees (Alt+5)"
       >
       </app-icon-clients>
     </div>
@@ -53,13 +58,18 @@
         placement="right"
         ngbTooltip="{{ statistic }}"
         autoClose="true"
+        aria-label="View statistics"
       >
       </app-icon-chart>
     </div>
   </div>
 
   <div class="main-bottomcell">
-    <div class="icon icon_user" *ngIf="!dataLoadFileService.profileImage">
+    <div
+      class="icon icon_user"
+      *ngIf="!dataLoadFileService.profileImage"
+      aria-label="Open profile (Alt+7)"
+    >
       <app-icon-user (click)="onClickProfile()"></app-icon-user>
     </div>
 
@@ -70,6 +80,7 @@
       (click)="onClickProfile()"
       (keydown.enter)="onClickProfile()"
       (keydown.space)="onClickProfile()"
+      aria-label="Open profile (Alt+7)"
     >
       <img
         [src]="dataLoadFileService.profileImage"

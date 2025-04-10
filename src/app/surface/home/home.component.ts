@@ -267,7 +267,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'shift':
         pushOnStack('workplace/shift');
         import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
-        this.isCreateShift = true;
+        this.isShift = true;
         this.setContainerWithNormal();
         this.isSavebarVisible = false;
         setTimeout(() => {

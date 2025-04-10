@@ -79,6 +79,7 @@ import { IconScheduleComponent2 } from './icons/icon-schedule2.component';
 import { IconClientsComponent } from './icons/icon-clients.component';
 import { IconChartComponent } from './icons/icon-chart.component';
 import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
+import { ShiftModule } from './workplace/shift/shift.module';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -120,6 +121,7 @@ export function localeFactory(localeService: LocaleService) {
     ModalModule,
     ScheduleModule,
     FontAwesomeModule,
+    ShiftModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
