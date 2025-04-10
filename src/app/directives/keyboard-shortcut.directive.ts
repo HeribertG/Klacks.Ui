@@ -39,15 +39,15 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
           }
 
           const isAltOnly = event.altKey && !event.ctrlKey && !event.shiftKey;
-          let isDigit = /^[1-9]$/.test(event.key);
+          let isDigit = /^[0-9]$/.test(event.key);
 
           if (event.code) {
             isDigit =
               isDigit ||
               (event.code.startsWith('Digit') &&
-                /^Digit[1-9]$/.test(event.code)) ||
+                /^Digit[0-9]$/.test(event.code)) ||
               (event.code.startsWith('Numpad') &&
-                /^Numpad[1-9]$/.test(event.code));
+                /^Numpad[0-9]$/.test(event.code));
           }
 
           return isAltOnly && isDigit;
@@ -57,7 +57,7 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
         event.preventDefault();
 
         let digit;
-        if (/^[1-9]$/.test(event.key)) {
+        if (/^[0-9]$/.test(event.key)) {
           digit = event.key;
         } else if (event.code && event.code.startsWith('Digit')) {
           digit = event.code.substring(5);
@@ -76,6 +76,9 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
   private handleShortcut(digit: string | undefined) {
     try {
       switch (digit) {
+        case '0':
+          this.navigationService.navigateToDashboard();
+          break;
         case '1':
           this.navigationService.navigateToAbsence();
           break;

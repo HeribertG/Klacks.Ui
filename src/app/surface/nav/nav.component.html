@@ -1,6 +1,6 @@
 <div class="main-container">
   <div class="main-cell">
-    <div class="icon_group" tabindex="0">
+    <div class="icon_group">
       <app-gantt
         (click)="onClickAbsence()"
         placement="right"
@@ -10,7 +10,7 @@
       </app-gantt>
     </div>
 
-    <div class="icon" tabindex="1">
+    <div class="icon">
       <app-icon-group
         (click)="onClickGroup()"
         placement="right"
@@ -19,7 +19,7 @@
       </app-icon-group>
     </div>
 
-    <div class="icon" tabindex="2">
+    <div class="icon">
       <app-icon-order
         (click)="onClickShift()"
         placement="right"
@@ -28,7 +28,7 @@
       </app-icon-order>
     </div>
 
-    <div class="icon" tabindex="3">
+    <div class="icon">
       <icon-schedule2
         (click)="onClickSchedule()"
         placement="right"
@@ -37,7 +37,7 @@
       </icon-schedule2>
     </div>
 
-    <div class="icon" tabindex="4">
+    <div class="icon">
       <app-icon-clients
         (click)="onClickClients()"
         placement="right"
@@ -47,7 +47,7 @@
       </app-icon-clients>
     </div>
 
-    <div class="icon" tabindex="5">
+    <div class="icon">
       <app-icon-chart
         (click)="onClickStatistic()"
         placement="right"
@@ -64,10 +64,12 @@
     </div>
 
     <div
-      tabindex="6"
       *ngIf="dataLoadFileService.profileImage"
       class="imgIconContainer"
+      tabindex="6"
       (click)="onClickProfile()"
+      (keydown.enter)="onClickProfile()"
+      (keydown.space)="onClickProfile()"
     >
       <img
         [src]="dataLoadFileService.profileImage"
@@ -77,7 +79,7 @@
       />
     </div>
 
-    <div class="icon" *ngIf="isAdmin" tabindex="7">
+    <div class="icon" *ngIf="isAdmin">
       <app-icon-setting (click)="onClickSettings()"></app-icon-setting>
     </div>
   </div>
