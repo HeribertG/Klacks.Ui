@@ -41,16 +41,10 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
-import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
-import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
-import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
-import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
-import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.component ';
-import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -74,6 +68,13 @@ export class AllAddressListComponent
   @ViewChild('myAddressTable', { static: true }) myAddressTable:
     | ElementRef
     | undefined;
+
+  public dataManagementClientService = inject(DataManagementClientService);
+  private navigationService = inject(NavigationService);
+  private renderer = inject(Renderer2);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
+  private modalService = inject(ModalService);
 
   highlightRowId: string | undefined = undefined;
   page = 1;
@@ -118,13 +119,6 @@ export class AllAddressListComponent
 
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
-
-  public dataManagementClientService = inject(DataManagementClientService);
-  private router = inject(Router);
-  private renderer = inject(Renderer2);
-  private translateService = inject(TranslateService);
-  private localStorageService = inject(LocalStorageService);
-  private modalService = inject(ModalService);
 
   ngOnInit(): void {
     this.dataManagementClientService.init();
@@ -385,7 +379,7 @@ export class AllAddressListComponent
   onClickEdit(data: IClient) {
     saveFilter(this.dataManagementClientService.currentFilter, 'edit-address');
     this.dataManagementClientService.prepareClient(data);
-    this.router.navigate(['/workplace/edit-address']);
+    this.navigationService.navigateToEditAddress();
   }
 
   setLastChangeMetaData() {

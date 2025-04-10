@@ -1,5 +1,4 @@
-import { Component, Inject, OnChanges, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, inject, Inject, OnChanges, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
@@ -10,36 +9,37 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
-    selector: 'app-header',
-    templateUrl: './header.component.html',
-    styleUrls: ['./header.component.scss'],
-    standalone: false
+  selector: 'app-header',
+  templateUrl: './header.component.html',
+  styleUrls: ['./header.component.scss'],
+  standalone: false,
 })
 export class HeaderComponent implements OnInit, OnChanges {
+  public dataLoadFileService = inject(DataLoadFileService);
+  public dataManagementClientService = inject(DataManagementClientService);
+  private translateStringConstantsService = inject(
+    TranslateStringConstantsService
+  );
+  private navigationService = inject(NavigationService);
+  private auth = inject(AuthService);
+  private dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  private dataManagementGroupService = inject(DataManagementGroupService);
+  private dataManagementShiftService = inject(DataManagementShiftService);
+  private localStorageService = inject(LocalStorageService);
+
   public registerDropdown: HTMLDivElement | undefined;
   public selectedName = 'new-address';
   public authorised = false;
   public version = '';
   public searchString = '';
 
-  ImageName = 'ok-symbol.png';
-
-  constructor(
-    @Inject(TranslateStringConstantsService)
-    @Inject(Router)
-    private router: Router,
-    @Inject(DataLoadFileService)
-    public dataLoadFileService: DataLoadFileService,
-    public dataManagementClientService: DataManagementClientService,
-    private auth: AuthService,
-    private dataManagementSwitchboardService: DataManagementSwitchboardService,
-    private dataManagementGroupService: DataManagementGroupService,
-    private dataManagementShiftService: DataManagementShiftService,
-    private localStorageService: LocalStorageService
-  ) {}
+  public ImageName = 'ok-symbol.png';
 
   ngOnInit(): void {
     this.setTheme();
@@ -50,7 +50,7 @@ export class HeaderComponent implements OnInit, OnChanges {
   }
 
   onClickDashboard(): void {
-    this.router.navigate(['/workplace/dashboard']);
+    this.navigationService.navigateToDashboard();
   }
 
   onClickLogOut(): void {

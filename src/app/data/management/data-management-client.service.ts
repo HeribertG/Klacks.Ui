@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from '../data-client.service';
 import {
   ITruncatedClient,
@@ -40,9 +40,9 @@ import {
   CommunicationTypeDefaultIndexEnum,
   GenderEnum,
 } from 'src/app/helpers/enums/client-enum';
-import { Router } from '@angular/router';
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -106,13 +106,11 @@ export class DataManagementClientService {
   backupFindClientDummy: IClient | undefined;
   backupFindClientList: IClient[] = [];
 
-  constructor(
-    public dataClientService: DataClientService,
-    public toastService: ToastService,
-    private dataCountryStateService: DataCountryStateService,
-    public dataSettingsVariousService: DataSettingsVariousService,
-    private router: Router
-  ) {}
+  public dataClientService = inject(DataClientService);
+  public toastService = inject(ToastService);
+  public dataSettingsVariousService = inject(DataSettingsVariousService);
+  private dataCountryStateService = inject(DataCountryStateService);
+  private navigationService = inject(NavigationService);
 
   /* #region   init */
 
@@ -417,7 +415,7 @@ export class DataManagementClientService {
 
       this.prepareClient(x);
 
-      this.router.navigate(['/workplace/edit-address']);
+      this.navigationService.navigateToEditAddress();
     });
   }
 
@@ -515,7 +513,7 @@ export class DataManagementClientService {
       this.prepareClient(c);
       this.resetFindListBackup();
 
-      this.router.navigate(['/workplace/edit-address']);
+      this.navigationService.navigateToEditAddress();
 
       setTimeout(() => {
         this.isRead.set(true);

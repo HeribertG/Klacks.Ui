@@ -1,5 +1,4 @@
-import { Injectable, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { inject, Injectable, signal } from '@angular/core';
 import { IShift, Shift } from 'src/app/core/schedule-class';
 import {
   transformDateToNgbDateStruct,
@@ -15,31 +14,29 @@ import { ToastService } from 'src/app/toast/toast.service';
 import { DataShiftService } from '../data-shift.service';
 import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementShiftService {
   public initIsRead = signal(false);
+  public toastService = inject(ToastService);
+  private navigationService = inject(NavigationService);
+  private dataShiftService = inject(DataShiftService);
+  private dataMacroService = inject(DataMacroService);
 
   // shiftFilter: ShiftFilter = new ShiftFilter();
   // private shiftFilterDummy: shiftFilter | undefined = undefined;
 
-  shift: IShift[] = [];
-  editShift: Shift | undefined;
-  editShiftDummy: Shift | undefined;
-  macroList: IMacro[] = [];
+  public shift: IShift[] = [];
+  public editShift: Shift | undefined;
+  public editShiftDummy: Shift | undefined;
+  public macroList: IMacro[] = [];
 
   private isInit = false;
-  initCount = 0;
-  initFinished = 1;
-
-  constructor(
-    public toastService: ToastService,
-    private router: Router,
-    private dataShiftService: DataShiftService,
-    private dataMacroService: DataMacroService
-  ) {}
+  private initCount = 0;
+  private initFinished = 1;
 
   /* #region   init */
 
@@ -87,14 +84,14 @@ export class DataManagementShiftService {
 
       this.prepareShift(x);
 
-      this.router.navigate(['/workplace/edit-address']);
+      this.navigationService.navigateToEditAddress();
     });
   }
 
   createShift() {
     const x = new Shift();
     this.prepareShift(x);
-    this.router.navigate(['/workplace/edit-shift']);
+    this.navigationService.navigateToEditShift();
   }
 
   prepareShift(value: IShift, withoutUpdateDummy = false) {

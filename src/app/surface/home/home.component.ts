@@ -1,13 +1,13 @@
 import {
   Component,
   HostListener,
-  Inject,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import {
   deleteStack,
@@ -19,6 +19,7 @@ import { AppSetting, ISetting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-home',
@@ -27,18 +28,15 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private titleService: Title,
-    @Inject(DataManagementSwitchboardService)
-    public dataManagementSwitchboardService: DataManagementSwitchboardService,
-    @Inject(DataSettingsVariousService)
-    private dataSettingsVariousService: DataSettingsVariousService,
-    @Inject(DataLoadFileService)
-    private dataLoadFileService: DataLoadFileService,
-    private localStorageService: LocalStorageService
-  ) {}
+  public dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  private route = inject(ActivatedRoute);
+  private navigationService = inject(NavigationService);
+  private titleService = inject(Title);
+  private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private dataLoadFileService = inject(DataLoadFileService);
+  private localStorageService = inject(LocalStorageService);
 
   @ViewChild('content', { static: false }) private content: any;
 
@@ -145,11 +143,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       const routerToken = popFromStack();
       if (routerToken !== '') {
-        this.router.navigate([routerToken]);
+        this.navigationService.navigateToRouterToken(routerToken);
         return;
       }
-
-      this.router.navigate(['/']);
+      this.navigationService.navigateToRoot();
     }, 200);
   }
 
@@ -267,17 +264,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             'DataManagementGroupService_Edit';
         }, 100);
         break;
-      case 'edit-shift':
-        pushOnStack('workplace/edit-shift');
-        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
-        this.isCreateShift = true;
-        this.setContainerWithNormal();
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementShiftService_Edit';
-        }, 100);
-        break;
       case 'shift':
         pushOnStack('workplace/shift');
         import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
@@ -287,6 +273,18 @@ export class HomeComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementShiftService';
+        }, 100);
+        break;
+
+      case 'edit-shift':
+        pushOnStack('workplace/edit-shift');
+        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
+        this.isCreateShift = true;
+        this.setContainerWithNormal();
+        this.isSavebarVisible = true;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementShiftService_Edit';
         }, 100);
         break;
 

@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   CheckBoxValue,
   Client,
@@ -19,7 +19,6 @@ import { DataClientService } from '../data-client.service';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataGroupService } from '../data-group.service';
 import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
 import {
   cloneObject,
   compareComplexObjects,
@@ -31,6 +30,7 @@ import {
 import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
@@ -68,13 +68,11 @@ export class DataManagementGroupService {
   private currentClientFilterDummy: Filter | undefined;
   private temporaryClientFilterDummy: Filter | undefined;
 
-  constructor(
-    public dataClientService: DataClientService,
-    public dataGroupService: DataGroupService,
-    public toastService: ToastService,
-    private dataCountryStateService: DataCountryStateService,
-    private router: Router
-  ) {}
+  public dataClientService = inject(DataClientService);
+  public dataGroupService = inject(DataGroupService);
+  public toastService = inject(ToastService);
+  private dataCountryStateService = inject(DataCountryStateService);
+  private navigationService = inject(NavigationService);
 
   /* #region   init */
   init() {
@@ -106,7 +104,7 @@ export class DataManagementGroupService {
 
       this.prepareGroup(x);
 
-      this.router.navigate(['/workplace/edit-group']);
+      this.navigationService.navigateToEditGroup();
     });
   }
   readPageClient() {
@@ -200,7 +198,7 @@ export class DataManagementGroupService {
 
     this.prepareGroup(c);
 
-    this.router.navigate(['/workplace/edit-group']);
+    this.navigationService.navigateToEditGroup();
 
     setTimeout(() => {
       this.fireIsReadEvent();

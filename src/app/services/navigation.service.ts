@@ -8,6 +8,10 @@ import { deleteStack } from '../helpers/local-storage-stack';
 export class NavigationService {
   private router = inject(Router);
 
+  navigateToDashboard(): void {
+    this.router.navigate(['/workplace/dashboard']);
+  }
+
   navigateToAbsence(): void {
     this.router.navigate(['/workplace/absence']);
   }
@@ -51,5 +55,21 @@ export class NavigationService {
 
   navigateToError(): void {
     this.router.navigate(['/error']);
+  }
+
+  navigateToEditAddress(): void {
+    this.router.navigate(['/workplace/edit-address']);
+  }
+
+  navigateToEditGroup(): void {
+    this.router.navigate(['/workplace/edit-group']);
+  }
+
+  navigateToEditShift(): void {
+    this.router.navigate(['/workplace/edit-shift']);
+  }
+
+  navigateToRouterToken(routerToken: string): void {
+    this.router.navigate([routerToken]);
   }
 }

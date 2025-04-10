@@ -7,8 +7,8 @@ import {
   Renderer2,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/core/client-class';
@@ -30,6 +30,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { measureTableHeight } from 'src/app/helpers/tableResize';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
 @Component({
@@ -42,6 +43,14 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myGridTable', { static: true }) myGridTable:
     | ElementRef
     | undefined;
+
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  private spinnerService = inject(SpinnerService);
+  private navigationService = inject(NavigationService);
+  private renderer = inject(Renderer2);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
+  private modalService = inject(ModalService);
 
   highlightRowId: string | undefined = undefined;
   page = 1;
@@ -85,29 +94,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementGroupService: DataManagementGroupService,
-    private spinnerService: SpinnerService,
-    private router: Router,
-    private renderer: Renderer2,
-    private translateService: TranslateService,
-    private localStorageService: LocalStorageService,
-    private modalService: ModalService
-  ) {
-    effect(() => {
-      const isRead = this.dataManagementGroupService.isRead();
-      if (isRead) {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-          return;
-        }
-        this.isMeasureTable = true;
-      }
-    });
-  }
-
   ngOnInit(): void {
+    this.readSignals();
+
     const tmp = restoreFilter('edit-group');
     this.visibleRow = visibleRow();
     this.dataManagementGroupService.init;
@@ -432,7 +421,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickEdit(data: IGroup) {
     saveFilter(this.dataManagementGroupService.currentFilter, 'edit-group');
     this.dataManagementGroupService.prepareGroup(data);
-    this.router.navigate(['/workplace/edit-group']);
+    this.navigationService.navigateToEditGroup();
   }
 
   onChangeRowSize(event: any): void {
@@ -498,5 +487,17 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       });
   }
 
-  private readSignals(): void {}
+  private readSignals(): void {
+    effect(() => {
+      const isRead = this.dataManagementGroupService.isRead();
+      if (isRead) {
+        if (this.isFirstRead) {
+          setTimeout(() => this.recalcHeight(), 100);
+          this.isFirstRead = false;
+          return;
+        }
+        this.isMeasureTable = true;
+      }
+    });
+  }
 }
