@@ -12,10 +12,10 @@ import {
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
-    selector: 'app-nav',
-    templateUrl: './nav.component.html',
-    styleUrls: ['./nav.component.scss'],
-    standalone: false
+  selector: 'app-nav',
+  templateUrl: './nav.component.html',
+  styleUrls: ['./nav.component.scss'],
+  standalone: false,
 })
 export class NavComponent implements OnInit, AfterViewInit {
   profileImage: any;
@@ -26,6 +26,7 @@ export class NavComponent implements OnInit, AfterViewInit {
   all_schedule = MessageLibrary.ALL_SCHEDULE;
   all_employee = MessageLibrary.ALL_EMPLOYEE;
   all_group = MessageLibrary.ALL_GROUP;
+  all_shift = MessageLibrary.ALL_SHIFT;
   statistic = MessageLibrary.STATISTIC;
 
   constructor(
@@ -84,6 +85,10 @@ export class NavComponent implements OnInit, AfterViewInit {
 
   onClickGroup(): void {
     this.router.navigate(['/workplace/group']);
+  }
+
+  onClickShift(): void {
+    this.router.navigate(['/workplace/shift']);
   }
 
   onClickSchedule(): void {

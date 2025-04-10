@@ -164,6 +164,9 @@ export class TranslateStringConstantsService {
     this.translateService.get('ALL_GROUP').subscribe((x: any) => {
       MessageLibrary.ALL_GROUP = x;
     });
+    this.translateService.get('ALL_SHIFT').subscribe((x: any) => {
+      MessageLibrary.ALL_SHIFT = x;
+    });
     this.translateService.get('ALL_EMPLOYEE').subscribe((x: any) => {
       MessageLibrary.ALL_EMPLOYEE = x;
     });

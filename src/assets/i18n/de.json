@@ -371,6 +371,7 @@
   "new-work": "Dienst erfassen",
   "new-group": "Gruppe erfassen",
   "ALL_GROUP": "Alle Gruppen",
+  "ALL_SHIFT": "Alle Dienste",
 
   "group.all-group.all-group-home.header": "Alle Gruppen",
   "group.all-group.all-group-list.header": "Gruppen",

@@ -52,6 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isGroup = false;
   isEditGroup = false;
   isCreateShift = false;
+  isShift = false;
 
   isSavebarVisible = false;
 
@@ -164,6 +165,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isGroup = false;
     this.isEditGroup = false;
     this.isCreateShift = false;
+    this.isShift = false;
 
     this.dataManagementSwitchboardService.isDisabled = false;
   }
@@ -276,6 +278,18 @@ export class HomeComponent implements OnInit, OnDestroy {
             'DataManagementShiftService_Edit';
         }, 100);
         break;
+      case 'shift':
+        pushOnStack('workplace/shift');
+        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
+        this.isCreateShift = true;
+        this.setContainerWithNormal();
+        this.isSavebarVisible = false;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementShiftService';
+        }, 100);
+        break;
+
       default:
         this.isDashboard = true;
         this.isSavebarVisible = false;

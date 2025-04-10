@@ -18,6 +18,7 @@ import { ScheduleHomeComponent } from 'src/app/workplace/schedule/schedule-home/
 import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-group-home/all-group-home.component';
 import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
 import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
+import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
 
 @Component({
   selector: 'app-main',
@@ -41,6 +42,7 @@ export class MainComponent implements OnChanges {
   @Input() isGroup = false;
   @Input() isEditGroup = false;
   @Input() isCreateShift = false;
+  @Input() isShift = false;
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
@@ -54,6 +56,7 @@ export class MainComponent implements OnChanges {
   compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
   compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
   compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
+  compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
 
   ngOnChanges(): void {
     if (this.isSetting && !this.compInstanceSettingHome) {
@@ -211,6 +214,24 @@ export class MainComponent implements OnChanges {
       });
     }
 
+    if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
+      import(
+        '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component'
+      ).then((m) => {
+        const comp = m.AllShiftHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<AllShiftHomeComponent>(comp);
+
+        this.compInstanceAllShiftHome = compRef.instance;
+        this.compInstanceAllShiftHome.isShift = this.isShift;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+
     if (this.compInstanceAbsenceGanttHome) {
       this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
     }
@@ -243,6 +264,10 @@ export class MainComponent implements OnChanges {
 
     if (this.compInstanceCreateShiftHome) {
       this.compInstanceCreateShiftHome.isCreateShift = this.isCreateShift;
+    }
+
+    if (this.compInstanceAllShiftHome) {
+      this.compInstanceAllShiftHome.isShift = this.isShift;
     }
   }
 

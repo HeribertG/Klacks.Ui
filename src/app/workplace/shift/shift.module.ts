@@ -14,6 +14,9 @@ import { EditShiftMacroComponent } from './edit-shift/edit-shift-macro/edit-shif
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { AllShiftHomeComponent } from './all-shift/all-shift-home/all-shift-home.component';
+import { AllShiftListComponent } from './all-shift/all-shift-list/all-shift-list.component';
+import { AllShiftNavComponent } from './all-shift/all-shift-nav/all-shift-nav.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +27,9 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
     EditShiftNavComponent,
     EditShiftSpecialFeatureComponent,
     EditShiftMacroComponent,
+    AllShiftHomeComponent,
+    AllShiftListComponent,
+    AllShiftNavComponent,
   ],
   imports: [
     CommonModule,
@@ -41,6 +47,9 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
     EditShiftWeekdayComponent,
     EditShiftAddressComponent,
     EditShiftNavComponent,
+    AllShiftHomeComponent,
+    AllShiftListComponent,
+    AllShiftNavComponent,
   ],
 })
 export class ShiftModule {}

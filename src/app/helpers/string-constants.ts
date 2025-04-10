@@ -102,6 +102,7 @@ export class MessageLibrary {
   public static ALL_EMPLOYEE = 'Alle Mitarbeiter';
   public static STATISTIC = 'Statistiken';
   public static ALL_GROUP = 'Alle Gruppen';
+  public static ALL_SHIFT = 'Alle Dienste';
 
   public static NOTE_NEW = 'neue Notiz hinzufügen';
   public static LAST_STATE = 'letzter Stand:';

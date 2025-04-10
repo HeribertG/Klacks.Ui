@@ -371,6 +371,7 @@
   "new-work": "Create Shift",
   "new-group": "Create Group",
   "ALL_GROUP": "All groups",
+  "ALL_SHIFT": "All Shifts",
 
   "group.all-group.all-group-home.header": "All groups",
   "group.all-group.all-group-list.header": "Groups",

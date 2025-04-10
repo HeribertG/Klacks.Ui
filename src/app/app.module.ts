@@ -78,6 +78,7 @@ import { IconOrderComponent } from './icons/icon-order.component';
 import { IconScheduleComponent2 } from './icons/icon-schedule2.component';
 import { IconClientsComponent } from './icons/icon-clients.component';
 import { IconChartComponent } from './icons/icon-chart.component';
+import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -105,6 +106,7 @@ export function localeFactory(localeService: LocaleService) {
     DashboardHomeComponent,
     SearchComponent,
     ToastsContainer,
+    KeyboardShortcutDirective,
   ],
   bootstrap: [AppComponent],
   imports: [
