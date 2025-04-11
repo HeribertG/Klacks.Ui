@@ -10,14 +10,8 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  CheckBoxValue,
-  Filter,
-  IClient,
-  IFilter,
-} from 'src/app/core/client-class';
+import { CheckBoxValue, IClient, IFilter } from 'src/app/core/client-class';
 import {
   HeaderDirection,
   HeaderProperties,
@@ -70,9 +64,9 @@ export class AllAddressListComponent
     | undefined;
 
   public dataManagementClientService = inject(DataManagementClientService);
+  public translate = inject(TranslateService);
   private navigationService = inject(NavigationService);
   private renderer = inject(Renderer2);
-  private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
 
@@ -136,10 +130,10 @@ export class AllAddressListComponent
   }
 
   ngAfterViewInit(): void {
-    this.translateService.onLangChange
+    this.translate.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
-        this.message = this.translateService.instant('DELETE_ENTRY');
+        this.message = this.translate.instant('DELETE_ENTRY');
       });
 
     setTimeout(() => this.recalcHeight(), 600);
@@ -385,7 +379,7 @@ export class AllAddressListComponent
   setLastChangeMetaData() {
     // Sub-Headline Beschriftung
     this.dataManagementClientService.getLastChangeMetaData(
-      this.translateService.currentLang
+      this.translate.currentLang
     );
   }
 

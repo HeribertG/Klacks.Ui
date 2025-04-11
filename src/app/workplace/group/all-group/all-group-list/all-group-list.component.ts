@@ -1,15 +1,21 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  EffectRef,
   ElementRef,
+  Injector,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/core/client-class';
 import { IGroup, IGroupFilter } from 'src/app/core/group-class';
@@ -28,8 +34,9 @@ import {
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { measureTableHeight } from 'src/app/helpers/tableResize';
+import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
@@ -37,7 +44,15 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
   selector: 'app-all-group-list',
   templateUrl: './all-group-list.component.html',
   styleUrls: ['./all-group-list.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbPaginationModule,
+    TranslateModule,
+    PencilIconGreyComponent,
+    TrashIconRedComponent,
+  ],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myGridTable', { static: true }) myGridTable:
@@ -45,12 +60,12 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     | undefined;
 
   public dataManagementGroupService = inject(DataManagementGroupService);
+  public translate = inject(TranslateService);
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
-  private renderer = inject(Renderer2);
-  private translateService = inject(TranslateService);
-  private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
+  private injector = inject(Injector);
+  private effectRef: EffectRef | null = null;
 
   highlightRowId: string | undefined = undefined;
   page = 1;
@@ -95,7 +110,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
-    this.readSignals();
+    runInInjectionContext(this.injector, () => this.readSignals());
 
     const tmp = restoreFilter('edit-group');
     this.visibleRow = visibleRow();
@@ -129,6 +144,11 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
+    }
   }
 
   /* #region   header */
@@ -488,7 +508,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readSignals(): void {
-    effect(() => {
+    this.effectRef = effect(() => {
       const isRead = this.dataManagementGroupService.isRead();
       if (isRead) {
         if (this.isFirstRead) {

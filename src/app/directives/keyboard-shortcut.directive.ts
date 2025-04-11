@@ -25,15 +25,6 @@ export class KeyboardShortcutDirective implements OnInit, OnDestroy {
     this.subscription = fromEvent<KeyboardEvent>(document, 'keydown')
       .pipe(
         filter((event) => {
-          console.log(
-            'Keydown event:',
-            event.key,
-            'Alt:',
-            event.altKey,
-            'Code:',
-            event.code
-          );
-
           if (event === undefined || event.key === undefined) {
             return false;
           }

@@ -10,21 +10,30 @@ import {
   ViewChild,
   effect,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { CommonModule } from '@angular/common';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-edit-group-item',
   templateUrl: './edit-group-item.component.html',
   styleUrls: ['./edit-group-item.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbDatepickerModule,
+    TranslateModule,
+    FontAwesomeModule,
+  ],
 })
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit, OnDestroy

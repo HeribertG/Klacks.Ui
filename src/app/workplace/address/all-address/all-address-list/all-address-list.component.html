@@ -1,6 +1,6 @@
 <form id="allAddressForm">
   <div class="container-header header-container">
-    {{ "address.all-address.all-address-list.header" | translate }}
+    {{ translate.instant("address.all-address.all-address-list.header") }}
 
     <span class="filler"></span>
 
@@ -77,7 +77,9 @@
             <div class="table-header-cell form-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.nr" | translate
+                  translate.instant(
+                    "address.all-address.all-address-list.table.nr"
+                  )
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">{{ arrowNo }}</p>
@@ -91,8 +93,9 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.company"
-                    | translate
+                  translate.instant(
+                    "address.all-address.all-address-list.table.company"
+                  )
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">{{ arrowCompany }}</p>
@@ -106,8 +109,9 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.firstname"
-                    | translate
+                  translate.instant(
+                    "address.all-address.all-address-list.table.firstname"
+                  )
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -123,8 +127,9 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "address.all-address.all-address-list.table.lastname"
-                    | translate
+                  translate.instant(
+                    "address.all-address.all-address-list.table.lastname"
+                  )
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
@@ -209,7 +214,9 @@
 
   <div class="pagination justify-content-end">
     <div *ngIf="visibleRow">
-      <label class="entry-row">{{ "pagination.line" | translate }}</label>
+      <label class="entry-row">{{
+        translate.instant("pagination.line")
+      }}</label>
       <select
         class="maxSize-selection"
         value="realRow"
@@ -226,7 +233,7 @@
     </div>
 
     <label class="entry-info"
-      >{{ "pagination.sum" | translate }}
+      >{{ translate.instant("pagination.sum") }}
       {{ dataManagementClientService.maxItems }}</label
     >
     <ngb-pagination

@@ -8,20 +8,38 @@ import {
   ViewChild,
   effect,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { CommonModule } from '@angular/common';
+import {
+  NgbDatepickerModule,
+  NgbDropdownModule,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
-    selector: 'app-edit-group-nav',
-    templateUrl: './edit-group-nav.component.html',
-    styleUrls: ['./edit-group-nav.component.scss'],
-    standalone: false
+  selector: 'app-edit-group-nav',
+  templateUrl: './edit-group-nav.component.html',
+  styleUrls: ['./edit-group-nav.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbDropdownModule,
+    NgbDatepickerModule,
+    NgbTooltipModule,
+    TranslateModule,
+    FontAwesomeModule,
+    FallbackPipe,
+  ],
 })
 export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:

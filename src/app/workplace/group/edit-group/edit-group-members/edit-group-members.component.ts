@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -9,6 +10,8 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/core/client-class';
 import { IGroupItem } from 'src/app/core/group-class';
 import {
@@ -19,13 +22,24 @@ import { DataClientService } from 'src/app/data/data-client.service';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ToastService } from 'src/app/toast/toast.service';
 
 @Component({
-    selector: 'app-edit-group-members',
-    templateUrl: './edit-group-members.component.html',
-    styleUrls: ['./edit-group-members.component.scss'],
-    standalone: false
+  selector: 'app-edit-group-members',
+  templateUrl: './edit-group-members.component.html',
+  styleUrls: ['./edit-group-members.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+    TrashIconRedComponent,
+  ],
 })
 export class EditGroupMembersComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -90,11 +104,16 @@ export class EditGroupMembersComponent
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
   }
-  onKeyupSearchField(event: any) {
+  onKeyupSearchField(event: KeyboardEvent) {
     event.preventDefault();
     event.stopPropagation();
 
+    if (event.key === 'Enter') {
+      this.applyClient();
+    }
+
     if (isNumeric(this.selectedClientName)) {
+      this.searchText(true);
       return;
     }
 
@@ -108,30 +127,32 @@ export class EditGroupMembersComponent
     }, 2000);
   }
 
-  onKeydownEnterSearchField(event: any) {
-    event.preventDefault();
-    event.stopPropagation();
+  onKeydownEnterSearchField(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      event.stopPropagation();
 
-    if (isNumeric(this.selectedClientName)) {
-      this.searchText();
-      return;
+      if (isNumeric(this.selectedClientName)) {
+        this.searchText(true);
+        return;
+      }
+
+      this.applyClient();
     }
-
-    this.applyClient();
   }
 
   onClickApply() {
     this.applyClient();
   }
 
-  private searchText() {
+  private searchText(isNumer: boolean = false) {
     if (
       this.selectedClientName &&
-      this.selectedClientName.toString().length >= 2
+      (this.selectedClientName.toString().length >= 2 || isNumer)
     ) {
       const split = this.selectedClientName.toString().split(' - ');
 
-      if (split.length >= 2 && isNumeric(split[0])) {
+      if (split.length >= 1 && isNumeric(split[0])) {
         this.refreshList(split[0]);
       } else {
         this.refreshList(this.selectedClientName);

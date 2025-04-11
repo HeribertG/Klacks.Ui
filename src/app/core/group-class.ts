@@ -16,6 +16,7 @@ export interface IGroup {
   internalValidFrom: NgbDateStruct | undefined;
   internalValidUntil: NgbDateStruct | undefined;
   groupItems: IGroupItem[];
+  parent: string | undefined;
 }
 
 export class Group implements IGroup {
@@ -26,6 +27,7 @@ export class Group implements IGroup {
   validUntil: Date | undefined = undefined;
   internalValidFrom: NgbDateStruct | undefined = undefined;
   internalValidUntil: NgbDateStruct | undefined = undefined;
+  parent: string | undefined = undefined;
   groupItems: GroupItem[] = [];
 }
 

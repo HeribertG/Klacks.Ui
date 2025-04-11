@@ -245,7 +245,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
       case 'group':
         pushOnStack('workplace/group');
-        import('../../workplace/group/group.module').then((m) => m.GroupModule);
+
         this.isGroup = true;
         this.setContainerWithNormal();
         this.isSavebarVisible = false;
@@ -255,7 +255,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
         break;
       case 'edit-group':
-        import('../../workplace/group/group.module').then((m) => m.GroupModule);
         this.isEditGroup = true;
         this.setContainerWithNormal();
         this.isSavebarVisible = true;

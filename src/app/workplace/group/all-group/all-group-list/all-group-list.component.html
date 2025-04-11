@@ -1,6 +1,6 @@
 <form id="allGroupForm">
   <div class="container-header header-container">
-    {{ "group.all-group.all-group-list.header" | translate }}
+    {{ translate.instant("group.all-group.all-group-list.header") }}
 
     <span class="filler"></span>
   </div>
@@ -35,7 +35,9 @@
           >
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
-                {{ "group.all-group.all-group-list.table.name" | translate }}
+                {{
+                  translate.instant("group.all-group.all-group-list.table.name")
+                }}
               </p>
               <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
             </div>
@@ -49,7 +51,9 @@
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
                 {{
-                  "group.all-group.all-group-list.table.description" | translate
+                  translate.instant(
+                    "group.all-group.all-group-list.table.description"
+                  )
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
@@ -65,7 +69,9 @@
           >
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
-                {{ "group.all-group.all-group-list.table.from" | translate }}
+                {{
+                  translate.instant("group.all-group.all-group-list.table.from")
+                }}
               </p>
               <p class="table-header-cell-arrow noselect">
                 {{ arrowValidFrom }}
@@ -80,7 +86,11 @@
           >
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
-                {{ "group.all-group.all-group-list.table.until" | translate }}
+                {{
+                  translate.instant(
+                    "group.all-group.all-group-list.table.until"
+                  )
+                }}
               </p>
               <p class="table-header-cell-arrow noselect">
                 {{ arrowValidUntil }}
@@ -104,7 +114,7 @@
             index as i
           "
           (click)="onClickedRow(data)"
-          [class.active]="data.id == highlightRowId"
+          [class.active]="data.id === highlightRowId"
         >
           <td class="table-cell">
             <input
@@ -150,7 +160,9 @@
 
   <div class="pagination justify-content-end">
     <div *ngIf="visibleRow">
-      <label class="entry-row">{{ "pagination.line" | translate }}</label>
+      <label class="entry-row">{{
+        translate.instant("pagination.line")
+      }}</label>
       <select
         class="maxSize-selection"
         value="realRow"
@@ -167,7 +179,7 @@
     </div>
 
     <label class="entry-info"
-      >{{ "pagination.sum" | translate }}
+      >{{ translate.instant("pagination.sum") }}
       {{ dataManagementGroupService.maxItems }}</label
     >
     <ngb-pagination

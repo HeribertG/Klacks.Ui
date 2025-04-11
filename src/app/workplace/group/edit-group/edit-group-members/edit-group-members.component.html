@@ -29,7 +29,7 @@
             [(ngModel)]="selectedClientName"
             autocomplete="off"
             (keyup)="onKeyupSearchField($event)"
-            (keydown.enter)="onKeydownEnterSearchField($event)"
+            (keydown)="onKeydownEnterSearchField($event)"
             id="member"
             list="dynamicClientName"
             name="selectedClient"
