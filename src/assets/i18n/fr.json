@@ -372,6 +372,7 @@
   "new-group": "Créer un groupe",
   "ALL_GROUP": "Tous les groupes",
   "ALL_SHIFT": "Tous les  Shifts",
+  "edit-group-structure": "Gruppen Strukturen erfassen",
 
   "group.all-group.all-group-home.header": "Tous les groupes",
   "group.all-group.all-group-list.header": "Groupes",
@@ -422,5 +423,18 @@
   "shift.edit-shift.weekday.until": "Heure de Fin hh:mm",
   "shift.edit-shift.weekday.work-hour": "Durée",
   "shift.edit-shift.weekday.time-range": "Service dans la plage horaire (Heure de Début hh:mm Heure de Fin hh:mm). Veuillez indiquer la durée du service dans le champ Durée.",
-  "shift.edit-shift.main.complex-mode": "Expert Mode"
+  "shift.edit-shift.main.complex-mode": "Expert Mode",
+
+  "group.tree.headline": "Structure du Groupe",
+  "group.tree.add-root": "Nouveau Groupe Racine",
+  "group.tree.no-groups": "Aucun groupe trouvé",
+  "group.tree.delete-confirmation.title": "Supprimer le Groupe",
+  "group.tree.delete-confirmation.message": "Voulez-vous vraiment supprimer ce groupe et tous les sous-groupes ?",
+  "group.tree.delete-confirmation.confirm": "Supprimer",
+  "group.tree.delete-confirmation.cancel": "Annuler",
+  "group.edit-group.edit-group-parent.headline": "Structure du Groupe",
+  "group.edit-group.edit-group-parent.select-parent": "Sélectionner le Groupe Parent",
+  "group.edit-group.edit-group-parent.no-parent": "Pas de groupe parent (Groupe racine)",
+  "group.edit-group.edit-group-parent.current-path": "Chemin Actuel",
+  "group.groups-home.title": "Groupes"
 }

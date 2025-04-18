@@ -1,4 +1,4 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import { DataManagementAbsenceService } from './data-management-absence.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementProfileService } from './data-management-profile.service';
@@ -12,6 +12,15 @@ import { DataManagementShiftService } from './data-management-shift.service';
   providedIn: 'root',
 })
 export class DataManagementSwitchboardService {
+  public dataManagementClientService = inject(DataManagementClientService);
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  public dataManagementProfileService = inject(DataManagementProfileService);
+  public dataManagementAbsenceService = inject(DataManagementAbsenceService);
+  public dataManagementScheduleService = inject(DataManagementScheduleService);
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  public dataManagementShiftService = inject(DataManagementShiftService);
+  private spinnerService = inject(SpinnerService);
+
   public isFocusChanged = signal(false);
 
   public lastNameOfVisibleEntity = '';
@@ -21,16 +30,7 @@ export class DataManagementSwitchboardService {
 
   private _nameOfVisibleEntity = '';
 
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    public dataManagementSettingsService: DataManagementSettingsService,
-    public dataManagementProfileService: DataManagementProfileService,
-    public dataManagementAbsenceService: DataManagementAbsenceService,
-    public dataManagementScheduleService: DataManagementScheduleService,
-    public dataManagementGroupService: DataManagementGroupService,
-    public dataManagementShiftService: DataManagementShiftService,
-    private spinnerService: SpinnerService
-  ) {
+  constructor() {
     this.readSignals();
   }
 
@@ -79,6 +79,7 @@ export class DataManagementSwitchboardService {
 
       case 'DataManagementGroupService_Edit':
         this.isDirty = this.dataManagementGroupService.areObjectsDirty();
+
         break;
 
       case 'DataManagementShiftService_Edit':
@@ -144,6 +145,7 @@ export class DataManagementSwitchboardService {
       case 'DataManagementGroupService_Edit':
         this.isSavedOrReset = true;
         this.dataManagementGroupService.resetData();
+
         break;
       case 'DataManagementShiftService_Edit':
         this.isSavedOrReset = true;

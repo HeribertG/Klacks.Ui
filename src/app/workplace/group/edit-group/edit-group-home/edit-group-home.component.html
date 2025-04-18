@@ -13,6 +13,14 @@
     </div>
 
     <div class="container-profilline">
+      <app-edit-group-parent
+        (isChangingEvent)="onIsChanging($event)"
+        class="container-profile first border-right-card border-bottom-card"
+      >
+      </app-edit-group-parent>
+    </div>
+
+    <div class="container-profilline">
       <app-edit-group-members
         (isChangingEvent)="onIsChanging($event)"
         class="container-profile first border-right-card border-bottom-card"

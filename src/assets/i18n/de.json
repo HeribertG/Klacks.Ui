@@ -372,6 +372,7 @@
   "new-group": "Gruppe erfassen",
   "ALL_GROUP": "Alle Gruppen",
   "ALL_SHIFT": "Alle Dienste",
+  "edit-group-structure": "Gruppen Strukturen erfassen",
 
   "group.all-group.all-group-home.header": "Alle Gruppen",
   "group.all-group.all-group-list.header": "Gruppen",
@@ -422,5 +423,18 @@
   "shift.edit-shift.weekday.until": "Bis Zeit hh:mm",
   "shift.edit-shift.weekday.work-hour": "Dauer",
   "shift.edit-shift.weekday.time-range": "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm - Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben",
-  "shift.edit-shift.main.complex-mode": "Experten Modus"
+  "shift.edit-shift.main.complex-mode": "Experten Modus",
+
+  "group.tree.headline": "Gruppenstruktur",
+  "group.tree.add-root": "Neue Wurzelgruppe",
+  "group.tree.no-groups": "Keine Gruppen gefunden",
+  "group.tree.delete-confirmation.title": "Gruppe löschen",
+  "group.tree.delete-confirmation.message": "Möchten Sie diese Gruppe und alle Untergruppen wirklich löschen?",
+  "group.tree.delete-confirmation.confirm": "Löschen",
+  "group.tree.delete-confirmation.cancel": "Abbrechen",
+  "group.edit-group.edit-group-parent.headline": "Gruppenstruktur",
+  "group.edit-group.edit-group-parent.select-parent": "Übergeordnete Gruppe auswählen",
+  "group.edit-group.edit-group-parent.no-parent": "Keine übergeordnete Gruppe (Wurzelgruppe)",
+  "group.edit-group.edit-group-parent.current-path": "Aktueller Pfad",
+  "group.groups-home.title": "Gruppen"
 }

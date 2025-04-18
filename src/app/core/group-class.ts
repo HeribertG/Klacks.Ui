@@ -8,7 +8,7 @@ import {
 import { Client, IClient } from './client-class';
 
 export interface IGroup {
-  id: string | undefined;
+  id?: string;
   name: string;
   description: string;
   validFrom: Date;
@@ -16,11 +16,17 @@ export interface IGroup {
   internalValidFrom: NgbDateStruct | undefined;
   internalValidUntil: NgbDateStruct | undefined;
   groupItems: IGroupItem[];
-  parent: string | undefined;
+  parent?: string;
+  root?: string;
+  lft: number;
+  rgt: number;
+  depth: number;
+  clientsCount: number;
+  children?: IGroup[];
 }
 
 export class Group implements IGroup {
-  id: string | undefined = undefined;
+  id?: string = undefined;
   name = '';
   description = '';
   validFrom = new Date();
@@ -29,6 +35,13 @@ export class Group implements IGroup {
   internalValidUntil: NgbDateStruct | undefined = undefined;
   parent: string | undefined = undefined;
   groupItems: GroupItem[] = [];
+
+  root?: string;
+  lft: number = 0;
+  rgt: number = 0;
+  depth: number = 0;
+  clientsCount: number = 0;
+  children?: Group[] = [];
 }
 
 export interface IGroupItem {
@@ -85,5 +98,60 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
     this.activeDateRange = true;
     this.formerDateRange = false;
     this.futureDateRange = false;
+  }
+}
+
+export interface IGroupTree {
+  rootId?: string;
+  nodes: IGroup[];
+}
+
+export interface IGroupCreate {
+  name: string;
+  description?: string;
+  validFrom: Date;
+  validUntil?: Date;
+  clientIds?: string[];
+}
+
+export interface IGroupUpdate {
+  name: string;
+  description?: string;
+  validFrom: Date;
+  validUntil?: Date;
+  parent?: string; // Verwenden von parent statt parentId
+  clientIds?: string[];
+}
+
+export class GroupTree implements IGroupTree {
+  rootId?: string;
+  nodes: Group[] = [];
+
+  // Methode, um einen hierarchischen Baum aus der flachen Liste zu erstellen
+  buildHierarchy(): Group[] {
+    const nodeMap = new Map<string, Group>();
+    const rootNodes: Group[] = [];
+
+    // Erstelle eine Map aller Knoten für schnellen Zugriff
+    this.nodes.forEach((node) => {
+      nodeMap.set(node.id!, { ...node, children: [] } as Group);
+    });
+
+    // Verknüpfe Eltern mit Kindern
+    this.nodes.forEach((node) => {
+      if (node.parent && nodeMap.has(node.parent)) {
+        const parent = nodeMap.get(node.parent);
+        if (parent && parent.children) {
+          parent.children.push(nodeMap.get(node.id!)!);
+        }
+      } else {
+        // Knoten ohne Eltern sind Wurzelknoten
+        if (nodeMap.has(node.id!)) {
+          rootNodes.push(nodeMap.get(node.id!)!);
+        }
+      }
+    });
+
+    return rootNodes;
   }
 }

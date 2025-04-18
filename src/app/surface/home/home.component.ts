@@ -51,6 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isEditGroup = false;
   isCreateShift = false;
   isShift = false;
+  isGroupStructure = false;
 
   isSavebarVisible = false;
 
@@ -161,8 +162,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isSchedule = false;
     this.isGroup = false;
     this.isEditGroup = false;
+    this.isGroupStructure = false;
     this.isCreateShift = false;
     this.isShift = false;
+    this.isGroupStructure = false;
 
     this.dataManagementSwitchboardService.isDisabled = false;
   }
@@ -263,6 +266,19 @@ export class HomeComponent implements OnInit, OnDestroy {
             'DataManagementGroupService_Edit';
         }, 100);
         break;
+
+      case 'group-structure':
+        pushOnStack('workplace/group-structure');
+
+        this.isGroupStructure = true;
+        this.setContainerWithNormal();
+        this.isSavebarVisible = true;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementGroupTreeService_Structure';
+        }, 100);
+        break;
+
       case 'shift':
         pushOnStack('workplace/shift');
         import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);

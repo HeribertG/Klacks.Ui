@@ -5,6 +5,7 @@ export enum ModalType {
   Input = 'input',
   Delete = 'delete',
   Message = 'message',
+  Confirmation = 'confirmation',
 }
 
 @Injectable({
@@ -32,7 +33,28 @@ export class ModalService {
   messageOkButtonDefault: string = '';
   Filing: string = ''; // wird als Ablage benutzt, zB. als Id für Delete
 
+  private onConfirmCallback: (() => void) | null = null;
+
   constructor() {}
+
+  openModal(options: {
+    type: ModalType;
+    title: string;
+    message: string;
+    confirmText: string;
+    cancelText: string;
+    onConfirm: () => void;
+  }) {
+    // Eigenschaften basierend auf Optionen setzen
+    this.deleteMessageTitle = options.title;
+    this.deleteMessage = options.message;
+    this.deleteMessageOkButton = options.confirmText;
+    // Callback für später speichern
+    this.onConfirmCallback = options.onConfirm;
+
+    // Das Modal öffnen
+    this.openModel(options.type);
+  }
 
   openModel(kind: ModalType) {
     this.openModelEvent.next(kind);
@@ -40,6 +62,12 @@ export class ModalService {
 
   result(kind: ModalType) {
     this.resultEvent.next(kind);
+
+    // Callback aufrufen, wenn es sich um eine Bestätigung handelt
+    if (kind === ModalType.Confirmation && this.onConfirmCallback) {
+      this.onConfirmCallback();
+      this.onConfirmCallback = null;
+    }
   }
   failedReason(kind: ModalType) {
     this.reasonEvent.next(kind);
@@ -60,6 +88,12 @@ export class ModalService {
       case ModalType.Message: {
         this.messageTitle = this.messageTitleDefault;
         this.messageOkButton = this.messageOkButtonDefault;
+        break;
+      }
+      case ModalType.Confirmation: {
+        // Setze Standardwerte für das Bestätigungsmodal
+        this.deleteMessageTitle = this.deleteMessageTitleDefault;
+        this.deleteMessageOkButton = this.deleteMessageOkButtonDefault;
         break;
       }
     }

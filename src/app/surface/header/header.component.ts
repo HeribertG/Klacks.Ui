@@ -81,6 +81,9 @@ export class HeaderComponent implements OnInit, OnChanges {
       case 'new-work':
         this.dataManagementShiftService.createShift();
         break;
+      case 'edit-group-structure':
+        this.dataManagementGroupService.showGroupTree();
+        break;
     }
   }
 

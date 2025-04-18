@@ -1,0 +1,118 @@
+<div class="container-card">
+  <div class="container-header header-container">
+    {{ "group.tree.headline" | translate }}
+    <span class="filler"></span>
+    <div class="expand-button" (click)="toggleTreeView()">
+      <app-icon-angle-down
+        *ngIf="dataManagementGroupService.showTree()"
+      ></app-icon-angle-down>
+      <app-icon-angle-right
+        *ngIf="!dataManagementGroupService.showTree()"
+      ></app-icon-angle-right>
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div *ngIf="dataManagementGroupService.showTree()">
+    <!-- Buttons für Aktionen -->
+    <div class="tree-actions">
+      <button class="btn btn-primary btn-sm" (click)="onAddRootGroup()">
+        {{ "group.tree.add-root" | translate }}
+      </button>
+    </div>
+
+    <!-- Baumansicht -->
+    <div class="tree-container">
+      <ng-container
+        *ngIf="hierarchicalTree && hierarchicalTree.length > 0; else noTree"
+      >
+        <ul class="tree-root">
+          <ng-container *ngFor="let node of hierarchicalTree">
+            <li class="tree-node">
+              <ng-container
+                *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
+              ></ng-container>
+            </li>
+          </ng-container>
+        </ul>
+      </ng-container>
+
+      <ng-template #noTree>
+        <div class="no-tree-message">
+          {{ "group.tree.no-groups" | translate }}
+        </div>
+      </ng-template>
+
+      <!-- Template für rekursiven Baum -->
+      <ng-template #recursiveTree let-node>
+        <div class="tree-node-item" [class.active]="isNodeSelected(node)">
+          <!-- Einrückung und Expand/Collapse Icon -->
+          <div
+            class="tree-node-indicator"
+            [style.padding-left.px]="node.depth * 20"
+          >
+            <span
+              *ngIf="hasChildren(node)"
+              class="tree-toggle"
+              (click)="toggleNode(node)"
+            >
+              <app-icon-angle-down
+                *ngIf="isNodeExpanded(node)"
+              ></app-icon-angle-down>
+              <app-icon-angle-right
+                *ngIf="!isNodeExpanded(node)"
+              ></app-icon-angle-right>
+            </span>
+            <span
+              *ngIf="!hasChildren(node)"
+              class="tree-toggle-placeholder"
+            ></span>
+          </div>
+
+          <!-- Node Content -->
+          <div class="tree-node-content" (click)="selectNode(node)">
+            <span class="tree-node-name">{{ node.name }}</span>
+            <span class="tree-node-badge">{{ node.clientsCount }}</span>
+          </div>
+
+          <!-- Aktionen für den Knoten -->
+          <div class="tree-node-actions">
+            <button
+              class="btn btn-light btn-sm tree-action-btn"
+              (click)="editNode(node)"
+            >
+              <icon-pencil-icon-grey></icon-pencil-icon-grey>
+            </button>
+            <button
+              class="btn btn-light btn-sm tree-action-btn"
+              (click)="addChildNode(node)"
+            >
+              <app-icon-add></app-icon-add>
+            </button>
+            <button
+              class="btn btn-light btn-sm tree-action-btn"
+              (click)="deleteNode(node)"
+            >
+              <icon-trash-icon-red></icon-trash-icon-red>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kinder des Knotens -->
+        <div
+          *ngIf="hasChildren(node) && isNodeExpanded(node)"
+          class="tree-children"
+        >
+          <ul>
+            <li *ngFor="let child of node.children" class="tree-node">
+              <ng-container
+                *ngTemplateOutlet="recursiveTree; context: { $implicit: child }"
+              ></ng-container>
+            </li>
+          </ul>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

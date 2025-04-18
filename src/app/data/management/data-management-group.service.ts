@@ -12,7 +12,9 @@ import {
   Group,
   GroupFilter,
   GroupItem,
+  GroupTree,
   IGroup,
+  IGroupTree,
   ITruncatedGroup,
 } from 'src/app/core/group-class';
 import { DataClientService } from '../data-client.service';
@@ -31,6 +33,7 @@ import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { DataGroupTreeService } from '../data-group-tree.service';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +44,7 @@ export class DataManagementGroupService {
   public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
+  public showTree = signal(true);
 
   public currentClientFilter: Filter = new Filter();
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
@@ -63,6 +67,11 @@ export class DataManagementGroupService {
   public currentFilter: GroupFilter = new GroupFilter();
   public editGroup: IGroup | undefined;
 
+  public groupTree: GroupTree = new GroupTree();
+  public flatNodeList: Group[] = [];
+  public selectedNode: Group | undefined;
+  public expandedNodes: Set<string> = new Set();
+
   private currentFilterDummy: GroupFilter | undefined;
   private editGroupDummy: IGroup | undefined;
   private currentClientFilterDummy: Filter | undefined;
@@ -70,6 +79,7 @@ export class DataManagementGroupService {
 
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
+  private dataGroupTreeService = inject(DataGroupTreeService);
   public toastService = inject(ToastService);
   private dataCountryStateService = inject(DataCountryStateService);
   private navigationService = inject(NavigationService);
@@ -189,12 +199,18 @@ export class DataManagementGroupService {
     return this.dataGroupService.deleteGroup(key);
   }
 
+  fireIsReadEvent() {
+    this.isRead.set(true);
+    setTimeout(() => this.isRead.set(false), 100);
+  }
+
   /* #region   edit Group */
 
-  createGroup() {
+  createGroup(parentId?: string) {
     this.showProgressSpinner.set(true);
     const c = new Group();
     c.validFrom = new Date();
+    c.parent = parentId;
 
     this.prepareGroup(c);
 
@@ -392,8 +408,71 @@ export class DataManagementGroupService {
     });
   }
 
-  fireIsReadEvent() {
-    this.isRead.set(true);
-    setTimeout(() => this.isRead.set(false), 100);
+  /* #region   Tree Group */
+
+  showGroupTree() {
+    this.navigationService.navigateToGroupTree();
   }
+
+  /**
+   * Initialisiert den Gruppenbaum
+   */
+  initTree(rootId?: string) {
+    this.showProgressSpinner.set(true);
+    this.dataGroupTreeService.getGroupTree(rootId).subscribe({
+      next: (tree: IGroupTree) => {
+        // Explizite Konvertierung für jedes Objekt, um Typprobleme zu vermeiden
+        this.groupTree = new GroupTree();
+        this.groupTree.rootId = tree.rootId;
+        this.groupTree.nodes = tree.nodes.map((node) => {
+          const gNode = new Group();
+          Object.assign(gNode, node);
+          return gNode;
+        });
+
+        this.flatNodeList = this.groupTree.nodes.slice();
+        this.fireIsReadEvent();
+      },
+      error: (error: any) => {
+        this.showError(error, 'GroupTreeError');
+      },
+      complete: () => {
+        this.showProgressSpinner.set(false);
+      },
+    });
+  }
+
+  moveGroup(id: string, newParentId: string) {
+    this.showProgressSpinner.set(true);
+    return this.dataGroupTreeService.moveGroup(id, newParentId).subscribe({
+      next: () => {
+        this.init(); // Baum neu laden
+        this.showProgressSpinner.set(false);
+      },
+      error: (error: any) => {
+        this.showError(error, 'GroupMoveError');
+        this.showProgressSpinner.set(false);
+      },
+    });
+  }
+
+  /**
+   * Markiert einen Knoten als ausgewählt
+   */
+  selectNode(node: Group) {
+    this.selectedNode = node;
+  }
+
+  /**
+   * Schaltet einen Knoten zwischen expandiert und kollabiert um
+   */
+  toggleNodeExpansion(node: Group) {
+    if (this.expandedNodes.has(node.id!)) {
+      this.expandedNodes.delete(node.id!);
+    } else {
+      this.expandedNodes.add(node.id!);
+    }
+  }
+
+  /* #endregion   Tree Group */
 }

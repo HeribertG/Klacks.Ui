@@ -19,6 +19,7 @@ import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-gro
 import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
 import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
+import { GroupStructureHomeComponent } from 'src/app/workplace/group-structure/group-structure-home/group-structure-home.component';
 
 @Component({
   selector: 'app-main',
@@ -43,6 +44,7 @@ export class MainComponent implements OnChanges {
   @Input() isEditGroup = false;
   @Input() isCreateShift = false;
   @Input() isShift = false;
+  @Input() isGroupStructure = false;
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
@@ -57,6 +59,7 @@ export class MainComponent implements OnChanges {
   compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
   compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
   compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
+  compInstanceGroupStructureHome: GroupStructureHomeComponent | undefined;
 
   ngOnChanges(): void {
     if (this.isSetting && !this.compInstanceSettingHome) {
@@ -197,6 +200,25 @@ export class MainComponent implements OnChanges {
       });
     }
 
+    if (this.isGroupStructure && !this.compInstanceGroupStructureHome) {
+      import(
+        '../../workplace/group-structure/group-structure-home/group-structure-home.component'
+      ).then((m) => {
+        const comp = m.GroupStructureHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<GroupStructureHomeComponent>(comp);
+
+        this.compInstanceGroupStructureHome = compRef.instance;
+        this.compInstanceGroupStructureHome.isGroupStructure =
+          this.isGroupStructure;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+
     if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
       import(
         '../../workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component'
@@ -261,6 +283,11 @@ export class MainComponent implements OnChanges {
 
     if (this.compInstanceEditGroupHome) {
       this.compInstanceEditGroupHome.isEditGroup = this.isEditGroup;
+    }
+
+    if (this.compInstanceGroupStructureHome) {
+      this.compInstanceGroupStructureHome.isGroupStructure =
+        this.isGroupStructure;
     }
 
     if (this.compInstanceCreateShiftHome) {

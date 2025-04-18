@@ -372,6 +372,7 @@
   "new-group": "Create Group",
   "ALL_GROUP": "All groups",
   "ALL_SHIFT": "All Shifts",
+  "edit-group-structure": "Gruppen Strukturen erfassen",
 
   "group.all-group.all-group-home.header": "All groups",
   "group.all-group.all-group-list.header": "Groups",
@@ -422,5 +423,18 @@
   "shift.edit-shift.weekday.until": "Until Time hh:mm",
   "shift.edit-shift.weekday.work-hour": "Duration",
   "shift.edit-shift.weekday.time-range": "Service within the time frame (From Time hh:mm - Until Time hh:mm). Please specify the duration of the service in the Duration field.",
-  "shift.edit-shift.main.complex-mode": "Expert Mode"
+  "shift.edit-shift.main.complex-mode": "Expert Mode",
+
+  "group.tree.headline": "Group Structure",
+  "group.tree.add-root": "New Root Group",
+  "group.tree.no-groups": "No groups found",
+  "group.tree.delete-confirmation.title": "Delete Group",
+  "group.tree.delete-confirmation.message": "Do you really want to delete this group and all subgroups?",
+  "group.tree.delete-confirmation.confirm": "Delete",
+  "group.tree.delete-confirmation.cancel": "Cancel",
+  "group.edit-group.edit-group-parent.headline": "Group Structure",
+  "group.edit-group.edit-group-parent.select-parent": "Select Parent Group",
+  "group.edit-group.edit-group-parent.no-parent": "No parent group (Root group)",
+  "group.edit-group.edit-group-parent.current-path": "Current Path",
+  "group.groups-home.title": "Groups"
 }

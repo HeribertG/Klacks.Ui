@@ -69,6 +69,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/edit-shift']);
   }
 
+  navigateToGroupTree(): void {
+    this.router.navigate(['/workplace/group-structure']);
+  }
+
   navigateToRouterToken(routerToken: string): void {
     this.router.navigate([routerToken]);
   }

@@ -12,10 +12,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
-    selector: 'app-modal',
-    templateUrl: './modal.component.html',
-    styleUrls: ['./modal.component.scss'],
-    standalone: false
+  selector: 'app-modal',
+  templateUrl: './modal.component.html',
+  styleUrls: ['./modal.component.scss'],
+  standalone: false,
 })
 export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contentDelete', { static: true })
@@ -63,8 +63,10 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
             this.open(this.contentInput, ModalType.Input);
             break;
           }
-          case ModalType.Delete: {
-            this.open(this.contentDelete, ModalType.Delete);
+          case ModalType.Delete:
+          case ModalType.Confirmation: {
+            // Füge Confirmation hinzu
+            this.open(this.contentDelete, x); // x verwenden statt ModalType.Delete
             break;
           }
           case ModalType.Message: {
