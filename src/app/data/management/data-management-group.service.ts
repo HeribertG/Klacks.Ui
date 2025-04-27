@@ -247,6 +247,12 @@ export class DataManagementGroupService {
 
   saveEditGroup(withoutUpdateDummy = false) {
     if (this.editGroup) {
+      console.log(
+        'Saving group with lft/rgt:',
+        this.editGroup.lft,
+        this.editGroup.rgt
+      );
+
       const action = this.editGroup.id
         ? this.dataGroupService.updateGroup(this.editGroup)
         : this.dataGroupService.addGroup(this.editGroup);
@@ -418,9 +424,12 @@ export class DataManagementGroupService {
    * Initialisiert den Gruppenbaum
    */
   initTree(rootId?: string) {
+    console.log('Initializing tree...');
+
     this.showProgressSpinner.set(true);
     this.dataGroupTreeService.getGroupTree(rootId).subscribe({
       next: (tree: IGroupTree) => {
+        console.log('Received tree data:', tree);
         // Explizite Konvertierung für jedes Objekt, um Typprobleme zu vermeiden
         this.groupTree = new GroupTree();
         this.groupTree.rootId = tree.rootId;
@@ -434,9 +443,11 @@ export class DataManagementGroupService {
         this.fireIsReadEvent();
       },
       error: (error: any) => {
+        console.error('Error loading tree:', error);
         this.showError(error, 'GroupTreeError');
       },
       complete: () => {
+        console.log('Tree loading complete');
         this.showProgressSpinner.set(false);
       },
     });

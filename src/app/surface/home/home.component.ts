@@ -162,7 +162,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isSchedule = false;
     this.isGroup = false;
     this.isEditGroup = false;
-    this.isGroupStructure = false;
     this.isCreateShift = false;
     this.isShift = false;
     this.isGroupStructure = false;

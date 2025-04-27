@@ -2,10 +2,12 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   EffectRef,
+  Injector,
   OnDestroy,
   OnInit,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
@@ -36,6 +38,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
 export class TreeGroupComponent implements OnInit, OnDestroy {
   public dataManagementGroupService = inject(DataManagementGroupService);
   private navigationService = inject(NavigationService);
+  private injector = inject(Injector);
   private modalService = inject(ModalService);
 
   public hierarchicalTree: Group[] = [];
@@ -43,6 +46,7 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   private effectRef: EffectRef | null = null;
 
   ngOnInit(): void {
+    console.log('TreeGroupComponent initialized');
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
     this.readSignals();
@@ -60,8 +64,10 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
    */
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
-      this.hierarchicalTree =
-        this.dataManagementGroupService.groupTree.buildHierarchy();
+      setTimeout(() => {
+        this.hierarchicalTree =
+          this.dataManagementGroupService.groupTree.buildHierarchy();
+      }, 0);
     }
   }
 
@@ -154,11 +160,24 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   }
 
   private readSignals(): void {
-    this.effectRef = // Effekt, der auf Änderungen im Baum reagiert
-      effect(() => {
-        if (this.dataManagementGroupService.isRead()) {
-          this.buildHierarchicalTree();
-        }
+    console.log('Setting up effect...');
+
+    try {
+      this.effectRef = runInInjectionContext(this.injector, () => {
+        return effect(() => {
+          console.log(
+            'Effect triggered, isRead():',
+            this.dataManagementGroupService.isRead()
+          );
+          if (this.dataManagementGroupService.isRead()) {
+            console.log('Building hierarchical tree...');
+            this.buildHierarchicalTree();
+          }
+        });
       });
+      console.log('Effect setup successful');
+    } catch (error) {
+      console.error('Error setting up effect:', error);
+    }
   }
 }

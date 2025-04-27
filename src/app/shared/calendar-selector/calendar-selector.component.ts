@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
   effect,
+  inject,
   runInInjectionContext,
 } from '@angular/core';
 
@@ -32,12 +33,6 @@ interface TranslationResults {
   inputTitle: string;
 }
 
-enum ActionType {
-  New = 'new',
-  Delete = 'del',
-  Update = 'update',
-}
-
 @Component({
   selector: 'app-calendar-selector',
   templateUrl: './calendar-selector.component.html',
@@ -47,6 +42,17 @@ enum ActionType {
 export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   @Output() openMenu = new EventEmitter();
   @Output() change = new EventEmitter();
+
+  public dataManagementCalendarSelectionService = inject(
+    DataManagementCalendarSelectionService
+  );
+  private translateService = inject(TranslateService);
+  private dataManagementCalendarRulesService = inject(
+    DataManagementCalendarRulesService
+  );
+  private localStorageService = inject(LocalStorageService);
+  private modalService = inject(ModalService);
+  private injector = inject(Injector);
 
   public faPlus = faPlus;
   public faTrash = faTrash;
@@ -65,15 +71,6 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
   private ngUnsubscribe = new Subject<void>();
   private timeToWait = 100;
   private effects: ReturnType<typeof effect>[] = [];
-
-  constructor(
-    public dataManagementCalendarSelectionService: DataManagementCalendarSelectionService,
-    private translateService: TranslateService,
-    private dataManagementCalendarRulesService: DataManagementCalendarRulesService,
-    private localStorageService: LocalStorageService,
-    private modalService: ModalService,
-    private injector: Injector
-  ) {}
 
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
@@ -431,23 +428,21 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
+      // 1) Wenn die Filterregeln geladen sind, Chips & Rule setzen
       this.effects.push(
         effect(() => {
-          const isRead = this.dataManagementCalendarRulesService.isRead();
-          if (isRead) {
-            // this.onChangeSelection();
+          if (this.dataManagementCalendarRulesService.isRead()) {
             this.resetCalendarRule();
             this.reReadChips();
-            setTimeout(() => this.setCalendarRule(), this.timeToWait);
+            this.setCalendarRule();
           }
         })
       );
 
+      // 2) Button‑State anpassen, wenn Selektion geändert wurde
       this.effects.push(
         effect(() => {
-          const isChanged =
-            this.dataManagementCalendarSelectionService.isChanged();
-          if (isChanged) {
+          if (this.dataManagementCalendarSelectionService.isChanged()) {
             this.addButtonEnabled = true;
           } else {
             this.addButtonEnabled = this.shouldEnableAddButton;
@@ -455,27 +450,30 @@ export class CalendarSelectorComponent implements OnInit, AfterViewInit {
         })
       );
 
+      // 3) Nach erstem Laden der Selektionen die gespeicherte Auswahl übernehmen
       this.effects.push(
         effect(() => {
-          const isRead = this.dataManagementCalendarSelectionService.isRead();
-          if (isRead) {
-            this.addButtonEnabled = false;
-            this.dataManagementCalendarSelectionService.readSChips();
-            this.setCurrentSelector();
-            this.change.emit();
+          if (this.dataManagementCalendarSelectionService.isRead()) {
+            // erst View-Update abwarten
+            Promise.resolve().then(() => {
+              this.setCurrentSelector();
+              this.onChangeSelection();
+            });
           }
         })
       );
 
+      // 4) Wenn gerade neu angelegt, sofort speichern und Auswahl setzen
       this.effects.push(
         effect(() => {
-          const isNew = this.dataManagementCalendarSelectionService.isNew();
-          if (isNew) {
+          const newSel = this.dataManagementCalendarSelectionService.isNew();
+          if (newSel) {
             this.addButtonEnabled = false;
             this.dataManagementCalendarSelectionService.saveCurrentSelectedCalendarList(
-              isNew
+              newSel
             );
             this.setCurrentSelector();
+            this.onChangeSelection();
           }
         })
       );

@@ -9,6 +9,8 @@ import {
   OnDestroy,
   EffectRef,
   inject,
+  Injector,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -31,6 +33,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
   public dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
+  private injector = inject(Injector);
 
   availableParents: Group[] = [];
   groupPath: Group[] = [];
@@ -85,6 +88,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
    * (exkludiert die aktuelle Gruppe und ihre Untergruppen)
    */
   updateAvailableParents(): void {
+    console.log('editGroup:', this.dataManagementGroupService.editGroup);
+    console.log('flatNodeList:', this.dataManagementGroupService.flatNodeList);
+
     if (!this.dataManagementGroupService.editGroup) return;
 
     // Wenn es eine neue Gruppe ist (keine ID), alle Gruppen sind verfügbar
@@ -124,6 +130,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
    * Aktualisiert den Pfad zur aktuellen Gruppe
    */
   updateGroupPath(): void {
+    console.log('editGroup:', this.dataManagementGroupService.editGroup);
+    console.log('flatNodeList:', this.dataManagementGroupService.flatNodeList);
+
     if (
       !this.dataManagementGroupService.editGroup ||
       !this.dataManagementGroupService.editGroup.id
@@ -167,11 +176,13 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
-      if (this.dataManagementGroupService.isRead()) {
-        this.updateAvailableParents();
-        this.updateGroupPath();
-      }
+    this.effectRef = runInInjectionContext(this.injector, () => {
+      return effect(() => {
+        if (this.dataManagementGroupService.isRead()) {
+          this.updateAvailableParents();
+          this.updateGroupPath();
+        }
+      });
     });
   }
 }

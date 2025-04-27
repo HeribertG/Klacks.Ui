@@ -32,6 +32,7 @@ export class DataGroupService {
   }
 
   updateGroup(value: IGroup) {
+    console.log('API call with lft/rgt:', value.lft, value.rgt);
     this.setCorrectDate(value);
     return this.httpClient
       .put<IGroup>(`${environment.baseUrl}Groups/`, value)

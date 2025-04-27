@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import {
   CalendarSelection,
@@ -13,6 +13,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,9 @@ export class DataManagementCalendarSelectionService {
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
+  private localStorageService = inject(LocalStorageService);
+  public toastService = inject(ToastService);
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
 
   public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
@@ -30,10 +34,7 @@ export class DataManagementCalendarSelectionService {
 
   private chipsDummy: StateCountryToken[] = [];
 
-  constructor(
-    public toastService: ToastService,
-    private dataCalendarSelectionService: DataCalendarSelectionService
-  ) {
+  constructor() {
     this.calendarsSelections.push(this.emptyCalendarSelection());
   }
 
@@ -68,14 +69,24 @@ export class DataManagementCalendarSelectionService {
     this.dataCalendarSelectionService
       .getList()
       .subscribe((x: CalendarSelection[] | undefined) => {
-        this.calendarsSelections = [];
-        this.calendarsSelections.push(this.emptyCalendarSelection());
-        if (x) {
-          this.sort(x);
-          this.calendarsSelections.push(...x);
+        this.calendarsSelections = [
+          this.emptyCalendarSelection(),
+          ...(x || []),
+        ];
+        // ↓ Neue Zeilen:
+        const savedId = this.localStorageService.get(
+          MessageLibrary.CALENDAR_SELECTION_TYPE +
+            '-' +
+            MessageLibrary.CALENDAR_SELECTION_ID
+        ) as string | null;
+        if (savedId) {
+          this.currentCalendarSelection =
+            this.calendarsSelections.find((c) => c.id === savedId) ||
+            this.emptyCalendarSelection();
         }
+        // ↑ Ende Ergänzung
         this.isRead.set(true);
-        setTimeout(() => this.isRead.set(false), 100);
+        this.isRead.set(false);
       });
   }
 
