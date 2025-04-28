@@ -12,9 +12,9 @@ export interface IGroup {
   name: string;
   description: string;
   validFrom: Date;
-  validUntil: Date | undefined;
-  internalValidFrom: NgbDateStruct | undefined;
-  internalValidUntil: NgbDateStruct | undefined;
+  validUntil?: Date;
+  internalValidFrom?: NgbDateStruct;
+  internalValidUntil?: NgbDateStruct;
   groupItems: IGroupItem[];
   parent?: string;
   root?: string;
@@ -23,39 +23,85 @@ export interface IGroup {
   depth: number;
   clientsCount: number;
   children?: IGroup[];
+  clientIds?: string[];
 }
 
 export class Group implements IGroup {
-  id?: string = undefined;
-  name = '';
-  description = '';
-  validFrom = new Date();
-  validUntil: Date | undefined = undefined;
-  internalValidFrom: NgbDateStruct | undefined = undefined;
-  internalValidUntil: NgbDateStruct | undefined = undefined;
-  parent: string | undefined = undefined;
-  groupItems: GroupItem[] = [];
-
+  id?: string;
+  name: string = '';
+  description: string = '';
+  validFrom: Date = new Date();
+  validUntil?: Date;
+  internalValidFrom?: NgbDateStruct;
+  internalValidUntil?: NgbDateStruct;
+  parent?: string;
   root?: string;
   lft: number = 0;
   rgt: number = 0;
   depth: number = 0;
   clientsCount: number = 0;
-  children?: Group[] = [];
+  children: IGroup[] = [];
+  clientIds?: string[] = [];
+  groupItems: GroupItem[] = [];
+
+  constructor(data?: Partial<IGroup>) {
+    if (!data) return;
+
+    this.id = data.id;
+    this.name = data.name || '';
+    this.description = data.description || '';
+    this.validFrom =
+      data.validFrom instanceof Date
+        ? data.validFrom
+        : new Date(data.validFrom || new Date());
+
+    this.validUntil = data.validUntil
+      ? data.validUntil instanceof Date
+        ? data.validUntil
+        : new Date(data.validUntil)
+      : undefined;
+
+    this.internalValidFrom = data.internalValidFrom;
+    this.internalValidUntil = data.internalValidUntil;
+    this.parent = data.parent;
+    this.root = data.root;
+    this.lft = data.lft || 0;
+    this.rgt = data.rgt || 0;
+    this.depth = data.depth || 0;
+    this.clientsCount = data.clientsCount || 0;
+    this.clientIds = data.clientIds || [];
+    this.groupItems = data.groupItems
+      ? data.groupItems.map((item) => {
+          const groupItem = new GroupItem();
+          Object.assign(groupItem, item);
+          return groupItem;
+        })
+      : [];
+
+    this.children = [];
+    if (data.children && Array.isArray(data.children)) {
+      this.children = data.children.map((child) => {
+        if (child instanceof Group) {
+          return child;
+        }
+        return new Group(child);
+      });
+    }
+  }
 }
 
 export interface IGroupItem {
-  id: string | undefined;
-  groupId: string | undefined;
-  clientId: string | undefined;
-  client: IClient | undefined;
+  id?: string;
+  groupId?: string;
+  clientId?: string;
+  client?: IClient;
 }
 
 export class GroupItem implements IGroupItem {
-  id: string | undefined = undefined;
-  groupId: string | undefined = undefined;
-  clientId: string | undefined = undefined;
-  client: Client | undefined = undefined;
+  id?: string;
+  groupId?: string;
+  clientId?: string;
+  client?: Client;
 }
 
 export interface ITruncatedGroup extends IBaseTruncated {
@@ -63,38 +109,38 @@ export interface ITruncatedGroup extends IBaseTruncated {
 }
 
 export class TruncatedGroup extends BaseTruncated implements ITruncatedGroup {
-  groups = [];
+  groups: IGroup[] = [];
 }
 
 export interface IGroupFilter extends IBaseFilter {
-  scopeFromFlag: boolean | undefined;
-  scopeUntilFlag: boolean | undefined;
-  scopeFrom: Date | undefined;
-  internalScopeFrom: NgbDateStruct | undefined;
-  scopeUntil: Date | undefined;
-  internalScopeUntil: NgbDateStruct | undefined;
-  showDeleteEntries: boolean | undefined;
+  scopeFromFlag?: boolean;
+  scopeUntilFlag?: boolean;
+  scopeFrom?: Date;
+  internalScopeFrom?: NgbDateStruct;
+  scopeUntil?: Date;
+  internalScopeUntil?: NgbDateStruct;
+  showDeleteEntries?: boolean;
   activeDateRange: boolean;
   formerDateRange: boolean;
   futureDateRange: boolean;
 }
 
 export class GroupFilter extends BaseFilter implements IGroupFilter {
-  scopeFromFlag = undefined;
-  scopeUntilFlag = undefined;
-  scopeFrom = undefined;
-  internalScopeFrom = undefined;
-  scopeUntil = undefined;
-  internalScopeUntil = undefined;
-  showDeleteEntries = false;
-  activeDateRange = false;
-  formerDateRange = false;
-  futureDateRange = false;
+  scopeFromFlag?: boolean;
+  scopeUntilFlag?: boolean;
+  scopeFrom?: Date;
+  internalScopeFrom?: NgbDateStruct;
+  scopeUntil?: Date;
+  internalScopeUntil?: NgbDateStruct;
+  showDeleteEntries: boolean = false;
+  activeDateRange: boolean = false;
+  formerDateRange: boolean = false;
+  futureDateRange: boolean = false;
 
-  override orderBy = 'name';
-  override sortOrder = 'asc';
+  override orderBy: string = 'name';
+  override sortOrder: string = 'asc';
 
-  setEmpty() {
+  setEmpty(): void {
     this.activeDateRange = true;
     this.formerDateRange = false;
     this.futureDateRange = false;
@@ -119,7 +165,7 @@ export interface IGroupUpdate {
   description?: string;
   validFrom: Date;
   validUntil?: Date;
-  parent?: string; // Verwenden von parent statt parentId
+  parent?: string;
   clientIds?: string[];
 }
 
@@ -127,31 +173,59 @@ export class GroupTree implements IGroupTree {
   rootId?: string;
   nodes: Group[] = [];
 
-  // Methode, um einen hierarchischen Baum aus der flachen Liste zu erstellen
+  /**
+   * Baut einen hierarchischen Baum aus der flachen Liste
+   * Diese Methode wird nur verwendet, wenn die Daten als flache Liste ankommen
+   */
   buildHierarchy(): Group[] {
+    console.log('Building hierarchy from nodes:', this.nodes);
+
+    // Wenn keine Knoten vorhanden sind, leere Liste zurückgeben
+    if (!this.nodes || this.nodes.length === 0) {
+      return [];
+    }
+
+    // Prüfen, ob die Knoten bereits hierarchisch strukturiert sind (haben Kinder)
+    const hasHierarchy = this.nodes.some(
+      (node) => node.children && node.children.length > 0
+    );
+    if (hasHierarchy) {
+      console.log('Nodes already have hierarchy, returning as is');
+      return this.nodes;
+    }
+
+    console.log('Building hierarchy from flat list');
     const nodeMap = new Map<string, Group>();
     const rootNodes: Group[] = [];
 
     // Erstelle eine Map aller Knoten für schnellen Zugriff
     this.nodes.forEach((node) => {
-      nodeMap.set(node.id!, { ...node, children: [] } as Group);
+      if (node && node.id) {
+        const groupNode = new Group(node);
+        nodeMap.set(node.id, groupNode);
+      }
     });
 
     // Verknüpfe Eltern mit Kindern
     this.nodes.forEach((node) => {
-      if (node.parent && nodeMap.has(node.parent)) {
-        const parent = nodeMap.get(node.parent);
-        if (parent && parent.children) {
-          parent.children.push(nodeMap.get(node.id!)!);
-        }
-      } else {
-        // Knoten ohne Eltern sind Wurzelknoten
-        if (nodeMap.has(node.id!)) {
-          rootNodes.push(nodeMap.get(node.id!)!);
+      if (node && node.id) {
+        if (node.parent && nodeMap.has(node.parent)) {
+          const parent = nodeMap.get(node.parent);
+          const child = nodeMap.get(node.id);
+          if (parent && child) {
+            parent.children.push(child);
+          }
+        } else {
+          // Knoten ohne Eltern sind Wurzelknoten
+          const rootNode = nodeMap.get(node.id);
+          if (rootNode) {
+            rootNodes.push(rootNode);
+          }
         }
       }
     });
 
+    console.log('Returning root nodes:', rootNodes);
     return rootNodes;
   }
 }

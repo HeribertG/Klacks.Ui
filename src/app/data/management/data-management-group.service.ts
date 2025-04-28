@@ -208,9 +208,17 @@ export class DataManagementGroupService {
 
   createGroup(parentId?: string) {
     this.showProgressSpinner.set(true);
-    const c = new Group();
-    c.validFrom = new Date();
-    c.parent = parentId;
+    const c = new Group({
+      name: '',
+      description: '',
+      validFrom: new Date(),
+      parent: parentId,
+      lft: 0,
+      rgt: 0,
+      depth: 0,
+      clientsCount: 0,
+      groupItems: [],
+    });
 
     this.prepareGroup(c);
 
@@ -426,20 +434,30 @@ export class DataManagementGroupService {
   initTree(rootId?: string) {
     console.log('Initializing tree...');
 
+    this.flatNodeList = this.flattenTree(this.groupTree.nodes);
     this.showProgressSpinner.set(true);
     this.dataGroupTreeService.getGroupTree(rootId).subscribe({
       next: (tree: IGroupTree) => {
         console.log('Received tree data:', tree);
-        // Explizite Konvertierung für jedes Objekt, um Typprobleme zu vermeiden
+
         this.groupTree = new GroupTree();
         this.groupTree.rootId = tree.rootId;
-        this.groupTree.nodes = tree.nodes.map((node) => {
-          const gNode = new Group();
-          Object.assign(gNode, node);
-          return gNode;
-        });
 
-        this.flatNodeList = this.groupTree.nodes.slice();
+        // Konvertiere die Daten zu Group-Objekten
+        this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
+
+        // Flache Liste für andere Funktionen erstellen
+        this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+
+        // Expandiere die Root-Knoten standardmäßig
+        const expandedSet = new Set<string>();
+        this.groupTree.nodes.forEach((node) => {
+          if (node.id) {
+            expandedSet.add(node.id);
+          }
+        });
+        this.expandedNodes = expandedSet;
+
         this.fireIsReadEvent();
       },
       error: (error: any) => {
@@ -483,6 +501,39 @@ export class DataManagementGroupService {
     } else {
       this.expandedNodes.add(node.id!);
     }
+  }
+
+  /**
+   * Wandelt eine hierarchische Baumstruktur in eine flache Liste um
+   * @param nodes Die Knoten, die abgeflacht werden sollen
+   * @returns Eine flache Liste aller Knoten
+   */
+  private flattenTree(nodes: IGroup[]): Group[] {
+    const result: Group[] = [];
+
+    // Rekursive Funktion zum Sammeln aller Knoten
+    const flatten = (nodeList: IGroup[]) => {
+      if (!nodeList || !Array.isArray(nodeList)) return;
+
+      nodeList.forEach((node) => {
+        // Konvertiere zu Group-Objekt falls nötig
+        const groupNode = node instanceof Group ? node : new Group(node);
+        result.push(groupNode);
+
+        // Rekursiv für Kinder
+        if (
+          node.children &&
+          Array.isArray(node.children) &&
+          node.children.length > 0
+        ) {
+          flatten(node.children);
+        }
+      });
+    };
+
+    // Starte mit Root-Knoten
+    flatten(nodes);
+    return result;
   }
 
   /* #endregion   Tree Group */

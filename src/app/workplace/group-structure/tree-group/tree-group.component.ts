@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   EffectRef,
   Injector,
@@ -35,7 +36,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
     IconAddComponent,
   ],
 })
-export class TreeGroupComponent implements OnInit, OnDestroy {
+export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementGroupService = inject(DataManagementGroupService);
   private navigationService = inject(NavigationService);
   private injector = inject(Injector);
@@ -52,6 +53,18 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
     this.readSignals();
   }
 
+  ngAfterViewInit(): void {
+    // Verzögerung hinzufügen, um sicherzustellen, dass alle Daten geladen sind
+    setTimeout(() => {
+      console.log('Tree structure after view init:');
+      if (this.hierarchicalTree) {
+        this.debugTreeStructure(this.hierarchicalTree);
+      } else {
+        console.warn('hierarchicalTree is still null or undefined');
+      }
+    }, 1000);
+  }
+
   ngOnDestroy(): void {
     if (this.effectRef) {
       this.effectRef.destroy();
@@ -63,12 +76,48 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
    * Baut den hierarchischen Baum aus der flachen Liste
    */
   buildHierarchicalTree(): void {
+    console.log('buildHierarchicalTree called');
     if (this.dataManagementGroupService.groupTree) {
+      console.log(
+        'Current groupTree:',
+        this.dataManagementGroupService.groupTree
+      );
+
+      // Verwende die buildHierarchy-Methode, um die Hierarchie zu erstellen
+      // Diese Methode ist jetzt so angepasst, dass sie mit den bereits hierarchischen Daten arbeitet
       setTimeout(() => {
         this.hierarchicalTree =
           this.dataManagementGroupService.groupTree.buildHierarchy();
+        console.log('Set hierarchicalTree to:', this.hierarchicalTree);
+
+        // Debug-Ausgabe: Prüfe die Struktur des hierarchischen Baums
+        this.debugTreeStructure(this.hierarchicalTree);
       }, 0);
+    } else {
+      console.warn('groupTree is null or undefined');
     }
+  }
+
+  private debugTreeStructure(nodes: any[], level: number = 0): void {
+    if (!nodes || !Array.isArray(nodes)) {
+      console.warn('Nodes is not an array:', nodes);
+      return;
+    }
+
+    nodes.forEach((node) => {
+      console.log(
+        `${'-'.repeat(level * 2)}> Node: ${node.name}, ID: ${node.id}, ` +
+          `Parent: ${node.parent}, Children: ${node.children?.length || 0}`
+      );
+
+      if (
+        node.children &&
+        Array.isArray(node.children) &&
+        node.children.length > 0
+      ) {
+        this.debugTreeStructure(node.children, level + 1);
+      }
+    });
   }
 
   /**
@@ -81,8 +130,13 @@ export class TreeGroupComponent implements OnInit, OnDestroy {
   /**
    * Prüft, ob ein Knoten Kinder hat
    */
-  hasChildren(node: Group): boolean {
-    return !!node.children && node.children.length > 0;
+  hasChildren(node: any): boolean {
+    return (
+      node &&
+      node.children &&
+      Array.isArray(node.children) &&
+      node.children.length > 0
+    );
   }
 
   /**
