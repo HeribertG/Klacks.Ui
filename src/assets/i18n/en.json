@@ -369,7 +369,7 @@
 
   "new-address": "Add Address",
   "new-work": "Create Shift",
-  "new-group": "Create Group",
+  "new-group": "+ Create Group",
   "ALL_GROUP": "All groups",
   "ALL_SHIFT": "All Shifts",
   "edit-group-structure": "Gruppen Strukturen erfassen",
@@ -426,7 +426,7 @@
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
   "group.tree.headline": "Group Structure",
-  "group.tree.add-root": "New Root Group",
+  "group.tree.add-root": "+ New Root Group",
   "group.tree.no-groups": "No groups found",
   "group.tree.delete-confirmation.title": "Delete Group",
   "group.tree.delete-confirmation.message": "Do you really want to delete this group and all subgroups?",

@@ -8,13 +8,14 @@
     <label for="parent-select">
       {{ "group.edit-group.edit-group-parent.select-parent" | translate }}
     </label>
-    <div class="input-group">
+    <div class="select-group">
       <select
         id="parent-select"
         class="form-control"
         name="parent"
         [(ngModel)]="dataManagementGroupService.editGroup.parent"
         (change)="onParentChange()"
+        [disabled]="!authorizationService.isAuthorised"
       >
         <option [ngValue]="null">
           {{ "group.edit-group.edit-group-parent.no-parent" | translate }}

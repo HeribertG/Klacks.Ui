@@ -4,6 +4,12 @@
 
     <span class="filler"></span>
 
+    <div class="tree-actions">
+      <button class="btn new-btn" (click)="onAddAddress()">
+        {{ "new-address" | translate }}
+      </button>
+    </div>
+
     <div
       *ngIf="
         !(

@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import {
   LocaleService,
@@ -24,11 +25,10 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
   standalone: false,
 })
 export class NavComponent implements OnInit, AfterViewInit {
+  public authorizationService = inject(AuthorizationService);
   private navigationService = inject(NavigationService);
 
   profileImage: any;
-  isAdmin = false;
-  authorised = false;
 
   absence = MessageLibrary.ABSENCE;
   all_schedule = MessageLibrary.ALL_SCHEDULE;
@@ -59,16 +59,6 @@ export class NavComponent implements OnInit, AfterViewInit {
       );
     }
     this.tryLoadProfileImage();
-    if (this.localStorageService.get(MessageLibrary.TOKEN_ADMIN)) {
-      this.isAdmin = JSON.parse(
-        this.localStorageService.get(MessageLibrary.TOKEN_ADMIN)!
-      );
-    }
-    if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
-      this.authorised = JSON.parse(
-        this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)!
-      );
-    }
 
     this.absence = MessageLibrary.ABSENCE;
     this.all_schedule = MessageLibrary.ALL_SCHEDULE;

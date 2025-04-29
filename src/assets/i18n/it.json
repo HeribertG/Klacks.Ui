@@ -369,7 +369,7 @@
 
   "new-address": "Aggiungi indirizzo",
   "new-work": "Crea turno",
-  "new-group": "Crea gruppo",
+  "new-group": "+ Crea gruppo",
   "ALL_GROUP": "Tutti i gruppi",
   "ALL_SHIFT": "Tutti i  turno",
   "edit-group-structure": "Gruppen Strukturen erfassen",
@@ -426,11 +426,11 @@
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
   "group.tree.headline": "Struttura del Gruppo",
-  "group.tree.add-root": "Nuovo Gruppo Radice",
+  "group.tree.add-root": "+ Nuovo Gruppo Radice",
   "group.tree.no-groups": "Nessun gruppo trovato",
   "group.tree.delete-confirmation.title": "Eliminare il Gruppo",
   "group.tree.delete-confirmation.message": "Vuoi davvero eliminare questo gruppo e tutti i sottogruppi?",
-  "group.tree.delete-confirmation.confirm": "Eliminare",
+  "group.tree.delete-confirmagroup.tree.add-roottion.confirm": "Eliminare",
   "group.tree.delete-confirmation.cancel": "Annullare",
   "group.edit-group.edit-group-parent.headline": "Struttura del Gruppo",
   "group.edit-group.edit-group-parent.select-parent": "Seleziona Gruppo Genitore",

@@ -369,7 +369,7 @@
 
   "new-address": "Ajouter une adresse",
   "new-work": "Créer un Shift",
-  "new-group": "Créer un groupe",
+  "new-group": "+ Créer un groupe",
   "ALL_GROUP": "Tous les groupes",
   "ALL_SHIFT": "Tous les  Shifts",
   "edit-group-structure": "Gruppen Strukturen erfassen",
@@ -426,7 +426,7 @@
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
   "group.tree.headline": "Structure du Groupe",
-  "group.tree.add-root": "Nouveau Groupe Racine",
+  "group.tree.add-root": "+ Nouveau Groupe Racine",
   "group.tree.no-groups": "Aucun groupe trouvé",
   "group.tree.delete-confirmation.title": "Supprimer le Groupe",
   "group.tree.delete-confirmation.message": "Voulez-vous vraiment supprimer ce groupe et tous les sous-groupes ?",

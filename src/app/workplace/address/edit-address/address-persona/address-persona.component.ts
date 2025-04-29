@@ -10,6 +10,7 @@ import {
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
@@ -37,6 +38,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-address-persona',
@@ -58,6 +60,13 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  public authorizationService = inject(AuthorizationService);
+  public dataManagementClientService = inject(DataManagementClientService);
+  private ngbModal = inject(NgbModal);
+  private locale = inject(LOCALE_ID);
+  private translateService = inject(TranslateService);
+  private modalService = inject(ModalService);
+
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
@@ -89,14 +98,6 @@ export class AddressPersonaComponent
 
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
-
-  constructor(
-    public dataManagementClientService: DataManagementClientService,
-    private ngbModal: NgbModal,
-    @Inject(LOCALE_ID) private locale: string,
-    private translateService: TranslateService,
-    private modalService: ModalService
-  ) {}
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
@@ -171,6 +172,12 @@ export class AddressPersonaComponent
     }
   }
 
+  isDisabled(): boolean {
+    return (
+      this.dataManagementClientService.editClientDeleted ||
+      !this.authorizationService.isAuthorised
+    );
+  }
   isWeekend(date: NgbDateStruct) {
     const d = new Date(date.year!, date.month! - 1, date.day!);
     return d.getDay() === 0 || d.getDay() === 6;

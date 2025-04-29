@@ -4,10 +4,11 @@ import {
   Component,
   EffectRef,
   ElementRef,
+  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Renderer2,
+  Output,
   ViewChild,
   effect,
   inject,
@@ -34,6 +35,7 @@ import {
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { measureTableHeight } from 'src/app/helpers/tableResize';
+import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
@@ -52,12 +54,15 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
     TranslateModule,
     PencilIconGreyComponent,
     TrashIconRedComponent,
+    IconTreeComponent,
   ],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('myGridTable', { static: true }) myGridTable:
     | ElementRef
     | undefined;
+
+  @Output() switchToTree = new EventEmitter<void>();
 
   public dataManagementGroupService = inject(DataManagementGroupService);
   public translate = inject(TranslateService);
@@ -200,6 +205,14 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.sort(orderBy, sortOrder);
     this.readPage();
+  }
+
+  onAddGroup() {
+    this.dataManagementGroupService.createGroup();
+  }
+
+  onClickToggle() {
+    this.switchToTree.emit();
   }
 
   private sort(orderBy: string, sortOrder: string) {

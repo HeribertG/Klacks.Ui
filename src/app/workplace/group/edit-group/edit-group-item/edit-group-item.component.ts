@@ -9,6 +9,7 @@ import {
   Output,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,6 +22,7 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -38,6 +40,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  public authorizationService = inject(AuthorizationService);
+  private ngbModal = inject(NgbModal);
+  private locale: string = inject(LOCALE_ID);
+  private translateService = inject(TranslateService);
+  private modalService = inject(ModalService);
+
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('groupForm', { static: false }) groupForm: NgForm | undefined;
@@ -48,18 +57,10 @@ export class EditGroupItemComponent
   private ngUnsubscribe = new Subject<void>();
   private objectForUnsubscribe: Subscription | undefined;
 
-  constructor(
-    public dataManagementGroupService: DataManagementGroupService,
-    private ngbModal: NgbModal,
-    @Inject(LOCALE_ID) private locale: string,
-    private translateService: TranslateService,
-    private modalService: ModalService
-  ) {
+  ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
     this.readSignals();
-  }
 
-  ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
     this.dataManagementGroupService.init();
   }

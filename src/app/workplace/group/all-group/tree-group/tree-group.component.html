@@ -2,26 +2,26 @@
   <div class="container-header header-container">
     {{ "group.tree.headline" | translate }}
     <span class="filler"></span>
-    <div class="expand-button" (click)="toggleTreeView()">
-      <app-icon-angle-down
-        *ngIf="dataManagementGroupService.showTree()"
-      ></app-icon-angle-down>
-      <app-icon-angle-right
-        *ngIf="!dataManagementGroupService.showTree()"
-      ></app-icon-angle-right>
+
+    <div class="tree-actions">
+      <button class="btn new-btn" (click)="onAddRootGroup()">
+        {{ "group.tree.add-root" | translate }}
+      </button>
+    </div>
+
+    <div
+      class="btn ownStyle-button"
+      role="button"
+      aria-label="grid"
+      (click)="onClickToggle()"
+    >
+      <app-icon-grid></app-icon-grid>
     </div>
   </div>
 
   <div class="container-line"></div>
 
   <div *ngIf="dataManagementGroupService.showTree()">
-    <!-- Buttons für Aktionen -->
-    <div class="tree-actions">
-      <button class="btn btn-primary btn-sm" (click)="onAddRootGroup()">
-        {{ "group.tree.add-root" | translate }}
-      </button>
-    </div>
-
     <!-- Baumansicht -->
     <div class="tree-container">
       <ng-container
@@ -44,10 +44,8 @@
         </div>
       </ng-template>
 
-      <!-- Template für rekursiven Baum -->
       <ng-template #recursiveTree let-node>
         <div class="tree-node-item" [class.active]="isNodeSelected(node)">
-          <!-- Einrückung und Expand/Collapse Icon -->
           <div
             class="tree-node-indicator"
             [style.padding-left.px]="node.depth * 20"
@@ -78,22 +76,13 @@
 
           <!-- Aktionen für den Knoten -->
           <div class="tree-node-actions">
-            <button
-              class="btn btn-light btn-sm tree-action-btn"
-              (click)="editNode(node)"
-            >
+            <button class="tree-action-btn" (click)="editNode(node)">
               <icon-pencil-icon-grey></icon-pencil-icon-grey>
             </button>
-            <button
-              class="btn btn-light btn-sm tree-action-btn"
-              (click)="addChildNode(node)"
-            >
+            <button class="tree-action-btn" (click)="addChildNode(node)">
               <app-icon-add></app-icon-add>
             </button>
-            <button
-              class="btn btn-light btn-sm tree-action-btn"
-              (click)="deleteNode(node)"
-            >
+            <button class="tree-action-btn" (click)="deleteNode(node)">
               <icon-trash-icon-red></icon-trash-icon-red>
             </button>
           </div>

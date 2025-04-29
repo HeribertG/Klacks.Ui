@@ -170,6 +170,10 @@ export class AllAddressListComponent
     }
   }
 
+  onAddAddress(): void {
+    this.dataManagementClientService.createClient();
+  }
+
   private isInit(): void {
     const tmp = restoreFilter('edit-address');
 

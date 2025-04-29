@@ -51,6 +51,7 @@
             class="input-group-text btn btn-outline-secondary container-search-button"
             *ngIf="selectedClient"
             (click)="onClickApply()"
+            disabled="!authorizationService.isAuthorised"
           >
             {{ "group.edit-group.edit-group-member.add" | translate }}
           </div>

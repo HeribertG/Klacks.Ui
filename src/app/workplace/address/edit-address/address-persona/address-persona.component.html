@@ -278,7 +278,7 @@
               type="text"
               class="form-control default-width"
               autocomplete="off"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.company"
               id="company"
               name="company"
@@ -301,7 +301,7 @@
               class="form-select"
               [ngModel]="dataManagementClientService.editClient.gender"
               id="gender"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               (ngModelChange)="
                 dataManagementClientService.editClient.gender = $event
               "
@@ -335,7 +335,7 @@
             type="checkbox"
             [(ngModel)]="dataManagementClientService.editClient.legalEntity"
             name="legalEntity"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
           />
           {{ "address.edit-address.address-persona.legal-entity" | translate }}
         </label>
@@ -357,7 +357,7 @@
             class="form-control default-width"
             id="title"
             autocomplete="off"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
             [(ngModel)]="dataManagementClientService.editClient.title"
             name="title"
             maxlength="15"
@@ -382,7 +382,7 @@
               class="form-control default-width"
               autofocus
               autocomplete="off"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.firstName"
               id="firstname"
               name="FirstName"
@@ -415,7 +415,7 @@
             <input
               type="text"
               class="form-control default-width"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.secondName"
               id="secondName"
               name="SecondName"
@@ -447,7 +447,7 @@
             <input
               type="text"
               class="form-control default-width"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.name"
               name="Name"
               id="profile-name"
@@ -481,7 +481,7 @@
             <input
               type="text"
               class="form-control default-width"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.maidenName"
               id="maidenName"
               name="MaidenName"
@@ -513,7 +513,7 @@
               type="text"
               class="form-control default-width"
               id="addressLine1"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="
                 dataManagementClientService.editClient.addresses[
                   dataManagementClientService.currentAddressIndex
@@ -539,7 +539,7 @@
               type="text"
               class="form-control default-width"
               id="addressLine2"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="
                 dataManagementClientService.editClient.addresses[
                   dataManagementClientService.currentAddressIndex
@@ -561,7 +561,7 @@
               type="text"
               class="form-control default-width"
               id="street"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="
                 dataManagementClientService.editClient.addresses[
                   dataManagementClientService.currentAddressIndex
@@ -580,7 +580,7 @@
         </div>
       </div>
 
-      <div class="row-line" *ngIf="addStreetLine2 == true">
+      <div class="row-line" *ngIf="addStreetLine2">
         <div class="form-group firstColumn">
           <label for="street2">{{
             "address.edit-address.address-persona.street2" | translate
@@ -590,7 +590,7 @@
               type="text"
               class="form-control default-width"
               id="street2"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="
                 dataManagementClientService.editClient.addresses[
                   dataManagementClientService.currentAddressIndex
@@ -602,21 +602,21 @@
               class="add-button"
               type="button"
               (click)="addStreetLine3 = true"
-              *ngIf="!addStreetLine3 == true"
+              *ngIf="!addStreetLine3"
               >+</span
             >
             <span
               class="del-button"
               type="button"
               (click)="addStreetLine2 = false"
-              *ngIf="addStreetLine2 == true"
+              *ngIf="addStreetLine2"
               >-</span
             >
           </div>
         </div>
       </div>
 
-      <div class="row-line" *ngIf="addStreetLine3 == true">
+      <div class="row-line" *ngIf="addStreetLine3">
         <div class="form-group firstColumn">
           <label for="street3">{{
             "address.edit-address.address-persona.street3" | translate
@@ -626,7 +626,7 @@
               type="text"
               class="form-control default-width"
               id="street3"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              disabled]="isDisabled()"
               [(ngModel)]="
                 dataManagementClientService.editClient.addresses[
                   dataManagementClientService.currentAddressIndex
@@ -638,7 +638,7 @@
               class="del-button"
               type="button"
               (click)="addStreetLine3 = false"
-              *ngIf="addStreetLine3 == true"
+              *ngIf="addStreetLine3"
               >-</span
             >
           </div>
@@ -655,7 +655,7 @@
             class="form-control zip"
             (focusout)="onZipFocusout()"
             id="zip"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
             [(ngModel)]="
               dataManagementClientService.editClient.addresses[
                 dataManagementClientService.currentAddressIndex
@@ -672,7 +672,7 @@
             type="text"
             class="form-control place"
             id="city"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
             [(ngModel)]="
               dataManagementClientService.editClient.addresses[
                 dataManagementClientService.currentAddressIndex
@@ -710,7 +710,7 @@
               dataManagementClientService.stateList.length === 0
             "
             id="state"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
             [(ngModel)]="
               dataManagementClientService.editClient.addresses[
                 dataManagementClientService.currentAddressIndex
@@ -741,7 +741,7 @@
           <select
             class="form-select place"
             id="country"
-            [disabled]="dataManagementClientService.editClientDeleted"
+            disabled]="isDisabled()"
             [(ngModel)]="
               dataManagementClientService.editClient.addresses[
                 dataManagementClientService.currentAddressIndex
@@ -796,7 +796,7 @@
                 [value]="phoneData.prefix"
                 name="phonePrefix"
                 aria-label="Vorwahl"
-                [disabled]="dataManagementClientService.editClientDeleted"
+                disabled]="isDisabled()"
                 (change)="onChangePhonePrefix(ii, $event)"
               >
                 <option
@@ -818,7 +818,7 @@
                 [value]="phoneData.value"
                 name="phoneValue"
                 aria-label="Telefon"
-                [disabled]="dataManagementClientService.editClientDeleted"
+                disabled]="isDisabled()"
                 (change)="onChangePhoneValue(ii, $event)"
                 (keyup)="onKeyupPhoneNumber(ii, $event)"
               />
@@ -829,7 +829,7 @@
                 name="phoneType"
                 aria-label="phoneType"
                 (change)="onChangePhoneType(ii, $event)"
-                [disabled]="dataManagementClientService.editClientDeleted"
+                disabled]="isDisabled()"
               >
                 <option
                   *ngFor="
@@ -880,7 +880,7 @@
                 class="form-control medium-width"
                 [value]="emailData.value"
                 aria-label="E-Mail"
-                [disabled]="dataManagementClientService.editClientDeleted"
+                disabled]="isDisabled()"
                 (change)="onChangeEmailValue(i, $event)"
                 name="emailValue"
                 (keyup)="onChangeEmailValue(i, $event)"
@@ -891,7 +891,7 @@
                 [value]="emailData.type"
                 name="emailType"
                 aria-label="E-Mail Typ"
-                [disabled]="dataManagementClientService.editClientDeleted"
+                disabled]="isDisabled()"
                 (change)="onChangeEmailType(i, $event)"
               >
                 <option
@@ -905,6 +905,7 @@
                 </option>
               </select>
               <span
+                *ngIf="!isDisabled"
                 class="add-button"
                 type="button"
                 *ngIf="
@@ -915,6 +916,7 @@
                 >+</span
               >
               <span
+                *ngIf="!isDisabled"
                 class="del-button"
                 type="button"
                 *ngIf="i !== 0"
@@ -943,7 +945,7 @@
               class="form-control"
               name="birthday"
               id="profile-birthday"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              [disabled]="isDisabled()"
               [ngModel]="
                 dataManagementClientService.editClient.internalBirthdate
               "

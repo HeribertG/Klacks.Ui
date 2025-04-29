@@ -19,6 +19,7 @@ import { Group } from 'src/app/core/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-edit-group-parent',
@@ -31,6 +32,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild('parentForm') parentForm!: NgForm;
 
+  public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
@@ -49,14 +51,12 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
     this.readSignals();
 
-    // Übersetzungen beobachten
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translateService.currentLang as Language;
       });
 
-    // Form-Änderungen beobachten
     setTimeout(() => {
       if (this.parentForm && this.parentForm.form) {
         this.formChangeSubscription =
@@ -70,7 +70,6 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Ressourcen freigeben
     if (this.formChangeSubscription) {
       this.formChangeSubscription.unsubscribe();
     }
@@ -93,16 +92,13 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
     if (!this.dataManagementGroupService.editGroup) return;
 
-    // Wenn es eine neue Gruppe ist (keine ID), alle Gruppen sind verfügbar
     if (!this.dataManagementGroupService.editGroup.id) {
       this.availableParents = [...this.dataManagementGroupService.flatNodeList];
       return;
     }
 
-    // Andernfalls die aktuelle Gruppe und alle ihre Untergruppen ausschließen
     const currentId = this.dataManagementGroupService.editGroup.id;
 
-    // IDs aller Untergruppen ermitteln (basierend auf Lft/Rgt Werten)
     const currentNode = this.dataManagementGroupService.flatNodeList.find(
       (n) => n.id === currentId
     );
@@ -120,7 +116,6 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Verfügbare Eltern sind alle Gruppen außer der aktuellen und ihren Untergruppen
     this.availableParents = this.dataManagementGroupService.flatNodeList.filter(
       (node) => !childNodeIds.has(node.id!)
     );

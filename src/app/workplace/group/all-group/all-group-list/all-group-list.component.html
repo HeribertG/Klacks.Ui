@@ -3,6 +3,21 @@
     {{ translate.instant("group.all-group.all-group-list.header") }}
 
     <span class="filler"></span>
+
+    <div class="tree-actions">
+      <button class="btn new-btn" (click)="onAddGroup()">
+        {{ "new-group" | translate }}
+      </button>
+    </div>
+
+    <div
+      class="btn ownStyle-button"
+      role="button"
+      aria-label="tree"
+      (click)="onClickToggle()"
+    >
+      <app-icon-tree></app-icon-tree>
+    </div>
   </div>
   <div class="container-line"></div>
   <div class="container-table">

@@ -3,9 +3,11 @@ import {
   AfterViewInit,
   Component,
   EffectRef,
+  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
+  Output,
   effect,
   inject,
   runInInjectionContext,
@@ -16,9 +18,11 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { IconAddComponent } from 'src/app/icons/icon-add.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconGridComponent } from 'src/app/icons/icon-grid.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
@@ -34,13 +38,17 @@ import { NavigationService } from 'src/app/services/navigation.service';
     TrashIconRedComponent,
     PencilIconGreyComponent,
     IconAddComponent,
+    IconGridComponent,
   ],
 })
 export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
+  public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   private navigationService = inject(NavigationService);
   private injector = inject(Injector);
   private modalService = inject(ModalService);
+
+  @Output() switchToGrid = new EventEmitter<void>();
 
   public hierarchicalTree: Group[] = [];
 
@@ -72,29 +80,21 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onClickToggle() {
+    this.switchToGrid.emit();
+  }
+
   /**
    * Baut den hierarchischen Baum aus der flachen Liste
    */
   buildHierarchicalTree(): void {
     console.log('buildHierarchicalTree called');
     if (this.dataManagementGroupService.groupTree) {
-      console.log(
-        'Current groupTree:',
-        this.dataManagementGroupService.groupTree
-      );
-
-      // Verwende die buildHierarchy-Methode, um die Hierarchie zu erstellen
-      // Diese Methode ist jetzt so angepasst, dass sie mit den bereits hierarchischen Daten arbeitet
       setTimeout(() => {
         this.hierarchicalTree =
           this.dataManagementGroupService.groupTree.buildHierarchy();
-        console.log('Set hierarchicalTree to:', this.hierarchicalTree);
-
-        // Debug-Ausgabe: Prüfe die Struktur des hierarchischen Baums
         this.debugTreeStructure(this.hierarchicalTree);
       }, 0);
-    } else {
-      console.warn('groupTree is null or undefined');
     }
   }
 
@@ -118,13 +118,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
         this.debugTreeStructure(node.children, level + 1);
       }
     });
-  }
-
-  /**
-   * Schaltet die Baumansicht um
-   */
-  toggleTreeView(): void {
-    this.dataManagementGroupService.showTree.update((value) => !value);
   }
 
   /**

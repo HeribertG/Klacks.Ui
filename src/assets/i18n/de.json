@@ -369,7 +369,7 @@
 
   "new-address": "Adresse erfassen",
   "new-work": "Dienst erfassen",
-  "new-group": "Gruppe erfassen",
+  "new-group": "+ Gruppe erfassen",
   "ALL_GROUP": "Alle Gruppen",
   "ALL_SHIFT": "Alle Dienste",
   "edit-group-structure": "Gruppen Strukturen erfassen",
@@ -426,7 +426,7 @@
   "shift.edit-shift.main.complex-mode": "Experten Modus",
 
   "group.tree.headline": "Gruppenstruktur",
-  "group.tree.add-root": "Neue Wurzelgruppe",
+  "group.tree.add-root": "+ Neue Wurzelgruppe",
   "group.tree.no-groups": "Keine Gruppen gefunden",
   "group.tree.delete-confirmation.title": "Gruppe löschen",
   "group.tree.delete-confirmation.message": "Möchten Sie diese Gruppe und alle Untergruppen wirklich löschen?",

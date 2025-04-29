@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   HostListener,
+  inject,
   Inject,
   LOCALE_ID,
   OnDestroy,
@@ -25,6 +26,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ToastService } from 'src/app/toast/toast.service';
 
 @Component({
@@ -44,6 +46,12 @@ import { ToastService } from 'src/app/toast/toast.service';
 export class EditGroupMembersComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  public authorizationService = inject(AuthorizationService);
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  public toastService = inject(ToastService);
+  private locale: string = inject(LOCALE_ID);
+  private dataClientService = inject(DataClientService);
+
   @Output() isChangingEvent = new EventEmitter();
   @Output() isEnterEvent = new EventEmitter();
 
@@ -76,16 +84,10 @@ export class EditGroupMembersComponent
       return;
     }
   }
-  constructor(
-    public dataManagementGroupService: DataManagementGroupService,
-    public toastService: ToastService,
-    @Inject(LOCALE_ID) private locale: string,
-    private dataClientService: DataClientService
-  ) {
-    this.locale = MessageLibrary.DEFAULT_LANG;
-  }
 
   ngOnInit(): void {
+    this.locale = MessageLibrary.DEFAULT_LANG;
+
     this.setFilter();
   }
 

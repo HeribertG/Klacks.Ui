@@ -4,18 +4,28 @@
       {{ "group.all-group.all-group-home.header" | translate }}
     </div>
 
-    <div class="container-profilline">
-      <app-all-group-list
-        class="container-profile first border-right-card border-bottom-card"
-      >
-      </app-all-group-list>
-    </div>
+    <div *ngIf="showGrid">
+      <div class="container-profilline">
+        <app-all-group-list
+          class="container-profile first border-right-card border-bottom-card"
+          (switchToTree)="showAsTree()"
+        >
+        </app-all-group-list>
+      </div>
 
-    <div
-      id="group-nav"
-      class="container-address-nav border-right-card border-bottom-card"
-    >
-      <app-all-group-nav></app-all-group-nav>
+      <div
+        id="group-nav"
+        class="container-address-nav border-right-card border-bottom-card"
+      >
+        <app-all-group-nav></app-all-group-nav>
+      </div>
+    </div>
+    <div class="container-profilline" *ngIf="!showGrid">
+      <app-tree-group
+        class="container-profile first border-right-card border-bottom-card"
+        (switchToGrid)="showAsGrid()"
+      >
+      </app-tree-group>
     </div>
 
     <div class="bottom-border-space"></div>

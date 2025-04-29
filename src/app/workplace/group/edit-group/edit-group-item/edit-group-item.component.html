@@ -21,6 +21,7 @@
         id="name"
         name="name"
         required
+        [disabled]="!authorizationService.isAuthorised"
       />
     </div>
   </div>
@@ -50,6 +51,7 @@
                 btn-dark
                 #validFrom="ngbDatepicker"
                 required
+                [disabled]="!authorizationService.isAuthorised"
               />
               <span
                 class="input-group-text"
@@ -86,6 +88,7 @@
               ngbDatepicker
               btn-dark
               #validUntil="ngbDatepicker"
+              [disabled]="!authorizationService.isAuthorised"
             />
             <span
               class="input-group-text"
@@ -111,6 +114,7 @@
             class="form-control"
             [(ngModel)]="dataManagementGroupService.editGroup.description"
             name="description"
+            [disabled]="!authorizationService.isAuthorised"
           >
           </textarea>
         </div>
