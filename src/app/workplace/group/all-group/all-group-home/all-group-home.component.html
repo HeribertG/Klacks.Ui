@@ -16,6 +16,7 @@
       <div
         id="group-nav"
         class="container-address-nav border-right-card border-bottom-card"
+        *ngIf="authorizationService.isAuthorised"
       >
         <app-all-group-nav></app-all-group-nav>
       </div>

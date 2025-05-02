@@ -16,6 +16,7 @@ import { MembershipComponent } from '../membership/membership.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -48,6 +49,7 @@ export class EditAddressHomeComponent implements OnInit {
     DataManagementSwitchboardService
   );
   public dataManagementClientService = inject(DataManagementClientService);
+  public authorizationService = inject(AuthorizationService);
   private router = inject(Router);
 
   ngOnInit(): void {

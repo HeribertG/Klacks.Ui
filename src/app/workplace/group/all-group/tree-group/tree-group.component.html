@@ -75,7 +75,10 @@
           </div>
 
           <!-- Aktionen für den Knoten -->
-          <div class="tree-node-actions">
+          <div
+            class="tree-node-actions"
+            *ngIf="authorizationService.isAuthorised"
+          >
             <button class="tree-action-btn" (click)="editNode(node)">
               <icon-pencil-icon-grey></icon-pencil-icon-grey>
             </button>
@@ -84,6 +87,15 @@
             </button>
             <button class="tree-action-btn" (click)="deleteNode(node)">
               <icon-trash-icon-red></icon-trash-icon-red>
+            </button>
+          </div>
+
+          <div
+            class="tree-node-actions"
+            *ngIf="!authorizationService.isAuthorised"
+          >
+            <button class="tree-action-btn" (click)="editNode(node)">
+              <app-icon-eye-grey></app-icon-eye-grey>
             </button>
           </div>
         </div>

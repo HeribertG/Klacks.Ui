@@ -15,15 +15,10 @@ import { CommonModule } from '@angular/common';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
-import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
-import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
-import { ExcelComponent } from 'src/app/icons/excel.component';
-import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
-import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.component ';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
-import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { FormsModule } from '@angular/forms';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-note',
@@ -50,6 +45,8 @@ export class NoteComponent implements OnInit, AfterViewInit {
   public expandedNotes: boolean[] = [];
 
   public dataManagementClientService = inject(DataManagementClientService);
+
+  private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
 
   ngOnInit(): void {
@@ -69,6 +66,13 @@ export class NoteComponent implements OnInit, AfterViewInit {
         this.note_new = MessageLibrary.NOTE_NEW;
       }, 200);
     });
+  }
+
+  isDisabled(): boolean {
+    return (
+      this.dataManagementClientService.editClientDeleted ||
+      !this.authorizationService.isAuthorised
+    );
   }
 
   getFirstLine(text: string | undefined): string {
@@ -121,6 +125,10 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   onFocus(index: number) {
+    if (this.isDisabled()) {
+      return;
+    }
+
     this.dataManagementClientService.currentAnnotationIndex = index;
   }
 

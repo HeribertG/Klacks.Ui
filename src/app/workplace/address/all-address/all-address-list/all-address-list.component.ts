@@ -39,6 +39,8 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { IconEyeGreyComponent } from 'src/app/icons/icon-eye.component';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -54,6 +56,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
     TrashIconRedComponent,
     PencilIconGreyComponent,
     ExcelComponent,
+    IconEyeGreyComponent,
   ],
 })
 export class AllAddressListComponent
@@ -65,6 +68,7 @@ export class AllAddressListComponent
 
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
+  public authorizationService = inject(AuthorizationService);
   private navigationService = inject(NavigationService);
   private renderer = inject(Renderer2);
   private localStorageService = inject(LocalStorageService);

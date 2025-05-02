@@ -109,14 +109,21 @@ export class DataManagementGroupService {
   /* #endregion   init */
 
   showExternalClient(id: string) {
-    this.dataGroupService.getGroup(id).subscribe((x) => {
-      const client = x;
-
-      this.prepareGroup(x);
-
-      this.navigationService.navigateToEditGroup();
+    this.showProgressSpinner.set(true);
+    this.dataGroupService.getGroup(id).subscribe({
+      next: (x) => {
+        this.prepareGroup(x);
+        this.navigationService.navigateToEditGroup();
+        this.showProgressSpinner.set(false);
+      },
+      error: (error) => {
+        console.error('Fehler beim Laden der Gruppe:', error);
+        this.showError(error, 'GroupLoadError');
+        this.showProgressSpinner.set(false);
+      },
     });
   }
+
   readPageClient() {
     this.showProgressSpinner.set(true);
 
@@ -432,24 +439,17 @@ export class DataManagementGroupService {
    * Initialisiert den Gruppenbaum
    */
   initTree(rootId?: string) {
-    console.log('Initializing tree...');
-
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
     this.showProgressSpinner.set(true);
     this.dataGroupTreeService.getGroupTree(rootId).subscribe({
       next: (tree: IGroupTree) => {
-        console.log('Received tree data:', tree);
-
         this.groupTree = new GroupTree();
         this.groupTree.rootId = tree.rootId;
 
-        // Konvertiere die Daten zu Group-Objekten
         this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
 
-        // Flache Liste für andere Funktionen erstellen
         this.flatNodeList = this.flattenTree(this.groupTree.nodes);
 
-        // Expandiere die Root-Knoten standardmäßig
         const expandedSet = new Set<string>();
         this.groupTree.nodes.forEach((node) => {
           if (node.id) {
@@ -461,11 +461,9 @@ export class DataManagementGroupService {
         this.fireIsReadEvent();
       },
       error: (error: any) => {
-        console.error('Error loading tree:', error);
         this.showError(error, 'GroupTreeError');
       },
       complete: () => {
-        console.log('Tree loading complete');
         this.showProgressSpinner.set(false);
       },
     });
@@ -475,7 +473,7 @@ export class DataManagementGroupService {
     this.showProgressSpinner.set(true);
     return this.dataGroupTreeService.moveGroup(id, newParentId).subscribe({
       next: () => {
-        this.init(); // Baum neu laden
+        this.init();
         this.showProgressSpinner.set(false);
       },
       error: (error: any) => {
@@ -511,16 +509,13 @@ export class DataManagementGroupService {
   private flattenTree(nodes: IGroup[]): Group[] {
     const result: Group[] = [];
 
-    // Rekursive Funktion zum Sammeln aller Knoten
     const flatten = (nodeList: IGroup[]) => {
       if (!nodeList || !Array.isArray(nodeList)) return;
 
       nodeList.forEach((node) => {
-        // Konvertiere zu Group-Objekt falls nötig
         const groupNode = node instanceof Group ? node : new Group(node);
         result.push(groupNode);
 
-        // Rekursiv für Kinder
         if (
           node.children &&
           Array.isArray(node.children) &&
@@ -531,7 +526,6 @@ export class DataManagementGroupService {
       });
     };
 
-    // Starte mit Root-Knoten
     flatten(nodes);
     return result;
   }

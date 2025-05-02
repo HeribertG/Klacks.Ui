@@ -4,8 +4,8 @@
 
     <span class="filler"></span>
 
-    <div class="tree-actions">
-      <button class="btn new-btn" (click)="onAddAddress()">
+    <div class="tree-actions" *ngIf="authorizationService.isAuthorised">
+      <button class="btn new-btn" (click)="onAddAddress()" tabindex="0">
         {{ "new-address" | translate }}
       </button>
     </div>
@@ -18,13 +18,13 @@
         )
       "
     >
-      <div
+      <button
         class="btn ownStyle-button-disabled"
         role="button"
         aria-label="excel"
       >
         <icon-excel></icon-excel>
-      </div>
+      </button>
     </div>
 
     <div
@@ -33,6 +33,7 @@
       "
     >
       <div
+        tabindex="1"
         class="btn ownStyle-button"
         role="button"
         data-bs-toggle="dropdown"
@@ -203,13 +204,19 @@
           </td>
 
           <td class="table-cell cell-right">
-            <div>
+            <div *ngIf="authorizationService.isAuthorised">
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <icon-pencil-icon-grey></icon-pencil-icon-grey>
               </div>
 
               <div class="icon" (click)="open(data)" *ngIf="!data.isDeleted">
                 <icon-trash-icon-red></icon-trash-icon-red>
+              </div>
+            </div>
+
+            <div *ngIf="!authorizationService.isAuthorised">
+              <div class="icon icon-padding" (click)="onClickEdit(data)">
+                <app-icon-eye-grey></app-icon-eye-grey>
               </div>
             </div>
           </td>

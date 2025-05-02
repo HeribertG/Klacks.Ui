@@ -12,6 +12,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-login',
@@ -33,6 +34,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
+  private authorizationService = inject(AuthorizationService);
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
@@ -48,8 +50,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    // Aufräumen
-    this.destroyWorkRegistry();
     await this.auth.checkIfTokenIsValid();
   }
 
@@ -62,7 +62,6 @@ export class LoginComponent implements OnInit, AfterViewInit {
     } else {
       this.isClicked = false;
     }
+    this.authorizationService.refresh();
   }
-
-  private destroyWorkRegistry(): void {}
 }

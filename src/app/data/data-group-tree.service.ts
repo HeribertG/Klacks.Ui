@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, catchError, retry, throwError } from 'rxjs';
+import { Observable, catchError, of, retry, switchMap, throwError } from 'rxjs';
 import {
   IGroupTree,
   IGroupCreate,
@@ -40,7 +40,28 @@ export class DataGroupTreeService {
   getGroupDetails(id: string): Observable<IGroup> {
     return this.httpClient
       .get<IGroup>(`${environment.baseUrl}GroupTrees/${id}`)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(
+        retry(3),
+
+        switchMap((group) => {
+          if (group.groupItems && group.groupItems.length > 0) {
+            return of(group);
+          }
+
+          return this.httpClient
+            .get<IGroup>(`${environment.baseUrl}Groups/${id}`)
+            .pipe(
+              retry(3),
+              catchError((error) => {
+                console.warn(
+                  `Konnte GroupItems für Gruppe ${id} nicht laden: ${error}`
+                );
+                return of(group);
+              })
+            );
+        }),
+        catchError(this.handleError)
+      );
   }
 
   /**

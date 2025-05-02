@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AllGroupListComponent } from '../all-group-list/all-group-list.component';
 import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-all-group-home',
@@ -19,6 +20,8 @@ import { TreeGroupComponent } from '../tree-group/tree-group.component';
   ],
 })
 export class AllGroupHomeComponent {
+  public authorizationService = inject(AuthorizationService);
+
   @Input() isGroup: boolean = false;
   @Output() isChangingEvent = new EventEmitter();
   showGrid = false;
@@ -29,5 +32,4 @@ export class AllGroupHomeComponent {
   showAsTree() {
     this.showGrid = false;
   }
-  constructor() {}
 }

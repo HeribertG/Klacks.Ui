@@ -60,8 +60,8 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 export class AddressPersonaComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
+  private authorizationService = inject(AuthorizationService);
   private ngbModal = inject(NgbModal);
   private locale = inject(LOCALE_ID);
   private translateService = inject(TranslateService);

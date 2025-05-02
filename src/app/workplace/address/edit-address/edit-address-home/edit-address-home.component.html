@@ -28,10 +28,14 @@
       </app-note>
     </div>
 
-    <div class="container-address-nav border-right-card border-bottom-card">
+    <div
+      class="container-address-nav border-right-card border-bottom-card"
+      *ngIf="authorizationService.isAuthorised"
+    >
       <app-edit-address-nav></app-edit-address-nav>
     </div>
 
     <p></p>
   </div>
+  <div style="height: 30px"></div>
 </ng-container>

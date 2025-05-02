@@ -23,7 +23,7 @@
             <input
               class="form-control"
               name="validFrom"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              [disabled]="isDisabled()"
               aria-labelledby="valid from"
               id="membership-entry-date"
               [ngModel]="
@@ -60,7 +60,7 @@
             <input
               class="form-control"
               name="validUntil"
-              [disabled]="dataManagementClientService.editClientDeleted"
+              [disabled]="isDisabled()"
               aria-label="membership-until-date"
               aria-labelledby="validUntil"
               id="membership-until-date"

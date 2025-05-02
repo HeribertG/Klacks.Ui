@@ -4,7 +4,7 @@
 
     <span class="filler"></span>
 
-    <div>
+    <div *ngIf="!isDisabled()">
       <app-button-new
         placement="top"
         (click)="newAnnotation()"
@@ -137,9 +137,9 @@
               <textarea
                 [id]="'note' + i"
                 [value]="annotation.note"
+                [disabled]="isDisabled()"
                 (input)="onChange(i, $event)"
                 aria-labelledby="Freitextfeld"
-                [disabled]="dataManagementClientService.editClientDeleted"
                 class="form-control freetext"
                 [name]="'note' + i"
               ></textarea>
@@ -149,4 +149,5 @@
       </div>
     </div>
   </div>
+  <div style="height: 30px"></div>
 </form>
