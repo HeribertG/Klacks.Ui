@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Inject,
+  Injector,
   LOCALE_ID,
   OnDestroy,
   OnInit,
@@ -10,6 +11,7 @@ import {
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -46,6 +48,7 @@ export class EditGroupItemComponent
   private locale: string = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private modalService = inject(ModalService);
+  private injector = inject(Injector);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -89,11 +92,13 @@ export class EditGroupItemComponent
   }
 
   private readSignals(): void {
-    effect(() => {
-      const isReset = this.dataManagementGroupService.isReset();
-      if (isReset) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const isReset = this.dataManagementGroupService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+        }
+      });
     });
   }
 }

@@ -1,14 +1,19 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, retry } from 'rxjs/operators';
-import { GroupFilter, IGroup, ITruncatedGroup } from '../core/group-class';
+import {
+  GroupFilter,
+  IGroup,
+  IGroupTree,
+  ITruncatedGroup,
+} from '../core/group-class';
 import {
   dateWithLocalTimeCorrection,
   isNgbDateStructOk,
   transformNgbDateStructToDate,
 } from '../helpers/format-helper';
-import { throwError } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -16,44 +21,71 @@ import { throwError } from 'rxjs';
 export class DataGroupService {
   constructor(private httpClient: HttpClient) {}
 
-  readGroupList(filter: GroupFilter) {
+  readGroupList(filter: GroupFilter): Observable<ITruncatedGroup> {
     return this.httpClient
       .post<ITruncatedGroup>(
         `${environment.baseUrl}Groups/GetSimpleList/`,
         filter
       )
-      .pipe();
+      .pipe(catchError(this.handleError));
   }
 
-  getGroup(id: string) {
+  getGroup(id: string): Observable<IGroup> {
     return this.httpClient
       .get<IGroup>(`${environment.baseUrl}Groups/` + id)
-      .pipe(retry(3));
+      .pipe(retry(3), catchError(this.handleError));
   }
 
-  updateGroup(value: IGroup) {
-    console.log('API call with lft/rgt:', value.lft, value.rgt);
+  updateGroup(value: IGroup): Observable<IGroup> {
     this.setCorrectDate(value);
     return this.httpClient
       .put<IGroup>(`${environment.baseUrl}Groups/`, value)
       .pipe(retry(3), catchError(this.handleError));
   }
 
-  addGroup(value: IGroup) {
+  addGroup(value: IGroup): Observable<IGroup> {
     delete value.id;
+
     this.setCorrectDate(value);
     return this.httpClient
       .post<IGroup>(`${environment.baseUrl}Groups/`, value)
       .pipe(retry(3), catchError(this.handleError));
   }
 
-  deleteGroup(id: string) {
+  deleteGroup(id: string): Observable<IGroup> {
     return this.httpClient
       .delete<IGroup>(`${environment.baseUrl}Groups/` + id)
       .pipe(retry(3), catchError(this.handleError));
   }
 
-  private setCorrectDate(value: IGroup) {
+  getGroupTree(rootId?: string): Observable<IGroupTree> {
+    let params = new HttpParams();
+    if (rootId) {
+      params = params.set('rootId', rootId);
+    }
+
+    return this.httpClient
+      .get<IGroupTree>(`${environment.baseUrl}GroupTrees/tree`, { params })
+      .pipe(retry(3), catchError(this.handleError));
+  }
+
+  getPathToNode(id: string): Observable<IGroup[]> {
+    return this.httpClient
+      .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
+      .pipe(retry(3), catchError(this.handleError));
+  }
+
+  moveGroup(id: string, newParentId: string): Observable<IGroup> {
+    let params = new HttpParams().set('newParentId', newParentId);
+
+    return this.httpClient
+      .post<IGroup>(`${environment.baseUrl}GroupTrees/move/${id}`, null, {
+        params,
+      })
+      .pipe(retry(3), catchError(this.handleError));
+  }
+
+  setCorrectDate(value: IGroup): void {
     if (isNgbDateStructOk(value!.internalValidFrom)) {
       value.validFrom = dateWithLocalTimeCorrection(
         transformNgbDateStructToDate(value!.internalValidFrom)
@@ -76,12 +108,13 @@ export class DataGroupService {
   private handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
-      // Client
+      // Client-seitiger Fehler
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server
+      // Server-seitiger Fehler
       errorMessage = `Statuscode: ${error.status}\nMessage: ${error.message}`;
     }
-    return throwError(errorMessage);
+    console.error('API-Fehler:', errorMessage);
+    return throwError(() => errorMessage);
   }
 }

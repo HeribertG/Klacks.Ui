@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   HostListener,
@@ -51,6 +52,7 @@ export class EditGroupMembersComponent
   public toastService = inject(ToastService);
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Output() isChangingEvent = new EventEmitter();
   @Output() isEnterEvent = new EventEmitter();
@@ -93,6 +95,7 @@ export class EditGroupMembersComponent
 
   ngAfterViewInit(): void {
     this.reReadSortData();
+    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {}

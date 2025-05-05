@@ -47,7 +47,6 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
-    this.dataManagementGroupService.initTree();
 
     this.readSignals();
 

@@ -84,13 +84,14 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Baut den hierarchischen Baum aus der flachen Liste
+   * Verwendet die vom Backend gelieferte hierarchische Struktur
    */
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
       setTimeout(() => {
-        this.hierarchicalTree =
-          this.dataManagementGroupService.groupTree.buildHierarchy();
+        // Da das Backend bereits die hierarchische Struktur liefert,
+        // können wir die Nodes direkt verwenden
+        this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
         this.debugTreeStructure(this.hierarchicalTree);
       }, 0);
     }
@@ -102,6 +103,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     nodes.forEach((node) => {
+      // Wir brauchen die lft/rgt Werte nicht mehr zu debuggen
       if (
         node.children &&
         Array.isArray(node.children) &&
@@ -189,7 +191,8 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const subscription = this.modalService.resultEvent.subscribe((type) => {
       if (type === ModalType.Delete) {
-        this.dataManagementGroupService.deleteGroup(node.id!);
+        // Direkt den Service verwenden, der nun selbst den Baum aktualisiert
+        this.dataManagementGroupService.deleteGroup(node.id!).subscribe();
       }
       subscription.unsubscribe();
     });

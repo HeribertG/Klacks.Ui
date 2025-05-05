@@ -20,7 +20,7 @@ import {
 import { DataClientService } from '../data-client.service';
 import { ToastService } from 'src/app/toast/toast.service';
 import { DataGroupService } from '../data-group.service';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import {
   cloneObject,
   compareComplexObjects,
@@ -33,7 +33,8 @@ import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { DataGroupTreeService } from '../data-group-tree.service';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +46,12 @@ export class DataManagementGroupService {
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public showTree = signal(true);
+  public dataClientService = inject(DataClientService);
+  public dataGroupService = inject(DataGroupService);
+  public toastService = inject(ToastService);
+  private dataCountryStateService = inject(DataCountryStateService);
+  private navigationService = inject(NavigationService);
+  private httpClient = inject(HttpClient);
 
   public currentClientFilter: Filter = new Filter();
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
@@ -77,13 +84,6 @@ export class DataManagementGroupService {
   private currentClientFilterDummy: Filter | undefined;
   private temporaryClientFilterDummy: Filter | undefined;
 
-  public dataClientService = inject(DataClientService);
-  public dataGroupService = inject(DataGroupService);
-  private dataGroupTreeService = inject(DataGroupTreeService);
-  public toastService = inject(ToastService);
-  private dataCountryStateService = inject(DataCountryStateService);
-  private navigationService = inject(NavigationService);
-
   /* #region   init */
   init() {
     this.dataClientService
@@ -111,7 +111,7 @@ export class DataManagementGroupService {
   showExternalClient(id: string) {
     this.showProgressSpinner.set(true);
     this.dataGroupService.getGroup(id).subscribe({
-      next: (x) => {
+      next: (x: IGroup) => {
         this.prepareGroup(x);
         this.navigationService.navigateToEditGroup();
         this.showProgressSpinner.set(false);
@@ -203,7 +203,17 @@ export class DataManagementGroupService {
   }
 
   deleteGroup(key: string): Observable<IGroup> {
-    return this.dataGroupService.deleteGroup(key);
+    return this.dataGroupService.deleteGroup(key).pipe(
+      map((response) => {
+        // Nach erfolgreichem Löschen aktualisieren wir den Baum
+        this.initTree();
+        return response;
+      }),
+      catchError((error) => {
+        this.showError(error, 'GroupDeleteError');
+        return throwError(() => error);
+      })
+    );
   }
 
   fireIsReadEvent() {
@@ -220,8 +230,7 @@ export class DataManagementGroupService {
       description: '',
       validFrom: new Date(),
       parent: parentId,
-      lft: 0,
-      rgt: 0,
+      // Lft/Rgt nicht mehr nötig
       depth: 0,
       clientsCount: 0,
       groupItems: [],
@@ -262,12 +271,6 @@ export class DataManagementGroupService {
 
   saveEditGroup(withoutUpdateDummy = false) {
     if (this.editGroup) {
-      console.log(
-        'Saving group with lft/rgt:',
-        this.editGroup.lft,
-        this.editGroup.rgt
-      );
-
       const action = this.editGroup.id
         ? this.dataGroupService.updateGroup(this.editGroup)
         : this.dataGroupService.addGroup(this.editGroup);
@@ -436,18 +439,17 @@ export class DataManagementGroupService {
   }
 
   /**
-   * Initialisiert den Gruppenbaum
+   * Initialisiert den Gruppenbaum - direkt über HTTP API
    */
   initTree(rootId?: string) {
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
-    this.showProgressSpinner.set(true);
-    this.dataGroupTreeService.getGroupTree(rootId).subscribe({
+    setTimeout(() => this.showProgressSpinner.set(true), 0);
+
+    this.dataGroupService.getGroupTree(rootId).subscribe({
       next: (tree: IGroupTree) => {
         this.groupTree = new GroupTree();
         this.groupTree.rootId = tree.rootId;
-
         this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
-
         this.flatNodeList = this.flattenTree(this.groupTree.nodes);
 
         const expandedSet = new Set<string>();
@@ -460,27 +462,57 @@ export class DataManagementGroupService {
 
         this.fireIsReadEvent();
       },
-      error: (error: any) => {
+      error: (error) => {
         this.showError(error, 'GroupTreeError');
       },
       complete: () => {
-        this.showProgressSpinner.set(false);
+        setTimeout(() => this.showProgressSpinner.set(false), 0);
       },
     });
   }
 
+  /**
+   * Holt den Pfad zu einem Knoten - direkt über HTTP API
+   */
+  getPathToNode(id: string): Observable<IGroup[]> {
+    return this.httpClient
+      .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
+      .pipe(
+        catchError((error) => {
+          this.showError(error, 'GroupPathError');
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Verschiebt einen Knoten - direkt über HTTP API
+   */
   moveGroup(id: string, newParentId: string) {
     this.showProgressSpinner.set(true);
-    return this.dataGroupTreeService.moveGroup(id, newParentId).subscribe({
-      next: () => {
-        this.init();
-        this.showProgressSpinner.set(false);
-      },
-      error: (error: any) => {
-        this.showError(error, 'GroupMoveError');
-        this.showProgressSpinner.set(false);
-      },
-    });
+
+    let params = new HttpParams().set('newParentId', newParentId);
+
+    return this.httpClient
+      .post<IGroup>(`${environment.baseUrl}GroupTrees/move/${id}`, null, {
+        params,
+      })
+      .pipe(
+        catchError((error) => {
+          this.showError(error, 'GroupMoveError');
+          return throwError(() => error);
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.init();
+          this.initTree();
+          this.showProgressSpinner.set(false);
+        },
+        error: () => {
+          this.showProgressSpinner.set(false);
+        },
+      });
   }
 
   /**
