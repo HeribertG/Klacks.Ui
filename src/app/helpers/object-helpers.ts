@@ -124,7 +124,6 @@ export function compareComplexObjects(
   ): boolean {
     // Helper function to log mismatches
     function logMismatch(reason: string) {
-      console.info(`Property "${p}" mismatch: ${reason}`);
       return false;
     }
 

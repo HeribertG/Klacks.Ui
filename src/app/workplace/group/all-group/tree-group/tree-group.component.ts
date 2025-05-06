@@ -57,7 +57,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   private effectRef: EffectRef | null = null;
 
   ngOnInit(): void {
-    console.log('TreeGroupComponent initialized');
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
     this.readSignals();

@@ -50,6 +50,9 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
 
     this.readSignals();
 
+    this.updateAvailableParents();
+    this.updateGroupPath();
+
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -81,14 +84,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Aktualisiert die Liste der verfügbaren Elterngruppen
-   * (exkludiert die aktuelle Gruppe und ihre Untergruppen)
-   */
   updateAvailableParents(): void {
-    console.log('editGroup:', this.dataManagementGroupService.editGroup);
-    console.log('flatNodeList:', this.dataManagementGroupService.flatNodeList);
-
     if (!this.dataManagementGroupService.editGroup) return;
 
     if (!this.dataManagementGroupService.editGroup.id) {
@@ -120,13 +116,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
     );
   }
 
-  /**
-   * Aktualisiert den Pfad zur aktuellen Gruppe
-   */
   updateGroupPath(): void {
-    console.log('editGroup:', this.dataManagementGroupService.editGroup);
-    console.log('flatNodeList:', this.dataManagementGroupService.flatNodeList);
-
     if (
       !this.dataManagementGroupService.editGroup ||
       !this.dataManagementGroupService.editGroup.id
@@ -135,14 +125,12 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Pfad von der Wurzel zur aktuellen Gruppe ermitteln
     const currentId = this.dataManagementGroupService.editGroup.id;
     const currentNode = this.dataManagementGroupService.flatNodeList.find(
       (n) => n.id === currentId
     );
     if (!currentNode) return;
 
-    // Alle Knoten im Pfad basierend auf Lft/Rgt Werten finden
     this.groupPath = this.dataManagementGroupService.flatNodeList
       .filter(
         (node) =>
@@ -153,9 +141,6 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.lft - b.lft);
   }
 
-  /**
-   * Formatiert den Anzeigenamen für eine Gruppe im Dropdown
-   */
   getGroupPathDisplay(node: Group): string {
     // Ein einfacher Indikator für die Tiefe
     const indent = '—'.repeat(node.depth);

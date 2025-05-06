@@ -11,7 +11,7 @@
     <div class="select-group">
       <select
         id="parent-select"
-        class="form-control"
+        class="form-select"
         name="parent"
         [(ngModel)]="dataManagementGroupService.editGroup.parent"
         (change)="onParentChange()"
@@ -27,15 +27,16 @@
     </div>
 
     <div class="current-path mt-4" *ngIf="groupPath.length > 0">
-      <label>{{
+      <label for="path-display-info">{{
         "group.edit-group.edit-group-parent.current-path" | translate
       }}</label>
-      <div class="path-display">
+      <div class="path-display" id="path-display-info">
         <span *ngFor="let node of groupPath; let i = index" class="path-item">
           {{ node.name }}
           <span *ngIf="i < groupPath.length - 1" class="path-separator">/</span>
         </span>
       </div>
     </div>
+    <div style="height: 30px"></div>
   </div>
 </form>
