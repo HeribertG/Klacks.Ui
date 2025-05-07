@@ -1,0 +1,195 @@
+@use "../../../assets/standard-styles/colors.scss";
+
+.group-select-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+// Label für das Select
+.group-select-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gridColorText);
+
+  .required-marker {
+    color: #e53935;
+    margin-left: 4px;
+  }
+}
+
+// Select Box (der anklickbare Teil)
+.group-select-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 0 12px;
+  background-color: var(--backgroundOption);
+  border: 1px solid var(--cardBorderColor);
+  color: var(--colorOption);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--backgroundColorHover);
+  }
+
+  &.open {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+
+  &.disabled {
+    background-color: var(--backgroundOption);
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .group-select-value {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+
+    .placeholder {
+      color: #999;
+    }
+  }
+
+  .group-select-icon {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+// Dropdown Container
+.group-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  margin-top: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: var(--backgroundOption);
+  border: 1px solid var(--cardBorderColor);
+  color: var(--colorOption);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+// Container für den Baum im Dropdown
+.group-tree-container {
+  padding: 8px 0;
+}
+
+// Grundlegende Baum-Stile
+.group-tree-root {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.group-tree-node {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.group-tree-children {
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+}
+
+// Stile für die Baumknoten
+.group-tree-node-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
+
+  &.selected {
+    background-color: rgba(0, 123, 255, 0.1);
+  }
+}
+
+.group-tree-node-indicator {
+  display: flex;
+  align-items: center;
+  min-width: 20px;
+}
+
+.group-tree-toggle {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.group-tree-toggle-placeholder {
+  width: 20px;
+  height: 20px;
+}
+
+// Bereich für den Optionsbutton
+.group-option-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  cursor: pointer;
+
+  .option-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.selected {
+      border-color: var(--primary);
+      background-color: var(--primary);
+
+      &:after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: var(--gridColorText);
+      }
+    }
+  }
+}
+
+// Inhalt des Baumknotens
+.group-tree-node-content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: 0 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.group-tree-node-name {
+  font-weight: 500;
+  color: var(--gridColorText);
+}

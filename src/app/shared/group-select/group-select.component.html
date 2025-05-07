@@ -1,0 +1,149 @@
+<div class="group-select-container">
+  <label
+    *ngIf="label"
+    [for]="'group-select-' + label"
+    class="group-select-label"
+  >
+    {{ label }}
+    <span *ngIf="required" class="required-marker">*</span>
+  </label>
+
+  <div
+    class="group-select-box form-group"
+    [class.disabled]="isDisabled"
+    [class.open]="isDropdownOpen"
+    (click)="toggleDropdown()"
+    tabindex="0"
+    role="combobox"
+    [attr.aria-expanded]="isDropdownOpen"
+    [attr.aria-disabled]="isDisabled"
+    [attr.aria-label]="label || placeholder"
+    (keyup.enter)="toggleDropdown()"
+    (keyup.space)="toggleDropdown()"
+    [id]="'group-select-' + (label || '')"
+  >
+    <div class="group-select-value">
+      <span *ngIf="selectedGroup; else placeholderTpl">{{
+        selectedGroup.name
+      }}</span>
+      <ng-template #placeholderTpl>
+        <span class="placeholder">{{ placeholder }}</span>
+      </ng-template>
+    </div>
+    <div class="group-select-icon">
+      <app-icon-angle-down *ngIf="!isDropdownOpen"></app-icon-angle-down>
+      <app-icon-angle-up *ngIf="isDropdownOpen"></app-icon-angle-up>
+    </div>
+  </div>
+
+  <div
+    class="group-select-dropdown"
+    *ngIf="isDropdownOpen"
+    clickOutside
+    (clickOutside)="closeDropdown()"
+  >
+    <div class="group-tree-container">
+      <ng-container
+        *ngIf="hierarchicalTree && hierarchicalTree.length > 0; else noTree"
+      >
+        <ul class="group-tree-root">
+          <ng-container *ngFor="let node of hierarchicalTree">
+            <li class="group-tree-node">
+              <ng-container
+                *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
+              ></ng-container>
+            </li>
+          </ng-container>
+        </ul>
+      </ng-container>
+
+      <ng-template #noTree>
+        <div class="no-tree-message">Keine Gruppen verfügbar</div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<ng-template #recursiveTree let-node>
+  <div
+    class="group-tree-node-item"
+    [class.selected]="selectedGroup?.id === node.id"
+  >
+    <div
+      class="group-tree-node-indicator"
+      [style.padding-left.px]="node.depth * 20"
+    >
+      <span
+        *ngIf="hasChildren(node)"
+        class="group-tree-toggle"
+        (click)="toggleNode(node, $event)"
+        (keyup.enter)="toggleNode(node, $event)"
+        (keyup.space)="toggleNode(node, $event)"
+        tabindex="0"
+        role="button"
+        [attr.aria-expanded]="isNodeExpanded(node)"
+        [attr.aria-label]="
+          isNodeExpanded(node)
+            ? 'Untergruppen einklappen'
+            : 'Untergruppen ausklappen'
+        "
+      >
+        <app-icon-angle-down *ngIf="isNodeExpanded(node)"></app-icon-angle-down>
+        <app-icon-angle-right
+          *ngIf="!isNodeExpanded(node)"
+        ></app-icon-angle-right>
+      </span>
+      <span
+        *ngIf="!hasChildren(node)"
+        class="group-tree-toggle-placeholder"
+      ></span>
+    </div>
+
+    <!-- Option Button to select this group -->
+    <div
+      class="group-option-button"
+      (click)="selectGroup(node, $event)"
+      (keyup.enter)="selectGroup(node, $event)"
+      (keyup.space)="selectGroup(node, $event)"
+      tabindex="0"
+      role="option"
+      [attr.aria-selected]="selectedGroup?.id === node.id"
+      [attr.aria-label]="'Gruppe ' + node.name + ' auswählen'"
+      [title]="node.description || ''"
+    >
+      <div
+        class="option-circle"
+        [class.selected]="selectedGroup?.id === node.id"
+      ></div>
+    </div>
+
+    <!-- Node Content -->
+    <div
+      class="group-tree-node-content"
+      (click)="selectGroup(node, $event)"
+      (keyup.enter)="selectGroup(node, $event)"
+      (keyup.space)="selectGroup(node, $event)"
+      tabindex="0"
+      role="option"
+      [attr.aria-selected]="selectedGroup?.id === node.id"
+      [attr.aria-label]="'Gruppe ' + node.name + ' auswählen'"
+      [title]="node.description || ''"
+    >
+      <span class="group-tree-node-name">{{ node.name }}</span>
+    </div>
+  </div>
+
+  <!-- Kinder des Knotens -->
+  <div
+    *ngIf="hasChildren(node) && isNodeExpanded(node)"
+    class="group-tree-children"
+  >
+    <ul>
+      <li *ngFor="let child of node.children" class="group-tree-node">
+        <ng-container
+          *ngTemplateOutlet="recursiveTree; context: { $implicit: child }"
+        ></ng-container>
+      </li>
+    </ul>
+  </div>
+</ng-template>

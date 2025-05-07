@@ -63,7 +63,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Verzögerung hinzufügen, um sicherzustellen, dass alle Daten geladen sind
+    // Add delay to ensure that all data is loaded
     setTimeout(() => {
       if (this.hierarchicalTree) {
         this.debugTreeStructure(this.hierarchicalTree);

@@ -65,13 +65,13 @@ export class DataGroupService {
     }
 
     return this.httpClient
-      .get<IGroupTree>(`${environment.baseUrl}GroupTrees/tree`, { params })
+      .get<IGroupTree>(`${environment.baseUrl}Groups/tree`, { params })
       .pipe(retry(3), catchError(this.handleError));
   }
 
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient
-      .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
+      .get<IGroup[]>(`${environment.baseUrl}Groups/path/${id}`)
       .pipe(retry(3), catchError(this.handleError));
   }
 
@@ -79,7 +79,7 @@ export class DataGroupService {
     let params = new HttpParams().set('newParentId', newParentId);
 
     return this.httpClient
-      .post<IGroup>(`${environment.baseUrl}GroupTrees/move/${id}`, null, {
+      .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {
         params,
       })
       .pipe(retry(3), catchError(this.handleError));

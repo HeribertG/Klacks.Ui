@@ -40,7 +40,7 @@ export class Group implements IGroup {
   rgt: number = 0;
   depth: number = 0;
   clientsCount: number = 0;
-  children: IGroup[] = [];
+  children: Group[] = [];
   clientIds?: string[] = [];
   groupItems: GroupItem[] = [];
 
