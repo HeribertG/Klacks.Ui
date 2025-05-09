@@ -29,9 +29,19 @@ export class DataManagementSwitchboardService {
   public isSavedOrReset = false;
 
   private _nameOfVisibleEntity = '';
+  private _isSearchVisible: boolean = true;
 
   constructor() {
     this.readSignals();
+  }
+
+  public get isSearchVisible(): boolean {
+    return this._isSearchVisible;
+  }
+
+  public set isSearchVisible(value: boolean) {
+    this._isSearchVisible = value;
+    this.isFocusChanged.set(true);
   }
 
   public showProgressSpinner(value: boolean): void {
@@ -44,6 +54,11 @@ export class DataManagementSwitchboardService {
   public set nameOfVisibleEntity(value: string) {
     this.lastNameOfVisibleEntity = this._nameOfVisibleEntity;
     this._nameOfVisibleEntity = value;
+    switch (this.nameOfVisibleEntity) {
+      case 'DataManagementGroupService':
+        this._isSearchVisible = false;
+    }
+
     this.isFocusChanged.set(true);
   }
 

@@ -443,5 +443,6 @@
   "group.select.select": "Gruppe auswählen",
   "group.select.expand": "Alle ausklappen",
   "group.select.collapse": "Alle einklappen",
-  "group.select.no-groups": "Keine Gruppen verfügbar"
+  "group.select.no-groups": "Keine Gruppen verfügbar",
+  "group.select.all-groups": "Alle Gruppen"
 }

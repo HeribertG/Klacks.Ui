@@ -23,13 +23,19 @@
     [id]="'group-select-' + (label || '')"
   >
     <div class="group-select-value">
-      <span *ngIf="selectedGroup; else placeholderTpl">{{
+      <!-- Anzeige des ausgewählten Elements oder 'Alle Gruppen' -->
+      <span *ngIf="selectedGroup; else allOrPlaceholderTpl">{{
         selectedGroup.name
       }}</span>
-      <ng-template #placeholderTpl>
-        <span class="placeholder">{{
-          translate.instant("group.select.select")
-        }}</span>
+      <ng-template #allOrPlaceholderTpl>
+        <span *ngIf="selectedGroupId === ALL_GROUPS_ID; else placeholderTpl">
+          {{ translate.instant("group.select.all-groups") }}
+        </span>
+        <ng-template #placeholderTpl>
+          <span class="placeholder">{{
+            translate.instant("group.select.select")
+          }}</span>
+        </ng-template>
       </ng-template>
     </div>
     <div class="group-select-icon">
@@ -45,15 +51,58 @@
     (clickOutside)="closeDropdown()"
   >
     <div class="group-tree-container">
-      <ng-container
-        *ngIf="hierarchicalTree && hierarchicalTree.length > 0; else noTree"
-      >
+      <ng-container *ngIf="displayTree && displayTree.length > 0; else noTree">
         <ul class="group-tree-root">
-          <ng-container *ngFor="let node of hierarchicalTree">
+          <!-- Durchlaufen des angezeigten Baums (inkl. "Alle Gruppen") -->
+          <ng-container *ngFor="let node of displayTree">
             <li class="group-tree-node">
-              <ng-container
-                *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
-              ></ng-container>
+              <!-- Virtuelle "Alle Gruppen"-Option -->
+              <div
+                *ngIf="isVirtualGroup(node)"
+                class="group-tree-node-item all-groups-option"
+                [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+                (click)="selectGroup(node, $event)"
+              >
+                <div
+                  class="group-tree-node-indicator"
+                  [style.padding-left.px]="0"
+                >
+                  <span class="group-tree-toggle-placeholder"></span>
+                </div>
+
+                <div
+                  class="group-option-button"
+                  tabindex="0"
+                  role="option"
+                  [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+                  [attr.aria-label]="'Select all groups'"
+                >
+                  <div
+                    class="option-circle"
+                    [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+                  ></div>
+                </div>
+
+                <div
+                  class="group-tree-node-content"
+                  tabindex="0"
+                  role="option"
+                  [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+                  [attr.aria-label]="'Select all groups'"
+                >
+                  <span class="group-tree-node-name">{{ node.name }}</span>
+                </div>
+              </div>
+
+              <!-- Normale Gruppenknoten -->
+              <ng-container *ngIf="isRealGroup(node)">
+                <ng-container
+                  *ngTemplateOutlet="
+                    recursiveTree;
+                    context: { $implicit: node }
+                  "
+                ></ng-container>
+              </ng-container>
             </li>
           </ng-container>
         </ul>

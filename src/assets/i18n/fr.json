@@ -442,5 +442,6 @@
   "group.all.tree": "Afficher la vue en arbre",
   "group.select.select": "Sélectionner un groupe",
   "group.select.expand": "Tout déplier",
-  "group.select.collapse": "Tout replier"
+  "group.select.collapse": "Tout replier",
+  "group.select.all-groups": "Tous les groupes"
 }

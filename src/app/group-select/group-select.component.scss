@@ -10,8 +10,8 @@
 .group-select-label {
   display: block;
   margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--gridColorText);
 
   .required-marker {
@@ -54,7 +54,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 14px;
+    font-size: 13px;
+    font-weight: 600;
 
     .placeholder {
       color: var(--gridColorText);
@@ -196,4 +197,24 @@
 
 app-icon-refresh-grey {
   margin-right: 30px;
+}
+
+.all-groups-option {
+  font-weight: 600;
+  background-color: var(--backgroundOption);
+  border-bottom: 1px solid var(--cardBorderColor);
+  margin-bottom: 5px;
+  padding-bottom: 8px;
+
+  .group-tree-node-name {
+    color: var(--primary);
+  }
+
+  &:hover {
+    background-color: var(--gridBackgroundColorRowHover) !important;
+  }
+
+  &.selected {
+    background-color: var(--backgroundColorFocus) !important;
+  }
 }

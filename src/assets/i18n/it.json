@@ -442,5 +442,6 @@
   "group.all.tree": "Mostra vista ad albero",
   "group.select.select": "Seleziona gruppo",
   "group.select.expand": "Espandi tutto",
-  "group.select.collapse": "Comprimi tutto"
+  "group.select.collapse": "Comprimi tutto",
+  "group.select.all-groups": "Tutti i gruppi"
 }

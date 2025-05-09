@@ -442,5 +442,6 @@
   "group.all.tree": "Show tree view",
   "group.select.select": "Select group",
   "group.select.expand": "Expand All",
-  "group.select.collapse": "Collapse All"
+  "group.select.collapse": "Collapse All",
+  "group.select.all-groups": "All groups"
 }
