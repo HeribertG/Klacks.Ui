@@ -436,5 +436,11 @@
   "group.edit-group.edit-group-parent.select-parent": "Sélectionner le Groupe Parent",
   "group.edit-group.edit-group-parent.no-parent": "Pas de groupe parent (Groupe racine)",
   "group.edit-group.edit-group-parent.current-path": "Chemin Actuel",
-  "group.groups-home.title": "Groupes"
+  "group.groups-home.title": "Groupes",
+  "group.tree.refresh": "Rafraîchir",
+  "group.all.grid": "Afficher la vue en grille",
+  "group.all.tree": "Afficher la vue en arbre",
+  "group.select.select": "Sélectionner un groupe",
+  "group.select.expand": "Tout déplier",
+  "group.select.collapse": "Tout replier"
 }

@@ -15,7 +15,10 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbPaginationModule,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/core/client-class';
@@ -50,6 +53,7 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
   imports: [
     CommonModule,
     FormsModule,
+    NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,
     PencilIconGreyComponent,

@@ -4,7 +4,8 @@ import { Component, OnInit } from '@angular/core';
   selector: 'app-icon-eye-grey',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
-    fill="rgb(182,182, 195)"
+    fill="var(--iconBlackColor)"
+    opacity="0.4"
     height="20px"
     width="20px"
     version="1.1"

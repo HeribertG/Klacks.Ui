@@ -436,5 +436,12 @@
   "group.edit-group.edit-group-parent.select-parent": "Übergeordnete Gruppe auswählen",
   "group.edit-group.edit-group-parent.no-parent": "Keine übergeordnete Gruppe (Wurzelgruppe)",
   "group.edit-group.edit-group-parent.current-path": "Aktueller Pfad",
-  "group.groups-home.title": "Gruppen"
+  "group.groups-home.title": "Gruppen",
+  "group.tree.refresh": "Aktualisieren",
+  "group.all.grid": "Zeige Tabellenansicht",
+  "group.all.tree": "Zeige Baumansicht",
+  "group.select.select": "Gruppe auswählen",
+  "group.select.expand": "Alle ausklappen",
+  "group.select.collapse": "Alle einklappen",
+  "group.select.no-groups": "Keine Gruppen verfügbar"
 }

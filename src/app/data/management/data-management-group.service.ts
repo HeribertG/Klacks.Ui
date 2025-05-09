@@ -438,9 +438,6 @@ export class DataManagementGroupService {
     this.navigationService.navigateToGroupTree();
   }
 
-  /**
-   * Initialisiert den Gruppenbaum - direkt über HTTP API
-   */
   initTree(rootId?: string) {
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
     setTimeout(() => this.showProgressSpinner.set(true), 0);
@@ -471,9 +468,6 @@ export class DataManagementGroupService {
     });
   }
 
-  /**
-   * Holt den Pfad zu einem Knoten - direkt über HTTP API
-   */
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient
       .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
@@ -485,9 +479,6 @@ export class DataManagementGroupService {
       );
   }
 
-  /**
-   * Verschiebt einen Knoten - direkt über HTTP API
-   */
   moveGroup(id: string, newParentId: string) {
     this.showProgressSpinner.set(true);
 
@@ -515,22 +506,27 @@ export class DataManagementGroupService {
       });
   }
 
-  /**
-   * Markiert einen Knoten als ausgewählt
-   */
   selectNode(node: Group) {
     this.selectedNode = node;
   }
 
-  /**
-   * Schaltet einen Knoten zwischen expandiert und kollabiert um
-   */
   toggleNodeExpansion(node: Group) {
     if (this.expandedNodes.has(node.id!)) {
       this.expandedNodes.delete(node.id!);
     } else {
       this.expandedNodes.add(node.id!);
     }
+  }
+
+  refreshTree() {
+    this.dataGroupService.getRefreshTree().subscribe({
+      next: () => {
+        this.initTree();
+      },
+      error: (error) => {
+        this.showError(error, 'RefreshGroupTreeError');
+      },
+    });
   }
 
   /**
@@ -562,5 +558,14 @@ export class DataManagementGroupService {
     return result;
   }
 
+  expandNode(node: Group): void {
+    if (node.id) {
+      this.expandedNodes.add(node.id);
+    }
+  }
+
+  collapseAllNodes(): void {
+    this.expandedNodes.clear();
+  }
   /* #endregion   Tree Group */
 }

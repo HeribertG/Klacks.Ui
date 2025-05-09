@@ -436,5 +436,11 @@
   "group.edit-group.edit-group-parent.select-parent": "Select Parent Group",
   "group.edit-group.edit-group-parent.no-parent": "No parent group (Root group)",
   "group.edit-group.edit-group-parent.current-path": "Current Path",
-  "group.groups-home.title": "Groups"
+  "group.groups-home.title": "Groups",
+  "group.tree.refresh": "Refresh",
+  "group.all.grid": "Show grid view",
+  "group.all.tree": "Show tree view",
+  "group.select.select": "Select group",
+  "group.select.expand": "Expand All",
+  "group.select.collapse": "Collapse All"
 }

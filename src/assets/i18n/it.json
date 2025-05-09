@@ -436,5 +436,11 @@
   "group.edit-group.edit-group-parent.select-parent": "Seleziona Gruppo Genitore",
   "group.edit-group.edit-group-parent.no-parent": "Nessun gruppo genitore (Gruppo radice)",
   "group.edit-group.edit-group-parent.current-path": "Percorso Attuale",
-  "group.groups-home.title": "Gruppi"
+  "group.groups-home.title": "Gruppi",
+  "group.tree.refresh": "Aggiorna",
+  "group.all.grid": "Mostra vista a griglia",
+  "group.all.tree": "Mostra vista ad albero",
+  "group.select.select": "Seleziona gruppo",
+  "group.select.expand": "Espandi tutto",
+  "group.select.collapse": "Comprimi tutto"
 }

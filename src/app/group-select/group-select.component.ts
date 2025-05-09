@@ -14,13 +14,12 @@ import {
   effect,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 
 @Component({
   selector: 'app-group-select',
@@ -45,13 +44,13 @@ import { ClickOutsideDirective } from 'src/app/directives/click-outside.directiv
 export class GroupSelectComponent
   implements OnInit, OnDestroy, ControlValueAccessor
 {
-  @Input() placeholder = 'Gruppe auswählen';
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  private injector = inject(Injector);
+  public translate = inject(TranslateService);
+
   @Input() label?: string;
   @Input() required = false;
   @Output() groupSelected = new EventEmitter<Group>();
-
-  public dataManagementGroupService = inject(DataManagementGroupService);
-  private injector = inject(Injector);
 
   hierarchicalTree: Group[] = [];
   isDropdownOpen = false;
@@ -61,17 +60,13 @@ export class GroupSelectComponent
   isDisabled = false;
   private effectRef: EffectRef | null = null;
 
-  // ControlValueAccessor methods
   private onChange: any = () => {};
   private onTouched: any = () => {};
 
   ngOnInit(): void {
-    console.log('GroupSelectComponent initialisiert');
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
 
-    // Wir verwenden den effect-Mechanismus, der in deiner TreeGroupComponent
-    // bereits funktioniert
     this.setupEffect();
   }
 
@@ -87,7 +82,6 @@ export class GroupSelectComponent
       this.effectRef = runInInjectionContext(this.injector, () => {
         return effect(() => {
           if (this.dataManagementGroupService.isRead()) {
-            console.log('Daten wurden geladen, Baum wird aufgebaut...');
             this.buildHierarchicalTree();
           }
         });
@@ -99,15 +93,9 @@ export class GroupSelectComponent
 
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
-      console.log('Baum gefunden:', this.dataManagementGroupService.groupTree);
       setTimeout(() => {
         this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
-        console.log(
-          'Hierarchischer Baum nach Zuweisung:',
-          this.hierarchicalTree
-        );
 
-        // Wenn eine Group bereits ausgewählt war, finden wir sie in der neuen Baumstruktur
         if (this.selectedGroupId) {
           this.findAndSelectGroup(this.selectedGroupId, this.hierarchicalTree);
         }
@@ -161,9 +149,7 @@ export class GroupSelectComponent
     this.closeDropdown();
   }
 
-  // ControlValueAccessor Interface Implementation
   writeValue(value: string): void {
-    console.log('writeValue aufgerufen mit:', value);
     this.selectedGroupId = value;
     if (value && this.hierarchicalTree.length > 0) {
       this.findAndSelectGroup(value, this.hierarchicalTree);

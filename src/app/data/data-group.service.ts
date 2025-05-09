@@ -85,6 +85,12 @@ export class DataGroupService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  getRefreshTree(): Observable<void> {
+    return this.httpClient
+      .get<void>(`${environment.baseUrl}Groups/refresh`)
+      .pipe(retry(3), catchError(this.handleError));
+  }
+
   setCorrectDate(value: IGroup): void {
     if (isNgbDateStructOk(value!.internalValidFrom)) {
       value.validFrom = dateWithLocalTimeCorrection(

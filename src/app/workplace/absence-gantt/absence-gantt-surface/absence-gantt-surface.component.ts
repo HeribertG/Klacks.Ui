@@ -295,17 +295,8 @@ export class AbsenceGanttSurfaceComponent
         this.drawCalendarGantt.selectedBreakRec &&
         !this.drawCalendarGantt.selectedBreakRec.isEmpty()
       ) {
-        console.debug(
-          'Selected break rect:',
-          this.drawCalendarGantt.selectedBreakRec.left,
-          this.drawCalendarGantt.selectedBreakRec.top,
-          this.drawCalendarGantt.selectedBreakRec.width,
-          this.drawCalendarGantt.selectedBreakRec.height
-        );
-
         switch (this.selectedArea) {
           case SelectedArea.LeftAnchor:
-            // The left anchor (start of the break) is moved here
             const leftDiffDay = this.drawCalendarGantt.calcX2Column(x);
 
             if (this.drawCalendarGantt.selectedBreak) {
@@ -313,12 +304,7 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.startDate,
                 leftDiffDay
               );
-              console.debug(
-                'New from date:',
-                this.drawCalendarGantt.selectedBreak.from
-              );
 
-              // Make sure that from is not located until
               if (
                 equalDate(
                   this.drawCalendarGantt.selectedBreak.from!,
@@ -337,7 +323,6 @@ export class AbsenceGanttSurfaceComponent
             break;
 
           case SelectedArea.RightAnchor:
-            // The right-hand anchor (end of the break) is moved here
             const rightDiffDay = this.drawCalendarGantt.calcX2Column(x);
 
             if (this.drawCalendarGantt.selectedBreak) {
@@ -345,12 +330,7 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.startDate,
                 rightDiffDay
               );
-              console.debug(
-                'New until date:',
-                this.drawCalendarGantt.selectedBreak.until
-              );
 
-              // Make sure that until is not in front of from
               if (
                 equalDate(
                   this.drawCalendarGantt.selectedBreak.until!,

@@ -15,6 +15,9 @@
       role="button"
       aria-label="tree"
       (click)="onClickToggle()"
+      placement="top"
+      ngbTooltip="{{ 'group.all.tree' | translate }}"
+      autoClose="true"
     >
       <app-icon-tree></app-icon-tree>
     </div>

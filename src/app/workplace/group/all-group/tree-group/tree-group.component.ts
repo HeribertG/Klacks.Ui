@@ -12,14 +12,18 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { IconAddComponent } from 'src/app/icons/icon-add.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { IconCollapseAllGreyComponent } from 'src/app/icons/icon-collapse-all-grey.component';
+import { IconExpandAllGreyComponent } from 'src/app/icons/icon-expand-all-grey.component';
 import { IconEyeGreyComponent } from 'src/app/icons/icon-eye.component';
 import { IconGridComponent } from 'src/app/icons/icon-grid.component';
+import { IconRefreshGreyComponent } from 'src/app/icons/icon-refresh-grey.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
@@ -34,6 +38,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
   imports: [
     CommonModule,
     TranslateModule,
+    NgbTooltipModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
     TrashIconRedComponent,
@@ -41,6 +46,9 @@ import { NavigationService } from 'src/app/services/navigation.service';
     IconAddComponent,
     IconGridComponent,
     IconEyeGreyComponent,
+    IconRefreshGreyComponent,
+    IconCollapseAllGreyComponent,
+    IconExpandAllGreyComponent,
   ],
 })
 export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -82,14 +90,23 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.switchToGrid.emit();
   }
 
-  /**
-   * Verwendet die vom Backend gelieferte hierarchische Struktur
-   */
+  onClickRefresh() {
+    if (this.dataManagementGroupService.groupTree) {
+      this.dataManagementGroupService.refreshTree();
+    }
+  }
+
+  onClickExpand() {
+    this.expandAllNodes();
+  }
+
+  onClickCollapse() {
+    this.collapseAllNodes();
+  }
+
   buildHierarchicalTree(): void {
     if (this.dataManagementGroupService.groupTree) {
       setTimeout(() => {
-        // Da das Backend bereits die hierarchische Struktur liefert,
-        // können wir die Nodes direkt verwenden
         this.hierarchicalTree = this.dataManagementGroupService.groupTree.nodes;
         this.debugTreeStructure(this.hierarchicalTree);
       }, 0);
@@ -102,7 +119,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     nodes.forEach((node) => {
-      // Wir brauchen die lft/rgt Werte nicht mehr zu debuggen
       if (
         node.children &&
         Array.isArray(node.children) &&
@@ -113,9 +129,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  /**
-   * Prüft, ob ein Knoten Kinder hat
-   */
   hasChildren(node: any): boolean {
     return (
       node &&
@@ -125,59 +138,35 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  /**
-   * Prüft, ob ein Knoten ausgewählt ist
-   */
   isNodeSelected(node: Group): boolean {
     return this.dataManagementGroupService.selectedNode?.id === node.id;
   }
 
-  /**
-   * Prüft, ob ein Knoten expandiert ist
-   */
   isNodeExpanded(node: Group): boolean {
     return this.dataManagementGroupService.expandedNodes.has(node.id!);
   }
 
-  /**
-   * Wählt einen Knoten aus
-   */
   selectNode(node: Group): void {
     this.dataManagementGroupService.selectNode(node);
   }
 
-  /**
-   * Schaltet einen Knoten zwischen expandiert und kollabiert um
-   */
   toggleNode(node: Group): void {
     this.dataManagementGroupService.toggleNodeExpansion(node);
   }
 
-  /**
-   * Öffnet die Bearbeitungsansicht für einen Knoten
-   */
   editNode(node: IGroup): void {
     this.dataManagementGroupService.prepareGroup(node);
     this.navigationService.navigateToEditGroup();
   }
 
-  /**
-   * Fügt einen neuen Knoten als Kind des ausgewählten Knotens hinzu
-   */
   addChildNode(parentNode: Group): void {
     this.dataManagementGroupService.createGroup(parentNode.id);
   }
 
-  /**
-   * Fügt einen neuen Wurzelknoten hinzu
-   */
   onAddRootGroup(): void {
     this.dataManagementGroupService.createGroup();
   }
 
-  /**
-   * Löscht einen Knoten
-   */
   deleteNode(node: Group): void {
     this.modalService.deleteMessageTitle =
       'group.tree.delete-confirmation.title';
@@ -190,11 +179,34 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const subscription = this.modalService.resultEvent.subscribe((type) => {
       if (type === ModalType.Delete) {
-        // Direkt den Service verwenden, der nun selbst den Baum aktualisiert
         this.dataManagementGroupService.deleteGroup(node.id!).subscribe();
       }
       subscription.unsubscribe();
     });
+  }
+
+  expandAllNodes(): void {
+    if (this.hierarchicalTree && this.hierarchicalTree.length > 0) {
+      const expandNodes = (nodes: Group[]) => {
+        for (const node of nodes) {
+          if (node.id) {
+            this.dataManagementGroupService.expandNode(node);
+          }
+
+          if (node.children && node.children.length > 0) {
+            expandNodes(node.children);
+          }
+        }
+      };
+
+      expandNodes(this.hierarchicalTree);
+    }
+  }
+
+  private collapseAllNodes(): void {
+    if (this.hierarchicalTree && this.hierarchicalTree.length > 0) {
+      this.dataManagementGroupService.collapseAllNodes();
+    }
   }
 
   private readSignals(): void {

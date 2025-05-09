@@ -17,7 +17,7 @@
     role="combobox"
     [attr.aria-expanded]="isDropdownOpen"
     [attr.aria-disabled]="isDisabled"
-    [attr.aria-label]="label || placeholder"
+    [attr.aria-label]="label || 'Select group'"
     (keyup.enter)="toggleDropdown()"
     (keyup.space)="toggleDropdown()"
     [id]="'group-select-' + (label || '')"
@@ -27,7 +27,9 @@
         selectedGroup.name
       }}</span>
       <ng-template #placeholderTpl>
-        <span class="placeholder">{{ placeholder }}</span>
+        <span class="placeholder">{{
+          translate.instant("group.select.select")
+        }}</span>
       </ng-template>
     </div>
     <div class="group-select-icon">
@@ -58,7 +60,9 @@
       </ng-container>
 
       <ng-template #noTree>
-        <div class="no-tree-message">Keine Gruppen verfügbar</div>
+        <div class="no-tree-message">
+          {{ translate.instant("group.select.no-groups") }}
+        </div>
       </ng-template>
     </div>
   </div>
@@ -83,9 +87,7 @@
         role="button"
         [attr.aria-expanded]="isNodeExpanded(node)"
         [attr.aria-label]="
-          isNodeExpanded(node)
-            ? 'Untergruppen einklappen'
-            : 'Untergruppen ausklappen'
+          isNodeExpanded(node) ? 'Collapse subgroups' : 'Expand subgroups'
         "
       >
         <app-icon-angle-down *ngIf="isNodeExpanded(node)"></app-icon-angle-down>
@@ -108,7 +110,7 @@
       tabindex="0"
       role="option"
       [attr.aria-selected]="selectedGroup?.id === node.id"
-      [attr.aria-label]="'Gruppe ' + node.name + ' auswählen'"
+      [attr.aria-label]="'Select group ' + node.name"
       [title]="node.description || ''"
     >
       <div
@@ -126,7 +128,7 @@
       tabindex="0"
       role="option"
       [attr.aria-selected]="selectedGroup?.id === node.id"
-      [attr.aria-label]="'Gruppe ' + node.name + ' auswählen'"
+      [attr.aria-label]="'Select group ' + node.name"
       [title]="node.description || ''"
     >
       <span class="group-tree-node-name">{{ node.name }}</span>
