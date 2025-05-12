@@ -43,6 +43,7 @@ import {
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { GroupSelectionService } from './group-selection.service';
 
 @Injectable({
   providedIn: 'root',
@@ -126,7 +127,6 @@ export class DataManagementClientService {
       })
         .pipe(
           tap((results) => {
-            // Verarbeiten Sie hier die Ergebnisse
             this.processStateTokens(results.stateTokens);
             this.processCountries(results.countries);
             this.processCommunicationTypes(results.communicationTypes);

@@ -31,6 +31,7 @@ import { EmailSettingComponent } from '../email-setting/email-setting.component'
 import { GridColorComponent } from '../grid-color/grid-color.component';
 import { MacrosComponent } from '../macros/macros.component';
 import { UserAdministrationComponent } from '../user-administration/user-administration.component';
+import { GroupScopeComponent } from '../group-scope/group-scope.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -55,6 +56,7 @@ import { UserAdministrationComponent } from '../user-administration/user-adminis
     GridColorComponent,
     MacrosComponent,
     UserAdministrationComponent,
+    GroupScopeComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {

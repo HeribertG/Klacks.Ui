@@ -123,6 +123,7 @@ export interface IGroupFilter extends IBaseFilter {
   activeDateRange: boolean;
   formerDateRange: boolean;
   futureDateRange: boolean;
+  selectedGroup: string | undefined;
 }
 
 export class GroupFilter extends BaseFilter implements IGroupFilter {
@@ -139,6 +140,8 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
 
   override orderBy: string = 'name';
   override sortOrder: string = 'asc';
+
+  selectedGroup: string | undefined = undefined;
 
   setEmpty(): void {
     this.activeDateRange = true;

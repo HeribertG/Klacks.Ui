@@ -22,6 +22,7 @@ import {
 } from 'src/app/core/headerProperties';
 import { DataClientService } from 'src/app/data/data-client.service';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+import { GroupSelectionService } from 'src/app/data/management/group-selection.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
@@ -50,6 +51,7 @@ export class EditGroupMembersComponent
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastService = inject(ToastService);
+  public groupSelectionService = inject(GroupSelectionService);
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);

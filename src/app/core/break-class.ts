@@ -45,6 +45,7 @@ export interface IBreakFilter {
   search: string | undefined;
   orderBy: string | undefined;
   sortOrder: string | undefined;
+  selectedGroup: string | undefined;
 }
 
 export class BreakFilter implements IBreakFilter {
@@ -53,4 +54,5 @@ export class BreakFilter implements IBreakFilter {
   search = undefined;
   orderBy = 'name';
   sortOrder = 'asc';
+  selectedGroup: string | undefined = undefined;
 }

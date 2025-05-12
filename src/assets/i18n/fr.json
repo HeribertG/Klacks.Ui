@@ -425,6 +425,8 @@
   "shift.edit-shift.weekday.time-range": "Service dans la plage horaire (Heure de Début hh:mm Heure de Fin hh:mm). Veuillez indiquer la durée du service dans le champ Durée.",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
+  "shift.all-shift.all-shift-home.header": "Dienste",
+
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",
   "group.tree.no-groups": "Aucun groupe trouvé",

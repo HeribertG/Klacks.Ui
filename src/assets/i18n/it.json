@@ -425,6 +425,8 @@
   "shift.edit-shift.weekday.time-range": "Servizio all'interno dell'intervallo temporale (Dall'Or hh:mm All'Ora hh:mm). Si prega di specificare la durata del servizio nel campo Durata.",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
+  "shift.all-shift.all-shift-home.header": "Dienste",
+
   "group.tree.headline": "Struttura del Gruppo",
   "group.tree.add-root": "+ Nuovo Gruppo Radice",
   "group.tree.no-groups": "Nessun gruppo trovato",

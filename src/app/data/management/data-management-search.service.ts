@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { DataManagementSwitchboardService } from './data-management-switchboard.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
@@ -8,14 +8,12 @@ import { DataManagementGroupService } from './data-management-group.service';
   providedIn: 'root',
 })
 export class DataManagementSearchService {
-  private _restoreSearch = signal('');
+  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementClient = inject(DataManagementClientService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementGroup = inject(DataManagementGroupService);
 
-  constructor(
-    private dataManagementSwitchboard: DataManagementSwitchboardService,
-    private dataManagementClient: DataManagementClientService,
-    private dataManagementBreak: DataManagementBreakService,
-    private dataManagementGroup: DataManagementGroupService
-  ) {}
+  private _restoreSearch = signal('');
 
   public globalSearch(value: string, isIncludeAddress: boolean = false): void {
     this._restoreSearch.set(value);

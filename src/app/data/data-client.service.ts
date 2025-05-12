@@ -19,7 +19,6 @@ import {
   dateWithLocalTimeCorrection,
 } from '../helpers/format-helper';
 import { StateCountryToken } from '../core/calendar-rule-class';
-import { GenderEnum } from '../helpers/enums/client-enum';
 
 @Injectable({
   providedIn: 'root',

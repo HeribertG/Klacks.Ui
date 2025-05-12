@@ -425,6 +425,8 @@
   "shift.edit-shift.weekday.time-range": "Service within the time frame (From Time hh:mm - Until Time hh:mm). Please specify the duration of the service in the Duration field.",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
+  "shift.all-shift.all-shift-home.header": "Dienste",
+
   "group.tree.headline": "Group Structure",
   "group.tree.add-root": "+ New Root Group",
   "group.tree.no-groups": "No groups found",

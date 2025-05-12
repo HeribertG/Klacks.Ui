@@ -78,6 +78,8 @@ export interface IFilter extends IBaseFilter {
 
   list: StateCountryToken[];
   filteredStateToken: StateCountryToken[];
+
+  selectedGroup: string | undefined;
 }
 
 export interface ITruncatedFilter {
@@ -305,6 +307,8 @@ export class Filter extends BaseFilter implements IFilter {
 
   list: StateCountryToken[] = [];
   filteredStateToken: StateCountryToken[] = [];
+
+  selectedGroup: string | undefined = undefined;
 
   emptyPlaceholder(): boolean {
     return (
