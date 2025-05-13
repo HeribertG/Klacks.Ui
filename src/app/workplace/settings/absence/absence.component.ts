@@ -93,12 +93,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   // Clean up resources
   private ngUnsubscribe = new Subject<void>();
 
-  constructor() {
-    console.log('AbsenceComponent: Konstruktor aufgerufen');
-  }
-
   ngOnInit(): void {
-    console.log('AbsenceComponent: ngOnInit aufgerufen');
     this.currentLang = this.translate.currentLang as Language;
     this.reReadSortData();
     this.readPage();
