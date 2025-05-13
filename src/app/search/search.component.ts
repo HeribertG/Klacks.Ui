@@ -34,7 +34,22 @@ export class SearchComponent {
     private dataManagementSearch: DataManagementSearchService,
     private cdr: ChangeDetectorRef
   ) {
-    this.readSignals();
+    effect(() => {
+      const restored = this.dataManagementSearch.restoreSearch();
+      if (restored) {
+        this.searchString = restored;
+        this.cdr.detectChanges();
+      }
+    });
+
+    effect(() => {
+      const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
+
+      if (focusChanged) {
+        this.handleFocusChange();
+        this.dataManagementSwitchboard.isFocusChanged.set(false);
+      }
+    });
   }
 
   onClickSearch() {
@@ -70,24 +85,5 @@ export class SearchComponent {
       'DataManagementClientService';
     this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
-  }
-
-  private readSignals(): void {
-    effect(() => {
-      const restored = this.dataManagementSearch.restoreSearch();
-      if (restored) {
-        this.searchString = restored;
-        this.cdr.detectChanges();
-      }
-    });
-
-    effect(() => {
-      const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
-
-      if (focusChanged) {
-        this.handleFocusChange();
-        this.dataManagementSwitchboard.isFocusChanged.set(false);
-      }
-    });
   }
 }

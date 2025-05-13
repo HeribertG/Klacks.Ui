@@ -2,6 +2,7 @@ import { DatePipe, NgClass, NgFor } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  EffectRef,
   Input,
   OnDestroy,
   OnInit,
@@ -35,7 +36,6 @@ export class AbsenceGanttGridComponent
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
   private tmplateArrowUndefined = '↕';
-  private ngUnsubscribe = new Subject<void>();
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
@@ -44,6 +44,9 @@ export class AbsenceGanttGridComponent
   arrowFrom = '';
   arrowUntil = '';
   arrowAbsence = '';
+
+  private ngUnsubscribe = new Subject<void>();
+  private effectRef: EffectRef | null = null;
 
   fromHeader: HeaderProperties = new HeaderProperties();
   untilHeader: HeaderProperties = new HeaderProperties();
@@ -77,6 +80,11 @@ export class AbsenceGanttGridComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
+    }
   }
 
   onAbsenceName(value: IBreak): string {
@@ -203,7 +211,7 @@ export class AbsenceGanttGridComponent
   /* #endregion   header */
 
   private readSignals(): void {
-    effect(() => {
+    this.effectRef = effect(() => {
       const isReset = this.dataManagementAbsence.isReset();
       if (isReset) {
         this.absence = this.dataManagementAbsence.absenceList;

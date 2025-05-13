@@ -1,4 +1,4 @@
-import { Injectable, effect, inject, signal } from '@angular/core';
+import { EffectRef, Injectable, effect, inject, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
@@ -121,8 +121,16 @@ export class DataManagementSettingsService {
 
   public isDirty = false;
 
+  private effectRef: EffectRef | null = null;
+
   constructor() {
-    this.readSignals();
+    effect(() => {
+      const isReset = this.gridColorService.isReset();
+      if (isReset) {
+        this.isReset.set(true);
+        this.gridColorService.isReset.set(false);
+      }
+    });
   }
 
   /* #region  UserAdministration */
@@ -1140,15 +1148,5 @@ export class DataManagementSettingsService {
     const isNotEmpty = value.de! + value.en! + value.fr! + value.it!;
 
     return isNotEmpty === '';
-  }
-
-  private readSignals(): void {
-    effect(() => {
-      const isReset = this.gridColorService.isReset();
-      if (isReset) {
-        this.isReset.set(true);
-        this.gridColorService.isReset.set(false);
-      }
-    });
   }
 }

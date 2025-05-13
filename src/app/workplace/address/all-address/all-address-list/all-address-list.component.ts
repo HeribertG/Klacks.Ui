@@ -116,7 +116,7 @@ export class AllAddressListComponent
   private tmplateArrowUp = '↑';
 
   private ngUnsubscribe = new Subject<void>();
-  private effectRef: EffectRef | null = null;
+  private effects: EffectRef[] = [];
 
   ngOnInit(): void {
     this.dataManagementClientService.init();
@@ -168,10 +168,12 @@ export class AllAddressListComponent
       this.resizeWindow = undefined;
     }
 
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
   onAddAddress(): void {
@@ -619,7 +621,7 @@ export class AllAddressListComponent
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
+    const effect1 = effect(() => {
       if (this.dataManagementClientService.isRead()) {
         if (this.isFirstRead) {
           setTimeout(() => this.recalcHeight(), 100);
@@ -628,11 +630,15 @@ export class AllAddressListComponent
           this.isMeasureTable = true;
         }
       }
+    });
+    this.effects.push(effect1);
 
+    const effect2 = effect(() => {
       const initIsRead = this.dataManagementClientService.initIsRead();
       if (initIsRead) {
         this.isInit();
       }
     });
+    this.effects.push(effect2);
   }
 }

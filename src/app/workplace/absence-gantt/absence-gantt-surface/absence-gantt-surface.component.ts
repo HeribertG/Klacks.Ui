@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  EffectRef,
   ElementRef,
   EventEmitter,
   Input,
@@ -85,6 +86,7 @@ export class AbsenceGanttSurfaceComponent
 
   private resizeSubject = new Subject<void>();
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
@@ -185,6 +187,13 @@ export class AbsenceGanttSurfaceComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
 
     this.eventListeners.forEach((fn) => fn());
     this.eventListeners = [];
@@ -988,7 +997,7 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion Scroll */
 
   private readSignals(): void {
-    effect(() => {
+    const effect1 = effect(() => {
       if (this.dataManagementBreak.isRead()) {
         this.setAllScrollValues();
         this.drawCalendarGantt.setMetrics();
@@ -997,20 +1006,23 @@ export class AbsenceGanttSurfaceComponent
         this.drawCalendarGantt.drawCalendar();
       }
     });
+    this.effects.push(effect1);
 
-    effect(() => {
+    const effect2 = effect(() => {
       if (this.gridColors.isReset()) {
         this.addServicesCount();
       }
     });
+    this.effects.push(effect2);
 
-    effect(() => {
+    const effect3 = effect(() => {
       if (this.gridFonts.isReset()) {
         this.addServicesCount();
       }
     });
+    this.effects.push(effect3);
 
-    effect(() => {
+    const effect4 = effect(() => {
       if (this.holidayCollection.isReset()) {
         this.drawCalendarGantt.selectedRow = -1;
 
@@ -1019,9 +1031,9 @@ export class AbsenceGanttSurfaceComponent
         this.drawCalendarGantt.resetAll();
       }
     });
+    this.effects.push(effect4);
 
-    //Redraws the selected line
-    effect(() => {
+    const effect5 = effect(() => {
       const isUpdate = this.dataManagementBreak.isUpdate();
       if (isUpdate) {
         this.drawCalendarGantt.selectedBreakIndex =
@@ -1038,8 +1050,9 @@ export class AbsenceGanttSurfaceComponent
         this.cd.detectChanges();
       }
     });
+    this.effects.push(effect5);
 
-    effect(() => {
+    const effect6 = effect(() => {
       this.isAbsenceHeaderInit = this.dataManagementBreak.isAbsenceHeaderInit();
       if (this.isAbsenceHeaderInit) {
         this.drawCalendarGantt.selectedRow = -1;
@@ -1048,5 +1061,6 @@ export class AbsenceGanttSurfaceComponent
         this.cd.detectChanges();
       }
     });
+    this.effects.push(effect6);
   }
 }

@@ -31,8 +31,47 @@ export class DataManagementSwitchboardService {
   private _nameOfVisibleEntity = '';
   private _isSearchVisible: boolean = true;
 
+  private effects: ReturnType<typeof effect>[] = [];
+
   constructor() {
-    this.readSignals();
+    effect(() => {
+      const showSpinner =
+        this.dataManagementClientService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
+
+    effect(() => {
+      const showSpinner = this.dataManagementGroupService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
+
+    effect(() => {
+      const showSpinner =
+        this.dataManagementAbsenceService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
+
+    effect(() => {
+      const showSpinner =
+        this.dataManagementScheduleService.showProgressSpinner();
+      if (showSpinner) {
+        this.showProgressSpinner(true);
+      } else if (!showSpinner) {
+        this.showProgressSpinner(false);
+      }
+    });
   }
 
   public get isSearchVisible(): boolean {
@@ -170,45 +209,4 @@ export class DataManagementSwitchboardService {
   }
 
   refresh(): void {}
-
-  private readSignals(): void {
-    effect(() => {
-      const showSpinner =
-        this.dataManagementClientService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
-
-    effect(() => {
-      const showSpinner = this.dataManagementGroupService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
-
-    effect(() => {
-      const showSpinner =
-        this.dataManagementAbsenceService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
-
-    effect(() => {
-      const showSpinner =
-        this.dataManagementScheduleService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
-  }
 }

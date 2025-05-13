@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  EffectRef,
   ElementRef,
   Input,
   OnChanges,
@@ -51,6 +52,7 @@ export class AbsenceGanttRowHeaderComponent
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
 
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   filterStyle = {};
 
@@ -111,6 +113,13 @@ export class AbsenceGanttRowHeaderComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
 
     this.drawRowHeader.deleteCanvas();
   }
@@ -247,7 +256,7 @@ export class AbsenceGanttRowHeaderComponent
   /* #endregion Filter */
 
   private readSignals(): void {
-    effect(() => {
+    const effect1 = effect(() => {
       const isRead = this.dataManagementBreak.isRead();
       if (isRead) {
         if (!this.drawRowHeader.isCanvasAvailable()) {
@@ -259,21 +268,24 @@ export class AbsenceGanttRowHeaderComponent
         this.drawRowHeader.drawCalendar();
       }
     });
+    this.effects.push(effect1);
 
-    effect(() => {
+    const effect2 = effect(() => {
       const isReset = this.gridColorService.isReset();
       if (isReset) {
         this.onResize([]);
         this.gridColorService.isReset.set(false);
       }
     });
+    this.effects.push(effect2);
 
-    effect(() => {
+    const effect3 = effect(() => {
       const isReset = this.gridFontsService.isReset();
       if (isReset) {
         this.onResize([]);
         this.gridColorService.isReset.set(false);
       }
     });
+    this.effects.push(effect3);
   }
 }

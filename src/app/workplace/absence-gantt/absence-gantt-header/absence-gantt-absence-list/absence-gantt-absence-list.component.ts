@@ -4,6 +4,7 @@ import {
   AfterViewInit,
   OnDestroy,
   effect,
+  EffectRef,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -29,10 +30,12 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 export class AbsenceGanttAbsenceListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  currentLang: Language = MessageLibrary.DEFAULT_LANG;
   checkmark = '&#10003;';
+
   private imageMap: Map<string, HTMLImageElement> = new Map();
   private ngUnsubscribe = new Subject<void>();
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  private effectRef: EffectRef | null = null;
 
   constructor(
     public dataManagementAbsence: DataManagementAbsenceGanttService,
@@ -58,6 +61,11 @@ export class AbsenceGanttAbsenceListComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    if (this.effectRef) {
+      this.effectRef.destroy();
+      this.effectRef = null;
+    }
   }
 
   onColor(value: IAbsence): string {
@@ -158,7 +166,7 @@ export class AbsenceGanttAbsenceListComponent
   }
 
   private readSignals(): void {
-    effect(() => {
+    this.effectRef = effect(() => {
       const isReset = this.dataManagementAbsence.isReset();
       if (isReset) {
         this.fillImageMap();

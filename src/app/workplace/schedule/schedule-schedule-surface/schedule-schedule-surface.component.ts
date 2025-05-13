@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef,
   Component,
+  EffectRef,
   ElementRef,
   Input,
   OnDestroy,
@@ -47,6 +48,7 @@ export class ScheduleScheduleSurfaceComponent
   private _pixelRatio = 1;
 
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   constructor(
     public dataManagementSchedule: DataManagementScheduleService,
@@ -111,6 +113,13 @@ export class ScheduleScheduleSurfaceComponent
     this.drawSchedule.vScrollbar = undefined;
     this.drawSchedule.hScrollbar = undefined;
     this.drawSchedule.rowHeader = undefined;
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
   /* #endregion ng */
@@ -318,10 +327,11 @@ export class ScheduleScheduleSurfaceComponent
   /* #endregion context menu */
 
   private readSignals(): void {
-    effect(() => {
+    const dataReadEffect = effect(() => {
       if (this.dataManagementSchedule.isRead()) {
         this.dataService.setMetrics();
       }
     });
+    this.effects.push(dataReadEffect);
   }
 }

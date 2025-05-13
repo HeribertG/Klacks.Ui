@@ -1,5 +1,6 @@
 import {
   Component,
+  EffectRef,
   EventEmitter,
   OnDestroy,
   OnInit,
@@ -41,13 +42,14 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
 
   private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   public dataManagementSettingsService = inject(DataManagementSettingsService);
 
   constructor() {}
 
   ngOnInit(): void {
-    this.readSignal();
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -69,14 +71,22 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
 
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
-  private readSignal(): void {
-    effect(() => {
+  private readSignals(): void {
+    const resetEffect = effect(() => {
       const isReset = this.dataManagementSettingsService.isReset();
       if (isReset) {
         setTimeout(() => this.isChangingEvent.emit(false), 100);
       }
     });
+    this.effects.push(resetEffect);
   }
 }

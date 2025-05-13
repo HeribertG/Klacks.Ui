@@ -1,5 +1,6 @@
 import {
   Component,
+  EffectRef,
   EventEmitter,
   OnInit,
   Output,
@@ -42,6 +43,7 @@ export class OwnerAddressComponent implements OnInit {
   keyValueDiffers: any;
   objectForUnsubscribe: any;
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   constructor() {
     this.readSignals();
@@ -63,14 +65,22 @@ export class OwnerAddressComponent implements OnInit {
     this.objectForUnsubscribe.unsubscribe();
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
   private readSignals(): void {
-    effect(() => {
+    const resetEffect = effect(() => {
       const isReset = this.dataManagementSettingsService.isReset();
       if (isReset) {
         setTimeout(() => this.isChangingEvent.emit(false), 100);
       }
     });
+    this.effects.push(resetEffect);
   }
 }

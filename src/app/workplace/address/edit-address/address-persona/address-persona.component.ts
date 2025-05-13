@@ -97,7 +97,7 @@ export class AddressPersonaComponent
   public isPhoneValueSeals = false;
 
   private ngUnsubscribe = new Subject<void>();
-  private effectRef: EffectRef | null = null;
+  private effects: EffectRef[] = [];
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
@@ -166,10 +166,12 @@ export class AddressPersonaComponent
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
   isDisabled(): boolean {
@@ -515,18 +517,21 @@ export class AddressPersonaComponent
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
+    const effect1 = effect(() => {
       const isRead = this.dataManagementClientService.isRead();
       if (isRead) {
         setTimeout(() => this.setEnvironmentVariable(), 100);
         this.dataManagementClientService.isRead.set(false);
       }
     });
-    this.effectRef = effect(() => {
+    this.effects.push(effect1);
+
+    const effect2 = effect(() => {
       const isReset = this.dataManagementClientService.isReset();
       if (isReset) {
         setTimeout(() => this.isChangingEvent.emit(false), 100);
       }
     });
+    this.effects.push(effect2);
   }
 }
