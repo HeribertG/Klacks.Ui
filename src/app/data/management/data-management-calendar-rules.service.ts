@@ -38,12 +38,6 @@ export class DataManagementCalendarRulesService {
   private currentFilterDummy: CalendarRulesFilter | undefined;
   private temporaryFilterDummy: CalendarRulesFilter | undefined;
 
-  constructor(
-    public dataCalendarRuleService: DataCalendarRuleService,
-    public toastService: ToastService,
-    private dataLoadFileService: DataLoadFileService
-  ) {}
-
   /* #region   temporary check is Filter dirty */
   public init(): void {
     this.dataCalendarRuleService.readRuleTokenList(true).subscribe((x) => {
