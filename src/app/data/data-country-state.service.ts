@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ICountry, IPostCodeCH, IState } from '../core/client-class';
@@ -8,7 +8,7 @@ import { retry } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataCountryStateService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   getCountryList() {
     return this.httpClient

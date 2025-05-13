@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
@@ -8,7 +8,7 @@ import { IMacro } from '../core/macro-class';
   providedIn: 'root',
 })
 export class DataMacroService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readMacroList() {
     return this.httpClient

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
@@ -8,7 +8,7 @@ import { IBankDetail } from '../core/bank-detail-class';
   providedIn: 'root',
 })
 export class DataBankDetailsService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readBankDetailList() {
     return this.httpClient

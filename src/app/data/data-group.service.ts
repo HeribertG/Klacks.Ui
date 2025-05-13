@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { catchError, retry } from 'rxjs/operators';
@@ -19,7 +19,7 @@ import { Observable, throwError } from 'rxjs';
   providedIn: 'root',
 })
 export class DataGroupService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readGroupList(filter: GroupFilter): Observable<ITruncatedGroup> {
     return this.httpClient

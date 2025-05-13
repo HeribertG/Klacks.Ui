@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import {
   CalendarRule,
@@ -20,6 +20,10 @@ import { DataLoadFileService } from '../data-load-file.service';
   providedIn: 'root',
 })
 export class DataManagementCalendarRulesService {
+  public dataCalendarRuleService = inject(DataCalendarRuleService);
+  public toastService = inject(ToastService);
+  private dataLoadFileService = inject(DataLoadFileService);
+
   public isRead = signal(false);
 
   public maxItems = 0;

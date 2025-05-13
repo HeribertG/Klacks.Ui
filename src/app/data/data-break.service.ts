@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Break, IBreak, IBreakFilter } from '../core/break-class';
@@ -10,7 +10,7 @@ import { dateWithLocalTimeCorrection } from '../helpers/format-helper';
   providedIn: 'root',
 })
 export class DataBreakService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   getBreak(id: string) {
     return this.httpClient

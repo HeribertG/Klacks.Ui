@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { HttpClient } from '@angular/common/http';
@@ -24,7 +24,7 @@ import { StateCountryToken } from '../core/calendar-rule-class';
   providedIn: 'root',
 })
 export class DataClientService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readClientTypeTemplateList() {
     return this.httpClient

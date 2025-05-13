@@ -43,7 +43,6 @@ import {
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { GroupSelectionService } from './group-selection.service';
 
 @Injectable({
   providedIn: 'root',

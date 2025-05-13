@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { IClientWork, IWork, IWorkFilter, Work } from '../core/schedule-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class DataScheduleService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   getWork(id: string) {
     return this.httpClient

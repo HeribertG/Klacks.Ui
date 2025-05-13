@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import {
@@ -13,7 +13,7 @@ import {
   providedIn: 'root',
 })
 export class DataAbsenceService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readTruncatedAbsence(filter: AbsenceFilter) {
     return this.httpClient

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
@@ -13,7 +13,7 @@ export class DataLoadFileService {
   iconImage: any;
   logoImage: any;
 
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   upLoadFile(file: FormData) {
     return this.httpClient

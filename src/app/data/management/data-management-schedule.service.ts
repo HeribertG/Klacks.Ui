@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   IClientWork,
   IWork,
@@ -18,6 +18,9 @@ import {
   providedIn: 'root',
 })
 export class DataManagementScheduleService {
+  public toastService = inject(ToastService);
+  private dataSchedule = inject(DataScheduleService);
+
   public isRead = signal(false);
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
   public showProgressSpinner = signal(false);
@@ -26,11 +29,6 @@ export class DataManagementScheduleService {
   public clients: IClientWork[] = [];
 
   private workFilterDummy: IWorkFilter | undefined = undefined;
-
-  constructor(
-    public toastService: ToastService,
-    private dataSchedule: DataScheduleService
-  ) {}
 
   readDatas() {
     this.showProgressSpinner.set(true);

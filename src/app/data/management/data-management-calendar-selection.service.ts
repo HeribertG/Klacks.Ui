@@ -19,12 +19,13 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   providedIn: 'root',
 })
 export class DataManagementCalendarSelectionService {
+  public toastService = inject(ToastService);
+  private localStorageService = inject(LocalStorageService);
+  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
-  private localStorageService = inject(LocalStorageService);
-  public toastService = inject(ToastService);
-  private dataCalendarSelectionService = inject(DataCalendarSelectionService);
 
   public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();

@@ -20,11 +20,12 @@ import { NavigationService } from 'src/app/services/navigation.service';
   providedIn: 'root',
 })
 export class DataManagementShiftService {
-  public initIsRead = signal(false);
   public toastService = inject(ToastService);
   private navigationService = inject(NavigationService);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
+
+  public initIsRead = signal(false);
 
   // shiftFilter: ShiftFilter = new ShiftFilter();
   // private shiftFilterDummy: shiftFilter | undefined = undefined;

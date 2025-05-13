@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { IAbsence } from 'src/app/core/absence-class';
 import { DataAbsenceService } from '../data-absence.service';
 
@@ -6,14 +6,14 @@ import { DataAbsenceService } from '../data-absence.service';
   providedIn: 'root',
 })
 export class DataManagementAbsenceGanttService {
+  private dataAbsence = inject(DataAbsenceService);
+
   public isReset = signal(false);
   public currentYearChanging = signal(false);
 
   public absenceList: IAbsence[] = [];
 
   private _currentYear = new Date().getFullYear();
-
-  constructor(private dataAbsence: DataAbsenceService) {}
 
   readData(): void {
     this.dataAbsence.readAbsenceList().subscribe((absences) => {

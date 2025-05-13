@@ -1,4 +1,4 @@
-import { Inject, Injectable, signal } from '@angular/core';
+import { inject, Inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/core/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -10,19 +10,16 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   providedIn: 'root',
 })
 export class DataManagementProfileService {
+  public userAdministrationService = inject(UserAdministrationService);
+  public toastService = inject(ToastService);
+  private localStorageService = inject(LocalStorageService);
+
   public isReset = signal(false);
   public isRead = signal(false);
 
   public changePasswordWrapper: ChangePassword = new ChangePassword();
   public changePasswordWrapperDummy: ChangePassword = new ChangePassword();
   public isPasswordDirty = false;
-
-  constructor(
-    @Inject(UserAdministrationService)
-    public userAdministrationService: UserAdministrationService,
-    public toastService: ToastService,
-    private localStorageService: LocalStorageService
-  ) {}
 
   /* #region  ChangePassword */
 

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/grid/constants/constants';
 import { ISetting, Setting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from '../data-settings-various.service';
@@ -7,6 +7,8 @@ import { DataSettingsVariousService } from '../data-settings-various.service';
   providedIn: 'root',
 })
 export class DataManagementGridSettingsService {
+  public dataSettingsVariousService = inject(DataSettingsVariousService);
+
   public backgroundColorHoliday = '';
   public backgroundColor = '';
   public backgroundColorHolidayOfficially = '';
@@ -23,8 +25,6 @@ export class DataManagementGridSettingsService {
   private backgroundColorSaturdayDummy = '';
   private backgroundColorSundayDummy = '';
   private borderColorDummy = '';
-
-  constructor(public dataSettingsVariousService: DataSettingsVariousService) {}
 
   readSettingList() {
     this.dataSettingsVariousService.readSettingList().subscribe((l) => {

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
@@ -13,7 +13,7 @@ import {
   providedIn: 'root',
 })
 export class DataCalendarRuleService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   readCalendarRule(id: string) {
     return this.httpClient

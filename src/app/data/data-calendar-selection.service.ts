@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import {
   CalendarSelection,
@@ -13,7 +13,7 @@ import { retry } from 'rxjs';
   providedIn: 'root',
 })
 export class DataCalendarSelectionService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   getSelectedCalendar(id: string) {
     return this.httpClient

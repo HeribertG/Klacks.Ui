@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { catchError, retry, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IShift } from '../core/schedule-class';
@@ -13,7 +13,7 @@ import {
   providedIn: 'root',
 })
 export class DataShiftService {
-  constructor(private httpClient: HttpClient) {}
+  private httpClient = inject(HttpClient);
 
   // readShiftList(filter: ShiftFilter) {
   //   return this.httpClient

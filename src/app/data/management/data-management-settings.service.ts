@@ -1,4 +1,4 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable, effect, inject, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
@@ -31,6 +31,14 @@ import { MultiLanguage } from 'src/app/core/multi-language-class';
   providedIn: 'root',
 })
 export class DataManagementSettingsService {
+  public userAdministrationService = inject(UserAdministrationService);
+  public dataSettingsVariousService = inject(DataSettingsVariousService);
+  public dataCountryStateService = inject(DataCountryStateService);
+  public dataBankDetailsService = inject(DataBankDetailsService);
+  public dataMacroService = inject(DataMacroService);
+  public toastService = inject(ToastService);
+  public gridColorService = inject(GridColorService);
+
   public isReset = signal(false);
 
   public accountsList: IAuthentication[] = [];
@@ -113,15 +121,7 @@ export class DataManagementSettingsService {
 
   public isDirty = false;
 
-  constructor(
-    public userAdministrationService: UserAdministrationService,
-    public dataSettingsVariousService: DataSettingsVariousService,
-    public dataCountryStateService: DataCountryStateService,
-    public dataBankDetailsService: DataBankDetailsService,
-    public dataMacroService: DataMacroService,
-    public toastService: ToastService,
-    public gridColorService: GridColorService
-  ) {
+  constructor() {
     this.readSignals();
   }
 

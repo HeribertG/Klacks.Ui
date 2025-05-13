@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   Break,
   BreakFilter,
@@ -18,6 +18,9 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   providedIn: 'root',
 })
 export class DataManagementBreakService {
+  public dataBreakService = inject(DataBreakService);
+  public toastService = inject(ToastService);
+
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public isUpdate = signal<IBreak | undefined>(undefined);
@@ -30,11 +33,6 @@ export class DataManagementBreakService {
   // only when DataManagementAbsenceGanttService has loaded its AbsenceFilter,
   // can be read. The AbsenceFilter is integrated in the breakFilter.
   canReadBreaks = false;
-
-  constructor(
-    public dataBreakService: DataBreakService,
-    public toastService: ToastService
-  ) {}
 
   reRead() {
     this.readYear();

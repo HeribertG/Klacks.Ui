@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import {
   Absence,
@@ -19,6 +19,10 @@ import { DataLoadFileService } from '../data-load-file.service';
   providedIn: 'root',
 })
 export class DataManagementAbsenceService {
+  public dataAbsenceService = inject(DataAbsenceService);
+  public toastService = inject(ToastService);
+  private dataLoadFileService = inject(DataLoadFileService);
+
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
 
@@ -30,12 +34,6 @@ export class DataManagementAbsenceService {
 
   private currentFilterDummy: AbsenceFilter | undefined;
   private temporaryFilterDummy: AbsenceFilter | undefined;
-
-  constructor(
-    public dataAbsenceService: DataAbsenceService,
-    public toastService: ToastService,
-    private dataLoadFileService: DataLoadFileService
-  ) {}
 
   /* #region   temporary check is Filter dirty */
 
