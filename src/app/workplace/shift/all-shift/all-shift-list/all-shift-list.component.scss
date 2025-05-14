@@ -1,0 +1,34 @@
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/spinner.scss";
+@use "../../../../../assets/standard-styles/pagination.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/menu.scss";
+
+.entry-info {
+  padding-right: 20px;
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--colorLabel);
+}
+
+.checkbox {
+  size: 20px;
+}
+
+.red-font {
+  font-size: 13px;
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.save-btn {
+  font-size: 13px;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+}

@@ -1,1 +1,256 @@
-<p>all-shift-list works!</p>
+<form id="allShiftForm">
+  <div class="container-header header-container">
+    {{ translate.instant("shift.all-shift.list.title") }}
+
+    <span class="filler"></span>
+
+    <div class="tree-actions">
+      <button class="btn new-btn" (click)="onAddShift()">
+        {{ "new-work" | translate }}
+      </button>
+    </div>
+  </div>
+  <div class="container-line"></div>
+  <div class="container-table">
+    <!-- HTML-Template für die zweizeilige Tabelle -->
+    <table
+      class="table table-borderless"
+      (blur)="onLostFocus()"
+      #myGridTable
+      id="myGridTable"
+      resizeObserver
+      (resizeElement)="onResize($event)"
+    >
+      <thead>
+        <tr>
+          <th class="table-header" style="width: 180px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  translate.instant("group.all-group.all-group-list.table.name")
+                }}
+              </p>
+            </div>
+          </th>
+          <th class="table-header" style="width: 320px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  translate.instant(
+                    "group.all-group.all-group-list.table.description"
+                  )
+                }}
+              </p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 100px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  translate.instant("group.all-group.all-group-list.table.from")
+                }}
+              </p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 100px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">
+                {{
+                  translate.instant(
+                    "group.all-group.all-group-list.table.until"
+                  )
+                }}
+              </p>
+            </div>
+          </th>
+          <th
+            class="table-header action cell-right"
+            style="width: 90px; max-width: 90px; min-width: 90px"
+            rowspan="2"
+          >
+            <div class="table-header-cell custom-control-inline"></div>
+          </th>
+        </tr>
+        <tr>
+          <th class="table-header" style="width: 100px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Von Zeit</p>
+            </div>
+          </th>
+          <th class="table-header" style="width: 100px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Bis Zeit</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Mo</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Di</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Mi</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Do</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Fr</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Sa</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 40px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">So</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 80px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Feiertag</p>
+            </div>
+          </th>
+          <th class="table-header cell-center" style="width: 100px">
+            <div class="table-header-cell custom-control-inline">
+              <p class="gap noselect">Und Feiertag</p>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Für jede Gruppe werden zwei Zeilen erzeugt -->
+        <ng-container
+          *ngFor="
+            let data of dataManagementShiftService.listWrapper?.shifts;
+            index as i
+          "
+        >
+          <!-- Obere Zeile mit Hauptinformationen -->
+          <tr
+            class="table-row first-row"
+            [class.active]="data && data.id === highlightRowId"
+            (click)="onClickedRow(data)"
+          >
+            <td class="table-cell">{{ data.name }}</td>
+            <td class="table-cell">{{ data.description }}</td>
+            <td class="table-cell cell-center">
+              {{ data.fromDate | date : "dd.MM.yyyy" }}
+            </td>
+            <td class="table-cell cell-center">
+              <p *ngIf="data.untilDate">
+                {{ data.untilDate | date : "dd.MM.yyyy" }}
+              </p>
+            </td>
+            <td class="table-cell cell-right" rowspan="2">
+              <div>
+                <div class="icon icon-padding" (click)="onClickEdit(data)">
+                  <icon-pencil-icon-grey></icon-pencil-icon-grey>
+                </div>
+                <div class="icon" (click)="open(data)">
+                  <icon-trash-icon-red></icon-trash-icon-red>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <!-- Untere Zeile mit Zeitdetails und Wochentagen -->
+          <tr
+            class="table-row second-row"
+            [class.active]="data && data.id === highlightRowId"
+            (click)="onClickedRow(data)"
+          >
+            <td class="table-cell cell-center">
+              {{ data.startShift || "00:00" }}
+            </td>
+            <td class="table-cell cell-center">
+              {{ data.endShift || "23:59" }}
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isMonday"
+                class="checkbox"
+                aria-label="Montag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isTuesday"
+                class="checkbox"
+                aria-label="Dienstag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isWednesday"
+                class="checkbox"
+                aria-label="Mittwoch"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isThursday"
+                class="checkbox"
+                aria-label="Donnerstag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isFriday"
+                class="checkbox"
+                aria-label="Freitag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isSaturday"
+                class="checkbox"
+                aria-label="Samstag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isSunday"
+                class="checkbox"
+                aria-label="Sonntag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isHoliday"
+                class="checkbox"
+                aria-label="Feiertag"
+              />
+            </td>
+            <td class="table-cell cell-center">
+              <input
+                type="checkbox"
+                [checked]="data.isWeekdayOrHoliday"
+                class="checkbox"
+                aria-label="Und Feiertag"
+              />
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</form>

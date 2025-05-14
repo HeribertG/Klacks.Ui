@@ -7,17 +7,32 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'app-edit-shift-item',
-    templateUrl: './edit-shift-item.component.html',
-    styleUrls: ['./edit-shift-item.component.scss'],
-    standalone: false
+  selector: 'app-edit-shift-item',
+  templateUrl: './edit-shift-item.component.html',
+  styleUrls: ['./edit-shift-item.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+    FontAwesomeModule,
+    NgbDatepickerModule,
+  ],
 })
 export class EditShiftItemComponent
   implements OnInit, AfterViewInit, OnDestroy

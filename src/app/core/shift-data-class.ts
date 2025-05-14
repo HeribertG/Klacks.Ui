@@ -1,4 +1,22 @@
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {
+  BaseFilter,
+  BaseTruncated,
+  IBaseFilter,
+  IBaseTruncated,
+} from './general-class';
+
+export enum ShiftStatus {
+  Original = 0,
+  Cut = 1,
+}
+
 export enum ShiftType {
+  IsTask = 0,
+  IsContainer = 1,
+}
+
+export enum MacroShiftType {
   DayShift = 0,
   NightShift = 1,
   MixedShift = 2,
@@ -32,7 +50,7 @@ export class ShiftData {
   hourWithAddition: number = 0; // Arbeitszeit mit Zusatz
   hourAddition: number = 0.0; // Zusatz
   blockShiftNumber: number = 1;
-  shiftType: ShiftType = ShiftType.NightShift;
+  shiftType: MacroShiftType = MacroShiftType.NightShift;
   weekdayNumber: Weekday = Weekday.Monday;
   nightHour: number = 7;
   holydayHour: number = 1;
@@ -62,4 +80,132 @@ export class ShiftData {
     hourBeforeNight: { min: 0, max: 8, decimals: 1 },
     nightHourBeforeMidnight: { min: 0, max: 12, decimals: 1 },
   };
+}
+
+export interface IShift {
+  id?: string;
+  cuttingAfterMidnight: boolean;
+  description: string;
+  macroId: string;
+  name: string;
+  parentId?: string;
+  rootId?: string;
+  status: ShiftStatus;
+
+  // Date and Time
+  afterShift: string; // TimeOnly -> string im Format "HH:mm"
+  beforeShift: string;
+  endShift: string;
+  fromDate: string; // DateOnly -> string im Format "YYYY-MM-DD"
+  startShift: string;
+  untilDate?: string;
+
+  // WeekDay
+  isFriday: boolean;
+  isHoliday: boolean;
+  isMonday: boolean;
+  isSaturday: boolean;
+  isSunday: boolean;
+  isThursday: boolean;
+  isTuesday: boolean;
+  isWednesday: boolean;
+  isWeekdayOrHoliday: boolean;
+
+  // Time
+  isSporadic: boolean;
+  isTimeRange: boolean;
+  quantity: number;
+  travelTimeAfter: number;
+  travelTimeBefore: number;
+  workTime: number;
+
+  // Type
+  shiftType: ShiftType;
+}
+
+export class Shift implements IShift {
+  id?: string;
+  cuttingAfterMidnight = false;
+  description = '';
+  macroId = '';
+  name = '';
+  parentId?: string;
+  rootId?: string;
+  status = ShiftStatus.Original;
+
+  afterShift = '00:00';
+  beforeShift = '00:00';
+  endShift = '00:00';
+  fromDate = '';
+  startShift = '00:00';
+  untilDate?: string;
+
+  isFriday = false;
+  isHoliday = false;
+  isMonday = false;
+  isSaturday = false;
+  isSunday = false;
+  isThursday = false;
+  isTuesday = false;
+  isWednesday = false;
+  isWeekdayOrHoliday = false;
+
+  isSporadic = false;
+  isTimeRange = false;
+  quantity = 0;
+  travelTimeAfter = 0;
+  travelTimeBefore = 0;
+  workTime = 0;
+
+  shiftType = ShiftType.IsTask;
+
+  constructor(init?: Partial<IShift>) {
+    Object.assign(this, init);
+  }
+}
+
+export interface ITruncatedShift extends IBaseTruncated {
+  shifts: IShift[];
+}
+
+export class TruncatedShift extends BaseTruncated implements ITruncatedShift {
+  shifts: IShift[] = [];
+}
+
+export interface IShiftFilter extends IBaseFilter {
+  scopeFromFlag?: boolean;
+  scopeUntilFlag?: boolean;
+  scopeFrom?: Date;
+  internalScopeFrom?: NgbDateStruct;
+  scopeUntil?: Date;
+  internalScopeUntil?: NgbDateStruct;
+  showDeleteEntries?: boolean;
+  activeDateRange: boolean;
+  formerDateRange: boolean;
+  futureDateRange: boolean;
+  selectedGroup: string | undefined;
+}
+
+export class ShiftFilter extends BaseFilter implements IShiftFilter {
+  scopeFromFlag?: boolean;
+  scopeUntilFlag?: boolean;
+  scopeFrom?: Date;
+  internalScopeFrom?: NgbDateStruct;
+  scopeUntil?: Date;
+  internalScopeUntil?: NgbDateStruct;
+  showDeleteEntries: boolean = false;
+  activeDateRange: boolean = false;
+  formerDateRange: boolean = false;
+  futureDateRange: boolean = false;
+
+  override orderBy: string = 'name';
+  override sortOrder: string = 'asc';
+
+  selectedGroup: string | undefined = undefined;
+
+  setEmpty(): void {
+    this.activeDateRange = true;
+    this.formerDateRange = false;
+    this.futureDateRange = false;
+  }
 }

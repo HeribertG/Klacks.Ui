@@ -3,12 +3,14 @@ import {
   Component,
   EffectRef,
   ElementRef,
+  Injector,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient, IFilter } from 'src/app/core/client-class';
@@ -73,6 +75,7 @@ export class AllAddressListComponent
   private renderer = inject(Renderer2);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
+  private injector = inject(Injector);
 
   highlightRowId: string | undefined = undefined;
   page = 1;
@@ -621,24 +624,28 @@ export class AllAddressListComponent
   }
 
   private readSignals(): void {
-    const effect1 = effect(() => {
-      if (this.dataManagementClientService.isRead()) {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-        } else {
-          this.isMeasureTable = true;
+    const readEffect = runInInjectionContext(this.injector, () => {
+      return effect(() => {
+        if (this.dataManagementClientService.isRead()) {
+          if (this.isFirstRead) {
+            setTimeout(() => this.recalcHeight(), 100);
+            this.isFirstRead = false;
+          } else {
+            this.isMeasureTable = true;
+          }
         }
-      }
+      });
     });
-    this.effects.push(effect1);
+    this.effects.push(readEffect);
 
-    const effect2 = effect(() => {
-      const initIsRead = this.dataManagementClientService.initIsRead();
-      if (initIsRead) {
-        this.isInit();
-      }
+    const initEffect = runInInjectionContext(this.injector, () => {
+      return effect(() => {
+        const initIsRead = this.dataManagementClientService.initIsRead();
+        if (initIsRead) {
+          this.isInit();
+        }
+      });
     });
-    this.effects.push(effect2);
+    this.effects.push(initEffect);
   }
 }

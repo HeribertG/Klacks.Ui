@@ -15,6 +15,8 @@ import { DataShiftService } from '../data-shift.service';
 import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { ITruncatedShift, ShiftFilter } from 'src/app/core/shift-data-class';
+import { CheckBoxValue } from 'src/app/core/client-class';
 
 @Injectable({
   providedIn: 'root',
@@ -25,19 +27,36 @@ export class DataManagementShiftService {
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
 
+  public isReset = signal(false);
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
+  public restoreSearch = signal('');
 
-  // shiftFilter: ShiftFilter = new ShiftFilter();
-  // private shiftFilterDummy: shiftFilter | undefined = undefined;
+  public listWrapper: ITruncatedShift | undefined;
+  public currentFilter: ShiftFilter = new ShiftFilter();
+  public editGroup: IShift | undefined;
 
   public shift: IShift[] = [];
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
+  public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
+  public headerCheckBoxValue: boolean = false;
 
   private isInit = false;
   private initCount = 0;
   private initFinished = 1;
+
+  public orderBy = 'name';
+  public sortOrder = 'desc';
+  public requiredPage = 1;
+  public numberOfItemsPerPage = 5;
+  public maxItems = 0;
+  public maxPages = 0;
+  public firstItem = 0;
+  public orderByGroupItem = 'name';
+  public sortOrderGroupItem = 'desc';
 
   /* #region   init */
 
@@ -78,6 +97,76 @@ export class DataManagementShiftService {
   /* #endregion  Macros */
 
   /* #region   edit shift */
+  /* #region all shift */
+  clearCheckedArray() {
+    this.checkedArray = new Array<CheckBoxValue>();
+  }
+
+  addCheckBoxValueToArray(value: CheckBoxValue) {
+    this.checkedArray.push(value);
+  }
+
+  findCheckBoxValue(key: string): CheckBoxValue | undefined {
+    if (!this.checkedArray) {
+      return undefined;
+    }
+    if (key === '') {
+      return undefined;
+    }
+
+    return this.checkedArray.find((x) => x.id === key);
+  }
+
+  removeCheckBoxValueToArray(key: string) {
+    const index = this.checkedArray.findIndex((x) => x.id === key);
+    this.checkedArray.splice(index, 1);
+  }
+
+  checkBoxIndeterminate() {
+    if (this.headerCheckBoxValue === undefined) {
+      this.headerCheckBoxValue = false;
+    }
+    if (this.headerCheckBoxValue === null) {
+      this.headerCheckBoxValue = false;
+    }
+
+    if (this.headerCheckBoxValue === true) {
+      const tmp = this.checkedArray.find((x) => x.checked === false);
+      if (!(tmp === undefined || tmp === null)) {
+        return true;
+      }
+    }
+    if (this.headerCheckBoxValue === false) {
+      const tmp = this.checkedArray.find((x) => x.checked === true);
+      if (!(tmp === undefined || tmp === null)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  readPage(isSecondRead: boolean = false) {
+    this.showProgressSpinner.set(true);
+    this.dataShiftService.readShiftList(this.currentFilter).subscribe((x) => {
+      this.listWrapper = x;
+      this.maxItems = x.maxItems;
+      this.firstItem = x.firstItemOnPage;
+      this.maxPages = x.maxPages;
+    });
+
+    if (isSecondRead) {
+      this.fireIsReadEvent();
+    }
+    this.showProgressSpinner.set(false);
+  }
+
+  fireIsReadEvent() {
+    this.isRead.set(true);
+    setTimeout(() => this.isRead.set(false), 100);
+  }
+
+  /* #endregion all shift */
 
   showExternalShift(id: string) {
     this.dataShiftService.getShift(id).subscribe((x) => {

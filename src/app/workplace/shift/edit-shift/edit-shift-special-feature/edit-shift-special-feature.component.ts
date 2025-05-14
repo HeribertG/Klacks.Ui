@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -7,14 +8,24 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 
 @Component({
-    selector: 'app-edit-shift-special-feature',
-    templateUrl: './edit-shift-special-feature.component.html',
-    styleUrls: ['./edit-shift-special-feature.component.scss'],
-    standalone: false
+  selector: 'app-edit-shift-special-feature',
+  templateUrl: './edit-shift-special-feature.component.html',
+  styleUrls: ['./edit-shift-special-feature.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+  ],
 })
 export class EditShiftSpecialFeatureComponent
   implements OnInit, AfterViewInit, OnDestroy

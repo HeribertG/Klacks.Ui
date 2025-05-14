@@ -409,7 +409,7 @@
   "schedule.selector.select-calendar": "Sélectionner le Mois et l'Année",
   "schedule.row-header.headline": "Nom",
 
-  "shift.edit-shift.home.header": "Nouvelle shift",
+  "shift.edit-shift.home.header": "Nouveau service",
   "shift.edit-shift.main.header": "Général",
   "shift.edit-shift.weekday.header": "Heures et Jours de la Semaine",
   "shift.edit-shift.address.header": "Adresse",
@@ -425,7 +425,7 @@
   "shift.edit-shift.weekday.time-range": "Service dans la plage horaire (Heure de Début hh:mm Heure de Fin hh:mm). Veuillez indiquer la durée du service dans le champ Durée.",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
-  "shift.all-shift.all-shift-home.header": "Dienste",
+  "shift.all-shift.all-shift-home.header": "Tous les services",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",

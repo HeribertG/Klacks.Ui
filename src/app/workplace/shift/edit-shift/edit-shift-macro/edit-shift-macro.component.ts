@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -7,20 +8,29 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { IMacro } from 'src/app/core/macro-class';
 import { IMultiLanguage } from 'src/app/core/multi-language-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 
 @Component({
-    selector: 'app-edit-shift-macro',
-    templateUrl: './edit-shift-macro.component.html',
-    styleUrls: ['./edit-shift-macro.component.scss'],
-    standalone: false
+  selector: 'app-edit-shift-macro',
+  templateUrl: './edit-shift-macro.component.html',
+  styleUrls: ['./edit-shift-macro.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+  ],
 })
 export class EditShiftMacroComponent
   implements OnInit, AfterViewInit, OnDestroy

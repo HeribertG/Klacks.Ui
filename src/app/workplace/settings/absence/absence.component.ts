@@ -80,17 +80,14 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   orderBy = 'name';
   sortOrder = 'asc';
 
-  // Header properties
   nameHeader = new HeaderProperties();
   descriptionHeader = new HeaderProperties();
 
-  // State properties
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   currentAbsence = new Absence();
   message = MessageLibrary.DELETE_ENTRY;
   isComboBoxOpen = false;
 
-  // Clean up resources
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
@@ -100,14 +97,12 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Subscribe to language changes
     this.translate.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.currentLang = this.translate.currentLang as Language;
       });
 
-    // Subscribe to modal results
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
@@ -122,32 +117,22 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  /**
-   * Read page data with current filter settings
-   */
   private readPage(): void {
     const filter = this.dataManagementAbsenceService.currentFilter;
 
-    // Set pagination parameters
     filter.firstItemOnLastPage = this.firstItemOnLastPage;
     filter.isPreviousPage = this.isPreviousPage;
     filter.isNextPage = this.isNextPage;
 
-    // Set sorting parameters
     filter.orderBy = this.orderBy;
     filter.sortOrder = this.sortOrder;
 
-    // Set page parameters
     filter.requiredPage = this.page - 1;
     filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
 
-    // Read data for the current language
     this.dataManagementAbsenceService.readPage(this.currentLang);
   }
 
-  /**
-   * Handle page change events from pagination control
-   */
   onPageChange(event: number): void {
     this.firstItemOnLastPage = undefined;
     this.isPreviousPage = undefined;
@@ -248,7 +233,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
             );
           }
         },
-        () => {} // Dismiss handler (leere Funktion)
+        () => {}
       );
   }
 
@@ -333,7 +318,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       case HeaderDirection.Up:
         return this.tmplateArrowUp;
       case HeaderDirection.None:
-        return ''; // Leerer String statt this.tmplateArrowUndefined
+        return '';
     }
   }
 

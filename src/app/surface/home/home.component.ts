@@ -280,7 +280,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       case 'shift':
         pushOnStack('workplace/shift');
-        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
         this.isShift = true;
         this.setContainerWithNormal();
         this.isSavebarVisible = false;
@@ -292,7 +291,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       case 'edit-shift':
         pushOnStack('workplace/edit-shift');
-        import('../../workplace/shift/shift.module').then((m) => m.ShiftModule);
         this.isCreateShift = true;
         this.setContainerWithNormal();
         this.isSavebarVisible = true;

@@ -8,6 +8,7 @@ import {
   isNgbDateStructOk,
   transformNgbDateStructToDate,
 } from '../helpers/format-helper';
+import { ITruncatedShift, ShiftFilter } from '../core/shift-data-class';
 
 @Injectable({
   providedIn: 'root',
@@ -15,14 +16,14 @@ import {
 export class DataShiftService {
   private httpClient = inject(HttpClient);
 
-  // readShiftList(filter: ShiftFilter) {
-  //   return this.httpClient
-  //     .post<ITruncatedShift>(
-  //       `${environment.baseUrl}Shifts/GetSimpleList/`,
-  //       filter
-  //     )
-  //     .pipe();
-  // }
+  readShiftList(filter: ShiftFilter) {
+    return this.httpClient
+      .post<ITruncatedShift>(
+        `${environment.baseUrl}Shifts/GetSimpleList/`,
+        filter
+      )
+      .pipe();
+  }
 
   getShift(id: string) {
     return this.httpClient

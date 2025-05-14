@@ -2,12 +2,14 @@ import {
   Component,
   EffectRef,
   EventEmitter,
+  Injector,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -34,6 +36,9 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
   ],
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
+  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private injector = inject(Injector);
+
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild(NgForm, { static: false }) emailSettingsForm: NgForm | undefined;
 
@@ -43,10 +48,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
-
-  public dataManagementSettingsService = inject(DataManagementSettingsService);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.readSignals();
@@ -81,11 +82,13 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   }
 
   private readSignals(): void {
-    const resetEffect = effect(() => {
-      const isReset = this.dataManagementSettingsService.isReset();
-      if (isReset) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
+    const resetEffect = runInInjectionContext(this.injector, () => {
+      return effect(() => {
+        const isReset = this.dataManagementSettingsService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+        }
+      });
     });
     this.effects.push(resetEffect);
   }

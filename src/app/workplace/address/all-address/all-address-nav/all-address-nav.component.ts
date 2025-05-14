@@ -2,12 +2,14 @@ import {
   AfterViewInit,
   Component,
   EffectRef,
+  Injector,
   OnDestroy,
   OnInit,
   Renderer2,
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -50,6 +52,12 @@ export class AllAddressNavComponent
   @ViewChild('navClientForm', { static: false }) navClientForm:
     | NgForm
     | undefined;
+
+  public dataManagementClientService = inject(DataManagementClientService);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
+  private injector = inject(Injector);
+
   public navClient: HTMLElement | undefined;
   public faCalendar = faCalendar;
   public isComboBoxOpen = false;
@@ -63,11 +71,6 @@ export class AllAddressNavComponent
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
-
-  dataManagementClientService = inject(DataManagementClientService);
-  private renderer = inject(Renderer2);
-  private translateService = inject(TranslateService);
-  private localStorageService = inject(LocalStorageService);
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -211,10 +214,12 @@ export class AllAddressNavComponent
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
-      if (this.dataManagementClientService.initIsRead()) {
-        this.isInit();
-      }
+    this.effectRef = runInInjectionContext(this.injector, () => {
+      return effect(() => {
+        if (this.dataManagementClientService.initIsRead()) {
+          this.isInit();
+        }
+      });
     });
   }
 }

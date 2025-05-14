@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -8,16 +9,25 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
+import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 
 @Component({
-    selector: 'app-edit-shift-weekday',
-    templateUrl: './edit-shift-weekday.component.html',
-    styleUrls: ['./edit-shift-weekday.component.scss'],
-    standalone: false
+  selector: 'app-edit-shift-weekday',
+  templateUrl: './edit-shift-weekday.component.html',
+  styleUrls: ['./edit-shift-weekday.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    IconAngleDownComponent,
+    IconAngleRightComponent,
+  ],
 })
 export class EditShiftWeekdayComponent
   implements OnInit, AfterViewInit, OnDestroy

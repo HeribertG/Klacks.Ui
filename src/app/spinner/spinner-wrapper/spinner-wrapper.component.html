@@ -1,8 +1,3 @@
-<div
-  class="loading-indicator"
-  *ngIf="
-    isInit && spinnerService && spinnerService.showProgressSpinner === true
-  "
->
+<div class="loading-indicator" *ngIf="spinnerService.showProgressSpinner">
   <app-spinner></app-spinner>
 </div>
