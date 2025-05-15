@@ -32,3 +32,39 @@
   color: colors.$standartWhiteColor;
   margin-right: 20px;
 }
+
+.col-time {
+  width: 18.6%;
+}
+.col-day {
+  width: 5.8%;
+}
+.col-action {
+  width: 10.5%;
+}
+
+p {
+  margin-left: 5px;
+  padding-top: 8px;
+  margin-bottom: 3px;
+}
+
+tr:nth-child(4n + 1),
+tr:nth-child(4n + 2) {
+  background-color: transparent !important;
+}
+
+tr:nth-child(4n + 3),
+tr:nth-child(4n + 4) {
+  background-color: var(--backgroundColorWorkplace);
+}
+
+.table-cell-small-border,
+.table-cell-small-border-with-bottom,
+.table-cell {
+  background-color: inherit;
+}
+// thead tr:last-child th,
+// thead tr:first-child th {
+//   background-color: var(--backgroundColorWorkplace);
+// }

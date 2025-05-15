@@ -52,6 +52,13 @@
   border-bottom: 1px solid var(--colorLine);
 }
 
+.table-header-border {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gridColorLine);
+  background-color: transparent;
+  border: 1px solid var(--colorLine);
+}
 .table-header-no-border {
   font-size: 14px;
   font-weight: 500;
@@ -90,7 +97,8 @@
   background-color: transparent;
   border-bottom: 1px solid var(--colorLine);
 }
-.table-cell-top {
+
+t .table-cell-top {
   vertical-align: top;
 }
 
@@ -99,6 +107,24 @@
   font-weight: 500;
   color: var(--gridColorText);
   border-bottom: 1px solid transparent !important;
+}
+
+.table-cell-small-border {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+  border-bottom: 0.5px solid var(--colorLine);
+  border-right: 0.5px solid var(--colorLine);
+  border-left: 0.5px solid var(--colorLine);
+}
+
+.table-cell-small-border-with-bottom {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+  border-bottom: 1px solid var(--colorLine);
+  border-right: 0.5px solid var(--colorLine);
+  border-left: 0.5px solid var(--colorLine);
 }
 
 .table-cell-empty {

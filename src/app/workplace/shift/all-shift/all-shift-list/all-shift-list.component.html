@@ -12,245 +12,239 @@
   </div>
   <div class="container-line"></div>
   <div class="container-table">
-    <!-- HTML-Template für die zweizeilige Tabelle -->
-    <table
-      class="table table-borderless"
-      (blur)="onLostFocus()"
-      #myGridTable
-      id="myGridTable"
-      resizeObserver
-      (resizeElement)="onResize($event)"
-    >
+    <table style="width: 100%">
       <thead>
         <tr>
-          <th class="table-header" style="width: 180px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">
-                {{
-                  translate.instant("group.all-group.all-group-list.table.name")
-                }}
-              </p>
-            </div>
+          <th class="table-header-border" colspan="2">
+            {{ translate.instant("list.all-list.all-shift-list.table.name") }}
           </th>
-          <th class="table-header" style="width: 320px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">
-                {{
-                  translate.instant(
-                    "group.all-group.all-group-list.table.description"
-                  )
-                }}
-              </p>
-            </div>
+          <th class="table-header-border" colspan="5">
+            {{
+              translate.instant(
+                "list.all-list.all-shift-list.table.description"
+              )
+            }}
           </th>
-          <th class="table-header cell-center" style="width: 100px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">
-                {{
-                  translate.instant("group.all-group.all-group-list.table.from")
-                }}
-              </p>
-            </div>
+          <th class="table-header-border cell-center" colspan="2">
+            {{ translate.instant("list.all-list.all-shift-list.table.from") }}
           </th>
-          <th class="table-header cell-center" style="width: 100px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">
-                {{
-                  translate.instant(
-                    "group.all-group.all-group-list.table.until"
-                  )
-                }}
-              </p>
-            </div>
+          <th class="table-header-border cell-center" colspan="2">
+            {{ translate.instant("list.all-list.all-shift-list.table.until") }}
           </th>
-          <th
-            class="table-header action cell-right"
-            style="width: 90px; max-width: 90px; min-width: 90px"
-            rowspan="2"
-          >
-            <div class="table-header-cell custom-control-inline"></div>
-          </th>
+          <th class="col-action table-header-border" rowspan="2"></th>
         </tr>
         <tr>
-          <th class="table-header" style="width: 100px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Von Zeit</p>
-            </div>
+          <th class="col-time table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.start") }}
           </th>
-          <th class="table-header" style="width: 100px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Bis Zeit</p>
-            </div>
+          <th class="col-time table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.end") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Mo</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.mon") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Di</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.tue") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Mi</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.wed") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Do</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.thu") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Fr</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.Fry") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Sa</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.sam") }}
           </th>
-          <th class="table-header cell-center" style="width: 40px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">So</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.son") }}
           </th>
-          <th class="table-header cell-center" style="width: 80px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Feiertag</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.f") }}
           </th>
-          <th class="table-header cell-center" style="width: 100px">
-            <div class="table-header-cell custom-control-inline">
-              <p class="gap noselect">Und Feiertag</p>
-            </div>
+          <th class="col-day table-header-border cell-center">
+            {{ translate.instant("list.all-list.all-shift-list.table.plus-f") }}
           </th>
         </tr>
       </thead>
       <tbody>
-        <!-- Für jede Gruppe werden zwei Zeilen erzeugt -->
         <ng-container
           *ngFor="
             let data of dataManagementShiftService.listWrapper?.shifts;
             index as i
           "
+          (click)="onClickedRow(data)"
+          [class.active]="data.id === highlightRowId"
         >
-          <!-- Obere Zeile mit Hauptinformationen -->
-          <tr
-            class="table-row first-row"
-            [class.active]="data && data.id === highlightRowId"
-            (click)="onClickedRow(data)"
-          >
-            <td class="table-cell">{{ data.name }}</td>
-            <td class="table-cell">{{ data.description }}</td>
-            <td class="table-cell cell-center">
-              {{ data.fromDate | date : "dd.MM.yyyy" }}
+          <tr>
+            <td colspan="2" class="table-cell-small-border">
+              <p>{{ data.name }}</p>
             </td>
-            <td class="table-cell cell-center">
+
+            <td colspan="5" class="table-cell-small-border">
+              <p>{{ data.description }}</p>
+            </td>
+
+            <td colspan="2" class="table-cell-small-border">
+              <p>{{ data.fromDate | date : "dd.MM.yyyy" }}</p>
+            </td>
+
+            <td colspan="2" class="table-cell-small-border">
               <p *ngIf="data.untilDate">
                 {{ data.untilDate | date : "dd.MM.yyyy" }}
               </p>
             </td>
-            <td class="table-cell cell-right" rowspan="2">
-              <div>
-                <div class="icon icon-padding" (click)="onClickEdit(data)">
-                  <icon-pencil-icon-grey></icon-pencil-icon-grey>
-                </div>
-                <div class="icon" (click)="open(data)">
-                  <icon-trash-icon-red></icon-trash-icon-red>
-                </div>
+
+            <td rowspan="2" class="table-cell cell-right">
+              <div class="icon icon-padding">
+                <icon-pencil-icon-grey></icon-pencil-icon-grey>
+              </div>
+              <div class="icon">
+                <icon-trash-icon-red></icon-trash-icon-red>
               </div>
             </td>
           </tr>
-          <!-- Untere Zeile mit Zeitdetails und Wochentagen -->
-          <tr
-            class="table-row second-row"
-            [class.active]="data && data.id === highlightRowId"
-            (click)="onClickedRow(data)"
-          >
-            <td class="table-cell cell-center">
-              {{ data.startShift || "00:00" }}
+
+          <tr>
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>{{ data.startShift || "00:00" }}</p>
             </td>
-            <td class="table-cell cell-center">
-              {{ data.endShift || "23:59" }}
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>{{ data.endShift || "23:59" }}</p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isMonday"
-                class="checkbox"
-                aria-label="Montag"
-              />
+
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isMonday"
+                  class="checkbox"
+                  aria-label="Monday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isTuesday"
-                class="checkbox"
-                aria-label="Dienstag"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isTuesday"
+                  class="checkbox"
+                  aria-label="Tuesday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isWednesday"
-                class="checkbox"
-                aria-label="Mittwoch"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isWednesday"
+                  class="checkbox"
+                  aria-label="Wednesday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isThursday"
-                class="checkbox"
-                aria-label="Donnerstag"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isThursday"
+                  class="checkbox"
+                  aria-label="Thursday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isFriday"
-                class="checkbox"
-                aria-label="Freitag"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isFriday"
+                  class="checkbox"
+                  aria-label="Friday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isSaturday"
-                class="checkbox"
-                aria-label="Samstag"
-              />
+
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isSaturday"
+                  class="checkbox"
+                  aria-label="Saturday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isSunday"
-                class="checkbox"
-                aria-label="Sonntag"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isSunday"
+                  class="checkbox"
+                  aria-label="Sunday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isHoliday"
-                class="checkbox"
-                aria-label="Feiertag"
-              />
+
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isHoliday"
+                  class="checkbox"
+                  aria-label="Holiday"
+                />
+              </p>
             </td>
-            <td class="table-cell cell-center">
-              <input
-                type="checkbox"
-                [checked]="data.isWeekdayOrHoliday"
-                class="checkbox"
-                aria-label="Und Feiertag"
-              />
+            <td class="table-cell-small-border-with-bottom cell-center">
+              <p>
+                <input
+                  type="checkbox"
+                  [checked]="data.isWeekdayOrHoliday"
+                  class="checkbox"
+                  aria-label="WeekdayOrHoliday"
+                />
+              </p>
             </td>
           </tr>
         </ng-container>
       </tbody>
     </table>
+    <div class="pagination justify-content-end">
+      <div *ngIf="visibleRow">
+        <label class="entry-row">{{
+          translate.instant("pagination.line")
+        }}</label>
+        <select
+          class="maxSize-selection"
+          value="realRow"
+          (change)="onChangeRowSize($event)"
+        >
+          <option
+            *ngFor="let c of visibleRow"
+            [value]="c.value"
+            [selected]="c.value === realRow"
+          >
+            {{ c.text }}
+          </option>
+        </select>
+      </div>
+
+      <label class="entry-info"
+        >{{ translate.instant("pagination.sum") }}
+        {{ dataManagementShiftService.listWrapper.maxItems }}</label
+      >
+      <ngb-pagination
+        [collectionSize]="dataManagementShiftService.listWrapper.maxItems + 1"
+        (pageChange)="onPageChange($event)"
+        [(page)]="page"
+        [maxSize]="5"
+        [pageSize]="numberOfItemsPerPage"
+        [rotate]="true"
+        [ellipses]="false"
+        [boundaryLinks]="true"
+      ></ngb-pagination>
+    </div>
   </div>
 </form>
