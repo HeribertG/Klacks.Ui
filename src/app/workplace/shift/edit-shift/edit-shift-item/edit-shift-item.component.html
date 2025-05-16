@@ -55,7 +55,10 @@
         />
       </div>
       <!-- Name -->
-      <label for="name">{{ "shift.edit-shift.main.name" | translate }}</label>
+
+      <label class="row-line" for="name">{{
+        "shift.edit-shift.main.name" | translate
+      }}</label>
       <div class="custom-control-inline default-width">
         <input
           type="text"
@@ -71,7 +74,7 @@
       <!-- Valid From and Until -->
       <div *ngIf="dataManagementShiftService.editShift !== undefined">
         <div class="container-bank-box">
-          <div class="firstColumContainer">
+          <div class="firstColumContainer row-line">
             <div class="form-group">
               <label for="validFrom">{{
                 "shift.edit-shift.main.from" | translate
@@ -146,7 +149,7 @@
             </div>
           </div>
         </div>
-        <div class="endColumn">
+        <div class="endColumn" style="margin-top: 5px">
           <div class="form-group">
             <label for="description">{{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"

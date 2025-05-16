@@ -235,7 +235,30 @@ export class DataManagementShiftService {
     }
   }
 
-  private saveEditShift() {}
+  private saveEditShift(withoutUpdateDummy = false) {
+    this.editShift;
+    if (this.editShift) {
+      const action = this.editShift.id
+        ? this.dataShiftService.updateShift(this.editShift)
+        : this.dataShiftService.addShift(this.editShift);
+
+      action.subscribe({
+        next: (x) => {
+          this.prepareShift(x, withoutUpdateDummy);
+        },
+        error: (error) => {
+          if (this.editShift?.id) {
+            this.readShift(this.editShift.id);
+          } else {
+            this.createShift();
+          }
+
+          this.showError(error, 'ShiftError');
+        },
+        complete: () => {},
+      });
+    }
+  }
 
   /* #endregion   edit shift */
 

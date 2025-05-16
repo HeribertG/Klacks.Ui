@@ -7,6 +7,11 @@
 @use "../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../assets/standard-styles/menu.scss";
 
+.tree-actions {
+  margin-bottom: 15px;
+  padding: 0 15px;
+}
+
 .entry-info {
   padding-right: 20px;
   margin-top: 8px;
@@ -68,3 +73,46 @@ tr:nth-child(4n + 4) {
 // thead tr:first-child th {
 //   background-color: var(--backgroundColorWorkplace);
 // }
+
+.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+.active.hover-row {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.hover-row td {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.selected-row,
+tr.selected-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.selected-row.hover-row,
+tr.selected-row.hover-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+thead {
+  th {
+    padding: 6px 8px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid #b3b3b3;
+    background: linear-gradient(to bottom, #f7f7f7, #e1e1e1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  tr:first-child th {
+    border-bottom: 1px solid #8c8c8c;
+  }
+}

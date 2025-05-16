@@ -39,8 +39,10 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(MockDataManagementShiftService);
+  public dataManagementShiftService2 = inject(DataManagementShiftService);
 
   highlightRowId?: string;
+  selectedRowId?: string;
 
   visibleRow: { text: string; value: number }[] = [];
   realRow = 1;
@@ -51,6 +53,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   numberOfItemsPerPage = 5;
   numberOfItemsPerPageMap = new Map();
+
+  hoveredRowId?: string;
 
   ngOnInit(): void {
     this.visibleRow = visibleRow();
@@ -63,37 +67,26 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onResize(event: DOMRectReadOnly | any): void {}
 
-  onAddShift(): void {}
+  onAddShift(): void {
+    this.dataManagementShiftService2.createShift();
+  }
 
   onLostFocus(): void {}
 
-  onChangeWeekdayCheckBox(data: any, property: string, event: any): void {
-    // Verhindert, dass das Event bis zum Eltern-Element (Zeile) propagiert
-    event.stopPropagation();
-
-    // Aktualisiert die Eigenschaft im Datenobjekt
-    data[property] = event.target.checked;
-
-    // Optional: Hier kann eine Methode aufgerufen werden,
-    // um die Änderungen zu speichern oder zu verarbeiten
-    this.saveChanges(data);
-  }
-
-  /**
-   * Beispielmethode zum Speichern der Änderungen
-   * @param data Das geänderte Datenelement
-   */
-  saveChanges(data: any): void {
-    // Implementieren Sie hier Ihre Logik zum Speichern der Änderungen
-    console.log('Änderungen gespeichert:', data);
-  }
-
   onClickedRow(data: any): void {
-    this.highlightRowId = data.id;
+    this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
   }
 
   onClickEdit(data: any): void {
     // Weitere bestehende Logik beibehalten
+  }
+
+  onMouseEnter(data: any): void {
+    this.hoveredRowId = data.id;
+  }
+
+  onMouseLeave(): void {
+    this.hoveredRowId = undefined;
   }
 
   open(data: any): void {

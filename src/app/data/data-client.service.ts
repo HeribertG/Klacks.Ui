@@ -195,17 +195,6 @@ export class DataClientService {
   }
 
   private setCorrectGender(value: IClient) {
-    // switch (value.gender.toString()) {
-    //   case 'GenderEnum.female':
-    //     value.gender = GenderEnum.female;
-    //     break;
-    //   case 'GenderEnum.male':
-    //     value.gender = GenderEnum.male;
-    //     break;
-    //   case 'GenderEnum.legalEntity':
-    //     value.gender = GenderEnum.legalEntity;
-    //     break;
-    // }
     value.gender = Number(value.gender);
   }
 

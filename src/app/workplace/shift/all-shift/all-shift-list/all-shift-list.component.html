@@ -78,7 +78,12 @@
           (click)="onClickedRow(data)"
           [class.active]="data.id === highlightRowId"
         >
-          <tr>
+          <tr
+            (mouseenter)="onMouseEnter(data)"
+            (mouseleave)="onMouseLeave()"
+            [class.hover-row]="data.id === hoveredRowId"
+            [class.selected-row]="data.id === selectedRowId"
+          >
             <td colspan="2" class="table-cell-small-border">
               <p>{{ data.name }}</p>
             </td>
@@ -97,7 +102,7 @@
               </p>
             </td>
 
-            <td rowspan="2" class="table-cell cell-right">
+            <td rowspan="2" class="table-cell-small-border cell-right">
               <div class="icon icon-padding">
                 <icon-pencil-icon-grey></icon-pencil-icon-grey>
               </div>
@@ -107,7 +112,12 @@
             </td>
           </tr>
 
-          <tr>
+          <tr
+            (mouseenter)="onMouseEnter(data)"
+            (mouseleave)="onMouseLeave()"
+            [class.hover-row]="data.id === hoveredRowId"
+            [class.selected-row]="data.id === selectedRowId"
+          >
             <td class="table-cell-small-border-with-bottom cell-center">
               <p>{{ data.startShift || "00:00" }}</p>
             </td>
