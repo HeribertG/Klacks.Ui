@@ -1,0 +1,80 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+
+.col-time {
+  width: 18%;
+}
+.col-day {
+  width: 5.4%;
+}
+.col-action {
+  width: 11.5%;
+}
+
+p {
+  margin-left: 5px;
+  padding-top: 8px;
+  margin-bottom: 3px;
+}
+
+tr:nth-child(4n + 1),
+tr:nth-child(4n + 2) {
+  background-color: transparent !important;
+}
+
+tr:nth-child(4n + 3),
+tr:nth-child(4n + 4) {
+  background-color: var(--backgroundColorWorkplace);
+}
+
+.table-cell-small-border,
+.table-cell-small-border-with-bottom,
+.table-cell {
+  background-color: inherit;
+}
+
+.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+.active.hover-row {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.hover-row td {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.selected-row,
+tr.selected-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.selected-row.hover-row,
+tr.selected-row.hover-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+thead {
+  th {
+    padding: 6px 8px;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid var(--colorLine);
+    background: linear-gradient(
+      to bottom,
+      var(--gridBackgroundColorRowHover),
+      var(--backgroundColorWindow)
+    );
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  tr:first-child th {
+    border-bottom: 1px solid var(--colorLine);
+  }
+}

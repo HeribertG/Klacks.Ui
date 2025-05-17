@@ -12,13 +12,14 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IShift, Shift } from 'src/app/core/schedule-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { MockDataManagementShiftService } from 'src/app/data/management/mock-data-management-shift.service';
 import { visibleRow } from 'src/app/helpers/sharedItems';
-import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
+import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { OriginalTableComponent } from './original-table/original-table.component';
+import { Shift } from 'src/app/core/shift-data-class';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -31,8 +32,10 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
     NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,
+    OriginalTableComponent,
     PencilIconGreyComponent,
     TrashIconRedComponent,
+    IconScissorComponent,
   ],
   providers: [MockDataManagementShiftService],
 })
@@ -40,9 +43,6 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(MockDataManagementShiftService);
   public dataManagementShiftService2 = inject(DataManagementShiftService);
-
-  highlightRowId?: string;
-  selectedRowId?: string;
 
   visibleRow: { text: string; value: number }[] = [];
   realRow = 1;
@@ -74,7 +74,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   onLostFocus(): void {}
 
   onClickedRow(data: any): void {
-    this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
+    //this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
   }
 
   onClickEdit(data: any): void {
@@ -84,6 +84,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   onMouseEnter(data: any): void {
     this.hoveredRowId = data.id;
   }
+
+  onClickDelete(s: Shift) {}
 
   onMouseLeave(): void {
     this.hoveredRowId = undefined;

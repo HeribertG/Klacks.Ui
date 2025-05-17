@@ -425,7 +425,11 @@
   "shift.edit-shift.weekday.time-range": "Service within the time frame (From Time hh:mm - Until Time hh:mm). Please specify the duration of the service in the Duration field.",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
-  "shift.all-shift.all-shift-home.header": "All shifts",
+  "shift.all-shift.all-shift-home.header": "All Services",
+  "shift.all-shift.list.title": "Services",
+  "shift.all-shift.list.original": "Original",
+  "shift.all-shift.list.used": "Editable Services",
+  "shift.all-shift.list.cut": "Split Services",
 
   "group.tree.headline": "Group Structure",
   "group.tree.add-root": "+ New Root Group",
@@ -445,5 +449,21 @@
   "group.select.select": "Select group",
   "group.select.expand": "Expand All",
   "group.select.collapse": "Collapse All",
-  "group.select.all-groups": "All groups"
+  "group.select.all-groups": "All groups",
+
+  "list.all-list.all-shift-list.table.name": "NAME",
+  "list.all-list.all-shift-list.table.description": "DESCRIPTION",
+  "list.all-list.all-shift-list.table.from": "FROM DATE",
+  "list.all-list.all-shift-list.table.until": "UNTIL DATE",
+  "list.all-list.all-shift-list.table.start": "FROM TIME",
+  "list.all-list.all-shift-list.table.end": "UNTIL TIME",
+  "list.all-list.all-shift-list.table.son": "SUN",
+  "list.all-list.all-shift-list.table.mon": "MON",
+  "list.all-list.all-shift-list.table.tue": "TUE",
+  "list.all-list.all-shift-list.table.wed": "WED",
+  "list.all-list.all-shift-list.table.thu": "THU",
+  "list.all-list.all-shift-list.table.Fry": "FRI",
+  "list.all-list.all-shift-list.table.sam": "SAT",
+  "list.all-list.all-shift-list.table.f": "HOL",
+  "list.all-list.all-shift-list.table.plus-f": "+HOL"
 }

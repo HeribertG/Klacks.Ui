@@ -426,6 +426,10 @@
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
   "shift.all-shift.all-shift-home.header": "Tous les services",
+  "shift.all-shift.list.title": "Services",
+  "shift.all-shift.list.original": "Original",
+  "shift.all-shift.list.used": "Services modifiables",
+  "shift.all-shift.list.cut": "Services découpés",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",
@@ -445,5 +449,21 @@
   "group.select.select": "Sélectionner un groupe",
   "group.select.expand": "Tout déplier",
   "group.select.collapse": "Tout replier",
-  "group.select.all-groups": "Tous les groupes"
+  "group.select.all-groups": "Tous les groupes",
+
+  "list.all-list.all-shift-list.table.name": "NOM",
+  "list.all-list.all-shift-list.table.description": "DESCRIPTION",
+  "list.all-list.all-shift-list.table.from": "DATE DE DÉBUT",
+  "list.all-list.all-shift-list.table.until": "DATE DE FIN",
+  "list.all-list.all-shift-list.table.start": "HEURE DE DÉBUT",
+  "list.all-list.all-shift-list.table.end": "HEURE DE FIN",
+  "list.all-list.all-shift-list.table.son": "DIM",
+  "list.all-list.all-shift-list.table.mon": "LUN",
+  "list.all-list.all-shift-list.table.tue": "MAR",
+  "list.all-list.all-shift-list.table.wed": "MER",
+  "list.all-list.all-shift-list.table.thu": "JEU",
+  "list.all-list.all-shift-list.table.Fry": "VEN",
+  "list.all-list.all-shift-list.table.sam": "SAM",
+  "list.all-list.all-shift-list.table.f": "JF",
+  "list.all-list.all-shift-list.table.plus-f": "+JF"
 }

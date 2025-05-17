@@ -426,6 +426,10 @@
   "shift.edit-shift.main.complex-mode": "Expert Mode",
 
   "shift.all-shift.all-shift-home.header": "Tutti i servizi",
+  "shift.all-shift.list.title": "Servizi",
+  "shift.all-shift.list.original": "Originale",
+  "shift.all-shift.list.used": "Servizi modificabili",
+  "shift.all-shift.list.cut": "Servizi suddivisi",
 
   "group.tree.headline": "Struttura del Gruppo",
   "group.tree.add-root": "+ Nuovo Gruppo Radice",
@@ -445,5 +449,21 @@
   "group.select.select": "Seleziona gruppo",
   "group.select.expand": "Espandi tutto",
   "group.select.collapse": "Comprimi tutto",
-  "group.select.all-groups": "Tutti i gruppi"
+  "group.select.all-groups": "Tutti i gruppi",
+
+  "list.all-list.all-shift-list.table.name": "NOME",
+  "list.all-list.all-shift-list.table.description": "DESCRIZIONE",
+  "list.all-list.all-shift-list.table.from": "DATA DI INIZIO",
+  "list.all-list.all-shift-list.table.until": "DATA DI FINE",
+  "list.all-list.all-shift-list.table.start": "ORA DI INIZIO",
+  "list.all-list.all-shift-list.table.end": "ORA DI FINE",
+  "list.all-list.all-shift-list.table.son": "DOM",
+  "list.all-list.all-shift-list.table.mon": "LUN",
+  "list.all-list.all-shift-list.table.tue": "MAR",
+  "list.all-list.all-shift-list.table.wed": "MER",
+  "list.all-list.all-shift-list.table.thu": "GIO",
+  "list.all-list.all-shift-list.table.Fry": "VEN",
+  "list.all-list.all-shift-list.table.sam": "SAB",
+  "list.all-list.all-shift-list.table.f": "FER",
+  "list.all-list.all-shift-list.table.plus-f": "+FER"
 }

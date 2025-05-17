@@ -80,6 +80,7 @@ import { IconClientsComponent } from './icons/icon-clients.component';
 import { IconChartComponent } from './icons/icon-chart.component';
 import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 import { GroupSelectComponent } from './group-select/group-select.component';
+import { IconTimeScheduleComponent } from './icons/icon-time-schedule.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -151,6 +152,7 @@ export function localeFactory(localeService: LocaleService) {
     IconClientsComponent,
     IconChartComponent,
     GroupSelectComponent,
+    IconTimeScheduleComponent,
   ],
   providers: [
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },

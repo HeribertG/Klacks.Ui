@@ -368,8 +368,8 @@
   "save": "speichern",
   "calendar.selector.store-update": "Wollen sie die Änderungen speichern?",
 
-  "new-address": "Adresse erfassen",
-  "new-work": "Dienst erfassen",
+  "new-address": "+ Adresse erfassen",
+  "new-work": "+ Dienst erfassen",
   "new-group": "+ Gruppe erfassen",
   "ALL_GROUP": "Alle Gruppen",
   "ALL_SHIFT": "Alle Dienste",
@@ -428,6 +428,9 @@
 
   "shift.all-shift.all-shift-home.header": "Alle Dienste",
   "shift.all-shift.list.title": "Dienste",
+  "shift.all-shift.list.original": "Original",
+  "shift.all-shift.list.used": "Editierbare Dienste",
+  "shift.all-shift.list.cut": "Zerteilte Dienste",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",
@@ -463,6 +466,6 @@
   "list.all-list.all-shift-list.table.thu": "DO",
   "list.all-list.all-shift-list.table.Fry": "FR",
   "list.all-list.all-shift-list.table.sam": "SA",
-  "list.all-list.all-shift-list.table.f": "FT",
-  "list.all-list.all-shift-list.table.plus-f": "+FT"
+  "list.all-list.all-shift-list.table.f": "FT", //Feiertag
+  "list.all-list.all-shift-list.table.plus-f": "+FT" //Und Feiertag
 }
