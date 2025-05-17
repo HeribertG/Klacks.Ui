@@ -5,6 +5,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { HomeComponent } from './surface/home/home.component';
+import { NoAccessComponent } from './no-access/no-access.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'workplace', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'error', component: ErrorComponent },
+  { path: 'no-access', component: NoAccessComponent },
 ];
 
 @NgModule({

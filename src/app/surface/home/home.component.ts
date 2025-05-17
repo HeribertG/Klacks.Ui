@@ -171,6 +171,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getClientType(value: string): void {
     this.reset();
+    if (!this.checkTheRights(value)) {
+      return;
+    }
 
     switch (value) {
       case 'absence':
@@ -345,5 +348,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         MessageLibrary.DEFAULT_LANG
       );
     }
+  }
+
+  private checkTheRights(value: string): boolean {
+    switch (value) {
+      case 'group':
+      case 'edit-group':
+      case 'group-structure':
+        this.navigationService.navigateToNoAccess();
+        return false;
+    }
+
+    return true;
   }
 }

@@ -405,6 +405,7 @@
   "error.headline": "Hoppla...",
   "error.message": "Bitte versuchen sie es nochmals...",
   "error.button": "neu laden",
+  "no-access.message": "Sie haben keine Rechte, auf diese Funktion zuzugreifen.",
 
   "schedule.schedule-header.schedule-header.month": "Monat: ",
   "schedule.selector.select-calendar": "Monat und Jahr selektieren",
@@ -466,6 +467,6 @@
   "list.all-list.all-shift-list.table.thu": "DO",
   "list.all-list.all-shift-list.table.Fry": "FR",
   "list.all-list.all-shift-list.table.sam": "SA",
-  "list.all-list.all-shift-list.table.f": "FT", //Feiertag
-  "list.all-list.all-shift-list.table.plus-f": "+FT" //Und Feiertag
+  "list.all-list.all-shift-list.table.f": "FT",
+  "list.all-list.all-shift-list.table.plus-f": "+FT"
 }

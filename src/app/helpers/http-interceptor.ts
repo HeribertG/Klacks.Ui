@@ -11,7 +11,6 @@ import { MessageLibrary } from './string-constants';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { DataManagementSwitchboardService } from '../data/management/data-management-switchboard.service';
-import { SpinnerService } from '../spinner/spinner.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

@@ -81,6 +81,7 @@ import { IconChartComponent } from './icons/icon-chart.component';
 import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 import { GroupSelectComponent } from './group-select/group-select.component';
 import { IconTimeScheduleComponent } from './icons/icon-time-schedule.component';
+import { NoAccessComponent } from './no-access/no-access.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -97,7 +98,6 @@ export function localeFactory(localeService: LocaleService) {
 
 @NgModule({
   declarations: [
-    ErrorComponent,
     LoginComponent,
     AppComponent,
     HomeComponent,
@@ -153,6 +153,8 @@ export function localeFactory(localeService: LocaleService) {
     IconChartComponent,
     GroupSelectComponent,
     IconTimeScheduleComponent,
+    NoAccessComponent,
+    ErrorComponent,
   ],
   providers: [
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },

@@ -404,6 +404,7 @@
   "error.headline": "Oups...",
   "error.message": "Veuillez réessayer...",
   "error.button": "recharger",
+  "no-access.message": "Vous n'êtes pas autorisé à accéder à cette fonctionnalité.",
 
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le Mois et l'Année",

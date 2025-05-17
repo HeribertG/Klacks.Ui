@@ -57,6 +57,9 @@ export class NavigationService {
     this.router.navigate(['/error']);
   }
 
+  navigateToNoAccess(): void {
+    this.router.navigate(['/no-access']);
+  }
   navigateToEditAddress(): void {
     this.router.navigate(['/workplace/edit-address']);
   }
