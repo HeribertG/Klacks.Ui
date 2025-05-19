@@ -28,6 +28,7 @@ import {
   takeUntil,
   throttleTime,
 } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 enum ArrowDirection {
   NONE = 0,
@@ -39,7 +40,8 @@ enum ArrowDirection {
   selector: 'app-h-scrollbar',
   templateUrl: './h-scrollbar.component.html',
   styleUrls: ['./h-scrollbar.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule],
 })
 export class HScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -343,7 +345,10 @@ export class HScrollbarComponent
     this.updateCanvasSize(canvas.offsetWidth);
   }
 
-  onResize(entries: ResizeObserverEntry[]): void {
+  onResize(event: any): void {
+    const entries = Array.isArray(event)
+      ? (event as ResizeObserverEntry[])
+      : [];
     if (entries?.[0]) {
       this.updateCanvasSize(entries[0].contentRect.width - this.CANVAS_PADDING);
     }

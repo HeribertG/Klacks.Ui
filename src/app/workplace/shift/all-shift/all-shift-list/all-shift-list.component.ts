@@ -33,9 +33,6 @@ import { Shift } from 'src/app/core/shift-data-class';
     NgbPaginationModule,
     TranslateModule,
     OriginalTableComponent,
-    PencilIconGreyComponent,
-    TrashIconRedComponent,
-    IconScissorComponent,
   ],
   providers: [MockDataManagementShiftService],
 })

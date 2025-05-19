@@ -1,4 +1,4 @@
-import { NgIf } from '@angular/common';
+import { CommonModule, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
@@ -18,7 +18,11 @@ import { RenderRowHeaderCellService } from '../services/render-row-header-cell.s
   templateUrl: './absence-gantt-home.component.html',
   styleUrls: ['./absence-gantt-home.component.scss'],
   standalone: true,
-  imports: [NgIf, AbsenceGanttHeaderComponent, AbsenceGanttContainerComponent],
+  imports: [
+    CommonModule,
+    AbsenceGanttHeaderComponent,
+    AbsenceGanttContainerComponent,
+  ],
   providers: [
     CalendarSettingService,
     ScrollbarService,

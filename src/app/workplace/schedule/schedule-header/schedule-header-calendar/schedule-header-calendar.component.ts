@@ -2,12 +2,26 @@ import { Component } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 import { DataService } from '../../services/data.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { CounterComponent } from 'src/app/shared/counter/counter.component';
+import { CalendarDropdownComponent } from 'src/app/shared/calendar-dropdown/calendar-dropdown.component';
+import { ChipsComponent } from 'src/app/shared/chips/chips.component';
 
 @Component({
   selector: 'app-schedule-header-calendar',
   templateUrl: './schedule-header-calendar.component.html',
   styleUrls: ['./schedule-header-calendar.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    CounterComponent,
+    CalendarDropdownComponent,
+    ChipsComponent,
+  ],
 })
 export class ScheduleHeaderCalendarComponent {
   currentYear: number = new Date().getFullYear();

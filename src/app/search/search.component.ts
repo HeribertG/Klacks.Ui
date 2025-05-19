@@ -5,22 +5,32 @@ import {
   signal,
   computed,
   ChangeDetectorRef,
+  inject,
 } from '@angular/core';
 import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule, FormsModule, FontAwesomeModule, TranslateModule],
 })
 export class SearchComponent {
   @HostListener('search', ['$event'])
   onsearch(event: KeyboardEvent) {
     this.onClickSearch();
   }
+
+  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementSearch = inject(DataManagementSearchService);
+  private cdr = inject(ChangeDetectorRef);
 
   public faSearch = faSearch;
   public isVisible = false;
@@ -29,11 +39,7 @@ export class SearchComponent {
   public includeAddress = false;
   public searchString = '';
 
-  constructor(
-    private dataManagementSwitchboard: DataManagementSwitchboardService,
-    private dataManagementSearch: DataManagementSearchService,
-    private cdr: ChangeDetectorRef
-  ) {
+  constructor() {
     effect(() => {
       const restored = this.dataManagementSearch.restoreSearch();
       if (restored) {

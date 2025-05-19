@@ -153,7 +153,6 @@ export class MainComponent implements OnChanges {
         '../../workplace/schedule/schedule-home/schedule-home.component'
       ).then((m) => {
         const comp = m.ScheduleHomeComponent;
-
         const compRef =
           this.viewContainer.createComponent<ScheduleHomeComponent>(comp);
 

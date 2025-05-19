@@ -17,12 +17,26 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ScrollService } from '../services/scroll.service';
 import { DataScheduleService } from 'src/app/data/data-schedule.service';
+import { CommonModule } from '@angular/common';
+import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
+import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
-    selector: 'app-schedule-shift-surface',
-    templateUrl: './schedule-shift-surface.component.html',
-    styleUrls: ['./schedule-shift-surface.component.scss'],
-    standalone: false
+  selector: 'app-schedule-shift-surface',
+  templateUrl: './schedule-shift-surface.component.html',
+  styleUrls: ['./schedule-shift-surface.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ContextMenuComponent,
+    ScheduleHScrollbarComponent,
+    ScheduleVScrollbarComponent,
+    ScheduleScheduleRowHeaderComponent,
+    ResizeDirective,
+    SharedModule,
+  ],
 })
 export class ScheduleShiftSurfaceComponent
   implements OnInit, AfterViewInit, OnDestroy

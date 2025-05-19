@@ -20,6 +20,7 @@ import { DataSettingsVariousService } from 'src/app/data/data-settings-various.s
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-home',
@@ -37,6 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
+  private authorizationService = inject(AuthorizationService);
 
   @ViewChild('content', { static: false }) private content: any;
 
@@ -171,7 +173,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   getClientType(value: string): void {
     this.reset();
-    if (!this.checkTheRights(value)) {
+    if (!this.checkAccessRights(value)) {
       return;
     }
 
@@ -215,9 +217,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'schedule':
-        import('../../workplace/schedule/schedule.module').then(
-          (m) => m.ScheduleModule
-        );
         this.isSchedule = true;
         this.setContainerWithMax();
         this.isSavebarVisible = false;
@@ -350,13 +349,16 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  private checkTheRights(value: string): boolean {
+  private checkAccessRights(value: string): boolean {
     switch (value) {
+      case 'settings':
       case 'group':
       case 'edit-group':
       case 'group-structure':
-        this.navigationService.navigateToNoAccess();
-        return false;
+        if (!this.authorizationService.isAdmin) {
+          this.navigationService.navigateToNoAccess();
+          return false;
+        }
     }
 
     return true;

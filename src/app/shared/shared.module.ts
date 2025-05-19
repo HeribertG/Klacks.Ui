@@ -8,11 +8,8 @@ import { ButtonNewComponent } from './button-new/button-new.component';
 import { ButtonPdfComponent } from './button-pdf/button-pdf.component';
 import { DragDropFileUploadDirective } from '../directives/drag-drop-file-upload.directive';
 import { ButtonSettingComponent } from './button-setting/button-setting.component';
-import { CalendarDropdownComponent } from './calendar-dropdown/calendar-dropdown.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { ChipsComponent } from './chips/chips.component';
-import { CalendarSelectorComponent } from './calendar-selector/calendar-selector.component';
 import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -48,15 +45,6 @@ import { ResizeDirective } from '../directives/resize.directive';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    CalendarDropdownComponent,
-    ChipsComponent,
-    CalendarSelectorComponent,
-    HScrollbarComponent,
-    VScrollbarComponent,
-    CounterComponent,
-    ContextMenuComponent,
-    MenuComponent,
-    MenuItemComponent,
     ClickOutsideDirective,
   ],
   imports: [
@@ -91,15 +79,6 @@ import { ResizeDirective } from '../directives/resize.directive';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    CalendarDropdownComponent,
-    ChipsComponent,
-    CalendarSelectorComponent,
-    HScrollbarComponent,
-    VScrollbarComponent,
-    CounterComponent,
-    ContextMenuComponent,
-    MenuComponent,
-    MenuItemComponent,
     ClickOutsideDirective,
     FallbackPipe,
     ResizeDirective,

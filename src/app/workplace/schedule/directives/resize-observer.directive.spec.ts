@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ResizeObserverDirective } from './resize-observer.directive';
 import { By } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
 
 // Mock für ResizeObserver
 class ResizeObserverMock {
@@ -10,8 +11,9 @@ class ResizeObserverMock {
 }
 
 @Component({
-    template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
-    standalone: false
+  template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
+  standalone: true,
+  imports: [CommonModule],
 })
 class TestComponent {
   onResize(entry: any) {}

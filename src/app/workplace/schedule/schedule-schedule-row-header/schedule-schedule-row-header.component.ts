@@ -11,12 +11,37 @@ import { ScrollService } from '../services/scroll.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../services/settings.service';
+import { CommonModule } from '@angular/common';
+import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { CanvasManagerService } from '../services/canvas-manager.service';
+import { CellRenderService } from '../services/cell-render.service';
+import { CellManipulationService } from '../services/cell-manipulation.service';
+import { CreateCellService } from '../services/create-cell.service';
+import { CreateRowHeaderService } from '../services/create-row-header.service';
+import { CreateHeaderService } from '../services/create-header.service';
+import { GridRenderService } from '../services/grid-render.service';
+import { DrawScheduleService } from '../services/draw-schedule.service';
 
 @Component({
-    selector: 'app-schedule-schedule-row-header',
-    templateUrl: './schedule-schedule-row-header.component.html',
-    styleUrls: ['./schedule-schedule-row-header.component.scss'],
-    standalone: false
+  selector: 'app-schedule-schedule-row-header',
+  templateUrl: './schedule-schedule-row-header.component.html',
+  styleUrls: ['./schedule-schedule-row-header.component.scss'],
+  standalone: true,
+  imports: [CommonModule, ResizeDirective],
+  providers: [
+    DataService,
+    ScrollService,
+    SettingsService,
+    CanvasManagerService,
+    CellManipulationService,
+    CellRenderService,
+    CreateCellService,
+    CreateHeaderService,
+    CreateRowHeaderService,
+    DrawRowHeaderService,
+    DrawScheduleService,
+    GridRenderService,
+  ],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnDestroy

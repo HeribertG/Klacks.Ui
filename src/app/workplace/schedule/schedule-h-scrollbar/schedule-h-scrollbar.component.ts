@@ -11,12 +11,14 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 import { ScrollService } from '../services/scroll.service';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
-    selector: 'app-schedule-h-scrollbar',
-    templateUrl: './schedule-h-scrollbar.component.html',
-    styleUrls: ['./schedule-h-scrollbar.component.scss'],
-    standalone: false
+  selector: 'app-schedule-h-scrollbar',
+  templateUrl: './schedule-h-scrollbar.component.html',
+  styleUrls: ['./schedule-h-scrollbar.component.scss'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
   public maximumCol: number = 0;

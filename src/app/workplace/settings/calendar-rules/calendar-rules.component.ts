@@ -42,6 +42,7 @@ import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { CalendarDropdownComponent } from 'src/app/shared/calendar-dropdown/calendar-dropdown.component';
 
 @Component({
   selector: 'app-calendar-rules',
@@ -61,6 +62,7 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
     PencilIconGreyComponent,
     ExcelComponent,
     FallbackPipe,
+    CalendarDropdownComponent,
   ],
 })
 export class CalendarRulesComponent

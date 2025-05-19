@@ -6,18 +6,29 @@ import {
   OnInit,
   Output,
   ViewChild,
+  ViewEncapsulation,
 } from '@angular/core';
 import { Menu } from './context-menu-class';
 import { MenuComponent } from './menu/menu.component';
 import { ContextMenuService } from './context-menu.service';
 import { Timer } from 'src/app/helpers/timer';
 import { Subject, takeUntil } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { MenuItemComponent } from './menu-item/menu-item.component';
+import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 
 @Component({
-    selector: 'app-context-menu',
-    templateUrl: './context-menu.component.html',
-    styleUrls: ['./context-menu.component.scss'],
-    standalone: false
+  selector: 'app-context-menu',
+  templateUrl: './context-menu.component.html',
+  styleUrls: ['./context-menu.component.scss'],
+  standalone: true,
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    CommonModule,
+    MenuItemComponent,
+    MenuComponent,
+    ClickOutsideDirective,
+  ],
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
   @ViewChild('main', { static: true }) main!: MenuComponent;

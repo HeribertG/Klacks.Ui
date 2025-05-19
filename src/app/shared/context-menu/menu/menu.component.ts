@@ -1,19 +1,36 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  forwardRef,
+  inject,
+  Input,
+  ViewChild,
+} from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { Timer } from 'src/app/helpers/timer';
+import { CommonModule } from '@angular/common';
+import { MenuItemComponent } from '../menu-item/menu-item.component';
+import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 
 @Component({
-    selector: 'app-menu',
-    templateUrl: './menu.component.html',
-    styleUrls: ['./menu.component.scss'],
-    standalone: false
+  selector: 'app-menu',
+  templateUrl: './menu.component.html',
+  styleUrls: ['./menu.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    forwardRef(() => MenuItemComponent),
+    ClickOutsideDirective,
+  ],
 })
 export class MenuComponent {
   @Input() menu: Menu | undefined;
   @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
 
-  constructor(private elementRef: ElementRef) {}
+  private cdr = inject(ChangeDetectorRef);
+  private elementRef = inject(ElementRef);
 
   isVisible = false;
   rightPanelStyle: any = {};
@@ -45,6 +62,7 @@ export class MenuComponent {
     this.isVisible = true;
     this.myTimer.start(() => {
       this.recalcPosition();
+      this.cdr.detectChanges();
     }, 100);
   }
 
@@ -109,6 +127,11 @@ export class MenuComponent {
 
   private recalcPosition(): void {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
+    console.log('Menu element:', nativeElement);
+    console.log('Children:', nativeElement.children);
+    console.log('First child:', nativeElement.children[0]);
+    console.log('Width:', nativeElement.children[0]?.clientWidth);
+    console.log('Height:', nativeElement.children[0]?.clientHeight);
     const width = nativeElement.children[0].clientWidth + 4;
     const height = nativeElement.children[0].clientHeight + 4;
 

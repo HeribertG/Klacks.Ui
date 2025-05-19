@@ -21,7 +21,7 @@ import {
  */
 @Directive({
   selector: '[clickOutside]',
-  standalone: false,
+  standalone: true,
 })
 export class ClickOutsideDirective {
   @Output() clickOutside = new EventEmitter<MouseEvent>();

@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  forwardRef,
   Input,
   Output,
   ViewChild,
@@ -10,12 +11,19 @@ import { MenuItem } from '../context-menu-class';
 import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
 import { Timer } from 'src/app/helpers/timer';
+import { CommonModule } from '@angular/common';
+import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 
 @Component({
-    selector: 'app-menu-item',
-    templateUrl: './menu-item.component.html',
-    styleUrls: ['./menu-item.component.scss'],
-    standalone: false
+  selector: 'app-menu-item',
+  templateUrl: './menu-item.component.html',
+  styleUrls: ['./menu-item.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    forwardRef(() => MenuComponent),
+    ClickOutsideDirective,
+  ],
 })
 export class MenuItemComponent {
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;

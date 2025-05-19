@@ -9,7 +9,10 @@ import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.comp
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { AngularSplitModule } from 'angular-split';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { CommonModule } from '@angular/common';
+import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
+import { AbsenceGanttAbsenceListComponent } from '../absence-gantt-header/absence-gantt-absence-list/absence-gantt-absence-list.component';
+import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 
 @Component({
   selector: 'app-absence-gantt-container',
@@ -17,12 +20,18 @@ import { SharedModule } from 'src/app/shared/shared.module';
   styleUrls: ['./absence-gantt-container.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     AngularSplitModule,
+    AbsenceGanttHeaderComponent,
+    AbsenceGanttAbsenceListComponent,
+    AbsenceGanttMaskComponent,
     AbsenceGanttRowHeaderComponent,
     AbsenceGanttSurfaceComponent,
-    AbsenceGanttMaskComponent,
-    SharedModule,
+    HScrollbarComponent,
+    VScrollbarComponent,
+    ContextMenuComponent,
   ],
+  providers: [ScrollbarService],
 })
 export class AbsenceGanttContainerComponent implements OnInit {
   @Output() refreshEvent = new EventEmitter();

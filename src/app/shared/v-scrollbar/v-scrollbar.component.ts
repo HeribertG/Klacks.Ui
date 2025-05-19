@@ -28,6 +28,7 @@ import {
   takeUntil,
   throttleTime,
 } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 enum ArrowDirection {
   NONE = 0,
@@ -39,7 +40,8 @@ enum ArrowDirection {
   selector: 'app-v-scrollbar',
   templateUrl: './v-scrollbar.component.html',
   styleUrls: ['./v-scrollbar.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [CommonModule],
 })
 export class VScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -343,7 +345,10 @@ export class VScrollbarComponent
     this.updateCanvasSize(canvas.offsetWidth, canvas.offsetHeight);
   }
 
-  onResize(entries: ResizeObserverEntry[]): void {
+  onResize(event: any): void {
+    const entries = Array.isArray(event)
+      ? (event as ResizeObserverEntry[])
+      : [];
     if (!entries?.[0]) return;
 
     const entry = entries[0];

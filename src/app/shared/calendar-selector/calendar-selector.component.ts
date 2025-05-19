@@ -12,7 +12,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import {
@@ -26,6 +26,11 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
+import { ChipsComponent } from '../chips/chips.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 interface TranslationResults {
   headerCalendarDropdown: string;
@@ -39,7 +44,15 @@ interface TranslationResults {
   selector: 'app-calendar-selector',
   templateUrl: './calendar-selector.component.html',
   styleUrls: ['./calendar-selector.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    CalendarDropdownComponent,
+    ChipsComponent,
+    FontAwesomeModule,
+  ],
 })
 export class CalendarSelectorComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -14,7 +14,7 @@ import { CellManipulationService } from '../services/cell-manipulation.service';
 
 @Directive({
   selector: '[cellEvents]',
-  standalone: false,
+  standalone: true,
 })
 export class CellEventsDirective {
   private keyDown = false;
