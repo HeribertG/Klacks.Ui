@@ -3,11 +3,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DragDropFileUploadDirective } from './drag-drop-file-upload.directive';
 
 @Component({
-    template: `<div
+  template: `<div
     appDragDropFileUpload
     (fileDropped)="onFileDropped($event)"
   ></div>`,
-    standalone: false
+  standalone: true,
 })
 class TestComponent {
   onFileDropped(files: any) {}

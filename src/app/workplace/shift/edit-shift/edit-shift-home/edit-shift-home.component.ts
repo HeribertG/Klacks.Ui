@@ -29,7 +29,7 @@ import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.componen
   ],
 })
 export class EditShiftHomeComponent implements OnInit {
-  @Input() isCreateShift: boolean = false;
+  @Input() isCreateShift = false;
   @Output() isChangingEvent = new EventEmitter();
 
   isComplex = false;

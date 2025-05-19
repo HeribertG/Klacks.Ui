@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
   selector: 'icon-uplaod-icon',
   styleUrls: ['./buttons.scss'],
   template: `

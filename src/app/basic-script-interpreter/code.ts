@@ -61,12 +61,12 @@ export class Results {
 export class Code {
   private code: any[] = [];
   private scopes: Scopes = new Scopes();
-  private pc: number = -1;
+  private pc = -1;
   private _external: Scope = new Scope();
-  private _allowUI: boolean = false;
+  private _allowUI = false;
   private _timeout = 60000;
-  private cancelled: boolean = false;
-  private isRunning: boolean = false;
+  private cancelled = false;
+  private isRunning = false;
   private _results: Results[] = [];
   private _resultsDebug: Results[] = [];
   private _hasNewDebugInfos = false;
@@ -170,7 +170,7 @@ export class Code {
 
   clone(): Code {
     const result = new Code(this.interpreterError, this.stringInput);
-    // tslint:disable-next-line:prefer-for-of
+   
     for (let i = 0; i < this.code.length; i++) {
       result.cloneAdd(this.code[i]);
     }
@@ -394,7 +394,7 @@ export class Code {
           break;
         case Opcodes.opMessage:
           try {
-            // tslint:disable-next-line:no-shadowed-variable
+           
             let msg = '';
             let type: number | undefined;
             register = this.scopes.pop().value;

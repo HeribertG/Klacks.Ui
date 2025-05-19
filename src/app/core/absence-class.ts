@@ -81,7 +81,7 @@ export class AbsenceReason implements IAbsenceReason {
 }
 
 export class CalendarHeaderDayRank {
-  backColor: string = '';
-  name: string = '';
+  backColor = '';
+  name = '';
   rect: Rectangle = new Rectangle(0, 0, 20, 20);
 }

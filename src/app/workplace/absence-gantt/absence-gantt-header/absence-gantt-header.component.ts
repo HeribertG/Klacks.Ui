@@ -40,7 +40,7 @@ export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
-  value: number = 100;
+  value = 100;
 
   options: Options = {
     floor: 50,

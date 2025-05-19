@@ -42,7 +42,7 @@ export class DataManagementShiftService {
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
-  public headerCheckBoxValue: boolean = false;
+  public headerCheckBoxValue = false;
 
   private isInit = false;
   private initCount = 0;
@@ -146,7 +146,7 @@ export class DataManagementShiftService {
     return false;
   }
 
-  readPage(isSecondRead: boolean = false) {
+  readPage(isSecondRead = false) {
     this.showProgressSpinner.set(true);
     this.dataShiftService.readShiftList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;

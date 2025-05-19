@@ -17,6 +17,6 @@ import { TranslateModule } from '@ngx-translate/core';
   ],
 })
 export class AllShiftHomeComponent {
-  @Input() isShift: boolean = false;
+  @Input() isShift = false;
   @Output() isChangingEvent = new EventEmitter();
 }

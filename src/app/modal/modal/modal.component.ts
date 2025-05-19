@@ -97,10 +97,10 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   open(content: any, modalType: ModalType): void {
     this.modalService.contentInputString = '';
     this.ngbModal.open(content, { size: 'sm', centered: true }).result.then(
-      (x) => {
+      (x: any) => {
         this.modalService.result(modalType);
       },
-      (reason) => {
+      (reason: any) => {
         this.modalService.failedReason(modalType);
       }
     );

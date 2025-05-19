@@ -17,8 +17,8 @@ export class SyntaxAnalyser {
   private _code: Code | undefined = undefined;
   private _symbol: Sym = new Sym();
   private _symbolTable: Scopes = new Scopes();
-  private _optionExplicit: boolean = false;
-  private _allowExternal: boolean = false;
+  private _optionExplicit = false;
+  private _allowExternal = false;
 
   constructor(
     private interpreterError: InterpreterError | undefined,
@@ -194,7 +194,7 @@ export class SyntaxAnalyser {
 
   // FunctionDefinition ::= "FUNCTION" Identifier [ "(" [ Identifier { "," Identifier } ] ")" ] Statementlist "END FUNCTION"
   private functionDefinition() {
-    // tslint:disable-next-line:prefer-const
+   
 
     const res: { isOk: boolean; skipFunctionPC: number } =
       this.subFunctionDefinition();
@@ -210,12 +210,12 @@ export class SyntaxAnalyser {
 
   private subFunctionDefinition(): { isOk: boolean; skipFunctionPC: number } {
     let ident: string;
-    // tslint:disable-next-line:prefer-const
-    let formalParameters: any[] = new Array();
-    // tslint:disable-next-line:prefer-const
-    let isSub = (this._symbol.token === Tokens.tokSUB) as boolean;
+   
+    const formalParameters: any[] = [];
+   
+    const isSub = (this._symbol.token === Tokens.tokSUB) as boolean;
     let definition: Identifier = new Identifier();
-    let skipFunctionPC: number = -1;
+    let skipFunctionPC = -1;
     let isOk = false;
     let currentToken: Tokens = Tokens.tokNone;
 
@@ -520,10 +520,10 @@ export class SyntaxAnalyser {
   }
 
   private DoStatement(singleLineOnly: boolean, exitsAllowed: number) {
-    let conditionPC: number = -1;
-    let doPC: number = -1;
-    let pushExitAddrPC: number = -1;
-    let thisDOisSingleLineOnly: boolean = false;
+    let conditionPC = -1;
+    let doPC = -1;
+    let pushExitAddrPC = -1;
+    let thisDOisSingleLineOnly = false;
     let doWhile = false;
     let currentToken: Tokens = Tokens.tokNone;
 
@@ -723,7 +723,7 @@ export class SyntaxAnalyser {
 
   private conditionalTerm() {
     let currentToken: Tokens;
-    const operandPCs = new Array();
+    const operandPCs = [];
 
     this.conditionalFactor();
 
@@ -1272,7 +1272,7 @@ export class SyntaxAnalyser {
   }
 
   callUserDefinedFunction(ident: string) {
-    let requireRightParent: boolean = false;
+    let requireRightParent = false;
 
     // Identifier überhaupt als Funktion definiert?
     if (

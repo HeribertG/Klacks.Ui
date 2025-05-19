@@ -37,5 +37,5 @@ import { RenderRowHeaderCellService } from '../services/render-row-header-cell.s
   ],
 })
 export class AbsenceGanttHomeComponent {
-  @Input() isAbsence: boolean = false;
+  @Input() isAbsence = false;
 }

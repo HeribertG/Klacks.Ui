@@ -10,11 +10,9 @@ import { AttentionGreyComponent } from 'src/app/icons/attention-icon-grey.compon
   standalone: true,
   imports: [CommonModule, TranslateModule, AttentionGreyComponent],
 })
-export class DeletewindowComponent implements OnInit {
+export class DeletewindowComponent {
   @Input() title = 'Löschen';
-  @Input() message: string = '';
+  @Input() message = '';
 
   constructor(private translateService: TranslateService) {}
-
-  ngOnInit(): void {}
 }

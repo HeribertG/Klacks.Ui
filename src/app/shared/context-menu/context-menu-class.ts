@@ -23,8 +23,8 @@ export class MenuItem implements IMenuItem {
     key: string,
     name: string,
     isSeparator: boolean,
-    shortCut: string = '',
-    iconFont: string = ''
+    shortCut = '',
+    iconFont = ''
   ) {
     this.key = key;
     this.name = name;

@@ -72,7 +72,7 @@ export class CellManipulationService {
   cut() {}
 
   private setClipboardData(data: string): void {
-    let listener = (e: ClipboardEvent) => {
+    const listener = (e: ClipboardEvent) => {
       const clipboard = e.clipboardData;
       if (clipboard) {
         clipboard.setData('text', data.toString());

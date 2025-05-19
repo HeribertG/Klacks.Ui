@@ -26,7 +26,7 @@ export class AllGroupHomeComponent {
     DataManagementSwitchboardService
   );
 
-  @Input() isGroup: boolean = false;
+  @Input() isGroup = false;
   @Output() isChangingEvent = new EventEmitter();
 
   private _showGrid = false;

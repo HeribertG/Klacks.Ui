@@ -13,7 +13,7 @@ import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 export class CounterComponent implements OnInit {
   @Output() isChanged = new EventEmitter<number>();
   @Input() maxNumber: number | undefined = 99;
-  @Input() currentNumber: number = 1;
+  @Input() currentNumber = 1;
 
   public faAngleRight = faAngleRight;
   public faAngleLeft = faAngleLeft;

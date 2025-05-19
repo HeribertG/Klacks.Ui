@@ -5,7 +5,7 @@ export interface IGridRowHeader {
 }
 
 export class GridRowHeader implements IGridRowHeader {
-  lastRow: number = 0;
-  firstRow: number = 0;
+  lastRow = 0;
+  firstRow = 0;
   img = undefined;
 }

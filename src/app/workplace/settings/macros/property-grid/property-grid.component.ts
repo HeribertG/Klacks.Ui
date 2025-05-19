@@ -30,7 +30,7 @@ interface EnumOption {
 })
 export class PropertyGridComponent implements OnInit {
   @Input() object: any = {};
-  @Input() readOnly: boolean = false;
+  @Input() readOnly = false;
   @Input() excludeProps: string[] = [];
   @Input() metadata?: PropertyMetadata;
 

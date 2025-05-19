@@ -54,7 +54,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public iterableDiffer: any;
   public isInitFinished = false;
-  public defaultTop: number = 0;
+  public defaultTop = 0;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 

@@ -33,7 +33,7 @@ export class AbsenceGanttAbsenceListComponent
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   checkmark = '&#10003;';
 
-  private imageMap: Map<string, HTMLImageElement> = new Map();
+  private imageMap = new Map<string, HTMLImageElement>();
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
 

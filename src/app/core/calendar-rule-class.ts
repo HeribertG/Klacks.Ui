@@ -19,12 +19,12 @@ export enum HolidayStatus {
 }
 
 export class StateCountryToken {
-  id: string = '';
-  country: string = '';
+  id = '';
+  country = '';
   countryName: MultiLanguage = new MultiLanguage();
-  state: string = '';
+  state = '';
   stateName: MultiLanguage = new MultiLanguage();
-  select: boolean = false;
+  select = false;
 }
 
 export class CalendarRulesFilter
@@ -72,9 +72,9 @@ export class CalendarRule implements ICalendarRule {
 }
 
 export class PossibleHolidayRule {
-  country: string = '';
-  state: string = '';
-  selected: boolean = false;
+  country = '';
+  state = '';
+  selected = false;
   rule: ICalendarRule | undefined = undefined;
 }
 
@@ -181,9 +181,9 @@ export class HolidaysListHelper {
     easterDate = this.easter(this.currentYear);
 
     for (let i = 0; i < this.count(); i++) {
-      let item: ICalendarRule = this.item(i);
+      const item: ICalendarRule = this.item(i);
       ruleString = item.rule!;
-      let c = new HolidayDate();
+      const c = new HolidayDate();
       c.currentName = item.name!;
       c.currentDate = this.convertDate(
         easterDate,
@@ -295,7 +295,7 @@ export class HolidaysListHelper {
   }
 
   formatDate(date: Date): string {
-    let currentDate = moment(date).format('DDD DD.MMM.YYYY');
+    const currentDate = moment(date).format('DDD DD.MMM.YYYY');
 
     return currentDate;
   }
@@ -414,7 +414,7 @@ export class HolidaysListHelper {
     let alternativeDayOfWeek: number;
     let differenceDays: number;
 
-    let tmpDay: number = Number.parseInt(
+    const tmpDay: number = Number.parseInt(
       ruleString.substring(
         this.DAY_OFFSET_START_INDEX,
         this.DAY_OFFSET_END_INDEX
@@ -444,7 +444,7 @@ export class HolidaysListHelper {
   }
 
   private addDays(date: Date | string, days: number) {
-    let result = new Date(date);
+    const result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;
   }

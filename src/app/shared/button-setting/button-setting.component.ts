@@ -10,7 +10,7 @@ import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
   imports: [CommonModule, GearGreyComponent],
 })
 export class ButtonSettingComponent implements OnInit {
-  @Input() buttonDisabled: boolean = false;
+  @Input() buttonDisabled = false;
 
   constructor() {}
 

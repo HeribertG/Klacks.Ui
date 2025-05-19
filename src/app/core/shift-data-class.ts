@@ -39,31 +39,29 @@ export interface NumberPropertyMetadata {
   step?: number;
 }
 
-export interface PropertyMetadata {
-  [key: string]: NumberPropertyMetadata;
-}
+export type PropertyMetadata = Record<string, NumberPropertyMetadata>;
 
 export class ShiftData {
-  hour: number = 8; // Arbeitszeit
-  hourExact: number = 8; // Arbeitszeit
-  hourWithoutAddition: number = 8; // Arbeitszeit ohne Zusatz
-  hourWithAddition: number = 0; // Arbeitszeit mit Zusatz
-  hourAddition: number = 0.0; // Zusatz
-  blockShiftNumber: number = 1;
+  hour = 8; // Arbeitszeit
+  hourExact = 8; // Arbeitszeit
+  hourWithoutAddition = 8; // Arbeitszeit ohne Zusatz
+  hourWithAddition = 0; // Arbeitszeit mit Zusatz
+  hourAddition = 0.0; // Zusatz
+  blockShiftNumber = 1;
   shiftType: MacroShiftType = MacroShiftType.NightShift;
   weekdayNumber: Weekday = Weekday.Monday;
-  nightHour: number = 7;
-  holydayHour: number = 1;
-  dayBeforeHolydayHour: number = 7;
-  blockNumber: number = 2;
-  lastType: number = 0;
-  isHolyday: boolean = false;
-  isNextDayHolyday: boolean = true;
-  blockShiftIndex: number = 2;
-  guaranteedHours: number = 160.0;
-  hourAfterNight: number = 1;
-  hourBeforeNight: number = 0;
-  nightHourBeforeMidnight: number = 1;
+  nightHour = 7;
+  holydayHour = 1;
+  dayBeforeHolydayHour = 7;
+  blockNumber = 2;
+  lastType = 0;
+  isHolyday = false;
+  isNextDayHolyday = true;
+  blockShiftIndex = 2;
+  guaranteedHours = 160.0;
+  hourAfterNight = 1;
+  hourBeforeNight = 0;
+  nightHourBeforeMidnight = 1;
 
   static metadata: PropertyMetadata = {
     hour: { min: 0, max: 24, decimals: 2, step: 0.05 },
@@ -193,13 +191,13 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
   internalScopeUntil?: NgbDateStruct;
-  showDeleteEntries: boolean = false;
-  activeDateRange: boolean = false;
-  formerDateRange: boolean = false;
-  futureDateRange: boolean = false;
+  showDeleteEntries = false;
+  activeDateRange = false;
+  formerDateRange = false;
+  futureDateRange = false;
 
-  override orderBy: string = 'name';
-  override sortOrder: string = 'asc';
+  override orderBy = 'name';
+  override sortOrder = 'asc';
 
   selectedGroup: string | undefined = undefined;
 

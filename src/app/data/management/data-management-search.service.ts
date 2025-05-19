@@ -15,7 +15,7 @@ export class DataManagementSearchService {
 
   private _restoreSearch = signal('');
 
-  public globalSearch(value: string, isIncludeAddress: boolean = false): void {
+  public globalSearch(value: string, isIncludeAddress = false): void {
     this._restoreSearch.set(value);
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
       case 'DataManagementClientService':

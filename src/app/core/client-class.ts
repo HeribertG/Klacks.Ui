@@ -110,9 +110,9 @@ export interface IClient extends BaseEntity {
   gender: number;
   legalEntity: boolean;
   type: number | string;
-  addresses: Array<IAddress>;
-  communications: Array<ICommunication>;
-  annotations: Array<IAnnotation>;
+  addresses: IAddress[];
+  communications: ICommunication[];
+  annotations: IAnnotation[];
   internalBirthdate: NgbDateStruct | undefined;
 
   hasFutureAddress: boolean;
@@ -241,9 +241,9 @@ export class Client extends BaseEntity implements IClient {
   type = 0;
 
   membership = new Membership();
-  addresses: Array<IAddress>;
-  communications: Array<ICommunication>;
-  annotations: Array<IAnnotation>;
+  addresses: IAddress[];
+  communications: ICommunication[];
+  annotations: IAnnotation[];
 
   internalBirthdate = undefined;
 
@@ -379,7 +379,7 @@ export class Filter extends BaseFilter implements IFilter {
   }
 
   stateStatus(): boolean {
-    var res = true;
+    const res = true;
     this.list.forEach((x) => {
       res && x.select;
     });
@@ -544,7 +544,7 @@ export interface IClientBreak {
   legalEntity: boolean;
   type: number | string;
 
-  breaks: Array<IBreak>;
+  breaks: IBreak[];
 }
 
 export interface IClientBreak {
@@ -561,7 +561,7 @@ export interface IClientBreak {
   gender: string;
   legalEntity: boolean;
   type: number | string;
-  breaks: Array<IBreak>;
+  breaks: IBreak[];
 }
 
 export class ClientBreak implements IClientBreak {
@@ -579,7 +579,7 @@ export class ClientBreak implements IClientBreak {
   type = 0;
 
   membership = new Membership();
-  breaks: Array<IBreak> = [];
+  breaks: IBreak[] = [];
 }
 
 export { MultiLanguage };

@@ -37,7 +37,7 @@ export class HolidayCollectionService {
       this.possibleHolidayRule.clear;
       if (rules) {
         rules.forEach((rule) => {
-          var item = new PossibleHolidayRule();
+          const item = new PossibleHolidayRule();
           item.country = rule.country;
           item.state = rule.state;
           item.rule = rule;

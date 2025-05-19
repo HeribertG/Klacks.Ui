@@ -20,8 +20,8 @@ import { Subject } from 'rxjs';
 export class DataService {
   public refreshEvent = new Subject<boolean>();
 
-  public rowEmployeeIndex: Array<number> = new Array<number>();
-  public indexEmployeeRow: Array<number> = new Array<number>();
+  public rowEmployeeIndex: number[] = new Array<number>();
+  public indexEmployeeRow: number[] = new Array<number>();
   public startDate: Date | undefined = undefined;
 
   private rowsNumber = 0;

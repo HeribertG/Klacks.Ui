@@ -17,7 +17,7 @@ import { GenderEnum } from 'src/app/helpers/enums/client-enum';
 
 @Injectable()
 export class CreateRowHeaderService {
-  private backgroundCollection: Map<string, HTMLCanvasElement> = new Map();
+  private backgroundCollection = new Map<string, HTMLCanvasElement>();
   private oldWidth = 0;
 
   private iconWidth = this.settings.rowHeaderIconWith;
@@ -218,7 +218,7 @@ export class CreateRowHeaderService {
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number,
-    deep: number = 2
+    deep = 2
   ) {
     DrawHelper.drawBorder(
       ctx,

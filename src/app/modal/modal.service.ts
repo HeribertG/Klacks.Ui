@@ -16,22 +16,22 @@ export class ModalService {
   public resultEvent = new Subject<ModalType>();
   public reasonEvent = new Subject<ModalType>();
 
-  contentInputString: string = '';
-  contentInputTitle: string = 'Input';
-  contentInputTitleDefault: string = 'Input';
-  contentInputOkButton: string = '';
-  contentInputOkButtonDefault: string = '';
-  deleteMessage: string = '';
-  deleteMessageTitle: string = '';
-  deleteMessageTitleDefault: string = '';
-  deleteMessageOkButton: string = '';
-  deleteMessageOkButtonDefault: string = '';
-  message: string = '';
-  messageTitle: string = '';
-  messageTitleDefault: string = '';
-  messageOkButton: string = '';
-  messageOkButtonDefault: string = '';
-  Filing: string = ''; // wird als Ablage benutzt, zB. als Id für Delete
+  contentInputString = '';
+  contentInputTitle = 'Input';
+  contentInputTitleDefault = 'Input';
+  contentInputOkButton = '';
+  contentInputOkButtonDefault = '';
+  deleteMessage = '';
+  deleteMessageTitle = '';
+  deleteMessageTitleDefault = '';
+  deleteMessageOkButton = '';
+  deleteMessageOkButtonDefault = '';
+  message = '';
+  messageTitle = '';
+  messageTitleDefault = '';
+  messageOkButton = '';
+  messageOkButtonDefault = '';
+  Filing = ''; // wird als Ablage benutzt, zB. als Id für Delete
 
   private onConfirmCallback: (() => void) | null = null;
 

@@ -56,7 +56,7 @@ export class DataManagementGroupService {
   public currentClientFilter: Filter = new Filter();
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
   public clientAttribute: IClientAttribute[] = [];
-  public headerCheckBoxValue: boolean = false;
+  public headerCheckBoxValue = false;
   public stateList: StateCountryToken[] | undefined;
 
   public orderBy = 'name';
@@ -77,7 +77,7 @@ export class DataManagementGroupService {
   public groupTree: GroupTree = new GroupTree();
   public flatNodeList: Group[] = [];
   public selectedNode: Group | undefined;
-  public expandedNodes: Set<string> = new Set();
+  public expandedNodes = new Set<string>();
 
   private currentFilterDummy: GroupFilter | undefined;
   private editGroupDummy: IGroup | undefined;
@@ -187,7 +187,7 @@ export class DataManagementGroupService {
     return false;
   }
 
-  readPage(isSecondRead: boolean = false) {
+  readPage(isSecondRead = false) {
     this.showProgressSpinner.set(true);
     this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;
@@ -482,7 +482,7 @@ export class DataManagementGroupService {
   moveGroup(id: string, newParentId: string) {
     this.showProgressSpinner.set(true);
 
-    let params = new HttpParams().set('newParentId', newParentId);
+    const params = new HttpParams().set('newParentId', newParentId);
 
     return this.httpClient
       .post<IGroup>(`${environment.baseUrl}GroupTrees/move/${id}`, null, {

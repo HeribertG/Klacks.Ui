@@ -43,7 +43,7 @@ export class ScheduleContainerComponent
   splitElHorizontal!: SplitComponent;
 
   public IsInfoVisible = false;
-  public horizontalSizes: number = 200;
+  public horizontalSizes = 200;
   private ngUnsubscribe = new Subject<void>();
 
   constructor(

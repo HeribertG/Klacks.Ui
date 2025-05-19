@@ -38,7 +38,7 @@ import { CounterComponent } from 'src/app/shared/counter/counter.component';
 })
 export class ScheduleHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
-  value: number = 100;
+  value = 100;
   options: Options = {
     floor: 50,
     ceil: 300,

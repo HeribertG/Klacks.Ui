@@ -1,10 +1,10 @@
 export class Sym {
   private _token: Tokens = Tokens.tokNone;
-  private _text: string = '';
+  private _text = '';
   private _value: any | undefined;
-  private _line: number = -1;
-  private _col: number = -1;
-  private _index: number = -1;
+  private _line = -1;
+  private _col = -1;
+  private _index = -1;
 
   position(line: number, col: number, index: number) {
     this._line = line;
@@ -12,7 +12,7 @@ export class Sym {
     this._index = index;
   }
 
-  init(Token: Tokens, Text: string = '', Value: any = null) {
+  init(Token: Tokens, Text = '', Value: any = null) {
     this._token = Token;
     this._text = Text;
     this._value = Value;

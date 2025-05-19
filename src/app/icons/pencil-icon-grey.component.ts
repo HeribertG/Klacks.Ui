@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  // tslint:disable-next-line: component-selector
+ 
   selector: 'icon-pencil-icon-grey',
   styleUrls: ['./buttons.scss'],
   template: ` <svg

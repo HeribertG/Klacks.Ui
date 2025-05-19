@@ -57,39 +57,39 @@ export interface IShift {
 }
 
 export class Shift implements IShift {
-  cuttingAfterMidnight: boolean = false;
-  abbreviation: string = '';
-  description: string = '';
+  cuttingAfterMidnight = false;
+  abbreviation = '';
+  description = '';
   id: string | undefined = undefined;
-  macroId: string = '';
-  name: string = '';
+  macroId = '';
+  name = '';
   parentId?: string;
   rootId?: string;
   status: ShiftStatus = ShiftStatus.Original;
-  afterShift: string = '';
+  afterShift = '';
   internalAfterShift = new OwnTime('0', '0');
-  beforeShift: string = '';
+  beforeShift = '';
   internalBeforeShift = new OwnTime('0', '0');
-  endShift: string = '';
+  endShift = '';
   internalEndShift = new OwnTime('0', '0');
   fromDate: Date | undefined = undefined;
   internalFromDate: NgbDateStruct | undefined = undefined;
-  startShift: string = '';
+  startShift = '';
   internalStartShift = new OwnTime('0', '0');
   untilDate: Date | undefined = undefined;
   internalUntilDate: NgbDateStruct | undefined = undefined;
-  isFriday: boolean = false;
-  isHoliday: boolean = false;
-  isMonday: boolean = false;
-  isSaturday: boolean = false;
-  isSunday: boolean = false;
-  isThursday: boolean = false;
-  isTuesday: boolean = false;
-  isWednesday: boolean = false;
-  isWeekdayOrHoliday: boolean = false;
-  isSporadic: boolean = false;
-  isTimeRange: boolean = false;
-  _quantity: number = 1;
+  isFriday = false;
+  isHoliday = false;
+  isMonday = false;
+  isSaturday = false;
+  isSunday = false;
+  isThursday = false;
+  isTuesday = false;
+  isWednesday = false;
+  isWeekdayOrHoliday = false;
+  isSporadic = false;
+  isTimeRange = false;
+  _quantity = 1;
   set quantity(value: number) {
     if (!value) {
       value = 1;
@@ -103,11 +103,11 @@ export class Shift implements IShift {
   get quantity(): number {
     return this._quantity;
   }
-  travelTimeAfter: string = '';
+  travelTimeAfter = '';
   internalTravelTimeAfter = new OwnTime('0', '0');
-  travelTimeBefore: string = '';
+  travelTimeBefore = '';
   internalTravelTimeBefore = new OwnTime('0', '0');
-  workTime: number = 0;
+  workTime = 0;
   internalWorkTime = new OwnTime('0', '0');
   shiftType: ShiftType = ShiftType.IsTask;
 }
@@ -128,14 +128,14 @@ export interface IWork {
 
 export class Work implements IWork {
   client?: IClient;
-  clientId: string = '';
+  clientId = '';
   from: Date = new Date();
   internalFrom: NgbDateStruct | undefined = undefined;
   id?: string;
   information?: string;
-  isSealed: boolean = false;
+  isSealed = false;
   shift?: IShift;
-  shiftId: string = '';
+  shiftId = '';
   until: Date = new Date();
   internalUntil: NgbDateStruct | undefined = undefined;
 }
@@ -189,8 +189,8 @@ export interface IWorkFilter {
 }
 
 export class WorkFilter implements IWorkFilter {
-  dayVisibleBeforeMonth: number = 10;
-  dayVisibleAfterMonth: number = 10;
+  dayVisibleBeforeMonth = 10;
+  dayVisibleAfterMonth = 10;
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
   orderBy = '';

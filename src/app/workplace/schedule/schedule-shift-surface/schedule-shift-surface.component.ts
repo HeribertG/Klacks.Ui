@@ -52,7 +52,7 @@ export class ScheduleShiftSurfaceComponent
   private tooltip: HTMLDivElement | undefined;
   private startDate: Date = new Date();
   private _pixelRatio = 1;
-  private _columns: number = 365;
+  private _columns = 365;
   private _isFocused = false;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
 

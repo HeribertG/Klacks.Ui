@@ -153,11 +153,11 @@ export class ResponseInterceptor implements HttpInterceptor {
 
         console.log(error);
         if (error.error.errors) {
-          let validationErrors = error.error.errors;
+          const validationErrors = error.error.errors;
 
-          for (let key in validationErrors) {
+          for (const key in validationErrors) {
             if (validationErrors.hasOwnProperty(key)) {
-              let messages = validationErrors[key];
+              const messages = validationErrors[key];
               console.log('Validation error for ' + key + ':', messages);
               this.authService.errorMessage(
                 'Validation error for ' + key + ':',

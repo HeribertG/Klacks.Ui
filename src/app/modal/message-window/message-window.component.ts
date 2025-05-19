@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QuestionMarkRoundComponent } from 'src/app/icons/icon-round-question_mark.component';
 
@@ -10,9 +10,9 @@ import { QuestionMarkRoundComponent } from 'src/app/icons/icon-round-question_ma
   standalone: true,
   imports: [CommonModule, TranslateModule, QuestionMarkRoundComponent],
 })
-export class MessageWindowComponent {
+export class MessageWindowComponent implements OnInit {
   @Input() title = 'Message';
-  @Input() message: string = '';
+  @Input() message = '';
   constructor(private translateService: TranslateService) {}
 
   ngOnInit(): void {

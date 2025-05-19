@@ -217,9 +217,9 @@ export function addSecond(date: Date | string, second: number): Date {
 }
 
 export function newGuid(): string {
-  // tslint:disable-next-line: only-arrow-functions
+ 
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    // tslint:disable-next-line: no-bitwise
+   
     const r = (Math.random() * 16) | 0,
       v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -423,9 +423,9 @@ export function isNgbDateStructOk(event: NgbDateStruct | undefined): boolean {
 
 export function transformStringToOwnTimeStruct(value: string): OwnTime {
   if (value) {
-    var hours = 0;
-    var minutes = 0;
-    var split = value.split(':');
+    let hours = 0;
+    let minutes = 0;
+    const split = value.split(':');
     if (split.length != 2) return new OwnTime('00', '00');
 
     if (isNumeric(split[0])) {
@@ -558,7 +558,7 @@ export function invertColor(hex: string) {
   if (hex.length !== 6) {
     throw new Error('Invalid HEX color.');
   }
-  var r = parseInt(hex.slice(0, 2), 16),
+  const r = parseInt(hex.slice(0, 2), 16),
     g = parseInt(hex.slice(2, 4), 16),
     b = parseInt(hex.slice(4, 6), 16);
 
@@ -568,6 +568,6 @@ export function invertColor(hex: string) {
 
 export function padZero(str: string, len: number | null) {
   len = len || 2;
-  var zeros = new Array(len).join('0');
+  const zeros = new Array(len).join('0');
   return (zeros + str).slice(-len);
 }

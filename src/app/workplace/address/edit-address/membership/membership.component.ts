@@ -4,7 +4,7 @@ import {
   EventEmitter,
   inject,
   Output,
-  ViewChild,
+  ViewChild, OnDestroy,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
@@ -28,7 +28,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     NgbModule,
   ],
 })
-export class MembershipComponent implements AfterViewInit {
+export class MembershipComponent implements AfterViewInit, OnDestroy {
   @ViewChild('membershipForm', { static: false }) membershipForm:
     | NgForm
     | undefined;

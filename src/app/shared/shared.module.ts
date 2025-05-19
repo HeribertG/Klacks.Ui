@@ -30,7 +30,7 @@ import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
 import { ResizeDirective } from '../directives/resize.directive';
 
 @NgModule({
-  declarations: [DragDropFileUploadDirective],
+  declarations: [],
   imports: [
     CommonModule,
     FormsModule,
@@ -55,6 +55,7 @@ import { ResizeDirective } from '../directives/resize.directive';
     IconSignOutComponent,
     FallbackPipe,
     ResizeDirective,
+    DragDropFileUploadDirective,
   ],
   exports: [DragDropFileUploadDirective, FallbackPipe, ResizeDirective],
 })

@@ -73,7 +73,7 @@ export class Scope {
     this._variables.push(c);
   }
 
-  pop(index: number = -1): any {
+  pop(index = -1): any {
     let result;
 
     if (index < 0) {

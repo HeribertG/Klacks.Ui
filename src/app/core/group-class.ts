@@ -28,18 +28,18 @@ export interface IGroup {
 
 export class Group implements IGroup {
   id?: string;
-  name: string = '';
-  description: string = '';
+  name = '';
+  description = '';
   validFrom: Date = new Date();
   validUntil?: Date;
   internalValidFrom?: NgbDateStruct;
   internalValidUntil?: NgbDateStruct;
   parent?: string;
   root?: string;
-  lft: number = 0;
-  rgt: number = 0;
-  depth: number = 0;
-  clientsCount: number = 0;
+  lft = 0;
+  rgt = 0;
+  depth = 0;
+  clientsCount = 0;
   children: Group[] = [];
   clientIds?: string[] = [];
   groupItems: GroupItem[] = [];
@@ -133,13 +133,13 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
   internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
   internalScopeUntil?: NgbDateStruct;
-  showDeleteEntries: boolean = false;
-  activeDateRange: boolean = false;
-  formerDateRange: boolean = false;
-  futureDateRange: boolean = false;
+  showDeleteEntries = false;
+  activeDateRange = false;
+  formerDateRange = false;
+  futureDateRange = false;
 
-  override orderBy: string = 'name';
-  override sortOrder: string = 'asc';
+  override orderBy = 'name';
+  override sortOrder = 'asc';
 
   selectedGroup: string | undefined = undefined;
 

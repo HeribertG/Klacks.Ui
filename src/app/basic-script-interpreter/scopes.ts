@@ -40,7 +40,7 @@ export class Scopes {
 
   exists(
     name: string,
-    inCurrentScopeOnly: boolean = false,
+    inCurrentScopeOnly = false,
     idType = IdentifierTypes.idNone
   ): boolean {
     const n = inCurrentScopeOnly ? this._scopes.length - 1 : 0;
@@ -97,7 +97,7 @@ export class Scopes {
     }
   }
 
-  public pop(index: number = -1): any {
+  public pop(index = -1): any {
     const i = this._scopes.length - 1;
 
     const s = this._scopes[i] as Scope;

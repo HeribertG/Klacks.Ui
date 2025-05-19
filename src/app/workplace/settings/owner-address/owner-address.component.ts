@@ -6,7 +6,7 @@ import {
   Output,
   ViewChild,
   effect,
-  inject,
+  inject, AfterViewInit, OnDestroy,
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -32,7 +32,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
   ],
 })
-export class OwnerAddressComponent implements OnInit {
+export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter();
 
   @ViewChild(NgForm, { static: false }) ownerAddressForm: NgForm | undefined;

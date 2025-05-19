@@ -76,7 +76,7 @@ export class DataGroupService {
   }
 
   moveGroup(id: string, newParentId: string): Observable<IGroup> {
-    let params = new HttpParams().set('newParentId', newParentId);
+    const params = new HttpParams().set('newParentId', newParentId);
 
     return this.httpClient
       .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {

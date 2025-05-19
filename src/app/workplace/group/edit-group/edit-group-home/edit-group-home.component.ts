@@ -31,7 +31,7 @@ import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent
   ],
 })
 export class EditGroupHomeComponent implements OnInit {
-  @Input() isEditGroup: boolean = false;
+  @Input() isEditGroup = false;
   @Output() isChangingEvent = new EventEmitter();
 
   public dataManagementSwitchboardService = inject(

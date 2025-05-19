@@ -363,7 +363,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.recalcHeight(), 100);
   };
 
-  private recalcHeight(isSecondRead: boolean = false) {
+  private recalcHeight(isSecondRead = false) {
     if (this.myGridTable) {
       const addLine = measureTableHeight(this.myGridTable);
 
@@ -395,7 +395,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.highlightRowId = undefined;
   }
 
-  private readPage(isSecondRead: boolean = false) {
+  private readPage(isSecondRead = false) {
     if (!isSecondRead) {
       const lastNumberOfItemsPerPage = this.numberOfItemsPerPageMap.get(
         this.page

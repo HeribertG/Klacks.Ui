@@ -74,7 +74,7 @@ export class CreateCellService {
     backGroundColor: string,
     width: number,
     height: number,
-    isLast: boolean = false
+    isLast = false
   ): HTMLCanvasElement {
     const tempCanvas: HTMLCanvasElement = document.createElement('canvas');
     DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
@@ -92,7 +92,7 @@ export class CreateCellService {
     backGroundColor: string,
     width: number,
     height: number,
-    isLast: boolean = false
+    isLast = false
   ): void {
     ctx.save();
     ctx.clearRect(0, 0, width, height);

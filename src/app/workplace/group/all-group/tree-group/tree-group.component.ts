@@ -113,7 +113,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private debugTreeStructure(nodes: any[], level: number = 0): void {
+  private debugTreeStructure(nodes: any[], level = 0): void {
     if (!nodes || !Array.isArray(nodes)) {
       return;
     }

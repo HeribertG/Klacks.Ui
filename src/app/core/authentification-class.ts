@@ -1,6 +1,4 @@
-export interface IModelState {
-  [key: string]: string[];
-}
+export type IModelState = Record<string, string[]>;
 
 export interface IModelStateDictionary {
   isValid: boolean;

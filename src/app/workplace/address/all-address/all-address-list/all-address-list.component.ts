@@ -231,7 +231,7 @@ export class AllAddressListComponent
     setTimeout(() => this.recalcHeight(), 100);
   };
 
-  private recalcHeight(isSecondRead: boolean = false) {
+  private recalcHeight(isSecondRead = false) {
     if (this.myAddressTable) {
       const addLine = measureTableHeight(this.myAddressTable);
 
@@ -318,7 +318,7 @@ export class AllAddressListComponent
     }, 100);
   }
 
-  private readPage(isSecondRead: boolean = false) {
+  private readPage(isSecondRead = false) {
     if (!isSecondRead) {
       const lastNumberOfItemsPerPage = this.numberOfItemsPerPageMap.get(
         this.page

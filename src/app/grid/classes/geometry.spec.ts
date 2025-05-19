@@ -24,7 +24,7 @@ describe('Rectangle', () => {
     });
 
     it('should return false when comparing to a different rectangle', () => {
-      let anotherRect = new Rectangle(0, 0, 10, 10);
+      const anotherRect = new Rectangle(0, 0, 10, 10);
       expect(rect.equals(anotherRect)).toBe(false);
     });
   });

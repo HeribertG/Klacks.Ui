@@ -60,7 +60,7 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
   ],
 })
 export class SettingsHomeComponent implements OnInit {
-  @Input() isSetting: boolean = false;
+  @Input() isSetting = false;
   @Output() isChangingEvent = new EventEmitter();
 
   public translate = inject(TranslateService);

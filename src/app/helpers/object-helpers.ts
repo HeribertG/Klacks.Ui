@@ -257,7 +257,7 @@ export function compareComplexObjects(
     return true;
   }
 
-  // tslint:disable-next-line: no-shadowed-variable
+ 
   function isObjectExcluded(o: any, listOfExcludedObject?: string[]): boolean {
     if (listOfExcludedObject !== undefined) {
       const objectName = o.constructor.name;
@@ -272,7 +272,7 @@ export function compareComplexObjects(
   }
   function isObjectExcluded1(
     objectName: string,
-    // tslint:disable-next-line: no-shadowed-variable
+   
     listOfExcludedObject?: string[]
   ): boolean {
     if (listOfExcludedObject !== undefined) {

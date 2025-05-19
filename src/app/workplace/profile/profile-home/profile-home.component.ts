@@ -35,7 +35,7 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
 })
 export class ProfileHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
-  @Input() isProfile: boolean = false;
+  @Input() isProfile = false;
 
   public translate = inject(TranslateService);
   public dataManagementSwitchboardService = inject(

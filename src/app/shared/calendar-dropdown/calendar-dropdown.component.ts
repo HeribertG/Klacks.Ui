@@ -50,7 +50,7 @@ export class CalendarDropdownComponent
   );
   private translateService = inject(TranslateService);
 
-  @Input() header: string = 'Versuch';
+  @Input() header = 'Versuch';
 
   @Output() isOpening = new EventEmitter();
   @Output() isClosing = new EventEmitter();

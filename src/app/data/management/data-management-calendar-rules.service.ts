@@ -31,7 +31,7 @@ export class DataManagementCalendarRulesService {
 
   public listWrapper: TruncatedCalendarRule | undefined;
 
-  public selectedCountry: string = '';
+  public selectedCountry = '';
   public currentFilter: CalendarRulesFilter = new CalendarRulesFilter();
   public filteredRulesToken: StateCountryToken[] = [];
 

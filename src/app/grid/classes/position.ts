@@ -1,8 +1,8 @@
 export class MyPosition {
-  private _col: number = -1;
-  private _row: number = -1;
+  private _col = -1;
+  private _row = -1;
 
-  constructor(newRow: number = -1, newCol: number = -1) {
+  constructor(newRow = -1, newCol = -1) {
     this._row = newRow;
     this._col = newCol;
   }
@@ -42,13 +42,13 @@ export class MyPosition {
 }
 
 export class MyPositionCollection {
-  private items: Array<MyPosition>;
+  private items: MyPosition[];
 
   constructor() {
     this.items = [];
   }
 
-  getAll(): Array<MyPosition> {
+  getAll(): MyPosition[] {
     return this.items;
   }
 

@@ -7,7 +7,7 @@ import { NavigationService } from '../services/navigation.service';
 
 @Directive({
   selector: '[appKeyboardShortcut]',
-  standalone: false,
+  standalone: true,
 })
 export class KeyboardShortcutDirective implements OnInit, OnDestroy {
   private navigationService = inject(NavigationService);

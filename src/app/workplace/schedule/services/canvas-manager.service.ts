@@ -11,8 +11,8 @@ export class CanvasManagerService {
   public headerCanvas: HTMLCanvasElement | undefined;
   public headerCtx: CanvasRenderingContext2D | undefined;
 
-  private _width: number = 10;
-  private _height: number = 10;
+  private _width = 10;
+  private _height = 10;
 
   constructor(private settings: SettingsService) {}
 

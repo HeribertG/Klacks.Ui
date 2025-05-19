@@ -29,7 +29,7 @@ export class DataManagementSwitchboardService {
   public isSavedOrReset = false;
 
   private _nameOfVisibleEntity = '';
-  private _isSearchVisible: boolean = true;
+  private _isSearchVisible = true;
 
   private effects: ReturnType<typeof effect>[] = [];
 
@@ -181,7 +181,7 @@ export class DataManagementSwitchboardService {
     }
   }
 
-  reset(resethard: boolean = false): void {
+  reset(resethard = false): void {
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':
       case 'DataManagementClientService':

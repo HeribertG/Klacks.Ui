@@ -1,4 +1,4 @@
-export function generatePassword(length: number = 8): string {
+export function generatePassword(length = 8): string {
   if (length < 8) {
     length = 8;
   }

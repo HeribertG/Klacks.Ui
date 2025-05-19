@@ -5,7 +5,7 @@ import {
   Output,
   ViewChild,
   effect,
-  inject,
+  inject, DoCheck,
 } from '@angular/core';
 
 // Angular und Bibliotheksmodule
@@ -45,7 +45,7 @@ import {
     FontAwesomeModule,
   ],
 })
-export class ProfileDataEditComponent implements OnInit {
+export class ProfileDataEditComponent implements OnInit, DoCheck {
   @Output() isChangingEvent = new EventEmitter();
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
 

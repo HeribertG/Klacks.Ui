@@ -176,8 +176,8 @@ export class AbsenceGanttSurfaceComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    let vDirection: boolean = false;
-    let hDirection: boolean = false;
+    let vDirection = false;
+    let hDirection = false;
 
     if (changes['valueChangeHScrollbar']) {
       this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;

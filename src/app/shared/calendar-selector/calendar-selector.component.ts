@@ -282,7 +282,7 @@ export class CalendarSelectorComponent
     this.resetCountries();
     this.resetStates();
 
-    let selectedCountries = this.selectedCountries();
+    const selectedCountries = this.selectedCountries();
 
     this.setCountryFilter(selectedCountries);
 

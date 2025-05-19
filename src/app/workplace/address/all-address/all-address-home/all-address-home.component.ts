@@ -17,6 +17,6 @@ import { CommonModule } from '@angular/common';
   ],
 })
 export class AllAddressHomeComponent {
-  @Input() isClient: boolean = false;
+  @Input() isClient = false;
   @Output() isChangingEvent = new EventEmitter();
 }

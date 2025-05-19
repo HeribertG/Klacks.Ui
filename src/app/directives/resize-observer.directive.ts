@@ -18,7 +18,7 @@ const ro = new ResizeObserver((entries) => {
   }
 });
 
-// tslint:disable-next-line: directive-selector
+
 @Directive({
   selector: '[resizeObserver]',
   standalone: true,

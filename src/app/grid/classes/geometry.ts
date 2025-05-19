@@ -179,8 +179,8 @@ export class Size implements ISize {
     this.width = width;
     this.height = height;
   }
-  height: number = 0;
-  width: number = 0;
+  height = 0;
+  width = 0;
 
   clone(): Size {
     return new Size(this.width, this.height);

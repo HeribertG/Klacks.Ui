@@ -244,7 +244,7 @@ export abstract class DrawHelper {
     canvas: HTMLCanvasElement,
     width: number,
     height: number,
-    setPixelRatio: boolean = true
+    setPixelRatio = true
   ): CanvasRenderingContext2D {
     const dpr = this.pixelRatio();
     const ctx = canvas.getContext('2d', { willReadFrequently: true });

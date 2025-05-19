@@ -67,11 +67,11 @@ describe('ScriptService', () => {
       expect(isCompiled).toBeTrue();
       const result = service.run();
       expect(result).toBeTrue();
-      var message = service.result();
+      const message = service.result();
       if (message.length > 0) {
         expect(message[0].message.toString()).toBe(testCase.result.toString());
       }
-      var debugMessage = service.debugResult();
+      const debugMessage = service.debugResult();
       if (debugMessage.length > 0) {
         expect(debugMessage[0].message.toString()).toBe(
           testCase.result.toString()

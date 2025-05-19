@@ -9,7 +9,7 @@ import {
   ViewChild,
   effect,
   inject,
-  runInInjectionContext,
+  runInInjectionContext, AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -35,7 +35,7 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
     SpinnerModule,
   ],
 })
-export class EmailSettingComponent implements OnInit, OnDestroy {
+export class EmailSettingComponent implements OnInit, OnDestroy, AfterViewInit {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private injector = inject(Injector);
 

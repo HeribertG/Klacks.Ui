@@ -35,8 +35,8 @@ export class DrawRowHeaderService {
 
   public startDate: Date = new Date();
 
-  private _height: number = 10;
-  private _width: number = 10;
+  private _height = 10;
+  private _width = 10;
 
   constructor(
     public cellManipulation: CellManipulationService,
@@ -278,7 +278,7 @@ export class DrawRowHeaderService {
     return undefined;
   }
 
-  drawRowHeaderSelection(redraw: boolean = false) {
+  drawRowHeaderSelection(redraw = false) {
     this.lastSelection;
     if (this.cellManipulation.Position === undefined) {
       return;

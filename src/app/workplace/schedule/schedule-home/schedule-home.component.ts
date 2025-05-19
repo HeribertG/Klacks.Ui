@@ -43,5 +43,5 @@ import { GridRenderService } from '../services/grid-render.service';
   ],
 })
 export class ScheduleHomeComponent {
-  @Input() isSchedule: boolean = false;
+  @Input() isSchedule = false;
 }

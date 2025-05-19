@@ -137,7 +137,7 @@ export class AuthService {
     }
   }
 
-  // tslint:disable-next-line: typedef
+ 
   private removeToken(isRefresh?: boolean) {
     try {
       this.localStorageService.remove(MessageLibrary.TOKEN);

@@ -169,7 +169,7 @@ export class CreateHeaderService {
       new Rectangle(0, 0, ctx.canvas.width, this.settings.cellHeaderHeight)
     );
   }
-  private drawBorder(ctx: CanvasRenderingContext2D, deep: number = 2): void {
+  private drawBorder(ctx: CanvasRenderingContext2D, deep = 2): void {
     DrawHelper.drawBorder(
       ctx,
       0,

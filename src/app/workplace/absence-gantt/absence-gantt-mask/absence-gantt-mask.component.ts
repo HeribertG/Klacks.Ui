@@ -67,9 +67,9 @@ export class AbsenceGanttMaskComponent
   @Output() ErrorMessageEvent = new EventEmitter<string>();
   @Output() selectedBreakIndexEvent = new EventEmitter<number>();
   @Output() UpdateEvent = new EventEmitter();
-  @Input() selectedRow: number = -1;
+  @Input() selectedRow = -1;
   @Input() selectedRowBreaksMaxIndex: number | undefined;
-  @Input() selectedBreakIndex: number = -1;
+  @Input() selectedBreakIndex = -1;
 
   public page = 1;
   public tabId = 'mask';

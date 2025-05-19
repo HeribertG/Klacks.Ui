@@ -5,7 +5,7 @@ import {
   Input,
   OnInit,
   Output,
-  ViewChild,
+  ViewChild, AfterViewInit, OnDestroy,
 } from '@angular/core';
 import { BankDetail } from 'src/app/core/bank-detail-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -30,7 +30,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
   ],
 })
-export class BankAccountsRowComponent implements OnInit {
+export class BankAccountsRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild('bankForm', { static: false }) bankForm: NgForm | undefined;
   @Input() bankDetail: BankDetail | undefined;

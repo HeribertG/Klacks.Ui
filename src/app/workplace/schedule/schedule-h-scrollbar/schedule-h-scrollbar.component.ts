@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
 })
 export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
-  public maximumCol: number = 0;
+  public maximumCol = 0;
 
   private ctx: CanvasRenderingContext2D | undefined;
   private canvas: HTMLCanvasElement | undefined;

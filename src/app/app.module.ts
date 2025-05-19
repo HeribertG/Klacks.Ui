@@ -54,31 +54,7 @@ import { ErrorComponent } from './error/error.component';
 import { LocaleService } from './services/locale.service';
 import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
 import { ToastsContainer } from './toast/toast.component';
-import { IconSignOutComponent } from './icons/icon-sign-out.component';
-import { IconUserComponent } from './icons/icon-user.component';
-import { PdfIconComponent } from './icons/pdf-icon.component';
-import { IconAscComponent } from './icons/icon-asc.component';
-import { IconDescComponent } from './icons/icon-desc.component';
-import { GearGreyComponent } from './icons/gear-grey.component';
-import { TrashIconLightRedComponent } from './icons/trash-icon-light-red.component ';
-import { ChooseCalendarComponent } from './icons/choose-calendar.component';
-import { CalendarIconComponent } from './icons/calendar-icon.component';
-import { ExcelComponent } from './icons/excel.component';
-import { PencilIconGreyComponent } from './icons/pencil-icon-grey.component';
-import { IconCopyGreyComponent } from './icons/icon-copy-grey.component';
-import { TrashIconRedComponent } from './icons/trash-icon-red.component';
-import { IconAngleDownComponent } from './icons/icon-angle-down.component';
-import { IconAngleRightComponent } from './icons/icon-angle-right.component';
-import { IconSettingComponent } from './icons/icon-setting.component';
-import { IconGroupComponent } from './icons/icon-group.component';
-import { IconGanttComponent } from './icons/icon-gantt.component';
-import { IconOrderComponent } from './icons/icon-order.component';
-import { IconScheduleComponent2 } from './icons/icon-schedule2.component';
-import { IconClientsComponent } from './icons/icon-clients.component';
-import { IconChartComponent } from './icons/icon-chart.component';
-import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 import { GroupSelectComponent } from './group-select/group-select.component';
-import { IconTimeScheduleComponent } from './icons/icon-time-schedule.component';
 import { NoAccessComponent } from './no-access/no-access.component';
 
 registerLocaleData(localeDe);
@@ -95,7 +71,7 @@ export function localeFactory(localeService: LocaleService) {
 }
 
 @NgModule({
-  declarations: [AppComponent, KeyboardShortcutDirective],
+  declarations: [AppComponent],
   bootstrap: [AppComponent],
   imports: [
     LoginComponent,
@@ -115,30 +91,7 @@ export function localeFactory(localeService: LocaleService) {
         deps: [HttpClient],
       },
     }),
-    IconAngleRightComponent,
-    IconAngleDownComponent,
-    TrashIconRedComponent,
-    IconCopyGreyComponent,
-    PencilIconGreyComponent,
-    ExcelComponent,
-    CalendarIconComponent,
-    ChooseCalendarComponent,
-    TrashIconLightRedComponent,
-    GearGreyComponent,
-    IconDescComponent,
-    IconAscComponent,
-    PdfIconComponent,
-    IconUserComponent,
-    IconSignOutComponent,
-    IconSettingComponent,
-    IconGroupComponent,
-    IconGanttComponent,
-    IconOrderComponent,
-    IconScheduleComponent2,
-    IconClientsComponent,
-    IconChartComponent,
     GroupSelectComponent,
-    IconTimeScheduleComponent,
     NoAccessComponent,
     ErrorComponent,
     ToastsContainer,

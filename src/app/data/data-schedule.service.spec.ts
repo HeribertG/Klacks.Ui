@@ -91,7 +91,7 @@ describe('DataScheduleService', () => {
   });
 
   const mockClient = (): Client => {
-    let client = new Client();
+    const client = new Client();
     client.id = 'client-123';
     client.name = 'Test Name';
     client.addresses = [new Address()];
@@ -101,7 +101,7 @@ describe('DataScheduleService', () => {
   };
 
   const mockWork = (): Work => {
-    let work = new Work();
+    const work = new Work();
     work.clientId = 'client-123';
     work.from = new Date(2020, 0, 1);
     work.id = 'work-123';

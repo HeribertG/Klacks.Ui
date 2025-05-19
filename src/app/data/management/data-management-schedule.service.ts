@@ -125,8 +125,8 @@ export class DataManagementScheduleService {
 
   private sortWorks(value: IWork[]): IWork[] {
     return value.sort((a: IWork, b: IWork) => {
-      var da = new Date(a.from!).getTime();
-      var db = new Date(b.from!).getTime();
+      const da = new Date(a.from!).getTime();
+      const db = new Date(b.from!).getTime();
 
       return da < db ? -1 : da > db ? 1 : 0;
     });

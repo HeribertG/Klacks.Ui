@@ -152,7 +152,7 @@ export class EditGroupMembersComponent
     this.applyClient();
   }
 
-  private searchText(isNumer: boolean = false) {
+  private searchText(isNumer = false) {
     if (
       this.selectedClientName &&
       (this.selectedClientName.toString().length >= 2 || isNumer)
@@ -174,7 +174,7 @@ export class EditGroupMembersComponent
   private refreshList(term: string) {
     this.dataManagementGroupService.currentClientFilter.searchString = term;
 
-    // tslint:disable-next-line: deprecation
+   
     this.dataClientService
       .readClientList(this.dataManagementGroupService.currentClientFilter)
       .subscribe((x) => {

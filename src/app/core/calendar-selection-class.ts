@@ -7,8 +7,8 @@ export interface ISelectedCalendar {
 export class SelectedCalendar implements ISelectedCalendar {
   id: string | undefined = '';
   calendarSelection: CalendarSelection | undefined = undefined;
-  country: string = '';
-  state: string = '';
+  country = '';
+  state = '';
 }
 
 export interface ICalendarSelection {
@@ -19,7 +19,7 @@ export interface ICalendarSelection {
 }
 export class CalendarSelection implements ICalendarSelection {
   id: string | undefined = '';
-  name: string = '';
+  name = '';
   selectedCalendars: ISelectedCalendar[] = [];
   internal: boolean | undefined = undefined;
 }

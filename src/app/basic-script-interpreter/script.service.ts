@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable, Output } from '@angular/core';
+import { EventEmitter, Injectable, Output, OnDestroy } from '@angular/core';
 import { SyntaxAnalyser } from './parser';
 import { InterpreterError } from './interpreterError';
 import { StringInput } from './stringInput';
@@ -8,7 +8,7 @@ import { LexicalAnalyser } from './lexicalAnalyser';
 @Injectable({
   providedIn: 'root',
 })
-export class ScriptService {
+export class ScriptService implements OnDestroy {
   public interpreterError: InterpreterError | undefined;
   private stringInput: StringInput | undefined;
   private lexicalAnalyser: LexicalAnalyser | undefined;
@@ -45,8 +45,8 @@ export class ScriptService {
 
   compile(
     source: string,
-    optionExplicit: boolean = true,
-    allowExternal: boolean = true
+    optionExplicit = true,
+    allowExternal = true
   ): boolean {
     this.code!.clear();
     this.stringInput!.read(source + ' ');

@@ -1,10 +1,10 @@
 export class Identifier {
   static IdentifierTypes: any;
 
-  public name: string = '';
+  public name = '';
   public value: any;
   public idType: IdentifierTypes = IdentifierTypes.idNone;
-  public address: number = -1;
+  public address = -1;
   public formalParameters: any[] = [];
 }
 

@@ -23,13 +23,13 @@ export class InterpreterError {
     return this._errSource;
   }
 
-  private _number: number = -1;
-  private _source: string = '';
-  private _description: string = '';
-  private _line: number = -1;
-  private _col: number = -1;
-  private _index: number = -1;
-  private _errSource: string = '';
+  private _number = -1;
+  private _source = '';
+  private _description = '';
+  private _line = -1;
+  private _col = -1;
+  private _index = -1;
+  private _errSource = '';
 
   constructor() {
     this.clear();
@@ -42,7 +42,7 @@ export class InterpreterError {
     line: number,
     col: number,
     Index: number,
-    errSource: string = ''
+    errSource = ''
   ) {
     this._number = nbr;
     this._source = source;

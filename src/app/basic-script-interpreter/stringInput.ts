@@ -1,10 +1,10 @@
 import { InterpreterError, inputStreamErrors } from './interpreterError';
 
 export class StringInput {
-  private _sourceText: string = '';
+  private _sourceText = '';
   private _sourceIndex = 0;
-  private _line: number = -1;
-  private _col: number = -1;
+  private _line = -1;
+  private _col = -1;
 
   constructor(private interpreterError: InterpreterError | undefined) {}
 
