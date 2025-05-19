@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ExcelComponent } from 'src/app/icons/excel.component';
 
 @Component({
@@ -9,10 +9,6 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
   standalone: true,
   imports: [CommonModule, ExcelComponent],
 })
-export class ButtonExcelComponent implements OnInit {
+export class ButtonExcelComponent {
   @Input() buttonDisabled = false;
-
-  constructor() {}
-
-  ngOnInit(): void {}
 }

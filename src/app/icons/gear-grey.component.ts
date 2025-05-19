@@ -44,6 +44,4 @@ import { Component } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class GearGreyComponent {
-  constructor() {}
-}
+export class GearGreyComponent {}

@@ -3,29 +3,34 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DragDropFileUploadDirective } from './drag-drop-file-upload.directive';
 
 @Component({
+  standalone: true,
+  imports: [DragDropFileUploadDirective],
   template: `<div
     appDragDropFileUpload
     (fileDropped)="onFileDropped($event)"
   ></div>`,
-  standalone: true,
 })
 class TestComponent {
-  onFileDropped(files: any) {}
+  droppedFiles: any;
+
+  onFileDropped(files: any) {
+    this.droppedFiles = files;
+  }
 }
 
 describe('DragDropFileUploadDirective', () => {
-  let component: TestComponent;
   let fixture: ComponentFixture<TestComponent>;
+  let component: TestComponent;
   let divEl: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [TestComponent, DragDropFileUploadDirective],
+      imports: [TestComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestComponent);
     component = fixture.componentInstance;
-    divEl = fixture.nativeElement.querySelector('div');
+    divEl = fixture.nativeElement.querySelector('div') as HTMLElement;
     fixture.detectChanges();
   });
 
@@ -34,15 +39,37 @@ describe('DragDropFileUploadDirective', () => {
     expect(directive).toBeTruthy();
   });
 
+  it('should change background on dragover', () => {
+    const dragOverEvent = new DragEvent('dragover', {
+      bubbles: true,
+      cancelable: true,
+    });
+    // Prevent default and propagation as in directive
+    spyOn(dragOverEvent, 'preventDefault');
+    spyOn(dragOverEvent, 'stopPropagation');
+
+    divEl.dispatchEvent(dragOverEvent);
+    fixture.detectChanges();
+
+    expect(divEl.style.backgroundColor).toBe('rgb(226, 238, 253)');
+  });
+
   it('should emit fileDropped event on drop', () => {
     spyOn(component, 'onFileDropped');
-    const dropEvent = new DragEvent('drop');
-    Object.defineProperty(dropEvent, 'dataTransfer', {
-      value: { files: ['test.txt'] },
+    const dropEvent = new DragEvent('drop', {
+      bubbles: true,
+      cancelable: true,
     });
-    dropEvent.preventDefault = jasmine.createSpy();
+    Object.defineProperty(dropEvent, 'dataTransfer', {
+      value: { files: ['file1.txt'], length: 1 },
+    });
+    // Prevent default and propagation
+    spyOn(dropEvent, 'preventDefault');
+    spyOn(dropEvent, 'stopPropagation');
+
     divEl.dispatchEvent(dropEvent);
     fixture.detectChanges();
-    expect(component.onFileDropped).toHaveBeenCalledWith(['test.txt']);
+
+    expect(component.onFileDropped).toHaveBeenCalledWith(['file1.txt']);
   });
 });

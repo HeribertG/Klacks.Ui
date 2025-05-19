@@ -51,6 +51,4 @@ import { Component } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class AttentionGreyComponent {
-  constructor() {}
-}
+export class AttentionGreyComponent {}

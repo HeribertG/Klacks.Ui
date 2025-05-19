@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
   selector: 'icon-download-icon',
   styleUrls: ['./buttons.scss'],
   template: `
@@ -53,6 +52,4 @@ import { Component, OnInit } from '@angular/core';
   `,
   standalone: true,
 })
-export class DownloadIconComponent {
-  constructor() {}
-}
+export class DownloadIconComponent {}

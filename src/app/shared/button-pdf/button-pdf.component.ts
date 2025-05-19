@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
 
 @Component({
@@ -9,10 +9,6 @@ import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
   standalone: true,
   imports: [CommonModule, PdfIconComponent],
 })
-export class ButtonPdfComponent implements OnInit {
+export class ButtonPdfComponent {
   @Input() buttonDisabled = false;
-
-  constructor() {}
-
-  ngOnInit(): void {}
 }

@@ -9,8 +9,4 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
   standalone: true,
   imports: [CommonModule, ExcelComponent],
 })
-export class ButtonExcelTransparentBackgroundComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class ButtonExcelTransparentBackgroundComponent {}

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'icon-address-book',
@@ -38,6 +38,4 @@ import { Component, OnInit } from '@angular/core';
   styles: [''],
   standalone: true,
 })
-export class AddressBookComponent {
-  constructor() {}
-}
+export class AddressBookComponent {}

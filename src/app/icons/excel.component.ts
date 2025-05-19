@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
   selector: 'icon-excel',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
@@ -95,6 +94,4 @@ import { Component, OnInit } from '@angular/core';
   styles: [''],
   standalone: true,
 })
-export class ExcelComponent {
-  constructor() {}
-}
+export class ExcelComponent {}

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 
 @Component({
@@ -9,10 +9,6 @@ import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
   standalone: true,
   imports: [CommonModule, GearGreyComponent],
 })
-export class ButtonSettingComponent implements OnInit {
+export class ButtonSettingComponent {
   @Input() buttonDisabled = false;
-
-  constructor() {}
-
-  ngOnInit(): void {}
 }

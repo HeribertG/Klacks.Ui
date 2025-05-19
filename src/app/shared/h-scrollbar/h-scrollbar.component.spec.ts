@@ -1,13 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HScrollbarComponent } from './h-scrollbar.component';
-import { ScrollbarService } from 'src/app/services/scrollbar.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { ElementRef } from '@angular/core';
+import { ScrollbarService } from '../scrollbar/scrollbar.service';
 
 describe('HScrollbarComponent', () => {
   let component: HScrollbarComponent;
   let fixture: ComponentFixture<HScrollbarComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let scrollbarService: jasmine.SpyObj<ScrollbarService>;
 
   beforeEach(async () => {

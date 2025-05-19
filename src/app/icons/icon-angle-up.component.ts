@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-angle-up',
@@ -31,8 +31,4 @@ import { Component, OnInit } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconAngleUpComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconAngleUpComponent {}

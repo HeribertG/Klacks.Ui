@@ -2,8 +2,6 @@ import {
   Component,
   HostListener,
   effect,
-  signal,
-  computed,
   ChangeDetectorRef,
   inject,
 } from '@angular/core';
