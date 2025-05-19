@@ -23,12 +23,7 @@ import { ClickOutsideDirective } from 'src/app/directives/click-outside.directiv
   styleUrls: ['./context-menu.component.scss'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [
-    CommonModule,
-    MenuItemComponent,
-    MenuComponent,
-    ClickOutsideDirective,
-  ],
+  imports: [CommonModule, ClickOutsideDirective],
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
   @ViewChild('main', { static: true }) main!: MenuComponent;

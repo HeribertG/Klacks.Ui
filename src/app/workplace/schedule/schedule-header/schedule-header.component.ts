@@ -33,7 +33,6 @@ import { CounterComponent } from 'src/app/shared/counter/counter.component';
     CalendarIconComponent,
     ChooseCalendarComponent,
     ScheduleHeaderCalendarComponent,
-    CounterComponent,
   ],
   providers: [SettingsService],
 })

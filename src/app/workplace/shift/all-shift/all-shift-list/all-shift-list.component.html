@@ -13,7 +13,7 @@
   <div class="container-line"></div>
   <div class="container-table">
     <app-original-table
-      [shifts]="dataManagementShiftService.listWrapper?.shifts"
+      [shifts]="dataManagementShiftService.listWrapper.shifts"
       (editClicked)="onClickEdit($event)"
       (deleteClicked)="onClickDelete($event)"
     ></app-original-table>

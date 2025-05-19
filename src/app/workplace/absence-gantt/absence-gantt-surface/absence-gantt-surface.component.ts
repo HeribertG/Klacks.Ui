@@ -67,8 +67,6 @@ import { ContextMenuService } from 'src/app/shared/context-menu/context-menu.ser
     AbsenceCalendarDirective,
     ContextMenuComponent,
     SharedModule,
-    HScrollbarComponent,
-    VScrollbarComponent,
   ],
   providers: [ScrollbarService, ContextMenuService],
 })

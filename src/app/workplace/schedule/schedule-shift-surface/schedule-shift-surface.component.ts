@@ -28,15 +28,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
   templateUrl: './schedule-shift-surface.component.html',
   styleUrls: ['./schedule-shift-surface.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    ContextMenuComponent,
-    ScheduleHScrollbarComponent,
-    ScheduleVScrollbarComponent,
-    ScheduleScheduleRowHeaderComponent,
-    ResizeDirective,
-    SharedModule,
-  ],
+  imports: [CommonModule, SharedModule],
 })
 export class ScheduleShiftSurfaceComponent
   implements OnInit, AfterViewInit, OnDestroy

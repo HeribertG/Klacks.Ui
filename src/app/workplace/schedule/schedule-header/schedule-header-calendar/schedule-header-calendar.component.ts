@@ -14,14 +14,7 @@ import { ChipsComponent } from 'src/app/shared/chips/chips.component';
   templateUrl: './schedule-header-calendar.component.html',
   styleUrls: ['./schedule-header-calendar.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    CounterComponent,
-    CalendarDropdownComponent,
-    ChipsComponent,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule, CounterComponent],
 })
 export class ScheduleHeaderCalendarComponent {
   currentYear: number = new Date().getFullYear();

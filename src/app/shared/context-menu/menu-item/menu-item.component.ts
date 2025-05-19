@@ -19,11 +19,7 @@ import { ClickOutsideDirective } from 'src/app/directives/click-outside.directiv
   templateUrl: './menu-item.component.html',
   styleUrls: ['./menu-item.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    forwardRef(() => MenuComponent),
-    ClickOutsideDirective,
-  ],
+  imports: [CommonModule, forwardRef(() => MenuComponent)],
 })
 export class MenuItemComponent {
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;

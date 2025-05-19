@@ -27,20 +27,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    AllAddressHomeComponent,
-    EditAddressHomeComponent,
-    ProfileHomeComponent,
-    SettingsHomeComponent,
-    AbsenceGanttHomeComponent,
-    ScheduleHomeComponent,
-    AllGroupHomeComponent,
-    EditGroupHomeComponent,
-    AllShiftHomeComponent,
-    EditShiftHomeComponent,
-    DashboardHomeComponent,
-  ],
+  imports: [CommonModule, DashboardHomeComponent],
 })
 export class MainComponent implements OnChanges {
   @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })

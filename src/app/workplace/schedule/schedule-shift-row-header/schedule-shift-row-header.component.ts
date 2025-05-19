@@ -16,7 +16,7 @@ import { ResizeDirective } from 'src/app/directives/resize.directive';
   templateUrl: './schedule-shift-row-header.component.html',
   styleUrls: ['./schedule-shift-row-header.component.scss'],
   standalone: true,
-  imports: [CommonModule, ResizeDirective],
+  imports: [CommonModule],
 })
 export class ScheduleShiftRowHeaderComponent
   implements OnInit, AfterViewInit, OnDestroy

@@ -30,14 +30,7 @@ import { FallbackPipe } from '../pipes/fallback/fallback.pipe';
 import { ResizeDirective } from '../directives/resize.directive';
 
 @NgModule({
-  declarations: [
-    ButtonExcelComponent,
-    ButtonExcelTransparentBackgroundComponent,
-    ButtonNewComponent,
-    ButtonPdfComponent,
-    DragDropFileUploadDirective,
-    ButtonSettingComponent,
-  ],
+  declarations: [DragDropFileUploadDirective],
   imports: [
     CommonModule,
     FormsModule,
@@ -63,15 +56,6 @@ import { ResizeDirective } from '../directives/resize.directive';
     FallbackPipe,
     ResizeDirective,
   ],
-  exports: [
-    ButtonExcelComponent,
-    ButtonExcelTransparentBackgroundComponent,
-    ButtonNewComponent,
-    ButtonPdfComponent,
-    DragDropFileUploadDirective,
-    ButtonSettingComponent,
-    FallbackPipe,
-    ResizeDirective,
-  ],
+  exports: [DragDropFileUploadDirective, FallbackPipe, ResizeDirective],
 })
 export class SharedModule {}

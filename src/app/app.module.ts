@@ -95,7 +95,7 @@ export function localeFactory(localeService: LocaleService) {
 }
 
 @NgModule({
-  declarations: [AppComponent, ToastsContainer, KeyboardShortcutDirective],
+  declarations: [AppComponent, KeyboardShortcutDirective],
   bootstrap: [AppComponent],
   imports: [
     LoginComponent,
@@ -141,6 +141,7 @@ export function localeFactory(localeService: LocaleService) {
     IconTimeScheduleComponent,
     NoAccessComponent,
     ErrorComponent,
+    ToastsContainer,
   ],
   providers: [
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },

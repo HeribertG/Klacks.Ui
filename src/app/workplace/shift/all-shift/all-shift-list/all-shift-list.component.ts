@@ -15,9 +15,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { MockDataManagementShiftService } from 'src/app/data/management/mock-data-management-shift.service';
 import { visibleRow } from 'src/app/helpers/sharedItems';
-import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
-import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
-import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/core/shift-data-class';
 

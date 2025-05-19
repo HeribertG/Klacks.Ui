@@ -41,15 +41,7 @@ import { GridRenderService } from '../services/grid-render.service';
   templateUrl: './schedule-schedule-surface.component.html',
   styleUrls: ['./schedule-schedule-surface.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    ContextMenuComponent,
-    ScheduleHScrollbarComponent,
-    ScheduleVScrollbarComponent,
-    ScheduleScheduleRowHeaderComponent,
-    ResizeDirective,
-    SharedModule,
-  ],
+  imports: [CommonModule, ContextMenuComponent, ResizeDirective, SharedModule],
   providers: [
     DataService,
     ScrollService,

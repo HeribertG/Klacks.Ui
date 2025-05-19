@@ -28,7 +28,6 @@ import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/sc
   imports: [
     CommonModule,
     AngularSplitModule,
-    ScheduleHeaderComponent,
     ScheduleHScrollbarComponent,
     ScheduleVScrollbarComponent,
     ScheduleScheduleRowHeaderComponent,
