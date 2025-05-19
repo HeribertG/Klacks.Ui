@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -6,9 +7,18 @@ import {
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { IconChartComponent } from 'src/app/icons/icon-chart.component';
+import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
+import { IconGanttComponent } from 'src/app/icons/icon-gantt.component';
+import { IconGroupComponent } from 'src/app/icons/icon-group.component';
+import { IconOrderComponent } from 'src/app/icons/icon-order.component';
+import { IconSettingComponent } from 'src/app/icons/icon-setting.component';
+import { IconTimeScheduleComponent } from 'src/app/icons/icon-time-schedule.component';
+import { IconUserComponent } from 'src/app/icons/icon-user.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import {
@@ -22,7 +32,18 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
   selector: 'app-nav',
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss'],
-  standalone: false,
+  imports: [
+    CommonModule,
+    NgbTooltipModule,
+    IconGanttComponent,
+    IconGroupComponent,
+    IconOrderComponent,
+    IconTimeScheduleComponent,
+    IconClientsComponent,
+    IconChartComponent,
+    IconUserComponent,
+    IconSettingComponent,
+  ],
 })
 export class NavComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);

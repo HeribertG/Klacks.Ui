@@ -26,8 +26,11 @@ import { AttentionGreyComponent } from '../icons/attention-icon-grey.component';
 import { QuestionMarkRoundComponent } from '../icons/icon-round-question_mark.component';
 
 @NgModule({
-  declarations: [ModalComponent, DeletewindowComponent, MessageWindowComponent],
+  declarations: [],
   imports: [
+    ModalComponent,
+    DeletewindowComponent,
+    MessageWindowComponent,
     CommonModule,
     TranslateModule,
     NgbModule,
@@ -67,6 +70,6 @@ import { QuestionMarkRoundComponent } from '../icons/icon-round-question_mark.co
     QuestionMarkRoundComponent,
     AttentionGreyComponent,
   ],
-  exports: [ModalComponent],
+  exports: [ModalComponent, DeletewindowComponent, MessageWindowComponent],
 })
 export class ModalModule {}

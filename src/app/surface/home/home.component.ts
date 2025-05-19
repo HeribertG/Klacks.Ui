@@ -21,12 +21,30 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { ModalComponent } from 'src/app/modal/modal/modal.component';
+import { SpinnerWrapperComponent } from 'src/app/spinner/spinner-wrapper/spinner-wrapper.component';
+import { HeaderComponent } from '../header/header.component';
+import { NavComponent } from '../nav/nav.component';
+import { MainComponent } from '../main/main.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    TranslateModule,
+    ModalComponent,
+    SpinnerWrapperComponent,
+    HeaderComponent,
+    NavComponent,
+    MainComponent,
+    FooterComponent,
+  ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   public dataManagementSwitchboardService = inject(

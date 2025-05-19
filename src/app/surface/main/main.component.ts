@@ -19,12 +19,28 @@ import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-gro
 import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
 import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
+import { DashboardHomeComponent } from 'src/app/workplace/dashboard/dashboard-home/dashboard-home.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main',
   templateUrl: './main.component.html',
   styleUrls: ['./main.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    AllAddressHomeComponent,
+    EditAddressHomeComponent,
+    ProfileHomeComponent,
+    SettingsHomeComponent,
+    AbsenceGanttHomeComponent,
+    ScheduleHomeComponent,
+    AllGroupHomeComponent,
+    EditGroupHomeComponent,
+    AllShiftHomeComponent,
+    EditShiftHomeComponent,
+    DashboardHomeComponent,
+  ],
 })
 export class MainComponent implements OnChanges {
   @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })

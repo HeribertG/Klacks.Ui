@@ -8,14 +8,26 @@ import {
 } from '@angular/core';
 import { ModalService, ModalType } from '../modal.service';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { DeletewindowComponent } from '../deletewindow/deletewindow.component';
+import { MessageWindowComponent } from '../message-window/message-window.component';
 
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbModule,
+    TranslateModule,
+    DeletewindowComponent,
+    MessageWindowComponent,
+  ],
 })
 export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contentDelete', { static: true })

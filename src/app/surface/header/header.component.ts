@@ -1,6 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject, Inject, OnChanges, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
+import { GroupSelectComponent } from 'src/app/group-select/group-select.component';
+import { IconSignOutComponent } from 'src/app/icons/icon-sign-out.component';
+import { SearchComponent } from 'src/app/search/search.component';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 
@@ -8,7 +12,13 @@ import { NavigationService } from 'src/app/services/navigation.service';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
-  standalone: false,
+  standalone: true,
+  imports: [
+    CommonModule,
+    SearchComponent,
+    GroupSelectComponent,
+    IconSignOutComponent,
+  ],
 })
 export class HeaderComponent implements OnInit, OnChanges {
   public dataLoadFileService = inject(DataLoadFileService);

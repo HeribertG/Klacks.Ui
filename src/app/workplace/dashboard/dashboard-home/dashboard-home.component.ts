@@ -1,11 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 
 @Component({
-    selector: 'app-dashboard-home',
-    templateUrl: './dashboard-home.component.html',
-    styleUrls: ['./dashboard-home.component.scss'],
-    standalone: false
+  selector: 'app-dashboard-home',
+  templateUrl: './dashboard-home.component.html',
+  styleUrls: ['./dashboard-home.component.scss'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class DashboardHomeComponent implements OnInit {
   constructor() {}

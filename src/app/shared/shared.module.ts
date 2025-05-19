@@ -10,15 +10,7 @@ import { DragDropFileUploadDirective } from '../directives/drag-drop-file-upload
 import { ButtonSettingComponent } from './button-setting/button-setting.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { OverlayModule } from '@angular/cdk/overlay';
-import { HScrollbarComponent } from './h-scrollbar/h-scrollbar.component';
-import { VScrollbarComponent } from './v-scrollbar/v-scrollbar.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ScrollbarService } from './scrollbar/scrollbar.service';
-import { CounterComponent } from './counter/counter.component';
-import { ClickOutsideDirective } from '../directives/click-outside.directive';
-import { MenuItemComponent } from './context-menu/menu-item/menu-item.component';
-import { MenuComponent } from './context-menu/menu/menu.component';
-import { ContextMenuComponent } from './context-menu/context-menu.component';
 import { IconAngleRightComponent } from '../icons/icon-angle-right.component';
 import { IconAngleDownComponent } from '../icons/icon-angle-down.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
@@ -45,7 +37,6 @@ import { ResizeDirective } from '../directives/resize.directive';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    ClickOutsideDirective,
   ],
   imports: [
     CommonModule,
@@ -79,10 +70,8 @@ import { ResizeDirective } from '../directives/resize.directive';
     ButtonPdfComponent,
     DragDropFileUploadDirective,
     ButtonSettingComponent,
-    ClickOutsideDirective,
     FallbackPipe,
     ResizeDirective,
   ],
-  providers: [ScrollbarService],
 })
 export class SharedModule {}

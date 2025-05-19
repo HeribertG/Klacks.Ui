@@ -48,7 +48,6 @@ import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import localeIt from '@angular/common/locales/it';
-import { DashboardHomeComponent } from './workplace/dashboard/dashboard-home/dashboard-home.component';
 import { SearchComponent } from './search/search.component';
 import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
@@ -81,8 +80,6 @@ import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.direct
 import { GroupSelectComponent } from './group-select/group-select.component';
 import { IconTimeScheduleComponent } from './icons/icon-time-schedule.component';
 import { NoAccessComponent } from './no-access/no-access.component';
-import { AbsenceGanttHomeComponent } from './workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component';
-import { ScheduleHomeComponent } from './workplace/schedule/schedule-home/schedule-home.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -98,17 +95,7 @@ export function localeFactory(localeService: LocaleService) {
 }
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    HomeComponent,
-    MainComponent,
-    NavComponent,
-    HeaderComponent,
-    FooterComponent,
-    DashboardHomeComponent,
-    ToastsContainer,
-    KeyboardShortcutDirective,
-  ],
+  declarations: [AppComponent, ToastsContainer, KeyboardShortcutDirective],
   bootstrap: [AppComponent],
   imports: [
     LoginComponent,
@@ -120,7 +107,6 @@ export function localeFactory(localeService: LocaleService) {
     SpinnerModule,
     FormsModule,
     CommonModule,
-    ModalModule,
     FontAwesomeModule,
     TranslateModule.forRoot({
       loader: {
