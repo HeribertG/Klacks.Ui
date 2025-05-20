@@ -127,11 +127,6 @@ export class MenuComponent {
 
   private recalcPosition(): void {
     const nativeElement: HTMLElement = this.elementRef.nativeElement;
-    console.log('Menu element:', nativeElement);
-    console.log('Children:', nativeElement.children);
-    console.log('First child:', nativeElement.children[0]);
-    console.log('Width:', nativeElement.children[0]?.clientWidth);
-    console.log('Height:', nativeElement.children[0]?.clientHeight);
     const width = nativeElement.children[0].clientWidth + 4;
     const height = nativeElement.children[0].clientHeight + 4;
 

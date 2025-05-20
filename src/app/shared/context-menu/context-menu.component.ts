@@ -22,10 +22,10 @@ import { ClickOutsideDirective } from 'src/app/directives/click-outside.directiv
   styleUrls: ['./context-menu.component.scss'],
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [CommonModule, ClickOutsideDirective],
+  imports: [CommonModule, MenuComponent, ClickOutsideDirective],
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
-  @ViewChild('main', { static: true }) main!: MenuComponent;
+  @ViewChild('main', { static: false }) main!: MenuComponent;
   @Input() menuData: Menu = new Menu();
   @Output() hasClicked = new EventEmitter<string[]>();
   private myTimer = new Timer();

@@ -1,49 +1,63 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ResizeObserverDirective } from './resize-observer.directive';
 import { By } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
-
-// Mock für ResizeObserver
-class ResizeObserverMock {
-  observe = jasmine.createSpy('observe');
-  unobserve = jasmine.createSpy('unobserve');
-}
+import { ResizeObserverDirective } from './resize-observer.directive';
 
 @Component({
-  template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
   standalone: true,
-  imports: [CommonModule],
+  imports: [ResizeObserverDirective],
+  template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
 })
 class TestComponent {
-  onResize(entry: any) {}
+  resizeEntry: DOMRectReadOnly | null = null;
+  onResize(entry: DOMRectReadOnly) {
+    this.resizeEntry = entry;
+  }
 }
 
 describe('ResizeObserverDirective', () => {
-  let component: TestComponent;
   let fixture: ComponentFixture<TestComponent>;
-  let resizeObserverInstance: ResizeObserverMock;
+  let component: TestComponent;
+  let directiveDebugEl: any;
 
   beforeEach(async () => {
-    resizeObserverInstance = new ResizeObserverMock();
-
-    // Ersetzen Sie das globale ResizeObserver-Objekt durch den Mock
-    (window as any).ResizeObserver = jasmine
-      .createSpy()
-      .and.returnValue(resizeObserverInstance);
-
     await TestBed.configureTestingModule({
-      declarations: [TestComponent, ResizeObserverDirective],
+      imports: [TestComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
-  });
 
-  it('should create an instance', () => {
-    const directiveEl = fixture.debugElement.query(
+    directiveDebugEl = fixture.debugElement.query(
       By.directive(ResizeObserverDirective)
     );
-    expect(directiveEl).not.toBeNull();
+  });
+
+  it('should create the directive instance', () => {
+    expect(directiveDebugEl).toBeTruthy();
+  });
+
+  it('should emit resizeElement event when resizeCallback is called', () => {
+    spyOn(component, 'onResize');
+
+    const directiveInstance = directiveDebugEl.injector.get(
+      ResizeObserverDirective
+    );
+    const fakeRect = { width: 42, height: 84 } as DOMRectReadOnly;
+    directiveInstance.resizeCallback({
+      target: directiveDebugEl.nativeElement,
+      contentRect: fakeRect,
+    });
+    fixture.detectChanges();
+
+    expect(component.onResize).toHaveBeenCalledWith(fakeRect);
+  });
+
+  it('should destroy without errors', () => {
+    const directiveInstance = directiveDebugEl.injector.get(
+      ResizeObserverDirective
+    );
+    expect(() => directiveInstance.ngOnDestroy()).not.toThrow();
   });
 });

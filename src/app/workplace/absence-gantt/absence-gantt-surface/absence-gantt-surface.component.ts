@@ -315,7 +315,7 @@ export class AbsenceGanttSurfaceComponent
         !this.drawCalendarGantt.selectedBreakRec.isEmpty()
       ) {
         switch (this.selectedArea) {
-          case SelectedArea.LeftAnchor:
+          case SelectedArea.LeftAnchor: {
             const leftDiffDay = this.drawCalendarGantt.calcX2Column(x);
 
             if (this.drawCalendarGantt.selectedBreak) {
@@ -340,8 +340,9 @@ export class AbsenceGanttSurfaceComponent
                 );
             }
             break;
+          }
 
-          case SelectedArea.RightAnchor:
+          case SelectedArea.RightAnchor: {
             const rightDiffDay = this.drawCalendarGantt.calcX2Column(x);
 
             if (this.drawCalendarGantt.selectedBreak) {
@@ -366,6 +367,7 @@ export class AbsenceGanttSurfaceComponent
                 );
             }
             break;
+          }
 
           case SelectedArea.AbsenceBar:
             // Hier wird der gesamte Break verschoben

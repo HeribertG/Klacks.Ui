@@ -12,7 +12,6 @@ import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
 import { Timer } from 'src/app/helpers/timer';
 import { CommonModule } from '@angular/common';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 
 @Component({
   selector: 'app-menu-item',
