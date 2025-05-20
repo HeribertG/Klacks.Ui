@@ -1,5 +1,7 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
+$scrollbar-size: 17px;
+
 .info {
   background-color: var(--gridBackgroundColorInfo);
   height: 100%;
@@ -17,23 +19,23 @@
     display: flex;
     overflow: hidden;
     width: 100%;
-    height: calc(100% - 20px);
+    height: calc(100% - #{$scrollbar-size});
     .box {
       overflow: hidden;
-      width: calc(100% - 20px);
+      width: calc(100% - #{$scrollbar-size});
       height: 100%;
       flex: 1;
     }
 
     .vScrollArea {
-      width: 20px;
+      width: #{$scrollbar-size};
       height: 100%;
     }
   }
 
   .hScrollArea {
-    width: calc(100% - 20px);
-    height: 20px;
+    width: calc(100% - #{$scrollbar-size});
+    height: #{$scrollbar-size};
   }
 }
 
@@ -49,13 +51,13 @@
     width: 100%;
     height: 100%;
     .box {
-      width: calc(100% - 20px);
+      width: calc(100% - #{$scrollbar-size});
       height: 100%;
       flex: 1;
     }
 
     .vScrollArea {
-      width: 20px;
+      width: #{$scrollbar-size};
       height: 100%;
     }
   }

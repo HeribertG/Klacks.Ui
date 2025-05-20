@@ -5,7 +5,7 @@ export const SCROLLBAR_CONSTANTS = {
   TICKS_OUTSIDE_RANGE: 5,
 
   MARGINS: {
-    SCROLL: 18,
+    SCROLL: 16,
     THUMB: 3,
     MINIMUM_LENGTH: 14,
   },
