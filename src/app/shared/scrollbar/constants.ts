@@ -5,8 +5,8 @@ export const SCROLLBAR_CONSTANTS = {
   TICKS_OUTSIDE_RANGE: 5,
 
   MARGINS: {
-    SCROLL: 16,
-    THUMB: 3,
+    SCROLL: 16, // Die Gesamtbreite der Scrollbar
+    THUMB: 3, // Der Randabstand des Thumbs
     MINIMUM_LENGTH: 14,
   },
 } as const;
