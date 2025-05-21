@@ -1,3 +1,5 @@
+/* eslint-disable no-constant-condition */
+/* eslint-disable no-case-declarations */
 import { Sym, Tokens } from './symbol';
 import { InterpreterError, lexErrors } from './interpreterError';
 import { StringInput } from './stringInput';

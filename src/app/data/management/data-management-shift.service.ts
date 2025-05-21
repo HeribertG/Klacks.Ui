@@ -170,8 +170,6 @@ export class DataManagementShiftService {
 
   showExternalShift(id: string) {
     this.dataShiftService.getShift(id).subscribe((x) => {
-      const client = x;
-
       this.prepareShift(x);
 
       this.navigationService.navigateToEditAddress();

@@ -262,6 +262,7 @@ export class GridColorService {
   private saveSetting() {
     this.settingList.forEach((x) => {
       const dummy = this.settingListDummy.find((y) => y.type === x.type);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       this.saveSetting_sub(x.value, dummy?.value!, x);
     });
   }
@@ -270,7 +271,7 @@ export class GridColorService {
     if (value !== dummy) {
       if (c.id) {
         this.countSettings(true);
-        this.dataSettingsVariousService.updateSetting(c).subscribe((x) => {
+        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
           this.countSettings(false);
         });
       } else {
@@ -279,7 +280,7 @@ export class GridColorService {
         nc.value = value;
         nc.type = c.type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe((x) => {
+        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
           this.countSettings(false);
         });
       }

@@ -74,7 +74,7 @@ export class DataLoadFileService {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + 'own-icon.ico')
       .pipe()
-      .subscribe((x) => {
+      .subscribe(() => {
         this.profileImage = undefined;
       });
   }
@@ -83,7 +83,7 @@ export class DataLoadFileService {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + 'own-logo.png')
       .pipe()
-      .subscribe((x) => {
+      .subscribe(() => {
         this.profileImage = undefined;
       });
   }
@@ -92,7 +92,7 @@ export class DataLoadFileService {
     return this.httpClient
       .delete(`${environment.baseUrl}LoadFile/` + type)
       .pipe()
-      .subscribe((x) => {
+      .subscribe(() => {
         this.profileImage = undefined;
       });
   }

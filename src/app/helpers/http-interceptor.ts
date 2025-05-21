@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   HttpInterceptor,
@@ -47,14 +48,14 @@ export class ResponseInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
-      tap((x) => {
+      tap(() => {
         this.refreshtokenFlag = false;
       }),
       catchError((error: HttpErrorResponse) => {
         // unauthorized -> refreshtoken
         if (error.status === 401 && !this.refreshtokenFlag) {
           this.refreshtokenFlag = true;
-          this.authService.refreshToken().then((x) => {
+          this.authService.refreshToken().then(() => {
             this.refreshtokenFlag = false;
           });
           return throwError(() => error);
@@ -113,7 +114,9 @@ export class ResponseInterceptor implements HttpInterceptor {
               msg =
                 msg + MessageLibrary.NOT_REGISTER_ALPHANUMERICCHARACTER + '\n';
             }
-          } catch (e) {}
+          } catch (e) {
+            console.error(e);
+          }
           this.authService.showInfo(msg, 'wrong passwordCharacter');
 
           return throwError(() => error);
@@ -147,7 +150,9 @@ export class ResponseInterceptor implements HttpInterceptor {
               MessageLibrary.CLIENTLIST_ERROR_500 + '\n\r',
               'CLIENTLIST_ERROR_500'
             );
-          } catch (e) {}
+          } catch (e) {
+            console.error(e);
+          }
 
           return throwError(() => error);
         }

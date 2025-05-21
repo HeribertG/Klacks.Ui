@@ -89,6 +89,7 @@ export class AuthService {
       if (res <= 0) {
         try {
           this.refreshToken().then((x) => {
+            // eslint-disable-next-line @typescript-eslint/no-confusing-non-null-assertion
             if (x! === true) {
               this.navigationService.navigateToWorkplace();
             } else {
@@ -152,7 +153,9 @@ export class AuthService {
       if (!isRefresh) {
         this.localStorageService.remove(MessageLibrary.TOKEN_REFRESHTOKEN);
       }
-    } catch {}
+    } catch (e: unknown) {
+      console.log('removeToken error: ', e);
+    }
   }
 
   private isAdmin(): boolean {

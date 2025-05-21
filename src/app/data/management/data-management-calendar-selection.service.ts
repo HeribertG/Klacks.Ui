@@ -120,7 +120,7 @@ export class DataManagementCalendarSelectionService {
         .then(() => {
           this.readData();
         })
-        .catch((x) => {
+        .catch(() => {
           this.showError(MessageLibrary.UNKNOWN_ERROR);
         });
     }
@@ -130,7 +130,7 @@ export class DataManagementCalendarSelectionService {
       .then(() => {
         this.readData();
       })
-      .catch((x) => {
+      .catch(() => {
         this.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }

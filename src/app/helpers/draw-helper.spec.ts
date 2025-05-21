@@ -2,6 +2,7 @@ import { DrawHelper } from './draw-helper';
 
 describe('DrawHelper', () => {
   let canvas: HTMLCanvasElement;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let ctx;
 
   beforeEach(() => {

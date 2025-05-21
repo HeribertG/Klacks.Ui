@@ -41,6 +41,7 @@ export class MenuItemComponent {
       this.show();
     } else {
       this.contextMenuService.onClickEvent(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
         this.menuItem?.key!,
         this.menuItem?.valueKey
       );
@@ -83,6 +84,7 @@ export class MenuItemComponent {
     const width = nativeElement.offsetWidth;
     const height = nativeElement.offsetHeight;
     const offsetTop = nativeElement.offsetTop;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
     const parentTop = nativeElement.parentElement?.getBoundingClientRect().top!;
     const top = boundingRect.top;
 

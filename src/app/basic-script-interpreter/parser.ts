@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/prefer-for-of */
+/* eslint-disable prefer-const */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LexicalAnalyser } from './lexicalAnalyser';
 import { Sym, Tokens } from './symbol';

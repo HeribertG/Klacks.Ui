@@ -8,6 +8,7 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 describe('CalendarDropdownComponent', () => {
   let component: CalendarDropdownComponent;
   let fixture: ComponentFixture<CalendarDropdownComponent>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockDataManagementCalendarRulesService: any;
 
   beforeEach(async () => {

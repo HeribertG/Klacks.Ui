@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EventEmitter, Injectable, Output, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { SyntaxAnalyser } from './parser';
 import { InterpreterError } from './interpreterError';
 import { StringInput } from './stringInput';

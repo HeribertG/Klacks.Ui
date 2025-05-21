@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Identifier, IdentifierTypes } from './identifier';
 
 export class Entry {

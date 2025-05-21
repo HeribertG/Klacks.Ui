@@ -1,3 +1,4 @@
+/* eslint-disable no-dupe-else-if */
 import { EffectRef, Injectable, effect, inject, signal } from '@angular/core';
 import {
   cloneObject,
@@ -176,7 +177,7 @@ export class DataManagementSettingsService {
   }
 
   deleteAccount(id: string) {
-    this.userAdministrationService.deleteAccount(id).subscribe((x) => {
+    this.userAdministrationService.deleteAccount(id).subscribe(() => {
       this.readAccountsList();
     });
   }
@@ -213,7 +214,7 @@ export class DataManagementSettingsService {
     c.roleName = 'Authorised';
     c.isSelected = value.isAuthorised;
 
-    this.userAdministrationService.changeRole(c).subscribe((x) => {
+    this.userAdministrationService.changeRole(c).subscribe(() => {
       this.countActionAccount(false);
     });
   }
@@ -532,7 +533,7 @@ export class DataManagementSettingsService {
       if (c) {
         this.countSettings(true);
         c.value = value;
-        this.dataSettingsVariousService.updateSetting(c).subscribe((x) => {
+        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
           this.countSettings(false);
         });
       } else {
@@ -540,7 +541,7 @@ export class DataManagementSettingsService {
         nc.value = value;
         nc.type = type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe((x) => {
+        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
           this.countSettings(false);
         });
       }
@@ -663,12 +664,12 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!).subscribe((X) => {
+        this.dataCountryStateService.deleteCountry(x.id!).subscribe(() => {
           this.countActionCountry(false);
         });
       } else if (x.isDirty === 3) {
         this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!).subscribe((X) => {
+        this.dataCountryStateService.deleteCountry(x.id!).subscribe(() => {
           this.countActionCountry(false);
         });
       } else if (
@@ -678,7 +679,7 @@ export class DataManagementSettingsService {
       ) {
         delete x.id;
         this.countActionCountry(true);
-        this.dataCountryStateService.addCountry(x).subscribe((X) => {
+        this.dataCountryStateService.addCountry(x).subscribe(() => {
           this.countActionCountry(false);
         });
       } else if (
@@ -687,7 +688,7 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionCountry(true);
-        this.dataCountryStateService.updateCountry(x).subscribe((X) => {
+        this.dataCountryStateService.updateCountry(x).subscribe(() => {
           this.countActionCountry(false);
         });
       }
@@ -723,7 +724,7 @@ export class DataManagementSettingsService {
   /* #region   states*/
 
   readStateList() {
-    this.dataCountryStateService.GetStateList().subscribe((x) => {
+    this.dataCountryStateService.GetStateList().subscribe((x: IState[]) => {
       if (x) {
         this.statesList = x as IState[];
         this.statesListDummy = cloneObject<IState[]>(this.statesList);
@@ -753,12 +754,12 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!).subscribe((X) => {
+        this.dataCountryStateService.deleteState(x.id!).subscribe(() => {
           this.countActionState(false);
         });
       } else if (x.isDirty === 3) {
         this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!).subscribe((X) => {
+        this.dataCountryStateService.deleteState(x.id!).subscribe(() => {
           this.countActionState(false);
         });
       } else if (
@@ -768,7 +769,7 @@ export class DataManagementSettingsService {
       ) {
         delete x.id;
         this.countActionState(true);
-        this.dataCountryStateService.addState(x).subscribe((X) => {
+        this.dataCountryStateService.addState(x).subscribe(() => {
           this.countActionState(false);
         });
       } else if (
@@ -777,7 +778,7 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionState(true);
-        this.dataCountryStateService.updateCountry(x).subscribe((X) => {
+        this.dataCountryStateService.updateCountry(x).subscribe(() => {
           this.countActionState(false);
         });
       }
@@ -875,14 +876,14 @@ export class DataManagementSettingsService {
       ) {
         if (x.id) {
           this.countActionMacro(true);
-          this.dataMacroService.deleteMacro(x.id).subscribe((X) => {
+          this.dataMacroService.deleteMacro(x.id).subscribe(() => {
             this.countActionMacro(false);
           });
         }
       } else if (x.isDirty === CreateEntriesEnum.delete) {
         if (x.id) {
           this.countActionMacro(true);
-          this.dataMacroService.deleteMacro(x.id).subscribe((X) => {
+          this.dataMacroService.deleteMacro(x.id).subscribe(() => {
             this.countActionMacro(false);
           });
         }
@@ -894,7 +895,7 @@ export class DataManagementSettingsService {
       ) {
         delete x.id;
         this.countActionMacro(true);
-        this.dataMacroService.addMacro(x).subscribe((X) => {
+        this.dataMacroService.addMacro(x).subscribe(() => {
           this.countActionMacro(false);
         });
       } else if (
@@ -904,7 +905,7 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionMacro(true);
-        this.dataMacroService.updateMacro(x).subscribe((X) => {
+        this.dataMacroService.updateMacro(x).subscribe(() => {
           this.countActionMacro(false);
         });
       }
@@ -998,12 +999,12 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countBankDetail(true);
-        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe((X) => {
+        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe(() => {
           this.countBankDetail(false);
         });
       } else if (x.isDirty === CreateEntriesEnum.delete) {
         this.countBankDetail(true);
-        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe((X) => {
+        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe(() => {
           this.countBankDetail(false);
         });
       } else if (
@@ -1013,7 +1014,7 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.new
       ) {
         this.countBankDetail(true);
-        this.dataBankDetailsService.addBankDetail(x).subscribe((X) => {
+        this.dataBankDetailsService.addBankDetail(x).subscribe(() => {
           this.countBankDetail(false);
         });
       } else if (
@@ -1023,7 +1024,7 @@ export class DataManagementSettingsService {
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countBankDetail(true);
-        this.dataBankDetailsService.updateBankDetail(x).subscribe((X) => {
+        this.dataBankDetailsService.updateBankDetail(x).subscribe(() => {
           this.countBankDetail(false);
         });
       } else {

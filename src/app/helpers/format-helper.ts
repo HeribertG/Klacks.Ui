@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import moment from 'moment';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from './string-constants';

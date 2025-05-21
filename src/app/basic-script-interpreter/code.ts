@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scopes } from './scopes';
 import { Scope, Entry } from './scope';
@@ -270,6 +272,7 @@ export class Code {
       accumulator = undefined;
       register = undefined;
       operation = this.code[this.pc];
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       counter++;
 
       switch (operation[0] as Opcodes) {
@@ -289,7 +292,7 @@ export class Code {
         case Opcodes.opPushVariable: //  Wert einer Variablen auf den Stack schieben
           try {
             register = this.scopes.retrieve(operation[1]); // Parameter:  Variablenname
-          } catch (e) {
+          } catch {
             accepted = false;
             this.retrieve();
             if (!accepted) {
@@ -346,7 +349,7 @@ export class Code {
             }
 
             this.scopes.assign(operation[1], result1);
-          } catch (ex) {
+          } catch {
             accepted = false;
             this.assign();
             if (!accepted) {
@@ -417,7 +420,7 @@ export class Code {
             }
 
             this.message(type!, msg);
-          } catch (ex) {
+          } catch {
             this.message(-1, '');
           }
           break;
@@ -441,7 +444,7 @@ export class Code {
           try {
             const message = renamed.value;
             this.scopes.push(this.msgBox(message));
-          } catch (ex) {
+          } catch {
             this.isRunning = false;
             this.interpreterError!.raise(
               runErrors.errMath,

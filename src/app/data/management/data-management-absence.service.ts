@@ -80,7 +80,7 @@ export class DataManagementAbsenceService {
       .then(() => {
         this.readPage(language);
       })
-      .catch((x) => {
+      .catch(() => {
         this.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
@@ -90,7 +90,7 @@ export class DataManagementAbsenceService {
       .then(() => {
         this.readPage(language);
       })
-      .catch((x) => {
+      .catch(() => {
         this.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }

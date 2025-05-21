@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from '../data-client.service';
 import {
@@ -296,6 +297,7 @@ export class DataManagementClientService {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   exportExcel(type = 0) {
     const filter = new ExportClient();
     filter.filter = this.currentFilter;
@@ -496,7 +498,9 @@ export class DataManagementClientService {
           (x) => x.country === country
         );
       }
-    } catch {}
+    } catch (e) {
+      console.error('filterState: ', e);
+    }
   }
 
   createClient() {

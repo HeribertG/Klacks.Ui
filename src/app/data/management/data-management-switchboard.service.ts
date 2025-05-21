@@ -181,6 +181,7 @@ export class DataManagementSwitchboardService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   reset(resethard = false): void {
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':

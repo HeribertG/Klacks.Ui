@@ -125,7 +125,7 @@ export class DataManagementCalendarRulesService {
       .then(() => {
         this.readPage(language);
       })
-      .catch((x) => {
+      .catch(() => {
         this.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
@@ -135,7 +135,7 @@ export class DataManagementCalendarRulesService {
       .then(() => {
         this.readPage(language);
       })
-      .catch((x) => {
+      .catch(() => {
         this.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
