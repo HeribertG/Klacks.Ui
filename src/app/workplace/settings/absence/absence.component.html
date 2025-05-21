@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Delete Window -->
 <!-- <ng-template #contentDelete id="content1" let-modal role="dialog">
   <app-deletewindow [message]="message"></app-deletewindow>
@@ -285,7 +287,7 @@
                 index as i
               "
               (click)="onClickedRow(data)"
-              [class.active]="data.id == highlightRowId"
+              [class.active]="data.id === highlightRowId"
             >
               <td class="table-cell color-width">
                 <div

@@ -87,9 +87,11 @@ export class SettingsHomeComponent implements OnInit {
     this.dataManagementSettingsService.readData();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any): void {
     this.isChangingEvent.emit(event);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isfocused(value: string): void {}
 }

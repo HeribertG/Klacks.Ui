@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   EventEmitter,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -50,7 +50,7 @@ import { ShiftData } from 'src/app/core/shift-data-class';
     PropertyGridComponent,
   ],
 })
-export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
+export class MacroRowComponent implements OnInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
   @Input() data: IMacro = new Macro();
   @Output() isChangingEvent = new EventEmitter<true>();
@@ -106,8 +106,6 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  ngOnChanges(): void {}
-
   ngOnDestroy(): void {
     if (this.formSubscription) {
       this.formSubscription.unsubscribe();
@@ -118,6 +116,7 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
     this.isDeleteEvent.emit();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChange(event: boolean): void {
     if (
       this.data &&
@@ -130,6 +129,7 @@ export class MacroRowComponent implements OnInit, OnChanges, OnDestroy {
     this.onIsChanging(true);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onIsChanging(event: boolean): void {
     this.isChangingEvent.emit(true);
   }

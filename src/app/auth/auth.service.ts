@@ -38,6 +38,7 @@ export class AuthService {
         if (
           tok &&
           typeof tok === 'object' &&
+          // eslint-disable-next-line no-prototype-builtins
           tok.hasOwnProperty('user not exist')
         ) {
           this.showInfo(MessageLibrary.AUTH_USER_NOT_EXIST!);
@@ -137,7 +138,6 @@ export class AuthService {
     }
   }
 
- 
   private removeToken(isRefresh?: boolean) {
     try {
       this.localStorageService.remove(MessageLibrary.TOKEN);
@@ -152,7 +152,7 @@ export class AuthService {
       if (!isRefresh) {
         this.localStorageService.remove(MessageLibrary.TOKEN_REFRESHTOKEN);
       }
-    } catch (e) {}
+    } catch {}
   }
 
   private isAdmin(): boolean {

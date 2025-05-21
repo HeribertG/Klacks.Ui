@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';

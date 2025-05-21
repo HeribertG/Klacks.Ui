@@ -23,7 +23,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch () {
         return;
       }
       try {
@@ -36,7 +36,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch  {
         return;
       }
       try {
@@ -47,7 +47,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
       try {
@@ -58,7 +58,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
       try {
@@ -69,7 +69,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
       try {
@@ -82,7 +82,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
 
@@ -96,7 +96,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
 
@@ -108,7 +108,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
 
@@ -120,7 +120,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
 
@@ -132,7 +132,7 @@ export class AppErrorHandler implements ErrorHandler {
         ) {
           return; // deswegen Abbruch
         }
-      } catch (e) {
+      } catch   {
         return;
       }
       // this.snackBar.openSnackBar(error.message, '', true, undefined);

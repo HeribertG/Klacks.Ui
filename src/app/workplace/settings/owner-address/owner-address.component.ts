@@ -10,7 +10,7 @@ import {
   AfterViewInit,
   OnDestroy,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
 import { CommonModule } from '@angular/common';

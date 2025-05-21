@@ -3,11 +3,7 @@ import { BrowserModule, Title } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './surface/home/home.component';
-import { MainComponent } from './surface/main/main.component';
-import { NavComponent } from './surface/nav/nav.component';
-import { HeaderComponent } from './surface/header/header.component';
-import { FooterComponent } from './surface/footer/footer.component';
+
 import {
   NgbDateParserFormatter,
   NgbDatepickerI18n,

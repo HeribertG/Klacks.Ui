@@ -59,6 +59,7 @@ export class CountriesComponent {
     this.onIsChanging(true);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(value: any) {
     this.isChangingEvent.emit(value);
   }

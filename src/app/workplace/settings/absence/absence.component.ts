@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
@@ -29,8 +30,6 @@ import { cloneObject } from 'src/app/helpers/object-helpers';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
-import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
-import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
