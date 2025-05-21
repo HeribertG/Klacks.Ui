@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { ScrollService } from './scroll.service';

@@ -21,7 +21,6 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
 import { GroupSelectionService } from '../data/management/group-selection.service';
 
 // Definiere einen Typ für die virtuelle Gruppe

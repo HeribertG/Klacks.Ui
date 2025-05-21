@@ -1,11 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
@@ -33,7 +28,7 @@ import { Shift } from 'src/app/core/shift-data-class';
   ],
   providers: [MockDataManagementShiftService],
 })
-export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AllShiftListComponent implements OnInit {
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(MockDataManagementShiftService);
   public dataManagementShiftService2 = inject(DataManagementShiftService);
@@ -53,9 +48,6 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.visibleRow = visibleRow();
   }
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
 
   resizeWindow: (() => void) | undefined;
 

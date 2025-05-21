@@ -856,9 +856,7 @@ export class DataManagementSettingsService {
   }
 
   private reOrderMacro() {
-    const count = 0;
-
-    const tmp = this.macroList.sort(compare);
+    this.macroList.sort(compare);
     function compare(a: IMacro, b: IMacro) {
       return a.name!.localeCompare(b.name!);
     }

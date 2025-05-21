@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';

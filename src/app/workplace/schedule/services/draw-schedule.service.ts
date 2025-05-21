@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NgZone } from '@angular/core';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
@@ -239,7 +240,7 @@ export class DrawScheduleService {
   ) {
     for (let row = oldVisibleRow; row < visibleRow; row++) {
       for (let col = oldVisibleCol; col < visibleCol; col++) {
-        this.addCells(row, col);
+        this.addCells();
       }
     }
   }
@@ -252,7 +253,7 @@ export class DrawScheduleService {
   ) {
     for (let col = oldVisibleCol; col < visibleCol; col++) {
       for (let row = oldVisibleRow; row < visibleRow; row++) {
-        this.addCells(row, col);
+        this.addCells();
       }
     }
   }
@@ -444,7 +445,6 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private crateGridHeader() {
-    const width: number = this.gridData.columns * this.settings.cellWidth;
     this.canvasManager.headerCanvas!.height =
       this.settings.cellHeaderHeight + this.settings.increaseBorder;
     this.canvasManager.headerCanvas!.width =
@@ -536,7 +536,7 @@ export class DrawScheduleService {
   }
 
   @CanvasAvailable('queue')
-  private addCells(row: number, col: number) {
+  private addCells() {
     if (this.existData) {
       const visibleRows: number = this.updateVisibleRow();
       const visibleCols: number = this.updateVisibleCol();

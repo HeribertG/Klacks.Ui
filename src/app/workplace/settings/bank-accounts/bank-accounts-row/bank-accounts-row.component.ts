@@ -49,7 +49,7 @@ export class BankAccountsRowComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.assemblyAddress();
-    this.objectForUnsubscribe = this.bankForm!.valueChanges!.subscribe((x) => {
+    this.objectForUnsubscribe = this.bankForm!.valueChanges!.subscribe(() => {
       if (this.bankForm!.dirty) {
         if (
           this.bankDetail!.isDirty === undefined ||

@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /// <summary>
 /// Erzeugt ein tiefes Klon eines Objekts, indem es in JSON konvertiert und anschließend wieder geparst wird.

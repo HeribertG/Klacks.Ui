@@ -285,15 +285,19 @@ export class GridFontsService {
   private saveSetting() {
     this.settingList.forEach((x) => {
       const dummy = this.settingListDummy.find((y) => y.type === x.type);
-      this.saveSetting_sub(x.value, dummy?.value!, x);
+      this.saveSetting_sub(x.value, dummy?.value, x);
     });
   }
 
-  private saveSetting_sub(value: string, dummy: string, c: ISetting) {
+  private saveSetting_sub(
+    value: string,
+    dummy: string | undefined,
+    c: ISetting
+  ) {
     if (value !== dummy) {
       if (c.id) {
         this.countSettings(true);
-        this.dataSettingsVariousService.updateSetting(c).subscribe((x) => {
+        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
           this.countSettings(false);
         });
       } else {
@@ -302,7 +306,7 @@ export class GridFontsService {
         nc.value = value;
         nc.type = c.type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe((x) => {
+        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
           this.countSettings(false);
         });
       }

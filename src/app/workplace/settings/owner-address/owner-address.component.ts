@@ -55,7 +55,7 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.ownerAddressForm!.valueChanges!.subscribe(
-      (x) => {
+      () => {
         if (this.ownerAddressForm!.dirty) {
           setTimeout(() => this.isChangingEvent.emit(true), 100);
         }

@@ -923,6 +923,7 @@ export class SyntaxAnalyser {
 
         break;
       case Tokens.tokIdentifier: //  Variable/Konstante oder Funktionsaufruf
+        // eslint-disable-next-line no-case-declarations
         const text = this._symbol.text;
 
         if (this._optionExplicit && !this._symbolTable.exists(text)) {

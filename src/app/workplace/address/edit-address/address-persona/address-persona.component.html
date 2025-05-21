@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <ng-template #addressTypeModal let-modal role="dialog" class="modal-window">
   <form>
     <div class="modal-header">
@@ -380,7 +382,6 @@
             <input
               type="text"
               class="form-control default-width"
-             
               autocomplete="off"
               [disabled]="isDisabled()"
               [(ngModel)]="dataManagementClientService.editClient.firstName"
@@ -392,7 +393,7 @@
               class="add-button"
               type="button"
               (click)="addFirstNameLine2 = true"
-              *ngIf="!addFirstNameLine2 == true && !isDisabled()"
+              *ngIf="!addFirstNameLine2 === true && !isDisabled()"
               >+</span
             >
           </div>
@@ -402,7 +403,7 @@
       <div
         class="row-line"
         *ngIf="
-          addFirstNameLine2 == true &&
+          addFirstNameLine2 === true &&
           +dataManagementClientService.editClient.gender !== 3 &&
           dataManagementClientService.isCurrentAddressMainAddress()
         "
@@ -458,7 +459,7 @@
               class="add-button"
               type="button"
               (click)="addNameLine2 = true"
-              *ngIf="!addNameLine2 == true && !isDisabled()"
+              *ngIf="!addNameLine2 === true && !isDisabled()"
               >+</span
             >
           </div>
@@ -491,7 +492,7 @@
               class="del-button"
               type="button"
               (click)="addNameLine2 = false"
-              *ngIf="addNameLine2 == true && !isDisabled()"
+              *ngIf="addNameLine2 === true && !isDisabled()"
               >-</span
             >
           </div>
@@ -573,7 +574,7 @@
               class="add-button"
               type="button"
               (click)="addStreetLine2 = true"
-              *ngIf="!addStreetLine2 == true && !isDisabled()"
+              *ngIf="!addStreetLine2 === true && !isDisabled()"
               >+</span
             >
           </div>
