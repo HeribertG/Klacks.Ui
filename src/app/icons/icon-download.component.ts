@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
   selector: 'icon-download',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
@@ -16,8 +15,4 @@ import { Component, OnInit } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class IconDownloadComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconDownloadComponent {}

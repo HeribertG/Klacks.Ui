@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-gift',
@@ -31,8 +31,4 @@ import { Component, OnInit } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class IconGiftComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconGiftComponent {}

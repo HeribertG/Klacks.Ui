@@ -1,5 +1,5 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { BankDetail, IBankDetail } from 'src/app/core/bank-detail-class';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { BankDetail } from 'src/app/core/bank-detail-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 
@@ -26,14 +26,13 @@ import { BankAccountsRowComponent } from './bank-accounts-row/bank-accounts-row.
     BankAccountsRowComponent,
   ],
 })
-export class BankAccountsComponent implements OnInit {
+export class BankAccountsComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public translate = inject(TranslateService);
 
-  ngOnInit(): void {}
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any) {
     setTimeout(() => this.isChangingEvent.emit(event), 100);
   }

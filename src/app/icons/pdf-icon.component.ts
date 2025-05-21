@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
   selector: 'icon-pdf-icon',
   styleUrls: ['./buttons.scss'],
   template: `
@@ -31,8 +30,4 @@ import { Component, OnInit } from '@angular/core';
   styles: [''],
   standalone: true,
 })
-export class PdfIconComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class PdfIconComponent {}

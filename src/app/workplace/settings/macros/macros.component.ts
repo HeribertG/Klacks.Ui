@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -33,13 +33,11 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
     MacroRowComponent,
   ],
 })
-export class MacrosComponent implements OnInit {
+export class MacrosComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
-
-  ngOnInit(): void {}
 
   onClickAdd(): void {
     const macro = new Macro();

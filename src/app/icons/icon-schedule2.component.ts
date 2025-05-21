@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'icon-schedule2',
@@ -30,8 +30,4 @@ import { Component, OnInit } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconScheduleComponent2 implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconScheduleComponent2 {}

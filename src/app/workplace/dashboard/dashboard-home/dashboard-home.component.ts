@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -8,8 +8,4 @@ import { Component, OnInit } from '@angular/core';
   standalone: true,
   imports: [CommonModule],
 })
-export class DashboardHomeComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class DashboardHomeComponent {}

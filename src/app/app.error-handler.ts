@@ -6,6 +6,7 @@ import { ErrorHandler, Injectable } from '@angular/core';
 export class AppErrorHandler implements ErrorHandler {
   constructor() {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleError(error: any): void {
     console.log('handleError', error);
     if (error && typeof error === 'object' && error.message) {

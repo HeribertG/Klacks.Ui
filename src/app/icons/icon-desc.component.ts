@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-desc',
@@ -45,8 +45,4 @@ import { Component, OnInit } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconDescComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconDescComponent {}

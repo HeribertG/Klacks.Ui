@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scopes } from './scopes';
 import { Scope, Entry } from './scope';
 import { InterpreterError, runErrors } from './interpreterError';
@@ -59,6 +60,7 @@ export class Results {
 }
 
 export class Code {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private code: any[] = [];
   private scopes: Scopes = new Scopes();
   private pc = -1;
@@ -132,18 +134,21 @@ export class Code {
     return this._resultsDebug;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   codeStack(): any[] {
     return this.code;
   }
 
   importAdd(
     name: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any = null,
     idType = Identifier.IdentifierTypes.idVariable
   ): Identifier {
     return this._external.allocate(name, value, idType);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   importItem(name: string, value: any = null) {
     this._external.assign(name, value);
   }
@@ -170,7 +175,8 @@ export class Code {
 
   clone(): Code {
     const result = new Code(this.interpreterError, this.stringInput);
-   
+
+    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.code.length; i++) {
       result.cloneAdd(this.code[i]);
     }
@@ -182,13 +188,16 @@ export class Code {
     return result;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private cloneAdd(value: any) {
     this.code.push(value);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   add(opCode: Opcodes, parameters: any = null): number {
     let isArray = true;
     let length = 0;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let operation: any[];
     if (parameters === null || parameters === undefined) {
       operation = Array(1);
@@ -394,7 +403,6 @@ export class Code {
           break;
         case Opcodes.opMessage:
           try {
-           
             let msg = '';
             let type: number | undefined;
             register = this.scopes.pop().value;

@@ -2,8 +2,8 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   OnDestroy,
-  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -34,9 +34,7 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
     NgbDatepickerModule,
   ],
 })
-export class EditShiftItemComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class EditShiftItemComponent implements AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isChangingMode = new EventEmitter();
 
@@ -44,18 +42,14 @@ export class EditShiftItemComponent
     | NgForm
     | undefined;
 
+  public dataManagementShiftService = inject(DataManagementShiftService);
+  private localStorageService = inject(LocalStorageService);
+
   public faCalendar = faCalendar;
   public visibleTable = 'inline';
   public isChecked = false;
 
   public objectForUnsubscribe: Subscription | undefined;
-
-  constructor(
-    public dataManagementShiftService: DataManagementShiftService,
-    private localStorageService: LocalStorageService
-  ) {}
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.setMode();

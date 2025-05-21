@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
@@ -23,7 +23,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
   ],
 })
-export class SettingsGeneralComponent implements OnInit {
+export class SettingsGeneralComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   selectedFileIcon: File | undefined;
@@ -32,8 +32,6 @@ export class SettingsGeneralComponent implements OnInit {
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
-
-  ngOnInit(): void {}
 
   onChange() {
     this.isChangingEvent.emit(true);

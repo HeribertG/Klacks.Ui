@@ -3,9 +3,10 @@ import {
   EventEmitter,
   inject,
   Input,
-  OnInit,
   Output,
-  ViewChild, AfterViewInit, OnDestroy,
+  ViewChild,
+  AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { BankDetail } from 'src/app/core/bank-detail-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -30,13 +31,14 @@ import { SharedModule } from 'src/app/shared/shared.module';
     SharedModule,
   ],
 })
-export class BankAccountsRowComponent implements OnInit, AfterViewInit, OnDestroy {
+export class BankAccountsRowComponent implements AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild('bankForm', { static: false }) bankForm: NgForm | undefined;
   @Input() bankDetail: BankDetail | undefined;
   @Input() public position: number | undefined;
   @Input() public isFocusIndex: number | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objectForUnsubscribe: any;
 
   addStreetLine2 = false;
@@ -44,8 +46,6 @@ export class BankAccountsRowComponent implements OnInit, AfterViewInit, OnDestro
 
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public translate = inject(TranslateService);
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.assemblyAddress();

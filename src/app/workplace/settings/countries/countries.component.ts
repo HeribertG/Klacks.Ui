@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { Country } from 'src/app/core/client-class';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -29,13 +29,11 @@ import { CountriesRowComponent } from './countries-row/countries-row.component';
     CountriesRowComponent,
   ],
 })
-export class CountriesComponent implements OnInit {
+export class CountriesComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
-
-  ngOnInit(): void {}
 
   onClickAdd() {
     const c = new Country();

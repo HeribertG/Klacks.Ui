@@ -2,17 +2,14 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  inject,
   NgZone,
   OnDestroy,
-  OnInit,
   ViewChild,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
-import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
-import { ScheduleHomeComponent } from '../schedule-home/schedule-home.component';
 import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
 import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -36,22 +33,18 @@ import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/sc
     ScheduleShiftSurfaceComponent,
   ],
 })
-export class ScheduleContainerComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class ScheduleContainerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('splitElHorizontal', { static: true })
   splitElHorizontal!: SplitComponent;
+
+  public dataManagementScheduleService = inject(DataManagementScheduleService);
+  private ngZone = inject(NgZone);
 
   public IsInfoVisible = false;
   public horizontalSizes = 200;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementScheduleService: DataManagementScheduleService,
-    private ngZone: NgZone,
-    private spinnerService: SpinnerService
-  ) {}
-  ngOnInit(): void {}
+  constructor() {}
 
   ngAfterViewInit(): void {
     this.readData();

@@ -5,6 +5,7 @@ import {
   OnInit,
   ViewChild,
   ElementRef,
+  inject,
 } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { ScrollService } from '../services/scroll.service';
@@ -44,20 +45,16 @@ import { DrawScheduleService } from '../services/draw-schedule.service';
   ],
 })
 export class ScheduleScheduleRowHeaderComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements AfterViewInit, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
 
+  public dataService = inject(DataService);
+  public scroll = inject(ScrollService);
+  public drawRowHeader = inject(DrawRowHeaderService);
+  private settings = inject(SettingsService);
+
   private ngUnsubscribe = new Subject<void>();
-
-  constructor(
-    public dataService: DataService,
-    public scroll: ScrollService,
-    public drawRowHeader: DrawRowHeaderService,
-    private settings: SettingsService
-  ) {}
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();

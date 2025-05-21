@@ -1,26 +1,13 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  Renderer2,
-} from '@angular/core';
+import { Component, ElementRef, inject, Input } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { ScrollService } from '../services/scroll.service';
-import { DataScheduleService } from 'src/app/data/data-schedule.service';
 import { CommonModule } from '@angular/common';
-import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
+
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
@@ -30,11 +17,13 @@ import { SharedModule } from 'src/app/shared/shared.module';
   standalone: true,
   imports: [CommonModule, SharedModule],
 })
-export class ScheduleShiftSurfaceComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class ScheduleShiftSurfaceComponent {
   @Input() contextMenu: ContextMenuComponent | undefined;
   @Input() vScrollbar: ScheduleVScrollbarComponent | undefined;
+
+  public holidayCollection = inject(HolidayCollectionService);
+  public scroll = inject(ScrollService);
+  private el = inject(ElementRef);
 
   resizeWindow: (() => void) | undefined;
   visibilitychangeWindow: (() => void) | undefined;
@@ -65,18 +54,8 @@ export class ScheduleShiftSurfaceComponent
 
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public holidayCollection: HolidayCollectionService,
-    public scroll: ScrollService,
-    private el: ElementRef
-  ) {}
-
   /* #region ng */
-  ngOnInit(): void {}
 
-  ngAfterViewInit(): void {}
-
-  ngOnDestroy(): void {}
   /* #endregion ng */
 
   /* #region   resize+visibility */

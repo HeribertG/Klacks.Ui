@@ -1,10 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewInit,
   Component,
   EventEmitter,
-  OnDestroy,
-  OnInit,
+  inject,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -27,26 +25,21 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
     IconAngleRightComponent,
   ],
 })
-export class EditShiftSpecialFeatureComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class EditShiftSpecialFeatureComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('specialFeatureShiftForm', { static: false })
   specialFeatureShiftForm: NgForm | undefined;
 
+  public dataManagementShiftService = inject(DataManagementShiftService);
+
   visibleTable = 'inline';
-
-  constructor(public dataManagementShiftService: DataManagementShiftService) {}
-
-  ngOnInit(): void {}
-  ngAfterViewInit(): void {}
-  ngOnDestroy(): void {}
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyUpInput(event: any, data: string) {
     event.currentTarget.value = data;
     this.isChangingEvent.emit(true);

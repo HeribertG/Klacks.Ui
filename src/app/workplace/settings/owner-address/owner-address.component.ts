@@ -6,7 +6,9 @@ import {
   Output,
   ViewChild,
   effect,
-  inject, AfterViewInit, OnDestroy,
+  inject,
+  AfterViewInit,
+  OnDestroy,
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -40,16 +42,16 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   keyValueDiffers: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objectForUnsubscribe: any;
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  constructor() {
+  ngOnInit(): void {
     this.readSignals();
   }
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.ownerAddressForm!.valueChanges!.subscribe(

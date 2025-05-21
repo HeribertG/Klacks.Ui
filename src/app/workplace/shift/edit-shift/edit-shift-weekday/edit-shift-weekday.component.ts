@@ -3,9 +3,9 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnDestroy,
-  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -29,9 +29,7 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
     IconAngleRightComponent,
   ],
 })
-export class EditShiftWeekdayComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class EditShiftWeekdayComponent implements AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Input() isComplex = false;
 
@@ -39,14 +37,12 @@ export class EditShiftWeekdayComponent
     | NgForm
     | undefined;
 
-  visibleTable = 'inline';
-  disabledWorkTime = true;
+  public dataManagementShiftService = inject(DataManagementShiftService);
+
+  public visibleTable = 'inline';
+  public disabledWorkTime = true;
 
   private objectForUnsubscribe: Subscription | undefined;
-
-  constructor(public dataManagementShiftService: DataManagementShiftService) {}
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.weekdayShiftForm!.valueChanges!.subscribe(

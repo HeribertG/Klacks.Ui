@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
 
@@ -10,17 +10,13 @@ import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
   standalone: true,
   imports: [CommonModule, FontAwesomeModule, FontAwesomeModule],
 })
-export class CounterComponent implements OnInit {
+export class CounterComponent {
   @Output() isChanged = new EventEmitter<number>();
   @Input() maxNumber: number | undefined = 99;
   @Input() currentNumber = 1;
 
   public faAngleRight = faAngleRight;
   public faAngleLeft = faAngleLeft;
-
-  constructor() {}
-
-  ngOnInit(): void {}
 
   onClickPaginationButton(changeValue: number): void {
     let tmpMaxNumber = 99;

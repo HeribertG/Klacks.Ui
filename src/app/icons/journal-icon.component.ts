@@ -1,7 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
   selector: 'icon-journal-icon',
   styleUrls: ['./buttons.scss'],
   template: `
@@ -41,8 +40,4 @@ import { Component, OnInit } from '@angular/core';
   styles: [''],
   standalone: true,
 })
-export class JournalIconComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class JournalIconComponent {}

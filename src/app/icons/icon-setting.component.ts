@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-setting',
@@ -51,8 +51,4 @@ import { Component, OnInit } from '@angular/core';
   styles: [''],
   standalone: true,
 })
-export class IconSettingComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconSettingComponent {}
