@@ -70,6 +70,7 @@ export class MenuItemComponent {
     return 'transparent';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   stopEvent(event: any): void {
     if (event.preventDefault) event.preventDefault();
     if (event.stopPropagation) event.stopPropagation();

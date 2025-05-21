@@ -63,6 +63,7 @@ export class SearchComponent {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyupSearch(event: any) {
     if (event.srcElement && event.srcElement.value.toString() === '') {
       this.onClickSearch();

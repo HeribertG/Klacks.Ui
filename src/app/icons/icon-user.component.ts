@@ -48,6 +48,4 @@ import { Component } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class IconUserComponent {
-  c;
-}
+export class IconUserComponent {}
