@@ -18,7 +18,6 @@ const ro = new ResizeObserver((entries) => {
   }
 });
 
-
 @Directive({
   selector: '[resizeObserver]',
   standalone: true,
@@ -32,6 +31,7 @@ export class ResizeObserverDirective implements OnDestroy {
     ro.observe(target);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resizeCallback(entry: any): void {
     this.resizeElement.emit(entry.contentRect);
   }

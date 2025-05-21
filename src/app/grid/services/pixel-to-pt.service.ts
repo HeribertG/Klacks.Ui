@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
 
 @Injectable({
   providedIn: 'root',

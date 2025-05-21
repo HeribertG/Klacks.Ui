@@ -468,5 +468,7 @@
   "list.all-list.all-shift-list.table.Fry": "FR",
   "list.all-list.all-shift-list.table.sam": "SA",
   "list.all-list.all-shift-list.table.f": "FT",
-  "list.all-list.all-shift-list.table.plus-f": "+FT"
+  "list.all-list.all-shift-list.table.plus-f": "+FT",
+
+  "settings.group.Sum": "Anzahl"
 }

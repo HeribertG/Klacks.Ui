@@ -15,7 +15,6 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import { CounterComponent } from 'src/app/shared/counter/counter.component';
 

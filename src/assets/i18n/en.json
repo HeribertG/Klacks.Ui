@@ -466,5 +466,7 @@
   "list.all-list.all-shift-list.table.Fry": "FRI",
   "list.all-list.all-shift-list.table.sam": "SAT",
   "list.all-list.all-shift-list.table.f": "HOL",
-  "list.all-list.all-shift-list.table.plus-f": "+HOL"
+  "list.all-list.all-shift-list.table.plus-f": "+HOL",
+
+  "settings.group.Sum": "Number"
 }

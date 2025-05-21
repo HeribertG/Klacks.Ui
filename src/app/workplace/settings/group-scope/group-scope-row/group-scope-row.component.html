@@ -1,1 +1,59 @@
-<p>group-scope-row works!</p>
+<ng-template #content let-modal>
+  <form #groupForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.macro.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      <p>Test Inhalt</p>
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="modal.close('OK')">
+      OK
+    </button>
+  </div>
+</ng-template>
+
+<div class="first custom-control-inline">
+  <div class="form-group">
+    <input
+      type="text"
+      [ngModel]="user!.firstName + ' ' + user!.lastName"
+      name="user.name"
+      class="form-control gap"
+      readonly
+      aria-label="name"
+    />
+  </div>
+  <div class="form-group">
+    <button
+      type="button"
+      class="btn btn btn-info center"
+      aria-label="number"
+      (click)="open(content)"
+    >
+      {{ number }}
+    </button>
+  </div>
+</div>

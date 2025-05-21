@@ -9,6 +9,7 @@ class ResizeObserverMock {
   observe = jasmine.createSpy('observe');
   unobserve = jasmine.createSpy('unobserve');
   simulate(entries: ResizeObserverEntry[]) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.callback(entries, this as any);
   }
 }
@@ -28,11 +29,13 @@ class TestComponent {
 describe('ResizeObserverDirective', () => {
   let fixture: ComponentFixture<TestComponent>;
   let component: TestComponent;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let debugEl: any;
   let mockInstance: ResizeObserverMock;
 
   beforeEach(async () => {
     // Replace global ResizeObserver with our mock
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     spyOn(window as any, 'ResizeObserver').and.callFake(
       (callback: ResizeObserverCallback) => {
         mockInstance = new ResizeObserverMock(callback);
@@ -52,6 +55,7 @@ describe('ResizeObserverDirective', () => {
 
   it('should create directive instance and observe element', () => {
     expect(debugEl).toBeTruthy();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect((window as any).ResizeObserver).toHaveBeenCalled();
     expect(mockInstance.observe).toHaveBeenCalledWith(debugEl.nativeElement);
   });

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Inject, OnChanges, OnInit } from '@angular/core';
+import { Component, inject, OnChanges, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/group-select/group-select.component';

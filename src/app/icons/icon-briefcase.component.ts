@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-briefcase',
@@ -36,8 +36,4 @@ import { Component, OnInit } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconBriefCaseComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconBriefCaseComponent {}

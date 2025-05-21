@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-chart',
@@ -38,8 +38,4 @@ import { Component, OnInit } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class IconChartComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
-}
+export class IconChartComponent {}

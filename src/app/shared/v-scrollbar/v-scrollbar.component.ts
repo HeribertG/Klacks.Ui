@@ -345,6 +345,7 @@ export class VScrollbarComponent
     this.updateCanvasSize(canvas.offsetWidth, canvas.offsetHeight);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onResize(event: any): void {
     const entries = Array.isArray(event)
       ? (event as ResizeObserverEntry[])

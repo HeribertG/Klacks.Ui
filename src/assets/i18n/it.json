@@ -466,5 +466,7 @@
   "list.all-list.all-shift-list.table.Fry": "VEN",
   "list.all-list.all-shift-list.table.sam": "SAB",
   "list.all-list.all-shift-list.table.f": "FER",
-  "list.all-list.all-shift-list.table.plus-f": "+FER"
+  "list.all-list.all-shift-list.table.plus-f": "+FER",
+
+  "settings.group.Sum": "Numero"
 }
