@@ -95,6 +95,7 @@ describe('Utility Functions', () => {
     });
 
     it('should return false for undefined', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(validateEmail(undefined as any)).toBeFalse();
     });
   });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LexicalAnalyser } from './lexicalAnalyser';
 import { Sym, Tokens } from './symbol';
 import { Scopes } from './scopes';
@@ -194,8 +195,6 @@ export class SyntaxAnalyser {
 
   // FunctionDefinition ::= "FUNCTION" Identifier [ "(" [ Identifier { "," Identifier } ] ")" ] Statementlist "END FUNCTION"
   private functionDefinition() {
-   
-
     const res: { isOk: boolean; skipFunctionPC: number } =
       this.subFunctionDefinition();
     const isOk: boolean = res.isOk;
@@ -210,9 +209,9 @@ export class SyntaxAnalyser {
 
   private subFunctionDefinition(): { isOk: boolean; skipFunctionPC: number } {
     let ident: string;
-   
+
     const formalParameters: any[] = [];
-   
+
     const isSub = (this._symbol.token === Tokens.tokSUB) as boolean;
     let definition: Identifier = new Identifier();
     let skipFunctionPC = -1;

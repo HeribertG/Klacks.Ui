@@ -153,6 +153,7 @@ export interface ClientRect {
   readonly width: number;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getScreenCoordinates(obj: any): unknown {
   const p = { x: Number, y: Number };
   p.x = obj.offsetLeft;

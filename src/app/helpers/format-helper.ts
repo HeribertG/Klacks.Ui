@@ -102,6 +102,7 @@ export function addMonths(date: Date, value: number): Date {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isNumeric(value: any): boolean {
   return !isNaN(parseFloat(value)) && isFinite(value);
 }
@@ -217,9 +218,7 @@ export function addSecond(date: Date | string, second: number): Date {
 }
 
 export function newGuid(): string {
- 
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-   
     const r = (Math.random() * 16) | 0,
       v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);

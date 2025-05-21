@@ -330,6 +330,7 @@ export abstract class DrawHelper {
   public static setAntiAliasing(context: CanvasRenderingContext2D): void {
     if (context) {
       context.imageSmoothingEnabled = true;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (context as any).webkitImageSmoothingEnabled = true;
     }
   }

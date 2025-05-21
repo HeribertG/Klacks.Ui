@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /// <summary>
 /// Erzeugt ein tiefes Klon eines Objekts, indem es in JSON konvertiert und anschließend wieder geparst wird.
 /// Achtung: Funktioniert nur mit JSON-kompatiblen Objekten; Funktionen, Date-Objekte, undefined oder spezielle Klassen gehen verloren.
@@ -10,6 +11,7 @@ export function cloneObject<T>(o: T): T {
 
 export function compareProperty(o1: any, o2: any, property: string): boolean {
   // Helper function to log mismatches and return false
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function logMismatch(reason: string) {
     // console.info(`Property "${property}" does not match: ${reason}`);
     return false;
@@ -257,7 +259,6 @@ export function compareComplexObjects(
     return true;
   }
 
- 
   function isObjectExcluded(o: any, listOfExcludedObject?: string[]): boolean {
     if (listOfExcludedObject !== undefined) {
       const objectName = o.constructor.name;
@@ -272,7 +273,7 @@ export function compareComplexObjects(
   }
   function isObjectExcluded1(
     objectName: string,
-   
+
     listOfExcludedObject?: string[]
   ): boolean {
     if (listOfExcludedObject !== undefined) {

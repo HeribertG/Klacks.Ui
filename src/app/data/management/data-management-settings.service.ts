@@ -57,6 +57,7 @@ export class DataManagementSettingsService {
   public macroListDummy: IMacro[] = [];
   public macroListCount = 0;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public originalMacroTypeList: any[] = [];
 
   public appName = '';

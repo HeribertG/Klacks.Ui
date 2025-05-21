@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scope } from './scope';
 import { Identifier, IdentifierTypes } from './identifier';
 

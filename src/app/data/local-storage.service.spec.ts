@@ -2,6 +2,7 @@ import { LocalStorageService } from '../services/local-storage.service';
 
 describe('LocalStorageService', () => {
   let service: LocalStorageService;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockLocalStorage: any;
 
   beforeEach(() => {

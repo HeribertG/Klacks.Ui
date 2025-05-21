@@ -72,6 +72,7 @@ export class DataShiftService {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {

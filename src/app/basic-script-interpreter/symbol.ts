@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class Sym {
   private _token: Tokens = Tokens.tokNone;
   private _text = '';

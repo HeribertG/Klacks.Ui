@@ -42,6 +42,7 @@ export class DataAssignedGroupService {
       .pipe(retry(3), catchError(this.handleError));
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private handleError(error: any) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
