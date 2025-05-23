@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-slider-grey',
+  selector: 'app-icon-slider-grey',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
     style="margin-top: -5px; margin-left: -4px; "

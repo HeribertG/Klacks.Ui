@@ -126,6 +126,7 @@ export function compareComplexObjects(
     listExcludedObject?: string[]
   ): boolean {
     // Helper function to log mismatches
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function logMismatch(reason: string) {
       return false;
     }
@@ -191,6 +192,7 @@ export function compareComplexObjects(
    * @param value - The value to check.
    * @returns True if the value is an array, false otherwise.
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function isArray(value: any): boolean {
     // Use the built-in Array.isArray method
     return Array.isArray(value);
@@ -338,7 +340,7 @@ function isLocalStorageAvailable(): boolean {
     localStorage.setItem(test, test);
     localStorage.removeItem(test);
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

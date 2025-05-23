@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
- 
-  selector: 'icon-stop',
+  selector: 'app-icon-stop',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg

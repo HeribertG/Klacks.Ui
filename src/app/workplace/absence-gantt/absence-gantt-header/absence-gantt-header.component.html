@@ -4,7 +4,7 @@
   ></app-absence-gantt-absence-list>
   <span class="filler"></span>
 
-  <icon-pdf-icon></icon-pdf-icon>
+  <app-icon-pdf-icon></app-icon-pdf-icon>
 
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
@@ -16,7 +16,7 @@
       ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
       autoClose="true"
     >
-      <choose-calendar (change)="onChangeCalendar()"></choose-calendar>
+      <app-choose-calendar (change)="onChangeCalendar()"></app-choose-calendar>
     </button>
     <div ngbDropdownMenu>
       <div class="px-3 py-3">

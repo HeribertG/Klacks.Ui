@@ -1,4 +1,4 @@
-import { DatePipe, NgClass, NgFor } from '@angular/common';
+import { DatePipe, NgFor } from '@angular/common';
 import {
   AfterViewInit,
   Component,

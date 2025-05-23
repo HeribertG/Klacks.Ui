@@ -2,7 +2,7 @@
   id="context-menu"
   class="context-menu"
   [ngStyle]="rightPanelStyle"
-  (clickOutside)="closeMenu()"
+  (appClickOutside)="closeMenu()"
   (mouseleave)="closeMenu()"
 >
   <app-menu [menu]="menuData" #main></app-menu>

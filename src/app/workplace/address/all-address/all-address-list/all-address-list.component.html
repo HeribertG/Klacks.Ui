@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form id="allAddressForm">
   <div class="container-header header-container">
     {{ translate.instant("address.all-address.all-address-list.header") }}
@@ -23,7 +24,7 @@
         role="button"
         aria-label="excel"
       >
-        <icon-excel></icon-excel>
+        <app-excel-icon></app-excel-icon>
       </button>
     </div>
 
@@ -40,7 +41,7 @@
         aria-label="excel"
         (click)="onClickExportExcel(0)"
       >
-        <icon-excel></icon-excel>
+        <app-excel-icon></app-excel-icon>
       </div>
     </div>
   </div>
@@ -57,7 +58,7 @@
       (blur)="onLostFocus()"
       #myAddressTable
       id="myAddressTable"
-      resizeObserver
+      appResizeObserver
       (resizeElement)="onResize($event)"
     >
       <thead>
@@ -206,11 +207,11 @@
           <td class="table-cell cell-right">
             <div *ngIf="authorizationService.isAuthorised">
               <div class="icon icon-padding" (click)="onClickEdit(data)">
-                <icon-pencil-icon-grey></icon-pencil-icon-grey>
+                <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>
 
               <div class="icon" (click)="open(data)" *ngIf="!data.isDeleted">
-                <icon-trash-icon-red></icon-trash-icon-red>
+                <app-icon-trash-red></app-icon-trash-red>
               </div>
             </div>
 

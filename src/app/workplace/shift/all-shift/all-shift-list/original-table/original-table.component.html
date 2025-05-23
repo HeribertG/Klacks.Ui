@@ -82,13 +82,15 @@
 
         <td rowspan="2" class="table-cell-small-border cell-right">
           <div class="icon icon-padding">
-            <icon-scissor (click)="onClickEdit(data, $event)"></icon-scissor>
+            <app-icon-scissor
+              (click)="onClickEdit(data, $event)"
+            ></app-icon-scissor>
           </div>
           <div class="icon icon-padding">
-            <icon-pencil-icon-grey></icon-pencil-icon-grey>
+            <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
           </div>
           <div class="icon">
-            <icon-trash-icon-red></icon-trash-icon-red>
+            <app-icon-trash-red></app-icon-trash-red>
           </div>
         </td>
       </tr>

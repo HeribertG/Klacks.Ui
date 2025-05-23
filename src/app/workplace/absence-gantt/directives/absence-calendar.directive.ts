@@ -27,7 +27,7 @@ export class AbsenceCalendarDirective {
   //   event: MouseEvent
   // ): void {}
 
-  @HostListener('clickOutside', ['$event']) onClickOutside(
+  @HostListener('appClickOutside', ['$event']) onClickOutside(
     event: MouseEvent
   ): void {
     this.gridBody.destroyToolTip();
@@ -111,6 +111,7 @@ export class AbsenceCalendarDirective {
   }
 
   @HostListener('dblclick', ['$event']) onMouseDoubleClick(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: MouseEvent
   ): void {
     this.gridBody.setFocus();

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-schedule',
+  selector: 'app-icon-schedule',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
     version="1"

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-uplaod-icon',
+  selector: 'app-icon-upload',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg

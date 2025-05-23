@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-schedule2',
+  selector: 'app-icon-schedule2',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg
@@ -30,4 +30,4 @@ import { Component } from '@angular/core';
   `,
   standalone: true,
 })
-export class IconScheduleComponent2 {}
+export class IconSchedule2Component {}

@@ -52,8 +52,6 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
-import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
-import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/shared/context-menu/context-menu.service';
 

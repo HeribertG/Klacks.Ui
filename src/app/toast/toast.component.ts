@@ -27,9 +27,10 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
   standalone: true,
   imports: [CommonModule, NgbToastModule],
 })
-export class ToastsContainer {
+export class ToastsContainerComponent {
   constructor(public toastService: ToastService) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isTemplate(toast: { textOrTpl: any }) {
     return toast.textOrTpl instanceof TemplateRef;
   }

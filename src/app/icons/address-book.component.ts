@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-address-book',
+  selector: 'app-icon-address-book',
   template: ` <svg
     width="24px"
     height="24px"

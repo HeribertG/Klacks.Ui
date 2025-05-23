@@ -6,7 +6,7 @@ import { ResizeObserverDirective } from './resize-observer.directive';
 @Component({
   standalone: true,
   imports: [ResizeObserverDirective],
-  template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
+  template: `<div appResizeObserver (resizeElement)="onResize($event)"></div>`,
 })
 class TestComponent {
   resizeEntry: DOMRectReadOnly | null = null;

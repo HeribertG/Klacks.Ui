@@ -1,4 +1,4 @@
-import { CommonModule, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';

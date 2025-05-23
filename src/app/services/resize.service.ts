@@ -11,17 +11,17 @@ export class ResizeService {
 
   observe(element: HTMLElement): Observable<void> {
     return new Observable((observer) => {
-      const resizeObserver = new ResizeObserver(() => {
+      const appResizeObserver = new ResizeObserver(() => {
         this.ngZone.run(() => {
           this.resizeSubject.next();
           observer.next();
         });
       });
 
-      resizeObserver.observe(element);
+      appResizeObserver.observe(element);
 
       return () => {
-        resizeObserver.disconnect();
+        appResizeObserver.disconnect();
       };
     });
   }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-excel',
+  selector: 'app-excel-icon',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
     version="1.1"

@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="mask-container">
   <div *ngIf="selectedBreak" class="mask">
     <div class="mask-header custom-control-inline">
@@ -27,7 +29,7 @@
       </ul>
       <span class="filler"></span>
       <div [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }">
-        <icon-pdf-icon></icon-pdf-icon>
+        <app-icon-pdf-icon></app-icon-pdf-icon>
       </div>
     </div>
 

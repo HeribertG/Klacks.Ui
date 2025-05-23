@@ -20,7 +20,7 @@ import {
  * - Prevents event propagation when needed
  */
 @Directive({
-  selector: '[clickOutside]',
+  selector: '[appClickOutside]',
   standalone: true,
 })
 export class ClickOutsideDirective {

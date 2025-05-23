@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
@@ -5,7 +6,6 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
   effect,
   inject,
@@ -90,9 +90,8 @@ export class AllAddressNavComponent
         this.currentLang = this.translateService.currentLang as Language;
       });
 
-    const res = this.localStorageService.get(MessageLibrary.TOKEN) !== null;
     this.objectForUnsubscribe = this.navClientForm!.valueChanges!.subscribe(
-      (x) => {
+      () => {
         if (this.navClientForm!.dirty) {
           if (!this.isComboBoxOpen) {
             setTimeout(() => this.dataManagementClientService.readPage(), 100);
@@ -174,11 +173,11 @@ export class AllAddressNavComponent
     } else {
       this.dataManagementClientService.currentFilter.clientType = index;
 
-      if (this.isInitFinished) {
-        if (this.dataManagementClientService.currentFilter.clientType !== -1) {
-          const key = this.dataManagementClientService.currentFilter.clientType;
-        }
-      }
+      // if (this.isInitFinished) {
+      //   if (this.dataManagementClientService.currentFilter.clientType !== -1) {
+      //     const key = this.dataManagementClientService.currentFilter.clientType;
+      //   }
+      // }
 
       this.dataManagementClientService.clearCheckedArray();
       this.dataManagementClientService.headerCheckBoxValue = false;

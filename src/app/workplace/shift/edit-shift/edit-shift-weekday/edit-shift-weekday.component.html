@@ -34,6 +34,7 @@
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalStartShift.hours
                 "
+                name="hours"
                 (keyup)="
                   onKeyUpInput(
                     $event,
@@ -73,9 +74,12 @@
       <div class="secondColumnContainer">
         <div class="row-line2 endColumn">
           <div class="row-line1">
-            <label>{{ "shift.edit-shift.weekday.until" | translate }}</label>
+            <label for="start-hours">{{
+              "shift.edit-shift.weekday.until" | translate
+            }}</label>
             <div class="row-line-inline-simple">
               <input
+                id="start-hours"
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalEndShift.hours
                 "
@@ -115,11 +119,12 @@
 
           <!-- work hours -->
           <div class="row-line1">
-            <label>{{
+            <label for="internalWorkTime-hours">{{
               "shift.edit-shift.weekday.work-hour" | translate
             }}</label>
             <div class="row-line-inline-simple">
               <input
+                id="internalWorkTime-hours"
                 [disabled]="disabledWorkTime"
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalWorkTime.hours

@@ -20,7 +20,7 @@
         aria-label="note-delete"
         *ngIf="dataManagementClientService.editClientDeleted === false"
       >
-        <icon-gear-grey></icon-gear-grey>
+        <app-icon-gear-grey></app-icon-gear-grey>
       </div>
 
       <ul
@@ -37,7 +37,7 @@
             (click)="onDeleteCurrentAnnotation()"
           >
             <div class="custom-control-inline" style="height: 25px">
-              <icon-trash-icon-red></icon-trash-icon-red>
+              <app-icon-trash-red></app-icon-trash-red>
               <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
                 {{ "address.edit-address.note.delete" | translate }}
               </p>
@@ -53,7 +53,7 @@
             "
           >
             <div class="custom-control-inline" style="height: 25px">
-              <icon-trash-icon-light-red></icon-trash-icon-light-red>
+              <app-icon-trash-light-red></app-icon-trash-light-red>
               <p style="margin-left: 10px; font-size: 13px; color: #fac1c7">
                 {{ "address.edit-address.note.delete" | translate }}
               </p>

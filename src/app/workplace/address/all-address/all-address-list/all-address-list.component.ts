@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
@@ -227,6 +228,7 @@ export class AllAddressListComponent
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private resize = (event: any): void => {
     setTimeout(() => this.recalcHeight(), 100);
   };
@@ -364,8 +366,8 @@ export class AllAddressListComponent
     );
     copyObjectValues(this.dataManagementClientService.currentFilter, value);
 
-    const countriesArray =
-      this.dataManagementClientService.currentFilter.countries;
+    // const countriesArray =
+    //   this.dataManagementClientService.currentFilter.countries;
 
     if (this.dataManagementClientService.currentFilter.searchString) {
       this.dataManagementClientService.restoreSearch.set(

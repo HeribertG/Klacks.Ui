@@ -22,6 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class SearchComponent {
   @HostListener('search', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onsearch(event: KeyboardEvent) {
     this.onClickSearch();
   }

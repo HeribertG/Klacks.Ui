@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
- 
-  selector: 'icon-scissor',
+  selector: 'app-icon-scissor',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
     width="24px"

@@ -58,11 +58,8 @@ export class DrawRowHeaderService {
   }
 
   @CanvasAvailable()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   moveRow(directionY: number): void {
-    const visibleRow = Math.ceil(
-      this.rowHeaderCanvasManager.height / this.calendarSetting.cellHeight
-    );
-
     this.renderRowHeader();
     this.drawCalendar();
   }

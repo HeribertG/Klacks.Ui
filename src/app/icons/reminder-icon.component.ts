@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-reminder-icon',
+  selector: 'app-icon-reminder',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg

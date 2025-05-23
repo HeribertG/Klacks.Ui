@@ -40,6 +40,7 @@ export class HeaderComponent implements OnInit, OnChanges {
     this.setTheme();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   ngOnChanges(changes: any) {
     this.setTheme();
   }

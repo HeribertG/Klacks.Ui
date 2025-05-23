@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { SpinnerService } from '../spinner.service';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../spinner.component';

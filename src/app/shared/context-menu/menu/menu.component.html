@@ -1,7 +1,7 @@
 <div
   class="menu-container"
   [ngStyle]="rightPanelStyle"
-  (clickOutside)="closeMenu()"
+  (appClickOutside)="closeMenu()"
   (mouseleave)="closeMenu()"
   (contextmenu)="stopEvent($event)"
   *ngIf="menu && menu.list"

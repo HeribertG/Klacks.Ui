@@ -54,7 +54,7 @@
       class="table-row"
       *ngFor="let data of selectedRowData; index as i"
       (click)="onClickedRow(data)"
-      [class.active]="data.id == highlightRowId"
+      [class.active]="data.id === highlightRowId"
     >
       <td class="table-cell">{{ data.from | date : "dd.MM.yyyy" }}</td>
       <td class="table-cell">{{ data.until | date : "dd.MM.yyyy" }}</td>

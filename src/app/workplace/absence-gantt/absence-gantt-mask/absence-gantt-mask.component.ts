@@ -153,6 +153,7 @@ export class AbsenceGanttMaskComponent
     return undefined;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ngOnChanges(changes: SimpleChanges): void {
     this.page = this.selectedBreakIndex! + 1;
     if (this.selectedBreak) {
@@ -250,6 +251,7 @@ export class AbsenceGanttMaskComponent
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addBreak(value: IBreak) {
     this.dataManagementBreak.readData(this.selectedRow);
     const id = this.dataManagementBreak.readClientId(this.selectedRow);

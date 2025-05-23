@@ -58,7 +58,7 @@ export class CalendarSelectorComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @Output() openMenu = new EventEmitter();
-  @Output() change = new EventEmitter();
+  @Output() changeEvent = new EventEmitter();
 
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
@@ -173,7 +173,7 @@ export class CalendarSelectorComponent
       this.dataManagementCalendarSelectionService.isChanged.set(true);
     }
 
-    this.change.emit();
+    this.changeEvent.emit();
   }
 
   compareCalendars(c1: ICalendarSelection, c2: ICalendarSelection): boolean {
@@ -216,7 +216,7 @@ export class CalendarSelectorComponent
 
       this.spliceToken(index);
 
-      this.change.emit();
+      this.changeEvent.emit();
     }
     this.dataManagementCalendarSelectionService.readSChips(true);
   }

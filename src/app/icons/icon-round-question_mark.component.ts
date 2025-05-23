@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
- 
-  selector: 'icon-round-question-mark',
+  selector: 'app-icon-round-question-mark',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg

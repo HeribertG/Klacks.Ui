@@ -48,7 +48,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { ErrorComponent } from './error/error.component';
 import { LocaleService } from './services/locale.service';
 import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
-import { ToastsContainer } from './toast/toast.component';
+import { ToastsContainerComponent } from './toast/toast.component';
 import { GroupSelectComponent } from './group-select/group-select.component';
 import { NoAccessComponent } from './no-access/no-access.component';
 
@@ -89,7 +89,7 @@ export function localeFactory(localeService: LocaleService) {
     GroupSelectComponent,
     NoAccessComponent,
     ErrorComponent,
-    ToastsContainer,
+    ToastsContainerComponent,
   ],
   providers: [
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },

@@ -15,7 +15,7 @@ class ResizeObserverMock {
 }
 
 @Component({
-  template: `<div resizeObserver (resizeElement)="onResize($event)"></div>`,
+  template: `<div appResizeObserver (resizeElement)="onResize($event)"></div>`,
   standalone: true,
   imports: [ResizeObserverDirective],
 })

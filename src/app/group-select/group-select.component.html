@@ -23,6 +23,7 @@
     (keyup.enter)="toggleDropdown()"
     (keyup.space)="toggleDropdown()"
     [id]="'group-select-' + (label || '')"
+    aria-controls="select group"
   >
     <div class="group-select-value">
       <!-- Anzeige des ausgewählten Elements oder 'Alle Gruppen' -->
@@ -49,8 +50,8 @@
   <div
     class="group-select-dropdown"
     *ngIf="isDropdownOpen"
-    clickOutside
-    (clickOutside)="closeDropdown()"
+    appClickOutside
+    (appClickOutside)="closeDropdown()"
   >
     <div class="group-tree-container">
       <ng-container *ngIf="displayTree && displayTree.length > 0; else noTree">

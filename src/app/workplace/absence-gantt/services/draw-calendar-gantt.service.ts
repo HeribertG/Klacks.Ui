@@ -106,7 +106,7 @@ export class DrawCalendarGanttService {
       } else {
         this.renderCalendarGrid.renderCalendar();
       }
-    } catch (e) {
+    } catch {
       this.renderCalendarGrid.renderCalendar();
     }
   }

@@ -49,6 +49,7 @@ export class NavComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
   private navigationService = inject(NavigationService);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   profileImage: any;
 
   absence = MessageLibrary.ABSENCE;

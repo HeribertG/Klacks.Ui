@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-pdf-icon',
+  selector: 'app-icon-pdf-icon',
   styleUrls: ['./buttons.scss'],
   template: `
     <svg

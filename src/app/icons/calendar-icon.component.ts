@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'calendar-icon-ball',
+  selector: 'app-calendar-icon-ball',
   styleUrls: ['./buttons.scss'],
   template: `<svg
     width="20px"

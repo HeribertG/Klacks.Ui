@@ -148,13 +148,13 @@
             *ngIf="authorizationService.isAuthorised"
           >
             <button class="tree-action-btn" (click)="editNode(node)">
-              <icon-pencil-icon-grey></icon-pencil-icon-grey>
+              <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
             </button>
             <button class="tree-action-btn" (click)="addChildNode(node)">
               <app-icon-add></app-icon-add>
             </button>
             <button class="tree-action-btn" (click)="deleteNode(node)">
-              <icon-trash-icon-red></icon-trash-icon-red>
+              <app-icon-trash-red></app-icon-trash-red>
             </button>
           </div>
 

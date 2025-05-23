@@ -58,6 +58,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private localStorageService = inject(LocalStorageService);
   private authorizationService = inject(AuthorizationService);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @ViewChild('content', { static: false }) private content: any;
 
   isDashboard = true;
@@ -332,7 +333,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   open(content: any): Promise<boolean> | void {}
 
   setContainerWithNormal() {

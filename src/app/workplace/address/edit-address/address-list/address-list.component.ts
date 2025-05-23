@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
-import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
+import { ChooseCalendarComponent } from 'src/app/icons/app-choose-calendar.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';

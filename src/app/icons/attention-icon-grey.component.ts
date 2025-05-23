@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'icon-attention-icon-grey',
+  selector: 'app-icon-attention-icon-grey',
   styleUrls: ['./buttons.scss'],
   template: ` <svg
     width="24px"
