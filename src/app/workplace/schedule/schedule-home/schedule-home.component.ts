@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
-import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
-import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
-import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/schedule-shift-row-header.component';
-import { ScheduleShiftSurfaceComponent } from '../schedule-shift-surface/schedule-shift-surface.component';
-import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { DataService } from '../services/data.service';
 import { ScrollService } from '../services/scroll.service';

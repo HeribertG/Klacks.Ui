@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Directive,
   ElementRef,
@@ -32,6 +31,7 @@ export class ResizeObserverDirective implements OnDestroy {
     ro.observe(target);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resizeCallback(entry: any): void {
     this.resizeElement.emit(entry.contentRect);
   }

@@ -47,6 +47,7 @@ export class GroupScopeRowComponent implements OnInit, OnDestroy {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   open(content: any): void {
     console.log('Before opening modal');
 

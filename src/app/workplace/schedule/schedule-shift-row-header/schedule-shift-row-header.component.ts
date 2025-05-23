@@ -1,15 +1,6 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnDestroy,
-  OnInit,
-  Renderer2,
-} from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { CommonModule } from '@angular/common';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
 
 @Component({
   selector: 'app-schedule-shift-row-header',
@@ -18,19 +9,6 @@ import { ResizeDirective } from 'src/app/directives/resize.directive';
   standalone: true,
   imports: [CommonModule],
 })
-export class ScheduleShiftRowHeaderComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class ScheduleShiftRowHeaderComponent {
   @Input() scheduleRowHeader: ScheduleScheduleRowHeaderComponent | undefined;
-
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
-  ngOnInit(): void {
-    //this.el.nativeElement.
-  }
-  ngAfterViewInit(): void {
-    //throw new Error('Method not implemented.');
-  }
-  ngOnDestroy(): void {
-    // throw new Error('Method not implemented.');
-  }
 }

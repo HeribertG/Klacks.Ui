@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   NgbDropdown,
   NgbDropdownModule,
@@ -12,10 +12,9 @@ import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
-import { ChooseCalendarComponent } from 'src/app/icons/app-choose-calendar.component';
 import { ScheduleHeaderCalendarComponent } from './schedule-header-calendar/schedule-header-calendar.component';
 import { FormsModule } from '@angular/forms';
-import { CounterComponent } from 'src/app/shared/counter/counter.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 
 @Component({
   selector: 'app-schedule-header',

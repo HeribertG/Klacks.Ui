@@ -69,6 +69,7 @@ export class ScheduleShiftSurfaceComponent {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   private resize = (event: any): void => {
     const pixelRatio = DrawHelper.pixelRatio();
     if (this._pixelRatio !== pixelRatio) {
@@ -95,6 +96,7 @@ export class ScheduleShiftSurfaceComponent {
   /* #endregion   resize+visibility */
 
   /* #region   render */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   moveGrid(directionX: number, directionY: number): void {}
 
   /* #endregion   render */
@@ -141,7 +143,7 @@ export class ScheduleShiftSurfaceComponent {
     );
     DrawHelper.setAntiAliasing(this.backgroundRowCtx);
 
-    this.rowCanvas! = document.createElement('canvas') as HTMLCanvasElement;
+    this.rowCanvas = document.createElement('canvas') as HTMLCanvasElement;
     this.rowCtx = DrawHelper.createHiDPICanvas(
       this.rowCanvas,
       this.canvas.clientWidth,
@@ -180,6 +182,7 @@ export class ScheduleShiftSurfaceComponent {
   /* #region   create */
 
   /* #region   drag-drop */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   dragOver(ev: DragEvent) {
     // ev.preventDefault();
     // if (ev.dataTransfer) {
@@ -194,6 +197,7 @@ export class ScheduleShiftSurfaceComponent {
     // }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   drop(ev: any) {
     // ev.preventDefault();
     // if (ev.dataTransfer) {
@@ -205,6 +209,7 @@ export class ScheduleShiftSurfaceComponent {
     // }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private calcDroppedCell(offsetX: number, offsetY: number): number[] {
     // if (this.canvas) {
     //   let deltaX = Math.ceil(offsetX / this.calendarSetting.cellWidth) - 1;

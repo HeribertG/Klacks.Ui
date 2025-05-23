@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -6,9 +7,7 @@ import {
   EventEmitter,
   HostListener,
   inject,
-  Inject,
   LOCALE_ID,
-  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -45,9 +44,7 @@ import { ToastService } from 'src/app/toast/toast.service';
     TrashIconRedComponent,
   ],
 })
-export class EditGroupMembersComponent
-  implements OnInit, AfterViewInit, OnDestroy
-{
+export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastService = inject(ToastService);
@@ -82,6 +79,7 @@ export class EditGroupMembersComponent
 
   checkBoxIndeterminate = false;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('search', ['$event']) onsearch(event: any) {
     if (!this.selectedClientName) {
       this.clearSelection();
@@ -99,8 +97,6 @@ export class EditGroupMembersComponent
     this.reReadSortData();
     this.cdr.detectChanges();
   }
-
-  ngOnDestroy(): void {}
 
   private clearSelection() {
     this.selectedClient = undefined;
@@ -174,7 +170,6 @@ export class EditGroupMembersComponent
   private refreshList(term: string) {
     this.dataManagementGroupService.currentClientFilter.searchString = term;
 
-   
     this.dataClientService
       .readClientList(this.dataManagementGroupService.currentClientFilter)
       .subscribe((x) => {

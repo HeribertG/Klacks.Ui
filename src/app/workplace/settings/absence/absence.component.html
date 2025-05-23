@@ -337,11 +337,12 @@
         </span>
         <span class="filler"></span>
 
-        <label class="entry-info"
+        <label for="pagination" class="entry-info"
           >{{ "pagination.sum" | translate }}
           {{ dataManagementAbsenceService.maxItems }}</label
         >
         <ngb-pagination
+          id="pagination"
           [collectionSize]="dataManagementAbsenceService.maxItems + 1"
           (pageChange)="onPageChange($event)"
           [(page)]="page"

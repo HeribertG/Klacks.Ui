@@ -1,9 +1,4 @@
-import {
-  Directive,
-  HostListener,
-  ViewContainerRef,
-  NgZone,
-} from '@angular/core';
+import { Directive, HostListener, ViewContainerRef } from '@angular/core';
 
 import { Overlay } from '@angular/cdk/overlay';
 import { ScrollService } from '../services/scroll.service';
@@ -13,7 +8,7 @@ import { MyPosition } from 'src/app/grid/classes/position';
 import { CellManipulationService } from '../services/cell-manipulation.service';
 
 @Directive({
-  selector: '[cellEvents]',
+  selector: '[appCellEvents]',
   standalone: true,
 })
 export class CellEventsDirective {
@@ -31,8 +26,10 @@ export class CellEventsDirective {
     private cellManipulation: CellManipulationService
   ) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
     this.gridSurface.destroyToolTip();
   }
@@ -114,8 +111,8 @@ export class CellEventsDirective {
   ): void {
     this.keyDown = true;
 
-    const isShift: boolean = event.shiftKey;
-    const isCtrl = event.ctrlKey;
+    // const _isShift: boolean = event.shiftKey;
+    // const _isCtrl = event.ctrlKey;
 
     if (event.key === 'ArrowDown') {
       if (event.repeat) {
@@ -438,6 +435,7 @@ export class CellEventsDirective {
   }
 
   @HostListener('window:keyup', ['$event']) onKeyUp(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: KeyboardEvent
   ): void {
     this.keyDown = false;
@@ -445,9 +443,11 @@ export class CellEventsDirective {
   }
 
   @HostListener('window:keypress', ['$event']) onKeyPress(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: KeyboardEvent
   ): void {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('window:focus', ['$event']) onfocus(event: FocusEvent): void {
     this.gridSurface.setFocus();
     if (
@@ -461,6 +461,7 @@ export class CellEventsDirective {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('window:blur', ['$event']) onblur(event: FocusEvent): void {
     this.gridSurface.drawSchedule.isFocused = false;
     if (

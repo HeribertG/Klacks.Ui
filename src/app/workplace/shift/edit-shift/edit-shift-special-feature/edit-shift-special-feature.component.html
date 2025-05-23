@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form #specialFeatureShiftForm="ngForm" class="container-card">
   <div class="container-header header-container">
     <div>
@@ -26,9 +28,12 @@
         <div class="firstColumContainer">
           <div class="firstColumn">
             <div class="row-line1">
-              <label> {{ "shift.edit-shift.weekday.from" | translate }}</label>
+              <label for="from-hours">
+                {{ "shift.edit-shift.weekday.from" | translate }}</label
+              >
               <div class="row-line-inline-simple">
                 <input
+                  id="from-hours"
                   [(ngModel)]="
                     dataManagementShiftService.editShift.internalStartShift
                       .hours
@@ -72,9 +77,12 @@
         <div class="secondColumnContainer">
           <div class="row-line2 endColumn">
             <div class="row-line1">
-              <label>{{ "shift.edit-shift.weekday.until" | translate }}</label>
+              <label for="unitl-hours">{{
+                "shift.edit-shift.weekday.until" | translate
+              }}</label>
               <div class="row-line-inline-simple">
                 <input
+                  for="unitl-hours"
                   [(ngModel)]="
                     dataManagementShiftService.editShift.internalEndShift.hours
                   "

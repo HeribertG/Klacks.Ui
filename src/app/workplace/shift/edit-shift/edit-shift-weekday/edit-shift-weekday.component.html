@@ -28,12 +28,15 @@
       <div class="firstColumContainer">
         <div class="firstColumn">
           <div class="row-line1">
-            <label> {{ "shift.edit-shift.weekday.from" | translate }}</label>
+            <label for="start-hours">
+              {{ "shift.edit-shift.weekday.from" | translate }}</label
+            >
             <div class="row-line-inline-simple">
               <input
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalStartShift.hours
                 "
+                id="start-hours"
                 name="hours"
                 (keyup)="
                   onKeyUpInput(

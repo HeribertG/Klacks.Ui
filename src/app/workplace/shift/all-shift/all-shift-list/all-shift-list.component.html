@@ -19,10 +19,11 @@
     ></app-original-table>
     <div class="pagination justify-content-end">
       <div *ngIf="visibleRow">
-        <label class="entry-row">{{
+        <label for="selection" class="entry-row">{{
           translate.instant("pagination.line")
         }}</label>
         <select
+          id="selection"
           class="maxSize-selection"
           value="realRow"
           (change)="onChangeRowSize($event)"
@@ -37,11 +38,12 @@
         </select>
       </div>
 
-      <label class="entry-info"
+      <label for="pagination" class="entry-info"
         >{{ translate.instant("pagination.sum") }}
         {{ dataManagementShiftService.listWrapper.maxItems }}</label
       >
       <ngb-pagination
+        id="pagination"
         [collectionSize]="dataManagementShiftService.listWrapper.maxItems + 1"
         (pageChange)="onPageChange($event)"
         [(page)]="page"

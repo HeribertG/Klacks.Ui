@@ -279,8 +279,7 @@ export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
     this.mouseOverThumb = this.mouseEnterThumb;
 
     if (this.canvas) {
-      if (this.mouseEnterThumb) {
-      } else {
+      if (!this.mouseEnterThumb) {
         if (event.clientX < this.scrollLeft + this.canvas.offsetLeft) {
           this.moveAnimationValue = -1;
         } else {
@@ -293,6 +292,7 @@ export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
     this.mouseEnterThumb = false;
     this.MouseXToThumbX = 0;
@@ -313,6 +313,7 @@ export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: MouseEvent
   ): void {
     this.mouseOverThumb = false;
@@ -422,7 +423,7 @@ export class ScheduleHScrollbarComponent implements AfterViewInit, OnDestroy {
         this.animationSteps(steps);
       }
 
-      const requestId = window.requestAnimationFrame((x) => {
+      const requestId = window.requestAnimationFrame(() => {
         this.frameRequests.push(requestId);
         this.moveAnimation(steps);
       });

@@ -297,6 +297,7 @@ export class AbsenceGanttSurfaceComponent
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onMouseUp(event: MouseEvent): void {
     this.currentCursor = CursorEnum.default;
     this.mouseToBarAlpha = undefined;

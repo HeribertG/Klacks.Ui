@@ -1,10 +1,13 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
   EventEmitter,
   inject,
   Output,
-  ViewChild, OnDestroy,
+  ViewChild,
+  OnDestroy,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';

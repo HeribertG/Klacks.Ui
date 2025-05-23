@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, Output, inject } from '@angular/core';
 
 // Angular und Bibliotheksmodule
@@ -60,7 +61,7 @@ export class ProfilePictureComponent {
       const fd = new FormData();
       fd.append('file', this.selectedFile!, filename);
 
-      this.dataLoadFileService.upLoadFile(fd).subscribe((event) => {
+      this.dataLoadFileService.upLoadFile(fd).subscribe(() => {
         this.tryLoadProfileImage();
         this.selectedFile = undefined;
       });

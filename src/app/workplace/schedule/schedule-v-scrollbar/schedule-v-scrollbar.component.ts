@@ -263,14 +263,14 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
 
   /* #region Events */
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('click', ['$event']) onClick(event: MouseEvent): void {}
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     this.MouseEnterThumb = this.isMouseOverThumb(event);
     this.MouseOverThumb = this.MouseEnterThumb;
 
-    if (this.MouseEnterThumb) {
-    } else {
+    if (!this.MouseEnterThumb) {
       if (event.clientY < this.scrollTop + this.canvas!.offsetTop) {
         this.moveAnimationValue = -1;
       } else {
@@ -283,6 +283,7 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
     this.MouseEnterThumb = false;
     this.MouseYToThumbY = 0;
@@ -324,12 +325,14 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
   }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: MouseEvent
   ): void {
     this.MouseOverThumb = false;
     this.stopMoveAnimation();
   }
   @HostListener('focusout', ['$event'])
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onFocusOut(event: FocusEvent): void {
     this.MouseOverThumb = false;
     this.stopMoveAnimation();
@@ -342,6 +345,7 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
     this.refresh();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseover', ['$event']) onMouseOver(event: MouseEvent): void {}
 
   onArrowThumbMouseDown(event: MouseEvent, type: number) {
@@ -393,7 +397,7 @@ export class ScheduleVScrollbarComponent implements AfterViewInit, OnDestroy {
         this.animationSteps(steps);
       }
 
-      const requestId = window.requestAnimationFrame((x) => {
+      const requestId = window.requestAnimationFrame(() => {
         this.frameRequests.push(requestId);
         this.moveAnimation(steps);
       });

@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
-  Inject,
   Injector,
   LOCALE_ID,
   OnDestroy,
@@ -14,13 +13,12 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -44,10 +42,8 @@ export class EditGroupItemComponent
 {
   public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
-  private ngbModal = inject(NgbModal);
   private locale: string = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
-  private modalService = inject(ModalService);
   private injector = inject(Injector);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();

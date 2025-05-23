@@ -12,11 +12,11 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ChooseCalendarComponent } from 'src/app/icons/app-choose-calendar.component';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import { CounterComponent } from 'src/app/shared/counter/counter.component';
+import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 
 @Component({
   selector: 'app-absence-gantt-header',

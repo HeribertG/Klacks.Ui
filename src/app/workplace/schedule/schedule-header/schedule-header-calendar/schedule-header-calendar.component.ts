@@ -6,8 +6,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/shared/counter/counter.component';
-import { CalendarDropdownComponent } from 'src/app/shared/calendar-dropdown/calendar-dropdown.component';
-import { ChipsComponent } from 'src/app/shared/chips/chips.component';
 
 @Component({
   selector: 'app-schedule-header-calendar',

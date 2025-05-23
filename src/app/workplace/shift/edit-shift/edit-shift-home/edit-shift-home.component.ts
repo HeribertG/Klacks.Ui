@@ -60,6 +60,7 @@ export class EditShiftHomeComponent implements OnInit {
       'DataManagementShiftService_Edit';
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
   }

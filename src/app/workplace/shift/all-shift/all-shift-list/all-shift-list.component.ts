@@ -51,6 +51,7 @@ export class AllShiftListComponent implements OnInit {
 
   resizeWindow: (() => void) | undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onResize(event: DOMRectReadOnly | any): void {}
 
   onAddShift(): void {
@@ -59,10 +60,12 @@ export class AllShiftListComponent implements OnInit {
 
   onLostFocus(): void {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClickedRow(data: any): void {
     //this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClickEdit(data: any): void {
     // Weitere bestehende Logik beibehalten
   }
@@ -71,12 +74,14 @@ export class AllShiftListComponent implements OnInit {
     this.hoveredRowId = data.id;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClickDelete(s: Shift) {}
 
   onMouseLeave(): void {
     this.hoveredRowId = undefined;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   open(data: any): void {
     // Weitere bestehende Logik beibehalten
   }
@@ -89,7 +94,9 @@ export class AllShiftListComponent implements OnInit {
     // können Sie das hier tun
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPageChange(event: number) {}
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onChangeRowSize(event: any): void {}
 }

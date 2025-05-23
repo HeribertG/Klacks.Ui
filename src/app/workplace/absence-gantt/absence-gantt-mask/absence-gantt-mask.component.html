@@ -204,10 +204,11 @@
     </button>
     <span class="filler"></span>
     <div class="pagination justify-content-end" *ngIf="selectedBreak">
-      <label class="entry-info"
+      <label for="pagination" class="entry-info"
         >{{ "pagination.sum" | translate }} {{ selectedRowBreaksMaxIndex! + 1 }}
       </label>
       <ngb-pagination
+        id="pagination"
         [collectionSize]="selectedRowBreaksMaxIndex! + 1"
         (pageChange)="onBreakChange($event)"
         [(page)]="page"

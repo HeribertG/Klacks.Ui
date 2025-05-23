@@ -29,6 +29,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objectForUnsubscribe: any;
 
   isComboBoxOpen = false;

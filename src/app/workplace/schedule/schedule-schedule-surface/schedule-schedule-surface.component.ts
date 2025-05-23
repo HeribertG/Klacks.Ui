@@ -7,13 +7,11 @@ import {
   Input,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
   effect,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
-import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
 import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
@@ -223,6 +221,7 @@ export class ScheduleScheduleSurfaceComponent
   // including its appearance, hiding, and removal,
   // as well as animation effects for an enhanced user experience.
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showToolTip({ value, event }: { value: any; event: MouseEvent }) {
     if (this.tooltip && this.tooltip.innerHTML !== value) {
       this.tooltip.innerHTML = value;
@@ -311,6 +310,7 @@ export class ScheduleScheduleSurfaceComponent
 
   /* #region context menu */
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   showContextMenu(event: MouseEvent) {
     this.clearMenus();
 
@@ -331,6 +331,7 @@ export class ScheduleScheduleSurfaceComponent
 
     // this.contextMenu.openMenu();
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   onContextMenuAction(event: any) {
     // switch (event.id) {
     //   case MenuIDEnum.emCopy: {

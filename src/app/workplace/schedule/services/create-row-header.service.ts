@@ -290,6 +290,7 @@ export class CreateRowHeaderService {
     info: string,
     rect: Rectangle,
     backgroundColor: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     style: Gradient3DBorderStyleEnum
   ) {
     DrawHelper.fillRectangle(ctx, backgroundColor, rect);
@@ -310,6 +311,7 @@ export class CreateRowHeaderService {
     return this.oldWidth !== width;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private isDataValid(row: number): boolean {
     return !(
       this.gridData.dataManagementSchedule.clients.length === 0 ||
@@ -365,7 +367,7 @@ export class CreateRowHeaderService {
           tempCanvas.height - this.settings.increaseBorder * 2
         );
 
-        const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
+        //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
         // this.drawIcon(ctx, client, widthWithoutInfoSpot, tempCanvas.height);
 
         cell.img = tempCanvas;

@@ -78,7 +78,7 @@ export class SettingsGeneralComponent {
     const fd = new FormData();
     fd.append('file', this.selectedFileLogo!, 'own-logo.png');
 
-    this.dataLoadFileService.upLoadFile(fd).subscribe((event) => {
+    this.dataLoadFileService.upLoadFile(fd).subscribe(() => {
       this.tryLoadProfileImage();
       this.selectedFileLogo = undefined;
     });

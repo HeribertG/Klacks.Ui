@@ -128,8 +128,8 @@ export class DrawRowHeaderService {
 
   private setMetrics() {
     if (this.isCanvasAvailable()) {
-      const visibleRows: number = this.visibleRow() - 1;
-      const visibleCols: number = this.UpdateVisibleCol() - 1;
+      // const visibleRows: number = this.visibleRow() - 1;
+      // const visibleCols: number = this.UpdateVisibleCol() - 1;
     }
   }
 
@@ -431,7 +431,7 @@ export class DrawRowHeaderService {
         i < this.cellManipulation.PositionCollection.count();
         i++
       ) {
-        const pos = this.cellManipulation.PositionCollection.item(i);
+        // const pos = this.cellManipulation.PositionCollection.item(i);
         // this.drawSelectedCellBackground(pos.column, pos.row);
       }
 

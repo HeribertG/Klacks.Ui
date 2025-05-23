@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   Component,
   IterableDiffers,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
   effect,
+  inject,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -45,6 +46,12 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:
     | NgForm
     | undefined;
+
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  private iterableDiffers = inject(IterableDiffers);
+  private translateService = inject(TranslateService);
+  private localStorageService = inject(LocalStorageService);
+
   public navGroup: HTMLElement | undefined;
   public faCalendar = faCalendar;
   public isComboBoxOpen = false;
@@ -58,14 +65,8 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor(
-    public dataManagementGroupService: DataManagementGroupService,
-    private iterableDiffers: IterableDiffers,
-    private renderer: Renderer2,
-    private translateService: TranslateService,
-    private localStorageService: LocalStorageService
-  ) {
-    this.iterableDiffer = iterableDiffers.find([]).create(undefined);
+  constructor() {
+    this.iterableDiffer = this.iterableDiffers.find([]).create(undefined);
   }
 
   ngOnInit(): void {
@@ -73,6 +74,8 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementGroupService.init();
 
     this.navGroup = document.getElementById('navGroupForm')!;
+
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -82,10 +85,9 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
         this.currentLang = this.translateService.currentLang as Language;
       });
 
-    const res = this.localStorageService.get(MessageLibrary.TOKEN) !== null;
     if (this.navGroupForm && this.navGroupForm.valueChanges) {
       this.objectForUnsubscribe = this.navGroupForm.valueChanges.subscribe(
-        (x) => {
+        () => {
           if (this.navGroupForm!.dirty) {
             if (!this.isComboBoxOpen) {
               setTimeout(() => this.dataManagementGroupService.readPage(), 100);
@@ -162,15 +164,6 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataManagementGroupService.currentClientFilter.clientType = -1;
     } else {
       this.dataManagementGroupService.currentClientFilter.clientType = index;
-
-      if (this.isInitFinished) {
-        if (
-          this.dataManagementGroupService.currentClientFilter.clientType !== -1
-        ) {
-          const key =
-            this.dataManagementGroupService.currentClientFilter.clientType;
-        }
-      }
 
       this.dataManagementGroupService.clearCheckedArray();
       this.dataManagementGroupService.headerCheckBoxValue = false;

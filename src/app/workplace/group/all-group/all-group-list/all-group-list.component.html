@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="allGroupForm">
   <div class="container-header header-container">
     {{ translate.instant("group.all-group.all-group-list.header") }}
@@ -178,10 +180,11 @@
 
   <div class="pagination justify-content-end">
     <div *ngIf="visibleRow">
-      <label class="entry-row">{{
+      <label for="selection" class="entry-row">{{
         translate.instant("pagination.line")
       }}</label>
       <select
+        id="selection"
         class="maxSize-selection"
         value="realRow"
         (change)="onChangeRowSize($event)"
@@ -196,11 +199,12 @@
       </select>
     </div>
 
-    <label class="entry-info"
+    <label for="pagination" class="entry-info"
       >{{ translate.instant("pagination.sum") }}
       {{ dataManagementGroupService.maxItems }}</label
     >
     <ngb-pagination
+      id="pagination"
       [collectionSize]="dataManagementGroupService.maxItems + 1"
       (pageChange)="onPageChange($event)"
       [(page)]="page"

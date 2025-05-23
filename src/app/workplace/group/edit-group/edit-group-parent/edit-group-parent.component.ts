@@ -42,6 +42,7 @@ export class EditGroupParentComponent implements OnInit, OnDestroy {
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
   private ngUnsubscribe = new Subject<void>();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private formChangeSubscription: any;
   private effectRef: EffectRef | null = null;
 

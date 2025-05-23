@@ -49,6 +49,7 @@ export class ProfileHomeComponent implements OnInit {
     this.dataManagementProfileService.readData();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any): void {
     this.isChangingEvent.emit(event);
   }

@@ -29,7 +29,6 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
-  objectForUnsubscribe: any;
 
   isComboBoxOpen = false;
   constructor(
@@ -49,9 +48,6 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
