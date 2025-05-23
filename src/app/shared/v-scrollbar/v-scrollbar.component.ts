@@ -217,7 +217,7 @@ export class VScrollbarComponent
     this.refresh();
   }
 
-  private refresh(): void {
+  public refresh(): void {
     this.updateMetrics();
     this.createThumb();
     this.reDraw();

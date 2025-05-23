@@ -20,14 +20,24 @@ describe('AbsenceGanttMaskComponent', () => {
       currentLang: 'en',
     };
     const dataManagementAbsenceGanttServiceMock = {
-      // Mock necessary properties and methods
+      absenceList: [], // Mock necessary properties
+      // Mock other necessary properties and methods
     };
     const dataManagementBreakServiceMock = {
-      // Mock necessary properties and methods
+      breakFilter: { currentYear: 2024 }, // Mock necessary properties
+      rows: 0,
+      // Mock other necessary properties and methods
+      readData: jasmine.createSpy('readData').and.returnValue([]),
+      addBreak: jasmine.createSpy('addBreak'),
+      updateBreak: jasmine
+        .createSpy('updateBreak')
+        .and.returnValue(Promise.resolve()),
+      deleteBreak: jasmine.createSpy('deleteBreak'),
+      readClientId: jasmine.createSpy('readClientId').and.returnValue(null),
     };
 
     await TestBed.configureTestingModule({
-      declarations: [AbsenceGanttMaskComponent],
+      imports: [AbsenceGanttMaskComponent], // Standalone Component in imports!
       providers: [
         {
           provide: TranslateService,
@@ -60,6 +70,4 @@ describe('AbsenceGanttMaskComponent', () => {
   it('should have initial currentLang as "de"', () => {
     expect(component.currentLang).toEqual('de');
   });
-
-  // Add additional test cases as per your component methods and functionality
 });

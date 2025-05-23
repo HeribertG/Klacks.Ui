@@ -26,8 +26,7 @@ describe('CalendarDropdownComponent', () => {
     mockDataManagementCalendarRulesService.filteredRulesToken = [];
 
     await TestBed.configureTestingModule({
-      imports: [TranslateModule.forRoot()],
-      declarations: [CalendarDropdownComponent],
+      imports: [CalendarDropdownComponent, TranslateModule.forRoot()],
       providers: [
         {
           provide: DataManagementCalendarRulesService,
