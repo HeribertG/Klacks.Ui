@@ -138,7 +138,12 @@ export class DataManagementClientService {
         )
         .subscribe(() => {
           this.isInit = true;
-          this.filterState();
+
+          // NUR filterState aufrufen, wenn editClient existiert
+          if (this.editClient) {
+            this.filterState();
+          }
+
           this.initIsRead.set(true);
         });
     }
@@ -252,10 +257,24 @@ export class DataManagementClientService {
       this.showProgressSpinner.set(true);
       this.dataClientService.readClientList(this.currentFilter).subscribe({
         next: (x) => {
-          x.clients.forEach((z) => {
-            const res = this.clientAttribute.find((y) => +y.type === +z.type);
-            if (res) {
-              z.typeAbbreviation = res.name.substring(0, 1);
+          if (!x) {
+            console.warn('readPage: Empty response received');
+            this.showProgressSpinner.set(false);
+            return;
+          }
+
+          if (!x.clients) {
+            console.warn('readPage: No clients in response');
+            this.showProgressSpinner.set(false);
+            return;
+          }
+
+          x.clients.forEach((z: IClient) => {
+            if (z) {
+              const res = this.clientAttribute.find((y) => +y.type === +z.type);
+              if (res) {
+                z.typeAbbreviation = res.name.substring(0, 1);
+              }
             }
           });
 
@@ -491,15 +510,58 @@ export class DataManagementClientService {
   filterState() {
     this.stateList = [];
     try {
-      if (this.editClient!.addresses.length > 0) {
-        const country =
-          this.editClient!.addresses[this.currentAddressIndex].country;
+      if (!this.editClient) {
+        console.warn('filterState: editClient is undefined');
+        return;
+      }
+
+      if (!this.editClient.addresses) {
+        console.warn('filterState: editClient.addresses is undefined');
+        return;
+      }
+
+      if (!Array.isArray(this.editClient.addresses)) {
+        console.warn('filterState: editClient.addresses is not an array');
+        return;
+      }
+
+      if (this.editClient.addresses.length > 0) {
+        if (
+          this.currentAddressIndex < 0 ||
+          this.currentAddressIndex >= this.editClient.addresses.length
+        ) {
+          console.warn(
+            'filterState: currentAddressIndex is invalid',
+            this.currentAddressIndex
+          );
+          return;
+        }
+
+        const currentAddress =
+          this.editClient.addresses[this.currentAddressIndex];
+        if (!currentAddress) {
+          console.warn('filterState: current address is undefined');
+          return;
+        }
+
+        const country = currentAddress.country;
+
+        if (!this.currentFilter?.list) {
+          console.warn('filterState: currentFilter.list is undefined');
+          return;
+        }
+
         this.stateList = this.currentFilter.list.filter(
           (x) => x.country === country
         );
       }
     } catch (e) {
-      console.error('filterState: ', e);
+      console.error('filterState error:', e);
+      console.error('filterState context:', {
+        editClient: this.editClient,
+        currentAddressIndex: this.currentAddressIndex,
+        addresses: this.editClient?.addresses,
+      });
     }
   }
 
