@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Rectangle } from '../../../grid/classes/geometry';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/core/absence-class';
@@ -30,6 +30,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
+import { BreakLayerService } from './break-layer.service';
 
 /**
  * Hauptklasse für das Rendering des Kalender-Grids
@@ -55,6 +56,18 @@ import {
  */
 @Injectable()
 export class RenderCalendarGridService {
+  private ganttCanvasManager = inject(GanttCanvasManagerService);
+  private gridColors = inject(GridColorService);
+  private holidayCollection = inject(HolidayCollectionService);
+  private calendarSetting = inject(CalendarSettingService);
+  private gridSetting = inject(GridSettingsService);
+  private gridFonts = inject(GridFontsService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  private translateService = inject(TranslateService);
+  private scroll = inject(ScrollService);
+  private breakLayerService = inject(BreakLayerService);
+
   public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
 
   public selectedBreakRec: Rectangle | undefined;
@@ -66,19 +79,6 @@ export class RenderCalendarGridService {
 
   private _selectedRow = -1;
   private _selectedBreakIndex = -1;
-
-  constructor(
-    private ganttCanvasManager: GanttCanvasManagerService,
-    private gridColors: GridColorService,
-    private holidayCollection: HolidayCollectionService,
-    private calendarSetting: CalendarSettingService,
-    private gridSetting: GridSettingsService,
-    private gridFonts: GridFontsService,
-    private dataManagementBreak: DataManagementBreakService,
-    private dataManagementAbsence: DataManagementAbsenceGanttService,
-    private translateService: TranslateService,
-    private scroll: ScrollService
-  ) {}
 
   public isCanvasAvailable(): boolean {
     return this.ganttCanvasManager.isCanvasAvailable();
@@ -930,41 +930,57 @@ export class RenderCalendarGridService {
         (x) => x && typeof x === 'object' && x.from && x.until
       );
 
-      validBreaks.forEach((x, i) => {
+      // NEU: Berechne Layer für alle Breaks
+      const breaksWithLayers =
+        this.breakLayerService.calculateOptimizedBreakLayers(validBreaks);
+
+      breaksWithLayers.forEach((breakWithLayer, i) => {
         let drawBreak = true;
+
+        // Überspringe selectedBreak (wird separat gezeichnet)
         if (
           selectedBreak &&
-          x.id &&
+          breakWithLayer.id &&
           selectedBreak.id &&
-          x.id === selectedBreak.id
+          breakWithLayer.id === selectedBreak.id
         ) {
           drawBreak = false;
         }
 
         if (drawBreak) {
           try {
-            const rec = this.calcDateRectangle(x.from as Date, x.until as Date);
+            // Berechne Rectangle basierend auf Datums-Zeitraum
+            const baseRec = this.calcDateRectangle(
+              breakWithLayer.from as Date,
+              breakWithLayer.until as Date
+            );
+
+            // NEU: Passe Y-Position basierend auf Layer an (behält ursprüngliche Größe)
+            const adjustedRec = this.calcLayeredRectangle(
+              baseRec,
+              breakWithLayer.layer
+            );
+
             const abs = this.dataManagementAbsence.absenceList?.find(
-              (as) => as && as.id === x.absenceId
+              (as) => as && as.id === breakWithLayer.absenceId
             );
 
             if (abs && abs.color) {
-              this.drawRowBreak(rec, abs.color);
+              this.drawRowBreakWithLayer(
+                adjustedRec,
+                abs.color,
+                breakWithLayer.layer
+              );
             }
           } catch (error) {
-            console.error(`Error drawing break ${i}:`, error);
+            console.error(
+              `Error drawing break ${i} with layer ${breakWithLayer.layer}:`,
+              error
+            );
           }
         }
       });
     }
-  }
-
-  private drawRowBreak(rec: Rectangle, color: string) {
-    if (!this.ganttCanvasManager.rowCtx!) {
-      return;
-    }
-
-    DrawHelper.fillRectangle(this.ganttCanvasManager.rowCtx!, color, rec);
   }
 
   private calcDateRectangle(beginDate: Date, endDate: Date): Rectangle {
@@ -983,6 +999,95 @@ export class RenderCalendarGridService {
       cellLayerHeight,
       Math.floor(d2 + this.calendarSetting.cellWidth),
       cellLayerHeight * 3
+    );
+  }
+
+  private drawRowBreakWithLayer(
+    rec: Rectangle,
+    color: string,
+    layer: number
+  ): void {
+    if (!this.ganttCanvasManager.rowCtx!) {
+      return;
+    }
+
+    // Speichere den aktuellen Kontext-Zustand
+    this.ganttCanvasManager.rowCtx!.save();
+
+    if (layer === 0) {
+      // Originalbreak: volle Deckkraft
+      this.ganttCanvasManager.rowCtx!.globalAlpha = 1.0;
+    } else {
+      // Überdeckte Breaks: leicht transparenter
+      this.ganttCanvasManager.rowCtx!.globalAlpha = 0.85;
+    }
+
+    // Zeichne den Break in ursprünglicher Größe
+    DrawHelper.fillRectangle(this.ganttCanvasManager.rowCtx!, color, rec);
+
+    // Zeichne einen dünnen Rahmen für bessere Sichtbarkeit bei versetzten Breaks
+    if (layer > 0) {
+      this.ganttCanvasManager.rowCtx!.strokeStyle = DrawHelper.GetDarkColor(
+        color,
+        180
+      );
+      this.ganttCanvasManager.rowCtx!.lineWidth = 0.5;
+      this.ganttCanvasManager.rowCtx!.strokeRect(
+        rec.left,
+        rec.top,
+        rec.width,
+        rec.height
+      );
+    }
+
+    // Stelle den ursprünglichen Kontext-Zustand wieder her
+    this.ganttCanvasManager.rowCtx!.restore();
+  }
+
+  public getRecommendedRowHeight(index: number): number {
+    const breaks = this.dataManagementBreak.readData(index);
+
+    if (!breaks || breaks.length === 0) {
+      return this.calendarSetting.cellHeight;
+    }
+
+    const validBreaks = breaks.filter(
+      (x) => x && typeof x === 'object' && x.from && x.until
+    );
+
+    return this.breakLayerService.calculateRecommendedRowHeight(
+      validBreaks,
+      this.calendarSetting.cellHeight
+    );
+  }
+
+  private calcLayeredRectangle(baseRec: Rectangle, layer: number): Rectangle {
+    if (layer === 0) {
+      return baseRec;
+    }
+
+    // Versatz pro Layer: 2 Pixel nach oben oder unten
+    const layerOffset = 3; // Pixel pro Layer
+
+    // Berechne Y-Verschiebung basierend auf Layer
+    // Gerade Layer (2, 4, 6...) nach unten, ungerade (1, 3, 5...) nach oben
+    let yOffset: number;
+    if (layer % 2 === 1) {
+      // Ungerade Layer: nach oben verschieben
+      const upwardLayer = Math.ceil(layer / 2);
+      yOffset = -upwardLayer * layerOffset;
+    } else {
+      // Gerade Layer: nach unten verschieben
+      const downwardLayer = layer / 2;
+      yOffset = downwardLayer * layerOffset;
+    }
+
+    // Behält die ursprüngliche Größe des Breaks bei
+    return new Rectangle(
+      baseRec.left,
+      baseRec.top + yOffset,
+      baseRec.right,
+      baseRec.bottom + yOffset
     );
   }
 }

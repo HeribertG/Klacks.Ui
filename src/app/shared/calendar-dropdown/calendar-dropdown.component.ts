@@ -11,10 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import {
-  faMagnifyingGlassChart,
-  faSearch,
-} from '@fortawesome/free-solid-svg-icons';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import {
   NgbDropdownModule,
   NgbTooltipModule,
@@ -56,8 +53,7 @@ export class CalendarDropdownComponent
   @Output() isClosing = new EventEmitter();
   @Output() changed = new EventEmitter();
 
-  public faMagnifyingGlassChart = faMagnifyingGlassChart;
-  faSearch = faSearch;
+  public faSearch = faSearch;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
@@ -103,5 +99,9 @@ export class CalendarDropdownComponent
 
   onClose() {
     this.isClosing.emit();
+  }
+
+  get hasFilteredTokens(): boolean {
+    return !!this.dataManagementCalendarRulesService.filteredRulesToken?.length;
   }
 }

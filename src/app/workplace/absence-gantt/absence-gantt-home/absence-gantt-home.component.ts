@@ -12,6 +12,7 @@ import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { RowHeaderCanvasManagerService } from '../services/row-header-canvas.service';
 import { RenderRowHeaderCellService } from '../services/render-row-header-cell.service';
+import { BreakLayerService } from '../services/break-layer.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -34,6 +35,7 @@ import { RenderRowHeaderCellService } from '../services/render-row-header-cell.s
     ScrollService,
     RowHeaderCanvasManagerService,
     RenderRowHeaderCellService,
+    BreakLayerService,
   ],
 })
 export class AbsenceGanttHomeComponent {

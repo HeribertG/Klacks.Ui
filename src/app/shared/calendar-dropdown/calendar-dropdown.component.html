@@ -4,6 +4,8 @@
     class="btn btn-primary btn-sm auto-width"
     id="dropdownForm"
     ngbDropdownToggle
+    [attr.aria-label]="'calendar.dropdown.filter-button' | translate"
+    [attr.title]="'calendar.dropdown.filter-button' | translate"
   >
     <fa-icon [icon]="faSearch" aria-hidden="true"></fa-icon>
   </button>
@@ -45,12 +47,7 @@
       </div>
     </div>
     <div class="form-group">
-      <div
-        *ngIf="
-          dataManagementCalendarRulesService.filteredRulesToken &&
-          dataManagementCalendarRulesService.filteredRulesToken.length > 0
-        "
-      >
+      <div *ngIf="hasFilteredTokens">
         <div class="checkbox-container">
           <div
             *ngFor="

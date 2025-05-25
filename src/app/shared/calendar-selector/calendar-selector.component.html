@@ -1,48 +1,62 @@
 <div
   class="row-line"
-  *ngIf="
-    dataManagementCalendarSelectionService.calendarsSelections &&
-    dataManagementCalendarSelectionService.calendarsSelections.length &&
-    dataManagementCalendarSelectionService.calendarsSelections.length > 0 &&
-    dataManagementCalendarSelectionService.currentCalendarSelection
-  "
+  role="group"
+  *ngIf="hasValidCalendarSelections"
+  [attr.aria-label]="'calendar.selector.controls' | translate"
 >
-  <select
-    class="form-select select-calendar"
-    name="select-calendar"
-    id="select-calendar"
-    [(ngModel)]="
-      dataManagementCalendarSelectionService.currentCalendarSelection
-    "
-    [compareWith]="compareCalendars"
-    (ngModelChange)="onChangeSelection()"
-  >
-    <option
-      *ngFor="
-        let c of dataManagementCalendarSelectionService.calendarsSelections
+  <div class="form-group">
+    <label for="select-calendar" class="visually-hidden">
+      {{ "calendar.selector.select-calendar" | translate }}
+    </label>
+    <select
+      class="form-select select-calendar"
+      name="select-calendar"
+      id="select-calendar"
+      [(ngModel)]="
+        dataManagementCalendarSelectionService.currentCalendarSelection
       "
-      [ngValue]="c"
+      [compareWith]="compareCalendars"
+      (ngModelChange)="onChangeSelection()"
+      [attr.aria-describedby]="'calendar-help'"
     >
-      {{ c.name }}
-    </option>
-  </select>
+      <option
+        *ngFor="
+          let c of dataManagementCalendarSelectionService.calendarsSelections
+        "
+        [ngValue]="c"
+      >
+        {{ c.name }}
+      </option>
+    </select>
+
+    <div id="calendar-help" class="visually-hidden">
+      {{ "calendar.selector.help-text" | translate }}
+    </div>
+  </div>
 
   <button
     class="crud-button btn btn-success"
     [disabled]="!shouldEnableAddButton"
     (click)="onOpen(modalTypeInput)"
+    [attr.aria-label]="'calendar.selector.add-selection' | translate"
+    [attr.title]="'calendar.selector.add-selection' | translate"
+    type="button"
   >
     <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
   </button>
 
   <button
     class="crud-button btn btn-danger"
-    [disabled]="!delButtonEnabled"
+    [disabled]="!shouldShowDeleteButton"
     (click)="onOpen(modalTypeDelete)"
+    [attr.aria-label]="'calendar.selector.delete-selection' | translate"
+    [attr.title]="'calendar.selector.delete-selection' | translate"
+    type="button"
   >
     <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
   </button>
 </div>
+
 <div class="row-line right">
   <app-calendar-dropdown
     [header]="headerCalendarDropdown"
@@ -51,17 +65,17 @@
     (isOpening)="onIsOpening()"
   ></app-calendar-dropdown>
 </div>
+
 <div
-  *ngIf="
-    this.dataManagementCalendarSelectionService.chips &&
-    this.dataManagementCalendarSelectionService.chips.length > 0
-  "
+  *ngIf="hasChips"
   class="chips-list setting-container"
+  role="region"
+  [attr.aria-label]="'calendar.selector.selected-items' | translate"
 >
-  <div *ngFor="let chip of this.dataManagementCalendarSelectionService.chips">
+  <div *ngFor="let chip of chipList; trackBy: trackByChip">
     <app-chips
-      [name]="chip.country + '-' + chip.state"
-      [key]="chip.country + '|' + chip.state"
+      [name]="getChipDisplayName(chip)"
+      [key]="getChipKey(chip)"
       (delete)="onDeleteChip($event)"
     ></app-chips>
   </div>

@@ -84,34 +84,19 @@ export class CalendarSelectorComponent
 
   public headerCalendarDropdown = '';
 
+  private static readonly WAIT_TIME = 100;
+  private static readonly CHIP_DISPLAY_SEPARATOR = '-';
+  private static readonly CHIP_KEY_SEPARATOR = '|';
+
   private isFirstReadLocal = false;
   private ngUnsubscribe = new Subject<void>();
-  private timeToWait = 100;
   private effectRef: EffectRef | null = null;
   private effects: ReturnType<typeof effect>[] = [];
 
   ngOnInit(): void {
     this.dataManagementCalendarRulesService.init();
     this.readSignals();
-
-    forkJoin({
-      headerCalendarDropdown: this.translateService.get(
-        'absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday'
-      ),
-      deleteMessage: this.translateService.get(
-        'calendar.selector.delete-message'
-      ),
-      message: this.translateService.get('calendar.selector.store-update'),
-      emptyPlaceholder: this.translateService.get('none'),
-      inputTitle: this.translateService.get('store.as'),
-    }).subscribe((results: TranslationResults) => {
-      this.headerCalendarDropdown = results.headerCalendarDropdown;
-      this.modalService.deleteMessage = results.deleteMessage;
-      this.modalService.message = results.message;
-      this.modalService.contentInputTitle = results.inputTitle;
-      this.dataManagementCalendarSelectionService.emptyPlaceholder =
-        results.emptyPlaceholder;
-    });
+    this.loadTranslations();
   }
 
   ngAfterViewInit(): void {
@@ -161,7 +146,10 @@ export class CalendarSelectorComponent
     } else {
       this.resetCalendarRule();
       this.reReadChips();
-      setTimeout(() => this.setCalendarRule(), this.timeToWait);
+      setTimeout(
+        () => this.setCalendarRule(),
+        CalendarSelectorComponent.WAIT_TIME
+      );
     }
   }
 
@@ -205,35 +193,70 @@ export class CalendarSelectorComponent
   }
 
   onIsOpening() {
-    setTimeout(() => this.setCalendarRule(), this.timeToWait);
+    setTimeout(
+      () => this.setCalendarRule(),
+      CalendarSelectorComponent.WAIT_TIME
+    );
   }
 
   onDeleteChip(key: string): void {
     const tmp = this.findToken(key);
     const index = this.findIndexToken(key);
-    if (tmp && index) {
-      tmp.select = false;
 
-      this.spliceToken(index);
-
-      this.changeEvent.emit();
+    if (!tmp || index === undefined || index < 0) {
+      this.dataManagementCalendarSelectionService.readSChips(true);
+      return;
     }
+
+    tmp.select = false;
+    this.spliceToken(index);
+    this.changeEvent.emit();
     this.dataManagementCalendarSelectionService.readSChips(true);
   }
 
   get shouldEnableAddButton(): boolean {
-    let result = false;
-    if (
-      this.dataManagementCalendarSelectionService.currentCalendarSelection &&
-      this.dataManagementCalendarSelectionService.currentCalendarSelection
-        .selectedCalendars
-    ) {
-      result =
-        this.dataManagementCalendarSelectionService.currentCalendarSelection
-          ?.selectedCalendars?.length > 0;
-    }
-    return result;
+    return (
+      (this.dataManagementCalendarSelectionService.currentCalendarSelection
+        ?.selectedCalendars?.length ?? 0) > 0
+    );
   }
+
+  get hasValidCalendarSelections(): boolean {
+    const selections =
+      this.dataManagementCalendarSelectionService.calendarsSelections;
+    return !!(
+      selections?.length &&
+      this.dataManagementCalendarSelectionService.currentCalendarSelection
+    );
+  }
+
+  get hasChips(): boolean {
+    return !!this.dataManagementCalendarSelectionService.chips?.length;
+  }
+
+  get shouldShowDeleteButton(): boolean {
+    return !this.dataManagementCalendarSelectionService.isCurrentCalendarSelectionEmptyPlaceholder();
+  }
+
+  get chipList(): StateCountryToken[] {
+    return this.dataManagementCalendarSelectionService.chips;
+  }
+
+  private get calendarSelectionStorageKey(): string {
+    return `${MessageLibrary.CALENDAR_SELECTION_TYPE}-${MessageLibrary.CALENDAR_SELECTION_ID}`;
+  }
+
+  getChipDisplayName(chip: StateCountryToken): string {
+    return `${chip.country}${CalendarSelectorComponent.CHIP_DISPLAY_SEPARATOR}${chip.state}`;
+  }
+
+  getChipKey(chip: StateCountryToken): string {
+    return `${chip.country}${CalendarSelectorComponent.CHIP_KEY_SEPARATOR}${chip.state}`;
+  }
+
+  trackByChip = (_index: number, chip: StateCountryToken): string => {
+    return this.getChipKey(chip);
+  };
 
   private setCurrentSelector(): void {
     this.isFirstReadLocal = true;
@@ -257,23 +280,14 @@ export class CalendarSelectorComponent
       this.dataManagementCalendarSelectionService.currentCalendarSelection
         .internal === true
     ) {
-      this.localStorageService.remove(
-        MessageLibrary.CALENDAR_SELECTION_TYPE +
-          '-' +
-          MessageLibrary.CALENDAR_SELECTION_ID
-      );
+      this.localStorageService.remove(this.calendarSelectionStorageKey);
     } else {
       const id =
         this.dataManagementCalendarSelectionService.currentCalendarSelection
           ?.id;
 
       if (id) {
-        this.localStorageService.set(
-          MessageLibrary.CALENDAR_SELECTION_TYPE +
-            '-' +
-            MessageLibrary.CALENDAR_SELECTION_ID,
-          id
-        );
+        this.localStorageService.set(this.calendarSelectionStorageKey, id);
       }
     }
   }
@@ -311,20 +325,14 @@ export class CalendarSelectorComponent
 
   private hasName(): boolean {
     return (
-      this.localStorageService.get(
-        MessageLibrary.CALENDAR_SELECTION_TYPE +
-          '-' +
-          MessageLibrary.CALENDAR_SELECTION_ID
-      ) !== null
+      this.localStorageService.get(this.calendarSelectionStorageKey) !== null
     );
   }
 
   private currentEntry(): ICalendarSelection | undefined {
     if (this.hasName()) {
       const currentId = this.localStorageService.get(
-        MessageLibrary.CALENDAR_SELECTION_TYPE +
-          '-' +
-          MessageLibrary.CALENDAR_SELECTION_ID
+        this.calendarSelectionStorageKey
       ) as string;
       return this.dataManagementCalendarSelectionService.calendarsSelections.find(
         (x) => x.id === currentId
@@ -333,29 +341,30 @@ export class CalendarSelectorComponent
     return undefined;
   }
 
-  private findIndexToken(key: string): number | undefined {
-    const value = key.split('|');
+  private parseChipKey(key: string): { country: string; state: string } {
+    const [country, state] = key.split(
+      CalendarSelectorComponent.CHIP_KEY_SEPARATOR
+    );
+    return { country, state };
+  }
 
-    const index =
-      this.dataManagementCalendarSelectionService.currentCalendarSelection?.selectedCalendars.findIndex(
-        (x) => {
-          return x.country === value[0] && x.state === value[1];
-        }
-      );
-    return index;
+  private findIndexToken(key: string): number | undefined {
+    const { country, state } = this.parseChipKey(key);
+
+    return this.dataManagementCalendarSelectionService.currentCalendarSelection?.selectedCalendars.findIndex(
+      (x) => x.country === country && x.state === state
+    );
   }
 
   private findToken(key: string): StateCountryToken | undefined {
-    const value = key.split('|');
+    const { country, state } = this.parseChipKey(key);
     const index = this.findIndexToken(key);
-    if (index !== undefined && index > -1) {
+
+    if ((index ?? -1) > -1) {
       return this.dataManagementCalendarRulesService.currentFilter.list.find(
-        (x) => {
-          return x.country === value[0] && x.state === value[1];
-        }
+        (x) => x.country === country && x.state === state
       );
     }
-
     return undefined;
   }
 
@@ -393,7 +402,7 @@ export class CalendarSelectorComponent
 
   private spliceToken(index: number): void {
     this.dataManagementCalendarSelectionService.currentCalendarSelection?.selectedCalendars.splice(
-      index!,
+      index,
       1
     );
   }
@@ -449,6 +458,31 @@ export class CalendarSelectorComponent
     }
   }
 
+  private loadTranslations(): void {
+    forkJoin({
+      headerCalendarDropdown: this.translateService.get(
+        'absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday'
+      ),
+      deleteMessage: this.translateService.get(
+        'calendar.selector.delete-message'
+      ),
+      message: this.translateService.get('calendar.selector.store-update'),
+      emptyPlaceholder: this.translateService.get('none'),
+      inputTitle: this.translateService.get('store.as'),
+    })
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (results: TranslationResults) => {
+          this.headerCalendarDropdown = results.headerCalendarDropdown;
+          this.modalService.deleteMessage = results.deleteMessage;
+          this.modalService.message = results.message;
+          this.modalService.contentInputTitle = results.inputTitle;
+          this.dataManagementCalendarSelectionService.emptyPlaceholder =
+            results.emptyPlaceholder;
+        },
+      });
+  }
+
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       // 1) Wenn die Filterregeln geladen sind, Chips & Rule setzen
@@ -463,14 +497,11 @@ export class CalendarSelectorComponent
 
       // 2) Button‑State anpassen, wenn Selektion geändert wurde
       const effect2 = effect(() => {
-        if (this.dataManagementCalendarSelectionService.isChanged()) {
-          this.addButtonEnabled = true;
-        } else {
-          this.addButtonEnabled = this.shouldEnableAddButton;
-        }
+        this.addButtonEnabled =
+          this.dataManagementCalendarSelectionService.isChanged() ||
+          this.shouldEnableAddButton;
       });
       this.effects.push(effect2);
-
       // 3) Nach erstem Laden der Selektionen die gespeicherte Auswahl übernehmen
       const effect3 = effect(() => {
         if (this.dataManagementCalendarSelectionService.isRead()) {
