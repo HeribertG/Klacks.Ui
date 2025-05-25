@@ -2,9 +2,9 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div
   class="absence-reason-container"
-  *ngIf="dataManagementAbsence && dataManagementAbsence.absenceList.length > 0"
+  *ngIf="dataManagementAbsence.hasAbsences()"
 >
-  <div *ngFor="let c of dataManagementAbsence.absenceList">
+  <div *ngFor="let c of dataManagementAbsence.absenceList()">
     <div class="name-line" draggable="true" (dragstart)="dragStart($event, c)">
       <div class="name-icon" [ngStyle]="{ 'background-color': onColor(c) }">
         <p

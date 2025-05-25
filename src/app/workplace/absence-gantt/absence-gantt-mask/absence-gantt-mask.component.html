@@ -107,19 +107,10 @@
             </div>
           </div>
 
-          <div
-            class="row-line"
-            *ngIf="
-              dataManagementAbsence &&
-              dataManagementAbsence.absenceList.length > 0
-            "
-          >
+          <div class="row-line" *ngIf="dataManagementAbsence.hasAbsences()">
             <div
               class="absence-reason-container"
-              *ngIf="
-                dataManagementAbsence &&
-                dataManagementAbsence.absenceList.length > 0
-              "
+              *ngIf="dataManagementAbsence.hasAbsences()"
             >
               <div class="form-group">
                 <label for="absenceId">{{
@@ -137,7 +128,7 @@
                     aria-label=" type"
                   >
                     <option
-                      *ngFor="let c of dataManagementAbsence.absenceList"
+                      *ngFor="let c of dataManagementAbsence.absenceList()"
                       [value]="c.id"
                       [selected]="selectedBreak!.absenceId === c.id"
                     >

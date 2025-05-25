@@ -405,9 +405,9 @@ export class RenderCalendarGridService {
           rec.right + 1,
           rec.bottom + 1
         );
-        const abs = this.dataManagementAbsence.absenceList.find(
-          (as) => as.id === tmpBreak.absenceId
-        );
+        const abs = this.dataManagementAbsence
+          .absenceList()
+          .find((as) => as.id === tmpBreak.absenceId);
         if (abs) {
           this.drawBreakIntern(rec, abs.color!);
           this.drawBreakSelectBorderIntern(this.selectedBreakRec);
@@ -961,9 +961,9 @@ export class RenderCalendarGridService {
               breakWithLayer.layer
             );
 
-            const abs = this.dataManagementAbsence.absenceList?.find(
-              (as) => as && as.id === breakWithLayer.absenceId
-            );
+            const abs = this.dataManagementAbsence
+              .absenceList()
+              .find((as) => as && as.id === breakWithLayer.absenceId);
 
             if (abs && abs.color) {
               this.drawRowBreakWithLayer(

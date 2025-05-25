@@ -872,7 +872,7 @@ export class AbsenceGanttSurfaceComponent
   private createSubConvertMenu(): Menu | undefined {
     if (this.drawCalendarGantt.selectedBreak) {
       const menuData = new Menu();
-      const list = this.dataManagementAbsence.absenceList;
+      const list = this.dataManagementAbsence.absenceList();
       const id = this.drawCalendarGantt.selectedBreak.id;
       const c = new FallbackPipe();
       list.forEach((x) => {
@@ -901,9 +901,9 @@ export class AbsenceGanttSurfaceComponent
   // position[0]: day index, position[1]: client/employee index
   private addBreak(position: number[], absenceId: string) {
     const client = this.dataManagementBreak.clients[position[1]];
-    const absence = this.dataManagementAbsence.absenceList.find(
-      (x) => x.id === absenceId
-    );
+    const absence = this.dataManagementAbsence
+      .absenceList()
+      .find((x) => x.id === absenceId);
     const newBreak = new Break();
     newBreak.clientId = client.id!;
     delete newBreak.client;

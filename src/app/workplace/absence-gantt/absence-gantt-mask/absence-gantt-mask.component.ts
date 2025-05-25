@@ -104,15 +104,13 @@ export class AbsenceGanttMaskComponent
 
   onClickNewButton() {
     const currentYear = this.dataManagementBreak.breakFilter.currentYear;
-    if (this.dataManagementAbsence.absenceList.length > 0) {
-      let id = this.dataManagementAbsence.absenceList[0].id;
+    if (this.dataManagementAbsence.hasAbsences()) {
+      let id = this.dataManagementAbsence.absenceList()[0].id;
       if (this.selectedBreak) {
         id = this.selectedBreak.absenceId;
       }
       if (id) {
-        const absence = this.dataManagementAbsence.absenceList.find(
-          (x) => x.id === id
-        );
+        const absence = this.dataManagementAbsence.getAbsenceById(id);
         const currentDate = new Date();
         const startDate = new Date(
           currentYear,

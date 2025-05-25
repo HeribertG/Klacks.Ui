@@ -121,7 +121,7 @@ export class AbsenceGanttAbsenceListComponent
     this.imageMap.clear();
 
     this.dataManagementBreak.breakFilter.absences = [];
-    this.dataManagementAbsence.absenceList.forEach((x) => {
+    this.dataManagementAbsence.absenceList().forEach((x) => {
       const abs = new AbsenceTokenFilter();
 
       abs.id = x.id!;

@@ -65,7 +65,7 @@ export class AbsenceGanttGridComponent
   }
 
   ngOnInit(): void {
-    this.absence = this.dataManagementAbsence.absenceList;
+    this.absence = this.dataManagementAbsence.absenceList();
     this.currentLang = this.translateService.currentLang as Language;
   }
 
@@ -214,7 +214,7 @@ export class AbsenceGanttGridComponent
     this.effectRef = effect(() => {
       const isReset = this.dataManagementAbsence.isReset();
       if (isReset) {
-        this.absence = this.dataManagementAbsence.absenceList;
+        this.absence = this.dataManagementAbsence.absenceList();
       }
     });
   }

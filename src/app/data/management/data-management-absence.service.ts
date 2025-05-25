@@ -32,6 +32,8 @@ export class DataManagementAbsenceService {
   public listWrapper: TruncatedAbsence | undefined;
   public currentFilter: AbsenceFilter = new AbsenceFilter();
 
+  private static readonly READ_RESET_DELAY = 100;
+
   private currentFilterDummy: AbsenceFilter | undefined;
   private temporaryFilterDummy: AbsenceFilter | undefined;
 
