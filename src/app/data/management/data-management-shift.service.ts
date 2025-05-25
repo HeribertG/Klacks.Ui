@@ -9,8 +9,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataShiftService } from '../data-shift.service';
 import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
@@ -22,7 +21,7 @@ import { CheckBoxValue } from 'src/app/core/client-class';
   providedIn: 'root',
 })
 export class DataManagementShiftService {
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
@@ -251,7 +250,7 @@ export class DataManagementShiftService {
             this.createShift();
           }
 
-          this.showError(error, 'ShiftError');
+          this.toastShowService.showError(error, 'ShiftError');
         },
         complete: () => {},
       });
@@ -320,35 +319,6 @@ export class DataManagementShiftService {
 
   resetData() {
     this.prepareShift(this.editShiftDummy!);
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
   }
 
   private setDateStruc() {

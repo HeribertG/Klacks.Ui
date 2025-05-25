@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
@@ -11,6 +11,7 @@ import { AngularSplitModule } from 'angular-split';
 import { CommonModule } from '@angular/common';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 
 @Component({
   selector: 'app-absence-gantt-container',
@@ -33,13 +34,14 @@ export class AbsenceGanttContainerComponent implements OnInit {
   @Output() refreshEvent = new EventEmitter();
   @Output() changeCalendar = new EventEmitter();
 
+  private dataManagementBreakService = inject(DataManagementBreakService);
+  private dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  private toastShowService = inject(ToastShowService);
+
   public IsInfoVisible = false;
   public maxSize = 0;
-
-  constructor(
-    private dataManagementBreakService: DataManagementBreakService,
-    private dataManagementSwitchboardService: DataManagementSwitchboardService
-  ) {}
 
   ngOnInit(): void {
     this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -47,7 +49,7 @@ export class AbsenceGanttContainerComponent implements OnInit {
   }
 
   onShowErrorMessage(value: string) {
-    this.dataManagementBreakService.showError(
+    this.toastShowService.showError(
       value,
       'AbsenceGanttContainerComponent-Error'
     );

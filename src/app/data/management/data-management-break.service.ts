@@ -6,20 +6,17 @@ import {
   IBreakFilter,
 } from 'src/app/core/break-class';
 import { IClientBreak } from 'src/app/core/client-class';
-import { ToastService } from 'src/app/toast/toast.service';
 import { DataBreakService } from '../data-break.service';
 import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementBreakService {
   public dataBreakService = inject(DataBreakService);
-  public toastService = inject(ToastService);
 
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
@@ -155,35 +152,6 @@ export class DataManagementBreakService {
       return client.breaks.findIndex((x) => x.id === value.id);
     }
     return -1;
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
   }
 
   private sortBreaks(value: IBreak[]): IBreak[] {

@@ -35,7 +35,7 @@ import {
 } from 'src/app/helpers/format-helper';
 import { DataSettingsVariousService } from '../data-settings-various.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import {
   AddressTypeEnum,
   CommunicationTypeDefaultIndexEnum,
@@ -49,6 +49,12 @@ import { NavigationService } from 'src/app/services/navigation.service';
   providedIn: 'root',
 })
 export class DataManagementClientService {
+  public dataClientService = inject(DataClientService);
+  public toastShowService = inject(ToastShowService);
+  public dataSettingsVariousService = inject(DataSettingsVariousService);
+  private dataCountryStateService = inject(DataCountryStateService);
+  private navigationService = inject(NavigationService);
+
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
@@ -106,12 +112,6 @@ export class DataManagementClientService {
   backupFindClient: IClient | undefined;
   backupFindClientDummy: IClient | undefined;
   backupFindClientList: IClient[] = [];
-
-  public dataClientService = inject(DataClientService);
-  public toastService = inject(ToastService);
-  public dataSettingsVariousService = inject(DataSettingsVariousService);
-  private dataCountryStateService = inject(DataCountryStateService);
-  private navigationService = inject(NavigationService);
 
   /* #region   init */
 
@@ -314,7 +314,7 @@ export class DataManagementClientService {
       return filter.selection.push(x.id);
     });
 
-    this.showInfo(
+    this.toastShowService.showInfo(
       MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
       'PLEASE_BE_PATIENT_EXCEL'
     );
@@ -563,7 +563,10 @@ export class DataManagementClientService {
           }
         })
         .catch(() => {
-          this.showInfo(MessageLibrary.ZIP_NOT_VALID, 'ZIP_NOT_VALID');
+          this.toastShowService.showInfo(
+            MessageLibrary.ZIP_NOT_VALID,
+            'ZIP_NOT_VALID'
+          );
         });
     } else {
       let leftCharacters = address.zip.substring(0, 2);
@@ -1098,19 +1101,5 @@ export class DataManagementClientService {
 
   resetData() {
     this.prepareClient(this.editClientDummy!);
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
   }
 }

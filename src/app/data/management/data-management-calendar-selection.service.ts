@@ -5,7 +5,7 @@ import {
   ICalendarSelection,
   SelectedCalendar,
 } from 'src/app/core/calendar-selection-class';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataCalendarSelectionService } from '../data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -19,7 +19,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
   providedIn: 'root',
 })
 export class DataManagementCalendarSelectionService {
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
 
@@ -121,7 +121,7 @@ export class DataManagementCalendarSelectionService {
           this.readData();
         })
         .catch(() => {
-          this.showError(MessageLibrary.UNKNOWN_ERROR);
+          this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
         });
     }
   }
@@ -131,7 +131,7 @@ export class DataManagementCalendarSelectionService {
         this.readData();
       })
       .catch(() => {
-        this.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
 
@@ -142,21 +142,6 @@ export class DataManagementCalendarSelectionService {
       value.country = x.country;
       value.state = x.state;
       this.dataCalendarSelectionService.addSelectedCalendar(value);
-    });
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
     });
   }
 

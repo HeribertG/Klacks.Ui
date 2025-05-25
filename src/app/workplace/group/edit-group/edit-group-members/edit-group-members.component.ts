@@ -28,7 +28,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 
 @Component({
   selector: 'app-edit-group-members',
@@ -47,7 +47,7 @@ import { ToastService } from 'src/app/toast/toast.service';
 export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   public groupSelectionService = inject(GroupSelectionService);
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
@@ -219,7 +219,10 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
         this.clearSelection();
         this.onIsChanging(true);
       } else {
-        this.showInfo(MessageLibrary.CLIENT_DOUBLETS, 'CLIENT_DOUBLETS');
+        this.toastShowService.showInfo(
+          MessageLibrary.CLIENT_DOUBLETS,
+          'CLIENT_DOUBLETS'
+        );
       }
     }
   }
@@ -412,22 +415,4 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
     this.dataManagementGroupService.currentClientFilter.numberOfItemsPerPage = 20;
     this.dataManagementGroupService.currentClientFilter.firstItemOnLastPage = 0;
   }
-
-  /* #region Toast */
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
-  }
-
-  /* #endregion Toast */
 }

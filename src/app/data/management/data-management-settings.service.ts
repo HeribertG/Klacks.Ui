@@ -5,7 +5,7 @@ import {
   compareComplexObjects,
 } from '../../helpers/object-helpers';
 import { MessageLibrary } from '../../helpers/string-constants';
-import { ToastService } from '../../toast/toast.service';
+import { ToastShowService } from '../../toast/toast-show.service';
 import { UserAdministrationService } from '../user-administration.service';
 import {
   IAuthentication,
@@ -37,7 +37,7 @@ export class DataManagementSettingsService {
   public dataCountryStateService = inject(DataCountryStateService);
   public dataBankDetailsService = inject(DataBankDetailsService);
   public dataMacroService = inject(DataMacroService);
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   public gridColorService = inject(GridColorService);
 
   public isReset = signal(false);
@@ -167,10 +167,13 @@ export class DataManagementSettingsService {
   addAccount(value: IAuthentication) {
     this.userAdministrationService.addAccount(value).subscribe((x) => {
       if (!x.mailSuccess) {
-        this.showError(MessageLibrary.UNKNOWN_ERROR, 'SENDEMAIL');
+        this.toastShowService.showError(
+          MessageLibrary.UNKNOWN_ERROR,
+          'SENDEMAIL'
+        );
         console.error(MessageLibrary.UNKNOWN_ERROR, x.modelState);
       }
-      this.showInfo(MessageLibrary.REGISTER, 'REGISTER');
+      this.toastShowService.showInfo(MessageLibrary.REGISTER, 'REGISTER');
 
       this.readAccountsList();
     });
@@ -222,12 +225,12 @@ export class DataManagementSettingsService {
   sentPassword(value: ChangePassword) {
     this.userAdministrationService.ChangePassword(value).subscribe((x) => {
       if (x.success === true) {
-        this.showInfo(
+        this.toastShowService.showInfo(
           MessageLibrary.REGISTER_SEND_PASSWORD,
           'REGISTER_SEND_PASSWORD'
         );
       } else {
-        this.showInfo(
+        this.toastShowService.showInfo(
           MessageLibrary.REGISTER_SEND_PASSWORD_ERROR,
           'REGISTER_SEND_PASSWORD_ERROR'
         );
@@ -1095,35 +1098,6 @@ export class DataManagementSettingsService {
       this.isReset.set(true);
       setTimeout(() => this.isReset.set(false), 100);
     }
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
   }
 
   readData() {

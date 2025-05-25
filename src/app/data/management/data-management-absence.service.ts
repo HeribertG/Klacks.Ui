@@ -11,7 +11,7 @@ import {
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataAbsenceService } from '../data-absence.service';
 import { DataLoadFileService } from '../data-load-file.service';
 
@@ -20,7 +20,7 @@ import { DataLoadFileService } from '../data-load-file.service';
 })
 export class DataManagementAbsenceService {
   public dataAbsenceService = inject(DataAbsenceService);
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private dataLoadFileService = inject(DataLoadFileService);
 
   public isRead = signal(false);
@@ -83,7 +83,7 @@ export class DataManagementAbsenceService {
         this.readPage(language);
       })
       .catch(() => {
-        this.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
 
@@ -93,7 +93,7 @@ export class DataManagementAbsenceService {
         this.readPage(language);
       })
       .catch(() => {
-        this.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
       });
   }
 
@@ -105,38 +105,9 @@ export class DataManagementAbsenceService {
 
   exportExcel(language: string) {
     this.dataLoadFileService.downloadAbsenceExcel(language);
-    this.showInfo(
+    this.toastShowService.showInfo(
       MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
       'PLEASE_BE_PATIENT_EXCEL'
     );
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
   }
 }

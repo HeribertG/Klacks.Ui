@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/core/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { UserAdministrationService } from '../user-administration.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
@@ -11,7 +11,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 })
 export class DataManagementProfileService {
   public userAdministrationService = inject(UserAdministrationService);
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private localStorageService = inject(LocalStorageService);
 
   public isReset = signal(false);
@@ -40,7 +40,7 @@ export class DataManagementProfileService {
       .subscribe(() => {
         this.isReset.set(true);
         setTimeout(() => this.isReset.set(false), 100);
-        this.showSuccess(
+        this.toastShowService.showSuccess(
           MessageLibrary.REGISTER_CHANGE_PASSWORD,
           MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
         );
@@ -83,14 +83,5 @@ export class DataManagementProfileService {
     this.changePasswordWrapperDummy = cloneObject<ChangePassword>(
       this.changePasswordWrapper
     );
-  }
-
-  showSuccess(message: string, header: string) {
-    this.toastService.show(message, {
-      classname: 'bg-success text-light',
-      delay: 2000,
-      autohide: true,
-      headertext: header,
-    });
   }
 }

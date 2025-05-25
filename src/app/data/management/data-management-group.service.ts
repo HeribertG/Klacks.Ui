@@ -18,7 +18,7 @@ import {
   ITruncatedGroup,
 } from 'src/app/core/group-class';
 import { DataClientService } from '../data-client.service';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataGroupService } from '../data-group.service';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import {
@@ -31,7 +31,6 @@ import {
 } from 'src/app/helpers/format-helper';
 import { DataCountryStateService } from '../data-country-state.service';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -48,7 +47,7 @@ export class DataManagementGroupService {
   public showTree = signal(true);
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private dataCountryStateService = inject(DataCountryStateService);
   private navigationService = inject(NavigationService);
   private httpClient = inject(HttpClient);
@@ -118,7 +117,7 @@ export class DataManagementGroupService {
       },
       error: (error) => {
         console.error('Fehler beim Laden der Gruppe:', error);
-        this.showError(error, 'GroupLoadError');
+        this.toastShowService.showError(error, 'GroupLoadError');
         this.showProgressSpinner.set(false);
       },
     });
@@ -210,7 +209,7 @@ export class DataManagementGroupService {
         return response;
       }),
       catchError((error) => {
-        this.showError(error, 'GroupDeleteError');
+        this.toastShowService.showError(error, 'GroupDeleteError');
         return throwError(() => error);
       })
     );
@@ -286,7 +285,7 @@ export class DataManagementGroupService {
             this.createGroup();
           }
 
-          this.showError(error, 'GroupError');
+          this.toastShowService.showError(error, 'GroupError');
         },
         complete: () => {},
       });
@@ -417,21 +416,6 @@ export class DataManagementGroupService {
 
   /* #endregion   temporary check is Filter dirty */
 
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
-  }
-
   /* #region   Tree Group */
 
   showGroupTree() {
@@ -460,7 +444,7 @@ export class DataManagementGroupService {
         this.fireIsReadEvent();
       },
       error: (error) => {
-        this.showError(error, 'GroupTreeError');
+        this.toastShowService.showError(error, 'GroupTreeError');
       },
       complete: () => {
         setTimeout(() => this.showProgressSpinner.set(false), 0);
@@ -473,7 +457,7 @@ export class DataManagementGroupService {
       .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
       .pipe(
         catchError((error) => {
-          this.showError(error, 'GroupPathError');
+          this.toastShowService.showError(error, 'GroupPathError');
           return throwError(() => error);
         })
       );
@@ -490,7 +474,7 @@ export class DataManagementGroupService {
       })
       .pipe(
         catchError((error) => {
-          this.showError(error, 'GroupMoveError');
+          this.toastShowService.showError(error, 'GroupMoveError');
           return throwError(() => error);
         })
       )
@@ -524,7 +508,7 @@ export class DataManagementGroupService {
         this.initTree();
       },
       error: (error) => {
-        this.showError(error, 'RefreshGroupTreeError');
+        this.toastShowService.showError(error, 'RefreshGroupTreeError');
       },
     });
   }

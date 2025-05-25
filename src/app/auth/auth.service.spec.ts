@@ -6,7 +6,7 @@ import {
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from './auth.service';
 import { MyToken } from '../core/authentification-class';
-import { ToastService } from '../toast/toast.service';
+import { ToastShowService } from '../toast/toast-show.service';
 import { MessageLibrary } from '../helpers/string-constants';
 import {
   provideHttpClient,
@@ -17,21 +17,21 @@ describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let toastService: ToastService;
+  let toastShowService: ToastShowService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [RouterTestingModule],
       providers: [
         AuthService,
-        ToastService,
+        ToastShowService,
         provideHttpClient(withInterceptorsFromDi()),
         provideHttpClientTesting(),
       ],
     });
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
-    toastService = TestBed.inject(ToastService);
+    toastShowService = TestBed.inject(ToastShowService);
   });
 
   it('should be created', () => {

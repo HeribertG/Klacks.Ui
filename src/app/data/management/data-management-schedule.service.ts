@@ -6,8 +6,7 @@ import {
   Work,
   WorkFilter,
 } from 'src/app/core/schedule-class';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastService } from 'src/app/toast/toast.service';
+import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataScheduleService } from '../data-schedule.service';
 import {
   cloneObject,
@@ -18,7 +17,7 @@ import {
   providedIn: 'root',
 })
 export class DataManagementScheduleService {
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private dataSchedule = inject(DataScheduleService);
 
   public isRead = signal(false);
@@ -106,21 +105,6 @@ export class DataManagementScheduleService {
       return client.works.findIndex((x) => x.id === value.id);
     }
     return -1;
-  }
-
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
   }
 
   private sortWorks(value: IWork[]): IWork[] {

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { MyToken } from '../core/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
-import { ToastService } from '../toast/toast.service';
+import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from '../services/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
@@ -12,7 +12,7 @@ import { NavigationService } from '../services/navigation.service';
   providedIn: 'root',
 })
 export class AuthService {
-  public toastService = inject(ToastService);
+  public toastShowService = inject(ToastShowService);
   private httpClient = inject(HttpClient);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
@@ -28,7 +28,7 @@ export class AuthService {
       .toPromise()
       .then((tok) => {
         if (!tok) {
-          this.showError(
+          this.toastShowService.showError(
             MessageLibrary.AUTH_USER_ERROR + MessageLibrary.RESPONSE_ERROR,
             'AUTH_USER_ERROR'
           );
@@ -41,7 +41,7 @@ export class AuthService {
           // eslint-disable-next-line no-prototype-builtins
           tok.hasOwnProperty('user not exist')
         ) {
-          this.showInfo(MessageLibrary.AUTH_USER_NOT_EXIST!);
+          this.toastShowService.showInfo(MessageLibrary.AUTH_USER_NOT_EXIST!);
           return false;
         } else {
           this.storeToken(tok);
@@ -49,7 +49,10 @@ export class AuthService {
         }
       })
       .catch((err) => {
-        this.showError(MessageLibrary.AUTH_USER_ERROR, 'AUTH_USER_ERROR');
+        this.toastShowService.showError(
+          MessageLibrary.AUTH_USER_ERROR,
+          'AUTH_USER_ERROR'
+        );
         console.log(err);
         return false;
       });
@@ -96,7 +99,7 @@ export class AuthService {
           });
         } catch {
           this.navigationService.navigateToRoot();
-          this.showInfo(MessageLibrary.EXPIRED_TOKEN);
+          this.toastShowService.showInfo(MessageLibrary.EXPIRED_TOKEN);
         }
       } else {
         this.navigationService.navigateToWorkplace();
@@ -172,79 +175,50 @@ export class AuthService {
     return admin;
   }
 
-  showError(Message: string, errorName = '') {
-    if (errorName) {
-      const y = this.toastService.toasts.find((x) => x.name === errorName);
-      this.toastService.remove(y);
-    }
-
-    this.toastService.show(Message, {
-      classname: 'bg-danger text-light',
-      delay: 3000,
-      name: errorName,
-      autohide: true,
-      headertext: MessageLibrary.ERROR_TOASTTITLE,
-    });
-  }
-
-  showInfo(Message: string, infoName = '') {
-    if (infoName) {
-      const y = this.toastService.toasts.find((x) => x.name === infoName);
-      this.toastService.remove(y);
-    }
-    this.toastService.show(Message, {
-      classname: 'bg-info text-light',
-      delay: 5000,
-      name: infoName,
-      autohide: true,
-      headertext: 'Info',
-    });
-  }
-
   errorMessage(error: string, message?: string) {
     console.log(error);
 
     switch (error) {
       case 'Unknown Error':
         this.navigationService.navigateToError();
-        this.showError(MessageLibrary.SERVER_NOT_VALID);
+        this.toastShowService.showError(MessageLibrary.SERVER_NOT_VALID);
 
         break;
 
       case '200':
-        this.showInfo(message!);
+        this.toastShowService.showInfo(message!);
         break;
 
       case '204':
-        this.showInfo(MessageLibrary.HTTP204);
+        this.toastShowService.showInfo(MessageLibrary.HTTP204);
         break;
 
       case '400':
-        this.showError(MessageLibrary.HTTP400);
+        this.toastShowService.showError(MessageLibrary.HTTP400);
 
         break;
 
       case '401':
         this.logOut();
         this.navigationService.navigateToRoot();
-        this.showError(MessageLibrary.HTTP401);
+        this.toastShowService.showError(MessageLibrary.HTTP401);
 
         break;
 
       case '403':
-        this.showError(MessageLibrary.HTTP403);
+        this.toastShowService.showError(MessageLibrary.HTTP403);
 
         break;
 
       case '404':
         this.navigationService.navigateToError();
-        this.showError(MessageLibrary.HTTP404);
+        this.toastShowService.showError(MessageLibrary.HTTP404);
 
         break;
 
       default:
         this.navigationService.navigateToError();
-        this.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
     }
   }
 

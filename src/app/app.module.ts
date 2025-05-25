@@ -15,7 +15,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { ResponseInterceptor } from './helpers/http-interceptor';
+import { ResponseInterceptor } from './error/http-interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
