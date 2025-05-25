@@ -468,5 +468,100 @@
   "list.all-list.all-shift-list.table.f": "FER",
   "list.all-list.all-shift-list.table.plus-f": "+FER",
 
-  "settings.group.Sum": "Numero"
+  "settings.group.Sum": "Numero",
+
+  "DELETE_ABSENCE_ERROR": "Errore durante l'eliminazione dell'assenza",
+  "ADD_ABSENCE_ERROR": "Errore durante l'aggiunta dell'assenza",
+  "UPDATE_ABSENCE_ERROR": "Errore durante l'aggiornamento dell'assenza",
+  "MODIFY_ABSENCE_ERROR": "Errore durante la modifica dell'assenza",
+
+  "DELETE_CLIENT_ERROR": "Errore durante l'eliminazione del cliente",
+  "ADD_CLIENT_ERROR": "Errore durante l'aggiunta del cliente",
+  "UPDATE_CLIENT_ERROR": "Errore durante l'aggiornamento del cliente",
+  "MODIFY_CLIENT_ERROR": "Errore durante la modifica del cliente",
+
+  "DELETE_ASSIGNED_GROUP_ERROR": "Errore durante l'eliminazione del gruppo assegnato",
+  "ADD_ASSIGNED_GROUP_ERROR": "Errore durante l'aggiunta del gruppo assegnato",
+  "UPDATE_ASSIGNED_GROUP_ERROR": "Errore durante l'aggiornamento del gruppo assegnato",
+  "MODIFY_ASSIGNED_GROUP_ERROR": "Errore durante la modifica del gruppo assegnato",
+
+  "DELETE_BANK_DETAIL_ERROR": "Errore durante l'eliminazione dei dettagli bancari",
+  "ADD_BANK_DETAIL_ERROR": "Errore durante l'aggiunta dei dettagli bancari",
+  "UPDATE_BANK_DETAIL_ERROR": "Errore durante l'aggiornamento dei dettagli bancari",
+  "MODIFY_BANK_DETAIL_ERROR": "Errore durante la modifica dei dettagli bancari",
+
+  "DELETE_BREAK_ERROR": "Errore durante l'eliminazione della pausa",
+  "ADD_BREAK_ERROR": "Errore durante l'aggiunta della pausa",
+  "UPDATE_BREAK_ERROR": "Errore durante l'aggiornamento della pausa",
+  "MODIFY_BREAK_ERROR": "Errore durante la modifica della pausa",
+
+  "DELETE_CALENDAR_RULE_ERROR": "Errore durante l'eliminazione della regola del calendario",
+  "ADD_CALENDAR_RULE_ERROR": "Errore durante l'aggiunta della regola del calendario",
+  "UPDATE_CALENDAR_RULE_ERROR": "Errore durante l'aggiornamento della regola del calendario",
+  "MODIFY_CALENDAR_RULE_ERROR": "Errore durante la modifica della regola del calendario",
+
+  "DELETE_CALENDAR_SELECTION_ERROR": "Errore durante l'eliminazione della selezione del calendario",
+  "ADD_CALENDAR_SELECTION_ERROR": "Errore durante l'aggiunta della selezione del calendario",
+  "UPDATE_CALENDAR_SELECTION_ERROR": "Errore durante l'aggiornamento della selezione del calendario",
+  "MODIFY_CALENDAR_SELECTION_ERROR": "Errore durante la modifica della selezione del calendario",
+
+  "DELETE_SELECTED_CALENDAR_ERROR": "Errore durante l'eliminazione del calendario selezionato",
+  "ADD_SELECTED_CALENDAR_ERROR": "Errore durante l'aggiunta del calendario selezionato",
+  "UPDATE_SELECTED_CALENDAR_ERROR": "Errore durante l'aggiornamento del calendario selezionato",
+  "MODIFY_SELECTED_CALENDAR_ERROR": "Errore durante la modifica del calendario selezionato",
+
+  "DELETE_COUNTRY_ERROR": "Errore durante l'eliminazione del paese",
+  "ADD_COUNTRY_ERROR": "Errore durante l'aggiunta del paese",
+  "UPDATE_COUNTRY_ERROR": "Errore durante l'aggiornamento del paese",
+  "MODIFY_COUNTRY_ERROR": "Errore durante la modifica del paese",
+
+  "DELETE_STATE_ERROR": "Errore durante l'eliminazione del dipartimento",
+  "ADD_STATE_ERROR": "Errore durante l'aggiunta del dipartimento",
+  "UPDATE_STATE_ERROR": "Errore durante l'aggiornamento del dipartimento",
+  "MODIFY_STATE_ERROR": "Errore durante la modifica del dipartimento",
+
+  "DELETE_GROUP_ERROR": "Errore durante l'eliminazione del gruppo",
+  "ADD_GROUP_ERROR": "Errore durante l'aggiunta del gruppo",
+  "UPDATE_GROUP_ERROR": "Errore durante l'aggiornamento del gruppo",
+  "MODIFY_GROUP_ERROR": "Errore durante la modifica del gruppo",
+
+  "DELETE_FILE_ERROR": "Errore durante l'eliminazione del file",
+  "ADD_FILE_ERROR": "Errore durante il caricamento del file",
+  "UPDATE_FILE_ERROR": "Errore durante l'aggiornamento del file",
+  "MODIFY_FILE_ERROR": "Errore durante la modifica del file",
+
+  "DELETE_MACRO_ERROR": "Errore durante l'eliminazione della macro",
+  "ADD_MACRO_ERROR": "Errore durante l'aggiunta della macro",
+  "UPDATE_MACRO_ERROR": "Errore durante l'aggiornamento della macro",
+  "MODIFY_MACRO_ERROR": "Errore durante la modifica della macro",
+
+  "DELETE_WORK_ERROR": "Errore durante l'eliminazione dell'orario di lavoro",
+  "ADD_WORK_ERROR": "Errore durante l'aggiunta dell'orario di lavoro",
+  "UPDATE_WORK_ERROR": "Errore durante l'aggiornamento dell'orario di lavoro",
+  "MODIFY_WORK_ERROR": "Errore durante la modifica dell'orario di lavoro",
+
+  "DELETE_SHIFT_ERROR": "Errore durante l'eliminazione del turno",
+  "ADD_SHIFT_ERROR": "Errore durante l'aggiunta del turno",
+  "UPDATE_SHIFT_ERROR": "Errore durante l'aggiornamento del turno",
+  "MODIFY_SHIFT_ERROR": "Errore durante la modifica del turno",
+
+  "DELETE_ADDRESS_ERROR": "Errore durante l'eliminazione dell'indirizzo",
+  "ADD_ADDRESS_ERROR": "Errore durante l'aggiunta dell'indirizzo",
+  "UPDATE_ADDRESS_ERROR": "Errore durante l'aggiornamento dell'indirizzo",
+  "MODIFY_ADDRESS_ERROR": "Errore durante la modifica dell'indirizzo",
+
+  "DELETE_COMMUNICATION_ERROR": "Errore durante l'eliminazione della comunicazione",
+  "ADD_COMMUNICATION_ERROR": "Errore durante l'aggiunta della comunicazione",
+  "UPDATE_COMMUNICATION_ERROR": "Errore durante l'aggiornamento della comunicazione",
+  "MODIFY_COMMUNICATION_ERROR": "Errore durante la modifica della comunicazione",
+
+  "DELETE_SETTING_ERROR": "Errore durante l'eliminazione dell'impostazione",
+  "ADD_SETTING_ERROR": "Errore durante l'aggiunta dell'impostazione",
+  "UPDATE_SETTING_ERROR": "Errore durante l'aggiornamento dell'impostazione",
+  "MODIFY_SETTING_ERROR": "Errore durante la modifica dell'impostazione",
+
+  "DELETE_ENTRY_ERROR": "Errore durante l'eliminazione della voce",
+  "ADD_ENTRY_ERROR": "Errore durante l'aggiunta della voce",
+  "UPDATE_ENTRY_ERROR": "Errore durante l'aggiornamento della voce",
+  "MODIFY_ENTRY_ERROR": "Errore durante la modifica della voce"
 }

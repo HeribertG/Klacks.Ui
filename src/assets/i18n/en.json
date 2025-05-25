@@ -468,5 +468,100 @@
   "list.all-list.all-shift-list.table.f": "HOL",
   "list.all-list.all-shift-list.table.plus-f": "+HOL",
 
-  "settings.group.Sum": "Number"
+  "settings.group.Sum": "Number",
+
+  "DELETE_ABSENCE_ERROR": "Error deleting absence",
+  "ADD_ABSENCE_ERROR": "Error adding absence",
+  "UPDATE_ABSENCE_ERROR": "Error updating absence",
+  "MODIFY_ABSENCE_ERROR": "Error modifying absence",
+
+  "DELETE_CLIENT_ERROR": "Error deleting client",
+  "ADD_CLIENT_ERROR": "Error adding client",
+  "UPDATE_CLIENT_ERROR": "Error updating client",
+  "MODIFY_CLIENT_ERROR": "Error modifying client",
+
+  "DELETE_ASSIGNED_GROUP_ERROR": "Error deleting assigned group",
+  "ADD_ASSIGNED_GROUP_ERROR": "Error adding assigned group",
+  "UPDATE_ASSIGNED_GROUP_ERROR": "Error updating assigned group",
+  "MODIFY_ASSIGNED_GROUP_ERROR": "Error modifying assigned group",
+
+  "DELETE_BANK_DETAIL_ERROR": "Error deleting bank details",
+  "ADD_BANK_DETAIL_ERROR": "Error adding bank details",
+  "UPDATE_BANK_DETAIL_ERROR": "Error updating bank details",
+  "MODIFY_BANK_DETAIL_ERROR": "Error modifying bank details",
+
+  "DELETE_BREAK_ERROR": "Error deleting break",
+  "ADD_BREAK_ERROR": "Error adding break",
+  "UPDATE_BREAK_ERROR": "Error updating break",
+  "MODIFY_BREAK_ERROR": "Error modifying break",
+
+  "DELETE_CALENDAR_RULE_ERROR": "Error deleting calendar rule",
+  "ADD_CALENDAR_RULE_ERROR": "Error adding calendar rule",
+  "UPDATE_CALENDAR_RULE_ERROR": "Error updating calendar rule",
+  "MODIFY_CALENDAR_RULE_ERROR": "Error modifying calendar rule",
+
+  "DELETE_CALENDAR_SELECTION_ERROR": "Error deleting calendar selection",
+  "ADD_CALENDAR_SELECTION_ERROR": "Error adding calendar selection",
+  "UPDATE_CALENDAR_SELECTION_ERROR": "Error updating calendar selection",
+  "MODIFY_CALENDAR_SELECTION_ERROR": "Error modifying calendar selection",
+
+  "DELETE_SELECTED_CALENDAR_ERROR": "Error deleting selected calendar",
+  "ADD_SELECTED_CALENDAR_ERROR": "Error adding selected calendar",
+  "UPDATE_SELECTED_CALENDAR_ERROR": "Error updating selected calendar",
+  "MODIFY_SELECTED_CALENDAR_ERROR": "Error modifying selected calendar",
+
+  "DELETE_COUNTRY_ERROR": "Error deleting country",
+  "ADD_COUNTRY_ERROR": "Error adding country",
+  "UPDATE_COUNTRY_ERROR": "Error updating country",
+  "MODIFY_COUNTRY_ERROR": "Error modifying country",
+
+  "DELETE_STATE_ERROR": "Error deleting state",
+  "ADD_STATE_ERROR": "Error adding state",
+  "UPDATE_STATE_ERROR": "Error updating state",
+  "MODIFY_STATE_ERROR": "Error modifying state",
+
+  "DELETE_GROUP_ERROR": "Error deleting group",
+  "ADD_GROUP_ERROR": "Error adding group",
+  "UPDATE_GROUP_ERROR": "Error updating group",
+  "MODIFY_GROUP_ERROR": "Error modifying group",
+
+  "DELETE_FILE_ERROR": "Error deleting file",
+  "ADD_FILE_ERROR": "Error uploading file",
+  "UPDATE_FILE_ERROR": "Error updating file",
+  "MODIFY_FILE_ERROR": "Error modifying file",
+
+  "DELETE_MACRO_ERROR": "Error deleting macro",
+  "ADD_MACRO_ERROR": "Error adding macro",
+  "UPDATE_MACRO_ERROR": "Error updating macro",
+  "MODIFY_MACRO_ERROR": "Error modifying macro",
+
+  "DELETE_WORK_ERROR": "Error deleting work schedule",
+  "ADD_WORK_ERROR": "Error adding work schedule",
+  "UPDATE_WORK_ERROR": "Error updating work schedule",
+  "MODIFY_WORK_ERROR": "Error modifying work schedule",
+
+  "DELETE_SHIFT_ERROR": "Error deleting shift",
+  "ADD_SHIFT_ERROR": "Error adding shift",
+  "UPDATE_SHIFT_ERROR": "Error updating shift",
+  "MODIFY_SHIFT_ERROR": "Error modifying shift",
+
+  "DELETE_ADDRESS_ERROR": "Error deleting address",
+  "ADD_ADDRESS_ERROR": "Error adding address",
+  "UPDATE_ADDRESS_ERROR": "Error updating address",
+  "MODIFY_ADDRESS_ERROR": "Error modifying address",
+
+  "DELETE_COMMUNICATION_ERROR": "Error deleting communication",
+  "ADD_COMMUNICATION_ERROR": "Error adding communication",
+  "UPDATE_COMMUNICATION_ERROR": "Error updating communication",
+  "MODIFY_COMMUNICATION_ERROR": "Error modifying communication",
+
+  "DELETE_SETTING_ERROR": "Error deleting setting",
+  "ADD_SETTING_ERROR": "Error adding setting",
+  "UPDATE_SETTING_ERROR": "Error updating setting",
+  "MODIFY_SETTING_ERROR": "Error modifying setting",
+
+  "DELETE_ENTRY_ERROR": "Error deleting entry",
+  "ADD_ENTRY_ERROR": "Error adding entry",
+  "UPDATE_ENTRY_ERROR": "Error updating entry",
+  "MODIFY_ENTRY_ERROR": "Error modifying entry"
 }

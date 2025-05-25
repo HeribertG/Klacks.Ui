@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, retry, throwError } from 'rxjs';
+import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IAssignedGroup } from '../core/assigned-group-class';
 
-Injectable({
+@Injectable({
   providedIn: 'root',
-});
+})
 export class DataAssignedGroupService {
   private httpClient = inject(HttpClient);
 
@@ -25,7 +25,7 @@ export class DataAssignedGroupService {
   updateAssignedGroup(value: IAssignedGroup) {
     return this.httpClient
       .put<IAssignedGroup>(`${environment.baseUrl}AssignedGroups/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   addAssignedGroup(value: IAssignedGroup) {
@@ -33,25 +33,12 @@ export class DataAssignedGroupService {
 
     return this.httpClient
       .post<IAssignedGroup>(`${environment.baseUrl}AssignedGroups/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   deleteAssignedGroup(id: string) {
     return this.httpClient
       .delete<IAssignedGroup>(`${environment.baseUrl}AssignedGroups/` + id)
-      .pipe(retry(3), catchError(this.handleError));
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleError(error: any) {
-    let errorMessage = '';
-    if (error.error instanceof ErrorEvent) {
-      // Client
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Server
-      errorMessage = `Statuscode: ${error.status}\nMessage: ${error.message}`;
-    }
-    return throwError(errorMessage);
+      .pipe(retry(3));
   }
 }

@@ -27,9 +27,27 @@ export class ResponseInterceptor implements HttpInterceptor {
     POSTCODE: 'PostcodeCH',
     CHANGE_PASSWORD: 'Accounts/ChangePassword',
     REGISTER: 'Accounts/Register',
-    DOWNLOAD_IMAGE: 'v1/LoadFile/DownLoadImage',
-    SIMPLE_IMAGE: 'v1/LoadFile/GetSimpleImage',
-    CLIENT_LIST: 'v1/Clients/GetSimpleList',
+    DOWNLOAD_IMAGE: 'LoadFile/DownLoadImage',
+    SIMPLE_IMAGE: 'LoadFile/GetSimpleImage',
+    CLIENT_LIST: 'Clients/GetSimpleList',
+    ABSENCES: 'Absences/',
+    ASSIGNED_GROUPS: 'AssignedGroups/',
+    BANK_DETAILS: 'Settings/BankDetails/',
+    BREAKS: 'Breaks/',
+    CALENDAR_RULES: 'Settings/CalendarRule/',
+    CALENDAR_SELECTIONS: 'CalendarSelections/',
+    SELECTED_CALENDARS: 'SelectedCalendars/',
+    CLIENTS: 'Clients/',
+    COUNTRIES: 'Countries/',
+    STATES: 'States/',
+    GROUPS: 'Groups/',
+    LOAD_FILE: 'LoadFile/',
+    MACROS: 'Settings/Macros/',
+    WORKS: 'Works/',
+    SHIFTS: 'Shifts/',
+    SETTINGS: 'Settings/',
+    ADDRESSES: 'Addresses/',
+    COMMUNICATIONS: 'Communications/',
   };
 
   intercept(
@@ -39,7 +57,7 @@ export class ResponseInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
         this.resetUIState();
-        return this.handleSpecificErrors(error);
+        return this.handleSpecificErrors(error, req);
       })
     );
   }
@@ -50,8 +68,12 @@ export class ResponseInterceptor implements HttpInterceptor {
     this.dataManagementSwitchboardService.isSavedOrReset = false;
   }
 
-  private handleSpecificErrors(error: HttpErrorResponse): Observable<never> {
+  private handleSpecificErrors(
+    error: HttpErrorResponse,
+    req: HttpRequest<any>
+  ): Observable<never> {
     const url = error.url || '';
+    const method = req.method.toUpperCase();
 
     // PostcodeCH - erwarteter "Fehler"
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.POSTCODE)) {
@@ -67,12 +89,17 @@ export class ResponseInterceptor implements HttpInterceptor {
       return this.handleRegistrationError(error);
     }
 
-    // File-Loading Errors
+    // API-spezifische Errors für alle Endpunkte
+    if (this.isApiError(url, method)) {
+      return this.handleApiError(error, method, url);
+    }
+
+    // Legacy Image Loading Errors (für Rückwärtskompatibilität)
     if (this.isImageLoadingError(url, error.status)) {
       return this.handleImageLoadingError();
     }
 
-    // Client List Error
+    // Client List Error (spezifischer 500er)
     if (
       url.includes(ResponseInterceptor.ERROR_PATTERNS.CLIENT_LIST) &&
       error.status === 500
@@ -87,6 +114,207 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     // Generic Error Handling
     return this.handleGenericError(error);
+  }
+
+  private isApiError(url: string, method: string): boolean {
+    const isModifyingOperation = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(
+      method
+    );
+
+    const apiEndpoints = [
+      ResponseInterceptor.ERROR_PATTERNS.ABSENCES,
+      ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS,
+      ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS,
+      ResponseInterceptor.ERROR_PATTERNS.BREAKS,
+      ResponseInterceptor.ERROR_PATTERNS.CALENDAR_RULES,
+      ResponseInterceptor.ERROR_PATTERNS.CALENDAR_SELECTIONS,
+      ResponseInterceptor.ERROR_PATTERNS.SELECTED_CALENDARS,
+      ResponseInterceptor.ERROR_PATTERNS.CLIENTS,
+      ResponseInterceptor.ERROR_PATTERNS.COUNTRIES,
+      ResponseInterceptor.ERROR_PATTERNS.STATES,
+      ResponseInterceptor.ERROR_PATTERNS.GROUPS,
+      ResponseInterceptor.ERROR_PATTERNS.LOAD_FILE,
+      ResponseInterceptor.ERROR_PATTERNS.MACROS,
+      ResponseInterceptor.ERROR_PATTERNS.WORKS,
+      ResponseInterceptor.ERROR_PATTERNS.SHIFTS,
+      ResponseInterceptor.ERROR_PATTERNS.ADDRESSES,
+      ResponseInterceptor.ERROR_PATTERNS.COMMUNICATIONS,
+    ];
+
+    const isApiEndpoint = apiEndpoints.some((pattern) => url.includes(pattern));
+
+    // Exkludiere spezielle GET-Endpunkte, die keine Fehlerbehandlung brauchen
+    const isSpecialGet = this.isSpecialGetEndpoint(url);
+
+    return isApiEndpoint && isModifyingOperation && !isSpecialGet;
+  }
+
+  private isSpecialGetEndpoint(url: string): boolean {
+    const specialGetPatterns = [
+      'GetSimpleList',
+      'ChangeList',
+      'GetClientTypeTemplate',
+      'GetStateTokenList',
+      'FindClient',
+      'LastChangeMetaData',
+      'Count',
+      'NewEntries',
+      'CreateExcelFile',
+      'GetSimpleCalendarRuleList',
+      'GetCalendarRuleList',
+      'GetRuleTokenList',
+      'GetClientList',
+      'GetMacroFilterList',
+      'GetSettingsList',
+      'GetSetting',
+      'DownLoad',
+      'tree',
+      'path',
+      'refresh',
+    ];
+
+    return specialGetPatterns.some((pattern) => url.includes(pattern));
+  }
+
+  private handleApiError(
+    error: HttpErrorResponse,
+    method: string,
+    url: string
+  ): Observable<never> {
+    const entityInfo = this.getEntityInfo(url);
+    const operationType = this.getOperationType(method);
+
+    const errorMessage = this.buildErrorMessage(
+      `${entityInfo.name} ${operationType.toLowerCase()}`,
+      error
+    );
+    const messageKey = `${operationType}_${entityInfo.key}_ERROR`;
+
+    this.toastShowService.showError(errorMessage, messageKey);
+
+    console.error(`${entityInfo.name} ${operationType} Error:`, {
+      url,
+      method,
+      status: error.status,
+      message: error.message,
+      error: error.error,
+    });
+
+    return throwError(() => error);
+  }
+
+  private getEntityInfo(url: string): { name: string; key: string } {
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ABSENCES)) {
+      return { name: 'Abwesenheit', key: 'ABSENCE' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS)) {
+      return { name: 'Zugewiesene Gruppe', key: 'ASSIGNED_GROUP' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS)) {
+      return { name: 'Bankdetail', key: 'BANK_DETAIL' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BREAKS)) {
+      return { name: 'Pause', key: 'BREAK' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_RULES)) {
+      return { name: 'Kalenderregel', key: 'CALENDAR_RULE' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_SELECTIONS)) {
+      return { name: 'Kalenderauswahl', key: 'CALENDAR_SELECTION' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SELECTED_CALENDARS)) {
+      return { name: 'Ausgewählter Kalender', key: 'SELECTED_CALENDAR' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CLIENTS)) {
+      return { name: 'Klient', key: 'CLIENT' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COUNTRIES)) {
+      return { name: 'Land', key: 'COUNTRY' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.STATES)) {
+      return { name: 'Bundesland', key: 'STATE' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.GROUPS)) {
+      return { name: 'Gruppe', key: 'GROUP' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.LOAD_FILE)) {
+      return { name: 'Datei', key: 'FILE' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.MACROS)) {
+      return { name: 'Makro', key: 'MACRO' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.WORKS)) {
+      return { name: 'Arbeitszeit', key: 'WORK' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SHIFTS)) {
+      return { name: 'Schicht', key: 'SHIFT' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ADDRESSES)) {
+      return { name: 'Adresse', key: 'ADDRESS' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COMMUNICATIONS)) {
+      return { name: 'Kommunikation', key: 'COMMUNICATION' };
+    }
+    if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SETTINGS)) {
+      return { name: 'Einstellung', key: 'SETTING' };
+    }
+
+    return { name: 'Eintrag', key: 'ENTRY' };
+  }
+
+  private getOperationType(method: string): string {
+    switch (method) {
+      case 'DELETE':
+        return 'DELETE';
+      case 'POST':
+        return 'ADD';
+      case 'PUT':
+        return 'UPDATE';
+      case 'PATCH':
+        return 'MODIFY';
+      default:
+        return 'MODIFY';
+    }
+  }
+
+  private buildErrorMessage(
+    operation: string,
+    error: HttpErrorResponse
+  ): string {
+    let errorMessage = '';
+
+    switch (error.status) {
+      case 400:
+        errorMessage = `Fehler beim ${operation}: Ungültige Daten`;
+        break;
+      case 401:
+        errorMessage = `Fehler beim ${operation}: Nicht autorisiert`;
+        break;
+      case 403:
+        errorMessage = `Fehler beim ${operation}: Zugriff verweigert`;
+        break;
+      case 404:
+        errorMessage = `Fehler beim ${operation}: Eintrag nicht gefunden`;
+        break;
+      case 409:
+        errorMessage = `Fehler beim ${operation}: Konflikt mit vorhandenen Daten`;
+        break;
+      case 422:
+        errorMessage = `Fehler beim ${operation}: Validierungsfehler`;
+        break;
+      case 500:
+        errorMessage = `Fehler beim ${operation}: Serverfehler`;
+        break;
+      default:
+        errorMessage = `Unbekannter Fehler beim ${operation}`;
+    }
+
+    // Zusätzliche Details aus der Server-Response wenn verfügbar
+    if (error.error?.message) {
+      errorMessage += `\nDetails: ${error.error.message}`;
+    }
+
+    return errorMessage;
   }
 
   private handlePasswordChangeError(

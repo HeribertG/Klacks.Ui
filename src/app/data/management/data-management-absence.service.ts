@@ -72,35 +72,27 @@ export class DataManagementAbsenceService {
           this.firstItem = x.firstItemOnPage;
           this.showProgressSpinner.set(false);
           this.isRead.set(true);
-          setTimeout(() => this.isRead.set(false), 100);
+          setTimeout(
+            () => this.isRead.set(false),
+            DataManagementAbsenceService.READ_RESET_DELAY
+          );
         }
       });
   }
 
-  deleteAbsence(id: string, language: string): void {
-    lastValueFrom(this.dataAbsenceService.deleteAbsence(id))
-      .then(() => {
-        this.readPage(language);
-      })
-      .catch(() => {
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
-      });
+  async deleteAbsence(id: string, language: string): Promise<void> {
+    await lastValueFrom(this.dataAbsenceService.deleteAbsence(id));
+    this.readPage(language);
   }
 
-  addAbsence(item: Absence, language: string): void {
-    lastValueFrom(this.dataAbsenceService.addAbsence(item))
-      .then(() => {
-        this.readPage(language);
-      })
-      .catch(() => {
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
-      });
+  async addAbsence(item: Absence, language: string): Promise<void> {
+    await lastValueFrom(this.dataAbsenceService.addAbsence(item));
+    this.readPage(language);
   }
 
-  updateAbsence(item: IAbsence, language: string): void {
-    lastValueFrom(this.dataAbsenceService.updateAbsence(item)).then(() => {
-      this.readPage(language);
-    });
+  async updateAbsence(item: IAbsence, language: string): Promise<void> {
+    await lastValueFrom(this.dataAbsenceService.updateAbsence(item));
+    this.readPage(language);
   }
 
   exportExcel(language: string) {

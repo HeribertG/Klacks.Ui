@@ -470,5 +470,100 @@
   "list.all-list.all-shift-list.table.f": "FT",
   "list.all-list.all-shift-list.table.plus-f": "+FT",
 
-  "settings.group.Sum": "Anzahl"
+  "settings.group.Sum": "Anzahl",
+
+  "DELETE_ABSENCE_ERROR": "Fehler beim Löschen der Abwesenheit",
+  "ADD_ABSENCE_ERROR": "Fehler beim Hinzufügen der Abwesenheit",
+  "UPDATE_ABSENCE_ERROR": "Fehler beim Aktualisieren der Abwesenheit",
+  "MODIFY_ABSENCE_ERROR": "Fehler beim Bearbeiten der Abwesenheit",
+
+  "DELETE_CLIENT_ERROR": "Fehler beim Löschen des Klienten",
+  "ADD_CLIENT_ERROR": "Fehler beim Hinzufügen des Klienten",
+  "UPDATE_CLIENT_ERROR": "Fehler beim Aktualisieren des Klienten",
+  "MODIFY_CLIENT_ERROR": "Fehler beim Bearbeiten des Klienten",
+
+  "DELETE_ASSIGNED_GROUP_ERROR": "Fehler beim Löschen der zugewiesenen Gruppe",
+  "ADD_ASSIGNED_GROUP_ERROR": "Fehler beim Hinzufügen der zugewiesenen Gruppe",
+  "UPDATE_ASSIGNED_GROUP_ERROR": "Fehler beim Aktualisieren der zugewiesenen Gruppe",
+  "MODIFY_ASSIGNED_GROUP_ERROR": "Fehler beim Bearbeiten der zugewiesenen Gruppe",
+
+  "DELETE_BANK_DETAIL_ERROR": "Fehler beim Löschen der Bankverbindung",
+  "ADD_BANK_DETAIL_ERROR": "Fehler beim Hinzufügen der Bankverbindung",
+  "UPDATE_BANK_DETAIL_ERROR": "Fehler beim Aktualisieren der Bankverbindung",
+  "MODIFY_BANK_DETAIL_ERROR": "Fehler beim Bearbeiten der Bankverbindung",
+
+  "DELETE_BREAK_ERROR": "Fehler beim Löschen der Pause",
+  "ADD_BREAK_ERROR": "Fehler beim Hinzufügen der Pause",
+  "UPDATE_BREAK_ERROR": "Fehler beim Aktualisieren der Pause",
+  "MODIFY_BREAK_ERROR": "Fehler beim Bearbeiten der Pause",
+
+  "DELETE_CALENDAR_RULE_ERROR": "Fehler beim Löschen der Kalenderregel",
+  "ADD_CALENDAR_RULE_ERROR": "Fehler beim Hinzufügen der Kalenderregel",
+  "UPDATE_CALENDAR_RULE_ERROR": "Fehler beim Aktualisieren der Kalenderregel",
+  "MODIFY_CALENDAR_RULE_ERROR": "Fehler beim Bearbeiten der Kalenderregel",
+
+  "DELETE_CALENDAR_SELECTION_ERROR": "Fehler beim Löschen der Kalenderauswahl",
+  "ADD_CALENDAR_SELECTION_ERROR": "Fehler beim Hinzufügen der Kalenderauswahl",
+  "UPDATE_CALENDAR_SELECTION_ERROR": "Fehler beim Aktualisieren der Kalenderauswahl",
+  "MODIFY_CALENDAR_SELECTION_ERROR": "Fehler beim Bearbeiten der Kalenderauswahl",
+
+  "DELETE_SELECTED_CALENDAR_ERROR": "Fehler beim Löschen des ausgewählten Kalenders",
+  "ADD_SELECTED_CALENDAR_ERROR": "Fehler beim Hinzufügen des ausgewählten Kalenders",
+  "UPDATE_SELECTED_CALENDAR_ERROR": "Fehler beim Aktualisieren des ausgewählten Kalenders",
+  "MODIFY_SELECTED_CALENDAR_ERROR": "Fehler beim Bearbeiten des ausgewählten Kalenders",
+
+  "DELETE_COUNTRY_ERROR": "Fehler beim Löschen des Landes",
+  "ADD_COUNTRY_ERROR": "Fehler beim Hinzufügen des Landes",
+  "UPDATE_COUNTRY_ERROR": "Fehler beim Aktualisieren des Landes",
+  "MODIFY_COUNTRY_ERROR": "Fehler beim Bearbeiten des Landes",
+
+  "DELETE_STATE_ERROR": "Fehler beim Löschen des Bundeslandes",
+  "ADD_STATE_ERROR": "Fehler beim Hinzufügen des Bundeslandes",
+  "UPDATE_STATE_ERROR": "Fehler beim Aktualisieren des Bundeslandes",
+  "MODIFY_STATE_ERROR": "Fehler beim Bearbeiten des Bundeslandes",
+
+  "DELETE_GROUP_ERROR": "Fehler beim Löschen der Gruppe",
+  "ADD_GROUP_ERROR": "Fehler beim Hinzufügen der Gruppe",
+  "UPDATE_GROUP_ERROR": "Fehler beim Aktualisieren der Gruppe",
+  "MODIFY_GROUP_ERROR": "Fehler beim Bearbeiten der Gruppe",
+
+  "DELETE_FILE_ERROR": "Fehler beim Löschen der Datei",
+  "ADD_FILE_ERROR": "Fehler beim Hochladen der Datei",
+  "UPDATE_FILE_ERROR": "Fehler beim Aktualisieren der Datei",
+  "MODIFY_FILE_ERROR": "Fehler beim Bearbeiten der Datei",
+
+  "DELETE_MACRO_ERROR": "Fehler beim Löschen des Makros",
+  "ADD_MACRO_ERROR": "Fehler beim Hinzufügen des Makros",
+  "UPDATE_MACRO_ERROR": "Fehler beim Aktualisieren des Makros",
+  "MODIFY_MACRO_ERROR": "Fehler beim Bearbeiten des Makros",
+
+  "DELETE_WORK_ERROR": "Fehler beim Löschen der Arbeitszeit",
+  "ADD_WORK_ERROR": "Fehler beim Hinzufügen der Arbeitszeit",
+  "UPDATE_WORK_ERROR": "Fehler beim Aktualisieren der Arbeitszeit",
+  "MODIFY_WORK_ERROR": "Fehler beim Bearbeiten der Arbeitszeit",
+
+  "DELETE_SHIFT_ERROR": "Fehler beim Löschen der Schicht",
+  "ADD_SHIFT_ERROR": "Fehler beim Hinzufügen der Schicht",
+  "UPDATE_SHIFT_ERROR": "Fehler beim Aktualisieren der Schicht",
+  "MODIFY_SHIFT_ERROR": "Fehler beim Bearbeiten der Schicht",
+
+  "DELETE_ADDRESS_ERROR": "Fehler beim Löschen der Adresse",
+  "ADD_ADDRESS_ERROR": "Fehler beim Hinzufügen der Adresse",
+  "UPDATE_ADDRESS_ERROR": "Fehler beim Aktualisieren der Adresse",
+  "MODIFY_ADDRESS_ERROR": "Fehler beim Bearbeiten der Adresse",
+
+  "DELETE_COMMUNICATION_ERROR": "Fehler beim Löschen der Kommunikation",
+  "ADD_COMMUNICATION_ERROR": "Fehler beim Hinzufügen der Kommunikation",
+  "UPDATE_COMMUNICATION_ERROR": "Fehler beim Aktualisieren der Kommunikation",
+  "MODIFY_COMMUNICATION_ERROR": "Fehler beim Bearbeiten der Kommunikation",
+
+  "DELETE_SETTING_ERROR": "Fehler beim Löschen der Einstellung",
+  "ADD_SETTING_ERROR": "Fehler beim Hinzufügen der Einstellung",
+  "UPDATE_SETTING_ERROR": "Fehler beim Aktualisieren der Einstellung",
+  "MODIFY_SETTING_ERROR": "Fehler beim Bearbeiten der Einstellung",
+
+  "DELETE_ENTRY_ERROR": "Fehler beim Löschen des Eintrags",
+  "ADD_ENTRY_ERROR": "Fehler beim Hinzufügen des Eintrags",
+  "UPDATE_ENTRY_ERROR": "Fehler beim Aktualisieren des Eintrags",
+  "MODIFY_ENTRY_ERROR": "Fehler beim Bearbeiten des Eintrags"
 }

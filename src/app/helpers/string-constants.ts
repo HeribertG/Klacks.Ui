@@ -129,4 +129,136 @@ export class MessageLibrary {
   public static CLIENT_DOUBLETS =
     'Die ausgewählte Person ist in der Liste schon vorhanden';
   public static ERROR_TOASTTITLE = 'Fehler';
+
+  // =================== API ERROR CONSTANTS ===================
+  // Absence Errors
+  public static readonly DELETE_ABSENCE_ERROR = 'DELETE_ABSENCE_ERROR';
+  public static readonly ADD_ABSENCE_ERROR = 'ADD_ABSENCE_ERROR';
+  public static readonly UPDATE_ABSENCE_ERROR = 'UPDATE_ABSENCE_ERROR';
+  public static readonly MODIFY_ABSENCE_ERROR = 'MODIFY_ABSENCE_ERROR';
+
+  // Client Errors
+  public static readonly DELETE_CLIENT_ERROR = 'DELETE_CLIENT_ERROR';
+  public static readonly ADD_CLIENT_ERROR = 'ADD_CLIENT_ERROR';
+  public static readonly UPDATE_CLIENT_ERROR = 'UPDATE_CLIENT_ERROR';
+  public static readonly MODIFY_CLIENT_ERROR = 'MODIFY_CLIENT_ERROR';
+
+  // Assigned Group Errors
+  public static readonly DELETE_ASSIGNED_GROUP_ERROR =
+    'DELETE_ASSIGNED_GROUP_ERROR';
+  public static readonly ADD_ASSIGNED_GROUP_ERROR = 'ADD_ASSIGNED_GROUP_ERROR';
+  public static readonly UPDATE_ASSIGNED_GROUP_ERROR =
+    'UPDATE_ASSIGNED_GROUP_ERROR';
+  public static readonly MODIFY_ASSIGNED_GROUP_ERROR =
+    'MODIFY_ASSIGNED_GROUP_ERROR';
+
+  // Bank Detail Errors
+  public static readonly DELETE_BANK_DETAIL_ERROR = 'DELETE_BANK_DETAIL_ERROR';
+  public static readonly ADD_BANK_DETAIL_ERROR = 'ADD_BANK_DETAIL_ERROR';
+  public static readonly UPDATE_BANK_DETAIL_ERROR = 'UPDATE_BANK_DETAIL_ERROR';
+  public static readonly MODIFY_BANK_DETAIL_ERROR = 'MODIFY_BANK_DETAIL_ERROR';
+
+  // Break Errors
+  public static readonly DELETE_BREAK_ERROR = 'DELETE_BREAK_ERROR';
+  public static readonly ADD_BREAK_ERROR = 'ADD_BREAK_ERROR';
+  public static readonly UPDATE_BREAK_ERROR = 'UPDATE_BREAK_ERROR';
+  public static readonly MODIFY_BREAK_ERROR = 'MODIFY_BREAK_ERROR';
+
+  // Calendar Rule Errors
+  public static readonly DELETE_CALENDAR_RULE_ERROR =
+    'DELETE_CALENDAR_RULE_ERROR';
+  public static readonly ADD_CALENDAR_RULE_ERROR = 'ADD_CALENDAR_RULE_ERROR';
+  public static readonly UPDATE_CALENDAR_RULE_ERROR =
+    'UPDATE_CALENDAR_RULE_ERROR';
+  public static readonly MODIFY_CALENDAR_RULE_ERROR =
+    'MODIFY_CALENDAR_RULE_ERROR';
+
+  // Calendar Selection Errors
+  public static readonly DELETE_CALENDAR_SELECTION_ERROR =
+    'DELETE_CALENDAR_SELECTION_ERROR';
+  public static readonly ADD_CALENDAR_SELECTION_ERROR =
+    'ADD_CALENDAR_SELECTION_ERROR';
+  public static readonly UPDATE_CALENDAR_SELECTION_ERROR =
+    'UPDATE_CALENDAR_SELECTION_ERROR';
+  public static readonly MODIFY_CALENDAR_SELECTION_ERROR =
+    'MODIFY_CALENDAR_SELECTION_ERROR';
+
+  // Selected Calendar Errors
+  public static readonly DELETE_SELECTED_CALENDAR_ERROR =
+    'DELETE_SELECTED_CALENDAR_ERROR';
+  public static readonly ADD_SELECTED_CALENDAR_ERROR =
+    'ADD_SELECTED_CALENDAR_ERROR';
+  public static readonly UPDATE_SELECTED_CALENDAR_ERROR =
+    'UPDATE_SELECTED_CALENDAR_ERROR';
+  public static readonly MODIFY_SELECTED_CALENDAR_ERROR =
+    'MODIFY_SELECTED_CALENDAR_ERROR';
+
+  // Country Errors
+  public static readonly DELETE_COUNTRY_ERROR = 'DELETE_COUNTRY_ERROR';
+  public static readonly ADD_COUNTRY_ERROR = 'ADD_COUNTRY_ERROR';
+  public static readonly UPDATE_COUNTRY_ERROR = 'UPDATE_COUNTRY_ERROR';
+  public static readonly MODIFY_COUNTRY_ERROR = 'MODIFY_COUNTRY_ERROR';
+
+  // State Errors
+  public static readonly DELETE_STATE_ERROR = 'DELETE_STATE_ERROR';
+  public static readonly ADD_STATE_ERROR = 'ADD_STATE_ERROR';
+  public static readonly UPDATE_STATE_ERROR = 'UPDATE_STATE_ERROR';
+  public static readonly MODIFY_STATE_ERROR = 'MODIFY_STATE_ERROR';
+
+  // Group Errors
+  public static readonly DELETE_GROUP_ERROR = 'DELETE_GROUP_ERROR';
+  public static readonly ADD_GROUP_ERROR = 'ADD_GROUP_ERROR';
+  public static readonly UPDATE_GROUP_ERROR = 'UPDATE_GROUP_ERROR';
+  public static readonly MODIFY_GROUP_ERROR = 'MODIFY_GROUP_ERROR';
+
+  // File Errors
+  public static readonly DELETE_FILE_ERROR = 'DELETE_FILE_ERROR';
+  public static readonly ADD_FILE_ERROR = 'ADD_FILE_ERROR';
+  public static readonly UPDATE_FILE_ERROR = 'UPDATE_FILE_ERROR';
+  public static readonly MODIFY_FILE_ERROR = 'MODIFY_FILE_ERROR';
+
+  // Macro Errors
+  public static readonly DELETE_MACRO_ERROR = 'DELETE_MACRO_ERROR';
+  public static readonly ADD_MACRO_ERROR = 'ADD_MACRO_ERROR';
+  public static readonly UPDATE_MACRO_ERROR = 'UPDATE_MACRO_ERROR';
+  public static readonly MODIFY_MACRO_ERROR = 'MODIFY_MACRO_ERROR';
+
+  // Work Errors
+  public static readonly DELETE_WORK_ERROR = 'DELETE_WORK_ERROR';
+  public static readonly ADD_WORK_ERROR = 'ADD_WORK_ERROR';
+  public static readonly UPDATE_WORK_ERROR = 'UPDATE_WORK_ERROR';
+  public static readonly MODIFY_WORK_ERROR = 'MODIFY_WORK_ERROR';
+
+  // Shift Errors
+  public static readonly DELETE_SHIFT_ERROR = 'DELETE_SHIFT_ERROR';
+  public static readonly ADD_SHIFT_ERROR = 'ADD_SHIFT_ERROR';
+  public static readonly UPDATE_SHIFT_ERROR = 'UPDATE_SHIFT_ERROR';
+  public static readonly MODIFY_SHIFT_ERROR = 'MODIFY_SHIFT_ERROR';
+
+  // Address Errors
+  public static readonly DELETE_ADDRESS_ERROR = 'DELETE_ADDRESS_ERROR';
+  public static readonly ADD_ADDRESS_ERROR = 'ADD_ADDRESS_ERROR';
+  public static readonly UPDATE_ADDRESS_ERROR = 'UPDATE_ADDRESS_ERROR';
+  public static readonly MODIFY_ADDRESS_ERROR = 'MODIFY_ADDRESS_ERROR';
+
+  // Communication Errors
+  public static readonly DELETE_COMMUNICATION_ERROR =
+    'DELETE_COMMUNICATION_ERROR';
+  public static readonly ADD_COMMUNICATION_ERROR = 'ADD_COMMUNICATION_ERROR';
+  public static readonly UPDATE_COMMUNICATION_ERROR =
+    'UPDATE_COMMUNICATION_ERROR';
+  public static readonly MODIFY_COMMUNICATION_ERROR =
+    'MODIFY_COMMUNICATION_ERROR';
+
+  // Setting Errors
+  public static readonly DELETE_SETTING_ERROR = 'DELETE_SETTING_ERROR';
+  public static readonly ADD_SETTING_ERROR = 'ADD_SETTING_ERROR';
+  public static readonly UPDATE_SETTING_ERROR = 'UPDATE_SETTING_ERROR';
+  public static readonly MODIFY_SETTING_ERROR = 'MODIFY_SETTING_ERROR';
+
+  // Generic Entry Errors (fallback)
+  public static readonly DELETE_ENTRY_ERROR = 'DELETE_ENTRY_ERROR';
+  public static readonly ADD_ENTRY_ERROR = 'ADD_ENTRY_ERROR';
+  public static readonly UPDATE_ENTRY_ERROR = 'UPDATE_ENTRY_ERROR';
+  public static readonly MODIFY_ENTRY_ERROR = 'MODIFY_ENTRY_ERROR';
 }

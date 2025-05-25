@@ -468,5 +468,103 @@
   "list.all-list.all-shift-list.table.f": "JF",
   "list.all-list.all-shift-list.table.plus-f": "+JF",
 
-  "settings.group.Sum": "Nombre"
+  "settings.group.Sum": "Nombre",
+
+  {
+  "_comment": "=================== API ERROR MESSAGES ===================",
+
+  "DELETE_ABSENCE_ERROR": "Erreur lors de la suppression de l'absence",
+  "ADD_ABSENCE_ERROR": "Erreur lors de l'ajout de l'absence",
+  "UPDATE_ABSENCE_ERROR": "Erreur lors de la mise à jour de l'absence",
+  "MODIFY_ABSENCE_ERROR": "Erreur lors de la modification de l'absence",
+
+  "DELETE_CLIENT_ERROR": "Erreur lors de la suppression du client",
+  "ADD_CLIENT_ERROR": "Erreur lors de l'ajout du client",
+  "UPDATE_CLIENT_ERROR": "Erreur lors de la mise à jour du client",
+  "MODIFY_CLIENT_ERROR": "Erreur lors de la modification du client",
+
+  "DELETE_ASSIGNED_GROUP_ERROR": "Erreur lors de la suppression du groupe assigné",
+  "ADD_ASSIGNED_GROUP_ERROR": "Erreur lors de l'ajout du groupe assigné",
+  "UPDATE_ASSIGNED_GROUP_ERROR": "Erreur lors de la mise à jour du groupe assigné",
+  "MODIFY_ASSIGNED_GROUP_ERROR": "Erreur lors de la modification du groupe assigné",
+
+  "DELETE_BANK_DETAIL_ERROR": "Erreur lors de la suppression des détails bancaires",
+  "ADD_BANK_DETAIL_ERROR": "Erreur lors de l'ajout des détails bancaires",
+  "UPDATE_BANK_DETAIL_ERROR": "Erreur lors de la mise à jour des détails bancaires",
+  "MODIFY_BANK_DETAIL_ERROR": "Erreur lors de la modification des détails bancaires",
+
+  "DELETE_BREAK_ERROR": "Erreur lors de la suppression de la pause",
+  "ADD_BREAK_ERROR": "Erreur lors de l'ajout de la pause",
+  "UPDATE_BREAK_ERROR": "Erreur lors de la mise à jour de la pause",
+  "MODIFY_BREAK_ERROR": "Erreur lors de la modification de la pause",
+
+  "DELETE_CALENDAR_RULE_ERROR": "Erreur lors de la suppression de la règle de calendrier",
+  "ADD_CALENDAR_RULE_ERROR": "Erreur lors de l'ajout de la règle de calendrier",
+  "UPDATE_CALENDAR_RULE_ERROR": "Erreur lors de la mise à jour de la règle de calendrier",
+  "MODIFY_CALENDAR_RULE_ERROR": "Erreur lors de la modification de la règle de calendrier",
+
+  "DELETE_CALENDAR_SELECTION_ERROR": "Erreur lors de la suppression de la sélection de calendrier",
+  "ADD_CALENDAR_SELECTION_ERROR": "Erreur lors de l'ajout de la sélection de calendrier",
+  "UPDATE_CALENDAR_SELECTION_ERROR": "Erreur lors de la mise à jour de la sélection de calendrier",
+  "MODIFY_CALENDAR_SELECTION_ERROR": "Erreur lors de la modification de la sélection de calendrier",
+
+  "DELETE_SELECTED_CALENDAR_ERROR": "Erreur lors de la suppression du calendrier sélectionné",
+  "ADD_SELECTED_CALENDAR_ERROR": "Erreur lors de l'ajout du calendrier sélectionné",
+  "UPDATE_SELECTED_CALENDAR_ERROR": "Erreur lors de la mise à jour du calendrier sélectionné",
+  "MODIFY_SELECTED_CALENDAR_ERROR": "Erreur lors de la modification du calendrier sélectionné",
+
+  "DELETE_COUNTRY_ERROR": "Erreur lors de la suppression du pays",
+  "ADD_COUNTRY_ERROR": "Erreur lors de l'ajout du pays",
+  "UPDATE_COUNTRY_ERROR": "Erreur lors de la mise à jour du pays",
+  "MODIFY_COUNTRY_ERROR": "Erreur lors de la modification du pays",
+
+  "DELETE_STATE_ERROR": "Erreur lors de la suppression du département",
+  "ADD_STATE_ERROR": "Erreur lors de l'ajout du département",
+  "UPDATE_STATE_ERROR": "Erreur lors de la mise à jour du département",
+  "MODIFY_STATE_ERROR": "Erreur lors de la modification du département",
+
+  "DELETE_GROUP_ERROR": "Erreur lors de la suppression du groupe",
+  "ADD_GROUP_ERROR": "Erreur lors de l'ajout du groupe",
+  "UPDATE_GROUP_ERROR": "Erreur lors de la mise à jour du groupe",
+  "MODIFY_GROUP_ERROR": "Erreur lors de la modification du groupe",
+
+  "DELETE_FILE_ERROR": "Erreur lors de la suppression du fichier",
+  "ADD_FILE_ERROR": "Erreur lors du téléchargement du fichier",
+  "UPDATE_FILE_ERROR": "Erreur lors de la mise à jour du fichier",
+  "MODIFY_FILE_ERROR": "Erreur lors de la modification du fichier",
+
+  "DELETE_MACRO_ERROR": "Erreur lors de la suppression de la macro",
+  "ADD_MACRO_ERROR": "Erreur lors de l'ajout de la macro",
+  "UPDATE_MACRO_ERROR": "Erreur lors de la mise à jour de la macro",
+  "MODIFY_MACRO_ERROR": "Erreur lors de la modification de la macro",
+
+  "DELETE_WORK_ERROR": "Erreur lors de la suppression du planning de travail",
+  "ADD_WORK_ERROR": "Erreur lors de l'ajout du planning de travail",
+  "UPDATE_WORK_ERROR": "Erreur lors de la mise à jour du planning de travail",
+  "MODIFY_WORK_ERROR": "Erreur lors de la modification du planning de travail",
+
+  "DELETE_SHIFT_ERROR": "Erreur lors de la suppression du service",
+  "ADD_SHIFT_ERROR": "Erreur lors de l'ajout du service",
+  "UPDATE_SHIFT_ERROR": "Erreur lors de la mise à jour du service",
+  "MODIFY_SHIFT_ERROR": "Erreur lors de la modification du service",
+
+  "DELETE_ADDRESS_ERROR": "Erreur lors de la suppression de l'adresse",
+  "ADD_ADDRESS_ERROR": "Erreur lors de l'ajout de l'adresse",
+  "UPDATE_ADDRESS_ERROR": "Erreur lors de la mise à jour de l'adresse",
+  "MODIFY_ADDRESS_ERROR": "Erreur lors de la modification de l'adresse",
+
+  "DELETE_COMMUNICATION_ERROR": "Erreur lors de la suppression de la communication",
+  "ADD_COMMUNICATION_ERROR": "Erreur lors de l'ajout de la communication",
+  "UPDATE_COMMUNICATION_ERROR": "Erreur lors de la mise à jour de la communication",
+  "MODIFY_COMMUNICATION_ERROR": "Erreur lors de la modification de la communication",
+
+  "DELETE_SETTING_ERROR": "Erreur lors de la suppression du paramètre",
+  "ADD_SETTING_ERROR": "Erreur lors de l'ajout du paramètre",
+  "UPDATE_SETTING_ERROR": "Erreur lors de la mise à jour du paramètre",
+  "MODIFY_SETTING_ERROR": "Erreur lors de la modification du paramètre",
+
+  "DELETE_ENTRY_ERROR": "Erreur lors de la suppression de l'entrée",
+  "ADD_ENTRY_ERROR": "Erreur lors de l'ajout de l'entrée",
+  "UPDATE_ENTRY_ERROR": "Erreur lors de la mise à jour de l'entrée",
+  "MODIFY_ENTRY_ERROR": "Erreur lors de la modification de l'entrée"
 }

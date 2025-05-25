@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, retry, throwError } from 'rxjs';
+import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { IShift } from '../core/schedule-class';
 import {
@@ -35,7 +35,7 @@ export class DataShiftService {
     this.setCorrectDate(value);
     return this.httpClient
       .put<IShift>(`${environment.baseUrl}Shifts/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   addShift(value: IShift) {
@@ -43,13 +43,13 @@ export class DataShiftService {
     this.setCorrectDate(value);
     return this.httpClient
       .post<IShift>(`${environment.baseUrl}Shifts/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   deleteShift(id: string) {
     return this.httpClient
       .delete<IShift>(`${environment.baseUrl}Shifts/` + id)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   private setCorrectDate(value: IShift) {
@@ -70,18 +70,5 @@ export class DataShiftService {
     } else {
       value.untilDate = undefined;
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleError(error: any) {
-    let errorMessage = '';
-    if (error.error instanceof ErrorEvent) {
-      // Client
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Server
-      errorMessage = `Statuscode: ${error.status}\nMessage: ${error.message}`;
-    }
-    return throwError(errorMessage);
   }
 }

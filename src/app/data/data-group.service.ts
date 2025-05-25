@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { catchError, retry } from 'rxjs/operators';
+import { retry } from 'rxjs/operators';
 import {
   GroupFilter,
   IGroup,
@@ -13,7 +13,7 @@ import {
   isNgbDateStructOk,
   transformNgbDateStructToDate,
 } from '../helpers/format-helper';
-import { Observable, throwError } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -27,20 +27,20 @@ export class DataGroupService {
         `${environment.baseUrl}Groups/GetSimpleList/`,
         filter
       )
-      .pipe(catchError(this.handleError));
+      .pipe();
   }
 
   getGroup(id: string): Observable<IGroup> {
     return this.httpClient
       .get<IGroup>(`${environment.baseUrl}Groups/` + id)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   updateGroup(value: IGroup): Observable<IGroup> {
     this.setCorrectDate(value);
     return this.httpClient
       .put<IGroup>(`${environment.baseUrl}Groups/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   addGroup(value: IGroup): Observable<IGroup> {
@@ -49,13 +49,13 @@ export class DataGroupService {
     this.setCorrectDate(value);
     return this.httpClient
       .post<IGroup>(`${environment.baseUrl}Groups/`, value)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   deleteGroup(id: string): Observable<IGroup> {
     return this.httpClient
       .delete<IGroup>(`${environment.baseUrl}Groups/` + id)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   getGroupTree(rootId?: string): Observable<IGroupTree> {
@@ -66,13 +66,13 @@ export class DataGroupService {
 
     return this.httpClient
       .get<IGroupTree>(`${environment.baseUrl}Groups/tree`, { params })
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient
       .get<IGroup[]>(`${environment.baseUrl}Groups/path/${id}`)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   moveGroup(id: string, newParentId: string): Observable<IGroup> {
@@ -82,13 +82,13 @@ export class DataGroupService {
       .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {
         params,
       })
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   getRefreshTree(): Observable<void> {
     return this.httpClient
       .get<void>(`${environment.baseUrl}Groups/refresh`)
-      .pipe(retry(3), catchError(this.handleError));
+      .pipe(retry(3));
   }
 
   setCorrectDate(value: IGroup): void {
@@ -109,19 +109,5 @@ export class DataGroupService {
     } else {
       value.validUntil = undefined;
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private handleError(error: any) {
-    let errorMessage = '';
-    if (error.error instanceof ErrorEvent) {
-      // Client-seitiger Fehler
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      // Server-seitiger Fehler
-      errorMessage = `Statuscode: ${error.status}\nMessage: ${error.message}`;
-    }
-    console.error('API-Fehler:', errorMessage);
-    return throwError(() => errorMessage);
   }
 }
