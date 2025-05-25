@@ -15,10 +15,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import {
-  AuthInterceptor,
-  ResponseInterceptor,
-} from './helpers/http-interceptor';
+import { ResponseInterceptor } from './helpers/http-interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
@@ -51,6 +48,8 @@ import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service'
 import { ToastsContainerComponent } from './toast/toast.component';
 import { GroupSelectComponent } from './group-select/group-select.component';
 import { NoAccessComponent } from './no-access/no-access.component';
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { TokenRefreshInterceptor } from './auth/token-refresh.interceptor';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -94,6 +93,11 @@ export function localeFactory(localeService: LocaleService) {
   providers: [
     { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenRefreshInterceptor,
+      multi: true,
+    },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     { provide: AppErrorHandler, useClass: AppErrorHandler },
     { provide: CanDeactivateGuard, useClass: CanDeactivateGuard },

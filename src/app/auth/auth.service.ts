@@ -55,8 +55,6 @@ export class AuthService {
       });
   }
 
-  async refreshToken() {}
-
   logOut() {
     this.removeToken();
     this.navigationService.navigateToRoot();
@@ -247,6 +245,33 @@ export class AuthService {
       default:
         this.navigationService.navigateToError();
         this.showError(MessageLibrary.UNKNOWN_ERROR);
+    }
+  }
+
+  async refreshToken(): Promise<boolean> {
+    const refreshToken = this.localStorageService.get(
+      MessageLibrary.TOKEN_REFRESHTOKEN
+    );
+
+    if (!refreshToken) {
+      return false;
+    }
+
+    try {
+      const response = await this.httpClient
+        .post<MyToken>(`${environment.baseUrl}Accounts/RefreshToken`, {
+          refreshToken,
+        })
+        .toPromise();
+
+      if (response) {
+        this.storeToken(response, true); // isRefresh = true
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token refresh failed:', error);
+      return false;
     }
   }
 }
