@@ -9,7 +9,13 @@
             class="nav-link"
             [ngClass]="{ active: tabId === 'mask' }"
             (click)="tabId = 'mask'"
-            >{{
+            (keydown.enter)="tabId = 'mask'"
+            (keydown.space)="tabId = 'mask'"
+            role="tab"
+            [attr.aria-selected]="tabId === 'mask'"
+            tabindex="0"
+            id="mask-tab"
+            >>{{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
                 | translate
             }}
@@ -20,6 +26,12 @@
             class="nav-link"
             [ngClass]="{ active: tabId === 'list' }"
             (click)="tabId = 'list'"
+            (keydown.enter)="tabId = 'list'"
+            (keydown.space)="tabId = 'list'"
+            role="tab"
+            [attr.aria-selected]="tabId === 'list'"
+            tabindex="1"
+            id="list-tab"
             >{{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.list"
                 | translate
@@ -41,17 +53,17 @@
         <div class="container-mask-date">
           <div class="row-line">
             <div class="form-group">
-              <label for="internalUntil">{{
+              <label for="internal-from">{{
                 "absence-gantt.absence-gantt-mask.absence-gantt-mask.from"
                   | translate
               }}</label>
               <div class="input-group-own short-width gap">
                 <input
                   class="form-control input-date"
-                  name="internalFrom"
-                  aria-label="internalUntil"
+                  name="internal-from"
+                  aria-label="internal-from"
                   aria-labelledby="internalFrom"
-                  id="internalUntil"
+                  id="internal-from"
                   [ngModel]="selectedBreak!.internalFrom"
                   (ngModelChange)="
                     onChange(); selectedBreak!.internalFrom = $event
@@ -74,17 +86,17 @@
             </div>
 
             <div class="form-group">
-              <label for="internalUntil">{{
+              <label for="internal-until">{{
                 "absence-gantt.absence-gantt-mask.absence-gantt-mask.until"
                   | translate
               }}</label>
               <div class="input-group-own short-width">
                 <input
                   class="form-control input-date"
-                  name="internalUntil"
-                  aria-label="internalUntil"
-                  aria-labelledby="internalUntil"
-                  id="internalUntil"
+                  name="internal-until"
+                  aria-label="internal-until"
+                  aria-labelledby="internal-until"
+                  id="internal-until"
                   [ngModel]="selectedBreak!.internalUntil"
                   (ngModelChange)="
                     onChange(); selectedBreak!.internalUntil = $event

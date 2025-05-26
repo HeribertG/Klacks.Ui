@@ -9,6 +9,7 @@
     (mouseover)="onMouseOver()"
     (mouseleave)="onMouseLeave()"
     [ngClass]="{ disabled: menuItem.disabled }"
+    id="{{ menuItem.key }}"
   >
     <div class="menu-item-icon">
       <i class="{{ menuItem.iconFont }}" *ngIf="menuItem.iconFont"></i>

@@ -5,6 +5,7 @@ import {
   EffectRef,
   ElementRef,
   EventEmitter,
+  Injector,
   Input,
   OnChanges,
   OnDestroy,
@@ -14,6 +15,8 @@ import {
   SimpleChanges,
   ViewChild,
   effect,
+  inject,
+  runInInjectionContext,
 } from '@angular/core';
 import {
   EqualDate,
@@ -87,6 +90,22 @@ export class AbsenceGanttSurfaceComponent
 
   @ViewChild('boxCalendar') boxCalendar!: ElementRef<HTMLCanvasElement>;
 
+  public calendarSetting = inject(CalendarSettingService);
+  public holidayCollection = inject(HolidayCollectionService);
+  public dataManagementBreak = inject(DataManagementBreakService);
+  public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  public drawRowHeader = inject(DrawRowHeaderService);
+  public scroll = inject(ScrollService);
+  public drawCalendarGantt = inject(DrawCalendarGanttService);
+  private renderer = inject(Renderer2);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+  private translateService = inject(TranslateService);
+  private el = inject(ElementRef);
+  private clipboard = inject(Clipboard);
+  private cd = inject(ChangeDetectorRef);
+  private injector = inject(Injector);
+
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
   public isShift = false;
@@ -108,25 +127,6 @@ export class AbsenceGanttSurfaceComponent
     | undefined;
   private dragStartMouseX: number | undefined;
 
-  constructor(
-    public calendarSetting: CalendarSettingService,
-    public holidayCollection: HolidayCollectionService,
-    public dataManagementBreak: DataManagementBreakService,
-    public dataManagementAbsence: DataManagementAbsenceGanttService,
-    public drawRowHeader: DrawRowHeaderService,
-    public scroll: ScrollService,
-    public drawCalendarGantt: DrawCalendarGanttService,
-    private renderer: Renderer2,
-    private gridColors: GridColorService,
-    private gridFonts: GridFontsService,
-    private translateService: TranslateService,
-    private el: ElementRef,
-    private clipboard: Clipboard,
-    private cd: ChangeDetectorRef
-  ) {
-    this.readSignals();
-  }
-
   /* #region dom */
   setBodyCursorStyle(cursorStyle: string): void {
     const bodyElem = this.renderer.selectRootElement('body');
@@ -137,6 +137,8 @@ export class AbsenceGanttSurfaceComponent
   /* #region ng */
 
   ngOnInit(): void {
+    this.readSignals();
+
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
@@ -1017,74 +1019,78 @@ export class AbsenceGanttSurfaceComponent
   /* #endregion Scroll */
 
   private readSignals(): void {
-    const effect1 = effect(() => {
-      if (this.dataManagementBreak.isRead()) {
-        this.setAllScrollValues();
-        this.drawCalendarGantt.setMetrics();
-        this.drawCalendarGantt.checkSelectedRowVisibility();
-        this.drawCalendarGantt.renderCalendar();
-        this.drawCalendarGantt.drawCalendar();
-      }
-    });
-    this.effects.push(effect1);
-
-    const effect2 = effect(() => {
-      if (this.gridColors.isReset()) {
-        this.addServicesCount();
-      }
-    });
-    this.effects.push(effect2);
-
-    const effect3 = effect(() => {
-      if (this.gridFonts.isReset()) {
-        this.addServicesCount();
-      }
-    });
-    this.effects.push(effect3);
-
-    const effect4 = effect(() => {
-      if (this.holidayCollection.isReset()) {
-        this.drawCalendarGantt.selectedRow = -1;
-
-        this.drawCalendarGantt.updateStartDate =
-          this.holidayCollection.currentYear;
-        this.drawCalendarGantt.resetAll();
-      }
-    });
-    this.effects.push(effect4);
-
-    const effect5 = effect(() => {
-      const isUpdate = this.dataManagementBreak.isUpdate();
-      if (isUpdate) {
-        this.drawCalendarGantt.selectedBreakIndex =
-          this.dataManagementBreak.indexOfBreak(isUpdate);
-        this.drawCalendarGantt.unDrawSelectionRow();
-
-        if (this.drawCalendarGantt.isSelectedRowVisible()) {
-          this.drawCalendarGantt.unDrawSelectionRow();
-          this.drawCalendarGantt.selectedBreak;
-          this.redrawSelectedRow();
+    runInInjectionContext(this.injector, () => {
+      const effect1 = effect(() => {
+        if (this.dataManagementBreak.isRead()) {
+          this.setAllScrollValues();
+          this.drawCalendarGantt.setMetrics();
+          this.drawCalendarGantt.checkSelectedRowVisibility();
+          this.drawCalendarGantt.renderCalendar();
+          this.drawCalendarGantt.drawCalendar();
         }
+      });
+      this.effects.push(effect1);
 
-        this.drawCalendarGantt.drawSelectedBreak();
-        this.drawCalendarGantt.drawRow(
-          this.drawCalendarGantt.selectedRow,
-          this.drawCalendarGantt.selectedBreak
-        );
-        this.cd.detectChanges();
-      }
-    });
-    this.effects.push(effect5);
+      const effect2 = effect(() => {
+        if (this.gridColors.isReset()) {
+          this.addServicesCount();
+        }
+      });
+      this.effects.push(effect2);
 
-    const effect6 = effect(() => {
-      this.isAbsenceHeaderInit = this.dataManagementBreak.isAbsenceHeaderInit();
-      if (this.isAbsenceHeaderInit) {
-        this.drawCalendarGantt.selectedRow = -1;
-        this.dataManagementBreak.canReadBreaks = true;
-        this.dataManagementBreak.readYear();
-        this.cd.detectChanges();
-      }
+      const effect3 = effect(() => {
+        if (this.gridFonts.isReset()) {
+          this.addServicesCount();
+        }
+      });
+      this.effects.push(effect3);
+
+      const effect4 = effect(() => {
+        if (this.holidayCollection.isReset()) {
+          this.drawCalendarGantt.selectedRow = -1;
+          this.drawCalendarGantt.updateStartDate =
+            this.holidayCollection.currentYear;
+          this.drawCalendarGantt.resetAll();
+        }
+      });
+      this.effects.push(effect4);
+
+      const effect5 = effect(() => {
+        const isUpdate = this.dataManagementBreak.isUpdate();
+        if (isUpdate) {
+          this.drawCalendarGantt.selectedBreakIndex =
+            this.dataManagementBreak.indexOfBreak(isUpdate);
+          this.drawCalendarGantt.unDrawSelectionRow();
+
+          if (this.drawCalendarGantt.isSelectedRowVisible()) {
+            this.drawCalendarGantt.unDrawSelectionRow();
+            this.drawCalendarGantt.selectedBreak;
+            this.redrawSelectedRow();
+          }
+
+          this.drawCalendarGantt.drawSelectedBreak();
+          this.drawCalendarGantt.drawRow(
+            this.drawCalendarGantt.selectedRow,
+            this.drawCalendarGantt.selectedBreak
+          );
+          this.cd.detectChanges();
+        }
+      });
+      this.effects.push(effect5);
+
+      const effect6 = effect(() => {
+        this.isAbsenceHeaderInit =
+          this.dataManagementBreak.isAbsenceHeaderInit();
+        if (this.isAbsenceHeaderInit) {
+          this.drawCalendarGantt.selectedRow = -1;
+          this.dataManagementBreak.canReadBreaks = true;
+          this.dataManagementBreak.readYear();
+          this.cd.detectChanges();
+        }
+      });
+      this.effects.push(effect6);
+
+      // Alle Effects wurden erstellt, kein Return-Wert nötig
     });
-    this.effects.push(effect6);
   }
 }
