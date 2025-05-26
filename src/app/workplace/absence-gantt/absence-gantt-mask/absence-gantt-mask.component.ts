@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   EventEmitter,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -10,7 +11,7 @@ import {
   SimpleChanges,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/core/absence-class';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
@@ -71,6 +72,10 @@ export class AbsenceGanttMaskComponent
   @Input() selectedRowBreaksMaxIndex: number | undefined;
   @Input() selectedBreakIndex = -1;
 
+  public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  public dataManagementBreak = inject(DataManagementBreakService);
+  private translateService = inject(TranslateService);
+
   public page = 1;
   public tabId = 'mask';
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
@@ -78,12 +83,6 @@ export class AbsenceGanttMaskComponent
 
   private selectedBreak_dummy: IBreak | undefined;
   private ngUnsubscribe = new Subject<void>();
-
-  constructor(
-    public dataManagementAbsence: DataManagementAbsenceGanttService,
-    public dataManagementBreak: DataManagementBreakService,
-    private translateService: TranslateService
-  ) {}
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -143,9 +142,10 @@ export class AbsenceGanttMaskComponent
       this.selectedRow < this.dataManagementBreak.rows
     ) {
       if (this.selectedBreakIndex > -1) {
-        return this.dataManagementBreak.readData(this.selectedRow)![
-          this.selectedBreakIndex
-        ];
+        const rowData = this.dataManagementBreak.readData(this.selectedRow);
+        if (rowData && this.selectedBreakIndex < rowData.length) {
+          return rowData[this.selectedBreakIndex];
+        }
       }
     }
     return undefined;
@@ -249,19 +249,20 @@ export class AbsenceGanttMaskComponent
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   addBreak(value: IBreak) {
     this.dataManagementBreak.readData(this.selectedRow);
     const id = this.dataManagementBreak.readClientId(this.selectedRow);
     if (id) {
-      // this.dataManagementBreak.dataBreakService
-      //   .addBreak(newBreak)
-      //   .subscribe((x) => {
-      //     this.dataManagementBreak.addBreak(position[1], x);
-      //     this.selectedRow = position[1];
-      //     this.selectedBreakIndex = this.dataManagementBreak.indexOfBreak(x);
-      //   });
+      this.dataManagementBreak.dataBreakService
+        .addBreak(value as Break)
+        .subscribe((x) => {
+          if (this.selectedRow > -1) {
+            this.dataManagementBreak.addBreak(this.selectedRow, x);
+            this.selectedBreakIndex = this.dataManagementBreak.indexOfBreak(x);
+          }
+        });
     }
   }
+
   /* #endregion db*/
 }

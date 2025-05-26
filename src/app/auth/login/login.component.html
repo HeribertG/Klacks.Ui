@@ -15,12 +15,14 @@
           name="username"
           class="form-control"
           id="loginForm-name"
+          required
+          aria-describedby="username"
         />
       </div>
 
       <div class="form-group first">
         <div class="input-group">
-          <label class="mylabel" for="LoginFormPassword">{{
+          <label class="mylabel" for="loginForm-password">{{
             "login.password" | translate
           }}</label>
           <input
@@ -28,8 +30,10 @@
             autocomplete
             [(ngModel)]="password"
             name="password"
-            id="LoginFormPassword"
+            id="loginForm-password"
             class="form-control input-password"
+            required
+            aria-describedby="password"
           />
 
           <span
@@ -58,11 +62,21 @@
           block="true"
           class="btn btn-primary center"
           [disabled]="!loginForm.form.valid"
+          id="login-summit"
+          [attr.aria-describedby]="!loginForm.form.valid ? 'form-errors' : null"
         >
           {{ "login.summit" | translate }}
         </button>
       </div>
-
+      <div
+        id="form-errors"
+        *ngIf="!loginForm.form.valid"
+        role="alert"
+        aria-live="polite"
+        class="sr-only"
+      >
+        Form has validation errors. Please check your input.
+      </div>
       <p></p>
       <p></p>
     </form>
