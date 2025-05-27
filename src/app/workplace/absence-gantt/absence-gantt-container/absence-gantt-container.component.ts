@@ -41,7 +41,6 @@ export class AbsenceGanttContainerComponent implements OnInit {
   private toastShowService = inject(ToastShowService);
 
   public IsInfoVisible = false;
-  public maxSize = 0;
 
   ngOnInit(): void {
     this.dataManagementSwitchboardService.nameOfVisibleEntity =

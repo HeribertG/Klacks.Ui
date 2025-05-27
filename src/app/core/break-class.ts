@@ -12,7 +12,7 @@ export interface IBreak {
   internalUntil: NgbDateStruct | undefined;
   absenceId: string;
   absence: Absence | undefined;
-  description: string | undefined;
+  information: string | undefined;
 }
 
 export class Break implements IBreak {
@@ -25,7 +25,7 @@ export class Break implements IBreak {
   internalUntil: NgbDateStruct | undefined = undefined;
   absenceId = '';
   absence: Absence | undefined = undefined;
-  description: string | undefined = undefined;
+  information: string | undefined = undefined;
 }
 
 export interface IAbsenceTokenFilter {

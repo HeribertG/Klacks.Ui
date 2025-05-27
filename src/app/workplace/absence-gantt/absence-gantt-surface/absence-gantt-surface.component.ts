@@ -930,7 +930,7 @@ export class AbsenceGanttSurfaceComponent
 
   private updateBreak() {
     if (
-      this.drawCalendarGantt.selectedRow &&
+      this.drawCalendarGantt.selectedRow > -1 &&
       this.drawCalendarGantt.selectedBreak
     ) {
       this.dataManagementBreak.updateBreak(
@@ -941,7 +941,7 @@ export class AbsenceGanttSurfaceComponent
   }
   public Delete() {
     if (
-      this.drawCalendarGantt.selectedRow &&
+      this.drawCalendarGantt.selectedRow > -1 &&
       this.drawCalendarGantt.selectedBreak
     ) {
       this.dataManagementBreak.deleteBreak(
@@ -1058,21 +1058,7 @@ export class AbsenceGanttSurfaceComponent
       const effect5 = effect(() => {
         const isUpdate = this.dataManagementBreak.isUpdate();
         if (isUpdate) {
-          this.drawCalendarGantt.selectedBreakIndex =
-            this.dataManagementBreak.indexOfBreak(isUpdate);
-          this.drawCalendarGantt.unDrawSelectionRow();
-
-          if (this.drawCalendarGantt.isSelectedRowVisible()) {
-            this.drawCalendarGantt.unDrawSelectionRow();
-            this.drawCalendarGantt.selectedBreak;
-            this.redrawSelectedRow();
-          }
-
-          this.drawCalendarGantt.drawSelectedBreak();
-          this.drawCalendarGantt.drawRow(
-            this.drawCalendarGantt.selectedRow,
-            this.drawCalendarGantt.selectedBreak
-          );
+          this.onUpdateMask();
           this.cd.detectChanges();
         }
       });
@@ -1089,8 +1075,6 @@ export class AbsenceGanttSurfaceComponent
         }
       });
       this.effects.push(effect6);
-
-      // Alle Effects wurden erstellt, kein Return-Wert nötig
     });
   }
 }

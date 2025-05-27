@@ -15,7 +15,7 @@
             [attr.aria-selected]="tabId === 'mask'"
             tabindex="0"
             id="mask-tab"
-            >>{{
+            >{{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
                 | translate
             }}
@@ -159,15 +159,15 @@
         </div>
         <div class="container-mask-description">
           <div class="form-group">
-            <label for="description">{{
+            <label for="information">{{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
                 | translate
             }}</label>
             <div class="input-text">
               <textarea
                 class="form-control"
-                [(ngModel)]="selectedBreak.description"
-                name="description"
+                [(ngModel)]="selectedBreak.information"
+                name="information"
                 (change)="onChange()"
               >
               </textarea>
