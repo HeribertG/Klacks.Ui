@@ -1,3 +1,30 @@
 {
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "cSpell.words": [
+    "Ausgabe",
+    "ausgewählten",
+    "basierend",
+    "Berechne",
+    "diese",
+    "dieser",
+    "erstellt",
+    "erzwingen",
+    "existiert",
+    "Explizites",
+    "Hier",
+    "Konvertiere",
+    "nach",
+    "neue",
+    "Neuzeichnen",
+    "nötig",
+    "Schaut",
+    "sein",
+    "seit",
+    "selektierter",
+    "sollte",
+    "Spalte",
+    "Spalten",
+    "ursprünglichen",
+    "Zeile"
+  ]
 }

@@ -1,5 +1,5 @@
 import { NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   HeaderDirection,
@@ -17,21 +17,21 @@ import { IconDescComponent } from 'src/app/icons/icon-desc.component';
   imports: [TranslateModule, IconAscComponent, IconDescComponent, NgIf],
 })
 export class AbsenceGanttFilterComponent {
-  arrowCompany = '';
-  arrowFirstName = '';
-  arrowName = '↓';
+  public dataManagementBreak = inject(DataManagementBreakService);
 
-  companyHeader: HeaderProperties = new HeaderProperties();
-  firstNameHeader: HeaderProperties = new HeaderProperties();
-  nameHeader: HeaderProperties = new HeaderProperties();
+  public arrowCompany = '';
+  public arrowFirstName = '';
+  public arrowName = '↓';
 
-  orderBy = 'name';
-  sortOrder = 'asc';
-  templateArrowDown = '↓';
-  templateArrowUp = '↑';
+  public companyHeader: HeaderProperties = new HeaderProperties();
+  public firstNameHeader: HeaderProperties = new HeaderProperties();
+  public nameHeader: HeaderProperties = new HeaderProperties();
+
+  public orderBy = 'name';
+  public sortOrder = 'asc';
+  public templateArrowDown = '↓';
+  public templateArrowUp = '↑';
   private templateArrowUndefined = ''; //'↕';
-
-  constructor(public dataManagementBreak: DataManagementBreakService) {}
 
   private setFilter() {
     this.dataManagementBreak.breakFilter.orderBy = this.orderBy;

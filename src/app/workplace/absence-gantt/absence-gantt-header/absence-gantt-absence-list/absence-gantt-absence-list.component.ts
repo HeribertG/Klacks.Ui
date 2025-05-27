@@ -5,6 +5,9 @@ import {
   OnDestroy,
   effect,
   EffectRef,
+  inject,
+  Injector,
+  runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -30,6 +33,12 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 export class AbsenceGanttAbsenceListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  public calendarSetting = inject(CalendarSettingService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private translateService = inject(TranslateService);
+  private injector = inject(Injector);
+
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   checkmark = '&#10003;';
 
@@ -37,16 +46,8 @@ export class AbsenceGanttAbsenceListComponent
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
 
-  constructor(
-    public dataManagementAbsence: DataManagementAbsenceGanttService,
-    public calendarSetting: CalendarSettingService,
-    private dataManagementBreak: DataManagementBreakService,
-    private translateService: TranslateService
-  ) {
-    this.readSignals();
-  }
-
   ngOnInit(): void {
+    this.readSignals();
     this.currentLang = this.translateService.currentLang as Language;
   }
 
@@ -166,11 +167,13 @@ export class AbsenceGanttAbsenceListComponent
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
-      const isReset = this.dataManagementAbsence.isReset();
-      if (isReset) {
-        this.fillImageMap();
-      }
+    runInInjectionContext(this.injector, () => {
+      this.effectRef = effect(() => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.fillImageMap();
+        }
+      });
     });
   }
 }

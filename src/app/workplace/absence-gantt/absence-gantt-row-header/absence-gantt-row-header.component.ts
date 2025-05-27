@@ -3,6 +3,7 @@ import {
   Component,
   EffectRef,
   ElementRef,
+  Injector,
   Input,
   OnChanges,
   OnDestroy,
@@ -10,6 +11,8 @@ import {
   SimpleChanges,
   ViewChild,
   effect,
+  inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { Size } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
@@ -51,21 +54,18 @@ export class AbsenceGanttRowHeaderComponent
   @ViewChild('boxCalendarRowHeader')
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
 
+  public scroll = inject(ScrollService);
+  private gridColorService = inject(GridColorService);
+  private gridFontsService = inject(GridFontsService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private drawCalendarGanttService = inject(DrawCalendarGanttService);
+  private drawRowHeader = inject(DrawRowHeaderService);
+  private injector = inject(Injector);
+
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
   filterStyle = {};
-
-  constructor(
-    public scroll: ScrollService,
-    private gridColorService: GridColorService,
-    private gridFontsService: GridFontsService,
-    private dataManagementBreak: DataManagementBreakService,
-    private drawCalendarGanttService: DrawCalendarGanttService,
-    private drawRowHeader: DrawRowHeaderService
-  ) {
-    this.readSignals();
-  }
 
   /* #region dom */
   private set currentCursor(cursor: CursorEnum) {
@@ -80,6 +80,7 @@ export class AbsenceGanttRowHeaderComponent
   /* #region ng */
 
   ngOnInit(): void {
+    this.readSignals();
     this.destroyFilter();
     this.drawCalendarGanttService.pixelRatio = DrawHelper.pixelRatio();
 
@@ -256,36 +257,38 @@ export class AbsenceGanttRowHeaderComponent
   /* #endregion Filter */
 
   private readSignals(): void {
-    const effect1 = effect(() => {
-      const isRead = this.dataManagementBreak.isRead();
-      if (isRead) {
-        if (!this.drawRowHeader.isCanvasAvailable()) {
-          return;
+    runInInjectionContext(this.injector, () => {
+      const effect1 = effect(() => {
+        const isRead = this.dataManagementBreak.isRead();
+        if (isRead) {
+          if (!this.drawRowHeader.isCanvasAvailable()) {
+            return;
+          }
+
+          this.drawRowHeader.createRuler();
+          this.drawRowHeader.renderRowHeader();
+          this.drawRowHeader.drawCalendar();
         }
+      });
+      this.effects.push(effect1);
 
-        this.drawRowHeader.createRuler();
-        this.drawRowHeader.renderRowHeader();
-        this.drawRowHeader.drawCalendar();
-      }
-    });
-    this.effects.push(effect1);
+      const effect2 = effect(() => {
+        const isReset = this.gridColorService.isReset();
+        if (isReset) {
+          this.onResize([]);
+          this.gridColorService.isReset.set(false);
+        }
+      });
+      this.effects.push(effect2);
 
-    const effect2 = effect(() => {
-      const isReset = this.gridColorService.isReset();
-      if (isReset) {
-        this.onResize([]);
-        this.gridColorService.isReset.set(false);
-      }
+      const effect3 = effect(() => {
+        const isReset = this.gridFontsService.isReset();
+        if (isReset) {
+          this.onResize([]);
+          this.gridFontsService.isReset.set(false); // Hier war ein Fehler - sollte gridFontsService sein, nicht gridColorService
+        }
+      });
+      this.effects.push(effect3);
     });
-    this.effects.push(effect2);
-
-    const effect3 = effect(() => {
-      const isReset = this.gridFontsService.isReset();
-      if (isReset) {
-        this.onResize([]);
-        this.gridColorService.isReset.set(false);
-      }
-    });
-    this.effects.push(effect3);
   }
 }

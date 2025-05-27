@@ -3,10 +3,13 @@ import {
   AfterViewInit,
   Component,
   EffectRef,
+  Injector,
   Input,
   OnDestroy,
   OnInit,
   effect,
+  inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -33,6 +36,10 @@ export class AbsenceGanttGridComponent
 {
   @Input() selectedRowData: IBreak[] | undefined;
 
+  public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  private translateService = inject(TranslateService);
+  private injector = inject(Injector);
+
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
   private tmplateArrowUndefined = '↕';
@@ -57,14 +64,8 @@ export class AbsenceGanttGridComponent
 
   private absence: IAbsence[] = [];
 
-  constructor(
-    public dataManagementAbsence: DataManagementAbsenceGanttService,
-    private translateService: TranslateService
-  ) {
-    this.readSignals();
-  }
-
   ngOnInit(): void {
+    this.readSignals();
     this.absence = this.dataManagementAbsence.absenceList();
     this.currentLang = this.translateService.currentLang as Language;
   }
@@ -211,11 +212,13 @@ export class AbsenceGanttGridComponent
   /* #endregion   header */
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
-      const isReset = this.dataManagementAbsence.isReset();
-      if (isReset) {
-        this.absence = this.dataManagementAbsence.absenceList();
-      }
+    runInInjectionContext(this.injector, () => {
+      this.effectRef = effect(() => {
+        const isReset = this.dataManagementAbsence.isReset();
+        if (isReset) {
+          this.absence = this.dataManagementAbsence.absenceList();
+        }
+      });
     });
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
@@ -37,6 +37,15 @@ import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
+
+  private calendarSetting = inject(CalendarSettingService);
+  private holidayCollection = inject(HolidayCollectionService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private translateService = inject(TranslateService);
+  private dataManagementCalendarSelectionService = inject(
+    DataManagementCalendarSelectionService
+  );
+
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
   value = 100;
@@ -51,14 +60,6 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   currentYear: number = new Date().getFullYear();
   maxYear: number = this.currentYear + 30;
-
-  constructor(
-    private calendarSetting: CalendarSettingService,
-    private holidayCollection: HolidayCollectionService,
-    private dataManagementBreak: DataManagementBreakService,
-    private translateService: TranslateService,
-    private dataManagementCalendarSelectionService: DataManagementCalendarSelectionService
-  ) {}
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
