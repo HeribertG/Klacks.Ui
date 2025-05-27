@@ -67,6 +67,7 @@ export class DataManagementCalendarSelectionService {
   }
 
   readData() {
+    this.isRead.set(false);
     this.dataCalendarSelectionService
       .getList()
       .subscribe((x: CalendarSelection[] | undefined) => {
@@ -74,7 +75,6 @@ export class DataManagementCalendarSelectionService {
           this.emptyCalendarSelection(),
           ...(x || []),
         ];
-        // ↓ Neue Zeilen:
         const savedId = this.localStorageService.get(
           MessageLibrary.CALENDAR_SELECTION_TYPE +
             '-' +
@@ -85,9 +85,7 @@ export class DataManagementCalendarSelectionService {
             this.calendarsSelections.find((c) => c.id === savedId) ||
             this.emptyCalendarSelection();
         }
-        // ↑ Ende Ergänzung
         this.isRead.set(true);
-        this.isRead.set(false);
       });
   }
 

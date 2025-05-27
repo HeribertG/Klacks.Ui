@@ -260,7 +260,7 @@ export class CalendarSelectorComponent
 
   private setCurrentSelector(): void {
     this.isFirstReadLocal = true;
-    const currentEntry = this.currentEntry();
+    const currentEntry = this.currentSelection();
     if (currentEntry) {
       this.dataManagementCalendarSelectionService.currentCalendarSelection =
         currentEntry;
@@ -268,6 +268,7 @@ export class CalendarSelectorComponent
     } else {
       this.dataManagementCalendarSelectionService.setCurrentOnEmpty();
     }
+    this.changeEvent.emit();
   }
 
   private setIdToLocalStorage(): void {
@@ -323,14 +324,14 @@ export class CalendarSelectorComponent
     this.dataManagementCalendarSelectionService?.readSChips(true);
   }
 
-  private hasName(): boolean {
+  private hasLastSelection(): boolean {
     return (
       this.localStorageService.get(this.calendarSelectionStorageKey) !== null
     );
   }
 
-  private currentEntry(): ICalendarSelection | undefined {
-    if (this.hasName()) {
+  private currentSelection(): ICalendarSelection | undefined {
+    if (this.hasLastSelection()) {
       const currentId = this.localStorageService.get(
         this.calendarSelectionStorageKey
       ) as string;
@@ -485,7 +486,6 @@ export class CalendarSelectorComponent
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
-      // 1) Wenn die Filterregeln geladen sind, Chips & Rule setzen
       const effect1 = effect(() => {
         if (this.dataManagementCalendarRulesService.isRead()) {
           this.resetCalendarRule();
@@ -495,26 +495,22 @@ export class CalendarSelectorComponent
       });
       this.effects.push(effect1);
 
-      // 2) Button‑State anpassen, wenn Selektion geändert wurde
       const effect2 = effect(() => {
         this.addButtonEnabled =
           this.dataManagementCalendarSelectionService.isChanged() ||
           this.shouldEnableAddButton;
       });
       this.effects.push(effect2);
-      // 3) Nach erstem Laden der Selektionen die gespeicherte Auswahl übernehmen
+
       const effect3 = effect(() => {
-        if (this.dataManagementCalendarSelectionService.isRead()) {
-          // erst View-Update abwarten
-          Promise.resolve().then(() => {
-            this.setCurrentSelector();
-            this.onChangeSelection();
-          });
+        const isRead = this.dataManagementCalendarSelectionService.isRead();
+        if (isRead) {
+          this.setCurrentSelector();
+          this.onChangeSelection();
         }
       });
       this.effects.push(effect3);
 
-      // 4) Wenn gerade neu angelegt, sofort speichern und Auswahl setzen
       const effect4 = effect(() => {
         const newSel = this.dataManagementCalendarSelectionService.isNew();
         if (newSel) {

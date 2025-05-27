@@ -14,6 +14,7 @@ import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CreateRowHeaderService } from '../services/create-row-header.service';
 import { DrawScheduleService } from '../services/draw-schedule.service';
 import { GridRenderService } from '../services/grid-render.service';
+import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -34,6 +35,7 @@ import { GridRenderService } from '../services/grid-render.service';
     DrawRowHeaderService,
     DrawScheduleService,
     GridRenderService,
+    HolidayCollectionService,
   ],
 })
 export class ScheduleHomeComponent {

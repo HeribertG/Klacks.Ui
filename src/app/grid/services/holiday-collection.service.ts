@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   PossibleHolidayRuleWrapper,
   PossibleHolidayRule,
@@ -8,16 +8,17 @@ import {
 } from 'src/app/core/calendar-rule-class';
 import { DataCalendarRuleService } from 'src/app/data/data-calendar-rule.service';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class HolidayCollectionService {
+  private dataCalendarRule = inject(DataCalendarRuleService);
+
   public isReset = signal(false);
-  holidays = new HolidaysListHelper();
+  public holidays = new HolidaysListHelper();
+  public possibleHolidayRule = new PossibleHolidayRuleWrapper();
 
-  possibleHolidayRule = new PossibleHolidayRuleWrapper();
+  private static readonly WAIT_TIME = 100;
 
-  constructor(private dataCalendarRule: DataCalendarRuleService) {
+  constructor() {
     this.holidays.currentYear = new Date().getFullYear();
   }
 
@@ -25,10 +26,9 @@ export class HolidayCollectionService {
     return this.holidays.currentYear;
   }
   set currentYear(value: number) {
+    this.isReset.set(false);
     this.holidays.currentYear = value;
-    this.holidays.computeHolidays();
-    this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    this.computeHolidays();
   }
 
   readData() {
@@ -47,18 +47,26 @@ export class HolidayCollectionService {
   }
 
   setSelection(values: StateCountryToken[]): void {
+    this.isReset.set(false);
     this.possibleHolidayRule.setFilter(values);
     this.holidays.clear();
     const rules = this.possibleHolidayRule.getFilterData().map((x) => x.rule);
     if (rules) {
       this.holidays.addRange(rules as ICalendarRule[]);
     }
-    this.holidays.computeHolidays();
-    this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    this.computeHolidays();
   }
 
   selection(): PossibleHolidayRule[] {
     return this.possibleHolidayRule.getFilterData();
+  }
+
+  private computeHolidays() {
+    this.holidays.computeHolidays();
+
+    setTimeout(
+      () => this.isReset.set(true),
+      HolidayCollectionService.WAIT_TIME
+    );
   }
 }
