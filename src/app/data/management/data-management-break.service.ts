@@ -105,7 +105,7 @@ export class DataManagementBreakService {
       value.clientId = client.id!;
       delete tmp.id;
       delete tmp.absence;
-      this.dataBreakService.addBreak(tmp).subscribe((x) => {
+      this.dataBreakService.addBreak(tmp).subscribe((x: IBreak) => {
         client.breaks.push(x);
         client.breaks = this.sortBreaks(client.breaks);
 

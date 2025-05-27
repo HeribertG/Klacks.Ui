@@ -268,7 +268,10 @@ export class CalendarSelectorComponent
     } else {
       this.dataManagementCalendarSelectionService.setCurrentOnEmpty();
     }
-    this.changeEvent.emit();
+    setTimeout(
+      () => this.changeEvent.emit(),
+      CalendarSelectorComponent.WAIT_TIME
+    );
   }
 
   private setIdToLocalStorage(): void {

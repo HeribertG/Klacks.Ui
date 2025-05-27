@@ -177,6 +177,7 @@ export class DrawCalendarGanttService {
   public get selectedBreak(): IBreak | undefined {
     return this.renderCalendarGrid.selectedBreak;
   }
+
   /* #endregion   draw */
 
   /* #region   draw intern */

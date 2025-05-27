@@ -1058,6 +1058,9 @@ export class AbsenceGanttSurfaceComponent
       const effect5 = effect(() => {
         const isUpdate = this.dataManagementBreak.isUpdate();
         if (isUpdate) {
+          this.drawCalendarGantt.selectedBreakIndex =
+            this.dataManagementBreak.indexOfBreak(isUpdate);
+
           this.onUpdateMask();
           this.cd.detectChanges();
         }
