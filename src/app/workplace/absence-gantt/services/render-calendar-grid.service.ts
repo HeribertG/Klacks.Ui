@@ -437,7 +437,7 @@ export class RenderCalendarGridService {
     );
   }
 
-  public drawRowIntern(index: number): void {
+  public drawRowIntern(index: number, isUndraw = false): void {
     const dy = index - this.scroll.verticalScrollPosition;
     const left =
       this.scroll.horizontalScrollPosition *
@@ -452,7 +452,7 @@ export class RenderCalendarGridService {
       top + height
     );
 
-    this.drawRowSubIntern(index, rowRec);
+    this.drawRowSubIntern(index, rowRec, isUndraw);
   }
 
   firstVisibleColumn(): number {
@@ -520,7 +520,11 @@ export class RenderCalendarGridService {
     );
   }
 
-  private drawRowSubIntern(index: number, rowRec: Rectangle): void {
+  private drawRowSubIntern(
+    index: number,
+    rowRec: Rectangle,
+    isUndraw: boolean
+  ): void {
     if (index < this.dataManagementBreak.rows) {
       // loads background in rowCtx
       this.ganttCanvasManager.rowCtx!.drawImage(
@@ -529,7 +533,12 @@ export class RenderCalendarGridService {
         0
       );
       // Draws all breaks in rowCtx
-      this.drawRowBreaks(index, this.selectedBreak);
+      if (isUndraw) {
+        this.drawRowBreaks(index, undefined);
+      } else {
+        this.drawRowBreaks(index, this.selectedBreak);
+      }
+
       // Draws rowCtx in ctx
       this.ganttCanvasManager.ctx!.drawImage(
         this.ganttCanvasManager.rowCanvas!,
@@ -949,13 +958,11 @@ export class RenderCalendarGridService {
 
         if (drawBreak) {
           try {
-            // Berechne Rectangle basierend auf Datums-Zeitraum
             const baseRec = this.calcDateRectangle(
               breakWithLayer.from as Date,
               breakWithLayer.until as Date
             );
 
-            // NEU: Passe Y-Position basierend auf Layer an (behält ursprüngliche Größe)
             const adjustedRec = this.calcLayeredRectangle(
               baseRec,
               breakWithLayer.layer
