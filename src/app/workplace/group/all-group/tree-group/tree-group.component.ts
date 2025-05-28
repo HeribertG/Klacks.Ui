@@ -14,7 +14,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { IconAddComponent } from 'src/app/icons/icon-add.component';
@@ -58,6 +58,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   private navigationService = inject(NavigationService);
   private injector = inject(Injector);
   private modalService = inject(ModalService);
+  public translate = inject(TranslateService);
 
   @Output() switchToGrid = new EventEmitter<void>();
 
@@ -169,11 +170,15 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deleteNode(node: Group): void {
-    this.modalService.deleteMessageTitle =
-      'group.tree.delete-confirmation.title';
-    this.modalService.deleteMessage = 'group.tree.delete-confirmation.message';
-    this.modalService.deleteMessageOkButton =
-      'group.tree.delete-confirmation.confirm';
+    this.modalService.deleteMessageTitle = this.translate.instant(
+      'group.tree.delete-confirmation.title'
+    );
+    this.modalService.deleteMessage = this.translate.instant(
+      'group.tree.delete-confirmation.message'
+    );
+    this.modalService.deleteMessageOkButton = this.translate.instant(
+      'group.tree.delete-confirmation.confirm'
+    );
     this.modalService.Filing = node.id!;
 
     this.modalService.openModel(ModalType.Delete);

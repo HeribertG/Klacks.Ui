@@ -204,7 +204,6 @@ export class DataManagementGroupService {
   deleteGroup(key: string): Observable<IGroup> {
     return this.dataGroupService.deleteGroup(key).pipe(
       map((response) => {
-        // Nach erfolgreichem Löschen aktualisieren wir den Baum
         this.initTree();
         return response;
       }),
@@ -229,7 +228,6 @@ export class DataManagementGroupService {
       description: '',
       validFrom: new Date(),
       parent: parentId,
-      // Lft/Rgt nicht mehr nötig
       depth: 0,
       clientsCount: 0,
       groupItems: [],

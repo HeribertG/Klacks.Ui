@@ -205,61 +205,61 @@ export class ResponseInterceptor implements HttpInterceptor {
 
   private getEntityInfo(url: string): { name: string; key: string } {
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ABSENCES)) {
-      return { name: 'Abwesenheit', key: 'ABSENCE' };
+      return { name: 'Absence', key: 'ABSENCE' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ASSIGNED_GROUPS)) {
-      return { name: 'Zugewiesene Gruppe', key: 'ASSIGNED_GROUP' };
+      return { name: 'Assigned Group', key: 'ASSIGNED_GROUP' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BANK_DETAILS)) {
-      return { name: 'Bankdetail', key: 'BANK_DETAIL' };
+      return { name: 'Bank Detail', key: 'BANK_DETAIL' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.BREAKS)) {
-      return { name: 'Pause', key: 'BREAK' };
+      return { name: 'Break', key: 'BREAK' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_RULES)) {
-      return { name: 'Kalenderregel', key: 'CALENDAR_RULE' };
+      return { name: 'Calendar Rule', key: 'CALENDAR_RULE' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CALENDAR_SELECTIONS)) {
-      return { name: 'Kalenderauswahl', key: 'CALENDAR_SELECTION' };
+      return { name: 'Calendar Selection', key: 'CALENDAR_SELECTION' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SELECTED_CALENDARS)) {
-      return { name: 'Ausgewählter Kalender', key: 'SELECTED_CALENDAR' };
+      return { name: 'Selected Calendar', key: 'SELECTED_CALENDAR' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.CLIENTS)) {
-      return { name: 'Klient', key: 'CLIENT' };
+      return { name: 'Client', key: 'CLIENT' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COUNTRIES)) {
-      return { name: 'Land', key: 'COUNTRY' };
+      return { name: 'Country', key: 'COUNTRY' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.STATES)) {
-      return { name: 'Bundesland', key: 'STATE' };
+      return { name: 'State', key: 'STATE' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.GROUPS)) {
-      return { name: 'Gruppe', key: 'GROUP' };
+      return { name: 'Group', key: 'GROUP' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.LOAD_FILE)) {
-      return { name: 'Datei', key: 'FILE' };
+      return { name: 'File', key: 'FILE' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.MACROS)) {
-      return { name: 'Makro', key: 'MACRO' };
+      return { name: 'Macro', key: 'MACRO' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.WORKS)) {
-      return { name: 'Arbeitszeit', key: 'WORK' };
+      return { name: 'Working Time', key: 'WORK' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SHIFTS)) {
-      return { name: 'Schicht', key: 'SHIFT' };
+      return { name: 'Shift', key: 'SHIFT' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.ADDRESSES)) {
-      return { name: 'Adresse', key: 'ADDRESS' };
+      return { name: 'Address', key: 'ADDRESS' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.COMMUNICATIONS)) {
-      return { name: 'Kommunikation', key: 'COMMUNICATION' };
+      return { name: 'Communication', key: 'COMMUNICATION' };
     }
     if (url.includes(ResponseInterceptor.ERROR_PATTERNS.SETTINGS)) {
-      return { name: 'Einstellung', key: 'SETTING' };
+      return { name: 'Setting', key: 'SETTING' };
     }
-
-    return { name: 'Eintrag', key: 'ENTRY' };
+    // ggf. Default-Fallback
+    return { name: 'Unknown Entity', key: 'UNKNOWN' };
   }
 
   private getOperationType(method: string): string {
@@ -285,28 +285,28 @@ export class ResponseInterceptor implements HttpInterceptor {
 
     switch (error.status) {
       case 400:
-        errorMessage = `Fehler beim ${operation}: Ungültige Daten`;
+        errorMessage = `Error during ${operation}: Invalid data`;
         break;
       case 401:
-        errorMessage = `Fehler beim ${operation}: Nicht autorisiert`;
+        errorMessage = `Error during ${operation}: Unauthorized`;
         break;
       case 403:
-        errorMessage = `Fehler beim ${operation}: Zugriff verweigert`;
+        errorMessage = `Error during ${operation}: Access denied`;
         break;
       case 404:
-        errorMessage = `Fehler beim ${operation}: Eintrag nicht gefunden`;
+        errorMessage = `Error during ${operation}: Entry not found`;
         break;
       case 409:
-        errorMessage = `Fehler beim ${operation}: Konflikt mit vorhandenen Daten`;
+        errorMessage = `Error during ${operation}: Conflict with existing data`;
         break;
       case 422:
-        errorMessage = `Fehler beim ${operation}: Validierungsfehler`;
+        errorMessage = `Error during ${operation}: Validation error`;
         break;
       case 500:
-        errorMessage = `Fehler beim ${operation}: Serverfehler`;
+        errorMessage = `Error during ${operation}: Server error`;
         break;
       default:
-        errorMessage = `Unbekannter Fehler beim ${operation}`;
+        errorMessage = `Unknown error during ${operation}`;
     }
 
     // Zusätzliche Details aus der Server-Response wenn verfügbar

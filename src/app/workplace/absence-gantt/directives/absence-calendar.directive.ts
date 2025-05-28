@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Directive, ElementRef, HostListener, NgZone } from '@angular/core';
 
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
-import { Rectangle } from '../../../grid/classes/geometry';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 
 @Directive({
@@ -18,7 +18,6 @@ export class AbsenceCalendarDirective {
 
   constructor(
     private el: ElementRef,
-    private zone: NgZone,
     private gridBody: AbsenceGanttSurfaceComponent,
     private drawCalendarGanttService: DrawCalendarGanttService
   ) {}
@@ -31,18 +30,6 @@ export class AbsenceCalendarDirective {
     event: MouseEvent
   ): void {
     this.gridBody.destroyToolTip();
-
-    const rect = new Rectangle();
-    // this.gridBody.clientLeft,
-    // this.gridBody.clientTop,
-    // this.gridBody.clientWidth,
-    // this.gridBody.clientHeight
-    if (
-      !rect.pointInRect(event.clientX, event.clientY) &&
-      this.gridBody.contextMenu
-    ) {
-      this.gridBody.contextMenu.closeMenu();
-    }
   }
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(
@@ -111,7 +98,6 @@ export class AbsenceCalendarDirective {
   }
 
   @HostListener('dblclick', ['$event']) onMouseDoubleClick(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     event: MouseEvent
   ): void {
     this.gridBody.setFocus();
