@@ -96,6 +96,32 @@ export class AbsenceGanttMaskComponent
       });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.selectedBreak) {
+      this.tabId = 'mask';
+    }
+    if (this.selectedRow > -1 && !this.selectedBreak) {
+      this.tabId = 'list';
+    }
+
+    this.page = this.selectedBreakIndex! + 1;
+    if (this.selectedBreak) {
+      this.selectedBreak.internalFrom = transformDateToNgbDateStruct(
+        this.selectedBreak.from!
+      );
+      this.selectedBreak.internalUntil = transformDateToNgbDateStruct(
+        this.selectedBreak.until!
+      );
+    }
+    this.selectedBreak_dummy = undefined;
+    if (this.selectedBreak) {
+      this.selectedBreak_dummy = cloneObject<Break>(
+        this.selectedBreak as Break
+      );
+    }
+  }
+
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -149,25 +175,6 @@ export class AbsenceGanttMaskComponent
       }
     }
     return undefined;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ngOnChanges(changes: SimpleChanges): void {
-    this.page = this.selectedBreakIndex! + 1;
-    if (this.selectedBreak) {
-      this.selectedBreak.internalFrom = transformDateToNgbDateStruct(
-        this.selectedBreak.from!
-      );
-      this.selectedBreak.internalUntil = transformDateToNgbDateStruct(
-        this.selectedBreak.until!
-      );
-    }
-    this.selectedBreak_dummy = undefined;
-    if (this.selectedBreak) {
-      this.selectedBreak_dummy = cloneObject<Break>(
-        this.selectedBreak as Break
-      );
-    }
   }
 
   onChange() {

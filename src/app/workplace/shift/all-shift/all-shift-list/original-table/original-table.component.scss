@@ -61,15 +61,10 @@ tr.selected-row.hover-row td {
 thead {
   th {
     padding: 6px 8px;
-    font-weight: 600;
+
     text-align: center;
     border: 1px solid var(--colorLine);
-    background: linear-gradient(
-      to bottom,
-      var(--gridBackgroundColorRowHover),
-      var(--backgroundColorWindow)
-    );
-    position: sticky;
+    background: var(--backgroundColorHeaderNav);
     top: 0;
     z-index: 10;
   }

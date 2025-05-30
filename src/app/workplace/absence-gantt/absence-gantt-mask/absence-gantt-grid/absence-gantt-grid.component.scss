@@ -20,3 +20,10 @@
 .with20 {
   width: 20px;
 }
+
+#myTable thead th {
+  position: sticky;
+  top: 40px;
+  background: var(--backgroundColorHeaderNav);
+  z-index: 10;
+}

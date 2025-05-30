@@ -94,12 +94,4 @@ export class DataManagementAbsenceService {
     await lastValueFrom(this.dataAbsenceService.updateAbsence(item));
     this.readPage(language);
   }
-
-  exportExcel(language: string) {
-    this.dataLoadFileService.downloadAbsenceExcel(language);
-    this.toastShowService.showInfo(
-      MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
-      'PLEASE_BE_PATIENT_EXCEL'
-    );
-  }
 }

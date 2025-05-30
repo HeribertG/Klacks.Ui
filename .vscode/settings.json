@@ -1,13 +1,16 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "cSpell.words": [
+    "APPVERSION",
     "Ausgabe",
     "ausgewählten",
     "basierend",
     "Berechne",
     "diese",
     "dieser",
+    "Endpunkte",
     "erstellt",
+    "erwarteter",
     "erzwingen",
     "existiert",
     "Explizites",
@@ -17,6 +20,7 @@
     "neue",
     "Neuzeichnen",
     "nötig",
+    "REFRESHTOKEN",
     "Schaut",
     "sein",
     "seit",
@@ -24,6 +28,8 @@
     "sollte",
     "Spalte",
     "Spalten",
+    "spezifische",
+    "spezifischer",
     "ursprünglichen",
     "Zeile"
   ]

@@ -97,33 +97,6 @@ export class DataLoadFileService {
       });
   }
 
-  downloadAbsenceExcel(language: string) {
-    return this.httpClient
-      .get(
-        `${environment.baseUrl}Absences/CreateExcelFile?language=` + language,
-        {
-          responseType: 'blob',
-        }
-      )
-      .pipe()
-      .subscribe((response) => FileSaver.saveAs(response, 'Absence.xlsx'));
-  }
-
-  downloadCalendarRulesExcel(filter: CalendarRulesFilter) {
-    return this.httpClient
-      .post(
-        `${environment.baseUrl}Settings/CalendarRule/CreateExcelFile/`,
-        filter,
-        {
-          responseType: 'blob',
-        }
-      )
-      .pipe()
-      .subscribe((response) =>
-        FileSaver.saveAs(response, 'Feiertagsregeln.xlsx')
-      );
-  }
-
   private createImageFromBlob(image: Blob) {
     if (image.type === 'text/plain') {
       this.profileImage = undefined;

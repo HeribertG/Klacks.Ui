@@ -1,11 +1,12 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="mask-container">
-  <div *ngIf="selectedBreak" class="mask">
+  <div *ngIf="selectedRow > -1" class="mask">
     <div class="mask-header custom-control-inline">
       <ul class="nav nav-tabs">
         <li class="nav-item">
           <a
+            *ngIf="selectedBreak"
             class="nav-link"
             [ngClass]="{ active: tabId === 'mask' }"
             (click)="tabId = 'mask'"
@@ -41,11 +42,14 @@
       </ul>
       <span class="filler"></span>
       <div [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }">
-        <app-icon-pdf-icon></app-icon-pdf-icon>
+        <div class="pdf-icon">
+          <app-icon-pdf-icon></app-icon-pdf-icon>
+        </div>
       </div>
     </div>
 
     <div
+      *ngIf="selectedBreak"
       class="collapse"
       [ngStyle]="{ display: tabId === 'mask' ? 'inline' : 'none' }"
     >

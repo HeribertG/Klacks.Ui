@@ -159,9 +159,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.highlightRowId = value.id;
   }
 
-  onClickDownloadExcel(): void {
-    this.dataManagementAbsenceService.exportExcel(this.currentLang);
-  }
+  onClickDownloadExcel() {}
 
   /* #region Filter */
   onOpenChange(event: boolean): void {

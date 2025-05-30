@@ -94,7 +94,6 @@ export class ResponseInterceptor implements HttpInterceptor {
       return this.handleApiError(error, method, url);
     }
 
-    // Legacy Image Loading Errors (für Rückwärtskompatibilität)
     if (this.isImageLoadingError(url, error.status)) {
       return this.handleImageLoadingError();
     }
@@ -159,7 +158,6 @@ export class ResponseInterceptor implements HttpInterceptor {
       'LastChangeMetaData',
       'Count',
       'NewEntries',
-      'CreateExcelFile',
       'GetSimpleCalendarRuleList',
       'GetCalendarRuleList',
       'GetRuleTokenList',
@@ -425,6 +423,8 @@ export class ResponseInterceptor implements HttpInterceptor {
   private handleGenericError(error: HttpErrorResponse): Observable<never> {
     console.error('HTTP Error:', error);
     switch (error.status) {
+      case 401: // wird vom TokenRefreshInterceptor behandelt
+        break;
       case 404:
         this.toastShowService.showError('404 Not Found');
         break;

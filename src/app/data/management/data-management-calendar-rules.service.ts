@@ -154,13 +154,7 @@ export class DataManagementCalendarRulesService {
     });
   }
 
-  exportExcel() {
-    this.dataLoadFileService.downloadCalendarRulesExcel(this.currentFilter);
-    this.toastShowService.showInfo(
-      MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
-      'PLEASE_BE_PATIENT_EXCEL'
-    );
-  }
+  exportExcel() {}
 
   private isFilter_Dirty(): boolean {
     const a = this.currentFilter as CalendarRulesFilter;
