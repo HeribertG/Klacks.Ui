@@ -40,22 +40,36 @@
                   <app-schedule-schedule-surface
                     #scheduleBody
                     [rowHeader]="scheduleRowHeader"
-                    [vScrollbar]="vScrollbar"
-                    [hScrollbar]="hScrollbar"
+                    [valueChangeHScrollbar]="hScrollbar.value"
+                    (valueHScrollbar)="hScrollbar.value = $event"
+                    (maxValueHScrollbar)="hScrollbar.maxValue = $event"
+                    (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
+                    [valueChangeVScrollbar]="vScrollbar.value"
+                    (valueVScrollbar)="vScrollbar.value = $event"
+                    (maxValueVScrollbar)="vScrollbar.maxValue = $event"
+                    (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
                   ></app-schedule-schedule-surface>
                 </div>
                 <div class="vScrollArea">
-                  <app-schedule-v-scrollbar
+                  <app-v-scrollbar
+                    class="vScrollArea"
+                    [(value)]="vScrollbar.value"
+                    [maxValue]="vScrollbar.maxValue"
+                    [visibleValue]="vScrollbar.visibleValue"
+                    (valueChange)="scheduleBody.valueChangeVScrollbar = $event"
                     #vScrollbar
-                    [scheduleBody]="scheduleBody"
-                  ></app-schedule-v-scrollbar>
+                  ></app-v-scrollbar>
                 </div>
               </div>
               <div class="hScrollArea">
-                <app-schedule-h-scrollbar
+                <app-h-scrollbar
+                  class="hScrollArea"
+                  [(value)]="hScrollbar.value"
+                  [maxValue]="hScrollbar.maxValue"
+                  [visibleValue]="hScrollbar.visibleValue"
+                  (valueChange)="scheduleBody.valueChangeHScrollbar = $event"
                   #hScrollbar
-                  [scheduleBody]="scheduleBody"
-                ></app-schedule-h-scrollbar>
+                ></app-h-scrollbar>
               </div>
             </div>
           </as-split-area>
@@ -87,7 +101,7 @@
                   <app-schedule-shift-surface></app-schedule-shift-surface>
                 </div>
                 <div class="vScrollArea">
-                  <app-schedule-v-scrollbar></app-schedule-v-scrollbar>
+                  <!-- <app-schedule-v-scrollbar></app-schedule-v-scrollbar> -->
                 </div>
               </div>
             </div>

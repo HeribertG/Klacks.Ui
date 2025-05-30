@@ -7,7 +7,6 @@ import {
   inject,
 } from '@angular/core';
 import { DataService } from '../services/data.service';
-import { ScrollService } from '../services/scroll.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../services/settings.service';
@@ -21,6 +20,7 @@ import { CreateRowHeaderService } from '../services/create-row-header.service';
 import { CreateHeaderService } from '../services/create-header.service';
 import { GridRenderService } from '../services/grid-render.service';
 import { DrawScheduleService } from '../services/draw-schedule.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',

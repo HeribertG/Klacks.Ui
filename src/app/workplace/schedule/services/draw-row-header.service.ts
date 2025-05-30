@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { ScrollService } from './scroll.service';
 import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { SettingsService } from './settings.service';
@@ -10,9 +9,19 @@ import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-hea
 import { CreateHeaderService } from './create-header.service';
 import { DataService } from './data.service';
 import { CreateRowHeaderService } from './create-row-header.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Injectable()
 export class DrawRowHeaderService {
+  public cellManipulation = inject(CellManipulationService);
+  public gridData = inject(DataService);
+  public createRowHeader = inject(CreateRowHeaderService);
+  private gridColors = inject(GridColorService);
+  private scroll = inject(ScrollService);
+  private gridSettings = inject(GridSettingsService);
+  private settings = inject(SettingsService);
+  private createHeader = inject(CreateHeaderService);
+
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;
   public headerCanvas: HTMLCanvasElement | undefined;
@@ -37,17 +46,6 @@ export class DrawRowHeaderService {
 
   private _height = 10;
   private _width = 10;
-
-  constructor(
-    public cellManipulation: CellManipulationService,
-    public gridData: DataService,
-    public createRowHeader: CreateRowHeaderService,
-    private gridColors: GridColorService,
-    private scroll: ScrollService,
-    private gridSettings: GridSettingsService,
-    private settings: SettingsService,
-    private createHeader: CreateHeaderService
-  ) {}
 
   /* #region initial/final */
 

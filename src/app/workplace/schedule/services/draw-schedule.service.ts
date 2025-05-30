@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, NgZone } from '@angular/core';
+import { inject, Injectable, NgZone } from '@angular/core';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { ScrollService } from './scroll.service';
 import { SettingsService } from './settings.service';
 import { CellManipulationService } from './cell-manipulation.service';
 import { MyPosition } from 'src/app/grid/classes/position';
-import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
-import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
@@ -17,35 +14,33 @@ import { CanvasManagerService } from './canvas-manager.service';
 import { GridRenderService } from './grid-render.service';
 import { CellRenderService } from './cell-render.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Injectable()
 export class DrawScheduleService {
+  public cellManipulation = inject(CellManipulationService);
+  public gridData = inject(DataService);
+  public createRowHeader = inject(CreateRowHeaderService);
+
+  private gridColors = inject(GridColorService);
+  private scroll = inject(ScrollService);
+  private settings = inject(SettingsService);
+  private createHeader = inject(CreateHeaderService);
+  private createCell = inject(CreateCellService);
+  private zone = inject(NgZone);
+  private canvasManager = inject(CanvasManagerService);
+  private gridRender = inject(GridRenderService);
+  private cellRender = inject(CellRenderService);
+
   public startDate: Date = new Date();
 
   public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
-  public vScrollbar: ScheduleVScrollbarComponent | undefined;
-  public hScrollbar: ScheduleHScrollbarComponent | undefined;
   public recFilterIcon: Rectangle = new Rectangle();
   public filterImage: HTMLImageElement | undefined;
 
   private readonly BORDER_OFFSET = 4;
 
   private _isFocused = true;
-
-  constructor(
-    public cellManipulation: CellManipulationService,
-    public gridData: DataService,
-    public createRowHeader: CreateRowHeaderService,
-    private gridColors: GridColorService,
-    private scroll: ScrollService,
-    private settings: SettingsService,
-    private createHeader: CreateHeaderService,
-    private createCell: CreateCellService,
-    private zone: NgZone,
-    private canvasManager: CanvasManagerService,
-    private gridRender: GridRenderService,
-    private cellRender: CellRenderService
-  ) {}
 
   /* #region initial/final */
   public createCanvas() {
@@ -82,12 +77,12 @@ export class DrawScheduleService {
     if (this.existData) {
       const visibleRows: number = this.updateVisibleRow();
       const visibleCols: number = this.updateVisibleCol();
-      this.scroll.setMetrics(
-        visibleCols,
-        this.gridData.columns,
-        visibleRows,
-        this.gridData.rows
-      );
+      // this.scroll.setMetrics(
+      //   visibleCols,
+      //   this.gridData.columns,
+      //   visibleRows,
+      //   this.gridData.rows
+      // );
     }
   }
 
@@ -117,16 +112,6 @@ export class DrawScheduleService {
     return this._isFocused;
   }
 
-  @CanvasAvailable('queue')
-  private refreshScroll() {
-    if (this.vScrollbar) {
-      this.vScrollbar.refresh();
-    }
-    if (this.hScrollbar) {
-      this.hScrollbar.refresh();
-    }
-  }
-
   public isCanvasAvailable(): boolean {
     return this.canvasManager.isCanvasAvailable();
   }
@@ -140,7 +125,6 @@ export class DrawScheduleService {
     this.setMetrics();
     this.gridRender.drawGridHeader(this.gridData.columns);
     this.drawGrid();
-    this.refreshScroll();
   }
 
   @CanvasAvailable('queue')
@@ -308,7 +292,6 @@ export class DrawScheduleService {
           this.firstVisibleRow,
           this.firstVisibleCol
         );
-        this.refreshScroll();
       }
 
       if (this.rowHeader) {
@@ -349,10 +332,6 @@ export class DrawScheduleService {
     visibleRow: number,
     visibleCol: number
   ) {
-    if (this.hScrollbar) {
-      this.hScrollbar.value = this.firstVisibleCol;
-    }
-
     const diff = this.scroll.horizontalScrollDelta;
     if (diff === 0) return;
     console.log('horizontalScrollDelta:', diff);
@@ -376,10 +355,6 @@ export class DrawScheduleService {
     visibleRow: number,
     visibleCol: number
   ) {
-    if (this.vScrollbar) {
-      this.vScrollbar.value = this.firstVisibleRow;
-    }
-
     const diff = this.scroll.verticalScrollDelta;
     if (diff === 0) return;
 

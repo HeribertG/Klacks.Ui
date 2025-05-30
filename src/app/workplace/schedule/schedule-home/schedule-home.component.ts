@@ -3,7 +3,6 @@ import { Component, Input } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { DataService } from '../services/data.service';
-import { ScrollService } from '../services/scroll.service';
 import { SettingsService } from '../services/settings.service';
 import { CanvasManagerService } from '../services/canvas-manager.service';
 import { CellManipulationService } from '../services/cell-manipulation.service';
@@ -15,6 +14,8 @@ import { CreateRowHeaderService } from '../services/create-row-header.service';
 import { DrawScheduleService } from '../services/draw-schedule.service';
 import { GridRenderService } from '../services/grid-render.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -36,6 +37,7 @@ import { HolidayCollectionService } from 'src/app/grid/services/holiday-collecti
     DrawScheduleService,
     GridRenderService,
     HolidayCollectionService,
+    ScrollbarService,
   ],
 })
 export class ScheduleHomeComponent {

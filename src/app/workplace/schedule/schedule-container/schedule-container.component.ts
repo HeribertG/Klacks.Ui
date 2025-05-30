@@ -10,12 +10,12 @@ import {
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { Subject, takeUntil } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
-import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 import { ScheduleShiftSurfaceComponent } from '../schedule-shift-surface/schedule-shift-surface.component';
 import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/schedule-shift-row-header.component';
+import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
+import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 
 @Component({
   selector: 'app-schedule-container',
@@ -25,12 +25,12 @@ import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/sc
   imports: [
     CommonModule,
     AngularSplitModule,
-    ScheduleHScrollbarComponent,
-    ScheduleVScrollbarComponent,
     ScheduleScheduleRowHeaderComponent,
     ScheduleScheduleSurfaceComponent,
     ScheduleShiftRowHeaderComponent,
     ScheduleShiftSurfaceComponent,
+    HScrollbarComponent,
+    VScrollbarComponent,
   ],
 })
 export class ScheduleContainerComponent implements AfterViewInit, OnDestroy {

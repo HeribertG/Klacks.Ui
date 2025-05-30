@@ -91,14 +91,14 @@ export function localeFactory(localeService: LocaleService) {
     ToastsContainerComponent,
   ],
   providers: [
-    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenRefreshInterceptor,
       multi: true,
     },
-    { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
+    { provide: NgbDatepickerI18n, useClass: CustomDatepickerI18n },
     { provide: AppErrorHandler, useClass: AppErrorHandler },
     { provide: CanDeactivateGuard, useClass: CanDeactivateGuard },
     { provide: NgbDateParserFormatter, useClass: NgbDateCustomParserFormatter },

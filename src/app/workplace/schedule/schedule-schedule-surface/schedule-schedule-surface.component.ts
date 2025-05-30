@@ -4,19 +4,18 @@ import {
   Component,
   EffectRef,
   ElementRef,
+  EventEmitter,
   Input,
   OnDestroy,
   OnInit,
+  Output,
   ViewChild,
   effect,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
-import { ScheduleHScrollbarComponent } from '../schedule-h-scrollbar/schedule-h-scrollbar.component';
-import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { Subject, takeUntil } from 'rxjs';
-import { ScrollService } from '../services/scroll.service';
 import { DrawScheduleService } from '../services/draw-schedule.service';
 import { DataService } from '../services/data.service';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -33,6 +32,7 @@ import { CreateHeaderService } from '../services/create-header.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CreateRowHeaderService } from '../services/create-row-header.service';
 import { GridRenderService } from '../services/grid-render.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
   selector: 'app-schedule-schedule-surface',
@@ -60,8 +60,15 @@ export class ScheduleScheduleSurfaceComponent
 {
   @Input() contextMenu: ContextMenuComponent | undefined;
   @Input() rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
-  @Input() vScrollbar: ScheduleVScrollbarComponent | undefined;
-  @Input() hScrollbar: ScheduleHScrollbarComponent | undefined;
+  @Input() valueChangeHScrollbar!: number;
+  @Input() valueChangeVScrollbar!: number;
+
+  @Output() valueHScrollbar = new EventEmitter<number>();
+  @Output() maxValueHScrollbar = new EventEmitter<number>();
+  @Output() visibleValueHScrollbar = new EventEmitter<number>();
+  @Output() valueVScrollbar = new EventEmitter<number>();
+  @Output() maxValueVScrollbar = new EventEmitter<number>();
+  @Output() visibleValueVScrollbar = new EventEmitter<number>();
   @ViewChild('boxSchedule') boxSchedule!: ElementRef<HTMLDivElement>;
 
   public selectedArea: SelectedArea = SelectedArea.None;
@@ -100,13 +107,6 @@ export class ScheduleScheduleSurfaceComponent
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
-    if (this.vScrollbar) {
-      this.drawSchedule.vScrollbar = this.vScrollbar;
-    }
-    if (this.hScrollbar) {
-      this.drawSchedule.hScrollbar = this.hScrollbar;
-    }
-
     if (this.rowHeader) {
       this.drawSchedule.rowHeader = this.rowHeader;
     }
@@ -133,8 +133,6 @@ export class ScheduleScheduleSurfaceComponent
     this.ngUnsubscribe.complete();
 
     this.drawSchedule.deleteCanvas();
-    this.drawSchedule.vScrollbar = undefined;
-    this.drawSchedule.hScrollbar = undefined;
     this.drawSchedule.rowHeader = undefined;
 
     this.effects.forEach((effectRef) => {
@@ -170,7 +168,6 @@ export class ScheduleScheduleSurfaceComponent
       const entry = entries[0];
       this.updateDrawScheduleDimensions(entry.target as HTMLElement);
       this.checkPixelRatio();
-      this.resizeScrollbars();
     }
   }
 
@@ -187,15 +184,6 @@ export class ScheduleScheduleSurfaceComponent
       this.drawSchedule.createCanvas();
       this.drawSchedule.rebuild();
       this.drawSchedule.redraw();
-    }
-  }
-
-  private resizeScrollbars(): void {
-    if (this.vScrollbar) {
-      this.vScrollbar.resize();
-    }
-    if (this.hScrollbar) {
-      this.hScrollbar.resize();
     }
   }
 

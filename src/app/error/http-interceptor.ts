@@ -307,7 +307,6 @@ export class ResponseInterceptor implements HttpInterceptor {
         errorMessage = `Unknown error during ${operation}`;
     }
 
-    // Zusätzliche Details aus der Server-Response wenn verfügbar
     if (error.error?.message) {
       errorMessage += `\nDetails: ${error.error.message}`;
     }

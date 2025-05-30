@@ -1,14 +1,12 @@
 import { Component, ElementRef, inject, Input } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
-import { ScheduleVScrollbarComponent } from '../schedule-v-scrollbar/schedule-v-scrollbar.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { ScrollService } from '../services/scroll.service';
 import { CommonModule } from '@angular/common';
-
 import { SharedModule } from 'src/app/shared/shared.module';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
   selector: 'app-schedule-shift-surface',
@@ -19,7 +17,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 })
 export class ScheduleShiftSurfaceComponent {
   @Input() contextMenu: ContextMenuComponent | undefined;
-  @Input() vScrollbar: ScheduleVScrollbarComponent | undefined;
 
   public holidayCollection = inject(HolidayCollectionService);
   public scroll = inject(ScrollService);
@@ -77,10 +74,6 @@ export class ScheduleShiftSurfaceComponent {
 
       this.deleteCanvas();
       this.createCanvas();
-    }
-
-    if (this.vScrollbar) {
-      this.vScrollbar.resize();
     }
 
     this.onResize();

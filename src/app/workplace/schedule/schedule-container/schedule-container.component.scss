@@ -1,5 +1,7 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
+$scrollbar-size: 17px;
+
 .info {
   background-color: yellow;
   height: 100%;
@@ -27,16 +29,14 @@
     }
 
     .vScrollArea {
-      background-color: greenyellow;
-      width: 20px;
+      width: #{$scrollbar-size};
       height: 100%;
     }
   }
 
   .hScrollArea {
-    background-color: greenyellow;
-    width: calc(100% - 20px);
-    height: 20px;
+    width: calc(100% - #{$scrollbar-size});
+    height: #{$scrollbar-size};
   }
 }
 
@@ -58,7 +58,7 @@
     }
 
     .vScrollArea {
-      width: 20px;
+      width: #{$scrollbar-size};
       height: 100%;
     }
   }

@@ -1,5 +1,5 @@
 import { WeekDay } from '@angular/common';
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
 import { IClientWork } from 'src/app/core/schedule-class';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
@@ -13,11 +13,16 @@ import {
   addDays,
   getDaysInMonth,
 } from 'src/app/helpers/format-helper';
-import { ScrollService } from './scroll.service';
 import { Subject } from 'rxjs';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Injectable()
 export class DataService {
+  public dataManagementSchedule = inject(DataManagementScheduleService);
+  public holidayCollection = inject(HolidayCollectionService);
+  private gridSetting = inject(GridSettingsService);
+  private gridScroll = inject(ScrollService);
+
   public refreshEvent = new Subject<boolean>();
 
   public rowEmployeeIndex: number[] = new Array<number>();
@@ -26,13 +31,6 @@ export class DataService {
 
   private rowsNumber = 0;
   private columnsNumber = 0;
-
-  constructor(
-    public dataManagementSchedule: DataManagementScheduleService,
-    public holidayCollection: HolidayCollectionService,
-    private gridSetting: GridSettingsService,
-    private gridScroll: ScrollService
-  ) {}
 
   setMetrics(): void {
     this.initializeDateAndColumns();
