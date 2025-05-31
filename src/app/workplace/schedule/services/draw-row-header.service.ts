@@ -126,6 +126,7 @@ export class DrawRowHeaderService {
 
   private setMetrics() {
     if (this.isCanvasAvailable()) {
+      this.gridData.rowEmployeeIndex;
       // const visibleRows: number = this.visibleRow() - 1;
       // const visibleCols: number = this.UpdateVisibleCol() - 1;
     }
@@ -440,13 +441,42 @@ export class DrawRowHeaderService {
   /* #endregion position and selection */
 
   private get existData(): boolean {
+    console.log('🔍 Checking existData:');
+    console.log('  gridData:', !!this.gridData);
+    console.log('  gridData.rows:', this.gridData?.rows);
+    console.log(
+      '  dataManagementSchedule:',
+      !!this.gridData?.dataManagementSchedule
+    );
+    console.log(
+      '  clients:',
+      this.gridData?.dataManagementSchedule?.clients?.length
+    );
+
     if (!this.gridData) {
-      return false;
-    }
-    if (!this.gridData.rows) {
+      console.log('❌ No gridData');
       return false;
     }
 
+    if (!this.gridData.dataManagementSchedule) {
+      console.log('❌ No dataManagementSchedule');
+      return false;
+    }
+
+    if (
+      !this.gridData.dataManagementSchedule.clients ||
+      this.gridData.dataManagementSchedule.clients.length === 0
+    ) {
+      console.log('❌ No clients data');
+      return false;
+    }
+
+    if (!this.gridData.rows || this.gridData.rows === 0) {
+      console.log('❌ No rows data');
+      return false;
+    }
+
+    console.log('✅ existData returns true');
     return true;
   }
 

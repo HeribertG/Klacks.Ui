@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -33,7 +33,7 @@ import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component
     ChooseCalendarComponent,
     ScheduleHeaderCalendarComponent,
   ],
-  providers: [SettingsService],
+  providers: [],
 })
 export class ScheduleHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
@@ -46,14 +46,14 @@ export class ScheduleHeaderComponent implements OnInit {
     showSelectionBar: false,
   };
 
+  private holidayCollection = inject(HolidayCollectionService);
+  private dataManagementCalendarSelectionService = inject(
+    DataManagementCalendarSelectionService
+  );
+  private settings = inject(SettingsService);
+
   currentYear: number = new Date().getFullYear();
   maxYear: number = this.currentYear + 30;
-
-  constructor(
-    private holidayCollection: HolidayCollectionService,
-    private dataManagementCalendarSelectionService: DataManagementCalendarSelectionService,
-    private settings: SettingsService
-  ) {}
 
   ngOnInit(): void {
     this.settings.zoom = parseFloat((this.value / 100).toFixed(1));

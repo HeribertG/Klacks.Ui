@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -5,12 +6,16 @@ import {
   EffectRef,
   ElementRef,
   EventEmitter,
+  Injector,
   Input,
+  OnChanges,
   OnDestroy,
   OnInit,
   Output,
   ViewChild,
   effect,
+  inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
@@ -43,7 +48,6 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   providers: [
     DataService,
     ScrollService,
-    SettingsService,
     CanvasManagerService,
     CellManipulationService,
     CellRenderService,
@@ -56,7 +60,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   ],
 })
 export class ScheduleScheduleSurfaceComponent
-  implements OnInit, AfterViewInit, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() contextMenu: ContextMenuComponent | undefined;
   @Input() rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
@@ -71,6 +75,15 @@ export class ScheduleScheduleSurfaceComponent
   @Output() visibleValueVScrollbar = new EventEmitter<number>();
   @ViewChild('boxSchedule') boxSchedule!: ElementRef<HTMLDivElement>;
 
+  public dataManagementSchedule = inject(DataManagementScheduleService);
+  public dataService = inject(DataService);
+  public scroll = inject(ScrollService);
+  public drawSchedule = inject(DrawScheduleService);
+  private el = inject(ElementRef);
+  private settings = inject(SettingsService);
+  private cdr = inject(ChangeDetectorRef);
+  private injector = inject(Injector);
+
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
 
@@ -80,20 +93,10 @@ export class ScheduleScheduleSurfaceComponent
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  constructor(
-    public dataManagementSchedule: DataManagementScheduleService,
-    public dataService: DataService,
-    public scroll: ScrollService,
-    public drawSchedule: DrawScheduleService,
-    private el: ElementRef,
-    private settings: SettingsService,
-    private cdr: ChangeDetectorRef
-  ) {
-    this.readSignals();
-  }
-
   /* #region ng */
   ngOnInit(): void {
+    this.readSignals();
+
     this._pixelRatio = DrawHelper.pixelRatio();
 
     this.drawSchedule.refresh();
@@ -115,6 +118,7 @@ export class ScheduleScheduleSurfaceComponent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
         this.drawSchedule.redraw();
+        this.updateScrollbarValues();
       });
 
     this.settings.zoomChangingEvent
@@ -123,6 +127,7 @@ export class ScheduleScheduleSurfaceComponent
         this.drawSchedule.createCanvas();
         this.drawSchedule.rebuild();
         this.drawSchedule.redraw();
+        this.updateScrollbarValues();
       });
 
     this.cdr.detectChanges();
@@ -143,6 +148,28 @@ export class ScheduleScheduleSurfaceComponent
     this.effects = [];
   }
 
+  ngOnChanges(changes: any): void {
+    let vDirection = false;
+    let hDirection = false;
+
+    if (changes['valueChangeHScrollbar']) {
+      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
+      hDirection = true;
+    }
+
+    if (changes['valueChangeVScrollbar']) {
+      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+      vDirection = true;
+    }
+
+    if (vDirection || hDirection) {
+      this.drawSchedule.moveGrid(
+        hDirection ? this.scroll.horizontalScrollDelta : 0,
+        vDirection ? this.scroll.verticalScrollDelta : 0
+      );
+    }
+  }
+
   /* #endregion ng */
 
   /* #region   resize+visibility */
@@ -153,6 +180,7 @@ export class ScheduleScheduleSurfaceComponent
     this.drawSchedule.width = box.clientWidth;
     this.drawSchedule.height = box.clientHeight;
     this.drawSchedule.refresh();
+    this.updateScrollbarValues();
   }
 
   setFocus(): void {
@@ -168,6 +196,7 @@ export class ScheduleScheduleSurfaceComponent
       const entry = entries[0];
       this.updateDrawScheduleDimensions(entry.target as HTMLElement);
       this.checkPixelRatio();
+      this.updateScrollbarValues();
     }
   }
 
@@ -189,6 +218,42 @@ export class ScheduleScheduleSurfaceComponent
 
   /* #endregion   resize+visibility */
 
+  /* #endregion   render */
+
+  /* #region Scrollbar Integration */
+  private updateScrollbarValues(): void {
+    this.updateHorizontalScrollbarValues();
+    this.updateVerticalScrollbarValues();
+  }
+
+  private updateHorizontalScrollbarValues(): void {
+    this.maxValueHScrollbar.emit(this.dataService.columns);
+    this.visibleValueHScrollbar.emit(this.calculateVisibleColumns());
+    this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
+  }
+
+  private updateVerticalScrollbarValues(): void {
+    this.maxValueVScrollbar.emit(this.dataService.rows);
+    this.visibleValueVScrollbar.emit(this.calculateVisibleRows());
+    this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
+  }
+
+  private calculateVisibleColumns(): number {
+    if (!this.drawSchedule.isCanvasAvailable()) {
+      return 1;
+    }
+    return Math.ceil(this.drawSchedule.width / this.settings.cellWidth);
+  }
+
+  private calculateVisibleRows(): number {
+    if (!this.drawSchedule.isCanvasAvailable()) {
+      return 1;
+    }
+    return Math.ceil(this.drawSchedule.height / this.settings.cellHeight);
+  }
+
+  /* #endregion Scrollbar Integration */
+
   /* #region   render */
 
   /**
@@ -199,6 +264,8 @@ export class ScheduleScheduleSurfaceComponent
    */
   moveGrid(directionX: number, directionY: number): void {
     this.drawSchedule.moveGrid(directionX, directionY);
+    this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
+    this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
   }
 
   /* #endregion   render */
@@ -209,7 +276,6 @@ export class ScheduleScheduleSurfaceComponent
   // including its appearance, hiding, and removal,
   // as well as animation effects for an enhanced user experience.
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showToolTip({ value, event }: { value: any; event: MouseEvent }) {
     if (this.tooltip && this.tooltip.innerHTML !== value) {
       this.tooltip.innerHTML = value;
@@ -341,11 +407,14 @@ export class ScheduleScheduleSurfaceComponent
   /* #endregion context menu */
 
   private readSignals(): void {
-    const dataReadEffect = effect(() => {
-      if (this.dataManagementSchedule.isRead()) {
-        this.dataService.setMetrics();
-      }
+    runInInjectionContext(this.injector, () => {
+      const dataReadEffect = effect(() => {
+        if (this.dataManagementSchedule.isRead()) {
+          this.dataService.setMetrics();
+          this.updateScrollbarValues();
+        }
+      });
+      this.effects.push(dataReadEffect);
     });
-    this.effects.push(dataReadEffect);
   }
 }

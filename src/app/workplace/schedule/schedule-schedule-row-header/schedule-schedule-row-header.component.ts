@@ -5,6 +5,9 @@ import {
   ViewChild,
   ElementRef,
   inject,
+  Input,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
@@ -44,9 +47,11 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   ],
 })
 export class ScheduleScheduleRowHeaderComponent
-  implements AfterViewInit, OnDestroy
+  implements AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+
+  @Input() valueChangeVScrollbar!: number;
 
   public dataService = inject(DataService);
   public scroll = inject(ScrollService);
@@ -64,6 +69,29 @@ export class ScheduleScheduleRowHeaderComponent
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.drawRowHeader.deleteCanvas();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Synchronisiere vertikales Scrolling mit dem Haupt-Canvas
+    if (
+      changes['valueChangeVScrollbar'] &&
+      !changes['valueChangeVScrollbar'].firstChange
+    ) {
+      const newValue = this.valueChangeVScrollbar;
+      if (this.scroll.verticalScrollPosition !== newValue) {
+        const oldPosition = this.scroll.verticalScrollPosition;
+        this.scroll.verticalScrollPosition = newValue;
+
+        const verticalDelta = newValue - oldPosition;
+
+        if (
+          Math.abs(verticalDelta) > 0 &&
+          this.drawRowHeader.isCanvasAvailable()
+        ) {
+          this.drawRowHeader.moveGrid(0, verticalDelta);
+        }
+      }
+    }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
