@@ -425,16 +425,24 @@ export class ResponseInterceptor implements HttpInterceptor {
       case 401: // wird vom TokenRefreshInterceptor behandelt
         break;
       case 404:
-        this.toastShowService.showError('404 Not Found');
+        this.toastShowService.showError('404 Not Found ', '404 Not Found');
         break;
       case 500:
         if (!this.isSpecific500Error(error.url || '')) {
-          this.toastShowService.showError('500 Internal Server Error');
+          this.toastShowService.showError(
+            '500 Internal Server Error ',
+            '500 Internal Server Error',
+            error.message
+          );
           this.navigationService.navigateToError();
         }
         break;
       case 0: // Network Error
-        this.toastShowService.showError('Unknown Error');
+        this.toastShowService.showError(
+          'Unknown Error ',
+          'Unknown Error',
+          error.message
+        );
         this.navigationService.navigateToError();
         break;
       default:
@@ -444,7 +452,12 @@ export class ResponseInterceptor implements HttpInterceptor {
         }
     }
     if (error.statusText === 'Unknown Error') {
-      this.toastShowService.showError('Unknown Error');
+      this.toastShowService.showError(
+        'Unknown Error ',
+        'Unknown Error',
+        error.message
+      );
+      this.navigationService.navigateToError();
     }
 
     return throwError(() => error);

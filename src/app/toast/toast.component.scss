@@ -1,0 +1,50 @@
+:host {
+  .toast {
+    max-width: 350px;
+    height: auto !important;
+    min-height: auto !important;
+
+    .toast-body {
+      height: auto !important;
+      min-height: auto !important;
+    }
+
+    textarea.form-control {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: inherit !important;
+      resize: none !important;
+      overflow: hidden !important;
+      border-radius: 4px !important;
+      min-height: 38px !important;
+      height: auto !important;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+      }
+
+      &:focus {
+        background-color: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(255, 255, 255, 0.4) !important;
+        box-shadow: 0 0 0 0.1rem rgba(255, 255, 255, 0.2) !important;
+      }
+    }
+  }
+
+  // Global ng-bootstrap toast override
+  ::ng-deep {
+    ngb-toast {
+      height: auto !important;
+
+      .toast {
+        height: auto !important;
+        min-height: auto !important;
+
+        .toast-body {
+          height: auto !important;
+          min-height: auto !important;
+        }
+      }
+    }
+  }
+}
