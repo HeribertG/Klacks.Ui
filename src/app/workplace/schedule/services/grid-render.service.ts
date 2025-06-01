@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CanvasManagerService } from './canvas-manager.service';
 import { SettingsService } from './settings.service';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
@@ -6,19 +6,19 @@ import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { DataService } from './data.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GridRenderService {
-  constructor(
-    private canvasManager: CanvasManagerService,
-    private settings: SettingsService,
-    private gridColors: GridColorService,
-    private createHeader: CreateHeaderService,
-    private createCell: CreateCellService,
-    private gridData: DataService
-  ) {}
+  private canvasManager = inject(CanvasManagerService);
+  private settings = inject(SettingsService);
+  private gridColors = inject(GridColorService);
+  private createHeader = inject(CreateHeaderService);
+  private createCell = inject(CreateCellService);
+  private gridData = inject(DataService);
+  private scroll = inject(ScrollService);
 
   public drawGrid(
     visibleRow: number,
@@ -61,8 +61,10 @@ export class GridRenderService {
       renderCanvas.height
     );
 
+    const alignment =
+      this.scroll.horizontalScrollPosition * this.settings.cellWidth * -1;
     if (headerCanvas.width > 0 && headerCanvas.height > 0) {
-      ctx.drawImage(headerCanvas, 0, 0);
+      ctx.drawImage(headerCanvas, alignment, 0);
     }
   }
 

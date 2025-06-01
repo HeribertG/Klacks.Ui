@@ -110,9 +110,9 @@ export class ScheduleScheduleSurfaceComponent
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
-    if (this.rowHeader) {
-      this.drawSchedule.rowHeader = this.rowHeader;
-    }
+    // if (this.rowHeader) {
+    //   this.drawSchedule.rowHeader = this.rowHeader;
+    // }
 
     this.dataService.refreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -138,7 +138,7 @@ export class ScheduleScheduleSurfaceComponent
     this.ngUnsubscribe.complete();
 
     this.drawSchedule.deleteCanvas();
-    this.drawSchedule.rowHeader = undefined;
+    // this.drawSchedule.rowHeader = undefined;
 
     this.effects.forEach((effectRef) => {
       if (effectRef) {

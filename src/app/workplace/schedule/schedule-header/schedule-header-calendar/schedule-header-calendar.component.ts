@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 import { DataService } from '../../services/data.service';
@@ -15,15 +15,13 @@ import { CounterComponent } from 'src/app/shared/counter/counter.component';
   imports: [CommonModule, FormsModule, TranslateModule, CounterComponent],
 })
 export class ScheduleHeaderCalendarComponent {
+  public gridSettingsService = inject(GridSettingsService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
+  private dataService = inject(DataService);
+
   currentYear: number = new Date().getFullYear();
   maxYear: number = this.currentYear + 30;
   selectedMonth: number = new Date().getMonth();
-
-  constructor(
-    public gridSettingsService: GridSettingsService,
-    private dataManagementSchedule: DataManagementScheduleService,
-    private dataService: DataService
-  ) {}
 
   changeYear(event: number) {
     this.currentYear = event;

@@ -1,4 +1,20 @@
 <div class="custom-control-inline">
+  <div ngbDropdown #dropdownSetting="ngbDropdown">
+    <button
+      class="btn btn-sm btn-setting"
+      id="dropdownSetting"
+      ngbDropdownToggle
+      aria-label="absence settings"
+      placement="bottom"
+      ngbTooltip="{{ 'schedule.selector.select-calendar' | translate }}"
+      autoClose="true"
+    >
+      <app-calendar-icon-ball></app-calendar-icon-ball>
+    </button>
+    <div ngbDropdownMenu>
+      <app-schedule-header-calendar></app-schedule-header-calendar>
+    </div>
+  </div>
   <span class="filler"></span>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
@@ -21,23 +37,6 @@
           ></app-calendar-selector>
         </div>
       </div>
-    </div>
-  </div>
-
-  <div ngbDropdown #dropdownSetting="ngbDropdown">
-    <button
-      class="btn btn-sm btn-setting"
-      id="dropdownSetting"
-      ngbDropdownToggle
-      aria-label="absence settings"
-      placement="bottom"
-      ngbTooltip="{{ 'schedule.selector.select-calendar' | translate }}"
-      autoClose="true"
-    >
-      <app-calendar-icon-ball></app-calendar-icon-ball>
-    </button>
-    <div ngbDropdownMenu>
-      <app-schedule-header-calendar></app-schedule-header-calendar>
     </div>
   </div>
 

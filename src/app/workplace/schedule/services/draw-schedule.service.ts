@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { inject, Injectable, NgZone } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { SettingsService } from './settings.service';
@@ -27,20 +27,23 @@ export class DrawScheduleService {
   private settings = inject(SettingsService);
   private createHeader = inject(CreateHeaderService);
   private createCell = inject(CreateCellService);
-  private zone = inject(NgZone);
   private canvasManager = inject(CanvasManagerService);
   private gridRender = inject(GridRenderService);
   private cellRender = inject(CellRenderService);
 
   public startDate: Date = new Date();
 
-  public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
+  // public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
   public recFilterIcon: Rectangle = new Rectangle();
   public filterImage: HTMLImageElement | undefined;
 
   private readonly BORDER_OFFSET = 4;
+  private readonly MAX_INCREMENTAL_SCROLL = 4;
 
   private _isFocused = true;
+  private isScrolling = false;
+  private pendingScrollX = 0;
+  private pendingScrollY = 0;
 
   /* #region initial/final */
   public createCanvas() {
@@ -72,23 +75,23 @@ export class DrawScheduleService {
     this.refreshGrid();
   }
 
-  @CanvasAvailable('queue')
-  private setMetrics() {
-    if (this.existData) {
-      const visibleRows: number = this.updateVisibleRow();
-      const visibleCols: number = this.updateVisibleCol();
-      // this.scroll.setMetrics(
-      //   visibleCols,
-      //   this.gridData.columns,
-      //   visibleRows,
-      //   this.gridData.rows
-      // );
-    }
-  }
+  // @CanvasAvailable('queue')
+  // private setMetrics() {
+  //   if (this.existData) {
+  //     // const visibleRows: number = this.updateVisibleRow();
+  //     // const visibleCols: number = this.updateVisibleCol();
+  //     // this.scroll.setMetrics(
+  //     //   visibleCols,
+  //     //   this.gridData.columns,
+  //     //   visibleRows,
+  //     //   this.gridData.rows
+  //     // );
+  //   }
+  // }
 
   public set width(value: number) {
     this.canvasManager.width = value;
-    this.setMetrics();
+    //this.setMetrics();
     this.canvasManager.resizeMainCanvas();
   }
   public get width(): number {
@@ -97,7 +100,7 @@ export class DrawScheduleService {
 
   public set height(value: number) {
     this.canvasManager.height = value;
-    this.setMetrics();
+    //this.setMetrics();
     this.canvasManager.resizeMainCanvas();
   }
 
@@ -122,7 +125,7 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private redrawGrid() {
-    this.setMetrics();
+    // this.setMetrics();
     this.gridRender.drawGridHeader(this.gridData.columns);
     this.drawGrid();
   }
@@ -229,18 +232,18 @@ export class DrawScheduleService {
     }
   }
 
-  private addNewCols(
-    oldVisibleRow: number,
-    oldVisibleCol: number,
-    visibleRow: number,
-    visibleCol: number
-  ) {
-    for (let col = oldVisibleCol; col < visibleCol; col++) {
-      for (let row = oldVisibleRow; row < visibleRow; row++) {
-        this.addCells();
-      }
-    }
-  }
+  // private addNewCols(
+  //   oldVisibleRow: number,
+  //   oldVisibleCol: number,
+  //   visibleRow: number,
+  //   visibleCol: number
+  // ) {
+  //   for (let col = oldVisibleCol; col < visibleCol; col++) {
+  //     for (let row = oldVisibleRow; row < visibleRow; row++) {
+  //       this.addCells();
+  //     }
+  //   }
+  // }
 
   @CanvasAvailable('queue')
   private shrinkGrid() {
@@ -273,34 +276,56 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   moveGrid(directionX: number, directionY: number): void {
-    const visibleCol = this.updateVisibleCol();
-    const visibleRow = this.updateVisibleRow();
+    if (this.isScrolling) {
+      this.pendingScrollX += directionX;
+      this.pendingScrollY += directionY;
+      return;
+    }
+
+    this.executeScroll(directionX, directionY);
+  }
+
+  private executeScroll(directionX: number, directionY: number): void {
+    this.isScrolling = true;
+
+    const oldFirstVisibleRow = this.firstVisibleRow;
+    const oldFirstVisibleCol = this.firstVisibleCol;
 
     this.firstVisibleCol += directionX;
     this.firstVisibleRow += directionY;
 
-    this.zone.runOutsideAngular(() => {
-      if (
-        this.isInRange(directionX, visibleCol) ||
-        this.isInRange(directionY, visibleRow)
-      ) {
-        this.moveCanvas(directionX, directionY);
-      } else {
-        this.gridRender.drawGrid(
-          this.updateVisibleRow(),
-          this.updateVisibleCol(),
-          this.firstVisibleRow,
-          this.firstVisibleCol
-        );
-      }
+    if (this.isInRange(directionX) || this.isInRange(directionY)) {
+      this.moveCanvas(
+        directionX,
+        directionY,
+        oldFirstVisibleRow,
+        oldFirstVisibleCol
+      );
+    } else {
+      this.gridRender.drawGrid(
+        this.updateVisibleRow(),
+        this.updateVisibleCol(),
+        this.firstVisibleRow,
+        this.firstVisibleCol
+      );
+    }
 
-      if (this.rowHeader) {
-        this.rowHeader.drawRowHeader.moveGrid(directionX, directionY);
-      }
-    });
+    // if (this.rowHeader) {
+    //   this.rowHeader.drawRowHeader.moveGrid(directionX, directionY);
+    // }
+
+    this.isScrolling = false;
+    if (this.pendingScrollX !== 0 || this.pendingScrollY !== 0) {
+      const pendingX = this.pendingScrollX;
+      const pendingY = this.pendingScrollY;
+      this.pendingScrollX = 0;
+      this.pendingScrollY = 0;
+
+      this.executeScroll(pendingX, pendingY);
+    }
   }
 
-  private isInRange(direction: number, visibleRange: number): boolean {
+  private isInRange(direction: number): boolean {
     if (direction === 0) {
       return false;
     }
@@ -308,20 +333,40 @@ export class DrawScheduleService {
     if (direction < 0) {
       direction = direction * -1;
     }
-    return direction < visibleRange / 2;
+
+    return direction <= this.MAX_INCREMENTAL_SCROLL;
   }
 
   @CanvasAvailable('queue')
-  private moveCanvas(directionX: number, directionY: number) {
+  private moveCanvas(
+    directionX: number,
+    directionY: number,
+    oldFirstVisibleRow: number,
+    oldFirstVisibleCol: number
+  ) {
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 
     if (directionX !== 0) {
-      this.handleHorizontalScroll(directionX, visibleRow, visibleCol);
+      this.handleHorizontalScroll(
+        directionX,
+        directionY,
+        visibleRow,
+        visibleCol,
+        oldFirstVisibleRow,
+        oldFirstVisibleCol
+      );
     }
 
     if (directionY !== 0) {
-      this.handleVerticalScroll(directionY, visibleRow, visibleCol);
+      this.handleVerticalScroll(
+        directionX,
+        directionY,
+        visibleRow,
+        visibleCol,
+        oldFirstVisibleRow,
+        oldFirstVisibleCol
+      );
     }
 
     this.renderGrid();
@@ -329,8 +374,11 @@ export class DrawScheduleService {
 
   private handleHorizontalScroll(
     directionX: number,
+    directionY: number,
     visibleRow: number,
-    visibleCol: number
+    visibleCol: number,
+    oldFirstVisibleRow: number,
+    oldFirstVisibleCol: number
   ) {
     const diff = this.scroll.horizontalScrollDelta;
     if (diff === 0) return;
@@ -339,21 +387,30 @@ export class DrawScheduleService {
     this.drawOnTempCanvas(tempCanvas, 0, 0);
 
     this.resizeRenderCanvas(visibleRow, visibleCol);
-    this.drawImageOnRenderCanvas(tempCanvas, this.settings.cellWidth * diff, 0);
+    this.drawImageOnRenderCanvas(
+      tempCanvas,
+      -this.settings.cellWidth * diff,
+      0
+    );
 
     this.cellRender.updateCellsForHorizontalScroll(
+      this.scroll.horizontalScrollDelta,
       directionX,
+      directionY,
       visibleRow,
       visibleCol,
-      this.firstVisibleRow,
-      this.firstVisibleCol
+      oldFirstVisibleRow,
+      oldFirstVisibleCol
     );
   }
 
   private handleVerticalScroll(
+    directionX: number,
     directionY: number,
     visibleRow: number,
-    visibleCol: number
+    visibleCol: number,
+    oldFirstVisibleRow: number,
+    oldFirstVisibleCol: number
   ) {
     const diff = this.scroll.verticalScrollDelta;
     if (diff === 0) return;
@@ -371,11 +428,13 @@ export class DrawScheduleService {
     );
 
     this.cellRender.updateCellsForVerticalScroll(
+      this.scroll.verticalScrollDelta,
+      directionX,
       directionY,
       visibleRow,
       visibleCol,
-      this.firstVisibleRow,
-      this.firstVisibleCol
+      oldFirstVisibleRow,
+      oldFirstVisibleCol
     );
   }
 
@@ -452,9 +511,9 @@ export class DrawScheduleService {
     );
     this.renderGrid();
 
-    if (this.rowHeader) {
-      this.rowHeader.drawRowHeader.redraw();
-    }
+    // if (this.rowHeader) {
+    //   this.rowHeader.drawRowHeader.redraw();
+    // }
   }
 
   @CanvasAvailable('queue')

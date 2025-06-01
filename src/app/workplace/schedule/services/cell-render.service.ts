@@ -57,42 +57,70 @@ export class CellRenderService {
   }
 
   public updateCellsForHorizontalScroll(
+    diff: number,
     directionX: number,
+    directionY: number,
     visibleRows: number,
     visibleCols: number,
-    firstVisibleRow: number,
-    firstVisibleCol: number
+    oldFirstVisibleRow: number, // ALTE Positionen
+    oldFirstVisibleCol: number // ALTE Positionen
   ): void {
-    const startCol = directionX > 0 ? visibleCols - directionX : 0;
-    const endCol = directionX > 0 ? visibleCols : Math.abs(directionX);
+    let startCol: number;
+    let endCol: number;
+
+    if (diff > 0) {
+      startCol = visibleCols - diff;
+      endCol = visibleCols;
+    } else {
+      startCol = 0;
+      endCol = Math.abs(diff);
+    }
+
+    // Die NEUEN Positionen berechnen
+    const newFirstVisibleRow = oldFirstVisibleRow + directionY;
+    const newFirstVisibleCol = oldFirstVisibleCol + directionX;
 
     this.renderCellRange(
       0,
       visibleRows,
       startCol,
       endCol,
-      firstVisibleRow,
-      firstVisibleCol
+      newFirstVisibleRow,
+      newFirstVisibleCol
     );
   }
 
   public updateCellsForVerticalScroll(
+    diff: number,
+    directionX: number,
     directionY: number,
     visibleRows: number,
     visibleCols: number,
-    firstVisibleRow: number,
-    firstVisibleCol: number
+    oldFirstVisibleRow: number, // ALTE Positionen
+    oldFirstVisibleCol: number // ALTE Positionen
   ): void {
-    const startRow = directionY > 0 ? visibleRows - directionY : 0;
-    const endRow = directionY > 0 ? visibleRows : Math.abs(directionY);
+    let startRow: number;
+    let endRow: number;
+
+    if (diff > 0) {
+      startRow = 0;
+      endRow = diff;
+    } else {
+      startRow = visibleRows + diff;
+      endRow = visibleRows;
+    }
+
+    // Die NEUEN Positionen berechnen
+    const newFirstVisibleRow = oldFirstVisibleRow + directionY;
+    const newFirstVisibleCol = oldFirstVisibleCol + directionX;
 
     this.renderCellRange(
       startRow,
       endRow,
       0,
       visibleCols,
-      firstVisibleRow,
-      firstVisibleCol
+      newFirstVisibleRow,
+      newFirstVisibleCol
     );
   }
 

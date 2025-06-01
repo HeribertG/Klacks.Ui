@@ -44,8 +44,6 @@ export class ScheduleContainerComponent implements AfterViewInit, OnDestroy {
   public horizontalSizes = 200;
   private ngUnsubscribe = new Subject<void>();
 
-  constructor() {}
-
   ngAfterViewInit(): void {
     this.readData();
     this.splitElHorizontal.dragProgress$

@@ -50,6 +50,7 @@ export class ScheduleHeaderComponent implements OnInit {
   private dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
+
   private settings = inject(SettingsService);
 
   currentYear: number = new Date().getFullYear();
@@ -76,9 +77,5 @@ export class ScheduleHeaderComponent implements OnInit {
   onChangeCalendar() {
     const chips = this.dataManagementCalendarSelectionService.chips;
     this.holidayCollection.setSelection(chips);
-  }
-
-  private readYear() {
-    this.currentYear = this.holidayCollection.currentYear;
   }
 }
