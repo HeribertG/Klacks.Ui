@@ -12,9 +12,13 @@ import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
-import { ScheduleHeaderCalendarComponent } from './schedule-header-calendar/schedule-header-calendar.component';
+import {
+  CalendarResetData,
+  ScheduleHeaderCalendarComponent,
+} from './schedule-header-calendar/schedule-header-calendar.component';
 import { FormsModule } from '@angular/forms';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
+import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
 
 @Component({
   selector: 'app-schedule-header',
@@ -29,7 +33,6 @@ import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component
     TranslateModule,
     CalendarSelectorComponent,
     NgbTooltip,
-    CalendarIconComponent,
     ChooseCalendarComponent,
     ScheduleHeaderCalendarComponent,
   ],
@@ -50,11 +53,12 @@ export class ScheduleHeaderComponent implements OnInit {
   private dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
+  private gridSettingsService = inject(GridSettingsService);
 
   private settings = inject(SettingsService);
 
-  currentYear: number = new Date().getFullYear();
-  maxYear: number = this.currentYear + 30;
+  public displayYear = '';
+  public displayMonth = '';
 
   ngOnInit(): void {
     this.settings.zoom = parseFloat((this.value / 100).toFixed(1));
@@ -77,5 +81,10 @@ export class ScheduleHeaderComponent implements OnInit {
   onChangeCalendar() {
     const chips = this.dataManagementCalendarSelectionService.chips;
     this.holidayCollection.setSelection(chips);
+  }
+
+  onCalendarReset(data: CalendarResetData) {
+    this.displayYear = data.currentYear.toString();
+    this.displayMonth = this.gridSettingsService.monthsName[data.selectedMonth];
   }
 }

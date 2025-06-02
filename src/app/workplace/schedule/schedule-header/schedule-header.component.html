@@ -1,18 +1,20 @@
 <div class="custom-control-inline">
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
-      class="btn btn-sm btn-setting"
+      class="btn btn-sm calendar-setting"
       id="dropdownSetting"
       ngbDropdownToggle
-      aria-label="absence settings"
-      placement="bottom"
+      aria-label="calendar settings"
+      placement="right"
       ngbTooltip="{{ 'schedule.selector.select-calendar' | translate }}"
       autoClose="true"
     >
-      <app-calendar-icon-ball></app-calendar-icon-ball>
+      <span>{{ displayMonth }} {{ displayYear }}</span>
     </button>
     <div ngbDropdownMenu>
-      <app-schedule-header-calendar></app-schedule-header-calendar>
+      <app-schedule-header-calendar
+        (resetData)="onCalendarReset($event)"
+      ></app-schedule-header-calendar>
     </div>
   </div>
   <span class="filler"></span>

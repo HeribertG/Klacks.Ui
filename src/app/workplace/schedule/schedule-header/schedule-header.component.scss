@@ -2,6 +2,16 @@
 @use "../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../assets/standard-styles/validation.scss";
 
+.calendar-setting {
+  border: none;
+  background-color: transparent;
+  font-weight: 500;
+  font-size: 28px;
+  color: var(--standartTextColor);
+  margin-top: 8px;
+  margin-left: 8px;
+}
+
 .custom-slider {
   width: 180px;
   height: 40px !important;
@@ -52,13 +62,10 @@
   .btn-setting {
     color: var(--paginationBorderColor);
     height: 30px;
-    margin-right: 10px;
+    margin-right: 30px;
     margin-top: 8px;
     border: 1px solid var(--paginationBorderColor);
     background-color: var(--backgroundColoPagination);
-    app-icon-slider-grey {
-      margin-right: 3px;
-    }
   }
   .btn-setting:hover {
     border: 1px solid var(--paginationBorderColor);
@@ -66,21 +73,16 @@
   }
 }
 
-.btn-setting {
-  color: var(--paginationBorderColor);
+.custom-slider {
   height: 30px;
   margin-right: 10px;
   margin-top: 8px;
-  border: 1px solid var(--paginationBorderColor);
-  background-color: var(--backgroundColoPagination);
-  app-icon-slider-grey {
-    margin-right: 3px;
-  }
+  background-color: transparent;
+  // app-icon-slider-grey {
+  //   margin-right: 3px;
+  // }
 }
-.btn-setting:hover {
-  border: 1px solid var(--paginationBorderColor);
-  background-color: var(--backgroundColoPaginationSelected);
-}
+
 .chip-form-group {
   line-height: 25px;
 }
