@@ -5,7 +5,6 @@ import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { SettingsService } from './settings.service';
 import { CellManipulationService } from './cell-manipulation.service';
 import { MyPosition } from 'src/app/grid/classes/position';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
 import { DataService } from './data.service';
@@ -75,23 +74,8 @@ export class DrawScheduleService {
     this.refreshGrid();
   }
 
-  // @CanvasAvailable('queue')
-  // private setMetrics() {
-  //   if (this.existData) {
-  //     // const visibleRows: number = this.updateVisibleRow();
-  //     // const visibleCols: number = this.updateVisibleCol();
-  //     // this.scroll.setMetrics(
-  //     //   visibleCols,
-  //     //   this.gridData.columns,
-  //     //   visibleRows,
-  //     //   this.gridData.rows
-  //     // );
-  //   }
-  // }
-
   public set width(value: number) {
     this.canvasManager.width = value;
-    //this.setMetrics();
     this.canvasManager.resizeMainCanvas();
   }
   public get width(): number {
@@ -100,7 +84,6 @@ export class DrawScheduleService {
 
   public set height(value: number) {
     this.canvasManager.height = value;
-    //this.setMetrics();
     this.canvasManager.resizeMainCanvas();
   }
 
@@ -232,19 +215,6 @@ export class DrawScheduleService {
     }
   }
 
-  // private addNewCols(
-  //   oldVisibleRow: number,
-  //   oldVisibleCol: number,
-  //   visibleRow: number,
-  //   visibleCol: number
-  // ) {
-  //   for (let col = oldVisibleCol; col < visibleCol; col++) {
-  //     for (let row = oldVisibleRow; row < visibleRow; row++) {
-  //       this.addCells();
-  //     }
-  //   }
-  // }
-
   @CanvasAvailable('queue')
   private shrinkGrid() {
     const visibleRow: number = this.updateVisibleRow();
@@ -309,10 +279,6 @@ export class DrawScheduleService {
         this.firstVisibleCol
       );
     }
-
-    // if (this.rowHeader) {
-    //   this.rowHeader.drawRowHeader.moveGrid(directionX, directionY);
-    // }
 
     this.isScrolling = false;
     if (this.pendingScrollX !== 0 || this.pendingScrollY !== 0) {
@@ -382,7 +348,17 @@ export class DrawScheduleService {
   ) {
     const diff = this.scroll.horizontalScrollDelta;
     if (diff === 0) return;
+
+    console.log('🔄 === CANVAS VERSCHIEBUNG DEBUG ===');
     console.log('horizontalScrollDelta:', diff);
+    console.log('visibleCol:', visibleCol);
+    console.log('cellWidth:', this.settings.cellWidth);
+    console.log('oldFirstVisibleCol:', oldFirstVisibleCol);
+    console.log(
+      'newFirstVisibleCol (should be):',
+      oldFirstVisibleCol + directionX
+    );
+
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
 
@@ -510,10 +486,6 @@ export class DrawScheduleService {
       this.firstVisibleCol
     );
     this.renderGrid();
-
-    // if (this.rowHeader) {
-    //   this.rowHeader.drawRowHeader.redraw();
-    // }
   }
 
   @CanvasAvailable('queue')
