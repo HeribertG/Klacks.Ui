@@ -12,6 +12,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
+  inject,
 } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import {
@@ -76,6 +77,12 @@ export class HScrollbarComponent
 
   @ViewChild('canvas', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  private zone = inject(NgZone);
+  private sanitizer = inject(DomSanitizer);
+  private scrollbarService = inject(ScrollbarService);
+  private cdr = inject(ChangeDetectorRef);
+
   public safeTriangleSvgLeft!: SafeHtml;
   public safeTriangleSvgRight!: SafeHtml;
   public disableLeftArrow = false;
@@ -106,13 +113,6 @@ export class HScrollbarComponent
   private isScrollbarClick = false;
 
   private arrowHoldTimeout: ReturnType<typeof setTimeout> | undefined;
-
-  constructor(
-    private zone: NgZone,
-    private sanitizer: DomSanitizer,
-    private scrollbarService: ScrollbarService,
-    private cdr: ChangeDetectorRef
-  ) {}
 
   /* #region Lifecycle Hooks */
 

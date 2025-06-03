@@ -69,11 +69,7 @@ export class DrawCalendarGanttService {
     this.zone.runOutsideAngular(() => {
       try {
         this.isBusy = true;
-        // horizontale Verschiebung
-        if (moveX) {
-          //this.drawCalendar();
-        }
-        // vertikale Verschiebung
+
         if (moveY) {
           this.handleVerticalScroll();
         }
@@ -94,7 +90,6 @@ export class DrawCalendarGanttService {
   public handleVerticalScroll(): void {
     try {
       const scrollDelta = this.scroll.verticalScrollDelta;
-
       if (scrollDelta === 0) {
         return;
       }
@@ -106,8 +101,12 @@ export class DrawCalendarGanttService {
       } else {
         this.renderCalendarGrid.renderCalendar();
       }
-    } catch {
+
+      this.scroll.resetDeltas();
+    } catch (error) {
+      console.error('Error in handleVerticalScroll:', error);
       this.renderCalendarGrid.renderCalendar();
+      this.scroll.resetDeltas();
     }
   }
 

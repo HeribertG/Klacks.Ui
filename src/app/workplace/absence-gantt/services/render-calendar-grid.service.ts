@@ -127,7 +127,9 @@ export class RenderCalendarGridService {
     const visibleRows = this.visibleRow();
     const diff = this.scroll.verticalScrollDelta;
 
-    if (directionY === 0 || diff === 0) return;
+    if (directionY === 0 || diff === 0) {
+      return;
+    }
 
     try {
       const tempCanvas = document.createElement('canvas');
@@ -151,8 +153,6 @@ export class RenderCalendarGridService {
       );
 
       if (diff > 0) {
-        // SCROLL DOWN
-        // ---------------------
         const pixelDelta = diff * this.calendarSetting.cellHeight;
 
         this.ganttCanvasManager.renderCanvasCtx!.drawImage(
@@ -198,10 +198,7 @@ export class RenderCalendarGridService {
           }
         }
       } else {
-        // SCROLL UP
-        // ---------------------
         const absDiff = Math.abs(diff);
-
         const pixelDelta = absDiff * this.calendarSetting.cellHeight;
 
         this.ganttCanvasManager.renderCanvasCtx!.drawImage(
@@ -225,12 +222,10 @@ export class RenderCalendarGridService {
             const rowPosition =
               (row - this.scroll.verticalScrollPosition) *
               this.calendarSetting.cellHeight;
-
             if (
               rowPosition >= -SAFETY_MARGIN * this.calendarSetting.cellHeight &&
               rowPosition <
-                this.ganttCanvasManager.renderCanvas!.height +
-                  SAFETY_MARGIN * this.calendarSetting.cellHeight
+                pixelDelta + SAFETY_MARGIN * this.calendarSetting.cellHeight
             ) {
               const rowRect = this.calcRowRec(
                 row,
@@ -243,9 +238,7 @@ export class RenderCalendarGridService {
           }
         }
       }
-    } catch (error) {
-      console.error('Fehler in moveGridVertical:', error);
-
+    } catch {
       this.renderCalendar();
     }
   }
@@ -933,13 +926,11 @@ export class RenderCalendarGridService {
 
   public drawRowBreaks(index: number, selectedBreak: IBreak | undefined) {
     const breaks = this.dataManagementBreak.readData(index);
-
     if (breaks && Array.isArray(breaks) && breaks.length > 0) {
       const validBreaks = breaks.filter(
         (x) => x && typeof x === 'object' && x.from && x.until
       );
 
-      // NEU: Berechne Layer für alle Breaks
       const breaksWithLayers =
         this.breakLayerService.calculateOptimizedBreakLayers(validBreaks);
 
@@ -978,6 +969,8 @@ export class RenderCalendarGridService {
                 abs.color,
                 breakWithLayer.layer
               );
+            } else {
+              console.log(`Break ${i}: No absence found or no color`);
             }
           } catch (error) {
             console.error(

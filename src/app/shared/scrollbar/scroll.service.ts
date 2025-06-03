@@ -13,11 +13,8 @@ export class ScrollService {
   private _visibleRows = 0;
 
   set verticalScrollPosition(value: number) {
-    if (this._verticalScrollPosition === value) return;
-
     const oldValue = this._verticalScrollPosition;
     this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
-
     this._verticalScrollDelta += this._verticalScrollPosition - oldValue;
   }
 
@@ -31,7 +28,7 @@ export class ScrollService {
     const oldValue = this._horizontalScrollPosition;
     this._horizontalScrollPosition = Math.max(0, Math.min(value, this.maxCols));
 
-    this._horizontalScrollDelta = this._horizontalScrollPosition - oldValue;
+    this._horizontalScrollDelta += this._horizontalScrollPosition - oldValue;
   }
 
   get horizontalScrollPosition() {
