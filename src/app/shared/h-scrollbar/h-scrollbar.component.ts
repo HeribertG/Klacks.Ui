@@ -105,6 +105,8 @@ export class HScrollbarComponent
   private lastMouseEvent: MouseEvent | null = null;
   private isScrollbarClick = false;
 
+  private arrowHoldTimeout: ReturnType<typeof setTimeout> | undefined;
+
   constructor(
     private zone: NgZone,
     private sanitizer: DomSanitizer,
@@ -462,19 +464,25 @@ export class HScrollbarComponent
   }
 
   onArrowThumbMouseDown(event: MouseEvent, direction: ArrowDirection) {
-    this.moveAnimationValue = direction;
+    const newValue = this.value + direction;
+    this.updateValue(newValue);
 
-    this.moveAnimationFrameModulo = 1;
-    this.shouldStopAnimation = false;
-    this.lastMouseEvent = null;
-    this.isScrollbarClick = false;
-    this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BUTTON);
+    this.moveAnimationValue = direction;
+    this.arrowHoldTimeout = setTimeout(() => {
+      this.moveAnimationFrameModulo = SCROLLBAR_CONSTANTS.MAX_FRAME_MODULO;
+      this.shouldStopAnimation = false;
+      this.moveAnimation(SCROLLBAR_CONSTANTS.FIRST_STEP_BUTTON);
+    }, 300);
 
     event.preventDefault();
     event.stopPropagation();
   }
 
   onArrowThumbMouseUp(event: MouseEvent) {
+    if (this.arrowHoldTimeout != null) {
+      clearTimeout(this.arrowHoldTimeout);
+      this.arrowHoldTimeout = undefined;
+    }
     this.stopMoveAnimation();
     event.preventDefault();
     event.stopPropagation();
@@ -546,7 +554,7 @@ export class HScrollbarComponent
   // Reduces the frame modulo value
   private decreaseFrameModulo(): void {
     if (this.moveAnimationFrameModulo > 1) {
-      this.moveAnimationFrameModulo--;
+      this.moveAnimationFrameModulo -= 2;
     }
   }
 
@@ -624,9 +632,9 @@ export class HScrollbarComponent
 
   private updateValue(newValue: number) {
     newValue = this.clampValue(newValue);
-    if (newValue !== this.value) {
+    if (newValue !== this._value) {
       this.value = newValue;
-      this.valueChange.emit(this.value);
+      this.valueChange.emit(this._value);
     }
   }
 

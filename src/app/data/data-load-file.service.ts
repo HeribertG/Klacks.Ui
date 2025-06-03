@@ -3,8 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
-import * as FileSaver from 'file-saver';
-import { CalendarRulesFilter } from '../core/calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

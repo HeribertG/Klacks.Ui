@@ -24,16 +24,19 @@ export class CellRenderService {
   ): void {
     const tmpRow: number = row + firstVisibleRow;
     const tmpCol: number = col + firstVisibleCol;
+
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
 
     if (this.isValidCellIndex(tmpRow, tmpCol)) {
       const img = this.createCell.createCell(tmpRow, tmpCol);
       if (img && this.canvasManager.renderCanvasCtx) {
+        const drawX = col * cellWidth;
+        const drawY = row * cellHeight;
         this.canvasManager.renderCanvasCtx.drawImage(
           img,
-          col * cellWidth,
-          row * cellHeight,
+          drawX,
+          drawY,
           cellWidth,
           cellHeight
         );
@@ -57,71 +60,79 @@ export class CellRenderService {
   }
 
   public updateCellsForHorizontalScroll(
-    diff: number,
-    directionX: number,
-    directionY: number,
+    horizontalDiff: number,
     visibleRows: number,
     visibleCols: number,
-    oldFirstVisibleRow: number, // ALTE Positionen
-    oldFirstVisibleCol: number // ALTE Positionen
+    newFirstVisibleRow: number,
+    newFirstVisibleCol: number
   ): void {
+    if (horizontalDiff === 0) return;
+
     let startCol: number;
     let endCol: number;
 
-    if (diff > 0) {
-      startCol = visibleCols - diff;
+    if (horizontalDiff > 0) {
+      startCol = Math.max(0, visibleCols - horizontalDiff);
       endCol = visibleCols;
     } else {
       startCol = 0;
-      endCol = Math.abs(diff);
+      endCol = Math.min(visibleCols, Math.abs(horizontalDiff));
     }
 
-    // Die NEUEN Positionen berechnen
-    const newFirstVisibleRow = oldFirstVisibleRow + directionY;
-    const newFirstVisibleCol = oldFirstVisibleCol + directionX;
+    const maxDataCol = this.dataService.columns;
+    for (let row = 0; row < visibleRows; row++) {
+      for (let col = startCol; col < endCol; col++) {
+        const absoluteCol = col + newFirstVisibleCol;
+        const absoluteRow = row + newFirstVisibleRow;
 
-    this.renderCellRange(
-      0,
-      visibleRows,
-      startCol,
-      endCol,
-      newFirstVisibleRow,
-      newFirstVisibleCol
-    );
+        if (
+          absoluteCol >= 0 &&
+          absoluteCol < maxDataCol &&
+          absoluteRow >= 0 &&
+          absoluteRow < this.dataService.rows
+        ) {
+          this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
+        }
+      }
+    }
   }
 
   public updateCellsForVerticalScroll(
-    diff: number,
-    directionX: number,
-    directionY: number,
+    verticalDiff: number,
     visibleRows: number,
     visibleCols: number,
-    oldFirstVisibleRow: number, // ALTE Positionen
-    oldFirstVisibleCol: number // ALTE Positionen
+    newFirstVisibleRow: number,
+    newFirstVisibleCol: number
   ): void {
+    if (verticalDiff === 0) return;
+
     let startRow: number;
     let endRow: number;
 
-    if (diff > 0) {
-      startRow = 0;
-      endRow = diff;
-    } else {
-      startRow = visibleRows + diff;
+    if (verticalDiff > 0) {
+      startRow = Math.max(0, visibleRows - verticalDiff);
       endRow = visibleRows;
+    } else {
+      startRow = 0;
+      endRow = Math.min(visibleRows, Math.abs(verticalDiff));
     }
 
-    // Die NEUEN Positionen berechnen
-    const newFirstVisibleRow = oldFirstVisibleRow + directionY;
-    const newFirstVisibleCol = oldFirstVisibleCol + directionX;
+    const maxDataRow = this.dataService.rows;
+    for (let col = 0; col < visibleCols; col++) {
+      for (let row = startRow; row < endRow; row++) {
+        const absoluteRow = row + newFirstVisibleRow;
+        const absoluteCol = col + newFirstVisibleCol;
 
-    this.renderCellRange(
-      startRow,
-      endRow,
-      0,
-      visibleCols,
-      newFirstVisibleRow,
-      newFirstVisibleCol
-    );
+        if (
+          absoluteRow >= 0 &&
+          absoluteRow < maxDataRow &&
+          absoluteCol >= 0 &&
+          absoluteCol < this.dataService.columns
+        ) {
+          this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
+        }
+      }
+    }
   }
 
   public addCells(

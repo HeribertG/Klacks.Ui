@@ -11,7 +11,6 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
 import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
-import { CalendarIconComponent } from 'src/app/icons/calendar-icon.component';
 import {
   CalendarResetData,
   ScheduleHeaderCalendarComponent,

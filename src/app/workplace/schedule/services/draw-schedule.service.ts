@@ -38,11 +38,12 @@ export class DrawScheduleService {
 
   private readonly BORDER_OFFSET = 4;
   private readonly MAX_INCREMENTAL_SCROLL = 4;
+  private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
+  private readonly ADDITIONALLY_EMPTY_ROWS = 3;
 
   private _isFocused = true;
   private isScrolling = false;
-  private pendingScrollX = 0;
-  private pendingScrollY = 0;
+  private isScrollingToFast = false;
 
   /* #region initial/final */
   public createCanvas() {
@@ -108,13 +109,15 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private redrawGrid() {
-    // this.setMetrics();
+    this.setVisibleColRows();
+
     this.gridRender.drawGridHeader(this.gridData.columns);
     this.drawGrid();
   }
 
   @CanvasAvailable('queue')
   private refreshGrid(): void {
+    this.setVisibleColRows();
     const oldVisibleRow: number = this.nominalVisibleRow();
     const oldVisibleCol: number = this.nominalVisibleCol();
 
@@ -245,14 +248,22 @@ export class DrawScheduleService {
   }
 
   @CanvasAvailable('queue')
-  moveGrid(directionX: number, directionY: number): void {
+  moveGrid(): void {
     if (this.isScrolling) {
-      this.pendingScrollX += directionX;
-      this.pendingScrollY += directionY;
+      this.isScrollingToFast = true;
       return;
     }
+    const deltaX = this.scroll.horizontalScrollDelta;
+    const deltaY = this.scroll.verticalScrollDelta;
 
-    this.executeScroll(directionX, directionY);
+    this.scroll.resetDeltas();
+
+    if (this.isScrollingToFast) {
+      this.redrawGrid();
+      this.isScrollingToFast = false;
+    } else {
+      this.executeScroll(deltaX, deltaY);
+    }
   }
 
   private executeScroll(directionX: number, directionY: number): void {
@@ -281,14 +292,6 @@ export class DrawScheduleService {
     }
 
     this.isScrolling = false;
-    if (this.pendingScrollX !== 0 || this.pendingScrollY !== 0) {
-      const pendingX = this.pendingScrollX;
-      const pendingY = this.pendingScrollY;
-      this.pendingScrollX = 0;
-      this.pendingScrollY = 0;
-
-      this.executeScroll(pendingX, pendingY);
-    }
   }
 
   private isInRange(direction: number): boolean {
@@ -304,6 +307,7 @@ export class DrawScheduleService {
   }
 
   @CanvasAvailable('queue')
+  @CanvasAvailable('queue')
   private moveCanvas(
     directionX: number,
     directionY: number,
@@ -315,8 +319,6 @@ export class DrawScheduleService {
 
     if (directionX !== 0) {
       this.handleHorizontalScroll(
-        directionX,
-        directionY,
         visibleRow,
         visibleCol,
         oldFirstVisibleRow,
@@ -326,8 +328,6 @@ export class DrawScheduleService {
 
     if (directionY !== 0) {
       this.handleVerticalScroll(
-        directionX,
-        directionY,
         visibleRow,
         visibleCol,
         oldFirstVisibleRow,
@@ -339,78 +339,70 @@ export class DrawScheduleService {
   }
 
   private handleHorizontalScroll(
-    directionX: number,
-    directionY: number,
     visibleRow: number,
     visibleCol: number,
     oldFirstVisibleRow: number,
     oldFirstVisibleCol: number
   ) {
-    const diff = this.scroll.horizontalScrollDelta;
-    if (diff === 0) return;
+    const horizontalDiff = this.scroll.horizontalScrollDelta;
+    const verticalDiff = this.scroll.verticalScrollDelta;
 
-    console.log('🔄 === CANVAS VERSCHIEBUNG DEBUG ===');
-    console.log('horizontalScrollDelta:', diff);
-    console.log('visibleCol:', visibleCol);
-    console.log('cellWidth:', this.settings.cellWidth);
-    console.log('oldFirstVisibleCol:', oldFirstVisibleCol);
-    console.log(
-      'newFirstVisibleCol (should be):',
-      oldFirstVisibleCol + directionX
-    );
+    this.scroll.resetDeltas();
+
+    if (horizontalDiff === 0) return;
+
+    const newFirstVisibleRow = oldFirstVisibleRow + verticalDiff;
+    const newFirstVisibleCol = oldFirstVisibleCol + horizontalDiff;
 
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
-
     this.resizeRenderCanvas(visibleRow, visibleCol);
     this.drawImageOnRenderCanvas(
       tempCanvas,
-      -this.settings.cellWidth * diff,
+      -this.settings.cellWidth * horizontalDiff,
       0
     );
 
     this.cellRender.updateCellsForHorizontalScroll(
-      this.scroll.horizontalScrollDelta,
-      directionX,
-      directionY,
+      horizontalDiff,
       visibleRow,
       visibleCol,
-      oldFirstVisibleRow,
-      oldFirstVisibleCol
+      newFirstVisibleRow,
+      newFirstVisibleCol
     );
   }
 
   private handleVerticalScroll(
-    directionX: number,
-    directionY: number,
     visibleRow: number,
     visibleCol: number,
     oldFirstVisibleRow: number,
     oldFirstVisibleCol: number
   ) {
-    const diff = this.scroll.verticalScrollDelta;
-    if (diff === 0) return;
+    const verticalDiff = this.scroll.verticalScrollDelta;
+    const horizontalDiff = this.scroll.horizontalScrollDelta;
 
-    // Copy the content of the canvas
+    this.scroll.resetDeltas();
+
+    if (verticalDiff === 0) return;
+
+    const newFirstVisibleRow = oldFirstVisibleRow + verticalDiff;
+    const newFirstVisibleCol = oldFirstVisibleCol + horizontalDiff;
+
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
-    // delete the contents of the canvas
     this.resizeRenderCanvas(visibleRow, visibleCol);
-    // paste the copied to a new position
     this.drawImageOnRenderCanvas(
       tempCanvas,
       0,
-      this.settings.cellHeight * diff
+      -this.settings.cellHeight * verticalDiff
     );
 
     this.cellRender.updateCellsForVerticalScroll(
-      this.scroll.verticalScrollDelta,
-      directionX,
-      directionY,
+      verticalDiff,
       visibleRow,
       visibleCol,
-      oldFirstVisibleRow,
-      oldFirstVisibleCol
+      newFirstVisibleRow,
+      newFirstVisibleCol
     );
   }
 
@@ -803,5 +795,16 @@ export class DrawScheduleService {
     return Math.ceil(
       this.canvasManager.renderCanvas!.width / this.settings.cellWidth
     );
+  }
+
+  private setVisibleColRows(): void {
+    const newVisibleCols = Math.ceil(this.width / this.settings.cellWidth);
+    const newVisibleRows = Math.ceil(this.height / this.settings.cellHeight);
+    this.scroll.maxCols =
+      this.gridData.columns - newVisibleCols + this.ADDITIONALLY_EMPTY_COLUMNS;
+    this.scroll.maxRows =
+      this.gridData.rows - newVisibleRows + this.ADDITIONALLY_EMPTY_ROWS;
+    this.scroll.visibleCols = newVisibleCols;
+    this.scroll.visibleRows = newVisibleRows;
   }
 }

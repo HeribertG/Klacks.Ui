@@ -1,25 +1,5 @@
 import { Injectable } from '@angular/core';
 
-/**
- * ScrollService – Verwalten der Scrollpositionen
- *
- * Dieser Service verwaltet die vertikale und horizontale Scrollposition innerhalb
- * eines definierten Bereichs (maxRows, maxCols). Er stellt Methoden zur Verfügung,
- * um die Positionen zu setzen und sicherzustellen, dass sie innerhalb der gültigen Grenzen bleiben.
- *
- * Eigenschaften:
- * - maxCols: Maximale Anzahl der Spalten (horizontale Begrenzung)
- * - maxRows: Maximale Anzahl der Zeilen (vertikale Begrenzung)
- * - Getter & Setter für Scrollpositionen, um Änderungen effizient zu verarbeiten
- *
- * Methoden:
- * - difference(oldValue: number, isHorizontal: boolean): Berechnet Differenzen bei Änderungen
- * - Getter & Setter für die Scroll-Positionen verhindern unkontrollierte Werte außerhalb des erlaubten Bereichs
- *
- * Nutzung:
- * - Wird in Komponenten oder anderen Services genutzt, um Scrollpositionen zu verwalten
- *
- */
 @Injectable()
 export class ScrollService {
   public maxCols = 0;
@@ -38,7 +18,7 @@ export class ScrollService {
     const oldValue = this._verticalScrollPosition;
     this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
 
-    this.difference(oldValue, false);
+    this._verticalScrollDelta += this._verticalScrollPosition - oldValue;
   }
 
   get verticalScrollPosition() {
@@ -51,38 +31,87 @@ export class ScrollService {
     const oldValue = this._horizontalScrollPosition;
     this._horizontalScrollPosition = Math.max(0, Math.min(value, this.maxCols));
 
-    this.difference(oldValue, true);
+    this._horizontalScrollDelta = this._horizontalScrollPosition - oldValue;
   }
 
   get horizontalScrollPosition() {
     return this._horizontalScrollPosition;
   }
 
-  resetScrollPosition(): void {
+  updateScrollPosition(
+    horizontal?: number,
+    vertical?: number
+  ): {
+    horizontalDelta: number;
+    verticalDelta: number;
+  } {
+    const oldH = this._horizontalScrollPosition;
+    const oldV = this._verticalScrollPosition;
+
+    if (horizontal !== undefined) {
+      this._horizontalScrollPosition = Math.max(
+        0,
+        Math.min(horizontal, this.maxCols)
+      );
+    }
+    if (vertical !== undefined) {
+      this._verticalScrollPosition = Math.max(
+        0,
+        Math.min(vertical, this.maxRows)
+      );
+    }
+
+    const deltaH = this._horizontalScrollPosition - oldH;
+    const deltaV = this._verticalScrollPosition - oldV;
+
+    this._horizontalScrollDelta += deltaH;
+    this._verticalScrollDelta += deltaV;
+
+    return {
+      horizontalDelta: deltaH,
+      verticalDelta: deltaV,
+    };
+  }
+
+  public resetScrollPosition(): void {
     this._horizontalScrollPosition = 0;
     this._verticalScrollPosition = 0;
     this._horizontalScrollDelta = 0;
     this._verticalScrollDelta = 0;
   }
 
-  private difference(oldValue: number, isHorizontal: boolean) {
-    const newValue = isHorizontal
-      ? this._horizontalScrollPosition
-      : this._verticalScrollPosition;
-    const delta = newValue - oldValue;
-
-    if (isHorizontal) {
-      this._horizontalScrollDelta = delta;
-    } else {
-      this._verticalScrollDelta = delta;
-    }
+  public resetDeltas(): void {
+    this._horizontalScrollDelta = 0;
+    this._verticalScrollDelta = 0;
   }
 
   get horizontalScrollDelta(): number {
     return this._horizontalScrollDelta;
   }
+
   get verticalScrollDelta(): number {
     return this._verticalScrollDelta;
+  }
+
+  getScrollState(): ScrollState {
+    return {
+      position: {
+        horizontal: this._horizontalScrollPosition,
+        vertical: this._verticalScrollPosition,
+      },
+      delta: {
+        horizontal: this._horizontalScrollDelta,
+        vertical: this._verticalScrollDelta,
+      },
+      max: {
+        cols: this.maxCols,
+        rows: this.maxRows,
+      },
+      visible: {
+        cols: this._visibleCols,
+        rows: this._visibleRows,
+      },
+    };
   }
 
   get visibleCols(): number {
@@ -100,4 +129,11 @@ export class ScrollService {
   set visibleRows(value: number) {
     this._visibleRows = value;
   }
+}
+
+interface ScrollState {
+  position: { horizontal: number; vertical: number };
+  delta: { horizontal: number; vertical: number };
+  max: { cols: number; rows: number };
+  visible: { cols: number; rows: number };
 }

@@ -110,10 +110,6 @@ export class ScheduleScheduleSurfaceComponent
 
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
-    // if (this.rowHeader) {
-    //   this.drawSchedule.rowHeader = this.rowHeader;
-    // }
-
     this.dataService.refreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe(() => {
@@ -163,10 +159,7 @@ export class ScheduleScheduleSurfaceComponent
     }
 
     if (vDirection || hDirection) {
-      this.drawSchedule.moveGrid(
-        hDirection ? this.scroll.horizontalScrollDelta : 0,
-        vDirection ? this.scroll.verticalScrollDelta : 0
-      );
+      this.drawSchedule.moveGrid();
     }
   }
 
@@ -262,8 +255,8 @@ export class ScheduleScheduleSurfaceComponent
    * @param directionX - number of steps in X direction (must be a valid number)
    * @param directionY - number of steps in Y direction (must be a valid number)
    */
-  moveGrid(directionX: number, directionY: number): void {
-    this.drawSchedule.moveGrid(directionX, directionY);
+  moveGrid(): void {
+    this.drawSchedule.moveGrid();
     this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
     this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
   }

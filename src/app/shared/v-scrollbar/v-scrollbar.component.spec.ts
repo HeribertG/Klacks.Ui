@@ -63,7 +63,7 @@ describe('VScrollbarComponent', () => {
     fixture = TestBed.createComponent(VScrollbarComponent);
     component = fixture.componentInstance;
 
-    // Mock canvas element
+    // Mock canvas element - vertical orientation (height > width)
     const mockCanvas = document.createElement('canvas');
     const mockContext = jasmine.createSpyObj('CanvasRenderingContext2D', [
       'clearRect',
@@ -74,7 +74,7 @@ describe('VScrollbarComponent', () => {
 
     spyOn(mockCanvas, 'getContext').and.returnValue(mockContext);
 
-    // Mock canvas properties für vertikale Scrollbar (Höhe > Breite)
+    // Mock canvas properties for vertical scrollbar
     Object.defineProperty(mockCanvas, 'width', { value: 50, writable: true });
     Object.defineProperty(mockCanvas, 'height', { value: 500, writable: true });
     Object.defineProperty(mockCanvas, 'offsetWidth', {
@@ -145,45 +145,29 @@ describe('VScrollbarComponent', () => {
   });
 
   it('should correctly calculate Y position for the thumb', () => {
-    // Test only if the method exists - v-scrollbar uses calculateXPosition for Y position
-    if (typeof (component as any).calculateXPosition === 'function') {
-      const mockCanvas = component.canvasRef.nativeElement;
-      const result = (component as any).calculateXPosition(
-        mockCanvas,
-        10, // value
-        10, // tickSize
-        50 // trackHeight
-      );
-
-      // Based on v-scrollbar implementation: Math.max(0, Math.min(value * tickSize, canvas.height - trackHeight))
-      // Expected: Math.max(0, Math.min(10 * 10, 500 - 50)) = Math.max(0, Math.min(100, 450)) = 100
-      expect(result).toBe(100);
-    } else {
-      // Skip test if method doesn't exist
-      expect(true).toBe(true);
-    }
+    const mockCanvas = component.canvasRef.nativeElement;
+    const result = (component as any).calculateYPosition(
+      mockCanvas,
+      10,
+      10,
+      50
+    );
+    expect(result).toBe(100);
   });
 
-  it('should handle canvas height constraint in calculateXPosition', () => {
-    // Test only if the method exists - v-scrollbar uses calculateXPosition for Y position
-    if (typeof (component as any).calculateXPosition === 'function') {
-      const mockCanvas = component.canvasRef.nativeElement;
-      mockCanvas.height = 200;
+  it('should handle canvas height constraint in calculateYPosition', () => {
+    const mockCanvas = component.canvasRef.nativeElement;
+    mockCanvas.height = 200;
 
-      const result = (component as any).calculateXPosition(
-        mockCanvas,
-        25, // value - high enough to trigger constraint
-        10, // tickSize
-        50 // trackHeight
-      );
+    const result = (component as any).calculateYPosition(
+      mockCanvas,
+      18, // value
+      10, // tickSize
+      100 // trackHeight
+    );
 
-      // Should clamp to canvas height - trackHeight when result would exceed canvas
-      // Expected: Math.max(0, Math.min(25 * 10, 200 - 50)) = Math.max(0, Math.min(250, 150)) = 150
-      expect(result).toBe(150);
-    } else {
-      // Skip test if method doesn't exist
-      expect(true).toBe(true);
-    }
+    // Should clamp to canvas height - trackHeight when result would exceed canvas
+    expect(result).toBe(100); // 200 - 100 = 100
   });
 
   it('should disable arrow buttons at boundaries', () => {
