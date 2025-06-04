@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { CanvasManagerService } from './canvas-manager.service';
 import { DataService } from './data.service';
 import { SettingsService } from './settings.service';
@@ -9,12 +9,10 @@ import { MyPosition } from 'src/app/grid/classes/position';
   providedIn: 'root',
 })
 export class CellRenderService {
-  constructor(
-    private canvasManager: CanvasManagerService,
-    private dataService: DataService,
-    private settings: SettingsService,
-    private createCell: CreateCellService
-  ) {}
+  private canvasManager = inject(CanvasManagerService);
+  private dataService = inject(DataService);
+  private settings = inject(SettingsService);
+  private createCell = inject(CreateCellService);
 
   private renderCell(
     row: number,

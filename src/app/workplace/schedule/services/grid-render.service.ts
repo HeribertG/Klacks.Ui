@@ -7,6 +7,7 @@ import { CreateCellService } from './create-cell.service';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { DataService } from './data.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { DrawHelper } from 'src/app/helpers/draw-helper';
 
 @Injectable({
   providedIn: 'root',
@@ -43,9 +44,13 @@ export class GridRenderService {
     const headerCanvas = this.canvasManager.headerCanvas;
 
     if (!ctx || !canvas || !renderCanvas || !headerCanvas) {
-      console.error('Canvas contexts are not available');
       return;
     }
+
+    const pixelRatio = DrawHelper.pixelRatio();
+
+    const renderWidth = Math.round(renderCanvas.width / pixelRatio);
+    const renderHeight = Math.round(renderCanvas.height / pixelRatio);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -57,8 +62,8 @@ export class GridRenderService {
       renderCanvas.height,
       0,
       this.settings.cellHeaderHeight,
-      renderCanvas.width,
-      renderCanvas.height
+      renderWidth,
+      renderHeight
     );
 
     const alignment =

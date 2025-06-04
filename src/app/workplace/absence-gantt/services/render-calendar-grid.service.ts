@@ -33,26 +33,25 @@ import {
 import { BreakLayerService } from './break-layer.service';
 
 /**
- * Hauptklasse für das Rendering des Kalender-Grids
+ * Main class for rendering the calendar grid
  *
- * Funktionen:
- * - Rendert Jahreskalender mit Monaten, Wochen, Tagen
- * - Verwaltet Selektionen von Zeilen und Breaks (Zeiträume)
- * - Implementiert horizontales/vertikales Scrolling
- * - Zeichnet Wochenenden und Feiertage
- * - Berechnet Schaltjahre und Monatslängen
+ * Functions:
+ * - Renders annual calendar with months, weeks, days
+ * - Manages selections of rows and breaks (time periods)
+ * - Implements horizontal/vertical scrolling
+ * - Draws weekends and public holidays
+ * Calculates leap years and month lengths
  *
  * Properties:
- * startDate: Startdatum des Kalenders (1. Januar)
- * selectedRow: Aktuell selektierte Zeile
- * selectedBreak: Aktuell selektierter Zeitraum
+ * startDate: Start date of the calendar (1 January)
+ * selectedRow: Currently selected row
+ * selectedBreak: Currently selected period
  *
- * Hauptmethoden:
- * renderRuler(): Zeichnet Kopfzeilenraster
- * renderCalendar(): Rendert den kompletten Kalender
- * moveGridVertical(): Handhabt vertikales Scrolling
- * drawRow(): Zeichnet eine Zeile
- * drawBreaksIntern(): Rendert Breaks/Zeiträume
+ * Main methods:
+ * renderRuler(): Draws header grid
+ * renderCalendar(): Renders the complete calendar
+ * moveGridVertical(): Handles vertical scrolling
+ * drawRow(): Draws a row
  */
 @Injectable()
 export class RenderCalendarGridService {
@@ -144,7 +143,7 @@ export class RenderCalendarGridService {
 
       tempCtx.drawImage(this.ganttCanvasManager.renderCanvas!, 0, 0);
 
-      // Lösche den Canvas
+      // löschen den Canvas
       this.ganttCanvasManager.renderCanvasCtx!.clearRect(
         0,
         0,

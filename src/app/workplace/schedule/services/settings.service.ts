@@ -1,11 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 import { ClipboardModeEnum } from 'src/app/grid/enums/divers';
 import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
 
 @Injectable()
 export class SettingsService {
-  public zoomChangingEvent = new Subject<number>();
+  public zoomSignal = signal<number>(1);
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;
 
@@ -33,7 +32,7 @@ export class SettingsService {
     this.gridFonts.zoom = value;
     this.InfoSpotWidth = 70 * this._zoom;
     this.cellHeight = 50 * this._zoom;
-    this.cellWidth = 90 * this._zoom;
+    this.cellWidth = Math.round(90 * this._zoom);
     this.cellHeaderHeight = 30 * this._zoom;
     this.boundaryBorderWidth = 2 * this._zoom;
 
@@ -46,6 +45,6 @@ export class SettingsService {
     this.rowHeaderIconWith = 20 * this._zoom;
     this.rowHeaderIconHeight = 20 * this._zoom;
 
-    this.zoomChangingEvent.next(value);
+    this.zoomSignal.set(value);
   }
 }

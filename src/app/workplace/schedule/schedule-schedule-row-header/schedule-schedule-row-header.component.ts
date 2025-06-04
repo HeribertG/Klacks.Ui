@@ -8,6 +8,10 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  effect,
+  EffectRef,
+  Injector,
+  runInInjectionContext,
 } from '@angular/core';
 import { DataService } from '../services/data.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
@@ -56,42 +60,48 @@ export class ScheduleScheduleRowHeaderComponent
   public dataService = inject(DataService);
   public scroll = inject(ScrollService);
   public drawRowHeader = inject(DrawRowHeaderService);
-  private settings = inject(SettingsService);
+  private injector = inject(Injector);
 
   private ngUnsubscribe = new Subject<void>();
+  private effects: EffectRef[] = [];
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.setupEventListeners();
+    this.readSignals();
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
     this.drawRowHeader.deleteCanvas();
+
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // Synchronisiere vertikales Scrolling mit dem Haupt-Canvas
-    if (
-      changes['valueChangeVScrollbar'] &&
-      !changes['valueChangeVScrollbar'].firstChange
-    ) {
-      const newValue = this.valueChangeVScrollbar;
-      if (this.scroll.verticalScrollPosition !== newValue) {
-        const oldPosition = this.scroll.verticalScrollPosition;
-        this.scroll.verticalScrollPosition = newValue;
-
-        const verticalDelta = newValue - oldPosition;
-
-        if (
-          Math.abs(verticalDelta) > 0 &&
-          this.drawRowHeader.isCanvasAvailable()
-        ) {
-          this.drawRowHeader.moveGrid(0, verticalDelta);
-        }
-      }
-    }
+    // if (
+    //   changes['valueChangeVScrollbar'] &&
+    //   !changes['valueChangeVScrollbar'].firstChange
+    // ) {
+    //   const newValue = this.valueChangeVScrollbar;
+    //   if (this.scroll.verticalScrollPosition !== newValue) {
+    //     const oldPosition = this.scroll.verticalScrollPosition;
+    //     this.scroll.verticalScrollPosition = newValue;
+    //     const verticalDelta = newValue - oldPosition;
+    //     if (
+    //       Math.abs(verticalDelta) > 0 &&
+    //       this.drawRowHeader.isCanvasAvailable()
+    //     ) {
+    //       this.drawRowHeader.moveGrid(0, verticalDelta);
+    //     }
+    //   }
+    // }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -119,13 +129,16 @@ export class ScheduleScheduleRowHeaderComponent
       .subscribe(() => {
         this.drawRowHeader.redraw();
       });
+  }
 
-    this.settings.zoomChangingEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
+  private readSignals(): void {
+    runInInjectionContext(this.injector, () => {
+      const zoomEffect = effect(() => {
         this.drawRowHeader.createCanvas();
         this.drawRowHeader.rebuild();
         this.drawRowHeader.redraw();
       });
+      this.effects.push(zoomEffect);
+    });
   }
 }

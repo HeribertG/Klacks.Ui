@@ -98,17 +98,13 @@ export class ScheduleScheduleSurfaceComponent
     this.readSignals();
 
     this._pixelRatio = DrawHelper.pixelRatio();
-
     this.drawSchedule.refresh();
-
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
   }
 
   ngAfterViewInit(): void {
     this.drawSchedule.createCanvas();
     this.initializeDrawSchedule();
-
-    this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
 
     this.dataService.refreshEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -117,18 +113,8 @@ export class ScheduleScheduleSurfaceComponent
         this.updateScrollbarValues();
       });
 
-    this.settings.zoomChangingEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.drawSchedule.createCanvas();
-        this.drawSchedule.rebuild();
-        this.drawSchedule.redraw();
-        this.updateScrollbarValues();
-      });
-
     this.cdr.detectChanges();
   }
-
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
@@ -249,12 +235,6 @@ export class ScheduleScheduleSurfaceComponent
 
   /* #region   render */
 
-  /**
-   * Moves the table by the specified number of units in the X and Y directions.
-   *
-   * @param directionX - number of steps in X direction (must be a valid number)
-   * @param directionY - number of steps in Y direction (must be a valid number)
-   */
   moveGrid(): void {
     this.drawSchedule.moveGrid();
     this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
@@ -408,6 +388,19 @@ export class ScheduleScheduleSurfaceComponent
         }
       });
       this.effects.push(dataReadEffect);
+
+      const zoomEffect = effect(() => {
+        this.settings.zoomSignal();
+        setTimeout(() => {
+          if (this.drawSchedule.isCanvasAvailable()) {
+            this.drawSchedule.createCanvas();
+            this.drawSchedule.rebuild();
+            this.drawSchedule.redraw();
+            this.updateScrollbarValues();
+          }
+        }, 0);
+      });
+      this.effects.push(zoomEffect);
     });
   }
 }
