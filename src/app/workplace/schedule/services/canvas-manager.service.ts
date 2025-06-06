@@ -45,16 +45,22 @@ export class CanvasManagerService {
   }
 
   public resizeRenderCanvas(visibleRow: number, visibleCol: number): void {
-    if (this.renderCanvas && this.renderCanvasCtx) {
-      this.renderCanvas.height = visibleRow * this.settings.cellHeight;
-      this.renderCanvas.width = visibleCol * this.settings.cellWidth;
-      this.renderCanvasCtx.clearRect(
-        0,
-        0,
-        this.renderCanvas.width,
-        this.renderCanvas.height
-      );
+    if (!this.renderCanvas || !this.renderCanvasCtx) {
+      return;
     }
+    const pixelRatio = DrawHelper.pixelRatio();
+    const logicalWidth = visibleCol * this.settings.cellWidth;
+    const logicalHeight = visibleRow * this.settings.cellHeight;
+
+    this.renderCanvas.width = logicalWidth * pixelRatio;
+    this.renderCanvas.height = logicalHeight * pixelRatio;
+
+    this.renderCanvas.style.width = `${logicalWidth}px`;
+    this.renderCanvas.style.height = `${logicalHeight}px`;
+
+    this.renderCanvasCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    this.renderCanvasCtx.clearRect(0, 0, logicalWidth, logicalHeight);
   }
 
   public isCanvasAvailable(): boolean {

@@ -9,6 +9,8 @@ import { MyPosition } from 'src/app/grid/classes/position';
   providedIn: 'root',
 })
 export class CellRenderService {
+  private static readonly OVERLAP = 1;
+
   private canvasManager = inject(CanvasManagerService);
   private dataService = inject(DataService);
   private settings = inject(SettingsService);
@@ -22,6 +24,10 @@ export class CellRenderService {
   ): void {
     const tmpRow: number = row + firstVisibleRow;
     const tmpCol: number = col + firstVisibleCol;
+
+    if (!this.isValidCellIndex(tmpRow, tmpCol)) {
+      return;
+    }
 
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
@@ -70,27 +76,20 @@ export class CellRenderService {
     let endCol: number;
 
     if (horizontalDiff > 0) {
-      startCol = Math.max(0, visibleCols - horizontalDiff);
+      startCol = Math.max(
+        0,
+        visibleCols - horizontalDiff - CellRenderService.OVERLAP
+      );
       endCol = visibleCols;
     } else {
+      const absDiff = Math.abs(horizontalDiff);
       startCol = 0;
-      endCol = Math.min(visibleCols, Math.abs(horizontalDiff));
+      endCol = Math.min(visibleCols, absDiff + CellRenderService.OVERLAP);
     }
 
-    const maxDataCol = this.dataService.columns;
     for (let row = 0; row < visibleRows; row++) {
       for (let col = startCol; col < endCol; col++) {
-        const absoluteCol = col + newFirstVisibleCol;
-        const absoluteRow = row + newFirstVisibleRow;
-
-        if (
-          absoluteCol >= 0 &&
-          absoluteCol < maxDataCol &&
-          absoluteRow >= 0 &&
-          absoluteRow < this.dataService.rows
-        ) {
-          this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
-        }
+        this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
       }
     }
   }
@@ -108,27 +107,20 @@ export class CellRenderService {
     let endRow: number;
 
     if (verticalDiff > 0) {
-      startRow = Math.max(0, visibleRows - verticalDiff);
+      startRow = Math.max(
+        0,
+        visibleRows - verticalDiff - CellRenderService.OVERLAP
+      );
       endRow = visibleRows;
     } else {
+      const absDiff = Math.abs(verticalDiff);
       startRow = 0;
-      endRow = Math.min(visibleRows, Math.abs(verticalDiff));
+      endRow = Math.min(visibleRows, absDiff + CellRenderService.OVERLAP);
     }
 
-    const maxDataRow = this.dataService.rows;
     for (let col = 0; col < visibleCols; col++) {
       for (let row = startRow; row < endRow; row++) {
-        const absoluteRow = row + newFirstVisibleRow;
-        const absoluteCol = col + newFirstVisibleCol;
-
-        if (
-          absoluteRow >= 0 &&
-          absoluteRow < maxDataRow &&
-          absoluteCol >= 0 &&
-          absoluteCol < this.dataService.columns
-        ) {
-          this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
-        }
+        this.renderCell(row, col, newFirstVisibleRow, newFirstVisibleCol);
       }
     }
   }

@@ -633,7 +633,7 @@ export class HScrollbarComponent
   private updateValue(newValue: number) {
     newValue = this.clampValue(newValue);
     if (newValue !== this._value) {
-      this.value = newValue;
+      this._value = newValue;
       this.valueChange.emit(this._value);
     }
   }

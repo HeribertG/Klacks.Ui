@@ -136,11 +136,19 @@ export class ScheduleScheduleSurfaceComponent
 
     if (changes['valueChangeHScrollbar']) {
       this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
+      this.scroll.updateScrollPosition(
+        this.valueChangeHScrollbar,
+        this.valueChangeVScrollbar
+      );
       hDirection = true;
     }
 
     if (changes['valueChangeVScrollbar']) {
       this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+      this.scroll.updateScrollPosition(
+        this.valueChangeHScrollbar,
+        this.valueChangeVScrollbar
+      );
       vDirection = true;
     }
 

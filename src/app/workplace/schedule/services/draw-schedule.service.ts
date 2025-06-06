@@ -14,6 +14,7 @@ import { GridRenderService } from './grid-render.service';
 import { CellRenderService } from './cell-render.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { DrawHelper } from 'src/app/helpers/draw-helper';
 
 @Injectable()
 export class DrawScheduleService {
@@ -32,11 +33,9 @@ export class DrawScheduleService {
 
   public startDate: Date = new Date();
 
-  // public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
   public recFilterIcon: Rectangle = new Rectangle();
   public filterImage: HTMLImageElement | undefined;
 
-  private readonly BORDER_OFFSET = 4;
   private readonly MAX_INCREMENTAL_SCROLL = 4;
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
   private readonly ADDITIONALLY_EMPTY_ROWS = 3;
@@ -224,9 +223,9 @@ export class DrawScheduleService {
     const visibleCol: number = this.updateVisibleCol();
 
     const tempCanvas = this.createTempCanvas();
+    this.resizeRenderCanvas(visibleRow, visibleCol);
     this.drawOnTempCanvas(tempCanvas, 0, 0);
 
-    this.resizeRenderCanvas(visibleRow, visibleCol);
     this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
 
     this.renderGrid();
@@ -253,15 +252,13 @@ export class DrawScheduleService {
       this.isScrollingToFast = true;
       return;
     }
-    const deltaX = this.scroll.horizontalScrollDelta;
-    const deltaY = this.scroll.verticalScrollDelta;
-
-    this.scroll.resetDeltas();
 
     if (this.isScrollingToFast) {
       this.redrawGrid();
       this.isScrollingToFast = false;
     } else {
+      const deltaX = this.scroll.horizontalScrollDelta;
+      const deltaY = this.scroll.verticalScrollDelta;
       this.executeScroll(deltaX, deltaY);
     }
   }
@@ -269,19 +266,8 @@ export class DrawScheduleService {
   private executeScroll(directionX: number, directionY: number): void {
     this.isScrolling = true;
 
-    const oldFirstVisibleRow = this.firstVisibleRow;
-    const oldFirstVisibleCol = this.firstVisibleCol;
-
-    this.firstVisibleCol += directionX;
-    this.firstVisibleRow += directionY;
-
     if (this.isInRange(directionX) || this.isInRange(directionY)) {
-      this.moveCanvas(
-        directionX,
-        directionY,
-        oldFirstVisibleRow,
-        oldFirstVisibleCol
-      );
+      this.moveCanvas(directionX, directionY);
     } else {
       this.gridRender.drawGrid(
         this.updateVisibleRow(),
@@ -308,60 +294,36 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   @CanvasAvailable('queue')
-  private moveCanvas(
-    directionX: number,
-    directionY: number,
-    oldFirstVisibleRow: number,
-    oldFirstVisibleCol: number
-  ) {
+  private moveCanvas(directionX: number, directionY: number) {
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 
     if (directionX !== 0) {
-      this.handleHorizontalScroll(
-        visibleRow,
-        visibleCol,
-        oldFirstVisibleRow,
-        oldFirstVisibleCol
-      );
+      this.handleHorizontalScroll(visibleRow, visibleCol);
     }
 
     if (directionY !== 0) {
-      this.handleVerticalScroll(
-        visibleRow,
-        visibleCol,
-        oldFirstVisibleRow,
-        oldFirstVisibleCol
-      );
+      this.handleVerticalScroll(visibleRow, visibleCol);
     }
 
     this.renderGrid();
   }
 
-  private handleHorizontalScroll(
-    visibleRow: number,
-    visibleCol: number,
-    oldFirstVisibleRow: number,
-    oldFirstVisibleCol: number
-  ) {
+  private handleHorizontalScroll(visibleRow: number, visibleCol: number): void {
     const horizontalDiff = this.scroll.horizontalScrollDelta;
-    const verticalDiff = this.scroll.verticalScrollDelta;
 
     this.scroll.resetDeltas();
 
     if (horizontalDiff === 0) return;
 
-    const newFirstVisibleRow = oldFirstVisibleRow + verticalDiff;
-    const newFirstVisibleCol = oldFirstVisibleCol + horizontalDiff;
+    const newFirstVisibleCol = this.scroll.horizontalScrollPosition;
+    const newFirstVisibleRow = this.scroll.verticalScrollPosition;
 
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
     this.resizeRenderCanvas(visibleRow, visibleCol);
-    this.drawImageOnRenderCanvas(
-      tempCanvas,
-      -this.settings.cellWidth * horizontalDiff,
-      0
-    );
+    const scrollOffsetX = -this.settings.cellWidth * horizontalDiff;
+    this.drawImageOnRenderCanvas(tempCanvas, scrollOffsetX, 0);
 
     this.cellRender.updateCellsForHorizontalScroll(
       horizontalDiff,
@@ -372,30 +334,20 @@ export class DrawScheduleService {
     );
   }
 
-  private handleVerticalScroll(
-    visibleRow: number,
-    visibleCol: number,
-    oldFirstVisibleRow: number,
-    oldFirstVisibleCol: number
-  ) {
+  private handleVerticalScroll(visibleRow: number, visibleCol: number): void {
     const verticalDiff = this.scroll.verticalScrollDelta;
-    const horizontalDiff = this.scroll.horizontalScrollDelta;
-
     this.scroll.resetDeltas();
 
     if (verticalDiff === 0) return;
 
-    const newFirstVisibleRow = oldFirstVisibleRow + verticalDiff;
-    const newFirstVisibleCol = oldFirstVisibleCol + horizontalDiff;
+    const newFirstVisibleCol = this.scroll.horizontalScrollPosition;
+    const newFirstVisibleRow = this.scroll.verticalScrollPosition;
 
     const tempCanvas = this.createTempCanvas();
     this.drawOnTempCanvas(tempCanvas, 0, 0);
     this.resizeRenderCanvas(visibleRow, visibleCol);
-    this.drawImageOnRenderCanvas(
-      tempCanvas,
-      0,
-      -this.settings.cellHeight * verticalDiff
-    );
+    const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
+    this.drawImageOnRenderCanvas(tempCanvas, 0, scrollOffsetY);
 
     this.cellRender.updateCellsForVerticalScroll(
       verticalDiff,
@@ -408,8 +360,16 @@ export class DrawScheduleService {
 
   private createTempCanvas(): HTMLCanvasElement {
     const tempCanvas = document.createElement('canvas') as HTMLCanvasElement;
-    tempCanvas.height = this.canvasManager.renderCanvas!.height;
-    tempCanvas.width = this.canvasManager.renderCanvas!.width;
+    const pixelRatio = DrawHelper.pixelRatio();
+    const logicalWidth = this.updateVisibleCol() * this.settings.cellWidth;
+    const logicalHeight = this.updateVisibleRow() * this.settings.cellHeight;
+
+    tempCanvas.width = logicalWidth * pixelRatio;
+    tempCanvas.height = logicalHeight * pixelRatio;
+
+    tempCanvas.style.width = `${logicalWidth}px`;
+    tempCanvas.style.height = `${logicalHeight}px`;
+
     return tempCanvas;
   }
 
@@ -417,53 +377,45 @@ export class DrawScheduleService {
     tempCanvas: HTMLCanvasElement,
     x: number,
     y: number
-  ) {
+  ): void {
     const ctx = tempCanvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(this.canvasManager.renderCanvas!, x, y);
-    }
+    if (!ctx) return;
+
+    const renderCanvas = this.canvasManager.renderCanvas!;
+    const pixelRatio = DrawHelper.pixelRatio();
+    const logicalWidth = renderCanvas.width / pixelRatio;
+    const logicalHeight = renderCanvas.height / pixelRatio;
+
+    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+    ctx.drawImage(renderCanvas, x, y);
   }
 
   private resizeRenderCanvas(visibleRow: number, visibleCol: number) {
-    this.canvasManager.renderCanvas!.height =
-      visibleRow * this.settings.cellHeight;
-    this.canvasManager.renderCanvas!.width =
-      visibleCol * this.settings.cellWidth;
-    this.canvasManager.renderCanvasCtx!.clearRect(
-      0,
-      0,
-      this.canvasManager.renderCanvas!.width,
-      this.canvasManager.renderCanvas!.height
-    );
+    this.canvasManager.resizeRenderCanvas(visibleRow, visibleCol);
   }
 
   private drawImageOnRenderCanvas(
     tempCanvas: HTMLCanvasElement,
     x: number,
     y: number
-  ) {
-    this.canvasManager.renderCanvasCtx!.drawImage(tempCanvas, x, y);
-  }
+  ): void {
+    if (!this.canvasManager.renderCanvasCtx) return;
 
-  @CanvasAvailable('queue')
-  private crateGridHeader() {
-    this.canvasManager.headerCanvas!.height =
-      this.settings.cellHeaderHeight + this.settings.increaseBorder;
-    this.canvasManager.headerCanvas!.width =
-      this.gridData.columns * this.settings.cellWidth;
+    const ctx = this.canvasManager.renderCanvasCtx;
+    const pixelRatio = DrawHelper.pixelRatio();
 
-    for (let col = 0; col < this.gridData.columns; col++) {
-      const imgHeader = this.createHeader.createHeader(col);
-      if (imgHeader) {
-        if (col < this.gridData.columns) {
-          this.canvasManager.headerCtx!.putImageData(
-            imgHeader,
-            col * this.settings.cellWidth,
-            0
-          );
-        }
-      }
-    }
+    ctx.drawImage(
+      tempCanvas,
+      0,
+      0,
+      tempCanvas.width,
+      tempCanvas.height,
+      x,
+      y,
+      tempCanvas.width / pixelRatio,
+      tempCanvas.height / pixelRatio
+    );
   }
 
   @CanvasAvailable('queue')
