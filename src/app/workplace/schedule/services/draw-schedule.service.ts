@@ -161,46 +161,29 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private growGrid() {
-    const oldVisibleRow: number = this.nominalVisibleRow();
-    const oldVisibleCol: number = this.nominalVisibleCol();
+    const oldVisibleRow = this.nominalVisibleRow();
+    const oldVisibleCol = this.nominalVisibleCol();
 
-    const visibleRow: number = this.updateVisibleRow();
-    const visibleCol: number = this.updateVisibleCol();
+    const visibleRow = this.updateVisibleRow();
+    const visibleCol = this.updateVisibleCol();
 
     if (oldVisibleRow < visibleRow || oldVisibleCol < visibleCol) {
       const tempCanvas = this.createTempCanvas();
       this.drawOnTempCanvas(tempCanvas, 0, 0);
 
       this.resizeRenderCanvas(visibleRow, visibleCol);
+
       this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
 
-      // if it grows horizontally and vertically
       if (oldVisibleRow < visibleRow && oldVisibleCol < visibleCol) {
-        this.addNewCells(
-          oldVisibleRow,
-          oldVisibleCol,
-          visibleRow + 1,
-          visibleCol + 1
-        );
-        // if it grows horizontally
+        this.addNewCells(oldVisibleRow, oldVisibleCol, visibleRow, visibleCol);
       } else if (oldVisibleRow === visibleRow && oldVisibleCol < visibleCol) {
-        // this.addNewCols(
-        //   this.firstVisibleRow,
-        //   oldVisibleCol - 1,
-        //   visibleRow + 1,
-        //   visibleCol + 1
-        // );
-        this.redrawGrid();
-        // if it grows vertically
+        this.addNewCells(0, oldVisibleCol, visibleRow, visibleCol);
       } else if (oldVisibleRow < visibleRow && oldVisibleCol === visibleCol) {
-        this.addNewCells(
-          oldVisibleRow,
-          this.firstVisibleCol,
-          visibleRow + 1,
-          visibleCol + 1
-        );
+        this.addNewCells(oldVisibleRow, 0, visibleRow, visibleCol);
       }
     }
+
     this.renderGrid();
   }
 
@@ -218,14 +201,29 @@ export class DrawScheduleService {
   }
 
   @CanvasAvailable('queue')
+  @CanvasAvailable('queue')
   private shrinkGrid() {
-    const visibleRow: number = this.updateVisibleRow();
-    const visibleCol: number = this.updateVisibleCol();
+    const oldVisibleRow = this.nominalVisibleRow();
+    const oldVisibleCol = this.nominalVisibleCol();
 
-    const tempCanvas = this.createTempCanvas();
+    const tempCanvas = document.createElement('canvas');
+    const pixelRatio = DrawHelper.pixelRatio();
+    const oldLogicalWidth = oldVisibleCol * this.settings.cellWidth;
+    const oldLogicalHeight = oldVisibleRow * this.settings.cellHeight;
+
+    tempCanvas.width = oldLogicalWidth * pixelRatio;
+    tempCanvas.height = oldLogicalHeight * pixelRatio;
+    tempCanvas.style.width = `${oldLogicalWidth}px`;
+    tempCanvas.style.height = `${oldLogicalHeight}px`;
+
+    const tempCtx = tempCanvas.getContext('2d');
+    if (tempCtx && this.canvasManager.renderCanvas) {
+      tempCtx.drawImage(this.canvasManager.renderCanvas, 0, 0);
+    }
+    const visibleRow = this.updateVisibleRow();
+    const visibleCol = this.updateVisibleCol();
+
     this.resizeRenderCanvas(visibleRow, visibleCol);
-    this.drawOnTempCanvas(tempCanvas, 0, 0);
-
     this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
 
     this.renderGrid();

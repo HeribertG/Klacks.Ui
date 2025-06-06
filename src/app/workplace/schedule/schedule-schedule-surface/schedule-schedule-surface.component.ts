@@ -12,6 +12,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  SimpleChanges,
   ViewChild,
   effect,
   inject,
@@ -130,26 +131,35 @@ export class ScheduleScheduleSurfaceComponent
     this.effects = [];
   }
 
-  ngOnChanges(changes: any): void {
+  ngOnChanges(changes: SimpleChanges): void {
     let vDirection = false;
     let hDirection = false;
 
     if (changes['valueChangeHScrollbar']) {
-      this.scroll.horizontalScrollPosition = this.valueChangeHScrollbar;
-      this.scroll.updateScrollPosition(
-        this.valueChangeHScrollbar,
-        this.valueChangeVScrollbar
-      );
-      hDirection = true;
+      const prevH = changes['valueChangeHScrollbar'].previousValue;
+      const currH = changes['valueChangeHScrollbar'].currentValue;
+
+      if (currH !== prevH) {
+        this.scroll.horizontalScrollPosition = currH;
+        this.scroll.updateScrollPosition(
+          currH,
+          this.scroll.verticalScrollPosition
+        );
+        hDirection = true;
+      }
     }
 
     if (changes['valueChangeVScrollbar']) {
-      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
-      this.scroll.updateScrollPosition(
-        this.valueChangeHScrollbar,
-        this.valueChangeVScrollbar
-      );
-      vDirection = true;
+      const prevV = changes['valueChangeVScrollbar'].previousValue;
+      const currV = changes['valueChangeVScrollbar'].currentValue;
+      if (currV !== prevV) {
+        this.scroll.verticalScrollPosition = currV;
+        this.scroll.updateScrollPosition(
+          this.scroll.horizontalScrollPosition,
+          currV
+        );
+        vDirection = true;
+      }
     }
 
     if (vDirection || hDirection) {
