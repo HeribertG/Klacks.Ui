@@ -35,11 +35,13 @@ export class CreateHeaderService {
     this.iconHeight = this.settings.rowHeaderIconHeight;
     this.zoom = this.settings.zoom;
     const tempCanvas = document.createElement('canvas');
-    const ctx = tempCanvas.getContext('2d');
+    const ctx = DrawHelper.createHiDPICanvas(
+      tempCanvas,
+      this.settings.cellWidth,
+      this.settings.cellHeaderHeight,
+      true
+    );
     if (ctx) {
-      tempCanvas.width = this.settings.cellWidth;
-      tempCanvas.height = this.settings.cellHeaderHeight;
-
       ctx.fillStyle = this.gridColors.headerBackGroundColor;
       ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
 
