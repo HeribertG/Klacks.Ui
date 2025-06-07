@@ -24,20 +24,11 @@ import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawScheduleService } from '../services/draw-schedule.service';
 import { DataService } from '../services/data.service';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { CanvasManagerService } from '../services/canvas-manager.service';
-import { CellManipulationService } from '../services/cell-manipulation.service';
-import { CellRenderService } from '../services/cell-render.service';
-import { CreateCellService } from '../services/create-cell.service';
-import { CreateHeaderService } from '../services/create-header.service';
-import { DrawRowHeaderService } from '../services/draw-row-header.service';
-import { CreateRowHeaderService } from '../services/create-row-header.service';
-import { GridRenderService } from '../services/grid-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
@@ -46,25 +37,12 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   styleUrls: ['./schedule-schedule-surface.component.scss'],
   standalone: true,
   imports: [CommonModule, ContextMenuComponent, ResizeDirective, SharedModule],
-  providers: [
-    DataService,
-    ScrollService,
-    CanvasManagerService,
-    CellManipulationService,
-    CellRenderService,
-    CreateCellService,
-    CreateHeaderService,
-    CreateRowHeaderService,
-    DrawRowHeaderService,
-    DrawScheduleService,
-    GridRenderService,
-  ],
+  providers: [],
 })
 export class ScheduleScheduleSurfaceComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() contextMenu: ContextMenuComponent | undefined;
-  @Input() rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
   @Input() valueChangeHScrollbar!: number;
   @Input() valueChangeVScrollbar!: number;
 
@@ -121,7 +99,6 @@ export class ScheduleScheduleSurfaceComponent
     this.ngUnsubscribe.complete();
 
     this.drawSchedule.deleteCanvas();
-    // this.drawSchedule.rowHeader = undefined;
 
     this.effects.forEach((effectRef) => {
       if (effectRef) {

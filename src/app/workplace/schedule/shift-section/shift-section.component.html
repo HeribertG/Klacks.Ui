@@ -1,0 +1,22 @@
+<as-split
+  direction="horizontal"
+  [disabled]="true"
+  [gutterSize]="1"
+  unit="pixel"
+>
+  <!-- Links: Shift Row Header -->
+  <as-split-area [size]="horizontalSize" [minSize]="100">
+    <app-schedule-shift-row-header></app-schedule-shift-row-header>
+  </as-split-area>
+
+  <!-- Rechts: Shift Surface -->
+  <as-split-area>
+    <div class="container-box2">
+      <div class="surface">
+        <div class="box">
+          <app-schedule-shift-surface></app-schedule-shift-surface>
+        </div>
+      </div>
+    </div>
+  </as-split-area>
+</as-split>

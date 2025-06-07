@@ -1,118 +1,21 @@
 <as-split direction="horizontal">
-  <!-- (Haupt) Split-Bereich -->
   <as-split-area>
-    <as-split
-      #splitElVert
-      direction="vertical"
-      aria-orientation="vertical"
-      aria-label="as-split"
-      [gutterSize]="6"
-      unit="percent"
-    >
-      <!-- oberer Bereich -->
-      <as-split-area [size]="70" [minSize]="10" [maxSize]="90">
-        <as-split
-          #splitElHorizontal
-          [gutterSize]="6"
-          direction="horizontal"
-          aria-orientation="horizontal"
-          aria-label="as-split"
-          unit="pixel"
-        >
-          <!-- Links oben -->
-          <as-split-area
-            [size]="200"
-            [minSize]="100"
-            aria-label="as-split-area top left"
-          >
-            <!-- Inhalt für Links oben -->
-            <app-schedule-schedule-row-header
-              #scheduleRowHeader
-              [valueChangeVScrollbar]="vScrollbar.value"
-            ></app-schedule-schedule-row-header>
-          </as-split-area>
-
-          <!-- Rechts oben -->
-          <as-split-area>
-            <!-- Inhalt für Rechts oben -->
-            <div class="container-box">
-              <div class="surface">
-                <div class="box">
-                  <app-schedule-schedule-surface
-                    #scheduleBody
-                    [rowHeader]="scheduleRowHeader"
-                    [valueChangeHScrollbar]="hScrollbar.value"
-                    (valueHScrollbar)="hScrollbar.value = $event"
-                    (maxValueHScrollbar)="hScrollbar.maxValue = $event"
-                    (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
-                    [valueChangeVScrollbar]="vScrollbar.value"
-                    (valueVScrollbar)="vScrollbar.value = $event"
-                    (maxValueVScrollbar)="vScrollbar.maxValue = $event"
-                    (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
-                  ></app-schedule-schedule-surface>
-                </div>
-                <div class="vScrollArea">
-                  <app-v-scrollbar
-                    class="vScrollArea"
-                    [(value)]="vScrollbar.value"
-                    [maxValue]="vScrollbar.maxValue"
-                    [visibleValue]="vScrollbar.visibleValue"
-                    (valueChange)="scheduleBody.valueChangeVScrollbar = $event"
-                    #vScrollbar
-                  ></app-v-scrollbar>
-                </div>
-              </div>
-              <div class="hScrollArea">
-                <app-h-scrollbar
-                  class="hScrollArea"
-                  [(value)]="hScrollbar.value"
-                  [maxValue]="hScrollbar.maxValue"
-                  [visibleValue]="hScrollbar.visibleValue"
-                  (valueChange)="scheduleBody.valueChangeHScrollbar = $event"
-                  #hScrollbar
-                ></app-h-scrollbar>
-              </div>
-            </div>
-          </as-split-area>
-        </as-split>
+    <as-split direction="vertical" [gutterSize]="6" unit="percent">
+      <!-- oberer Bereich: ScheduleSection mit Two-Way-Binding -->
+      <as-split-area [size]="70" [minSize]="10">
+        <app-schedule-section [(horizontalSize)]="horizontalSizes">
+        </app-schedule-section>
       </as-split-area>
 
-      <!-- unterer Bereich -->
+      <!-- unterer Bereich: ShiftSection mit One-Way-Binding -->
       <as-split-area [size]="30" [minSize]="10">
-        <as-split
-          direction="horizontal"
-          aria-orientation="horizontal"
-          aria-label="as-split"
-          [disabled]="true"
-          [gutterSize]="1"
-          unit="pixel"
-        >
-          <!-- Links unten -->
-          <as-split-area [size]="horizontalSizes" unit="pixel">
-            <!-- Inhalt für Links unten -->
-            <app-schedule-shift-row-header></app-schedule-shift-row-header>
-          </as-split-area>
-
-          <!-- Rechts unten -->
-          <as-split-area>
-            <!-- Inhalt für Rechts unten -->
-            <div class="container-box2">
-              <div class="surface">
-                <div class="box">
-                  <app-schedule-shift-surface></app-schedule-shift-surface>
-                </div>
-                <div class="vScrollArea">
-                  <!-- <app-schedule-v-scrollbar></app-schedule-v-scrollbar> -->
-                </div>
-              </div>
-            </div>
-          </as-split-area>
-        </as-split>
+        <app-shift-section [horizontalSize]="horizontalSizes">
+        </app-shift-section>
       </as-split-area>
     </as-split>
   </as-split-area>
 
-  <!-- Rechter (Info) Split-Bereich -->
+  <!-- Rechter Info-Bereich bleibt unverändert -->
   <as-split-area [maxSize]="20" unit="percent" [visible]="IsInfoVisible">
     <div class="info"></div>
   </as-split-area>

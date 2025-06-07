@@ -1,0 +1,44 @@
+<as-split #splitEl direction="horizontal" [gutterSize]="6" unit="pixel">
+  <!-- Links: Row Header -->
+  <as-split-area [size]="horizontalSize" [minSize]="100">
+    <app-schedule-schedule-row-header
+      [valueChangeVScrollbar]="vScrollbar.value"
+    >
+    </app-schedule-schedule-row-header>
+  </as-split-area>
+
+  <!-- Rechts: Surface + Scrollbars -->
+  <as-split-area>
+    <div class="container-box">
+      <div class="surface">
+        <div class="box">
+          <app-schedule-schedule-surface
+            [valueChangeHScrollbar]="hScrollbar.value"
+            (valueHScrollbar)="hScrollbar.value = $event"
+            (maxValueHScrollbar)="hScrollbar.maxValue = $event"
+            (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
+            [valueChangeVScrollbar]="vScrollbar.value"
+            (valueVScrollbar)="vScrollbar.value = $event"
+            (maxValueVScrollbar)="vScrollbar.maxValue = $event"
+            (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
+          >
+          </app-schedule-schedule-surface>
+        </div>
+        <app-v-scrollbar
+          class="vScrollArea"
+          [(value)]="vScrollbar.value"
+          [maxValue]="vScrollbar.maxValue"
+          [visibleValue]="vScrollbar.visibleValue"
+        >
+        </app-v-scrollbar>
+      </div>
+      <app-h-scrollbar
+        class="hScrollArea"
+        [(value)]="hScrollbar.value"
+        [maxValue]="hScrollbar.maxValue"
+        [visibleValue]="hScrollbar.visibleValue"
+      >
+      </app-h-scrollbar>
+    </div>
+  </as-split-area>
+</as-split>
