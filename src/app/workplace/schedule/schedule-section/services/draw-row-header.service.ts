@@ -5,11 +5,11 @@ import { GridSettingsService } from 'src/app/grid/services/grid-settings.service
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { SettingsService } from './settings.service';
 import { CellManipulationService } from './cell-manipulation.service';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { CreateHeaderService } from './create-header.service';
 import { DataService } from './data.service';
 import { CreateRowHeaderService } from './create-row-header.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { ScheduleScheduleRowHeaderComponent } from '../../schedule-schedule-row-header/schedule-schedule-row-header.component';
 
 @Injectable()
 export class DrawRowHeaderService {

@@ -22,14 +22,14 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { Subject, takeUntil } from 'rxjs';
-import { DrawScheduleService } from '../services/draw-schedule.service';
-import { DataService } from '../services/data.service';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { DataService } from '../schedule-section/services/data.service';
+import { DrawScheduleService } from '../schedule-section/services/draw-schedule.service';
+import { SettingsService } from '../schedule-section/services/settings.service';
 
 @Component({
   selector: 'app-schedule-schedule-surface',

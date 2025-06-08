@@ -5,7 +5,6 @@ import { RowHeaderIconsService } from 'src/app/grid/services/row-header-icons.se
 import { GridColorService } from 'src/app/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { GridRowHeader } from '../classes/grid-row-header';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
@@ -14,6 +13,7 @@ import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border
 import { ClientWork } from 'src/app/core/schedule-class';
 import { Rectangle } from 'src/app/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
+import { GridRowHeader } from '../../classes/grid-row-header';
 
 @Injectable()
 export class CreateRowHeaderService {

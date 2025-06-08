@@ -1,30 +1,33 @@
-import { Directive, HostListener, ViewContainerRef } from '@angular/core';
+import {
+  Directive,
+  HostListener,
+  inject,
+  ViewContainerRef,
+} from '@angular/core';
 
 import { Overlay } from '@angular/cdk/overlay';
-import { ScrollService } from '../services/scroll.service';
-import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
+import { ScheduleScheduleSurfaceComponent } from '../../schedule-schedule-surface/schedule-schedule-surface.component';
 import { DataService } from '../services/data.service';
 import { MyPosition } from 'src/app/grid/classes/position';
 import { CellManipulationService } from '../services/cell-manipulation.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Directive({
   selector: '[appCellEvents]',
   standalone: true,
 })
 export class CellEventsDirective {
+  private gridSurface = inject(ScheduleScheduleSurfaceComponent);
+  public overlay = inject(Overlay);
+  public viewContainerRef = inject(ViewContainerRef);
+  private gridData = inject(DataService);
+  private scrollGrid = inject(ScrollService);
+  private cellManipulation = inject(CellManipulationService);
+
   private keyDown = false;
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
-
-  constructor(
-    private gridSurface: ScheduleScheduleSurfaceComponent,
-    public overlay: Overlay,
-    public viewContainerRef: ViewContainerRef,
-    private gridData: DataService,
-    private scrollGrid: ScrollService,
-    private cellManipulation: CellManipulationService
-  ) {}
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}

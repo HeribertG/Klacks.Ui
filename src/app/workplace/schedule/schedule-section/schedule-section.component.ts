@@ -1,7 +1,6 @@
 import {
   Component,
   ViewChild,
-  NgZone,
   inject,
   AfterViewInit,
   EventEmitter,
@@ -13,18 +12,18 @@ import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-hea
 import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
-import { GridRenderService } from '../services/grid-render.service';
-import { DrawScheduleService } from '../services/draw-schedule.service';
-import { DrawRowHeaderService } from '../services/draw-row-header.service';
-import { CreateRowHeaderService } from '../services/create-row-header.service';
-import { CreateHeaderService } from '../services/create-header.service';
-import { CreateCellService } from '../services/create-cell.service';
-import { CellRenderService } from '../services/cell-render.service';
-import { CellManipulationService } from '../services/cell-manipulation.service';
-import { CanvasManagerService } from '../services/canvas-manager.service';
-import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { DataService } from '../services/data.service';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
+import { GridRenderService } from './services/grid-render.service';
+import { DrawScheduleService } from './services/draw-schedule.service';
+import { DrawRowHeaderService } from './services/draw-row-header.service';
+import { CreateRowHeaderService } from './services/create-row-header.service';
+import { CreateHeaderService } from './services/create-header.service';
+import { CreateCellService } from './services/create-cell.service';
+import { CellRenderService } from './services/cell-render.service';
+import { CellManipulationService } from './services/cell-manipulation.service';
+import { CanvasManagerService } from './services/canvas-manager.service';
+import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
+import { DataService } from './services/data.service';
 
 @Component({
   selector: 'app-schedule-section',

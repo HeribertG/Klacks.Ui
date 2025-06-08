@@ -2,20 +2,20 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
-import { DataService } from '../services/data.service';
-import { SettingsService } from '../services/settings.service';
-import { CanvasManagerService } from '../services/canvas-manager.service';
-import { CellManipulationService } from '../services/cell-manipulation.service';
-import { CellRenderService } from '../services/cell-render.service';
-import { CreateCellService } from '../services/create-cell.service';
-import { CreateHeaderService } from '../services/create-header.service';
-import { DrawRowHeaderService } from '../services/draw-row-header.service';
-import { CreateRowHeaderService } from '../services/create-row-header.service';
-import { DrawScheduleService } from '../services/draw-schedule.service';
-import { GridRenderService } from '../services/grid-render.service';
 import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
+import { GridRenderService } from '../schedule-section/services/grid-render.service';
+import { DrawScheduleService } from '../schedule-section/services/draw-schedule.service';
+import { DrawRowHeaderService } from '../schedule-section/services/draw-row-header.service';
+import { CreateRowHeaderService } from '../schedule-section/services/create-row-header.service';
+import { CreateHeaderService } from '../schedule-section/services/create-header.service';
+import { CreateCellService } from '../schedule-section/services/create-cell.service';
+import { CellRenderService } from '../schedule-section/services/cell-render.service';
+import { CellManipulationService } from '../schedule-section/services/cell-manipulation.service';
+import { CanvasManagerService } from '../schedule-section/services/canvas-manager.service';
+import { SettingsService } from '../schedule-section/services/settings.service';
+import { DataService } from '../schedule-section/services/data.service';
 
 @Component({
   selector: 'app-schedule-home',

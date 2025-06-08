@@ -8,7 +8,6 @@ import {
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
-import { SettingsService } from '../services/settings.service';
 import { CommonModule } from '@angular/common';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import {
@@ -18,6 +17,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+import { SettingsService } from '../schedule-section/services/settings.service';
 
 @Component({
   selector: 'app-schedule-header',
