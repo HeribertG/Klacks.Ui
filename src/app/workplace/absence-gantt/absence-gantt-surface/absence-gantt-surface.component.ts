@@ -50,13 +50,13 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
-import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/shared/context-menu/context-menu.service';
+import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
 
 @Component({
   selector: 'app-absence-gantt-surface',

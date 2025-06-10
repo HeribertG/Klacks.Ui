@@ -30,13 +30,20 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { DataService } from '../schedule-section/services/data.service';
 import { DrawScheduleService } from '../schedule-section/services/draw-schedule.service';
 import { SettingsService } from '../schedule-section/services/settings.service';
+import { ScheduleEventsDirective } from '../schedule-section/directives/schedule-events.directive';
 
 @Component({
   selector: 'app-schedule-schedule-surface',
   templateUrl: './schedule-schedule-surface.component.html',
   styleUrls: ['./schedule-schedule-surface.component.scss'],
   standalone: true,
-  imports: [CommonModule, ContextMenuComponent, ResizeDirective, SharedModule],
+  imports: [
+    CommonModule,
+    ContextMenuComponent,
+    ScheduleEventsDirective,
+    ResizeDirective,
+    SharedModule,
+  ],
   providers: [],
 })
 export class ScheduleScheduleSurfaceComponent

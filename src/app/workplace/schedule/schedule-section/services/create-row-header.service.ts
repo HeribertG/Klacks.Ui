@@ -136,7 +136,7 @@ export class CreateRowHeaderService {
       0,
       0,
       width,
-      height,
+      height * this.settings.zoom,
       this.gridFonts.mainFontStringZoom,
       this.gridFonts.mainFontHeightZoom,
       this.gridColors.headerForeGroundColor,
@@ -333,38 +333,37 @@ export class CreateRowHeaderService {
     client: ClientWork
   ): void {
     const tempCanvas = document.createElement('canvas');
+    const neededRows = client.neededRows;
+    const height =
+      (this.settings.cellHeight * neededRows + this.settings.increaseBorder) *
+      this.settings.zoom;
     if (tempCanvas) {
-      const ctx = tempCanvas.getContext('2d');
+      const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
       if (ctx) {
-        const neededRows = client.neededRows;
-        tempCanvas.width = width;
-        tempCanvas.height =
-          this.settings.cellHeight * neededRows + this.settings.increaseBorder;
-
         this.FillHeaderBackground(ctx, width, tempCanvas.height);
         this.drawBorder(
           ctx,
           width - this.settings.InfoSpotWidth - this.settings.increaseBorder,
-          tempCanvas.height,
+          height,
           this.settings.headerBorderWidth
         );
 
         const name = this.getName(client);
-        this.drawTitle(ctx, name, width, tempCanvas.height);
+        this.drawTitle(ctx, name, width, height);
         const textSize =
           this.prepareFontMeasureText(ctx, name) + 25 * this.settings.zoom;
         this.drawGenderSymbols(
           ctx,
           this.getGenderSymbols(client),
           textSize,
-          tempCanvas.height
+          height
         );
 
         this.drawInfoSpots(
           ctx,
           client,
           width - this.settings.increaseBorder,
-          tempCanvas.height - this.settings.increaseBorder * 2
+          height - this.settings.increaseBorder * 2
         );
 
         //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;

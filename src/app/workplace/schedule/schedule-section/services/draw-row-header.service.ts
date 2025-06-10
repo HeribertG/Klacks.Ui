@@ -68,6 +68,7 @@ export class DrawRowHeaderService {
       true
     );
     DrawHelper.setAntiAliasing(this.renderCanvasCtx);
+
     this.headerCanvas = document.createElement('canvas') as HTMLCanvasElement;
     this.headerCtx = DrawHelper.createHiDPICanvas(
       this.headerCanvas,
@@ -242,15 +243,39 @@ export class DrawRowHeaderService {
   }
 
   private renderGrid(): void {
-    if (this.isCanvasAvailable()) {
-      this.ctx!.drawImage(
-        this.renderCanvas!,
-        0,
-        this.settings.cellHeaderHeight
-      );
+    if (!this.isCanvasAvailable()) return;
 
-      this.ctx!.drawImage(this.headerCanvas!, 0, 0);
-    }
+    const pixelRatio = DrawHelper.pixelRatio();
+
+    // Berechne die logischen Dimensionen für renderCanvas
+    const renderLogicalWidth = this.renderCanvas!.width / pixelRatio;
+    const renderLogicalHeight = this.renderCanvas!.height / pixelRatio;
+
+    // Berechne die logischen Dimensionen für headerCanvas
+    const headerLogicalWidth = this.headerCanvas!.width / pixelRatio;
+    const headerLogicalHeight = this.headerCanvas!.height / pixelRatio;
+
+    // Zeichne renderCanvas mit korrekten logischen Dimensionen
+    this.ctx!.drawImage(
+      this.renderCanvas!,
+      0,
+      0,
+      this.width,
+      this.renderCanvas!.height, // Quelle (physische Dimensionen)
+      0,
+      this.settings.cellHeaderHeight, // Ziel-Position
+      this.headerCanvas!.width,
+      this.height
+    );
+
+    // Zeichne headerCanvas mit korrekten logischen Dimensionen
+    this.ctx!.drawImage(
+      this.headerCanvas!,
+      0,
+      0,
+      this.headerCanvas!.width,
+      this.headerCanvas!.height // Quelle (physische Dimensionen)
+    );
   }
 
   private addCells(row: number, position: number): number | undefined {

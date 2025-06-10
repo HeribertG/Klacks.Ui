@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Directive, ElementRef, HostListener, NgZone } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  inject,
+  NgZone,
+} from '@angular/core';
 
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/services/draw-calendar-gantt.service';
@@ -9,18 +15,16 @@ import { DrawCalendarGanttService } from 'src/app/workplace/absence-gantt/servic
   standalone: true,
 })
 export class AbsenceCalendarDirective {
+  private el = inject(ElementRef);
+  private gridBody = inject(AbsenceGanttSurfaceComponent);
+  private drawCalendarGanttService = inject(DrawCalendarGanttService);
+
   private keyDown = false;
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
   private readonly SCROLL_THRESHOLD = 2;
   private readonly INDEX_CORRECTION = 1;
-
-  constructor(
-    private el: ElementRef,
-    private gridBody: AbsenceGanttSurfaceComponent,
-    private drawCalendarGanttService: DrawCalendarGanttService
-  ) {}
 
   // @HostListener('mouseenter', ['$event']) onMouseEnter(
   //   event: MouseEvent
@@ -433,7 +437,7 @@ export class AbsenceCalendarDirective {
     const hasId = targetElement.hasAttribute('id');
     const idValue = hasId ? targetElement.getAttribute('id') : '';
 
-    if (idValue === 'absence-gantt-surface-id') {
+    if (idValue === 'calendarCanvas') {
       return true;
     }
 

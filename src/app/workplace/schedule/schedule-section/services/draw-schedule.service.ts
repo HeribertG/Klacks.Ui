@@ -26,19 +26,18 @@ export class DrawScheduleService {
   private scroll = inject(ScrollService);
   private settings = inject(SettingsService);
   private createHeader = inject(CreateHeaderService);
-  private createCell = inject(CreateCellService);
+  private createCellService = inject(CreateCellService);
   private canvasManager = inject(CanvasManagerService);
   private gridRender = inject(GridRenderService);
   private cellRender = inject(CellRenderService);
 
-  public startDate: Date = new Date();
-
-  public recFilterIcon: Rectangle = new Rectangle();
-  public filterImage: HTMLImageElement | undefined;
-
   private readonly MAX_INCREMENTAL_SCROLL = 4;
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
   private readonly ADDITIONALLY_EMPTY_ROWS = 3;
+
+  public startDate: Date = new Date();
+  public recFilterIcon: Rectangle = new Rectangle();
+  public filterImage: HTMLImageElement | undefined;
 
   private _isFocused = true;
   private isScrolling = false;
@@ -61,7 +60,7 @@ export class DrawScheduleService {
   @CanvasAvailable('queue')
   public rebuild() {
     this.createHeader.reset();
-    this.createCell.reset();
+    this.createCellService.reset();
   }
 
   @CanvasAvailable('queue')
@@ -188,14 +187,14 @@ export class DrawScheduleService {
   }
 
   private addNewCells(
-    oldVisibleRow: number,
-    oldVisibleCol: number,
-    visibleRow: number,
-    visibleCol: number
+    startRow: number,
+    startCol: number,
+    endRow: number,
+    endCol: number
   ) {
-    for (let row = oldVisibleRow; row < visibleRow; row++) {
-      for (let col = oldVisibleCol; col < visibleCol; col++) {
-        this.addCells();
+    for (let r = startRow; r < endRow; r++) {
+      for (let c = startCol; c < endCol; c++) {
+        this.addCell(r, c);
       }
     }
   }
@@ -483,21 +482,26 @@ export class DrawScheduleService {
     }
   }
 
-  @CanvasAvailable('queue')
-  private addCells() {
-    if (this.existData) {
-      const visibleRows: number = this.updateVisibleRow();
-      const visibleCols: number = this.updateVisibleCol();
+  private addCell(row: number, col: number): void {
+    const ctx = this.canvasManager.renderCanvasCtx;
+    if (!ctx) return;
+    const cellCanvas = this.createCellService.createCell(
+      row + this.firstVisibleRow,
+      col + this.firstVisibleCol
+    );
+    if (!cellCanvas) return;
 
-      this.cellRender.addCells(
-        visibleRows,
-        visibleCols,
-        this.firstVisibleRow,
-        this.firstVisibleCol
-      );
-    }
+    const x = col * this.settings.cellWidth;
+    const y = row * this.settings.cellHeight;
+
+    ctx.drawImage(
+      cellCanvas,
+      x,
+      y,
+      this.settings.cellWidth,
+      this.settings.cellHeight
+    );
   }
-
   /* #endregion draw Grid */
 
   /* #region position and selection */
@@ -736,14 +740,16 @@ export class DrawScheduleService {
   }
 
   private nominalVisibleRow(): number {
+    const dpr = DrawHelper.pixelRatio();
     return Math.ceil(
-      this.canvasManager.renderCanvas!.height / this.settings.cellHeight
+      this.canvasManager.renderCanvas!.height / dpr / this.settings.cellHeight
     );
   }
 
   private nominalVisibleCol(): number {
+    const dpr = DrawHelper.pixelRatio();
     return Math.ceil(
-      this.canvasManager.renderCanvas!.width / this.settings.cellWidth
+      this.canvasManager.renderCanvas!.width / dpr / this.settings.cellWidth
     );
   }
 
