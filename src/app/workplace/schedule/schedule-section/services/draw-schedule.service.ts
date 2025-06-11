@@ -122,7 +122,10 @@ export class DrawScheduleService {
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 
-    if (oldVisibleCol < visibleCol || oldVisibleRow < visibleRow) {
+    if (oldVisibleCol < visibleCol && oldVisibleRow < visibleRow) {
+      this.resizeRenderCanvas(visibleRow, visibleCol);
+      this.redrawGrid();
+    } else if (oldVisibleCol < visibleCol || oldVisibleRow < visibleRow) {
       this.growGrid();
     } else if (oldVisibleCol > visibleCol || oldVisibleRow > visibleRow) {
       this.shrinkGrid();

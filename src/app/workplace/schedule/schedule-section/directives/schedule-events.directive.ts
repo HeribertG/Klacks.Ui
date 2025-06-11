@@ -473,7 +473,9 @@ export class ScheduleEventsDirective {
 
   scrollOnPoint(pos: MyPosition) {
     if (pos.column < this.scrollGrid.horizontalScrollPosition) {
-      //this.gridSurface.drawSchedule.moveGrid(-1, 0);
+      this.gridSurface.valueHScrollbar.emit(
+        this.scrollGrid.horizontalScrollPosition - 1
+      );
       return;
     }
 
@@ -481,7 +483,9 @@ export class ScheduleEventsDirective {
       this.scrollGrid.visibleCols + this.scrollGrid.horizontalScrollPosition;
 
     if (pos.column > lastVisibleColum) {
-      // this.gridSurface.drawSchedule.moveGrid(1, 0);
+      this.gridSurface.valueHScrollbar.emit(
+        this.scrollGrid.horizontalScrollPosition + 1
+      );
       return;
     }
 
