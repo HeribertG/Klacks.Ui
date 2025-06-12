@@ -56,7 +56,8 @@ export class DrawRowHeaderService {
     this.ctx = DrawHelper.createHiDPICanvas(
       this.canvas,
       this.width,
-      this.height
+      this.height,
+      true
     );
     DrawHelper.setAntiAliasing(this.ctx);
 
@@ -152,6 +153,7 @@ export class DrawRowHeaderService {
     this._width = value;
     this.setMetrics();
     this.resizeMainCanvas();
+    this.resizeRenderCanvas();
   }
   public get width(): number {
     return this._width;
@@ -161,6 +163,7 @@ export class DrawRowHeaderService {
     this._height = value;
     this.setMetrics();
     this.resizeMainCanvas();
+    this.resizeRenderCanvas();
   }
   public get height(): number {
     return this._height;
@@ -172,6 +175,15 @@ export class DrawRowHeaderService {
       this.canvas!.style.height = `${this.height}px`;
       this.ctx!.canvas.height = this.height;
       this.ctx!.canvas!.width = this.width;
+    }
+  }
+
+  private resizeRenderCanvas() {
+    if (this.isCanvasAvailable()) {
+      this.renderCanvas!.style.width = `${this.width}px`;
+      this.renderCanvas!.style.height = `${this.height}px`;
+      this.renderCanvasCtx!.canvas.height = this.height;
+      this.renderCanvasCtx!.canvas!.width = this.width;
     }
   }
 
@@ -212,12 +224,19 @@ export class DrawRowHeaderService {
   drawGrid() {
     if (this.isCanvasAvailable()) {
       const width = Math.floor(this.width);
-
       const visibleRow: number = this.visibleRow();
-
       const height = Math.floor(this.canvas!.clientHeight);
+
+      // WICHTIG: renderCanvas darf NICHT mit HiDPI erstellt werden für diesen Zweck
+      // oder wir müssen konsequent mit logischen Dimensionen arbeiten
       this.renderCanvas!.width = width;
       this.renderCanvas!.height = height;
+
+      // Context ohne HiDPI scaling holen
+      this.renderCanvasCtx = this.renderCanvas!.getContext('2d', {
+        willReadFrequently: true,
+      })!;
+      DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
       this.renderCanvasCtx!.clearRect(
         0,
@@ -247,25 +266,23 @@ export class DrawRowHeaderService {
 
     const pixelRatio = DrawHelper.pixelRatio();
 
-    // Berechne die logischen Dimensionen für renderCanvas
-    const renderLogicalWidth = this.renderCanvas!.width / pixelRatio;
-    const renderLogicalHeight = this.renderCanvas!.height / pixelRatio;
+    const srcW = this.renderCanvas!.width;
+    const srcH = this.renderCanvas!.height;
+    const destX = 0;
+    const destY = this.headerCanvas!.height;
+    const destW = srcW;
+    const destH = srcH;
 
-    // Berechne die logischen Dimensionen für headerCanvas
-    const headerLogicalWidth = this.headerCanvas!.width / pixelRatio;
-    const headerLogicalHeight = this.headerCanvas!.height / pixelRatio;
-
-    // Zeichne renderCanvas mit korrekten logischen Dimensionen
     this.ctx!.drawImage(
       this.renderCanvas!,
       0,
       0,
-      this.width,
-      this.renderCanvas!.height, // Quelle (physische Dimensionen)
-      0,
-      this.settings.cellHeaderHeight, // Ziel-Position
-      this.headerCanvas!.width,
-      this.height
+      srcW,
+      srcH,
+      destX,
+      destY, // dx, dy (Position im Zielcanvas)
+      destW,
+      destH // dWidth, dHeight (Größe im Zielcanvas)
     );
 
     // Zeichne headerCanvas mit korrekten logischen Dimensionen
@@ -281,17 +298,14 @@ export class DrawRowHeaderService {
   private addCells(row: number, position: number): number | undefined {
     if (this.isCanvasAvailable() && this.existData) {
       if (row < this.gridData.rows) {
-        const result = this.createRowHeader.createCell(
-          row,
-          Math.floor(this.canvas!.clientWidth)
-        );
+        const result = this.createRowHeader.createCell(row, this.width);
         if (result) {
           const diffRow: number = position + (result.firstRow - row);
 
           this.renderCanvasCtx!.drawImage(
             result.img,
             0,
-            diffRow * this.settings.cellHeight
+            diffRow * this.settings.cellHeight * this.settings.zoom // Zoom berücksichtigen!
           );
 
           return result.lastRow;

@@ -75,6 +75,7 @@ export class SearchComponent {
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
       case 'DataManagementClientService':
       case 'DataManagementBreakService':
+      case 'DataManagementScheduleService':
         return true;
       case 'DataManagementGroupService':
         return this.dataManagementSwitchboard.isSearchVisible;

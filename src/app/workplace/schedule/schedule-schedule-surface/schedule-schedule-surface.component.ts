@@ -391,6 +391,16 @@ export class ScheduleScheduleSurfaceComponent
       });
       this.effects.push(dataReadEffect);
 
+      const dataReReadEffect = effect(() => {
+        if (this.dataManagementSchedule.isReRead()) {
+          this.dataService.initializeEmployeeIndices();
+          this.updateScrollbarValues();
+          this.drawSchedule.rebuild();
+          this.drawSchedule.redraw();
+        }
+      });
+      this.effects.push(dataReReadEffect);
+
       const zoomEffect = effect(() => {
         this.settings.zoomSignal();
         setTimeout(() => {

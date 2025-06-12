@@ -3,6 +3,7 @@ import { DataManagementSwitchboardService } from './data-management-switchboard.
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementGroupService } from './data-management-group.service';
+import { DataManagementScheduleService } from './data-management-schedule.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ export class DataManagementSearchService {
   private dataManagementClient = inject(DataManagementClientService);
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementGroup = inject(DataManagementGroupService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
 
   private _restoreSearch = signal('');
 
@@ -31,6 +33,12 @@ export class DataManagementSearchService {
       case 'DataManagementGroupService':
         this.dataManagementGroup.currentFilter.searchString = value;
         this.dataManagementGroup.readPage();
+        break;
+      case 'DataManagementScheduleService':
+        this.dataManagementSchedule.workFilter.search = value;
+        this.dataManagementSchedule.readDatas();
+        this.dataManagementSchedule.isReRead.set(true);
+        setTimeout(() => this.dataManagementSchedule.isReRead.set(false), 100);
         break;
     }
   }

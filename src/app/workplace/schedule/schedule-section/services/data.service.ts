@@ -148,7 +148,7 @@ export class DataService {
     this.columns += dayVisibleBeforeMonth + dayVisibleAfterMonth;
   }
 
-  private initializeEmployeeIndices(): void {
+  public initializeEmployeeIndices(): void {
     this.rowEmployeeIndex = [];
     this.indexEmployeeRow = [];
     let count = 0;
