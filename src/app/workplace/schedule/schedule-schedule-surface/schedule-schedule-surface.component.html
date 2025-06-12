@@ -5,7 +5,14 @@
   appResize
   (resizeElement)="onResize($event)"
 >
-  <canvas appScheduleEvents appCellEvents id="scheduleCanvas"> </canvas>
+  <canvas
+    appScheduleEvents
+    appCellEvents
+    id="scheduleCanvas"
+    tabindex="0"
+    role="application"
+  >
+  </canvas>
 </div>
 
 <div id="tooltip" class="div-tooltip"></div>

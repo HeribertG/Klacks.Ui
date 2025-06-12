@@ -38,12 +38,16 @@ export class GridRenderService {
   }
 
   public renderGrid(): void {
+    this.renderBody();
+    this.renderHeader();
+  }
+
+  public renderBody() {
     const ctx = this.canvasManager.ctx;
     const canvas = this.canvasManager.canvas;
     const renderCanvas = this.canvasManager.renderCanvas;
-    const headerCanvas = this.canvasManager.headerCanvas;
 
-    if (!ctx || !canvas || !renderCanvas || !headerCanvas) {
+    if (!ctx || !canvas || !renderCanvas) {
       return;
     }
 
@@ -65,7 +69,15 @@ export class GridRenderService {
       renderWidth,
       renderHeight
     );
+  }
 
+  public renderHeader() {
+    const ctx = this.canvasManager.ctx;
+    const headerCanvas = this.canvasManager.headerCanvas;
+
+    if (!ctx || !headerCanvas) {
+      return;
+    }
     const alignment =
       this.scroll.horizontalScrollPosition * this.settings.cellWidth * -1;
     if (headerCanvas.width > 0 && headerCanvas.height > 0) {

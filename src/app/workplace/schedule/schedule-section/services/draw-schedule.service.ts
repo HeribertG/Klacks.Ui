@@ -443,24 +443,6 @@ export class DrawScheduleService {
   }
 
   @CanvasAvailable('queue')
-  refreshGridHeaderCell(pos: MyPosition): void {
-    if (pos !== undefined) {
-      if (!pos.isEmpty()) {
-        const col: number =
-          (pos.column - this.firstVisibleCol) * this.settings.cellWidth;
-
-        const tmpImage: ImageData = this.canvasManager.headerCtx!.getImageData(
-          pos.column * this.settings.cellWidth,
-          0,
-          this.settings.cellWidth,
-          this.settings.cellHeaderHeight
-        );
-        this.canvasManager.ctx!.putImageData(tmpImage, col, 0);
-      }
-    }
-  }
-
-  @CanvasAvailable('queue')
   drawGridSelectedHeaderCell() {
     if (this.position) {
       if (!this.position.isEmpty()) {
@@ -564,33 +546,14 @@ export class DrawScheduleService {
     }
 
     if (this.cellManipulation.Position) {
-      const oldPosition: MyPosition = this.cellManipulation.Position;
       this.cellManipulation.Position = pos;
-
-      this.refreshCell(oldPosition);
-      this.refreshGridHeaderCell(oldPosition);
+      this.refresh();
     }
 
     this.drawSelection();
 
     this.drawGridSelectedHeaderCell();
     this.drawGridSelectedCell();
-  }
-
-  @CanvasAvailable('queue')
-  private drawSelectedCellBackground(col: number, row: number): void {
-    const column: number =
-      (col - this.firstVisibleCol) * this.settings.cellWidth;
-    const rowSet: number =
-      (row - this.firstVisibleRow) * this.settings.cellHeight +
-      this.settings.cellHeaderHeight;
-
-    this.canvasManager.ctx!.fillRect(
-      column,
-      rowSet,
-      this.settings.cellWidth,
-      this.settings.cellHeight
-    );
   }
 
   @CanvasAvailable('queue')
@@ -720,7 +683,7 @@ export class DrawScheduleService {
     return true;
   }
 
-  private get firstVisibleRow(): number {
+  public get firstVisibleRow(): number {
     return this.scroll.verticalScrollPosition;
   }
   private set firstVisibleRow(value: number) {

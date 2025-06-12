@@ -65,7 +65,7 @@ export class ScheduleScheduleSurfaceComponent
   public dataService = inject(DataService);
   public scroll = inject(ScrollService);
   public drawSchedule = inject(DrawScheduleService);
-  private el = inject(ElementRef);
+  private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private settings = inject(SettingsService);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
@@ -165,7 +165,7 @@ export class ScheduleScheduleSurfaceComponent
   }
 
   setFocus(): void {
-    const x = this.el.nativeElement as HTMLDivElement;
+    const x = this.el.nativeElement;
     if (x) {
       x.focus();
       this.drawSchedule.isFocused = true;

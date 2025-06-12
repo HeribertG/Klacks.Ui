@@ -19,7 +19,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   standalone: true,
 })
 export class ScheduleEventsDirective {
-  private el = inject(ElementRef);
+  private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private gridSurface = inject(ScheduleScheduleSurfaceComponent);
   public overlay = inject(Overlay);
   public viewContainerRef = inject(ViewContainerRef);
@@ -28,11 +28,19 @@ export class ScheduleEventsDirective {
   private cellManipulation = inject(CellManipulationService);
 
   private readonly INDEX_CORRECTION = 1;
+  private readonly REPEAT_DELAY = 100;
 
   private keyDown = false;
   private scrollByKey = false;
   private isDrawing = false;
   private hasCollection = false;
+
+  private lastGoRightTime = 0;
+  private lastGoLeftTime = 0;
+  private lastGoUpTime = 0;
+  private lastGoDownTime = 0;
+  private lastPageDownTime = 0;
+  private lastPageUpTime = 0;
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
@@ -51,14 +59,16 @@ export class ScheduleEventsDirective {
 
     if (moveX !== 0) {
       const newValue = this.gridSurface.valueChangeHScrollbar + moveX;
-
-      this.gridSurface.valueHScrollbar.emit(newValue);
+      if (newValue >= 0) {
+        this.gridSurface.valueHScrollbar.emit(newValue);
+      }
     }
 
     if (moveY !== 0) {
       const newValue = this.gridSurface.valueChangeVScrollbar + moveY;
-
-      this.gridSurface.valueVScrollbar.emit(newValue);
+      if (newValue >= 0) {
+        this.gridSurface.valueVScrollbar.emit(newValue);
+      }
     }
 
     this.stopEvent(event);
@@ -72,14 +82,20 @@ export class ScheduleEventsDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      this.respondToLeftMouseDown(event);
+      this.respondToLeftButtonMouseDown(event);
     } else if (event.buttons === 2) {
-      this.respondToRightMouseDown(event);
+      this.respondToRightButtonMouseDown(event);
     }
   }
 
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
     this.isDrawing = false;
+    this.lastGoRightTime = 0;
+    this.lastGoLeftTime = 0;
+    this.lastGoUpTime = 0;
+    this.lastGoDownTime = 0;
+    this.lastPageDownTime = 0;
+    this.lastPageUpTime = 0;
 
     if (this.hasCollection) {
       const pos: MyPosition =
@@ -150,63 +166,31 @@ export class ScheduleEventsDirective {
 
     if (event.key === 'ArrowDown') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
+        const now = Date.now();
+        if (now - this.lastGoDownTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
+        }
+        this.lastGoDownTime = now;
       }
 
-      if (
-        this.gridSurface.drawSchedule.position &&
-        this.gridSurface.drawSchedule.position.row < this.gridData.rows
-      ) {
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          this.gridSurface.drawSchedule.position.row + this.INDEX_CORRECTION,
-          this.gridSurface.drawSchedule.position.column
-        );
+      this.goDown();
 
-        const tmp = this.scrollGrid.verticalScrollPosition;
-
-        const nextRow =
-          tmp <= this.scrollGrid.maxRows ? tmp : this.scrollGrid.maxRows;
-
-        this.gridSurface.valueVScrollbar.emit(nextRow);
-
-        this.stopEvent(event);
-        return;
-      }
+      this.stopEvent(event);
+      return;
     }
 
     if (event.key === 'PageDown') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
+        const now = Date.now();
+        if (now - this.lastPageDownTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
+        }
+        this.lastPageDownTime = now;
       }
 
-      let nextVisibleRow: number =
-        this.scrollGrid.verticalScrollPosition +
-        this.scrollGrid.visibleRows -
-        1;
-
-      if (nextVisibleRow > this.gridData.rows) {
-        nextVisibleRow = this.gridData.rows - 1;
-      }
-
-      let nextRow = 0;
-      if (this.scrollGrid.maxRows <= 1) {
-        this.scrollGrid.verticalScrollPosition = 0;
-      } else if (this.scrollGrid.maxRows >= nextVisibleRow) {
-        nextRow = nextVisibleRow;
-      } else {
-        nextRow = this.scrollGrid.maxRows;
-      }
-
-      if (this.gridSurface.drawSchedule.position) {
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          nextVisibleRow,
-          this.gridSurface.drawSchedule.position.column
-        );
-      }
-
-      this.gridSurface.valueVScrollbar.emit(nextRow);
+      this.goPageDown();
 
       this.stopEvent(event);
       return;
@@ -214,59 +198,31 @@ export class ScheduleEventsDirective {
 
     if (event.key === 'ArrowUp') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
-
-      if (
-        this.gridSurface.drawSchedule.position &&
-        this.gridSurface.drawSchedule.position.row > 0
-      ) {
-        let previousRow = this.gridSurface.drawSchedule.position.row - 1;
-
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          previousRow,
-          this.gridSurface.drawSchedule.position.column
-        );
-
-        if (this.scrollGrid.maxRows <= 1) {
-          previousRow = 0;
+        const now = Date.now();
+        if (now - this.lastGoUpTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
         }
-
-        this.gridSurface.valueVScrollbar.emit(previousRow);
-
-        this.stopEvent(event);
-        return;
+        this.lastGoUpTime = now;
       }
+
+      this.goUp();
+
+      this.stopEvent(event);
+      return;
     }
 
     if (event.key === 'PageUp') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
+        const now = Date.now();
+        if (now - this.lastPageUpTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
+        }
+        this.lastPageUpTime = now;
       }
 
-      let previousRow: number =
-        this.scrollGrid.verticalScrollPosition -
-        this.scrollGrid.visibleRows +
-        1;
-
-      if (previousRow < 0) {
-        previousRow = 0;
-      }
-
-      if (this.scrollGrid.maxRows <= 1) {
-        previousRow = 0;
-      }
-
-      if (this.gridSurface.drawSchedule.position) {
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          previousRow,
-          this.gridSurface.drawSchedule.position.column
-        );
-      }
-
-      this.gridSurface.valueVScrollbar.emit(previousRow);
+      this.goPageUp();
 
       this.stopEvent(event);
       return;
@@ -314,60 +270,30 @@ export class ScheduleEventsDirective {
 
     if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
-
-      if (
-        this.gridSurface.drawSchedule.position &&
-        this.gridSurface.drawSchedule.position.column > 0
-      ) {
-        const previousColumn: number =
-          this.gridSurface.drawSchedule.position.column - 1;
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          this.gridSurface.drawSchedule.position.row,
-          previousColumn
-        );
-
-        if (
-          this.gridSurface.drawSchedule.position.column <
-          this.scrollGrid.horizontalScrollPosition
-        ) {
-          this.gridSurface.valueHScrollbar.emit(previousColumn);
+        const now = Date.now();
+        if (now - this.lastGoLeftTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
         }
+        this.lastGoLeftTime = now;
       }
+
+      this.goLeft();
       this.stopEvent(event);
       return;
     }
 
     if (event.key === 'ArrowRight' || event.key === 'Tab') {
       if (event.repeat) {
-        event.preventDefault();
-        return;
-      }
-
-      if (
-        this.gridSurface.drawSchedule.position &&
-        this.gridSurface.drawSchedule.position.column <
-          this.gridData.columns - 1
-      ) {
-        const nextColumn: number =
-          this.gridSurface.drawSchedule.position.column + 1;
-
-        this.gridSurface.drawSchedule.position = new MyPosition(
-          this.gridSurface.drawSchedule.position.row,
-          nextColumn
-        );
-
-        if (
-          this.gridSurface.drawSchedule.position.column >=
-          this.scrollGrid.horizontalScrollPosition +
-            this.scrollGrid.visibleCols -
-            1
-        ) {
-          this.gridSurface.valueHScrollbar.emit(nextColumn);
+        const now = Date.now();
+        if (now - this.lastGoRightTime < this.REPEAT_DELAY) {
+          this.stopEvent(event);
+          return;
         }
+        this.lastGoRightTime = now;
       }
+
+      this.goRight();
       this.stopEvent(event);
       return;
     }
@@ -490,7 +416,9 @@ export class ScheduleEventsDirective {
     }
 
     if (pos.row < this.scrollGrid.verticalScrollPosition) {
-      // this.gridSurface.drawSchedule.moveGrid(0, -1);
+      this.gridSurface.valueHScrollbar.emit(
+        this.scrollGrid.verticalScrollPosition - 1
+      );
       return;
     }
 
@@ -503,8 +431,9 @@ export class ScheduleEventsDirective {
     }
   }
 
-  private respondToLeftMouseDown(event: MouseEvent): void {
+  private respondToLeftButtonMouseDown(event: MouseEvent): void {
     this.gridSurface.drawSchedule.destroySelection();
+    this.gridSurface.setFocus();
 
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
@@ -516,7 +445,7 @@ export class ScheduleEventsDirective {
     this.gridSurface.drawSchedule.refresh();
   }
 
-  private respondToRightMouseDown(event: MouseEvent): void {
+  private respondToRightButtonMouseDown(event: MouseEvent): void {
     this.gridSurface.showContextMenu(event);
   }
 
@@ -548,5 +477,155 @@ export class ScheduleEventsDirective {
     }
 
     return false;
+  }
+
+  private goRight() {
+    if (
+      this.gridSurface.drawSchedule.position &&
+      this.gridSurface.drawSchedule.position.column < this.gridData.columns - 1
+    ) {
+      const nextColumn: number =
+        this.gridSurface.drawSchedule.position.column + 1;
+
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        this.gridSurface.drawSchedule.position.row,
+        nextColumn
+      );
+
+      if (
+        this.gridSurface.drawSchedule.position.column >=
+        this.scrollGrid.horizontalScrollPosition +
+          this.scrollGrid.visibleCols -
+          1
+      ) {
+        this.gridSurface.valueHScrollbar.emit(
+          this.scrollGrid.horizontalScrollPosition + 1
+        );
+      }
+    }
+  }
+  private goLeft() {
+    if (
+      this.gridSurface.drawSchedule.position &&
+      this.gridSurface.drawSchedule.position.column > 0
+    ) {
+      const previousColumn: number =
+        this.gridSurface.drawSchedule.position.column - 1;
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        this.gridSurface.drawSchedule.position.row,
+        previousColumn
+      );
+
+      if (
+        this.gridSurface.drawSchedule.position.column <
+        this.scrollGrid.horizontalScrollPosition
+      ) {
+        this.gridSurface.valueHScrollbar.emit(previousColumn);
+        this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
+        this.gridSurface.drawSchedule.drawGridSelectedCell();
+      }
+    }
+  }
+
+  private goUp() {
+    if (
+      this.gridSurface.drawSchedule.position &&
+      this.gridSurface.drawSchedule.position.row > 0
+    ) {
+      const previousRow = this.gridSurface.drawSchedule.position.row - 1;
+
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        previousRow,
+        this.gridSurface.drawSchedule.position.column
+      );
+
+      if (previousRow < this.scrollGrid.verticalScrollPosition) {
+        this.gridSurface.valueVScrollbar.emit(
+          this.scrollGrid.verticalScrollPosition - 1
+        );
+      }
+    }
+  }
+
+  private goDown() {
+    if (
+      this.gridSurface.drawSchedule.position &&
+      this.gridSurface.drawSchedule.position.row < this.gridData.rows
+    ) {
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        this.gridSurface.drawSchedule.position.row + this.INDEX_CORRECTION,
+        this.gridSurface.drawSchedule.position.column
+      );
+
+      const currentVerticalRow = this.gridSurface.drawSchedule.position.row;
+
+      const nextRow =
+        currentVerticalRow <= this.scrollGrid.maxRows
+          ? currentVerticalRow
+          : this.scrollGrid.maxRows;
+
+      const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
+      const visibleRows = this.scrollGrid.visibleRows;
+      const lastVisibleRow = firstVisibleRow + visibleRows - 2;
+
+      if (lastVisibleRow <= nextRow) {
+        this.gridSurface.valueVScrollbar.emit(
+          this.scrollGrid.verticalScrollPosition + 1
+        );
+      }
+    }
+  }
+
+  private goPageDown() {
+    let nextVisibleRow: number =
+      this.scrollGrid.verticalScrollPosition + this.scrollGrid.visibleRows - 2;
+
+    if (nextVisibleRow > this.gridData.rows) {
+      nextVisibleRow = this.gridData.rows - 2;
+    }
+
+    let nextRow = 0;
+    if (this.scrollGrid.maxRows <= 1) {
+      this.scrollGrid.verticalScrollPosition = 0;
+    } else if (this.scrollGrid.maxRows >= nextVisibleRow) {
+      nextRow = nextVisibleRow;
+    } else {
+      nextRow = this.scrollGrid.maxRows;
+    }
+
+    if (this.gridSurface.drawSchedule.position) {
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        nextVisibleRow,
+        this.gridSurface.drawSchedule.position.column
+      );
+    }
+
+    this.gridSurface.valueVScrollbar.emit(nextRow);
+    this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
+    this.gridSurface.drawSchedule.drawGridSelectedCell();
+  }
+
+  private goPageUp() {
+    let previousRow: number =
+      this.scrollGrid.verticalScrollPosition - this.scrollGrid.visibleRows + 1;
+
+    if (previousRow < 0) {
+      previousRow = 0;
+    }
+
+    if (this.scrollGrid.maxRows <= 1) {
+      previousRow = 0;
+    }
+
+    if (this.gridSurface.drawSchedule.position) {
+      this.gridSurface.drawSchedule.position = new MyPosition(
+        previousRow,
+        this.gridSurface.drawSchedule.position.column
+      );
+    }
+
+    this.gridSurface.valueVScrollbar.emit(previousRow);
+    this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
+    this.gridSurface.drawSchedule.drawGridSelectedCell();
   }
 }
