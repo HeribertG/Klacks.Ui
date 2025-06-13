@@ -377,6 +377,10 @@ export class ScheduleScheduleSurfaceComponent
       const dataReadEffect = effect(() => {
         if (this.dataManagementSchedule.isRead()) {
           this.dataService.setMetrics();
+          this.scroll.horizontalScrollPosition = 0;
+          this.scroll.verticalScrollPosition = 0;
+          this.valueHScrollbar.emit(0);
+          this.valueVScrollbar.emit(0);
           this.updateScrollbarValues();
         }
       });

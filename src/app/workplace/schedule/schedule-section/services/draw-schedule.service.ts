@@ -65,7 +65,12 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   public redraw() {
+    this.destroySelection();
+    this.deleteCanvas();
+    this.createCanvas();
     this.redrawGrid();
+    this.renderGrid();
+    this.setSelection();
   }
 
   @CanvasAvailable('queue')
@@ -121,6 +126,7 @@ export class DrawScheduleService {
 
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
+    console.log('refreshGrid', this.position);
 
     if (oldVisibleCol < visibleCol && oldVisibleRow < visibleRow) {
       this.resizeRenderCanvas(visibleRow, visibleCol);
@@ -129,37 +135,15 @@ export class DrawScheduleService {
       this.growGrid();
     } else if (oldVisibleCol > visibleCol || oldVisibleRow > visibleRow) {
       this.shrinkGrid();
-    } else {
-      this.renderGrid();
     }
+    this.renderGrid();
+    this.setSelection();
   }
 
   @CanvasAvailable('queue')
   private renderGrid(): void {
+    console.log('renderGrid', this.position);
     this.gridRender.renderGrid();
-    //console.log('renderGrid', this.position);
-    if (
-      this.hasPositionCollection &&
-      this.cellManipulation.PositionCollection.count() > 1
-    ) {
-      this.gridRender.drawSelection(
-        this.cellManipulation.PositionCollection.getAll(),
-        this.firstVisibleRow,
-        this.firstVisibleCol
-      );
-    } else {
-      this.gridRender.drawGridSelectedCell(
-        this.position,
-        this.isFocused,
-        this.firstVisibleRow,
-        this.firstVisibleCol
-      );
-    }
-
-    this.gridRender.drawGridSelectedHeaderCell(
-      this.position,
-      this.firstVisibleCol
-    );
   }
 
   @CanvasAvailable('queue')
@@ -186,8 +170,6 @@ export class DrawScheduleService {
         this.addNewCells(oldVisibleRow, 0, visibleRow, visibleCol);
       }
     }
-
-    this.renderGrid();
   }
 
   private addNewCells(
@@ -230,8 +212,6 @@ export class DrawScheduleService {
 
     this.resizeRenderCanvas(visibleRow, visibleCol);
     this.drawImageOnRenderCanvas(tempCanvas, 0, 0);
-
-    this.renderGrid();
   }
 
   @CanvasAvailable('queue')
@@ -258,6 +238,8 @@ export class DrawScheduleService {
 
     if (this.isScrollingToFast) {
       this.redrawGrid();
+      this.renderGrid();
+      this.setSelection();
       this.isScrollingToFast = false;
     } else {
       const deltaX = this.scroll.horizontalScrollDelta;
@@ -432,7 +414,6 @@ export class DrawScheduleService {
       this.firstVisibleRow,
       this.firstVisibleCol
     );
-    this.renderGrid();
   }
 
   @CanvasAvailable('queue')
@@ -733,5 +714,30 @@ export class DrawScheduleService {
       this.gridData.rows - newVisibleRows + this.ADDITIONALLY_EMPTY_ROWS;
     this.scroll.visibleCols = newVisibleCols;
     this.scroll.visibleRows = newVisibleRows;
+  }
+
+  private setSelection() {
+    if (
+      this.hasPositionCollection &&
+      this.cellManipulation.PositionCollection.count() > 1
+    ) {
+      this.gridRender.drawSelection(
+        this.cellManipulation.PositionCollection.getAll(),
+        this.firstVisibleRow,
+        this.firstVisibleCol
+      );
+    } else {
+      this.gridRender.drawGridSelectedCell(
+        this.position,
+        this.isFocused,
+        this.firstVisibleRow,
+        this.firstVisibleCol
+      );
+    }
+
+    this.gridRender.drawGridSelectedHeaderCell(
+      this.position,
+      this.firstVisibleCol
+    );
   }
 }
