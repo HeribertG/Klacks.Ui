@@ -37,8 +37,6 @@ export class DataManagementSearchService {
       case 'DataManagementScheduleService':
         this.dataManagementSchedule.workFilter.search = value;
         this.dataManagementSchedule.readDatas();
-        this.dataManagementSchedule.isReRead.set(true);
-        setTimeout(() => this.dataManagementSchedule.isReRead.set(false), 100);
         break;
     }
   }

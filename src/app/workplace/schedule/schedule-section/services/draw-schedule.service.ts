@@ -137,7 +137,7 @@ export class DrawScheduleService {
   @CanvasAvailable('queue')
   private renderGrid(): void {
     this.gridRender.renderGrid();
-
+    console.log('renderGrid', this.position);
     if (
       this.hasPositionCollection &&
       this.cellManipulation.PositionCollection.count() > 1
@@ -148,10 +148,6 @@ export class DrawScheduleService {
         this.firstVisibleCol
       );
     } else {
-      this.gridRender.drawGridSelectedHeaderCell(
-        this.position,
-        this.firstVisibleCol
-      );
       this.gridRender.drawGridSelectedCell(
         this.position,
         this.isFocused,
@@ -159,6 +155,11 @@ export class DrawScheduleService {
         this.firstVisibleCol
       );
     }
+
+    this.gridRender.drawGridSelectedHeaderCell(
+      this.position,
+      this.firstVisibleCol
+    );
   }
 
   @CanvasAvailable('queue')
@@ -197,7 +198,9 @@ export class DrawScheduleService {
   ) {
     for (let r = startRow; r < endRow; r++) {
       for (let c = startCol; c < endCol; c++) {
-        this.addCell(r, c);
+        if (r < this.gridData.rows && c < this.gridData.columns) {
+          this.addCell(r, c);
+        }
       }
     }
   }
@@ -699,6 +702,7 @@ export class DrawScheduleService {
   }
   private updateVisibleRow(): number {
     return Math.ceil(this.height / this.settings.cellHeight);
+    // return row <= this.gridData.rows ? row : this.gridData.rows;
   }
 
   private updateVisibleCol(): number {
@@ -707,9 +711,10 @@ export class DrawScheduleService {
 
   private nominalVisibleRow(): number {
     const dpr = DrawHelper.pixelRatio();
-    return Math.ceil(
+    const row = Math.ceil(
       this.canvasManager.renderCanvas!.height / dpr / this.settings.cellHeight
     );
+    return row <= this.gridData.rows ? row : this.gridData.rows;
   }
 
   private nominalVisibleCol(): number {

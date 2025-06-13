@@ -227,12 +227,9 @@ export class DrawRowHeaderService {
       const visibleRow: number = this.visibleRow();
       const height = Math.floor(this.canvas!.clientHeight);
 
-      // WICHTIG: renderCanvas darf NICHT mit HiDPI erstellt werden für diesen Zweck
-      // oder wir müssen konsequent mit logischen Dimensionen arbeiten
       this.renderCanvas!.width = width;
       this.renderCanvas!.height = height;
 
-      // Context ohne HiDPI scaling holen
       this.renderCanvasCtx = this.renderCanvas!.getContext('2d', {
         willReadFrequently: true,
       })!;
@@ -264,8 +261,6 @@ export class DrawRowHeaderService {
   private renderGrid(): void {
     if (!this.isCanvasAvailable()) return;
 
-    const pixelRatio = DrawHelper.pixelRatio();
-
     const srcW = this.renderCanvas!.width;
     const srcH = this.renderCanvas!.height;
     const destX = 0;
@@ -280,18 +275,17 @@ export class DrawRowHeaderService {
       srcW,
       srcH,
       destX,
-      destY, // dx, dy (Position im Zielcanvas)
+      destY,
       destW,
-      destH // dWidth, dHeight (Größe im Zielcanvas)
+      destH
     );
 
-    // Zeichne headerCanvas mit korrekten logischen Dimensionen
     this.ctx!.drawImage(
       this.headerCanvas!,
       0,
       0,
       this.headerCanvas!.width,
-      this.headerCanvas!.height // Quelle (physische Dimensionen)
+      this.headerCanvas!.height
     );
   }
 
@@ -351,10 +345,11 @@ export class DrawRowHeaderService {
     this.ctx!.restore();
   }
 
-  moveGrid(directionX: number, directionY: number): void {
+  moveGrid(): void {
     if (!this.isCanvasAvailable()) {
       return;
     }
+    const dy = this.scroll.verticalScrollPosition;
     const visibleRow: number = this.visibleRow();
     const tempCanvas: HTMLCanvasElement = document.createElement(
       'canvas'
@@ -378,28 +373,28 @@ export class DrawRowHeaderService {
     this.renderCanvasCtx!.drawImage(
       tempCanvas,
       0,
-      this.settings.cellHeight * directionY
+      this.settings.cellHeight * dy
     );
 
-    let firstRow = 0;
-    let lastRow = 0;
+    // let firstRow = 0;
+    // let lastRow = 0;
 
-    if (directionY > 0) {
-      firstRow = visibleRow + directionY - 1;
-      lastRow = visibleRow - directionY + 1;
-    } else {
-      firstRow = -1;
-      lastRow = directionY + 2;
-    }
+    // if (directionY > 0) {
+    //   firstRow = visibleRow + directionY - 1;
+    //   lastRow = visibleRow - directionY + 1;
+    // } else {
+    //   firstRow = -1;
+    //   lastRow = directionY + 2;
+    // }
 
-    for (let row = firstRow; row < lastRow; row++) {
-      const tmpRow: number = row + this.firstVisibleRow;
-      const correctedRow = this.addCells(tmpRow, row);
-      if (correctedRow === undefined) {
-        continue;
-      }
-      row = correctedRow - this.firstVisibleRow;
-    }
+    // for (let row = firstRow; row < lastRow; row++) {
+    //   const tmpRow: number = row + this.firstVisibleRow;
+    //   const correctedRow = this.addCells(tmpRow, row);
+    //   if (correctedRow === undefined) {
+    //     continue;
+    //   }
+    //   row = correctedRow - this.firstVisibleRow;
+    // }
 
     this.refreshGrid();
   }

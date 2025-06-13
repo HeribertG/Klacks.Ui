@@ -21,7 +21,6 @@ export class DataManagementScheduleService {
   private dataSchedule = inject(DataScheduleService);
 
   public isRead = signal(false);
-  public isReRead = signal(false);
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
   public showProgressSpinner = signal(false);
 

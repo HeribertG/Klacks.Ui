@@ -116,6 +116,10 @@ export class CreateCellService {
   }
 
   createCell(row: number, col: number): HTMLCanvasElement | undefined {
+    if (!this.isPositionValid(row, col)) {
+      return;
+    }
+
     const tempCanvas = this.initializeTempCanvas();
     if (!tempCanvas) return undefined;
 
@@ -231,5 +235,13 @@ export class CreateCellService {
       this.settings.cellWidth + this.settings.increaseBorder,
       this.settings.cellHeight + this.settings.increaseBorder
     );
+  }
+
+  private isPositionValid(row: number, col: number) {
+    if (row < this.gridData.rows && col < this.gridData.columns) {
+      console.log('isPositionValid', this.gridData.rows);
+      return true;
+    }
+    return false;
   }
 }

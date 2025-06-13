@@ -91,15 +91,6 @@ export class ScheduleScheduleSurfaceComponent
   ngAfterViewInit(): void {
     this.drawSchedule.createCanvas();
     this.initializeDrawSchedule();
-
-    this.dataService.refreshEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.drawSchedule.redraw();
-        this.updateScrollbarValues();
-      });
-
-    this.cdr.detectChanges();
   }
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
@@ -391,16 +382,6 @@ export class ScheduleScheduleSurfaceComponent
       });
       this.effects.push(dataReadEffect);
 
-      const dataReReadEffect = effect(() => {
-        if (this.dataManagementSchedule.isReRead()) {
-          this.dataService.initializeEmployeeIndices();
-          this.updateScrollbarValues();
-          this.drawSchedule.rebuild();
-          this.drawSchedule.redraw();
-        }
-      });
-      this.effects.push(dataReReadEffect);
-
       const zoomEffect = effect(() => {
         this.settings.zoomSignal();
         setTimeout(() => {
@@ -413,6 +394,14 @@ export class ScheduleScheduleSurfaceComponent
         }, 0);
       });
       this.effects.push(zoomEffect);
+
+      const refreshEffect = effect(() => {
+        this.dataService.refreshSignal();
+        this.drawSchedule.redraw();
+        this.updateScrollbarValues();
+        this.cdr.detectChanges();
+      });
+      this.effects.push(refreshEffect);
     });
   }
 }

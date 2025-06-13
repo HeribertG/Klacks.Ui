@@ -20,6 +20,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { CreateRowHeaderService } from '../schedule-section/services/create-row-header.service';
 import { DataService } from '../schedule-section/services/data.service';
 import { DrawRowHeaderService } from '../schedule-section/services/draw-row-header.service';
+import { SettingsService } from '../schedule-section/services/settings.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -40,13 +41,13 @@ export class ScheduleScheduleRowHeaderComponent
   public scroll = inject(ScrollService);
   public drawRowHeader = inject(DrawRowHeaderService);
   private injector = inject(Injector);
+  private settings = inject(SettingsService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
-    this.setupEventListeners();
     this.readSignals();
   }
 
@@ -64,23 +65,39 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (
-    //   changes['valueChangeVScrollbar'] &&
-    //   !changes['valueChangeVScrollbar'].firstChange
-    // ) {
-    //   const newValue = this.valueChangeVScrollbar;
-    //   if (this.scroll.verticalScrollPosition !== newValue) {
-    //     const oldPosition = this.scroll.verticalScrollPosition;
-    //     this.scroll.verticalScrollPosition = newValue;
-    //     const verticalDelta = newValue - oldPosition;
-    //     if (
-    //       Math.abs(verticalDelta) > 0 &&
-    //       this.drawRowHeader.isCanvasAvailable()
-    //     ) {
-    //       this.drawRowHeader.moveGrid(0, verticalDelta);
-    //     }
-    //   }
-    // }
+    let vDirection = false;
+    let hDirection = false;
+
+    if (changes['valueChangeHScrollbar']) {
+      const prevH = changes['valueChangeHScrollbar'].previousValue;
+      const currH = changes['valueChangeHScrollbar'].currentValue;
+
+      if (currH !== prevH) {
+        this.scroll.horizontalScrollPosition = currH;
+        this.scroll.updateScrollPosition(
+          currH,
+          this.scroll.verticalScrollPosition
+        );
+        hDirection = true;
+      }
+    }
+
+    if (changes['valueChangeVScrollbar']) {
+      const prevV = changes['valueChangeVScrollbar'].previousValue;
+      const currV = changes['valueChangeVScrollbar'].currentValue;
+      if (currV !== prevV) {
+        this.scroll.verticalScrollPosition = currV;
+        this.scroll.updateScrollPosition(
+          this.scroll.horizontalScrollPosition,
+          currV
+        );
+        vDirection = true;
+      }
+    }
+
+    if (vDirection || hDirection) {
+      this.drawRowHeader.moveGrid();
+    }
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
@@ -102,22 +119,25 @@ export class ScheduleScheduleRowHeaderComponent
     this.drawRowHeader.height = box.clientHeight;
   }
 
-  private setupEventListeners(): void {
-    this.dataService.refreshEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.drawRowHeader.redraw();
-      });
-  }
-
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const zoomEffect = effect(() => {
-        this.drawRowHeader.createCanvas();
-        this.drawRowHeader.rebuild();
-        this.drawRowHeader.redraw();
+        this.settings.zoomSignal();
+        setTimeout(() => {
+          if (this.drawRowHeader.isCanvasAvailable()) {
+            this.drawRowHeader.createCanvas();
+            this.drawRowHeader.rebuild();
+            this.drawRowHeader.redraw();
+          }
+        }, 0);
       });
       this.effects.push(zoomEffect);
+
+      const refreshEffect = effect(() => {
+        this.dataService.refreshSignal();
+        this.drawRowHeader.redraw();
+      });
+      this.effects.push(refreshEffect);
     });
   }
 }
