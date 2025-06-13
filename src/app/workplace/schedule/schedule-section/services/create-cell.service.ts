@@ -239,7 +239,6 @@ export class CreateCellService {
 
   private isPositionValid(row: number, col: number) {
     if (row < this.gridData.rows && col < this.gridData.columns) {
-      console.log('isPositionValid', this.gridData.rows);
       return true;
     }
     return false;

@@ -6,6 +6,7 @@ import {
   EventEmitter,
   Output,
   Input,
+  effect,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -57,16 +58,51 @@ export class ScheduleSectionComponent implements AfterViewInit {
   @Output() horizontalSizeChange = new EventEmitter<number>();
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
+  public vScrollbarSize = 17;
+  public hScrollbarSize = 17;
 
   private dataManagement = inject(DataManagementScheduleService);
+  private scrollService = inject(ScrollService);
+
+  private defaultVScrollbarSize = 17;
+  private defaultHScrollbarSize = 17;
+
+  constructor() {
+    effect(() => {
+      const isLocked = this.scrollService.lockedRows();
+      this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
+      this.updateScrollbarSizes();
+    });
+
+    effect(() => {
+      const isLocked = this.scrollService.lockedCols();
+      this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
+      this.updateScrollbarSizes();
+    });
+  }
 
   ngAfterViewInit() {
     this.dataManagement.readDatas();
 
-    // Passe Breite des linken Bereichs an
     this.splitEl.dragProgress$.subscribe((x) => {
       const newSize = x.sizes[0] as number;
       this.horizontalSizeChange.emit(newSize);
     });
+  }
+
+  private updateScrollbarSizes() {
+    const hostElement = document.querySelector(
+      'app-schedule-section'
+    ) as HTMLElement;
+    if (hostElement) {
+      hostElement.style.setProperty(
+        '--v-scrollbar-size',
+        `${this.vScrollbarSize}px`
+      );
+      hostElement.style.setProperty(
+        '--h-scrollbar-size',
+        `${this.hScrollbarSize}px`
+      );
+    }
   }
 }

@@ -30,6 +30,7 @@ import {
   throttleTime,
 } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { ResizeDirective } from 'src/app/directives/resize.directive';
 
 enum ArrowDirection {
   NONE = 0,
@@ -42,11 +43,17 @@ enum ArrowDirection {
   templateUrl: './v-scrollbar.component.html',
   styleUrls: ['./v-scrollbar.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ResizeDirective],
 })
 export class VScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
+  @ViewChild('canvas', { static: true })
+  canvasRef!: ElementRef<HTMLCanvasElement>;
+  @Input() maxValue = 365;
+  @Input() visibleValue = 180;
+
+  @Output() valueChange = new EventEmitter<number>();
   @Input()
   get value(): number {
     return this._value;
@@ -70,14 +77,6 @@ export class VScrollbarComponent
       this.updateArrowButtonsState();
     }
   }
-
-  @Input() maxValue = 365;
-  @Input() visibleValue = 180;
-
-  @Output() valueChange = new EventEmitter<number>();
-
-  @ViewChild('canvas', { static: true })
-  canvasRef!: ElementRef<HTMLCanvasElement>;
 
   private zone = inject(NgZone);
   private sanitizer = inject(DomSanitizer);
@@ -112,7 +111,6 @@ export class VScrollbarComponent
   private mouseOverThumb = false;
   private lastMouseEvent: MouseEvent | null = null;
   private isScrollbarClick = false;
-
   private arrowHoldTimeout: ReturnType<typeof setTimeout> | undefined;
 
   /* #region Lifecycle Hooks */
@@ -229,8 +227,10 @@ export class VScrollbarComponent
   private updateMetrics(): void {
     const percent = Math.round((this.visibleValue / this.maxValue) * 100);
     const canvas = this.canvasRef.nativeElement;
+    const height = Math.round(canvas.height);
+
     this.metrics = this.scrollbarService.calcMetrics(
-      canvas.height,
+      height,
       percent,
       this.visibleValue,
       this.maxValue

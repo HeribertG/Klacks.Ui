@@ -137,7 +137,7 @@ export class DrawScheduleService {
   @CanvasAvailable('queue')
   private renderGrid(): void {
     this.gridRender.renderGrid();
-    console.log('renderGrid', this.position);
+    //console.log('renderGrid', this.position);
     if (
       this.hasPositionCollection &&
       this.cellManipulation.PositionCollection.count() > 1

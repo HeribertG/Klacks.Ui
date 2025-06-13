@@ -1,10 +1,19 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
+
+interface ScrollState {
+  position: { horizontal: number; vertical: number };
+  delta: { horizontal: number; vertical: number };
+  max: { cols: number; rows: number };
+  visible: { cols: number; rows: number };
+}
 
 @Injectable()
 export class ScrollService {
-  public maxCols = 0;
-  public maxRows = 0;
+  public lockedCols = signal<boolean>(false);
+  public lockedRows = signal<boolean>(false);
 
+  private _maxCols = 0;
+  private _maxRows = 0;
   private _horizontalScrollDelta = 0;
   private _verticalScrollDelta = 0;
   private _verticalScrollPosition = 0;
@@ -12,7 +21,45 @@ export class ScrollService {
   private _visibleCols = 0;
   private _visibleRows = 0;
 
+  get visibleCols(): number {
+    return this._visibleCols;
+  }
+
+  set visibleCols(value: number) {
+    this._visibleCols = value;
+    this.calcLockedCols();
+  }
+
+  get visibleRows(): number {
+    return this._visibleRows;
+  }
+
+  set visibleRows(value: number) {
+    this._visibleRows = value;
+    this.calcLockedRows();
+  }
+
+  get maxCols(): number {
+    return this._maxCols;
+  }
+
+  set maxCols(value: number) {
+    this._maxCols = Math.max(0, value);
+    this.calcLockedCols();
+  }
+
+  get maxRows(): number {
+    return this._maxRows;
+  }
+
+  set maxRows(value: number) {
+    this._maxRows = Math.max(0, value);
+    this.calcLockedRows();
+  }
+
   set verticalScrollPosition(value: number) {
+    if (this._verticalScrollPosition === value) return;
+
     const oldValue = this._verticalScrollPosition;
     this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
     this._verticalScrollDelta += this._verticalScrollPosition - oldValue;
@@ -111,26 +158,15 @@ export class ScrollService {
     };
   }
 
-  get visibleCols(): number {
-    return this._visibleCols;
+  private calcLockedCols() {
+    this.lockedCols.set(false);
+    const maxScrollH = Math.max(0, this._maxCols - this._visibleCols);
+    this.lockedCols.set(maxScrollH === 0);
   }
 
-  set visibleCols(value: number) {
-    this._visibleCols = value;
+  private calcLockedRows() {
+    this.lockedRows.set(false);
+    const maxScrollV = Math.max(0, this._maxRows - this._visibleRows);
+    this.lockedRows.set(maxScrollV === 0);
   }
-
-  get visibleRows(): number {
-    return this._visibleRows;
-  }
-
-  set visibleRows(value: number) {
-    this._visibleRows = value;
-  }
-}
-
-interface ScrollState {
-  position: { horizontal: number; vertical: number };
-  delta: { horizontal: number; vertical: number };
-  max: { cols: number; rows: number };
-  visible: { cols: number; rows: number };
 }

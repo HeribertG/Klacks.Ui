@@ -1,6 +1,10 @@
+// schedule-section.component.scss
 @use "../../../../assets/standard-styles/colors.scss";
 
-$scrollbar-size: 17px;
+:host {
+  --v-scrollbar-size: 17px;
+  --h-scrollbar-size: 17px;
+}
 
 .container-box {
   overflow: hidden;
@@ -17,19 +21,19 @@ $scrollbar-size: 17px;
     .box {
       background-color: yellow;
       overflow: hidden;
-      width: calc(100% - 20px);
+      width: calc(100% - var(--v-scrollbar-size));
       height: 100%;
       flex: 1;
     }
 
     .vScrollArea {
-      width: #{$scrollbar-size};
+      width: var(--v-scrollbar-size);
       height: 100%;
     }
   }
 
   .hScrollArea {
-    width: calc(100% - #{$scrollbar-size});
-    height: #{$scrollbar-size};
+    width: calc(100% - var(--v-scrollbar-size));
+    height: var(--h-scrollbar-size);
   }
 }

@@ -25,6 +25,7 @@
           </app-schedule-schedule-surface>
         </div>
         <app-v-scrollbar
+          [class.hidden]="vScrollbarSize === 0"
           class="vScrollArea"
           [(value)]="vScrollbar.value"
           [maxValue]="vScrollbar.maxValue"
@@ -33,6 +34,7 @@
         </app-v-scrollbar>
       </div>
       <app-h-scrollbar
+        [class.hidden]="hScrollbarSize === 0"
         class="hScrollArea"
         [(value)]="hScrollbar.value"
         [maxValue]="hScrollbar.maxValue"

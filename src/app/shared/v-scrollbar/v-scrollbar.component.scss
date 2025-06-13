@@ -5,6 +5,10 @@
   --arrow-thumb-width: 25px;
 }
 
+:host([style*="width:0"]) .arrow-thumb {
+  display: none;
+}
+
 .scrollbar-bar {
   height: calc(100% - var(--scrollbar-padding));
   width: 100%;

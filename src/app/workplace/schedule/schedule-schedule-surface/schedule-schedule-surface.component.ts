@@ -21,7 +21,7 @@ import {
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
