@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { GridRenderService } from '../schedule-section/services/grid-render.service';

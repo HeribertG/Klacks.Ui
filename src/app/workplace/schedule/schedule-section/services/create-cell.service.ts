@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { DataService } from './data.service';
 import { SettingsService } from './settings.service';
-import { WeekDaysEnum } from 'src/app/grid/enums/divers';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { WeekDaysEnum } from 'src/app/shared/grid/enums/divers';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { GridCell } from 'src/app/grid/classes/grid-cell';
+import { GridCell } from 'src/app/shared/grid/classes/grid-cell';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from 'src/app/grid/enums/cell-settings.enum';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+} from 'src/app/shared/grid/enums/cell-settings.enum';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 
 @Injectable()
 export class CreateCellService {

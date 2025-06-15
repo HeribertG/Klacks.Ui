@@ -1,8 +1,8 @@
 import { Component, ElementRef, inject, Input } from '@angular/core';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
-import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
+import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CommonModule } from '@angular/common';
 import { SharedModule } from 'src/app/shared/shared.module';

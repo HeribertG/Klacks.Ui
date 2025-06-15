@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { ClipboardModeEnum } from 'src/app/grid/enums/divers';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { ClipboardModeEnum } from 'src/app/shared/grid/enums/divers';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 
 @Injectable()
 export class SettingsService {

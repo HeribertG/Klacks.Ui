@@ -3,11 +3,11 @@ import { inject, Injectable, signal } from '@angular/core';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
 import { IClientWork } from 'src/app/core/schedule-class';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { GridCell } from 'src/app/grid/classes/grid-cell';
-import { CellTypeEnum } from 'src/app/grid/enums/cell-settings.enum';
-import { WeekDaysEnum } from 'src/app/grid/enums/divers';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { GridCell } from 'src/app/shared/grid/classes/grid-cell';
+import { CellTypeEnum } from 'src/app/shared/grid/enums/cell-settings.enum';
+import { WeekDaysEnum } from 'src/app/shared/grid/enums/divers';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import {
   EqualDate,
   addDays,

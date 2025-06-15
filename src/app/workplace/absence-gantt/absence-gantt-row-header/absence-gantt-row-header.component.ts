@@ -14,9 +14,9 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
-import { Size } from 'src/app/grid/classes/geometry';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { Size } from 'src/app/shared/grid/classes/geometry';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
@@ -28,7 +28,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { NgStyle } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
+import { CursorEnum } from 'src/app/shared/grid/enums/cursor_enums';
 
 @Component({
   selector: 'app-absence-gantt-row-header',

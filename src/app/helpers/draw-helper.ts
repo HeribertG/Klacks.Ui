@@ -1,10 +1,10 @@
 import {
   TextAlignmentEnum,
   BaselineAlignmentEnum,
-} from '../grid/enums/cell-settings.enum';
-import { Rectangle, Size } from '../grid/classes/geometry';
-import { Color } from '../grid/classes/color';
-import { Gradient3DBorderStyleEnum } from '../grid/enums/gradient-3d-border-style';
+} from '../shared/grid/enums/cell-settings.enum';
+import { Rectangle, Size } from '../shared/grid/classes/geometry';
+import { Color } from '../shared/grid/classes/color';
+import { Gradient3DBorderStyleEnum } from '../shared/grid/enums/gradient-3d-border-style';
 
 export abstract class DrawHelper {
   public static GetDarkColor(color: string, d: number): string {

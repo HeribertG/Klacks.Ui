@@ -29,14 +29,14 @@ import {
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/core/break-class';
-import { CursorEnum } from 'src/app/grid/enums/cursor_enums';
+import { CursorEnum } from 'src/app/shared/grid/enums/cursor_enums';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { TranslateService } from '@ngx-translate/core';
@@ -56,7 +56,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/shared/context-menu/context-menu.service';
-import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
+import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 
 @Component({
   selector: 'app-absence-gantt-surface',

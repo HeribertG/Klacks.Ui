@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { DataService } from './data.service';
-import { RowHeaderIconsService } from 'src/app/grid/services/row-header-icons.service';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { RowHeaderIconsService } from 'src/app/shared/grid/services/row-header-icons.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from 'src/app/grid/enums/cell-settings.enum';
-import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border-style';
+} from 'src/app/shared/grid/enums/cell-settings.enum';
+import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import { ClientWork } from 'src/app/core/schedule-class';
-import { Rectangle } from 'src/app/grid/classes/geometry';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
 import { GridRowHeader } from '../../classes/grid-row-header';
 

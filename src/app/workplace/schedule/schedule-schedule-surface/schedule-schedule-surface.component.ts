@@ -20,7 +20,7 @@ import {
 } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
-import { SelectedArea } from 'src/app/grid/enums/breaks_enums';
+import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { CommonModule } from '@angular/common';

@@ -3,7 +3,7 @@ import { CanvasManagerService } from './canvas-manager.service';
 import { DataService } from './data.service';
 import { SettingsService } from './settings.service';
 import { CreateCellService } from './create-cell.service';
-import { MyPosition } from 'src/app/grid/classes/position';
+import { MyPosition } from 'src/app/shared/grid/classes/position';
 
 @Injectable({
   providedIn: 'root',

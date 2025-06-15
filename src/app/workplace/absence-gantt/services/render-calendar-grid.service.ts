@@ -1,14 +1,14 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from '../../../grid/classes/geometry';
+import { Rectangle } from '../../../shared/grid/classes/geometry';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/core/absence-class';
-import { HolidayCollectionService } from '../../../grid/services/holiday-collection.service';
+import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { GridColorService } from '../../../grid/services/grid-color.service';
-import { GridFontsService } from '../../../grid/services/grid-fonts.service';
+import { GridColorService } from '../../../shared/grid/services/grid-color.service';
+import { GridFontsService } from '../../../shared/grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import {
@@ -21,8 +21,8 @@ import {
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from '../../../grid/enums/cell-settings.enum';
-import { Gradient3DBorderStyleEnum } from '../../../grid/enums/gradient-3d-border-style';
+} from '../../../shared/grid/enums/cell-settings.enum';
+import { Gradient3DBorderStyleEnum } from '../../../shared/grid/enums/gradient-3d-border-style';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';

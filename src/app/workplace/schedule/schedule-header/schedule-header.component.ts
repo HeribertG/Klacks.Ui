@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   NgbDropdown,
@@ -16,7 +16,7 @@ import {
 } from './schedule-header-calendar/schedule-header-calendar.component';
 import { FormsModule } from '@angular/forms';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { SettingsService } from '../schedule-section/services/settings.service';
 
 @Component({

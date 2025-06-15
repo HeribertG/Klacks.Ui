@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/grid/classes/geometry';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { SettingsService } from './settings.service';
 import { CellManipulationService } from './cell-manipulation.service';

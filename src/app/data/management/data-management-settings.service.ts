@@ -25,7 +25,7 @@ import { DataMacroService } from '../data-macro.service';
 import { DataBankDetailsService } from '../data-bank-details.service';
 import { IBankDetail } from 'src/app/core/bank-detail-class';
 import { IMacro } from 'src/app/core/macro-class';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 
 @Injectable({

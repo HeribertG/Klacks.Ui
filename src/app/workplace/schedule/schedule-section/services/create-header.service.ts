@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { SettingsService } from './settings.service';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border-style';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from 'src/app/grid/enums/cell-settings.enum';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+} from 'src/app/shared/grid/enums/cell-settings.enum';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DataService } from './data.service';
-import { Rectangle } from 'src/app/grid/classes/geometry';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 
 @Injectable()
 export class CreateHeaderService {

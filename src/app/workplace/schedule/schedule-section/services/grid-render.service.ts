@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
 import { CanvasManagerService } from './canvas-manager.service';
 import { SettingsService } from './settings.service';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
-import { MyPosition } from 'src/app/grid/classes/position';
+import { MyPosition } from 'src/app/shared/grid/classes/position';
 import { DataService } from './data.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';

@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/grid/classes/geometry';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from 'src/app/grid/enums/cell-settings.enum';
-import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border-style';
+} from 'src/app/shared/grid/enums/cell-settings.enum';
+import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 

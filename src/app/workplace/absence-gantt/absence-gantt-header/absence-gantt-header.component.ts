@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
-import { HolidayCollectionService } from 'src/app/grid/services/holiday-collection.service';
+import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import {
   NgbDropdown,

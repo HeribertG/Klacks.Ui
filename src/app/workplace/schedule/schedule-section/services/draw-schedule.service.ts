@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/grid/classes/geometry';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { SettingsService } from './settings.service';
 import { CellManipulationService } from './cell-manipulation.service';
-import { MyPosition } from 'src/app/grid/classes/position';
+import { MyPosition } from 'src/app/shared/grid/classes/position';
 import { CreateHeaderService } from './create-header.service';
 import { CreateCellService } from './create-cell.service';
 import { DataService } from './data.service';

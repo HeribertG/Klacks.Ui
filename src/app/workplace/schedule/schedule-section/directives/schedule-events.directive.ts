@@ -10,7 +10,7 @@ import {
 import { Overlay } from '@angular/cdk/overlay';
 import { ScheduleScheduleSurfaceComponent } from '../../schedule-schedule-surface/schedule-schedule-surface.component';
 import { DataService } from '../services/data.service';
-import { MyPosition } from 'src/app/grid/classes/position';
+import { MyPosition } from 'src/app/shared/grid/classes/position';
 import { CellManipulationService } from '../services/cell-manipulation.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 

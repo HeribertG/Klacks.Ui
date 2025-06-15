@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { GridSettingsService } from 'src/app/grid/services/grid-settings.service';
+import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';

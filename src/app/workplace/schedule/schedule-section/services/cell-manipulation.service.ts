@@ -2,10 +2,10 @@ import { Injectable } from '@angular/core';
 import {
   MyPosition,
   MyPositionCollection,
-} from 'src/app/grid/classes/position';
+} from 'src/app/shared/grid/classes/position';
 import { DataService } from './data.service';
 import { SettingsService } from './settings.service';
-import { ClipboardModeEnum } from 'src/app/grid/enums/divers';
+import { ClipboardModeEnum } from 'src/app/shared/grid/enums/divers';
 
 @Injectable()
 export class CellManipulationService {

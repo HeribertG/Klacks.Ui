@@ -1,10 +1,10 @@
 import { Injectable, NgZone } from '@angular/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
-import { GridColorService } from 'src/app/grid/services/grid-color.service';
-import { GridFontsService } from 'src/app/grid/services/grid-fonts.service';
+import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
-import { Rectangle } from 'src/app/grid/classes/geometry';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';

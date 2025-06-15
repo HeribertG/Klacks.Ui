@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
-import { Rectangle } from 'src/app/grid/classes/geometry';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { Timer } from 'src/app/helpers/timer';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';

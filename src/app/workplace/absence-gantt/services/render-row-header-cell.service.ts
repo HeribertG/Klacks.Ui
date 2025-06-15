@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { Rectangle } from 'src/app/grid/classes/geometry';
-import { Gradient3DBorderStyleEnum } from 'src/app/grid/enums/gradient-3d-border-style';
+import { Rectangle } from 'src/app/shared/grid/classes/geometry';
+import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
-} from 'src/app/grid/enums/cell-settings.enum';
+} from 'src/app/shared/grid/enums/cell-settings.enum';
 
 @Injectable()
 export class RenderRowHeaderCellService {
