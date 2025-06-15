@@ -126,7 +126,6 @@ export class DrawScheduleService {
 
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
-    console.log('refreshGrid', this.position);
 
     if (oldVisibleCol < visibleCol && oldVisibleRow < visibleRow) {
       this.resizeRenderCanvas(visibleRow, visibleCol);
@@ -142,7 +141,6 @@ export class DrawScheduleService {
 
   @CanvasAvailable('queue')
   private renderGrid(): void {
-    console.log('renderGrid', this.position);
     this.gridRender.renderGrid();
   }
 

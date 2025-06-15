@@ -420,7 +420,6 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private handleGenericError(error: HttpErrorResponse): Observable<never> {
-    console.error('HTTP Error:', error);
     switch (error.status) {
       case 401: // wird vom TokenRefreshInterceptor behandelt
         break;
