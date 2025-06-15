@@ -3,7 +3,7 @@ import { ClipboardModeEnum } from 'src/app/shared/grid/enums/divers';
 import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 
 @Injectable()
-export class SettingsService {
+export class BaseSettingsService {
   public zoomSignal = signal<number>(1);
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;

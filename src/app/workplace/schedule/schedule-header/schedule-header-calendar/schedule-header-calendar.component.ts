@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/shared/counter/counter.component';
-import { DataService } from '../../schedule-section/services/data.service';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 
 export interface CalendarResetData {
   selectedMonth: number;
@@ -24,7 +24,7 @@ export class ScheduleHeaderCalendarComponent implements OnInit {
 
   public gridSettingsService = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
-  private dataService = inject(DataService);
+  private dataService = inject(BaseDataService);
 
   currentYear: number = new Date().getFullYear();
   maxYear: number = this.currentYear + 30;

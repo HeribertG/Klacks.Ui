@@ -16,7 +16,7 @@ import {
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Injectable()
-export class DataService {
+export class BaseDataService {
   public dataManagementSchedule = inject(DataManagementScheduleService);
   public holidayCollection = inject(HolidayCollectionService);
   private gridSetting = inject(GridSettingsService);

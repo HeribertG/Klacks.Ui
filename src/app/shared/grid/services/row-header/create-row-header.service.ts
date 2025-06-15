@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
-import { SettingsService } from './settings.service';
-import { DataService } from './data.service';
+import { inject, Injectable } from '@angular/core';
+
 import { RowHeaderIconsService } from 'src/app/shared/grid/services/row-header-icons.service';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
@@ -13,24 +12,24 @@ import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d
 import { ClientWork } from 'src/app/core/schedule-class';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
-import { GridRowHeader } from '../../classes/grid-row-header';
+import { GridRowHeader } from '../../../../workplace/schedule/classes/grid-row-header';
+import { BaseDataService } from '../data-setting/data.service';
+import { BaseSettingsService } from '../data-setting/settings.service';
 
 @Injectable()
-export class CreateRowHeaderService {
+export class BaseCreateRowHeaderService {
+  private settings = inject(BaseSettingsService);
+  private gridData = inject(BaseDataService);
+  private rowIcons = inject(RowHeaderIconsService);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+
   private backgroundCollection = new Map<string, HTMLCanvasElement>();
   private oldWidth = 0;
 
   private iconWidth = this.settings.rowHeaderIconWith;
   private iconHeight = this.settings.rowHeaderIconHeight;
   private margin = 4;
-
-  constructor(
-    private settings: SettingsService,
-    private gridData: DataService,
-    private rowIcons: RowHeaderIconsService,
-    private gridColors: GridColorService,
-    private gridFonts: GridFontsService
-  ) {}
 
   reset() {
     this.margin = 4 * this.settings.zoom;

@@ -3,23 +3,23 @@ import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { SettingsService } from './settings.service';
-import { CellManipulationService } from './cell-manipulation.service';
-import { CreateHeaderService } from './create-header.service';
-import { DataService } from './data.service';
-import { CreateRowHeaderService } from './create-row-header.service';
+import { CellManipulationService } from '../../../../workplace/schedule/schedule-section/services/cell-manipulation.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { ScheduleScheduleRowHeaderComponent } from '../../schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ScheduleScheduleRowHeaderComponent } from '../../../../workplace/schedule/schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { BaseCreateRowHeaderService } from './create-row-header.service';
+import { CreateHeaderService } from 'src/app/shared/grid/services/body/create-header.service';
+import { BaseDataService } from '../data-setting/data.service';
+import { BaseSettingsService } from '../data-setting/settings.service';
 
 @Injectable()
-export class DrawRowHeaderService {
+export class BaseDrawRowHeaderService {
   public cellManipulation = inject(CellManipulationService);
-  public gridData = inject(DataService);
-  public createRowHeader = inject(CreateRowHeaderService);
+  public gridData = inject(BaseDataService);
+  public createRowHeader = inject(BaseCreateRowHeaderService);
   private gridColors = inject(GridColorService);
   private scroll = inject(ScrollService);
   private gridSettings = inject(GridSettingsService);
-  private settings = inject(SettingsService);
+  private settings = inject(BaseSettingsService);
   private createHeader = inject(CreateHeaderService);
 
   public ctx: CanvasRenderingContext2D | undefined;

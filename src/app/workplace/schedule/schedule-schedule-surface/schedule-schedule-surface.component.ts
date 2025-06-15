@@ -27,10 +27,10 @@ import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { DataService } from '../schedule-section/services/data.service';
-import { DrawScheduleService } from '../schedule-section/services/draw-schedule.service';
-import { SettingsService } from '../schedule-section/services/settings.service';
 import { ScheduleEventsDirective } from '../schedule-section/directives/schedule-events.directive';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
 
 @Component({
   selector: 'app-schedule-schedule-surface',
@@ -62,11 +62,11 @@ export class ScheduleScheduleSurfaceComponent
   @ViewChild('boxSchedule') boxSchedule!: ElementRef<HTMLDivElement>;
 
   public dataManagementSchedule = inject(DataManagementScheduleService);
-  public dataService = inject(DataService);
+  public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
-  public drawSchedule = inject(DrawScheduleService);
+  public drawSchedule = inject(BaseDrawScheduleService);
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
-  private settings = inject(SettingsService);
+  private settings = inject(BaseSettingsService);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
 

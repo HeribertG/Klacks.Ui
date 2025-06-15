@@ -17,7 +17,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ChooseCalendarComponent } from 'src/app/icons/choose-calendar.component';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
-import { SettingsService } from '../schedule-section/services/settings.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Component({
   selector: 'app-schedule-header',
@@ -54,7 +54,7 @@ export class ScheduleHeaderComponent implements OnInit {
   );
   private gridSettingsService = inject(GridSettingsService);
 
-  private settings = inject(SettingsService);
+  private settings = inject(BaseSettingsService);
 
   public displayYear = '';
   public displayMonth = '';

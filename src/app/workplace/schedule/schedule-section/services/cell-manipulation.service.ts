@@ -1,21 +1,20 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import {
   MyPosition,
   MyPositionCollection,
 } from 'src/app/shared/grid/classes/position';
-import { DataService } from './data.service';
-import { SettingsService } from './settings.service';
+
 import { ClipboardModeEnum } from 'src/app/shared/grid/enums/divers';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable()
 export class CellManipulationService {
+  private gridSetting = inject(BaseSettingsService);
+  private gridData = inject(BaseDataService);
+
   public PositionCollection = new MyPositionCollection();
   public Position: MyPosition = new MyPosition(-1, -1);
-
-  constructor(
-    private gridSetting: SettingsService,
-    private gridData: DataService
-  ) {}
 
   isPositionInSelection(pos: MyPosition): boolean {
     if (this.Position.isEqual(pos)) {

@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { CanvasManagerService } from './canvas-manager.service';
-import { DataService } from './data.service';
-import { SettingsService } from './settings.service';
 import { CreateCellService } from './create-cell.service';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,8 +12,8 @@ export class CellRenderService {
   private static readonly OVERLAP = 1;
 
   private canvasManager = inject(CanvasManagerService);
-  private dataService = inject(DataService);
-  private settings = inject(SettingsService);
+  private dataService = inject(BaseDataService);
+  private settings = inject(BaseSettingsService);
   private createCell = inject(CreateCellService);
 
   private renderCell(

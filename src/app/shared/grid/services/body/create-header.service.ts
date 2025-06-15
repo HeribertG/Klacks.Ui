@@ -1,5 +1,4 @@
-import { Injectable } from '@angular/core';
-import { SettingsService } from './settings.service';
+import { inject, Injectable } from '@angular/core';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
@@ -10,25 +9,24 @@ import {
 } from 'src/app/shared/grid/enums/cell-settings.enum';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { TranslateService } from '@ngx-translate/core';
-import { DataService } from './data.service';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 
 @Injectable()
 export class CreateHeaderService {
+  private settings = inject(BaseSettingsService);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+  private gridSettings = inject(GridSettingsService);
+  private gridData = inject(BaseDataService);
+  private translateService = inject(TranslateService);
+
   private emptyHeader: ImageData | undefined = undefined;
 
   private iconWidth = this.settings.rowHeaderIconWith;
   private iconHeight = this.settings.rowHeaderIconHeight;
   private zoom = this.settings.zoom;
-
-  constructor(
-    private settings: SettingsService,
-    private gridColors: GridColorService,
-    private gridFonts: GridFontsService,
-    private gridSettings: GridSettingsService,
-    private gridData: DataService,
-    private translateService: TranslateService
-  ) {}
 
   private init(): void {
     this.iconWidth = this.settings.rowHeaderIconWith;

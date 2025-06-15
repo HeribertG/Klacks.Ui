@@ -13,14 +13,15 @@ import {
   Injector,
   runInInjectionContext,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { CreateRowHeaderService } from '../schedule-section/services/create-row-header.service';
-import { DataService } from '../schedule-section/services/data.service';
-import { DrawRowHeaderService } from '../schedule-section/services/draw-row-header.service';
-import { SettingsService } from '../schedule-section/services/settings.service';
+
+import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
+import { BaseDrawRowHeaderService } from 'src/app/shared/grid/services/row-header/draw-row-header.service';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -28,7 +29,7 @@ import { SettingsService } from '../schedule-section/services/settings.service';
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
   imports: [CommonModule, ResizeDirective],
-  providers: [ScrollService, CreateRowHeaderService],
+  providers: [ScrollService, BaseCreateRowHeaderService],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements AfterViewInit, OnChanges, OnDestroy
@@ -37,11 +38,11 @@ export class ScheduleScheduleRowHeaderComponent
 
   @Input() valueChangeVScrollbar!: number;
 
-  public dataService = inject(DataService);
+  public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
-  public drawRowHeader = inject(DrawRowHeaderService);
+  public drawRowHeader = inject(BaseDrawRowHeaderService);
   private injector = inject(Injector);
-  private settings = inject(SettingsService);
+  private settings = inject(BaseSettingsService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];

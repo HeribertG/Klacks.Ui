@@ -1,6 +1,4 @@
-import { Injectable } from '@angular/core';
-import { DataService } from './data.service';
-import { SettingsService } from './settings.service';
+import { inject, Injectable } from '@angular/core';
 import { WeekDaysEnum } from 'src/app/shared/grid/enums/divers';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
@@ -10,19 +8,21 @@ import {
   TextAlignmentEnum,
 } from 'src/app/shared/grid/enums/cell-settings.enum';
 import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable()
 export class CreateCellService {
+  private settings = inject(BaseSettingsService);
+  private gridData = inject(BaseDataService);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+
   private emptyCellList: HTMLCanvasElement[] = new Array(10);
   private readonly lastLine = 5;
   private readonly margin = 2;
 
-  constructor(
-    private settings: SettingsService,
-    private gridData: DataService,
-    private gridColors: GridColorService,
-    private gridFonts: GridFontsService
-  ) {}
+  constructor() {}
 
   reset() {
     this.init();

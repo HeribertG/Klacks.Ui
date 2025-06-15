@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { SettingsService } from './settings.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable()
 export class CanvasManagerService {
+  private settings = inject(BaseSettingsService);
+
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;
   public renderCanvasCtx: CanvasRenderingContext2D | undefined;
@@ -13,8 +15,6 @@ export class CanvasManagerService {
 
   private _width = 10;
   private _height = 10;
-
-  constructor(private settings: SettingsService) {}
 
   public createCanvas(): void {
     this.createMainCanvas();

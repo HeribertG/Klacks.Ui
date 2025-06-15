@@ -14,17 +14,16 @@ import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/s
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { GridRenderService } from './services/grid-render.service';
-import { DrawScheduleService } from './services/draw-schedule.service';
-import { DrawRowHeaderService } from './services/draw-row-header.service';
-import { CreateRowHeaderService } from './services/create-row-header.service';
-import { CreateHeaderService } from './services/create-header.service';
+import { CreateHeaderService } from '../../../shared/grid/services/body/create-header.service';
 import { CreateCellService } from './services/create-cell.service';
 import { CellRenderService } from './services/cell-render.service';
 import { CellManipulationService } from './services/cell-manipulation.service';
 import { CanvasManagerService } from './services/canvas-manager.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { DataService } from './services/data.service';
+import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
+import { BaseDrawRowHeaderService } from 'src/app/shared/grid/services/row-header/draw-row-header.service';
+import { BaseGridRenderService } from 'src/app/shared/grid/services/body/grid-render.service';
+import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -37,17 +36,16 @@ import { DataService } from './services/data.service';
     VScrollbarComponent,
   ],
   providers: [
-    DataService,
     ScrollService,
     CanvasManagerService,
     CellManipulationService,
     CellRenderService,
     CreateCellService,
     CreateHeaderService,
-    CreateRowHeaderService,
-    DrawRowHeaderService,
-    DrawScheduleService,
-    GridRenderService,
+    BaseCreateRowHeaderService,
+    BaseDrawRowHeaderService,
+    BaseDrawScheduleService,
+    BaseGridRenderService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],

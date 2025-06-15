@@ -1,24 +1,24 @@
 import { inject, Injectable } from '@angular/core';
-import { CanvasManagerService } from './canvas-manager.service';
-import { SettingsService } from './settings.service';
+import { CanvasManagerService } from '../../../../workplace/schedule/schedule-section/services/canvas-manager.service';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { CreateHeaderService } from './create-header.service';
-import { CreateCellService } from './create-cell.service';
+import { CreateCellService } from '../../../../workplace/schedule/schedule-section/services/create-cell.service';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
-import { DataService } from './data.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class GridRenderService {
+export class BaseGridRenderService {
   private canvasManager = inject(CanvasManagerService);
-  private settings = inject(SettingsService);
+  private settings = inject(BaseSettingsService);
   private gridColors = inject(GridColorService);
   private createHeader = inject(CreateHeaderService);
   private createCell = inject(CreateCellService);
-  private gridData = inject(DataService);
+  private gridData = inject(BaseDataService);
   private scroll = inject(ScrollService);
 
   public drawGrid(
