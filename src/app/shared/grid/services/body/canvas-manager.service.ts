@@ -3,7 +3,7 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable()
-export class CanvasManagerService {
+export class BaseCanvasManagerService {
   private settings = inject(BaseSettingsService);
 
   public ctx: CanvasRenderingContext2D | undefined;

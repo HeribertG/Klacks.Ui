@@ -14,7 +14,7 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 
 @Injectable()
-export class CreateHeaderService {
+export class BaseCreateHeaderService {
   private settings = inject(BaseSettingsService);
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);

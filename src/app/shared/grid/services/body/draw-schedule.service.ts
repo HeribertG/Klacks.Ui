@@ -2,30 +2,30 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
-import { CellManipulationService } from '../../../../workplace/schedule/schedule-section/services/cell-manipulation.service';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
-import { CreateHeaderService } from './create-header.service';
-import { CreateCellService } from '../../../../workplace/schedule/schedule-section/services/create-cell.service';
-import { CanvasManagerService } from '../../../../workplace/schedule/schedule-section/services/canvas-manager.service';
-import { CellRenderService } from '../../../../workplace/schedule/schedule-section/services/cell-render.service';
+import { BaseCanvasManagerService } from './canvas-manager.service';
+import { CellRenderService } from './cell-render.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseGridRenderService } from './grid-render.service';
+import { BaseCreateCellService } from './create-cell.service';
+import { BaseCreateHeaderService } from './create-header.service';
+import { BaseCellManipulationService } from './cell-manipulation.service';
 
 @Injectable()
 export class BaseDrawScheduleService {
-  public cellManipulation = inject(CellManipulationService);
+  public cellManipulation = inject(BaseCellManipulationService);
   public gridData = inject(BaseDataService);
 
   private gridColors = inject(GridColorService);
   private scroll = inject(ScrollService);
   private settings = inject(BaseSettingsService);
-  private createHeader = inject(CreateHeaderService);
-  private createCellService = inject(CreateCellService);
-  private canvasManager = inject(CanvasManagerService);
+  private createHeader = inject(BaseCreateHeaderService);
+  private createCellService = inject(BaseCreateCellService);
+  private canvasManager = inject(BaseCanvasManagerService);
   private gridRender = inject(BaseGridRenderService);
   private cellRender = inject(CellRenderService);
 

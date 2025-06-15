@@ -14,16 +14,16 @@ import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/s
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { CreateHeaderService } from '../../../shared/grid/services/body/create-header.service';
-import { CreateCellService } from './services/create-cell.service';
-import { CellRenderService } from './services/cell-render.service';
-import { CellManipulationService } from './services/cell-manipulation.service';
-import { CanvasManagerService } from './services/canvas-manager.service';
+import { CellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
 import { BaseDrawRowHeaderService } from 'src/app/shared/grid/services/row-header/draw-row-header.service';
 import { BaseGridRenderService } from 'src/app/shared/grid/services/body/grid-render.service';
 import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
+import { BaseCanvasManagerService } from 'src/app/shared/grid/services/body/canvas-manager.service';
+import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/create-header.service';
+import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
+import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -37,14 +37,14 @@ import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-
   ],
   providers: [
     ScrollService,
-    CanvasManagerService,
-    CellManipulationService,
+    BaseCellManipulationService,
     CellRenderService,
-    CreateCellService,
-    CreateHeaderService,
+    BaseCreateCellService,
+    BaseCreateHeaderService,
     BaseCreateRowHeaderService,
     BaseDrawRowHeaderService,
     BaseDrawScheduleService,
+    BaseCanvasManagerService,
     BaseGridRenderService,
   ],
   templateUrl: './schedule-section.component.html',

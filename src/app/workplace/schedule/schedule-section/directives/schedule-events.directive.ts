@@ -10,9 +10,9 @@ import {
 import { Overlay } from '@angular/cdk/overlay';
 import { ScheduleScheduleSurfaceComponent } from '../../schedule-schedule-surface/schedule-schedule-surface.component';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
-import { CellManipulationService } from '../services/cell-manipulation.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 
 @Directive({
   selector: '[appScheduleEvents]',
@@ -25,7 +25,7 @@ export class ScheduleEventsDirective {
   public viewContainerRef = inject(ViewContainerRef);
   private gridData = inject(BaseDataService);
   private scrollGrid = inject(ScrollService);
-  private cellManipulation = inject(CellManipulationService);
+  private cellManipulation = inject(BaseCellManipulationService);
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;

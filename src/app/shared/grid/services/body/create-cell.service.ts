@@ -12,7 +12,7 @@ import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Injectable()
-export class CreateCellService {
+export class BaseCreateCellService {
   private settings = inject(BaseSettingsService);
   private gridData = inject(BaseDataService);
   private gridColors = inject(GridColorService);
