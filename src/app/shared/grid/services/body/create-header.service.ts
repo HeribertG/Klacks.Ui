@@ -15,11 +15,11 @@ import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.
 
 @Injectable()
 export class BaseCreateHeaderService {
-  private settings = inject(BaseSettingsService);
-  private gridColors = inject(GridColorService);
-  private gridFonts = inject(GridFontsService);
-  private gridSettings = inject(GridSettingsService);
-  private gridData = inject(BaseDataService);
+  protected settings = inject(BaseSettingsService);
+  protected gridColors = inject(GridColorService);
+  protected gridFonts = inject(GridFontsService);
+  protected gridSettings = inject(GridSettingsService);
+  protected gridData = inject(BaseDataService);
   private translateService = inject(TranslateService);
 
   private emptyHeader: ImageData | undefined = undefined;

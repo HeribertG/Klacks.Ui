@@ -10,8 +10,8 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 
 @Injectable()
 export class BaseCellManipulationService {
-  private gridSetting = inject(BaseSettingsService);
-  private gridData = inject(BaseDataService);
+  protected gridSetting = inject(BaseSettingsService);
+  protected gridData = inject(BaseDataService);
 
   public PositionCollection = new MyPositionCollection();
   public Position: MyPosition = new MyPosition(-1, -1);

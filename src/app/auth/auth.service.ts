@@ -243,8 +243,8 @@ export class AuthService {
         return true;
       }
       return false;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
+    } catch {
+      // console.error('Token refresh failed:', error);
       return false;
     }
   }

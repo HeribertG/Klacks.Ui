@@ -13,10 +13,10 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 
 @Injectable()
 export class BaseCreateCellService {
-  private settings = inject(BaseSettingsService);
-  private gridData = inject(BaseDataService);
-  private gridColors = inject(GridColorService);
-  private gridFonts = inject(GridFontsService);
+  protected settings = inject(BaseSettingsService);
+  protected gridData = inject(BaseDataService);
+  protected gridColors = inject(GridColorService);
+  protected gridFonts = inject(GridFontsService);
 
   private emptyCellList: HTMLCanvasElement[] = new Array(10);
   private readonly lastLine = 5;

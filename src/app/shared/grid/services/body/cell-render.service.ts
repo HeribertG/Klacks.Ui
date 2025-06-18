@@ -8,13 +8,13 @@ import { BaseCreateCellService } from './create-cell.service';
 @Injectable({
   providedIn: 'root',
 })
-export class CellRenderService {
-  private static readonly OVERLAP = 1;
+export class BaseCellRenderService {
+  protected canvasManager = inject(BaseCanvasManagerService);
+  protected dataService = inject(BaseDataService);
+  protected settings = inject(BaseSettingsService);
+  protected createCell = inject(BaseCreateCellService);
 
-  private canvasManager = inject(BaseCanvasManagerService);
-  private dataService = inject(BaseDataService);
-  private settings = inject(BaseSettingsService);
-  private createCell = inject(BaseCreateCellService);
+  private static readonly OVERLAP = 1;
 
   private renderCell(
     row: number,

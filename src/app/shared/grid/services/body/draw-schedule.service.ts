@@ -20,14 +20,14 @@ export class BaseDrawScheduleService {
   public cellManipulation = inject(BaseCellManipulationService);
   public gridData = inject(BaseDataService);
 
-  private gridColors = inject(GridColorService);
-  private scroll = inject(ScrollService);
-  private settings = inject(BaseSettingsService);
-  private createHeader = inject(BaseCreateHeaderService);
-  private createCellService = inject(BaseCreateCellService);
-  private canvasManager = inject(BaseCanvasManagerService);
-  private gridRender = inject(BaseGridRenderService);
-  private cellRender = inject(CellRenderService);
+  protected gridColors = inject(GridColorService);
+  protected scroll = inject(ScrollService);
+  protected settings = inject(BaseSettingsService);
+  protected createHeader = inject(BaseCreateHeaderService);
+  protected createCellService = inject(BaseCreateCellService);
+  protected canvasManager = inject(BaseCanvasManagerService);
+  protected gridRender = inject(BaseGridRenderService);
+  protected cellRender = inject(CellRenderService);
 
   private readonly MAX_INCREMENTAL_SCROLL = 4;
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;

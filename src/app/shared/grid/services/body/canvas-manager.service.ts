@@ -4,7 +4,7 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 
 @Injectable()
 export class BaseCanvasManagerService {
-  private settings = inject(BaseSettingsService);
+  protected settings = inject(BaseSettingsService);
 
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;

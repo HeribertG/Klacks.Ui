@@ -1,26 +1,29 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
-$scrollbar-size: 17px;
+:host {
+  --v-shift-scrollbar-size: 17px;
+}
 
-.container-box2 {
+.container-box-shift {
   display: flex;
   width: 100%;
   height: 100%;
   flex-direction: column;
-  .surface {
-    background-color: violet;
+  .surface-shift {
     flex: 1;
     display: flex;
     width: 100%;
     height: 100%;
-    .box {
-      width: calc(100% - 20px);
+    .box-shift {
+      background-color: violet;
+      width: calc(100% - var(--v-shift-scrollbar-size));
       height: 100%;
       flex: 1;
     }
 
-    .vScrollArea {
-      width: #{$scrollbar-size};
+    .vScrollAreaShift {
+      background-color: green;
+      width: var(--v-shift-scrollbar-size);
       height: 100%;
     }
   }

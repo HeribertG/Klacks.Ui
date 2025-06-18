@@ -14,7 +14,7 @@ import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/s
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { CellRenderService } from '../../../shared/grid/services/body/cell-render.service';
+import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
 import { BaseDrawRowHeaderService } from 'src/app/shared/grid/services/row-header/draw-row-header.service';
@@ -38,7 +38,7 @@ import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/c
   providers: [
     ScrollService,
     BaseCellManipulationService,
-    CellRenderService,
+    BaseCellRenderService,
     BaseCreateCellService,
     BaseCreateHeaderService,
     BaseCreateRowHeaderService,

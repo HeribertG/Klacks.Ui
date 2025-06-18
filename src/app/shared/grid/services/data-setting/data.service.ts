@@ -19,8 +19,8 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 export class BaseDataService {
   public dataManagementSchedule = inject(DataManagementScheduleService);
   public holidayCollection = inject(HolidayCollectionService);
-  private gridSetting = inject(GridSettingsService);
-  private gridScroll = inject(ScrollService);
+  protected gridSetting = inject(GridSettingsService);
+  protected gridScroll = inject(ScrollService);
 
   public refreshSignal = signal<boolean>(false);
 

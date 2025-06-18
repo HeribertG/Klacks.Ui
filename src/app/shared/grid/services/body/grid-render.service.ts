@@ -14,13 +14,13 @@ import { BaseCreateCellService } from './create-cell.service';
   providedIn: 'root',
 })
 export class BaseGridRenderService {
-  private canvasManager = inject(BaseCanvasManagerService);
-  private settings = inject(BaseSettingsService);
-  private gridColors = inject(GridColorService);
-  private createHeader = inject(BaseCreateHeaderService);
-  private createCell = inject(BaseCreateCellService);
-  private gridData = inject(BaseDataService);
-  private scroll = inject(ScrollService);
+  protected canvasManager = inject(BaseCanvasManagerService);
+  protected settings = inject(BaseSettingsService);
+  protected gridColors = inject(GridColorService);
+  protected createHeader = inject(BaseCreateHeaderService);
+  protected createCell = inject(BaseCreateCellService);
+  protected gridData = inject(BaseDataService);
+  protected scroll = inject(ScrollService);
 
   public drawGrid(
     visibleRow: number,
