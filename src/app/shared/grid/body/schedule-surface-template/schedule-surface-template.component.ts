@@ -23,33 +23,27 @@ import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.c
 import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { ScheduleEventsDirective } from '../schedule-section/directives/schedule-events.directive';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
+import { ScheduleTemplateEventsDirective } from '../directives/schedule-template-events.directive';
 
 @Component({
-  selector: 'app-schedule-schedule-surface',
-  templateUrl: './schedule-schedule-surface.component.html',
-  styleUrls: ['./schedule-schedule-surface.component.scss'],
+  selector: 'app-schedule-surface-template',
+  templateUrl: './schedule-surface-template.component.html',
   standalone: true,
   imports: [
-    CommonModule,
     ContextMenuComponent,
-    ScheduleEventsDirective,
+    ScheduleTemplateEventsDirective,
     ResizeDirective,
-    SharedModule,
   ],
-  providers: [],
 })
-export class ScheduleScheduleSurfaceComponent
+export class ScheduleSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
-  @Input() contextMenu: ContextMenuComponent | undefined;
+  @Input() contextMenu?: ContextMenuComponent;
   @Input() valueChangeHScrollbar!: number;
   @Input() valueChangeVScrollbar!: number;
 
@@ -59,16 +53,18 @@ export class ScheduleScheduleSurfaceComponent
   @Output() valueVScrollbar = new EventEmitter<number>();
   @Output() maxValueVScrollbar = new EventEmitter<number>();
   @Output() visibleValueVScrollbar = new EventEmitter<number>();
-  @ViewChild('boxSchedule') boxSchedule!: ElementRef<HTMLDivElement>;
-  @ViewChild('canvasScheduleRef', { static: true })
+
+  @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
+  @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  public dataManagementSchedule = inject(DataManagementScheduleService);
+  public dataManagement = inject(DataManagementScheduleService);
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
   public drawSchedule = inject(BaseDrawScheduleService);
+  public settings = inject(BaseSettingsService);
+
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
-  private settings = inject(BaseSettingsService);
   private cdr = inject(ChangeDetectorRef);
   private injector = inject(Injector);
 
@@ -78,14 +74,12 @@ export class ScheduleScheduleSurfaceComponent
 
   private tooltip: HTMLDivElement | undefined;
   private _pixelRatio = 1;
-
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  /* #region ng */
   ngOnInit(): void {
+    console.log('[TEMPLATE] ScheduleSurfaceTemplateComponent initialized');
     this.readSignals();
-
     this._pixelRatio = DrawHelper.pixelRatio();
     this.drawSchedule.refresh();
     this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
@@ -96,17 +90,12 @@ export class ScheduleScheduleSurfaceComponent
     this.drawSchedule.createCanvas(canvas);
     this.initializeDrawSchedule();
   }
+
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-
     this.drawSchedule.deleteCanvas();
-
-    this.effects.forEach((effectRef) => {
-      if (effectRef) {
-        effectRef.destroy();
-      }
-    });
+    this.effects.forEach((e) => e?.destroy());
     this.effects = [];
   }
 
@@ -117,7 +106,6 @@ export class ScheduleScheduleSurfaceComponent
     if (changes['valueChangeHScrollbar']) {
       const prevH = changes['valueChangeHScrollbar'].previousValue;
       const currH = changes['valueChangeHScrollbar'].currentValue;
-
       if (currH !== prevH) {
         this.scroll.horizontalScrollPosition = currH;
         this.scroll.updateScrollPosition(
@@ -146,20 +134,6 @@ export class ScheduleScheduleSurfaceComponent
     }
   }
 
-  /* #endregion ng */
-
-  /* #region   resize+visibility */
-
-  private initializeDrawSchedule(): void {
-    const canvas = this.canvasRef.nativeElement;
-    this.drawSchedule.createCanvas(canvas);
-    const box = this.boxSchedule.nativeElement;
-    this.drawSchedule.width = box.clientWidth;
-    this.drawSchedule.height = box.clientHeight;
-    this.drawSchedule.refresh();
-    this.updateScrollbarValues();
-  }
-
   setFocus(): void {
     const x = this.el.nativeElement;
     if (x) {
@@ -169,7 +143,19 @@ export class ScheduleScheduleSurfaceComponent
   }
 
   onResize(entries: ResizeObserverEntry[]): void {
-    if (entries && entries.length > 0) {
+    if (!this.drawSchedule.isCanvasAvailable()) {
+      console.warn('[TEMPLATE] resize skipped – canvas not ready');
+      return;
+    }
+
+    console.log(
+      'before update',
+      this.canvasRef.nativeElement.clientHeight,
+      this.canvasRef.nativeElement.height,
+      this.canvasRef.nativeElement.style.height
+    );
+
+    if (entries?.length > 0) {
       const entry = entries[0];
       this.updateDrawScheduleDimensions(entry.target as HTMLElement);
       this.checkPixelRatio();
@@ -177,82 +163,59 @@ export class ScheduleScheduleSurfaceComponent
     }
   }
 
-  private updateDrawScheduleDimensions(element: Element): void {
+  private initializeDrawSchedule(): void {
+    const canvas = this.canvasRef.nativeElement;
+    this.drawSchedule.createCanvas(canvas);
+    this.drawSchedule.width = canvas.parentElement!.clientWidth;
+    this.drawSchedule.height = canvas.parentElement!.clientHeight;
+    this.drawSchedule.refresh();
+    this.updateScrollbarValues();
+  }
+
+  private updateDrawScheduleDimensions(element: HTMLElement): void {
     console.log(
-      'Original',
+      'Template',
       element.id,
       element.clientWidth,
       element.clientHeight
     );
-    this.drawSchedule.width = element.clientWidth;
-    this.drawSchedule.height = element.clientHeight;
+
+    this.drawSchedule.width = element.parentElement!.clientWidth;
+    this.drawSchedule.height = element.parentElement!.clientHeight;
     this.drawSchedule.refresh();
   }
 
   private checkPixelRatio(): void {
     const pixelRatio = DrawHelper.pixelRatio();
+
     if (this._pixelRatio !== pixelRatio) {
-      this._pixelRatio = pixelRatio;
       const canvas = this.canvasRef.nativeElement;
+      this._pixelRatio = pixelRatio;
       this.drawSchedule.createCanvas(canvas);
       this.drawSchedule.rebuild();
       this.drawSchedule.redraw();
     }
   }
 
-  /* #endregion   resize+visibility */
-
-  /* #endregion   render */
-
-  /* #region Scrollbar Integration */
   private updateScrollbarValues(): void {
-    this.updateHorizontalScrollbarValues();
-    this.updateVerticalScrollbarValues();
-  }
-
-  private updateHorizontalScrollbarValues(): void {
     this.maxValueHScrollbar.emit(this.dataService.columns);
     this.visibleValueHScrollbar.emit(this.calculateVisibleColumns());
     this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
-  }
 
-  private updateVerticalScrollbarValues(): void {
     this.maxValueVScrollbar.emit(this.dataService.rows);
     this.visibleValueVScrollbar.emit(this.calculateVisibleRows());
     this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
   }
 
   private calculateVisibleColumns(): number {
-    if (!this.drawSchedule.isCanvasAvailable()) {
-      return 1;
-    }
+    if (!this.drawSchedule.isCanvasAvailable()) return 1;
     return Math.ceil(this.drawSchedule.width / this.settings.cellWidth);
   }
 
   private calculateVisibleRows(): number {
-    if (!this.drawSchedule.isCanvasAvailable()) {
-      return 1;
-    }
+    if (!this.drawSchedule.isCanvasAvailable()) return 1;
     return Math.ceil(this.drawSchedule.height / this.settings.cellHeight);
   }
-
-  /* #endregion Scrollbar Integration */
-
-  /* #region   render */
-
-  moveGrid(): void {
-    this.drawSchedule.moveGrid();
-    this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);
-    this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
-  }
-
-  /* #endregion   render */
-
-  /* #region ToolTips */
-
-  // These methods provide fine control over the tooltip's behavior,
-  // including its appearance, hiding, and removal,
-  // as well as animation effects for an enhanced user experience.
 
   showToolTip({ value, event }: { value: any; event: MouseEvent }) {
     if (this.tooltip && this.tooltip.innerHTML !== value) {
@@ -264,68 +227,42 @@ export class ScheduleScheduleSurfaceComponent
   }
 
   hideToolTip() {
-    if (this.tooltip) {
-      const op = parseFloat(this.tooltip.style.opacity);
-      if (!isNaN(op) && op >= 0.9) {
-        this.fadeOutToolTip();
-      }
+    if (this.tooltip && parseFloat(this.tooltip.style.opacity) >= 0.9) {
+      this.fadeOutToolTip();
     }
   }
 
   private fadeInToolTip() {
-    if (this.tooltip) {
-      let op = 0.1;
-      this.tooltip.style.display = 'block';
-
-      const timer = setInterval(() => {
-        if (op >= 0.9) {
-          clearInterval(timer);
-          this.tooltip!.style.opacity = '1';
-        } else {
-          this.tooltip!.style.opacity = op.toString();
-          op += op * 0.1;
-        }
-      }, 20);
-    }
-  }
-
-  private fadeOutToolTipSlow() {
-    if (this.tooltip) {
-      let op = 1;
-
-      const timer = setInterval(() => {
-        if (op <= 0.1) {
-          clearInterval(timer);
-          this.tooltip!.style.opacity = '0';
-          this.tooltip!.style.display = 'none';
-          this.tooltip!.style.top = '-9000px';
-          this.tooltip!.style.left = '-9000px';
-        } else {
-          this.tooltip!.style.opacity = op.toString();
-          op -= op * 0.1;
-        }
-      }, 100);
-    }
+    if (!this.tooltip) return;
+    let op = 0.1;
+    this.tooltip.style.display = 'block';
+    const timer = setInterval(() => {
+      if (op >= 0.9) {
+        clearInterval(timer);
+        this.tooltip!.style.opacity = '1';
+      } else {
+        this.tooltip!.style.opacity = op.toString();
+        op += op * 0.1;
+      }
+    }, 20);
   }
 
   private fadeOutToolTip() {
-    if (this.tooltip) {
-      let op = 1;
-
-      const timer = setInterval(() => {
-        if (op <= 0.1) {
-          clearInterval(timer);
-          this.tooltip!.style.opacity = '0';
-          this.tooltip!.style.display = 'none';
-          this.tooltip!.innerHTML = '';
-          this.tooltip!.style.top = '-9000px';
-          this.tooltip!.style.left = '-9000px';
-        } else {
-          this.tooltip!.style.opacity = op.toString();
-          op -= op * 0.1;
-        }
-      }, 50);
-    }
+    if (!this.tooltip) return;
+    let op = 1;
+    const timer = setInterval(() => {
+      if (op <= 0.1) {
+        clearInterval(timer);
+        this.tooltip!.style.opacity = '0';
+        this.tooltip!.style.display = 'none';
+        this.tooltip!.innerHTML = '';
+        this.tooltip!.style.top = '-9000px';
+        this.tooltip!.style.left = '-9000px';
+      } else {
+        this.tooltip!.style.opacity = op.toString();
+        op -= op * 0.1;
+      }
+    }, 50);
   }
 
   destroyToolTip() {
@@ -338,56 +275,18 @@ export class ScheduleScheduleSurfaceComponent
     }
   }
 
-  /* #endregion ToolTips */
-
-  /* #region context menu */
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  showContextMenu(event: MouseEvent) {
-    this.clearMenus();
-
-    // const pos = this.drawSchedule.calcCorrectCoordinate(event);
-
-    // if (
-    //   this.drawSchedule.cellManipulation &&
-    //   !this.drawSchedule.cellManipulation.isPositionInSelection(pos)
-    // ) {
-    //   this.destroySelection();
-    //   this.drawSchedule.position = pos;
-    // }
-
-    // this.subMenus = this.gridCellContextMenu.createContextMenu(pos);
-    // this.contextMenuPosition.x = event.clientX + 'px';
-    // this.contextMenuPosition.y = event.clientY + 'px';
-    // this.contextMenu.menuData = this.subMenus;
-
-    // this.contextMenu.openMenu();
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-  onContextMenuAction(event: any) {
-    // switch (event.id) {
-    //   case MenuIDEnum.emCopy: {
-    //     this.cellManipulation.copy();
-    //     break;
-    //   }
-    //   case MenuIDEnum.emCut: {
-    //     break;
-    //   }
-    //   case MenuIDEnum.emPaste: {
-    //     break;
-    //   }
-    // }
-  }
-
   clearMenus() {
-    //  this.subMenus = [];
+    // Implementieren wenn nötig
   }
-  /* #endregion context menu */
+
+  onContextMenuAction(_: any) {
+    // Implementieren wenn nötig
+  }
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        if (this.dataManagementSchedule.isRead()) {
+        if (this.dataManagement.isRead()) {
           this.dataService.setMetrics();
           this.scroll.horizontalScrollPosition = 0;
           this.scroll.verticalScrollPosition = 0;

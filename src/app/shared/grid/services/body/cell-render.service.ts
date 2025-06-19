@@ -78,13 +78,13 @@ export class BaseCellRenderService {
     if (horizontalDiff > 0) {
       startCol = Math.max(
         0,
-        visibleCols - horizontalDiff - CellRenderService.OVERLAP
+        visibleCols - horizontalDiff - BaseCellRenderService.OVERLAP
       );
       endCol = visibleCols;
     } else {
       const absDiff = Math.abs(horizontalDiff);
       startCol = 0;
-      endCol = Math.min(visibleCols, absDiff + CellRenderService.OVERLAP);
+      endCol = Math.min(visibleCols, absDiff + BaseCellRenderService.OVERLAP);
     }
 
     for (let row = 0; row < visibleRows; row++) {
@@ -109,13 +109,13 @@ export class BaseCellRenderService {
     if (verticalDiff > 0) {
       startRow = Math.max(
         0,
-        visibleRows - verticalDiff - CellRenderService.OVERLAP
+        visibleRows - verticalDiff - BaseCellRenderService.OVERLAP
       );
       endRow = visibleRows;
     } else {
       const absDiff = Math.abs(verticalDiff);
       startRow = 0;
-      endRow = Math.min(visibleRows, absDiff + CellRenderService.OVERLAP);
+      endRow = Math.min(visibleRows, absDiff + BaseCellRenderService.OVERLAP);
     }
 
     for (let col = 0; col < visibleCols; col++) {

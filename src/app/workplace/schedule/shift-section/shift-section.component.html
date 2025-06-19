@@ -13,10 +13,10 @@
   <as-split-area>
     <div class="container-box-shift">
       <div class="surface-shift">
-        <div class="box-shift">
-          <app-schedule-shift-surface></app-schedule-shift-surface>
-        </div>
-        <app-v-scrollbar class="vScrollAreaShift" #vScrollbar>
+        <app-schedule-surface-template #templateRef class="box-shift">
+        </app-schedule-surface-template>
+
+        <app-v-scrollbar class="vScrollAreaShift" #vScrollbar1>
         </app-v-scrollbar>
       </div>
     </div>

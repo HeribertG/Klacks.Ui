@@ -249,9 +249,6 @@ export abstract class DrawHelper {
     const dpr = this.pixelRatio();
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-    canvas.width = width;
-    canvas.height = height;
-
     if (setPixelRatio) {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
@@ -260,6 +257,9 @@ export abstract class DrawHelper {
       canvas.height = height * dpr;
 
       ctx!.scale(dpr, dpr);
+    } else {
+      canvas.width = width;
+      canvas.height = height;
     }
 
     return ctx!;

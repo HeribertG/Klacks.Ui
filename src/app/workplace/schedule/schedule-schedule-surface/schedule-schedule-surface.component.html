@@ -1,19 +1,19 @@
 <div
   #boxSchedule
-  id="box-schedule"
   class="box-schedule"
   appResize
   (resizeElement)="onResize($event)"
 >
   <canvas
+    #canvasScheduleRef
     appScheduleEvents
     appCellEvents
-    id="scheduleCanvas"
+    id="schedule-canvas{{ canvasId }}"
     tabindex="0"
     role="application"
   >
   </canvas>
 </div>
 
-<div id="tooltip" class="div-tooltip"></div>
+<div #tooltip class="div-tooltip"></div>
 <app-context-menu #contextMenu></app-context-menu>

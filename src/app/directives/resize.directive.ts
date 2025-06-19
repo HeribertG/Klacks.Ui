@@ -3,29 +3,30 @@ import {
   ElementRef,
   Output,
   EventEmitter,
-  OnInit,
   OnDestroy,
+  AfterViewInit,
 } from '@angular/core';
 
 @Directive({
   selector: '[appResize]',
   standalone: true,
 })
-export class ResizeDirective implements OnInit, OnDestroy {
+export class ResizeDirective implements AfterViewInit, OnDestroy {
   @Output() resizeElement = new EventEmitter<ResizeObserverEntry[]>();
-  private appResizeObserver: ResizeObserver;
+  private appResizeObserver!: ResizeObserver;
 
-  constructor(private elementRef: ElementRef) {
+  constructor(private elementRef: ElementRef) {}
+
+  ngAfterViewInit() {
     this.appResizeObserver = new ResizeObserver((entries) => {
       this.resizeElement.emit(entries);
     });
-  }
-
-  ngOnInit() {
     this.appResizeObserver.observe(this.elementRef.nativeElement);
   }
 
   ngOnDestroy() {
-    this.appResizeObserver.disconnect();
+    if (this.appResizeObserver) {
+      this.appResizeObserver.disconnect();
+    }
   }
 }

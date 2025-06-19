@@ -4,7 +4,7 @@ import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
 import { BaseCanvasManagerService } from './canvas-manager.service';
-import { CellRenderService } from './cell-render.service';
+import { BaseCellRenderService } from './cell-render.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
@@ -27,7 +27,7 @@ export class BaseDrawScheduleService {
   protected createCellService = inject(BaseCreateCellService);
   protected canvasManager = inject(BaseCanvasManagerService);
   protected gridRender = inject(BaseGridRenderService);
-  protected cellRender = inject(CellRenderService);
+  protected cellRender = inject(BaseCellRenderService);
 
   private readonly MAX_INCREMENTAL_SCROLL = 4;
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
@@ -42,8 +42,8 @@ export class BaseDrawScheduleService {
   private isScrollingToFast = false;
 
   /* #region initial/final */
-  public createCanvas() {
-    this.canvasManager.createCanvas();
+  public createCanvas(canvas: HTMLCanvasElement) {
+    this.canvasManager.createCanvas(canvas);
     (this as any).executeQueuedMethods();
   }
 
@@ -64,8 +64,6 @@ export class BaseDrawScheduleService {
   @CanvasAvailable('queue')
   public redraw() {
     this.destroySelection();
-    this.deleteCanvas();
-    this.createCanvas();
     this.redrawGrid();
     this.renderGrid();
     this.setSelection();

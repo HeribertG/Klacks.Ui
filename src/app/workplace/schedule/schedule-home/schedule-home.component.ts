@@ -5,7 +5,7 @@ import { ScheduleContainerComponent } from '../schedule-container/schedule-conta
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
-import { CellRenderService } from '../../../shared/grid/services/body/cell-render.service';
+import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
@@ -17,7 +17,7 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
   imports: [CommonModule, ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
     ScrollService,
-    CellRenderService,
+    BaseCellRenderService,
     HolidayCollectionService,
     ScrollbarService,
     BaseDataService,

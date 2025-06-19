@@ -1,0 +1,22 @@
+<div
+  #boxTemplate
+  class="box-template"
+  appResize
+  (resizeElement)="onResize($event)"
+>
+  <canvas
+    #canvasTemplateRef
+    appScheduleEvents
+    appCellEvents
+    id="template-canvas{{ canvasId }}"
+    appScheduleTemplateEvents
+    [tabindex]="0"
+    role="application"
+    aria-label="schedule canvas"
+    (contextmenu)="clearMenus()"
+  ></canvas>
+</div>
+
+<div #tooltip class="div-tooltip"></div>
+
+<ng-content select="[slot=context-menu]"></ng-content>

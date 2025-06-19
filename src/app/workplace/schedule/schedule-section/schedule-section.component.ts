@@ -52,8 +52,14 @@ import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/c
 })
 export class ScheduleSectionComponent implements AfterViewInit {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
+
   @Input() horizontalSize = 200;
+  @Input() valueChangeHScrollbar!: number;
+
   @Output() horizontalSizeChange = new EventEmitter<number>();
+  @Output() valueHScrollbar = new EventEmitter<number>();
+  @Output() maxValueHScrollbar = new EventEmitter<number>();
+
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
