@@ -17,6 +17,10 @@ import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/c
 import { BaseCellRenderService } from 'src/app/shared/grid/services/body/cell-render.service';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
+import { ShiftSettingsService } from './services/shift-settings.service';
+import { ShiftDataService } from './services/shift-data.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -29,6 +33,8 @@ import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.c
     ScheduleSurfaceTemplateComponent,
   ],
   providers: [
+    { provide: BaseDataService, useClass: ShiftDataService },
+    { provide: BaseSettingsService, useClass: ShiftSettingsService },
     ScrollService,
     BaseCellManipulationService,
     BaseCellRenderService,

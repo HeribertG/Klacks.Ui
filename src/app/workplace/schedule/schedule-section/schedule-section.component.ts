@@ -27,6 +27,8 @@ import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/c
 import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/schedule-schedule-surface.component';
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
+import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -40,6 +42,8 @@ import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/sched
     ScheduleSurfaceTemplateComponent,
   ],
   providers: [
+    BaseDataService,
+    BaseSettingsService,
     ScrollService,
     BaseCellManipulationService,
     BaseCellRenderService,
@@ -97,7 +101,7 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
-      this.horizontalSizeChange.emit(newSize + 6);
+      this.horizontalSizeChange.emit(newSize + 5);
     });
 
     this.scheduleHScrollbar.valueChange
