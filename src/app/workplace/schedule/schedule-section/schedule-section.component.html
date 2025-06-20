@@ -12,7 +12,8 @@
     <div class="container-box">
       <div class="surface">
         <div class="box">
-          <app-schedule-schedule-surface
+          <app-schedule-surface-template
+            [nameId]="'surface'"
             [valueChangeHScrollbar]="hScrollbar.value"
             (valueHScrollbar)="hScrollbar.value = $event"
             (maxValueHScrollbar)="hScrollbar.maxValue = $event"
@@ -22,7 +23,7 @@
             (maxValueVScrollbar)="vScrollbar.maxValue = $event"
             (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
           >
-          </app-schedule-schedule-surface>
+          </app-schedule-surface-template>
         </div>
         <app-v-scrollbar
           [class.hidden]="vScrollbarSize === 0"

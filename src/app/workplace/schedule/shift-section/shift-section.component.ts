@@ -15,7 +15,6 @@ import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/creat
 import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { BaseCellRenderService } from 'src/app/shared/grid/services/body/cell-render.service';
-import { ScheduleShiftSurfaceComponent } from './schedule-shift-surface/schedule-shift-surface.component';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 
@@ -26,7 +25,6 @@ import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.c
     AngularSplitModule,
     ScheduleShiftRowHeaderComponent,
     ContextMenuComponent,
-    ScheduleShiftSurfaceComponent,
     VScrollbarComponent,
     ScheduleSurfaceTemplateComponent,
   ],

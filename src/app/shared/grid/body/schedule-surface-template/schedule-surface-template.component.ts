@@ -23,7 +23,6 @@ import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.c
 import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
@@ -34,11 +33,7 @@ import { ScheduleTemplateEventsDirective } from '../directives/schedule-template
   selector: 'app-schedule-surface-template',
   templateUrl: './schedule-surface-template.component.html',
   standalone: true,
-  imports: [
-    ContextMenuComponent,
-    ScheduleTemplateEventsDirective,
-    ResizeDirective,
-  ],
+  imports: [ContextMenuComponent, ScheduleTemplateEventsDirective],
 })
 export class ScheduleSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -46,6 +41,7 @@ export class ScheduleSurfaceTemplateComponent
   @Input() contextMenu?: ContextMenuComponent;
   @Input() valueChangeHScrollbar!: number;
   @Input() valueChangeVScrollbar!: number;
+  @Input() nameId!: string;
 
   @Output() valueHScrollbar = new EventEmitter<number>();
   @Output() maxValueHScrollbar = new EventEmitter<number>();
@@ -77,6 +73,11 @@ export class ScheduleSurfaceTemplateComponent
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
+  private resizeObserver?: ResizeObserver;
+  private lastWidth = 0;
+  private lastHeight = 0;
+  private readonly RESIZE_THRESHOLD = 2;
+
   ngOnInit(): void {
     this.readSignals();
     this._pixelRatio = DrawHelper.pixelRatio();
@@ -87,7 +88,8 @@ export class ScheduleSurfaceTemplateComponent
   ngAfterViewInit(): void {
     const canvas = this.canvasRef.nativeElement;
     this.drawSchedule.createCanvas(canvas);
-    this.initializeDrawSchedule();
+    //this.initializeDrawSchedule();
+    this.observeParentResize();
   }
 
   ngOnDestroy(): void {
@@ -96,6 +98,11 @@ export class ScheduleSurfaceTemplateComponent
     this.drawSchedule.deleteCanvas();
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = undefined;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -141,32 +148,68 @@ export class ScheduleSurfaceTemplateComponent
     }
   }
 
-  onResize(entries: ResizeObserverEntry[]): void {
+  private observeParentResize(): void {
+    const parentElement = this.el.nativeElement.parentElement;
+    if (
+      parentElement &&
+      typeof window !== 'undefined' &&
+      'ResizeObserver' in window
+    ) {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        this.handleParentResize(entries);
+      });
+
+      this.resizeObserver.observe(parentElement);
+    } else {
+      console.warn(
+        '[TEMPLATE] ResizeObserver not available or no parent element:',
+        this.nameId
+      );
+    }
+  }
+
+  private handleParentResize(entries: ResizeObserverEntry[]): void {
     if (!this.drawSchedule.isCanvasAvailable()) {
-      console.warn('[TEMPLATE] resize skipped – canvas not ready');
+      console.warn('[TEMPLATE] resize skipped – canvas not ready', this.nameId);
       return;
     }
 
     if (entries?.length > 0) {
       const entry = entries[0];
-      this.updateDrawScheduleDimensions(entry.target as HTMLElement);
-      this.checkPixelRatio();
-      this.updateScrollbarValues();
+      const newWidth = Math.round(entry.contentRect.width);
+      const newHeight = Math.round(entry.contentRect.height);
+
+      if (
+        Math.abs(newWidth - this.lastWidth) >= this.RESIZE_THRESHOLD ||
+        Math.abs(newHeight - this.lastHeight) >= this.RESIZE_THRESHOLD
+      ) {
+        this.lastWidth = newWidth;
+        this.lastHeight = newHeight;
+
+        this.updateDrawScheduleDimensions({
+          width: newWidth,
+          height: newHeight,
+        } as DOMRectReadOnly);
+
+        this.checkPixelRatio();
+        this.updateScrollbarValues();
+      }
     }
   }
 
   private initializeDrawSchedule(): void {
     const canvas = this.canvasRef.nativeElement;
+    const box = this.boxTemplate.nativeElement;
     this.drawSchedule.createCanvas(canvas);
-    this.drawSchedule.width = canvas.parentElement!.clientWidth;
-    this.drawSchedule.height = canvas.parentElement!.clientHeight;
+    this.drawSchedule.width = box.clientWidth;
+    this.drawSchedule.height = box.clientHeight;
     this.drawSchedule.refresh();
     this.updateScrollbarValues();
   }
 
-  private updateDrawScheduleDimensions(element: HTMLElement): void {
-    this.drawSchedule.width = element.parentElement!.clientWidth;
-    this.drawSchedule.height = element.parentElement!.clientHeight;
+  private updateDrawScheduleDimensions(rec: DOMRectReadOnly): void {
+    this.drawSchedule.width = rec.width;
+    this.drawSchedule.height = rec.height;
     this.drawSchedule.refresh();
   }
 

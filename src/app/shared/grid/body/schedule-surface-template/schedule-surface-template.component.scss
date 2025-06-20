@@ -1,11 +1,18 @@
 @use "../../../../assets/standard-styles/colors.scss";
 
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .box-template {
-  display: flex;
+  display: block;
   width: 100%;
   height: 100%;
   overflow: hidden;
   background-color: colors.$gridBackgroundColor;
+  transform: translateZ(0);
 }
 
 .div-tooltip {
@@ -30,6 +37,9 @@
 }
 
 canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
   background-color: colors.$gridBackgroundColor;
   image-rendering: crisp-edges;
   -webkit-font-smoothing: antialiased;

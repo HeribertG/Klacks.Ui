@@ -1,15 +1,8 @@
-<div
-  #boxTemplate
-  class="box-template"
-  appResize
-  (resizeElement)="onResize($event)"
->
+<div #boxTemplate class="box-template">
   <canvas
     #canvasTemplateRef
-    appScheduleEvents
-    appCellEvents
-    id="template-canvas{{ canvasId }}"
     appScheduleTemplateEvents
+    id="template-canvas{{ canvasId }}"
     [tabindex]="0"
     role="application"
     aria-label="schedule canvas"
