@@ -34,6 +34,7 @@
         </app-v-scrollbar>
       </div>
       <app-h-scrollbar
+        #scheduleHScrollbar
         [class.hidden]="hScrollbarSize === 0"
         class="hScrollArea"
         [(value)]="hScrollbar.value"

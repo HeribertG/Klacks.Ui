@@ -75,6 +75,7 @@ export class HScrollbarComponent
   @Input() visibleValue = 180;
 
   @Output() valueChange = new EventEmitter<number>();
+  @Output() maxValueChange = new EventEmitter<number>();
 
   @ViewChild('canvas', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -134,7 +135,8 @@ export class HScrollbarComponent
 
   @CheckContext
   ngOnChanges(changes: SimpleChanges) {
-    this.handleMaxValueOrVisibleValueChanges(changes);
+    if (changes) this.handleMaxValueOrVisibleValueChanges(changes);
+    this.handleMaxValueChanges(changes);
     this.handleValueChanges(changes);
     this.updateArrowButtonsState();
   }
@@ -157,6 +159,12 @@ export class HScrollbarComponent
   private handleValueChanges(changes: SimpleChanges): void {
     if (changes['value']) {
       this.reDraw();
+    }
+  }
+
+  private handleMaxValueChanges(changes: SimpleChanges): void {
+    if (changes['maxValue']) {
+      this.maxValueChange.emit(this.maxValue);
     }
   }
 

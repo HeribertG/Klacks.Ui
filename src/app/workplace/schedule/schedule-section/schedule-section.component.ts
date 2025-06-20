@@ -7,6 +7,7 @@ import {
   Output,
   Input,
   effect,
+  OnDestroy,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -24,6 +25,8 @@ import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/creat
 import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/schedule-schedule-surface.component';
+import { Subject, takeUntil } from 'rxjs';
+import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 
 @Component({
   selector: 'app-schedule-section',
@@ -34,6 +37,7 @@ import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/sc
     ScheduleScheduleSurfaceComponent,
     HScrollbarComponent,
     VScrollbarComponent,
+    ScheduleSurfaceTemplateComponent,
   ],
   providers: [
     ScrollService,
@@ -50,15 +54,16 @@ import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/sc
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
 })
-export class ScheduleSectionComponent implements AfterViewInit {
+export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
+  @ViewChild('scheduleHScrollbar', { static: true })
+  scheduleHScrollbar!: HScrollbarComponent;
 
   @Input() horizontalSize = 200;
-  @Input() valueChangeHScrollbar!: number;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
-  @Output() valueHScrollbar = new EventEmitter<number>();
-  @Output() maxValueHScrollbar = new EventEmitter<number>();
+  @Output() valueHScrollbarChange = new EventEmitter<number>();
+  @Output() maxValueHScrollbarChange = new EventEmitter<number>();
 
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -70,6 +75,8 @@ export class ScheduleSectionComponent implements AfterViewInit {
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
+
+  private destroy$ = new Subject<void>();
 
   constructor() {
     effect(() => {
@@ -88,10 +95,27 @@ export class ScheduleSectionComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.dataManagement.readDatas();
 
-    this.splitEl.dragProgress$.subscribe((x) => {
+    this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
-      this.horizontalSizeChange.emit(newSize);
+      this.horizontalSizeChange.emit(newSize + 6);
     });
+
+    this.scheduleHScrollbar.valueChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value: number) => {
+        this.valueHScrollbarChange.emit(value);
+      });
+
+    this.scheduleHScrollbar.maxValueChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value: number) => {
+        this.maxValueHScrollbarChange.emit(value);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private updateScrollbarSizes() {

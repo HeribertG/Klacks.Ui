@@ -54,6 +54,7 @@ export class VScrollbarComponent
   @Input() visibleValue = 180;
 
   @Output() valueChange = new EventEmitter<number>();
+  @Output() maxValueChange = new EventEmitter<number>();
   @Input()
   get value(): number {
     return this._value;
@@ -133,6 +134,7 @@ export class VScrollbarComponent
   @CheckContext
   ngOnChanges(changes: SimpleChanges) {
     this.handleMaxValueOrVisibleValueChanges(changes);
+    this.handleMaxValueChanges(changes);
     this.handleValueChanges(changes);
     this.updateArrowButtonsState();
   }
@@ -149,6 +151,12 @@ export class VScrollbarComponent
   private handleMaxValueOrVisibleValueChanges(changes: SimpleChanges): void {
     if (changes['maxValue'] || changes['visibleValue']) {
       this.refresh();
+    }
+  }
+
+  private handleMaxValueChanges(changes: SimpleChanges): void {
+    if (changes['maxValue']) {
+      this.maxValueChange.emit(this.maxValue);
     }
   }
 

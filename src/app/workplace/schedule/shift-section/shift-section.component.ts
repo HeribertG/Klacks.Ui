@@ -47,6 +47,9 @@ import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.c
 })
 export class ShiftSectionComponent {
   @Input() horizontalSize!: number;
+  @Input() hScrollbarValue!: number;
+  @Input() hScrollbarMaxValue!: number;
+
   // public renderer = inject(BaseDrawScheduleService);
   // public dataService = inject(BaseDataService);
   // public settings = inject(BaseSettingsService);

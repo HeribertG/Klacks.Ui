@@ -16,14 +16,13 @@
     height: 100%;
     .box-shift {
       overflow: hidden;
-      background-color: violet;
+      background-color: colors.$gridBackgroundColor;
       width: calc(100% - var(--v-shift-scrollbar-size));
       height: 100%;
       flex: 1;
     }
 
     .vScrollAreaShift {
-      background-color: green;
       width: var(--v-shift-scrollbar-size);
       height: 100%;
     }

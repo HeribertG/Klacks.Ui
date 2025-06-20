@@ -19,13 +19,18 @@ import { CommonModule } from '@angular/common';
 })
 export class ScheduleContainerComponent {
   public horizontalSize = 200;
+  public hScrollbarValue = 0;
+  public hScrollbarMaxValue = 0;
   public IsInfoVisible = false;
 
   onHorizontalSizeChange(newSize: number): void {
-    console.log('Horizontal size changed to:', newSize);
     this.horizontalSize = newSize;
+  }
 
-    // Debugging
-    console.log('Updated horizontalSize:', this.horizontalSize);
+  onValueHScrollbarChange(newValue: number): void {
+    this.hScrollbarValue = newValue;
+  }
+  onMaxValueHScrollbarChange(newValue: number): void {
+    this.hScrollbarMaxValue = newValue;
   }
 }
