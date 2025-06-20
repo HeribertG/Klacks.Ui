@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./schedule-container.component.scss'],
 })
 export class ScheduleContainerComponent {
-  public horizontalSize = 200;
+  public horizontalSize = 206;
   public hScrollbarValue = 0;
   public hScrollbarMaxValue = 0;
   public IsInfoVisible = false;

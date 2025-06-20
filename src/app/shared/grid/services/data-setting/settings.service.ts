@@ -21,6 +21,7 @@ export class BaseSettingsService {
   anchorWidth = 10 * this._zoom;
   rowHeaderIconWith = 20 * this._zoom;
   rowHeaderIconHeight = 20 * this._zoom;
+  hasHeader = true;
 
   constructor(private gridFonts: GridFontsService) {}
 

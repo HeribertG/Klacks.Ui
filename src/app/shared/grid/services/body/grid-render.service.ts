@@ -54,6 +54,9 @@ export class BaseGridRenderService {
 
     const pixelRatio = DrawHelper.pixelRatio();
 
+    const cellHeaderHeight = this.settings.hasHeader
+      ? this.settings.cellHeaderHeight
+      : 0;
     const renderWidth = Math.round(renderCanvas.width / pixelRatio);
     const renderHeight = Math.round(renderCanvas.height / pixelRatio);
 
@@ -66,13 +69,17 @@ export class BaseGridRenderService {
       renderCanvas.width,
       renderCanvas.height,
       0,
-      this.settings.cellHeaderHeight,
+      cellHeaderHeight,
       renderWidth,
       renderHeight
     );
   }
 
   public renderHeader() {
+    if (!this.settings.hasHeader) {
+      return;
+    }
+
     const ctx = this.canvasManager.ctx;
     const headerCanvas = this.canvasManager.headerCanvas;
 
@@ -87,6 +94,9 @@ export class BaseGridRenderService {
   }
 
   public drawGridHeader(columns: number): void {
+    if (!this.settings.hasHeader) {
+      return;
+    }
     const headerCanvas = this.canvasManager.headerCanvas;
     const headerCtx = this.canvasManager.headerCtx;
 
