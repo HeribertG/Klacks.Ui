@@ -9,8 +9,7 @@ import {
   effect,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
-import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
+import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
@@ -24,6 +23,7 @@ import { BaseCanvasManagerService } from 'src/app/shared/grid/services/body/canv
 import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
+import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/schedule-schedule-surface.component';
 
 @Component({
   selector: 'app-schedule-section',

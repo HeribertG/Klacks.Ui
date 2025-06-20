@@ -8,11 +8,11 @@ import {
 } from '@angular/core';
 
 import { Overlay } from '@angular/cdk/overlay';
-import { ScheduleScheduleSurfaceComponent } from '../../schedule-schedule-surface/schedule-schedule-surface.component';
 import { MyPosition } from 'src/app/shared/grid/classes/position';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
+import { ScheduleScheduleSurfaceComponent } from '../schedule-schedule-surface/schedule-schedule-surface.component';
 
 @Directive({
   selector: '[appScheduleEvents]',

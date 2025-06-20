@@ -4,7 +4,7 @@ import { GridColorService } from 'src/app/shared/grid/services/grid-color.servic
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { ScheduleScheduleRowHeaderComponent } from '../../../../workplace/schedule/schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ScheduleScheduleRowHeaderComponent } from '../../../../workplace/schedule/schedule-section/schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { BaseCreateRowHeaderService } from './create-row-header.service';
 import { BaseDataService } from '../data-setting/data.service';
 import { BaseSettingsService } from '../data-setting/settings.service';

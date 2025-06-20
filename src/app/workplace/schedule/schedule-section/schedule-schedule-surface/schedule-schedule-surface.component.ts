@@ -27,10 +27,10 @@ import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { ScheduleEventsDirective } from '../schedule-section/directives/schedule-events.directive';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
+import { ScheduleEventsDirective } from '../directives/schedule-events.directive';
 
 @Component({
   selector: 'app-schedule-schedule-surface',
@@ -178,12 +178,6 @@ export class ScheduleScheduleSurfaceComponent
   }
 
   private updateDrawScheduleDimensions(element: Element): void {
-    console.log(
-      'Original',
-      element.id,
-      element.clientWidth,
-      element.clientHeight
-    );
     this.drawSchedule.width = element.clientWidth;
     this.drawSchedule.height = element.clientHeight;
     this.drawSchedule.refresh();

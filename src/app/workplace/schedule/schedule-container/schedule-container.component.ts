@@ -18,6 +18,14 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./schedule-container.component.scss'],
 })
 export class ScheduleContainerComponent {
-  public horizontalSizes = 200;
+  public horizontalSize = 200;
   public IsInfoVisible = false;
+
+  onHorizontalSizeChange(newSize: number): void {
+    console.log('Horizontal size changed to:', newSize);
+    this.horizontalSize = newSize;
+
+    // Debugging
+    console.log('Updated horizontalSize:', this.horizontalSize);
+  }
 }

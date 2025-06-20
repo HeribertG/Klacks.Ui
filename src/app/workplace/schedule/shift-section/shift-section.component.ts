@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // shift-section.component.ts
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
-import { ScheduleShiftRowHeaderComponent } from '../schedule-shift-row-header/schedule-shift-row-header.component';
+import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
@@ -15,9 +15,7 @@ import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/creat
 import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { BaseCellRenderService } from 'src/app/shared/grid/services/body/cell-render.service';
-import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
-import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
-import { ScheduleShiftSurfaceComponent } from '../schedule-shift-surface/schedule-shift-surface.component';
+import { ScheduleShiftSurfaceComponent } from './schedule-shift-surface/schedule-shift-surface.component';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 

@@ -1,20 +1,21 @@
 <as-split direction="horizontal">
   <as-split-area>
     <as-split direction="vertical" [gutterSize]="6" unit="percent">
-      <!-- oberer Bereich: ScheduleSection mit Two-Way-Binding -->
       <as-split-area [size]="70" [minSize]="10">
-        <app-schedule-section> </app-schedule-section>
+        <app-schedule-section
+          [horizontalSize]="horizontalSize"
+          (horizontalSizeChange)="onHorizontalSizeChange($event)"
+        >
+        </app-schedule-section>
       </as-split-area>
 
-      <!-- unterer Bereich: ShiftSection mit One-Way-Binding -->
       <as-split-area [size]="30" [minSize]="10">
-        <app-shift-section [horizontalSize]="horizontalSizes">
+        <app-shift-section [horizontalSize]="horizontalSize">
         </app-shift-section>
       </as-split-area>
     </as-split>
   </as-split-area>
 
-  <!-- Rechter Info-Bereich bleibt unverändert -->
   <as-split-area [maxSize]="20" unit="percent" [visible]="IsInfoVisible">
     <div class="info"></div>
   </as-split-area>

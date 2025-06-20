@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ScheduleScheduleRowHeaderComponent } from '../../schedule-section/schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { CommonModule } from '@angular/common';
 
 @Component({

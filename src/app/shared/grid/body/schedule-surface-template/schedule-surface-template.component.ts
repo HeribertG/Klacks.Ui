@@ -78,7 +78,6 @@ export class ScheduleSurfaceTemplateComponent
   private effects: EffectRef[] = [];
 
   ngOnInit(): void {
-    console.log('[TEMPLATE] ScheduleSurfaceTemplateComponent initialized');
     this.readSignals();
     this._pixelRatio = DrawHelper.pixelRatio();
     this.drawSchedule.refresh();
@@ -148,13 +147,6 @@ export class ScheduleSurfaceTemplateComponent
       return;
     }
 
-    console.log(
-      'before update',
-      this.canvasRef.nativeElement.clientHeight,
-      this.canvasRef.nativeElement.height,
-      this.canvasRef.nativeElement.style.height
-    );
-
     if (entries?.length > 0) {
       const entry = entries[0];
       this.updateDrawScheduleDimensions(entry.target as HTMLElement);
@@ -173,13 +165,6 @@ export class ScheduleSurfaceTemplateComponent
   }
 
   private updateDrawScheduleDimensions(element: HTMLElement): void {
-    console.log(
-      'Template',
-      element.id,
-      element.clientWidth,
-      element.clientHeight
-    );
-
     this.drawSchedule.width = element.parentElement!.clientWidth;
     this.drawSchedule.height = element.parentElement!.clientHeight;
     this.drawSchedule.refresh();
