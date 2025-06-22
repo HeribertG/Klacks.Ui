@@ -13,7 +13,7 @@ import { Component } from '@angular/core';
       <text
         x="3"
         y="9"
-        fill="var(--iconBlackColor)"
+        fill="var(--iconStandartColor)"
         opacity="0.3"
         font-family="Arial, sans-serif"
         font-size="8"
@@ -24,7 +24,7 @@ import { Component } from '@angular/core';
       <text
         x="3"
         y="17"
-        fill="var(--iconBlackColor)"
+        fill="var(--iconStandartColor)"
         font-family="Arial, sans-serif"
         font-size="8"
       >
@@ -36,11 +36,11 @@ import { Component } from '@angular/core';
         y1="6"
         x2="14"
         y2="14"
-        stroke="var(--iconBlackColor)"
+        stroke="var(--iconStandartColor)"
         stroke-width="2"
         stroke-linecap="round"
       />
-      <polygon points="12,14 14,18 16,14" fill="var(--iconBlackColor)" />
+      <polygon points="12,14 14,18 16,14" fill="var(--iconStandartColor)" />
     </svg>
   `,
   standalone: true,

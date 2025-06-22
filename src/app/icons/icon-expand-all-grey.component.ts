@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
       <polyline
         points="4,2 8,6 12,2"
         fill="none"
-        stroke="var(--iconBlackColor)"
+        stroke="var(--iconStandartColor)"
         opacity="0.4"
         stroke-width="2"
         stroke-linecap="round"
@@ -25,7 +25,7 @@ import { Component } from '@angular/core';
       <polyline
         points="4,6 8,10 12,6"
         fill="none"
-        stroke="var(--iconBlackColor)"
+        stroke="var(--iconStandartColor)"
         opacity="0.4"
         stroke-width="2"
         stroke-linecap="round"
@@ -34,7 +34,7 @@ import { Component } from '@angular/core';
       <polyline
         points="4,10 8,14 12,10"
         fill="none"
-        stroke="var(--iconBlackColor)"
+        stroke="var(--iconStandartColor)"
         opacity="0.4"
         stroke-width="2"
         stroke-linecap="round"

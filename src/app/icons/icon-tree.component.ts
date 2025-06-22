@@ -10,7 +10,7 @@ import { Component } from '@angular/core';
       width="24"
       height="24"
       fill="none"
-      stroke="var(--iconBlackColor)"
+      stroke="var(--iconStandartColor)"
       stroke-width="2"
       stroke-linecap="round"
     >

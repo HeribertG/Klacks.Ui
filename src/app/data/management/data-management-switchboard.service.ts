@@ -116,6 +116,28 @@ export class DataManagementSwitchboardService {
     }
   }
 
+  public actualPage(): string {
+    switch (this.nameOfVisibleEntity) {
+      case 'DataManagementClientService_Edit':
+      case 'DataManagementClientService':
+        return 'employees';
+
+      case 'DataManagementSettingsService':
+        return 'settings';
+      case 'DataManagementProfileService':
+        return 'profile';
+      case 'DataManagementGroupService_Edit':
+        return 'group';
+      case 'DataManagementShiftService_Edit':
+        return 'shift';
+      case 'DataManagementAbsenceGanttService':
+        return 'gantt';
+      case 'DataManagementScheduleService':
+        return 'schedule';
+      default:
+        return '';
+    }
+  }
   private checkObjectDirty(): void {
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':

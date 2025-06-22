@@ -1,12 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnChanges, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/group-select/group-select.component';
 import { IconSignOutComponent } from 'src/app/icons/icon-sign-out.component';
 import { SearchComponent } from 'src/app/search/search.component';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -20,13 +22,12 @@ import { NavigationService } from 'src/app/services/navigation.service';
     IconSignOutComponent,
   ],
 })
-export class HeaderComponent implements OnInit, OnChanges {
+export class HeaderComponent implements AfterViewInit {
   public dataLoadFileService = inject(DataLoadFileService);
 
   private navigationService = inject(NavigationService);
   private auth = inject(AuthService);
-
-  private localStorageService = inject(LocalStorageService);
+  private themeService = inject(ThemeService);
 
   public registerDropdown: HTMLDivElement | undefined;
   public selectedName = 'new-address';
@@ -36,13 +37,11 @@ export class HeaderComponent implements OnInit, OnChanges {
 
   public ImageName = 'ok-symbol.png';
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.setTheme();
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-  ngOnChanges(changes: any) {
-    this.setTheme();
+    this.themeService.theme$.subscribe(() => {
+      this.setTheme();
+    });
   }
 
   onClickDashboard(): void {
@@ -53,12 +52,9 @@ export class HeaderComponent implements OnInit, OnChanges {
     this.auth.logOut();
   }
 
-  setTheme(): void {
-    const currentTheme = this.localStorageService.get('theme')
-      ? this.localStorageService.get('theme')
-      : null;
-    if (currentTheme === 'dark') {
-      this.ImageName = 'ok-symbol dark.png';
-    }
+  private setTheme(): void {
+    const currentTheme = this.themeService.getCurrentTheme();
+    this.ImageName =
+      currentTheme === 'dark' ? 'ok-symbol dark.png' : 'ok-symbol.png';
   }
 }

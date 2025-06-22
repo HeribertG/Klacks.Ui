@@ -14,6 +14,7 @@ import {
   SupportedLocales,
 } from 'src/app/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
+import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
   selector: 'app-profile-custom-setting',
@@ -47,6 +48,7 @@ export class ProfileCustomSettingComponent implements OnInit {
   );
   private localStorageService = inject(LocalStorageService);
   private localeService = inject(LocaleService);
+  private themeService = inject(ThemeService);
 
   ngOnInit(): void {
     const lang =
@@ -75,13 +77,11 @@ export class ProfileCustomSettingComponent implements OnInit {
   }
 
   onDarkModeChecked(): void {
-    if (this.isChecked) {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      this.localStorageService.set('theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      this.localStorageService.set('theme', 'light');
-    }
+    const mode = this.isChecked ? 'dark' : 'light';
+    this.themeService.setTheme(mode);
+    this.isChecked
+      ? document.documentElement.setAttribute('data-theme', 'dark')
+      : document.documentElement.setAttribute('data-theme', 'light');
   }
 
   setTheme(): void {

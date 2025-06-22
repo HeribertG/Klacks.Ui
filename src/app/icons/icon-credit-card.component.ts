@@ -38,7 +38,7 @@ import { Component } from '@angular/core';
           y="5"
           x="2"
           opacity="0.3"
-          fill="var(--iconBlackColor)"
+          fill="var(--iconStandartColor)"
           id="Combined-Shape_1589270493069"
           vector-effect="non-scaling-stroke"
         />
@@ -47,7 +47,7 @@ import { Component } from '@angular/core';
           width="20"
           y="8"
           x="2"
-          fill="var(--iconBlackColor)"
+          fill="var(--iconStandartColor)"
           id="Rectangle-59_1589270493069"
           vector-effect="non-scaling-stroke"
         />
@@ -58,7 +58,7 @@ import { Component } from '@angular/core';
           y="14"
           x="16"
           opacity="0.3"
-          fill="var(--iconBlackColor)"
+          fill="var(--iconStandartColor)"
           id="Rectangle-59-Copy_1589270493069"
           vector-effect="non-scaling-stroke"
         />

@@ -22,7 +22,6 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { SelectedArea } from 'src/app/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
-import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
@@ -33,7 +32,7 @@ import { ScheduleTemplateEventsDirective } from '../directives/schedule-template
   selector: 'app-schedule-surface-template',
   templateUrl: './schedule-surface-template.component.html',
   standalone: true,
-  imports: [ContextMenuComponent, ScheduleTemplateEventsDirective],
+  imports: [ScheduleTemplateEventsDirective],
 })
 export class ScheduleSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -54,7 +53,6 @@ export class ScheduleSurfaceTemplateComponent
   @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  public dataManagement = inject(DataManagementScheduleService);
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
   public drawSchedule = inject(BaseDrawScheduleService);
@@ -146,6 +144,15 @@ export class ScheduleSurfaceTemplateComponent
       x.focus();
       this.drawSchedule.isFocused = true;
     }
+  }
+
+  Refresh(): void {
+    this.dataService.setMetrics();
+    this.scroll.horizontalScrollPosition = 0;
+    this.scroll.verticalScrollPosition = 0;
+    this.valueHScrollbar.emit(0);
+    this.valueVScrollbar.emit(0);
+    this.updateScrollbarValues();
   }
 
   private observeParentResize(): void {
@@ -313,18 +320,6 @@ export class ScheduleSurfaceTemplateComponent
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
-      const dataReadEffect = effect(() => {
-        if (this.dataManagement.isRead()) {
-          this.dataService.setMetrics();
-          this.scroll.horizontalScrollPosition = 0;
-          this.scroll.verticalScrollPosition = 0;
-          this.valueHScrollbar.emit(0);
-          this.valueVScrollbar.emit(0);
-          this.updateScrollbarValues();
-        }
-      });
-      this.effects.push(dataReadEffect);
-
       const zoomEffect = effect(() => {
         this.settings.zoomSignal();
         setTimeout(() => {

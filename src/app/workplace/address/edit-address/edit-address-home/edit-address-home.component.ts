@@ -7,7 +7,6 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
@@ -17,6 +16,7 @@ import { AddressPersonaComponent } from '../address-persona/address-persona.comp
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { UrlParameterService } from 'src/app/services/url-parameter.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -50,15 +50,15 @@ export class EditAddressHomeComponent implements OnInit {
   );
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
-  private router = inject(Router);
+  private urlParameterService = inject(UrlParameterService);
 
   ngOnInit(): void {
     if (this.dataManagementClientService.editClient === undefined) {
-      const tmpUrl = this.router.url;
-      const res = tmpUrl.replace('?id=', ';').split(';');
-      if (res.length === 2 && res[0] === '/workplace/edit-address') {
-        this.dataManagementClientService.readClient(res[1]);
-        return;
+      const result = this.urlParameterService.parseCurrentUrl(
+        '/workplace/edit-address'
+      );
+      if (result.isValidRoute && result.hasId && result.id) {
+        this.dataManagementClientService.readClient(result.id);
       } else {
         this.dataManagementClientService.createClient();
       }

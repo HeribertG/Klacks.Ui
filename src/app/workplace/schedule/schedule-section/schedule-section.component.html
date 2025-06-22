@@ -13,6 +13,7 @@
       <div class="surface">
         <div class="box">
           <app-schedule-surface-template
+            #scheduleSurface
             [nameId]="'surface'"
             [valueChangeHScrollbar]="hScrollbar.value"
             (valueHScrollbar)="hScrollbar.value = $event"

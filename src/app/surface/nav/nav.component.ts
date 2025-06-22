@@ -1,15 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
-  Inject,
   OnInit,
+  ViewChild,
   inject,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
+import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconChartComponent } from 'src/app/icons/icon-chart.component';
 import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
@@ -26,6 +28,8 @@ import {
   SupportedLocales,
 } from 'src/app/services/locale.service';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { ThemeService } from 'src/app/services/theme.service';
+import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
 @Component({
@@ -46,10 +50,27 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
   ],
 })
 export class NavComponent implements OnInit, AfterViewInit {
-  public authorizationService = inject(AuthorizationService);
-  private navigationService = inject(NavigationService);
+  @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
+  @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
+  @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
+  @ViewChild('scheduleIcon') scheduleIcon!: IconTimeScheduleComponent;
+  @ViewChild('employeesIcon') employeesIcon!: IconClientsComponent;
+  @ViewChild('userIcon') userIcon!: IconUserComponent;
+  @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public authorizationService = inject(AuthorizationService);
+  public router = inject(Router);
+  public dataLoadFileService = inject(DataLoadFileService);
+  private navigationService = inject(NavigationService);
+  private translateService = inject(TranslateService);
+  private translateStringConstantsService = inject(
+    TranslateStringConstantsService
+  );
+  private localStorageService = inject(LocalStorageService);
+  private localeService = inject(LocaleService);
+  private themeService = inject(ThemeService);
+  private urlParameterService = inject(UrlParameterService);
+
   profileImage: any;
 
   absence = MessageLibrary.ABSENCE;
@@ -58,16 +79,6 @@ export class NavComponent implements OnInit, AfterViewInit {
   all_group = MessageLibrary.ALL_GROUP;
   all_shift = MessageLibrary.ALL_SHIFT;
   statistic = MessageLibrary.STATISTIC;
-
-  constructor(
-    @Inject(Router) private router: Router,
-    @Inject(DataLoadFileService)
-    public dataLoadFileService: DataLoadFileService,
-    private translateService: TranslateService,
-    private translateStringConstantsService: TranslateStringConstantsService,
-    private localStorageService: LocalStorageService,
-    private localeService: LocaleService
-  ) {}
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
@@ -97,35 +108,60 @@ export class NavComponent implements OnInit, AfterViewInit {
         this.statistic = MessageLibrary.STATISTIC;
       }, 200);
     });
+
+    this.resetIconColor();
+
+    const page = this.urlParameterService.getWorkplaceSubRoute();
+    this.setSelectedIconColor(page);
+
+    this.themeService.theme$.subscribe(() => {
+      this.resetIconColor();
+      const page = this.urlParameterService.getWorkplaceSubRoute();
+      this.setSelectedIconColor(page);
+    });
   }
 
   onClickAbsence(): void {
+    this.resetIconColor();
+    this.absenceIcon.ChangeColor(true);
     this.navigationService.navigateToAbsence();
   }
 
   onClickGroup(): void {
+    this.resetIconColor();
+    this.groupIcon.ChangeColor(true);
     this.navigationService.navigateToGroup();
   }
 
   onClickShift(): void {
+    this.resetIconColor();
+    this.shiftIcon.ChangeColor(true);
     this.navigationService.navigateToShift();
   }
 
   onClickSchedule(): void {
+    this.resetIconColor();
+    this.scheduleIcon.ChangeColor(true);
     this.navigationService.navigateToSchedule();
   }
 
   onClickClients(): void {
+    this.resetIconColor();
+    this.employeesIcon.ChangeColor(true);
     this.navigationService.navigateToClient();
   }
 
   onClickProviders(): void {}
 
   onClickProfile(): void {
+    this.resetIconColor();
+    this.userIcon.ChangeColor(true);
     this.navigationService.navigateToProfile();
   }
 
   onClickSettings(): void {
+    this.resetIconColor();
+    this.settingsIcon.ChangeColor(true);
     this.navigationService.navigateToSettings();
   }
 
@@ -148,5 +184,46 @@ export class NavComponent implements OnInit, AfterViewInit {
     localStorage.setItem(MessageLibrary.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang as SupportedLocales);
+  }
+
+  private resetIconColor() {
+    this.absenceIcon.ChangeColor();
+    this.groupIcon.ChangeColor();
+    this.shiftIcon.ChangeColor();
+    this.scheduleIcon.ChangeColor();
+    this.employeesIcon.ChangeColor();
+    this.userIcon.ChangeColor();
+    this.settingsIcon.ChangeColor();
+  }
+
+  private setSelectedIconColor(page: string) {
+    switch (page) {
+      case 'client':
+      case 'edit-address':
+        this.employeesIcon.ChangeColor(true);
+        break;
+      case 'settings':
+        this.settingsIcon.ChangeColor(true);
+        break;
+
+      case 'profile':
+        this.userIcon.ChangeColor(true);
+        break;
+      case 'group':
+      case 'edit-group':
+        this.groupIcon.ChangeColor(true);
+        break;
+      case 'shift':
+        this.shiftIcon.ChangeColor(true);
+        break;
+      case 'absence':
+        this.absenceIcon.ChangeColor(true);
+        break;
+      case 'schedule':
+        this.scheduleIcon.ChangeColor(true);
+        break;
+      default:
+        return;
+    }
   }
 }

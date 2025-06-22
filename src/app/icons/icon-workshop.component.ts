@@ -45,7 +45,7 @@ import { Component } from '@angular/core';
 
         <line
           fill="none"
-          stroke="var(--iconBlackColor)"
+          stroke="var(--iconStandartColor)"
           stroke-width="5"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -58,7 +58,7 @@ import { Component } from '@angular/core';
 
         <polyline
           fill="none"
-          stroke="var(--iconBlackColor)"
+          stroke="var(--iconStandartColor)"
           stroke-width="5"
           stroke-linecap="round"
           stroke-linejoin="round"
@@ -72,7 +72,7 @@ import { Component } from '@angular/core';
             y="18.842"
             transform="matrix(0.9354 -0.3535 0.3535 0.9354 -7.3805 9.6732)"
             fill="#b6b6c3"
-            stroke="var(--iconBlackColor)"
+            stroke="var(--iconStandartColor)"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -83,7 +83,7 @@ import { Component } from '@angular/core';
 
           <polygon
             fill="#91919c"
-            stroke="var(--iconBlackColor)"
+            stroke="var(--iconStandartColor)"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -94,7 +94,7 @@ import { Component } from '@angular/core';
 
           <circle
             fill="#91919c"
-            stroke="var(--iconBlackColor)"
+            stroke="var(--iconStandartColor)"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -106,7 +106,7 @@ import { Component } from '@angular/core';
 
           <line
             fill="#91919c"
-            stroke="var(--iconBlackColor)"
+            stroke="var(--iconStandartColor)"
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"

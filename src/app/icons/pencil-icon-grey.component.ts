@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
     viewBox="0 0 24 24"
     width="24"
     height="24"
-    fill="var(--iconBlackColor)"
+    fill="var(--iconStandartColor)"
     opacity="0.4"
   >
     <g>

@@ -1,7 +1,8 @@
 <div class="main-container" role="navigation" aria-label="Main navigation">
   <div class="main-cell">
     <div class="icon_group">
-      <app-gantt
+      <app-icon-gantt
+        #absenceIcon
         id="open-absences"
         (click)="onClickAbsence()"
         placement="right"
@@ -9,11 +10,12 @@
         ngbTooltip="{{ absence }} (Alt+1)"
         aria-label="Manage absences (Alt+1)"
       >
-      </app-gantt>
+      </app-icon-gantt>
     </div>
 
     <div class="icon" *ngIf="authorizationService.isAdmin">
       <app-icon-group
+        #groupIcon
         id="open-groups"
         (click)="onClickGroup()"
         placement="right"
@@ -25,6 +27,7 @@
 
     <div class="icon">
       <app-icon-order
+        #shiftIcon
         id="open-shifts"
         (click)="onClickShift()"
         placement="right"
@@ -36,6 +39,7 @@
 
     <div class="icon">
       <app-time-schedule
+        #scheduleIcon
         id="open-schedules"
         (click)="onClickSchedule()"
         placement="right"
@@ -47,6 +51,7 @@
 
     <div class="icon">
       <app-icon-clients
+        #employeesIcon
         id="open-employees"
         (click)="onClickClients()"
         placement="right"
@@ -75,7 +80,7 @@
       *ngIf="!dataLoadFileService.profileImage"
       aria-label="Open profile (Alt+7)"
     >
-      <app-icon-user (click)="onClickProfile()"></app-icon-user>
+      <app-icon-user #userIcon (click)="onClickProfile()"></app-icon-user>
     </div>
 
     <div
@@ -98,6 +103,7 @@
 
     <div class="icon" *ngIf="authorizationService.isAdmin">
       <app-icon-setting
+        #settingsIcon
         id="open-settings"
         (click)="onClickSettings()"
         aria-label="Open Settings"

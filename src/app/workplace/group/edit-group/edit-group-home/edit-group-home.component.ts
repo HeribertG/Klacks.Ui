@@ -7,7 +7,6 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
@@ -15,6 +14,7 @@ import { EditGroupItemComponent } from '../edit-group-item/edit-group-item.compo
 import { EditGroupMembersComponent } from '../edit-group-members/edit-group-members.component';
 import { EditGroupNavComponent } from '../edit-group-nav/edit-group-nav.component';
 import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent.component';
+import { UrlParameterService } from 'src/app/services/url-parameter.service';
 
 @Component({
   selector: 'app-edit-group-home',
@@ -38,19 +38,16 @@ export class EditGroupHomeComponent implements OnInit {
     DataManagementSwitchboardService
   );
   public dataManagementGroupService = inject(DataManagementGroupService);
-  private router = inject(Router);
+  private urlParameterService = inject(UrlParameterService);
 
   ngOnInit(): void {
     if (this.dataManagementGroupService.editGroup === undefined) {
-      const tmpUrl = this.router.url;
-      const res = tmpUrl.replace('?id=', ';').split(';');
-      if (res.length === 2 && res[0] === '/workplace/edit-group') {
-        if (!this.dataManagementGroupService.editGroup) {
-          this.dataManagementGroupService.readGroup(res[1]);
-        }
-        return;
+      const result = this.urlParameterService.parseCurrentUrl(
+        '/workplace/edit-group'
+      );
+      if (result.isValidRoute && result.hasId && result.id) {
+        this.dataManagementGroupService.readGroup(result.id);
       } else {
-        // Neue Gruppe erstellen - bevorzugt über den Tree-Service
         this.dataManagementGroupService.createGroup();
       }
     }

@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
@@ -11,6 +17,7 @@ import { EditShiftMacroComponent } from '../edit-shift-macro/edit-shift-macro.co
 import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-address.component';
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
+import { UrlParameterService } from 'src/app/services/url-parameter.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -32,25 +39,26 @@ export class EditShiftHomeComponent implements OnInit {
   @Input() isCreateShift = false;
   @Output() isChangingEvent = new EventEmitter();
 
+  public dataManagementSwitchboardService = inject(
+    DataManagementSwitchboardService
+  );
+  public dataManagementShiftService = inject(DataManagementShiftService);
+  private urlParameterService = inject(UrlParameterService);
+  private localStorageService = inject(LocalStorageService);
+
   isComplex = false;
 
-  constructor(
-    public dataManagementSwitchboardService: DataManagementSwitchboardService,
-    public dataManagementShiftService: DataManagementShiftService,
-    private router: Router,
-    private localStorageService: LocalStorageService
-  ) {}
   ngOnInit(): void {
     this.onIsChangingMode();
 
     this.dataManagementShiftService.init();
 
     if (this.dataManagementShiftService.editShift === undefined) {
-      const tmpUrl = this.router.url;
-      const res = tmpUrl.replace('?id=', ';').split(';');
-      if (res.length === 2 && res[0] === '/workplace/edit-shift') {
-        this.dataManagementShiftService.readShift(res[1]);
-        return;
+      const result = this.urlParameterService.parseCurrentUrl(
+        '/workplace/edit-shift'
+      );
+      if (result.isValidRoute && result.hasId && result.id) {
+        this.dataManagementShiftService.readShift(result.id);
       } else {
         this.dataManagementShiftService.createShift();
       }

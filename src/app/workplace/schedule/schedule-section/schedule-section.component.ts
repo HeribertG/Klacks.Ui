@@ -8,6 +8,9 @@ import {
   Input,
   effect,
   OnDestroy,
+  runInInjectionContext,
+  EffectRef,
+  Injector,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -24,7 +27,6 @@ import { BaseCanvasManagerService } from 'src/app/shared/grid/services/body/canv
 import { BaseCreateHeaderService } from 'src/app/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
-import { ScheduleScheduleSurfaceComponent } from './schedule-schedule-surface/schedule-schedule-surface.component';
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
@@ -36,7 +38,6 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
   imports: [
     AngularSplitModule,
     ScheduleScheduleRowHeaderComponent,
-    ScheduleScheduleSurfaceComponent,
     HScrollbarComponent,
     VScrollbarComponent,
     ScheduleSurfaceTemplateComponent,
@@ -62,6 +63,8 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
+  @ViewChild('scheduleSurface', { static: true })
+  scheduleSurface!: ScheduleSurfaceTemplateComponent;
 
   @Input() horizontalSize = 200;
 
@@ -76,27 +79,16 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
 
   private dataManagement = inject(DataManagementScheduleService);
   private scrollService = inject(ScrollService);
+  private injector = inject(Injector);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
 
   private destroy$ = new Subject<void>();
-
-  constructor() {
-    effect(() => {
-      const isLocked = this.scrollService.lockedRows();
-      this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
-      this.updateScrollbarSizes();
-    });
-
-    effect(() => {
-      const isLocked = this.scrollService.lockedCols();
-      this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
-      this.updateScrollbarSizes();
-    });
-  }
+  private effects: EffectRef[] = [];
 
   ngAfterViewInit() {
+    this.readSignals();
     this.dataManagement.readDatas();
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
@@ -120,6 +112,9 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+
+    this.effects.forEach((e) => e?.destroy());
+    this.effects = [];
   }
 
   private updateScrollbarSizes() {
@@ -136,5 +131,30 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
         `${this.hScrollbarSize}px`
       );
     }
+  }
+
+  private readSignals(): void {
+    runInInjectionContext(this.injector, () => {
+      const dataReadEffect = effect(() => {
+        if (this.dataManagement.isRead()) {
+          this.scheduleSurface.Refresh();
+        }
+      });
+      this.effects.push(dataReadEffect);
+
+      const vScrollbarSizeEffect = effect(() => {
+        const isLocked = this.scrollService.lockedRows();
+        this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
+        this.updateScrollbarSizes();
+      });
+      this.effects.push(vScrollbarSizeEffect);
+
+      const hScrollbarSizeEffect = effect(() => {
+        const isLocked = this.scrollService.lockedCols();
+        this.hScrollbarSize = isLocked ? 0 : this.defaultHScrollbarSize;
+        this.updateScrollbarSizes();
+      });
+      this.effects.push(hScrollbarSizeEffect);
+    });
   }
 }

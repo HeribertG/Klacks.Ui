@@ -12,9 +12,21 @@ import { Component } from '@angular/core';
       height="24"
     >
       <!-- Drei Reihen gefüllt -->
-      <rect x="2" y="4" width="20" height="4" fill="var(--iconBlackColor)" />
-      <rect x="2" y="10" width="20" height="4" fill="var(--iconBlackColor)" />
-      <rect x="2" y="16" width="20" height="4" fill="var(--iconBlackColor)" />
+      <rect x="2" y="4" width="20" height="4" fill="var(--iconStandartColor)" />
+      <rect
+        x="2"
+        y="10"
+        width="20"
+        height="4"
+        fill="var(--iconStandartColor)"
+      />
+      <rect
+        x="2"
+        y="16"
+        width="20"
+        height="4"
+        fill="var(--iconStandartColor)"
+      />
     </svg>
   `,
   standalone: true,

@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
       version="1"
       enable-background="new 0 0 48 48"
     >
-      <g fill="var(--iconBlackColor)" opacity="1">
+      <g fill="var(--iconStandartColor)" opacity="1">
         <polygon
           points="17.8,18.1 10.4,25.4 6.2,21.3 4,23.5 10.4,29.9 20,20.3"
         />
@@ -21,7 +21,7 @@ import { Component } from '@angular/core';
           points="17.8,31.1 10.4,38.4 6.2,34.3 4,36.5 10.4,42.9 20,33.3"
         />
       </g>
-      <g fill="var(--iconBlackColor)" opacity="0.4">
+      <g fill="var(--iconStandartColor)" opacity="0.4">
         <rect x="24" y="22" width="20" height="4" />
         <rect x="24" y="9" width="20" height="4" />
         <rect x="24" y="35" width="20" height="4" />

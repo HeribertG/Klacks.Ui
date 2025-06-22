@@ -15,7 +15,7 @@ import { Component } from '@angular/core';
     <style type="text/css">
       .st0 {
         fill: none;
-        stroke: var(--iconBlackColor);
+        stroke: var(--iconStandartColor);
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;

@@ -1,7 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // shift-section.component.ts
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  EffectRef,
+  EventEmitter,
+  inject,
+  Injector,
+  Input,
+  OnDestroy,
+  Output,
+  runInInjectionContext,
+  ViewChild,
+} from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
@@ -16,11 +29,11 @@ import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { BaseCellRenderService } from 'src/app/shared/grid/services/body/cell-render.service';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
-import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
+import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -28,7 +41,6 @@ import { ShiftDataService } from './services/shift-data.service';
   imports: [
     AngularSplitModule,
     ScheduleShiftRowHeaderComponent,
-    ContextMenuComponent,
     VScrollbarComponent,
     ScheduleSurfaceTemplateComponent,
   ],
@@ -49,21 +61,60 @@ import { ShiftDataService } from './services/shift-data.service';
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
 })
-export class ShiftSectionComponent {
+export class ShiftSectionComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('shiftSurface', { static: true })
+  shiftSurface!: ScheduleSurfaceTemplateComponent;
+
+  private dataManagement = inject(DataManagementScheduleService);
+  private injector = inject(Injector);
+  private scrollService = inject(ScrollService);
+
   @Input() horizontalSize!: number;
   @Input() hScrollbarValue!: number;
   @Input() hScrollbarMaxValue!: number;
 
-  // public renderer = inject(BaseDrawScheduleService);
-  // public dataService = inject(BaseDataService);
-  // public settings = inject(BaseSettingsService);
-  // public scrollService = inject(ScrollService);
-
-  public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
-  public hScrollbarSize = 17;
 
   private defaultVScrollbarSize = 17;
-  private defaultHScrollbarSize = 17;
+
+  private effects: EffectRef[] = [];
+
+  ngAfterViewInit(): void {
+    this.readSignals();
+  }
+
+  ngOnDestroy(): void {
+    this.effects.forEach((e) => e?.destroy());
+    this.effects = [];
+  }
+
+  private updateScrollbarSizes() {
+    const hostElement = document.querySelector(
+      'app-schedule-section'
+    ) as HTMLElement;
+    if (hostElement) {
+      hostElement.style.setProperty(
+        '--v-shift-scrollbar-size',
+        `${this.vScrollbarSize}px`
+      );
+    }
+  }
+
+  private readSignals(): void {
+    runInInjectionContext(this.injector, () => {
+      const dataReadEffect = effect(() => {
+        if (this.dataManagement.isRead()) {
+          this.shiftSurface.Refresh();
+        }
+      });
+      this.effects.push(dataReadEffect);
+
+      const vScrollbarSizeEffect = effect(() => {
+        const isLocked = this.scrollService.lockedRows();
+        this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
+        this.updateScrollbarSizes();
+      });
+    });
+  }
 }
