@@ -42,8 +42,12 @@ export class BaseDrawScheduleService {
   private isScrollingToFast = false;
 
   /* #region initial/final */
-  public createCanvas(canvas: HTMLCanvasElement) {
-    this.canvasManager.createCanvas(canvas);
+  public init(id: string): void {
+    this.canvasManager.init(id);
+  }
+
+  public createCanvas() {
+    this.canvasManager.createCanvas();
     (this as any).executeQueuedMethods();
   }
 

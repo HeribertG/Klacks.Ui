@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -48,23 +55,23 @@ export class ScheduleHeaderComponent implements OnInit {
     showSelectionBar: false,
   };
 
+  @Output() zoomChange = new EventEmitter<number>();
+
   private holidayCollection = inject(HolidayCollectionService);
   private dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
   private gridSettingsService = inject(GridSettingsService);
 
-  private settings = inject(BaseSettingsService);
-
   public displayYear = '';
   public displayMonth = '';
 
   ngOnInit(): void {
-    this.settings.zoom = parseFloat((this.value / 100).toFixed(1));
+    this.emitZoomChange();
   }
 
   onChange() {
-    this.settings.zoom = parseFloat((this.value / 100).toFixed(1));
+    this.emitZoomChange();
   }
 
   changeYear(event: number) {
@@ -85,5 +92,10 @@ export class ScheduleHeaderComponent implements OnInit {
   onCalendarReset(data: CalendarResetData) {
     this.displayYear = data.currentYear.toString();
     this.displayMonth = this.gridSettingsService.monthsName[data.selectedMonth];
+  }
+
+  private emitZoomChange() {
+    const zoomValue = parseFloat((this.value / 100).toFixed(1));
+    this.zoomChange.emit(zoomValue);
   }
 }

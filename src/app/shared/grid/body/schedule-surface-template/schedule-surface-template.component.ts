@@ -79,14 +79,12 @@ export class ScheduleSurfaceTemplateComponent
   ngOnInit(): void {
     this.readSignals();
     this._pixelRatio = DrawHelper.pixelRatio();
-    this.drawSchedule.refresh();
-    this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
   }
 
   ngAfterViewInit(): void {
-    const canvas = this.canvasRef.nativeElement;
-    this.drawSchedule.createCanvas(canvas);
-    //this.initializeDrawSchedule();
+    this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
+    this.drawSchedule.init('template-canvas' + this.canvasId);
+    this.initializeDrawSchedule();
     this.observeParentResize();
   }
 
@@ -203,11 +201,9 @@ export class ScheduleSurfaceTemplateComponent
       }
     }
   }
-
   private initializeDrawSchedule(): void {
-    const canvas = this.canvasRef.nativeElement;
     const box = this.boxTemplate.nativeElement;
-    this.drawSchedule.createCanvas(canvas);
+    this.drawSchedule.createCanvas();
     this.drawSchedule.width = box.clientWidth;
     this.drawSchedule.height = box.clientHeight;
     this.drawSchedule.refresh();
@@ -224,9 +220,8 @@ export class ScheduleSurfaceTemplateComponent
     const pixelRatio = DrawHelper.pixelRatio();
 
     if (this._pixelRatio !== pixelRatio) {
-      const canvas = this.canvasRef.nativeElement;
       this._pixelRatio = pixelRatio;
-      this.drawSchedule.createCanvas(canvas);
+      this.drawSchedule.createCanvas();
       this.drawSchedule.rebuild();
       this.drawSchedule.redraw();
     }
@@ -324,8 +319,7 @@ export class ScheduleSurfaceTemplateComponent
         this.settings.zoomSignal();
         setTimeout(() => {
           if (this.drawSchedule.isCanvasAvailable()) {
-            const canvas = this.canvasRef.nativeElement;
-            this.drawSchedule.createCanvas(canvas);
+            this.drawSchedule.createCanvas();
             this.drawSchedule.rebuild();
             this.drawSchedule.redraw();
             this.updateScrollbarValues();

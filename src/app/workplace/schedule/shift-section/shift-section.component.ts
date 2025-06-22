@@ -10,9 +10,11 @@ import {
   inject,
   Injector,
   Input,
+  OnChanges,
   OnDestroy,
   Output,
   runInInjectionContext,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
@@ -61,17 +63,21 @@ import { DataManagementScheduleService } from 'src/app/data/management/data-mana
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
 })
-export class ShiftSectionComponent implements AfterViewInit, OnDestroy {
+export class ShiftSectionComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   @ViewChild('shiftSurface', { static: true })
   shiftSurface!: ScheduleSurfaceTemplateComponent;
 
   private dataManagement = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private scrollService = inject(ScrollService);
+  private settings = inject(BaseSettingsService);
 
   @Input() horizontalSize!: number;
   @Input() hScrollbarValue!: number;
   @Input() hScrollbarMaxValue!: number;
+  @Input() zoom = 1.0;
 
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
@@ -82,6 +88,12 @@ export class ShiftSectionComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.readSignals();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['zoom'] && !changes['zoom'].firstChange) {
+      this.settings.zoom = this.zoom;
+    }
   }
 
   ngOnDestroy(): void {

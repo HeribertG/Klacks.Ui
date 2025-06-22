@@ -11,6 +11,8 @@ import {
   runInInjectionContext,
   EffectRef,
   Injector,
+  OnChanges,
+  SimpleChanges,
 } from '@angular/core';
 import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
@@ -59,7 +61,9 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
 })
-export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
+export class ScheduleSectionComponent
+  implements AfterViewInit, OnChanges, OnDestroy
+{
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
@@ -67,6 +71,7 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
   scheduleSurface!: ScheduleSurfaceTemplateComponent;
 
   @Input() horizontalSize = 200;
+  @Input() zoom = 1.0;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
   @Output() valueHScrollbarChange = new EventEmitter<number>();
@@ -80,12 +85,19 @@ export class ScheduleSectionComponent implements AfterViewInit, OnDestroy {
   private dataManagement = inject(DataManagementScheduleService);
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
+  private settings = inject(BaseSettingsService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['zoom'] && !changes['zoom'].firstChange) {
+      this.settings.zoom = this.zoom;
+    }
+  }
 
   ngAfterViewInit() {
     this.readSignals();

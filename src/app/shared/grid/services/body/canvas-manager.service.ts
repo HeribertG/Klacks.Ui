@@ -15,9 +15,13 @@ export class BaseCanvasManagerService {
 
   private _width = 10;
   private _height = 10;
+  private id!: string;
 
-  public createCanvas(canvas: HTMLCanvasElement): void {
-    this.canvas = canvas;
+  public init(id: string): void {
+    this.id = id;
+  }
+
+  public createCanvas(): void {
     this.createMainCanvas();
     this.createRenderCanvas();
     this.createHeaderCanvas();
@@ -96,8 +100,14 @@ export class BaseCanvasManagerService {
   }
 
   private createMainCanvas(): void {
-    if (!this.canvas) {
+    if (!this.id) {
       console.error('Canvas is undefined');
+      return;
+    }
+
+    this.canvas = document.getElementById(this.id) as HTMLCanvasElement;
+    if (!this.canvas) {
+      console.error('Canvas with ID ${id} not found.');
       return;
     }
 

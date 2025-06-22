@@ -26,4 +26,10 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 })
 export class ScheduleHomeComponent {
   @Input() isSchedule = false;
+
+  public currentZoom = 1.0;
+
+  onZoomChange(zoomValue: number) {
+    this.currentZoom = zoomValue;
+  }
 }
