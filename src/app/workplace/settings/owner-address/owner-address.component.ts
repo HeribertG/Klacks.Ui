@@ -9,6 +9,8 @@ import {
   inject,
   AfterViewInit,
   OnDestroy,
+  runInInjectionContext,
+  Injector,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -41,10 +43,9 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private injector = inject(Injector);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   keyValueDiffers: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objectForUnsubscribe: any;
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -77,12 +78,14 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readSignals(): void {
-    const resetEffect = effect(() => {
-      const isReset = this.dataManagementSettingsService.isReset();
-      if (isReset) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
+    runInInjectionContext(this.injector, () => {
+      const resetEffect = effect(() => {
+        const isReset = this.dataManagementSettingsService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+        }
+      });
+      this.effects.push(resetEffect);
     });
-    this.effects.push(resetEffect);
   }
 }

@@ -37,15 +37,14 @@ export class BaseCanvasManagerService {
   }
 
   public resizeMainCanvas(): void {
-    if (this.canvas) {
-      this.canvas.width = this._width;
-      this.canvas.height = this._height;
-      this.canvas.style.width = `${this._width}px`;
-      this.canvas.style.height = `${this._height}px`;
-    }
-    if (this.ctx) {
-      this.ctx.canvas.width = this._width;
-      this.ctx.canvas.height = this._height;
+    if (this.canvas && this.ctx) {
+      this.ctx = DrawHelper.createHiDPICanvas(
+        this.canvas,
+        this._width,
+        this._height,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.ctx);
     }
   }
 
@@ -64,8 +63,9 @@ export class BaseCanvasManagerService {
     this.renderCanvas.style.height = `${logicalHeight}px`;
 
     this.renderCanvasCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-
     this.renderCanvasCtx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+    DrawHelper.setAntiAliasing(this.renderCanvasCtx);
   }
 
   public isCanvasAvailable(): boolean {

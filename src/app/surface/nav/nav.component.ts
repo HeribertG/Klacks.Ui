@@ -11,7 +11,6 @@ import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconChartComponent } from 'src/app/icons/icon-chart.component';
 import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
@@ -187,13 +186,27 @@ export class NavComponent implements OnInit, AfterViewInit {
   }
 
   private resetIconColor() {
-    this.absenceIcon.ChangeColor();
-    this.groupIcon.ChangeColor();
-    this.shiftIcon.ChangeColor();
-    this.scheduleIcon.ChangeColor();
-    this.employeesIcon.ChangeColor();
-    this.userIcon.ChangeColor();
-    this.settingsIcon.ChangeColor();
+    if (this.absenceIcon) {
+      this.absenceIcon.ChangeColor();
+    }
+    if (this.groupIcon) {
+      this.groupIcon.ChangeColor();
+    }
+    if (this.shiftIcon) {
+      this.shiftIcon.ChangeColor();
+    }
+    if (this.scheduleIcon) {
+      this.scheduleIcon.ChangeColor();
+    }
+    if (this.employeesIcon) {
+      this.employeesIcon.ChangeColor();
+    }
+    if (this.userIcon) {
+      this.userIcon.ChangeColor();
+    }
+    if (this.settingsIcon) {
+      this.settingsIcon.ChangeColor();
+    }
   }
 
   private setSelectedIconColor(page: string) {

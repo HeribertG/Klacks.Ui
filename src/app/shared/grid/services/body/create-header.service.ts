@@ -67,25 +67,29 @@ export class BaseCreateHeaderService {
     this.emptyHeader = undefined;
   }
 
-  createHeader(col: number): ImageData | undefined {
+  createHeader(col: number): HTMLCanvasElement | undefined {
     if (this.emptyHeader === undefined) {
       this.init();
     }
 
-    const tempCanvas: HTMLCanvasElement = document.createElement(
-      'canvas'
-    ) as HTMLCanvasElement;
+    const tempCanvas: HTMLCanvasElement = document.createElement('canvas');
 
     if (tempCanvas) {
-      tempCanvas.width = this.settings.cellWidth;
-      tempCanvas.height = this.settings.cellHeaderHeight;
-      const ctx = tempCanvas.getContext('2d');
+      const ctx = DrawHelper.createHiDPICanvas(
+        tempCanvas,
+        this.settings.cellWidth,
+        this.settings.cellHeaderHeight,
+        true
+      );
+
       if (ctx) {
+        DrawHelper.setAntiAliasing(ctx);
+
         this.fillHeaderBackground(ctx);
         this.drawBorder(ctx, this.settings.headerBorderWidth);
         this.drawText(ctx, this.getTitle(col));
 
-        return ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        return tempCanvas;
       }
     }
     return undefined;
@@ -101,7 +105,7 @@ export class BaseCreateHeaderService {
     return '';
   }
 
-  private drawText(ctx: CanvasRenderingContext2D, text: string): void {
+  public drawText(ctx: CanvasRenderingContext2D, text: string): void {
     DrawHelper.drawText(
       ctx,
       text,
