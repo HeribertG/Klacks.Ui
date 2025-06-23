@@ -34,7 +34,7 @@
     "@typescript-eslint/parser": "^8.32.1",
     "angular-split": "^18.0.0-beta.1",
     "bootstrap": "^5.3.3",
-    "codemirror": "^5.65.18",
+    "codemirror": "^6.0.0",
     "file-saver": "^2.0.5",
     "moment": "^2.30.1",
     "nth-check": "^2.1.1",

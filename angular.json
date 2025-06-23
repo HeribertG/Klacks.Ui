@@ -85,10 +85,7 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
-              "src/styles.scss",
-              "node_modules/codemirror/lib/codemirror.css",
-              "node_modules/codemirror/addon/lint/lint.css",
-              "node_modules/codemirror/addon/fold/foldgutter.css"
+              "src/styles.scss"
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"

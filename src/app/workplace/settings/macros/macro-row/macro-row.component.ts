@@ -23,9 +23,9 @@ import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 
 // Codemirror imports
-// import 'codemirror/lib/codemirror.css';
-// import 'codemirror/addon/fold/foldgutter.css';
-// import 'codemirror/addon/lint/lint.css';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/addon/fold/foldgutter.css';
+import 'codemirror/addon/lint/lint.css';
 import 'codemirror/mode/vbscript/vbscript';
 import 'codemirror/mode/css/css';
 import 'codemirror/mode/javascript/javascript';
