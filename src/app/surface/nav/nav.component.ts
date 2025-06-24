@@ -43,7 +43,6 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
     IconOrderComponent,
     IconTimeScheduleComponent,
     IconClientsComponent,
-    IconChartComponent,
     IconUserComponent,
     IconSettingComponent,
   ],
@@ -122,31 +121,41 @@ export class NavComponent implements OnInit, AfterViewInit {
 
   onClickAbsence(): void {
     this.resetIconColor();
-    this.absenceIcon.ChangeColor(true);
+    if (this.absenceIcon) {
+      this.absenceIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToAbsence();
   }
 
   onClickGroup(): void {
     this.resetIconColor();
-    this.groupIcon.ChangeColor(true);
+    if (this.groupIcon) {
+      this.groupIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToGroup();
   }
 
   onClickShift(): void {
     this.resetIconColor();
-    this.shiftIcon.ChangeColor(true);
+    if (this.shiftIcon) {
+      this.shiftIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToShift();
   }
 
   onClickSchedule(): void {
     this.resetIconColor();
-    this.scheduleIcon.ChangeColor(true);
+    if (this.scheduleIcon) {
+      this.scheduleIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToSchedule();
   }
 
   onClickClients(): void {
     this.resetIconColor();
-    this.employeesIcon.ChangeColor(true);
+    if (this.employeesIcon) {
+      this.employeesIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToClient();
   }
 
@@ -154,18 +163,18 @@ export class NavComponent implements OnInit, AfterViewInit {
 
   onClickProfile(): void {
     this.resetIconColor();
-    this.userIcon.ChangeColor(true);
+    if (this.userIcon) {
+      this.userIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToProfile();
   }
 
   onClickSettings(): void {
     this.resetIconColor();
-    this.settingsIcon.ChangeColor(true);
+    if (this.settingsIcon) {
+      this.settingsIcon.ChangeColor(true);
+    }
     this.navigationService.navigateToSettings();
-  }
-
-  onClickStatistic(): void {
-    this.navigationService.navigateToStatistic();
   }
 
   private tryLoadProfileImage() {
@@ -213,27 +222,40 @@ export class NavComponent implements OnInit, AfterViewInit {
     switch (page) {
       case 'client':
       case 'edit-address':
-        this.employeesIcon.ChangeColor(true);
+        if (this.employeesIcon) {
+          this.employeesIcon.ChangeColor(true);
+        }
         break;
       case 'settings':
-        this.settingsIcon.ChangeColor(true);
+        if (this.settingsIcon) {
+          this.settingsIcon.ChangeColor(true);
+        }
         break;
-
       case 'profile':
-        this.userIcon.ChangeColor(true);
+        if (this.userIcon) {
+          this.userIcon.ChangeColor(true);
+        }
         break;
       case 'group':
       case 'edit-group':
-        this.groupIcon.ChangeColor(true);
+        if (this.groupIcon) {
+          this.groupIcon.ChangeColor(true);
+        }
         break;
       case 'shift':
-        this.shiftIcon.ChangeColor(true);
+        if (this.shiftIcon) {
+          this.shiftIcon.ChangeColor(true);
+        }
         break;
       case 'absence':
-        this.absenceIcon.ChangeColor(true);
+        if (this.absenceIcon) {
+          this.absenceIcon.ChangeColor(true);
+        }
         break;
       case 'schedule':
-        this.scheduleIcon.ChangeColor(true);
+        if (this.scheduleIcon) {
+          this.scheduleIcon.ChangeColor(true);
+        }
         break;
       default:
         return;
