@@ -322,7 +322,7 @@ export class VScrollbarComponent
       return 0;
     }
 
-    return (canvasWidth - thumbWidth) / 2 + this.Y_POSITION_OFFSET;
+    return Math.round((canvasWidth - thumbWidth) / 2 + this.Y_POSITION_OFFSET);
   }
 
   private calculateYPosition(

@@ -89,6 +89,10 @@ export class AbsenceGanttHeaderComponent implements OnInit {
     }, 300);
   }
 
+  onCalendarInitialized() {
+    this.onChangeCalendar();
+  }
+
   onReRead() {
     this.onChangeCalendar();
   }

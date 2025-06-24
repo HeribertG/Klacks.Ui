@@ -59,6 +59,7 @@ export class CalendarSelectorComponent
 {
   @Output() openMenu = new EventEmitter();
   @Output() changeEvent = new EventEmitter();
+  @Output() initialized = new EventEmitter();
 
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
@@ -88,6 +89,7 @@ export class CalendarSelectorComponent
   private static readonly CHIP_DISPLAY_SEPARATOR = '-';
   private static readonly CHIP_KEY_SEPARATOR = '|';
 
+  private isInitialized = false;
   private isFirstReadLocal = false;
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
@@ -494,6 +496,12 @@ export class CalendarSelectorComponent
           this.resetCalendarRule();
           this.reReadChips();
           this.setCalendarRule();
+          if (!this.isInitialized) {
+            this.isInitialized = true;
+            setTimeout(() => {
+              this.initialized.emit();
+            }, 100);
+          }
         }
       });
       this.effects.push(effect1);
@@ -510,6 +518,15 @@ export class CalendarSelectorComponent
         if (isRead) {
           this.setCurrentSelector();
           this.onChangeSelection();
+        }
+        if (
+          this.dataManagementCalendarRulesService.isRead() &&
+          !this.isInitialized
+        ) {
+          this.isInitialized = true;
+          setTimeout(() => {
+            this.initialized.emit();
+          }, 100);
         }
       });
       this.effects.push(effect3);

@@ -142,10 +142,13 @@ export class BaseDataService {
       this.dataManagementSchedule.workFilter.dayVisibleAfterMonth;
     const currentYear = this.dataManagementSchedule.workFilter.currentYear;
     const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
-    this.startDate = new Date(currentYear + '/' + currentMonth + '/' + 1);
+
+    this.startDate = new Date(currentYear, currentMonth, 1);
     this.startDate = addDays(this.startDate, -1 * dayVisibleBeforeMonth);
-    this.columns = getDaysInMonth(currentYear, currentMonth - 1);
-    this.columns += dayVisibleBeforeMonth + dayVisibleAfterMonth;
+    this.columns =
+      getDaysInMonth(currentYear, currentMonth) +
+      dayVisibleBeforeMonth +
+      dayVisibleAfterMonth;
   }
 
   public initializeEmployeeIndices(): void {

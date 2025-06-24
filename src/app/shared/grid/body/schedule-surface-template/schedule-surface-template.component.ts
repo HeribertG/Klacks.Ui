@@ -76,6 +76,9 @@ export class ScheduleSurfaceTemplateComponent
   private lastHeight = 0;
   private readonly RESIZE_THRESHOLD = 2;
 
+  private lastColumns = 0;
+  private lastRows = 0;
+
   ngOnInit(): void {
     this.readSignals();
     this._pixelRatio = DrawHelper.pixelRatio();
@@ -228,6 +231,20 @@ export class ScheduleSurfaceTemplateComponent
   }
 
   private updateScrollbarValues(): void {
+    if (
+      this.dataService.columns === this.lastColumns &&
+      this.dataService.rows === this.lastRows
+    ) {
+      return;
+    }
+
+    if (isNaN(this.dataService.columns) || isNaN(this.dataService.rows)) {
+      return;
+    }
+
+    this.lastColumns = this.dataService.columns;
+    this.lastRows = this.dataService.rows;
+
     this.maxValueHScrollbar.emit(this.dataService.columns);
     this.visibleValueHScrollbar.emit(this.calculateVisibleColumns());
     this.valueHScrollbar.emit(this.scroll.horizontalScrollPosition);

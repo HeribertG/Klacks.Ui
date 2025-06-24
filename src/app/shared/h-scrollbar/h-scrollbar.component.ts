@@ -318,7 +318,11 @@ export class HScrollbarComponent
     canvas: HTMLCanvasElement,
     thumbImage: ImageData
   ): number {
-    return (canvas.height - thumbImage.height) / 2 + this.Y_POSITION_OFFSET;
+    let result =
+      (canvas.height - thumbImage.height) / 2 + this.Y_POSITION_OFFSET;
+
+    if (result < 0) result = 0;
+    return result;
   }
 
   private calculateXPosition(
@@ -327,9 +331,9 @@ export class HScrollbarComponent
     tickSize: number,
     trackWidth: number
   ): number {
-    let tmpX = value * tickSize;
+    let tmpX = Math.round(value * tickSize);
     if (tmpX + trackWidth > canvas.width) {
-      tmpX = canvas.width - trackWidth;
+      tmpX = Math.round(canvas.width - trackWidth);
     }
 
     return tmpX;
