@@ -437,7 +437,7 @@ export class AbsenceCalendarDirective {
     const hasId = targetElement.hasAttribute('id');
     const idValue = hasId ? targetElement.getAttribute('id') : '';
 
-    if (idValue === 'calendarCanvas') {
+    if (idValue === 'absence-gantt-surface-id') {
       return true;
     }
 
