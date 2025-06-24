@@ -221,7 +221,6 @@ export class AddressPersonaComponent
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChangePhoneType(index: number, event: any) {
     const value = event.currentTarget.value;
 

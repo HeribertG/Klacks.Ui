@@ -9,10 +9,6 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 import { BaseCanvasManagerService } from './canvas-manager.service';
 import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCreateCellService } from './create-cell.service';
-import {
-  BaselineAlignmentEnum,
-  TextAlignmentEnum,
-} from '../../enums/cell-settings.enum';
 
 @Injectable({
   providedIn: 'root',

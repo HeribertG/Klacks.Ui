@@ -352,7 +352,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => this.recalcHeight(), 100);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onResize(event: DOMRectReadOnly | any): void {
     this.tableSize = event;
     if (this.isMeasureTable) {

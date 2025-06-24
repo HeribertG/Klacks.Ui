@@ -322,14 +322,6 @@ export class ScheduleSurfaceTemplateComponent
     }
   }
 
-  clearMenus() {
-    // Implementieren wenn nötig
-  }
-
-  onContextMenuAction(_: any) {
-    // Implementieren wenn nötig
-  }
-
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const zoomEffect = effect(() => {

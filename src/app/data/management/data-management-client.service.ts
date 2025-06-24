@@ -316,7 +316,6 @@ export class DataManagementClientService {
     return false;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   exportExcel(type = 0) {
     const filter = new ExportClient();
     filter.filter = this.currentFilter;

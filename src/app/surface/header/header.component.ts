@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import { AuthService } from 'src/app/auth/auth.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/group-select/group-select.component';

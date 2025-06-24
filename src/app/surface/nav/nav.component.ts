@@ -12,7 +12,6 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { IconChartComponent } from 'src/app/icons/icon-chart.component';
 import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
 import { IconGanttComponent } from 'src/app/icons/icon-gantt.component';
 import { IconGroupComponent } from 'src/app/icons/icon-group.component';
