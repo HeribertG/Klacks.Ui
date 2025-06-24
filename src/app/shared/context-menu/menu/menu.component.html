@@ -1,12 +1,13 @@
+@if (menu && menu.list) {
 <div
   class="menu-container"
   [ngStyle]="rightPanelStyle"
   (appClickOutside)="closeMenu()"
   (mouseleave)="closeMenu()"
   (contextmenu)="stopEvent($event)"
-  *ngIf="menu && menu.list"
 >
   <div *ngFor="let item of menu.list">
-    <app-menu-item [menuItem]="item" #menuItem> </app-menu-item>
+    <app-menu-item [menuItem]="item" #menuItem></app-menu-item>
   </div>
 </div>
+}

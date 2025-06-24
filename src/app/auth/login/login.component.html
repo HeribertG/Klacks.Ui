@@ -1,7 +1,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <div class="background">
-  <div class="container first border-right border-bottom" *ngIf="!isClicked">
+  @if (!isClicked) {
+  <div class="container first border-right border-bottom">
     <form (ngSubmit)="onSave()" #loginForm="ngForm">
       <p class="h4 big-gap-top center">{{ "login.header" | translate }}</p>
 
@@ -68,17 +69,14 @@
           {{ "login.summit" | translate }}
         </button>
       </div>
-      <div
-        id="form-errors"
-        *ngIf="!loginForm.form.valid"
-        role="alert"
-        aria-live="polite"
-        class="sr-only"
-      >
+      @if (!loginForm.form.valid) {
+      <div id="form-errors" role="alert" aria-live="polite" class="sr-only">
         Form has validation errors. Please check your input.
       </div>
+      }
       <p></p>
       <p></p>
     </form>
   </div>
+  }
 </div>

@@ -1,21 +1,16 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+
 <div class="header-container">
-  <div
-    class="icon"
-    (click)="onClickDashboard()"
-    *ngIf="!dataLoadFileService.logoImage"
-  >
+  @if (!dataLoadFileService.logoImage) {
+  <div class="icon" (click)="onClickDashboard()">
     <img src="/assets/png/{{ ImageName }}" width="35" height="35" alt="image" />
   </div>
-
-  <div
-    *ngIf="dataLoadFileService.logoImage"
-    (click)="onClickDashboard()"
-    class="icon"
-  >
+  } @if (dataLoadFileService.logoImage) {
+  <div (click)="onClickDashboard()" class="icon">
     <img [src]="dataLoadFileService.logoImage" width="32" height="32" alt="" />
   </div>
+  }
 
   <app-search></app-search>
 

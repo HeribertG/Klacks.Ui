@@ -9,11 +9,11 @@
         autoClose="true"
         ngbTooltip="{{ absence }} (Alt+1)"
         aria-label="Manage absences (Alt+1)"
-      >
-      </app-icon-gantt>
+      ></app-icon-gantt>
     </div>
 
-    <div class="icon" *ngIf="authorizationService.isAdmin">
+    @if (authorizationService.isAdmin) {
+    <div class="icon">
       <app-icon-group
         #groupIcon
         id="open-groups"
@@ -21,9 +21,9 @@
         placement="right"
         ngbTooltip="{{ all_group }} (Alt+2)"
         aria-label="Manage groups (Alt+2)"
-      >
-      </app-icon-group>
+      ></app-icon-group>
     </div>
+    }
 
     <div class="icon">
       <app-icon-order
@@ -33,8 +33,7 @@
         placement="right"
         ngbTooltip="{{ all_shift }} (Alt+3)"
         aria-label="Manage shifts (Alt+3)"
-      >
-      </app-icon-order>
+      ></app-icon-order>
     </div>
 
     <div class="icon">
@@ -45,8 +44,7 @@
         placement="right"
         ngbTooltip="{{ all_schedule }} (Alt+4)"
         aria-label="Manage schedules (Alt+4)"
-      >
-      </app-time-schedule>
+      ></app-time-schedule>
     </div>
 
     <div class="icon">
@@ -58,22 +56,17 @@
         ngbTooltip="{{ all_employee }} (Alt+5)"
         autoClose="true"
         aria-label="Manage employees (Alt+5)"
-      >
-      </app-icon-clients>
+      ></app-icon-clients>
     </div>
   </div>
 
   <div class="main-bottomcell">
-    <div
-      class="icon icon_user"
-      *ngIf="!dataLoadFileService.profileImage"
-      aria-label="Open profile (Alt+7)"
-    >
+    @if (!dataLoadFileService.profileImage) {
+    <div class="icon icon_user" aria-label="Open profile (Alt+7)">
       <app-icon-user #userIcon (click)="onClickProfile()"></app-icon-user>
     </div>
-
+    } @if (dataLoadFileService.profileImage) {
     <div
-      *ngIf="dataLoadFileService.profileImage"
       class="imgIconContainer"
       tabindex="6"
       id="open-profile"
@@ -82,15 +75,10 @@
       (keydown.space)="onClickProfile()"
       aria-label="Open profile (Alt+7)"
     >
-      <img
-        [src]="dataLoadFileService.profileImage"
-        alt=""
-        class="imgIcon"
-        *ngIf="dataLoadFileService.profileImage"
-      />
+      <img [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
     </div>
-
-    <div class="icon" *ngIf="authorizationService.isAdmin">
+    } @if (authorizationService.isAdmin) {
+    <div class="icon">
       <app-icon-setting
         #settingsIcon
         id="open-settings"
@@ -98,5 +86,6 @@
         aria-label="Open Settings"
       ></app-icon-setting>
     </div>
+    }
   </div>
 </div>

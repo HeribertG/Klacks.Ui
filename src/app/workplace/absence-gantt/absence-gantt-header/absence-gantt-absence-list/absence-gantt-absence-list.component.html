@@ -1,28 +1,31 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div
-  class="absence-reason-container"
-  *ngIf="dataManagementAbsence.hasAbsences()"
->
+
+@if (dataManagementAbsence.hasAbsences()) {
+<div class="absence-reason-container">
   <div *ngFor="let c of dataManagementAbsence.absenceList()">
     <div class="name-line" draggable="true" (dragstart)="dragStart($event, c)">
       <div class="name-icon" [ngStyle]="{ 'background-color': onColor(c) }">
+        @if (onIsChecked(c)) {
         <p
           class="checkmark"
           (click)="onCheck(c)"
           [ngStyle]="{ color: onInvertColor(c) }"
-          *ngIf="onIsChecked(c)"
         >
           &#10004;
         </p>
+        } @else {
         <p
           class="checkmark"
           (click)="onCheck(c)"
           [ngStyle]="{ color: onInvertColor(c) }"
-          *ngIf="!onIsChecked(c)"
         ></p>
+        }
       </div>
-      <span (click)="onCheck(c)">{{ c.name | fallback : currentLang }} </span>
+      <span (click)="onCheck(c)">
+        {{ c.name | fallback : currentLang }}
+      </span>
     </div>
   </div>
 </div>
+}

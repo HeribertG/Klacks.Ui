@@ -1,5 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+
 <app-modal></app-modal>
 <app-spinner-wrapper></app-spinner-wrapper>
 
@@ -25,38 +26,31 @@
   >
   </app-main>
 
-  <div class="footer custom-control-inline" *ngIf="isSavebarVisible">
-    <span
-      type="button"
-      class="link-button blue-font"
-      (click)="onClickGoBack()"
-      >{{ "back" | translate }}</span
-    >
+  @if (isSavebarVisible) {
+  <div class="footer custom-control-inline">
+    <span type="button" class="link-button blue-font" (click)="onClickGoBack()">
+      {{ "back" | translate }}
+    </span>
 
     <div class="filler"></div>
 
-    <span
-      type="button"
-      class="link-button red-font"
-      (click)="onClickReset()"
-      *ngIf="
-        dataManagementSwitchboardService.isDirty &&
-        dataManagementSwitchboardService.isDisabled === false
-      "
-    >
-      {{ "reset" | translate }}</span
-    >
-
+    @if ( dataManagementSwitchboardService.isDirty &&
+    dataManagementSwitchboardService.isDisabled === false ) {
+    <span type="button" class="link-button red-font" (click)="onClickReset()">
+      {{ "reset" | translate }}
+    </span>
+    } @if (dataManagementSwitchboardService.isDirty) {
     <button
       type="button"
       class="btn save-btn"
       (click)="onClickSave()"
-      *ngIf="dataManagementSwitchboardService.isDirty"
       [disabled]="dataManagementSwitchboardService.isDisabled"
     >
       {{ "store" | translate }}
     </button>
+    }
   </div>
+  }
 
   <!-- <app-aside></app-aside> -->
   <app-footer></app-footer>

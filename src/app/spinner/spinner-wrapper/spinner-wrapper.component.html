@@ -1,3 +1,5 @@
-<div class="loading-indicator" *ngIf="spinnerService.showProgressSpinner">
+@if (spinnerService.showProgressSpinner) {
+<div class="loading-indicator">
   <app-spinner></app-spinner>
 </div>
+}

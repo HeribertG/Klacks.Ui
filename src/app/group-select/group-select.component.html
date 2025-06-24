@@ -1,14 +1,14 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <div class="group-select-container">
-  <label
-    *ngIf="label"
-    [for]="'group-select-' + label"
-    class="group-select-label"
-  >
+  @if (label) {
+  <label [for]="'group-select-' + label" class="group-select-label">
     {{ label }}
-    <span *ngIf="required" class="required-marker">*</span>
+    @if (required) {
+    <span class="required-marker">*</span>
+    }
   </label>
+  }
 
   <div
     class="group-select-box form-group"
@@ -26,100 +26,90 @@
     aria-controls="select group"
   >
     <div class="group-select-value">
-      <!-- Anzeige des ausgewählten Elements oder 'Alle Gruppen' -->
-      <span *ngIf="selectedGroup; else allOrPlaceholderTpl">{{
-        selectedGroup.name
+      @if (selectedGroup) {
+      <span>{{ selectedGroup.name }}</span>
+      } @else { @if (selectedGroupId === ALL_GROUPS_ID) {
+      <span>{{ translate.instant("group.select.all-groups") }}</span>
+      } @else {
+      <span class="placeholder">{{
+        translate.instant("group.select.select")
       }}</span>
-      <ng-template #allOrPlaceholderTpl>
-        <span *ngIf="selectedGroupId === ALL_GROUPS_ID; else placeholderTpl">
-          {{ translate.instant("group.select.all-groups") }}
-        </span>
-        <ng-template #placeholderTpl>
-          <span class="placeholder">{{
-            translate.instant("group.select.select")
-          }}</span>
-        </ng-template>
-      </ng-template>
+      } }
     </div>
+
     <div class="group-select-icon">
-      <app-icon-angle-down *ngIf="!isDropdownOpen"></app-icon-angle-down>
-      <app-icon-angle-up *ngIf="isDropdownOpen"></app-icon-angle-up>
+      @if (!isDropdownOpen) {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (isDropdownOpen) {
+      <app-icon-angle-up></app-icon-angle-up>
+      }
     </div>
   </div>
 
+  @if (isDropdownOpen) {
   <div
     class="group-select-dropdown"
-    *ngIf="isDropdownOpen"
     appClickOutside
     (appClickOutside)="closeDropdown()"
   >
     <div class="group-tree-container">
-      <ng-container *ngIf="displayTree && displayTree.length > 0; else noTree">
-        <ul class="group-tree-root">
-          <!-- Durchlaufen des angezeigten Baums (inkl. "Alle Gruppen") -->
-          <ng-container *ngFor="let node of displayTree">
-            <li class="group-tree-node">
-              <!-- Virtuelle "Alle Gruppen"-Option -->
+      @if (displayTree && displayTree.length > 0) {
+      <ul class="group-tree-root">
+        <ng-container *ngFor="let node of displayTree">
+          <li class="group-tree-node">
+            @if (isVirtualGroup(node)) {
+            <div
+              class="group-tree-node-item all-groups-option"
+              [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+              (click)="selectGroup(node, $event)"
+            >
               <div
-                *ngIf="isVirtualGroup(node)"
-                class="group-tree-node-item all-groups-option"
-                [class.selected]="selectedGroupId === ALL_GROUPS_ID"
-                (click)="selectGroup(node, $event)"
+                class="group-tree-node-indicator"
+                [style.padding-left.px]="0"
+              >
+                <span class="group-tree-toggle-placeholder"></span>
+              </div>
+              <div
+                class="group-option-button"
+                tabindex="0"
+                role="option"
+                [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+                [attr.aria-label]="'Select all groups'"
               >
                 <div
-                  class="group-tree-node-indicator"
-                  [style.padding-left.px]="0"
-                >
-                  <span class="group-tree-toggle-placeholder"></span>
-                </div>
-
-                <div
-                  class="group-option-button"
-                  tabindex="0"
-                  role="option"
-                  [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-                  [attr.aria-label]="'Select all groups'"
-                >
-                  <div
-                    class="option-circle"
-                    [class.selected]="selectedGroupId === ALL_GROUPS_ID"
-                  ></div>
-                </div>
-
-                <div
-                  class="group-tree-node-content"
-                  tabindex="0"
-                  role="option"
-                  [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-                  [attr.aria-label]="'Select all groups'"
-                >
-                  <span class="group-tree-node-name">{{ node.name }}</span>
-                </div>
+                  class="option-circle"
+                  [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+                ></div>
               </div>
-
-              <!-- Normale Gruppenknoten -->
-              <ng-container *ngIf="isRealGroup(node)">
-                <ng-container
-                  *ngTemplateOutlet="
-                    recursiveTree;
-                    context: { $implicit: node }
-                  "
-                ></ng-container>
-              </ng-container>
-            </li>
-          </ng-container>
-        </ul>
-      </ng-container>
-
-      <ng-template #noTree>
-        <div class="no-tree-message">
-          {{ translate.instant("group.select.no-groups") }}
-        </div>
-      </ng-template>
+              <div
+                class="group-tree-node-content"
+                tabindex="0"
+                role="option"
+                [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+                [attr.aria-label]="'Select all groups'"
+              >
+                <span class="group-tree-node-name">{{ node.name }}</span>
+              </div>
+            </div>
+            } @if (isRealGroup(node)) {
+            <ng-container
+              *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
+            ></ng-container>
+            }
+          </li>
+        </ng-container>
+      </ul>
+      } @else {
+      <div class="no-tree-message">
+        {{ translate.instant("group.select.no-groups") }}
+      </div>
+      }
     </div>
   </div>
+  }
 </div>
 
+<!-- Das bleibt so -->
 <ng-template #recursiveTree let-node>
   <div
     class="group-tree-node-item"
@@ -129,8 +119,8 @@
       class="group-tree-node-indicator"
       [style.padding-left.px]="node.depth * 20"
     >
+      @if (hasChildren(node)) {
       <span
-        *ngIf="hasChildren(node)"
         class="group-tree-toggle"
         (click)="toggleNode(node, $event)"
         (keyup.enter)="toggleNode(node, $event)"
@@ -142,18 +132,17 @@
           isNodeExpanded(node) ? 'Collapse subgroups' : 'Expand subgroups'
         "
       >
-        <app-icon-angle-down *ngIf="isNodeExpanded(node)"></app-icon-angle-down>
-        <app-icon-angle-right
-          *ngIf="!isNodeExpanded(node)"
-        ></app-icon-angle-right>
+        @if (isNodeExpanded(node)) {
+        <app-icon-angle-down></app-icon-angle-down>
+        } @else {
+        <app-icon-angle-right></app-icon-angle-right>
+        }
       </span>
-      <span
-        *ngIf="!hasChildren(node)"
-        class="group-tree-toggle-placeholder"
-      ></span>
+      } @else {
+      <span class="group-tree-toggle-placeholder"></span>
+      }
     </div>
 
-    <!-- Option Button to select this group -->
     <div
       class="group-option-button"
       (click)="selectGroup(node, $event)"
@@ -171,7 +160,6 @@
       ></div>
     </div>
 
-    <!-- Node Content -->
     <div
       class="group-tree-node-content"
       (click)="selectGroup(node, $event)"
@@ -187,11 +175,8 @@
     </div>
   </div>
 
-  <!-- Kinder des Knotens -->
-  <div
-    *ngIf="hasChildren(node) && isNodeExpanded(node)"
-    class="group-tree-children"
-  >
+  @if (hasChildren(node) && isNodeExpanded(node)) {
+  <div class="group-tree-children">
     <ul>
       <li *ngFor="let child of node.children" class="group-tree-node">
         <ng-container
@@ -200,4 +185,5 @@
       </li>
     </ul>
   </div>
+  }
 </ng-template>

@@ -1,7 +1,7 @@
+@if (hasValidCalendarSelections) {
 <div
   class="row-line"
   role="group"
-  *ngIf="hasValidCalendarSelections"
   [attr.aria-label]="'calendar.selector.controls' | translate"
 >
   <div class="form-group">
@@ -56,6 +56,7 @@
     <fa-icon [icon]="faTrash" aria-hidden="true"></fa-icon>
   </button>
 </div>
+}
 
 <div class="row-line right">
   <app-calendar-dropdown
@@ -66,8 +67,8 @@
   ></app-calendar-dropdown>
 </div>
 
+@if (hasChips) {
 <div
-  *ngIf="hasChips"
   class="chips-list setting-container"
   role="region"
   [attr.aria-label]="'calendar.selector.selected-items' | translate"
@@ -80,3 +81,4 @@
     ></app-chips>
   </div>
 </div>
+}

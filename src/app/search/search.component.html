@@ -1,4 +1,5 @@
-<div class="container-search form-group" *ngIf="isVisible">
+@if (isVisible) {
+<div class="container-search form-group">
   <div class="input-group">
     <input
       type="search"
@@ -19,7 +20,9 @@
       <fa-icon [icon]="faSearch"></fa-icon>
     </button>
   </div>
-  <div class="include-address" *ngIf="isIncludeAddress">
+
+  @if (isIncludeAddress) {
+  <div class="include-address">
     <label class="checkbox-label">
       <input
         type="checkbox"
@@ -29,4 +32,6 @@
       {{ "search.inc.address" | translate }}
     </label>
   </div>
+  }
 </div>
+}

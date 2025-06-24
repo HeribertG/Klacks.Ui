@@ -1,10 +1,12 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/mouse-events-have-key-events -->
-<div *ngIf="menuItem" (contextmenu)="stopEvent($event)">
+
+@if (menuItem) {
+<div (contextmenu)="stopEvent($event)">
+  @if (!menuItem.isSeparator) {
   <div
     class="menu-item-container"
-    *ngIf="!menuItem.isSeparator"
     (click)="onClick()"
     (mouseover)="onMouseOver()"
     (mouseleave)="onMouseLeave()"
@@ -12,29 +14,34 @@
     id="{{ menuItem.key }}"
   >
     <div class="menu-item-icon">
-      <i class="{{ menuItem.iconFont }}" *ngIf="menuItem.iconFont"></i>
+      @if (menuItem.iconFont) {
+      <i class="{{ menuItem.iconFont }}"></i>
+      } @else {
       <div
         class="name-icon"
         [ngStyle]="{ 'background-color': onColor(menuItem.color) }"
-        *ngIf="!menuItem.iconFont"
       ></div>
+      }
     </div>
+
     <div class="menu-item">
       {{ menuItem.name }}
     </div>
+
     <span class="filler"></span>
+
     <div class="menu-item-shortcut">{{ menuItem.shortCut }}</div>
 
     <div class="menu-item-arrow">
-      <i class="fas fa-regular fa-angle-right" *ngIf="menuItem.hasMenu"></i>
-      <app-menu
-        *ngIf="menuItem.menu && menuItem.hasMenu"
-        [menu]="menuItem.menu"
-        #subMenu
-      ></app-menu>
+      @if (menuItem.hasMenu) {
+      <i class="fas fa-regular fa-angle-right"></i>
+      } @if (menuItem.menu && menuItem.hasMenu) {
+      <app-menu [menu]="menuItem.menu" #subMenu></app-menu>
+      }
     </div>
   </div>
-  <div *ngIf="menuItem.isSeparator">
-    <div class="menu-item-divider"></div>
-  </div>
+  } @else {
+  <div class="menu-item-divider"></div>
+  }
 </div>
+}
