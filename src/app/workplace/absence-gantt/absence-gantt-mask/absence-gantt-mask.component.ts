@@ -38,7 +38,7 @@ import {
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { NgClass, NgFor, NgStyle } from '@angular/common';
 import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
@@ -47,7 +47,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
   styleUrls: ['./absence-gantt-mask.component.scss'],
   standalone: true,
   imports: [
-    NgIf,
     NgStyle,
     NgFor,
     NgClass,

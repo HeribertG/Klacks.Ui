@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -14,7 +13,7 @@ import { IconDescComponent } from 'src/app/icons/icon-desc.component';
   templateUrl: './absence-gantt-filter.component.html',
   styleUrls: ['./absence-gantt-filter.component.scss'],
   standalone: true,
-  imports: [TranslateModule, IconAscComponent, IconDescComponent, NgIf],
+  imports: [TranslateModule, IconAscComponent, IconDescComponent],
 })
 export class AbsenceGanttFilterComponent {
   public dataManagementBreak = inject(DataManagementBreakService);

@@ -1,5 +1,5 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form #navClientForm="ngForm" id="navClientForm">
   <ul class="list-group">
     <li class="list-group-item-action">
@@ -80,7 +80,6 @@
             </div>
           </div>
           <div class="dropdown-divider"></div>
-
           <button ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
@@ -130,29 +129,24 @@
           <div class="dropdown-divider"></div>
           <div class="form-group">
             <div class="checkbox-container-default2">
-              <div
-                *ngFor="
-                  let c of dataManagementClientService.currentFilter.countries;
-                  index as i
-                "
-              >
-                <label class="checkbox-label">
-                  <input
-                    type="checkbox"
-                    [ngModel]="c.select"
-                    [ngModelOptions]="{ standalone: true }"
-                    (ngModelChange)="c.select = $event"
-                    (change)="
-                      dataManagementClientService.currentFilter.resetFilteredStateToken()
-                    "
-                  />
-                  {{ c.name | fallback : currentLang }}
-                </label>
-              </div>
+              @for (c of dataManagementClientService.currentFilter.countries;
+              track c) {
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [ngModel]="c.select"
+                  [ngModelOptions]="{ standalone: true }"
+                  (ngModelChange)="c.select = $event"
+                  (change)="
+                    dataManagementClientService.currentFilter.resetFilteredStateToken()
+                  "
+                />
+                {{ c.name | fallback : currentLang }}
+              </label>
+              }
             </div>
           </div>
           <div class="dropdown-divider"></div>
-
           <button ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
@@ -193,39 +187,36 @@
               </button>
             </div>
           </div>
-          <div
-            class="form-group"
-            *ngIf="dataManagementClientService.currentFilter.filteredStateToken"
-          >
+
+          @if (dataManagementClientService.currentFilter.filteredStateToken) {
+          <div class="form-group">
             <div class="checkbox-container">
-              <div
-                *ngFor="
-                  let item of dataManagementClientService.currentFilter
-                    .filteredStateToken
-                "
+              @for (item of
+              dataManagementClientService.currentFilter.filteredStateToken;
+              track item) {
+              <label
+                class="checkbox-label"
+                placement="right"
+                ngbTooltip="{{ item.stateName | fallback : currentLang }}"
               >
-                <label
-                  class="checkbox-label"
-                  placement="right"
-                  ngbTooltip="{{ item.stateName | fallback : currentLang }}"
-                >
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="item.select"
-                    [ngModelOptions]="{ standalone: true }"
-                    (change)="
-                      dataManagementClientService.currentFilter.setFilteredStateToken(
-                        item
-                      )
-                    "
-                  />
-                  {{ item.state }} ( {{ item.country }})
-                </label>
-              </div>
+                <input
+                  type="checkbox"
+                  [(ngModel)]="item.select"
+                  [ngModelOptions]="{ standalone: true }"
+                  (change)="
+                    dataManagementClientService.currentFilter.setFilteredStateToken(
+                      item
+                    )
+                  "
+                />
+                {{ item.state }} ({{ item.country }})
+              </label>
+              }
             </div>
           </div>
-          <div class="dropdown-divider"></div>
+          }
 
+          <div class="dropdown-divider"></div>
           <button ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
@@ -293,7 +284,6 @@
                     ngbDatepicker
                     #from="ngbDatepicker"
                   />
-
                   <span
                     class="input-group-text"
                     style="width: 40px"
@@ -309,7 +299,6 @@
                 <label for="billsFrom">{{
                   "address.all-address.all-address-nav.until" | translate
                 }}</label>
-
                 <div class="input-group my-datepicker">
                   <input
                     class="form-control"
@@ -326,7 +315,6 @@
                     ngbDatepicker
                     #until="ngbDatepicker"
                   />
-
                   <span
                     class="input-group-text"
                     style="width: 40px"
@@ -343,13 +331,12 @@
           </div>
 
           <div class="dropdown-divider"></div>
-
           <button ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
 
-    <!--  Gelöschte Adressen -->
+    <!-- Gelöschte Adressen -->
     <li class="list-group-item-action" (click)="onClickShowDeleteEntries()">
       <label class="checkbox-label">
         <input
