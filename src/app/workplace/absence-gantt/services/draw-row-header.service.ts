@@ -9,6 +9,7 @@ import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
 import { RenderRowHeaderService } from './render-row-header.service';
+import { DrawImageHelper } from 'src/app/helpers/draw-image-helper';
 
 @Injectable()
 export class DrawRowHeaderService {
@@ -171,20 +172,36 @@ export class DrawRowHeaderService {
   }
 
   private DrawHeader(): void {
-    this.drawRowHeaderCell.drawImage(
-      this.rowHeaderCanvasManager.ctx!,
-      this.rowHeaderCanvasManager.headerCanvas!,
-      0,
-      0
-    );
+    // this.drawRowHeaderCell.drawImage(
+    //   this.rowHeaderCanvasManager.ctx!,
+    //   this.rowHeaderCanvasManager.headerCanvas!,
+    //   0,
+    //   0
+    // );
+    if (this.rowHeaderCanvasManager.headerCanvas) {
+      DrawImageHelper.drawCanvasLogical(
+        this.rowHeaderCanvasManager.ctx!,
+        this.rowHeaderCanvasManager.headerCanvas,
+        0,
+        0
+      );
+    }
   }
 
   private DrawBody(): void {
-    this.drawRowHeaderCell.drawImage(
-      this.rowHeaderCanvasManager.ctx!,
-      this.rowHeaderCanvasManager.renderCanvas!,
-      0,
-      this.calendarSetting.cellHeaderHeight
-    );
+    // this.drawRowHeaderCell.drawImage(
+    //   this.rowHeaderCanvasManager.ctx!,
+    //   this.rowHeaderCanvasManager.renderCanvas!,
+    //   0,
+    //   this.calendarSetting.cellHeaderHeight
+    // );
+    if (this.rowHeaderCanvasManager.renderCanvas) {
+      DrawImageHelper.drawCanvasLogical(
+        this.rowHeaderCanvasManager.ctx!,
+        this.rowHeaderCanvasManager.renderCanvas,
+        0,
+        this.calendarSetting.cellHeaderHeight
+      );
+    }
   }
 }

@@ -13,6 +13,7 @@ import {
 import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
+import { DrawImageHelper } from 'src/app/helpers/draw-image-helper';
 
 @Injectable()
 export class RenderRowHeaderService {
@@ -231,10 +232,20 @@ export class RenderRowHeaderService {
   }
 
   private moveImage(verticalDiff: number) {
+    //   const height = this.calendarSetting.cellHeight;
+    //   const canvas = this.rowHeaderCanvasManager.renderCanvas;
+    //   if (canvas) {
+    //     this.rowHeaderCanvasManager.renderCanvasCtx?.drawImage(
+    //       canvas,
+    //       0,
+    //       verticalDiff * height
+    //     );
+    //   }
     const height = this.calendarSetting.cellHeight;
     const canvas = this.rowHeaderCanvasManager.renderCanvas;
-    if (canvas) {
-      this.rowHeaderCanvasManager.renderCanvasCtx?.drawImage(
+    if (canvas && this.rowHeaderCanvasManager.renderCanvasCtx) {
+      DrawImageHelper.drawCanvasLogical(
+        this.rowHeaderCanvasManager.renderCanvasCtx,
         canvas,
         0,
         verticalDiff * height

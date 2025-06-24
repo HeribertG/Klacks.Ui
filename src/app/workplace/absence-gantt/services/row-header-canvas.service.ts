@@ -33,29 +33,12 @@ export class RowHeaderCanvasManagerService {
   }
 
   public resizeMainCanvas(): void {
-    if (this.canvas) {
-      this.canvas.width = this._width;
-      this.canvas.height = this._height;
-      this.canvas.style.width = `${this._width}px`;
-      this.canvas.style.height = `${this._height}px`;
-    }
-    if (this.ctx) {
-      this.ctx.canvas.width = this._width;
-      this.ctx.canvas.height = this._height;
-    }
+    this.createMainCanvas();
   }
 
   public resizeRenderCanvas(): void {
-    if (this.renderCanvas) {
-      this.renderCanvas.width = this._width;
-      this.renderCanvas.height = this._height;
-      this.renderCanvas.style.width = `${this._width}px`;
-      this.renderCanvas.style.height = `${this._height}px`;
-    }
-    if (this.renderCanvasCtx) {
-      this.renderCanvasCtx.canvas.width = this._width;
-      this.renderCanvasCtx.canvas.height = this._height;
-    }
+    this.createRenderCanvas();
+    this.createHeaderCanvas();
   }
 
   public isCanvasAvailable(): boolean {
@@ -69,7 +52,7 @@ export class RowHeaderCanvasManagerService {
 
   public set width(value: number) {
     this._width = value;
-    this.resizeMainCanvas();
+    this.createCanvas();
   }
 
   public get width(): number {
@@ -78,8 +61,7 @@ export class RowHeaderCanvasManagerService {
 
   public set height(value: number) {
     this._height = value;
-    this.resizeRenderCanvas();
-    this.resizeMainCanvas();
+    this.createCanvas();
   }
 
   public get height(): number {

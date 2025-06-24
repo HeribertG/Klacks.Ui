@@ -6,6 +6,7 @@ import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
 } from 'src/app/shared/grid/enums/cell-settings.enum';
+import { DrawImageHelper } from 'src/app/helpers/draw-image-helper';
 
 @Injectable()
 export class RenderRowHeaderCellService {
@@ -17,7 +18,8 @@ export class RenderRowHeaderCellService {
     x: number,
     y: number
   ): void {
-    ctx.drawImage(sourceCanvas, x, y);
+    //ctx.drawImage(sourceCanvas, x, y);
+    DrawImageHelper.drawCanvasLogical(ctx, sourceCanvas, x, y);
   }
 
   public clearRect(
