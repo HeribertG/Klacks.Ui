@@ -332,6 +332,7 @@ export abstract class DrawHelper {
       context.imageSmoothingEnabled = true;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (context as any).webkitImageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
     }
   }
 
