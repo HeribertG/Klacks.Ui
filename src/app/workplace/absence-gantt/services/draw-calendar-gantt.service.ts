@@ -123,8 +123,8 @@ export class DrawCalendarGanttService {
     this.ganttCanvasManager.ctx!.clearRect(
       0,
       0,
-      this.ganttCanvasManager.ctx!.canvas.width,
-      this.ganttCanvasManager.ctx!.canvas!.height
+      this.ganttCanvasManager.width,
+      this.ganttCanvasManager.height
     );
 
     // header

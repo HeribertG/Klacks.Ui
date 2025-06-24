@@ -2,25 +2,6 @@ import { Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CalendarSettingService } from './calendar-setting.service';
 
-/**
- * @class GanttCanvasManagerService
- *
- * @description
- * Der GanttCanvasManagerService verwaltet alle Canvas-Elemente, die für die Darstellung
- * des Abwesenheits-Gantt-Charts benötigt werden. Er ist verantwortlich für die Erstellung,
- * Verwaltung und Größenanpassung der verschiedenen Canvas-Ebenen.
- *
- * Dieser Service stellt die folgenden Canvas-Ebenen bereit:
- * - Hauptcanvas (canvas): Das sichtbare Canvas-Element, in dem der gesamte Gantt-Chart angezeigt wird
- * - Render-Canvas (renderCanvas): Ein Offscreen-Canvas für die Zwischenspeicherung der gerenderten Zeilen
- * - Header-Canvas (headerCanvas): Ein Offscreen-Canvas für die Kopfzeile mit Monaten/Tagen
- * - Hintergrund-Canvas (backgroundRowCanvas): Ein Offscreen-Canvas für den Hintergrund einer Zeile
- * - Zeilen-Canvas (rowCanvas): Ein Offscreen-Canvas für eine einzelne Zeile mit Abwesenheiten
- *
- * Der Service stellt außerdem Hilfsfunktionen für die Größenanpassung und Verwaltung
- * dieser Canvas-Elemente zur Verfügung, was die Performanz bei Scrolling und Neuzeichnung verbessert.
- */
-
 @Injectable()
 export class GanttCanvasManagerService {
   public ctx: CanvasRenderingContext2D | undefined;
@@ -112,6 +93,42 @@ export class GanttCanvasManagerService {
 
   public get height(): number {
     return this._height;
+  }
+
+  public resizeHeaderCanvas(width: number): void {
+    if (this.headerCanvas && this.headerCtx) {
+      this.headerCtx = DrawHelper.createHiDPICanvas(
+        this.headerCanvas,
+        width,
+        this.calendarSetting.cellHeaderHeight,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.headerCtx);
+    }
+  }
+
+  public resizeBackgroundRowCanvas(width: number): void {
+    if (this.backgroundRowCanvas && this.backgroundRowCtx) {
+      this.backgroundRowCtx = DrawHelper.createHiDPICanvas(
+        this.backgroundRowCanvas,
+        width,
+        this.calendarSetting.cellHeight,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.backgroundRowCtx);
+    }
+  }
+
+  public resizeRowCanvas(width: number): void {
+    if (this.rowCanvas && this.rowCtx) {
+      this.rowCtx = DrawHelper.createHiDPICanvas(
+        this.rowCanvas,
+        width,
+        this.calendarSetting.cellHeight,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.rowCtx);
+    }
   }
 
   private createMainCanvas(): void {

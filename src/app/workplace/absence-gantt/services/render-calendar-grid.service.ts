@@ -562,9 +562,13 @@ export class RenderCalendarGridService {
     this.ganttCanvasManager.rowCanvas!.width =
       this.ganttCanvasManager.backgroundRowCanvas!.width;
     this.ganttCanvasManager.headerCanvas!.width = maxWidth;
+
+    //TODO: HiDPI-Einstellungen!
+    // this.ganttCanvasManager.resizeBackgroundRowCanvas(maxWidth);
+    // this.ganttCanvasManager.resizeRowCanvas(maxWidth);
+    // this.ganttCanvasManager.resizeHeaderCanvas(maxWidth);
   }
 
-  @CanvasAvailable('queue')
   drawDaysBorderlineOnRuler(
     daysPerYear: number,
     headerDayRank: CalendarHeaderDayRank[],
@@ -574,7 +578,6 @@ export class RenderCalendarGridService {
     this.drawDayBackgrounds(daysPerYear, headerDayRank);
   }
 
-  @CanvasAvailable('queue')
   private drawMonthBackgrounds(monthsRect: Rectangle[]) {
     let lastDays = 0;
     for (let i = 0; i < 12; i++) {
@@ -653,7 +656,6 @@ export class RenderCalendarGridService {
     }
   }
 
-  @CanvasAvailable('queue')
   private drawDayBackgrounds(
     daysPerYear: number,
     headerDayRank: CalendarHeaderDayRank[]
@@ -767,7 +769,7 @@ export class RenderCalendarGridService {
     this.ganttCanvasManager.headerCtx!.drawImage(
       this.ganttCanvasManager.backgroundRowCanvas!,
       0,
-      this.ganttCanvasManager.backgroundRowCanvas!.height
+      this.calendarSetting.cellHeight
     );
   }
 

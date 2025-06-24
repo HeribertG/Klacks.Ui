@@ -99,7 +99,8 @@ export class RowHeaderCanvasManagerService {
       this.ctx = DrawHelper.createHiDPICanvas(
         this.canvas,
         this.width,
-        this.height
+        this.height,
+        true
       );
       DrawHelper.setAntiAliasing(this.ctx);
     } catch (error) {
