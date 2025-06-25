@@ -1,24 +1,24 @@
-<ng-container *ngIf="isShift">
-  <div class="container-dashboard">
-    <div class="container-headline">
-      {{ "shift.all-shift.all-shift-home.header" | translate }}
-    </div>
-
-    <div class="container-profilline">
-      <app-all-shift-list
-        class="container-profile first border-right-card border-bottom-card"
-      >
-      </app-all-shift-list>
-    </div>
-
-    <div
-      id="shift-nav"
-      class="container-address-nav border-right-card border-bottom-card"
-    >
-      <app-all-shift-nav></app-all-shift-nav>
-    </div>
-
-    <div class="bottom-border-space"></div>
-    <div style="height: 30px"></div>
+@if (isShift) {
+<div class="container-dashboard">
+  <div class="container-headline">
+    {{ "shift.all-shift.all-shift-home.header" | translate }}
   </div>
-</ng-container>
+
+  <div class="container-profilline">
+    <app-all-shift-list
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-all-shift-list>
+  </div>
+
+  <div
+    id="shift-nav"
+    class="container-address-nav border-right-card border-bottom-card"
+  >
+    <app-all-shift-nav></app-all-shift-nav>
+  </div>
+
+  <div class="bottom-border-space"></div>
+  <div style="height: 30px"></div>
+</div>
+}

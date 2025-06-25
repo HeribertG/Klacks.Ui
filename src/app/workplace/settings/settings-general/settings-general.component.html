@@ -24,7 +24,8 @@
   </div>
 
   <div class="row-line first">
-    <div class="image-container-show" *ngIf="dataLoadFileService.iconImage">
+    @if (dataLoadFileService.iconImage) {
+    <div class="image-container-show">
       <img [src]="dataLoadFileService.iconImage" alt="" class="imgIcon" />
 
       <div class="row">
@@ -37,10 +38,9 @@
         </span>
       </div>
     </div>
-
+    } @if (!dataLoadFileService.iconImage) {
     <div
       class="image-container"
-      *ngIf="!dataLoadFileService.iconImage"
       ngbTooltip="ico Datei 32px x 32px"
       autoClose="true"
     >
@@ -67,8 +67,8 @@
         />
       </div>
     </div>
-
-    <div class="image-container-show" *ngIf="dataLoadFileService.logoImage">
+    } @if (dataLoadFileService.logoImage) {
+    <div class="image-container-show">
       <img [src]="dataLoadFileService.logoImage" alt="" class="imgIcon" />
 
       <div class="row">
@@ -81,10 +81,9 @@
         >
       </div>
     </div>
-
+    } @if (!dataLoadFileService.logoImage) {
     <div
       class="image-container"
-      *ngIf="!dataLoadFileService.logoImage"
       ngbTooltip="png Datei 32px x 32px"
       autoClose="true"
     >
@@ -110,6 +109,7 @@
         />
       </div>
     </div>
+    }
   </div>
 
   <div class="bottom-border-space"></div>

@@ -14,6 +14,7 @@
       />
     </div>
     <div>
+      @if (currentLang === 'de') {
       <input
         type="text"
         [(ngModel)]="data!.name!.de"
@@ -22,9 +23,8 @@
         aria-label="data.name"
         name="data.name.de"
         class="form-control country-name"
-        *ngIf="currentLang === 'de'"
       />
-
+      } @if (currentLang === 'en') {
       <input
         type="text"
         [(ngModel)]="data!.name!.en"
@@ -33,9 +33,8 @@
         aria-label="data.name"
         name="data.name.en"
         class="form-control country-name"
-        *ngIf="currentLang === 'en'"
       />
-
+      } @if (currentLang === 'fr') {
       <input
         type="text"
         [(ngModel)]="data!.name!.fr"
@@ -44,9 +43,8 @@
         aria-label="data.name"
         name="data.name.fr"
         class="form-control country-name"
-        *ngIf="currentLang === 'fr'"
       />
-
+      } @if (currentLang === 'it') {
       <input
         type="text"
         [(ngModel)]="data!.name!.it"
@@ -55,8 +53,8 @@
         aria-label="data.name"
         name="data.name.it"
         class="form-control country-name"
-        *ngIf="currentLang === 'it'"
       />
+      }
     </div>
     <div>
       <input

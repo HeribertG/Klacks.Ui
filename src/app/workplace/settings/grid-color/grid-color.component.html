@@ -5,17 +5,16 @@
 
   <div class="container-line"></div>
 
-  <app-grid-color-header
-    *ngIf="
-      gridColorService.settingList && gridColorService.settingList.length > 0
-    "
-  >
-  </app-grid-color-header>
+  @if (gridColorService.settingList && gridColorService.settingList.length > 0)
+  {
+  <app-grid-color-header> </app-grid-color-header>
+  }
   <div class="container-box">
-    <div *ngFor="let c of gridColorService.settingList; index as i">
-      <app-grid-color-row [data]="c" (isChangingEvent)="onIsChanging($event)">
-      </app-grid-color-row>
-    </div>
+    @for (c of gridColorService.settingList; track c.id || $index; let i =
+    $index) {
+    <app-grid-color-row [data]="c" (isChangingEvent)="onIsChanging($event)">
+    </app-grid-color-row>
+    }
   </div>
 
   <div class="row"></div>

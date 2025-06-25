@@ -7,25 +7,20 @@
 
   <div class="container-line"></div>
 
-  <app-countries-header
-    *ngIf="
-      dataManagementSettingsService.countriesList &&
-      dataManagementSettingsService.countriesList.length > 0
-    "
-  >
-  </app-countries-header>
+  @if (dataManagementSettingsService.countriesList &&
+  dataManagementSettingsService.countriesList.length > 0) {
+  <app-countries-header> </app-countries-header>
+  }
   <div class="container-box">
-    <div
-      *ngFor="let c of dataManagementSettingsService.countriesList; index as i"
+    @for (c of dataManagementSettingsService.countriesList; track c.id ||
+    $index; let i = $index) { @if (c.isDirty !== 3) {
+    <app-countries-row
+      [data]="c"
+      (isChangingEvent)="onIsChanging($event)"
+      (isDeleteEvent)="onClickDelete(i)"
     >
-      <app-countries-row
-        [data]="c"
-        *ngIf="c.isDirty !== 3"
-        (isChangingEvent)="onIsChanging($event)"
-        (isDeleteEvent)="onClickDelete(i)"
-      >
-      </app-countries-row>
-    </div>
+    </app-countries-row>
+    } }
   </div>
 
   <div class="row">
