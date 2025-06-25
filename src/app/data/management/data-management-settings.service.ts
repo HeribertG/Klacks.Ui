@@ -22,8 +22,6 @@ import { ICountry, IState } from 'src/app/core/client-class';
 import { DataCountryStateService } from '../data-country-state.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { DataMacroService } from '../data-macro.service';
-import { DataBankDetailsService } from '../data-bank-details.service';
-import { IBankDetail } from 'src/app/core/bank-detail-class';
 import { IMacro } from 'src/app/core/macro-class';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
@@ -35,7 +33,6 @@ export class DataManagementSettingsService {
   public userAdministrationService = inject(UserAdministrationService);
   public dataSettingsVariousService = inject(DataSettingsVariousService);
   public dataCountryStateService = inject(DataCountryStateService);
-  public dataBankDetailsService = inject(DataBankDetailsService);
   public dataMacroService = inject(DataMacroService);
   public toastShowService = inject(ToastShowService);
   public gridColorService = inject(GridColorService);
@@ -113,8 +110,6 @@ export class DataManagementSettingsService {
   public appMandantNumberDummy = '';
   public appBusinessAreaDummy = '';
 
-  public bankDetailList: IBankDetail[] = [];
-  public bankDetailListDummy: IBankDetail[] = [];
   public bankDetailCount = 0;
   public isBankDetailRowFocusIndex = -1;
 
@@ -925,129 +920,6 @@ export class DataManagementSettingsService {
   }
 
   /* #endregion  Macros */
-
-  /* #region   BankDetails */
-
-  private countBankDetail(action: boolean) {
-    if (action) {
-      this.bankDetailCount++;
-    } else {
-      this.bankDetailCount--;
-    }
-    if (this.bankDetailCount === 0) {
-      this.readBankDetailList();
-      this.IfStorageIsSuccessful();
-    }
-  }
-
-  readBankDetailList() {
-    this.bankDetailListDummy = cloneObject<IBankDetail[]>(this.bankDetailList);
-
-    this.dataBankDetailsService.readBankDetailList().subscribe((x) => {
-      if (x) {
-        if (x.length > 0) {
-          this.bankDetailList = x as IBankDetail[];
-
-          this.bankDetailList.sort((a: IBankDetail, b: IBankDetail) => {
-            const first = a.position as number;
-            const second = b.position as number;
-
-            return first < second ? -1 : first > second ? 0 : 1;
-          });
-
-          this.bankDetailListDummy = cloneObject<IBankDetail[]>(
-            this.bankDetailList
-          );
-
-          this.isReset.set(true);
-          setTimeout(() => this.isReset.set(false), 100);
-        }
-      }
-    });
-  }
-
-  private reOrderBankDetail() {
-    let count = 0;
-    this.bankDetailList.forEach((x) => {
-      if (
-        !(
-          (x.accountDescription &&
-            x.accountDescription === '' &&
-            x.isDirty === CreateEntriesEnum.rewrite) ||
-          x.isDirty === CreateEntriesEnum.delete
-        )
-      ) {
-        if (x.position !== count) {
-          x.position = count;
-
-          if (x.isDirty === undefined) {
-            x.isDirty = CreateEntriesEnum.rewrite;
-          }
-        }
-        count++;
-      }
-    });
-  }
-
-  saveBankDetail() {
-    this.reOrderBankDetail();
-
-    this.bankDetailList.forEach((x) => {
-      if (
-        x.accountDescription &&
-        x.accountDescription === '' &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countBankDetail(true);
-        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe(() => {
-          this.countBankDetail(false);
-        });
-      } else if (x.isDirty === CreateEntriesEnum.delete) {
-        this.countBankDetail(true);
-        this.dataBankDetailsService.deleteBankDetail(x.id!).subscribe(() => {
-          this.countBankDetail(false);
-        });
-      } else if (
-        x.accountDescription &&
-        x.accountDescription !== '' &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.new
-      ) {
-        this.countBankDetail(true);
-        this.dataBankDetailsService.addBankDetail(x).subscribe(() => {
-          this.countBankDetail(false);
-        });
-      } else if (
-        x.accountDescription &&
-        x.accountDescription !== '' &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countBankDetail(true);
-        this.dataBankDetailsService.updateBankDetail(x).subscribe(() => {
-          this.countBankDetail(false);
-        });
-      } else {
-        this.readBankDetailList();
-      }
-    });
-  }
-
-  private isBankDetail_Dirty(): boolean {
-    const listOfExcludedObject = ['isDirty'];
-
-    const a = this.bankDetailList as IBankDetail[];
-    const b = this.bankDetailListDummy as IBankDetail[];
-
-    if (!compareComplexObjects(a, b, listOfExcludedObject)) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /* #endregion   BankDetails */
 
   /* #region   Color Grid */
 

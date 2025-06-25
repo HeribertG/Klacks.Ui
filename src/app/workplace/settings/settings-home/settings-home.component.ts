@@ -21,7 +21,6 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 // Standalone Komponenten
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
 import { OwnerAddressComponent } from '../owner-address/owner-address.component';
-import { BankAccountsComponent } from '../bank-accounts/bank-accounts.component';
 import { CountriesComponent } from '../countries/countries.component';
 import { StateComponent } from '../state/state.component';
 import { AbsenceComponent } from '../absence/absence.component';
@@ -45,7 +44,6 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
     SpinnerModule,
     SettingsGeneralComponent,
     OwnerAddressComponent,
-    BankAccountsComponent,
     CountriesComponent,
     StateComponent,
     AbsenceComponent,
