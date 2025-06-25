@@ -7,10 +7,8 @@
 
   <div class="container-line"></div>
 
-  <div
-    class="container-bank-box"
-    *ngIf="dataManagementClientService.editClient !== undefined"
-  >
+  @if (dataManagementClientService.editClient !== undefined) {
+  <div class="container-bank-box">
     <div class="container-bank-value">
       <div class="row-line"></div>
     </div>
@@ -93,6 +91,7 @@
       </div>
     </div>
   </div>
+  }
 
   <div style="height: 30px"></div>
 </form>

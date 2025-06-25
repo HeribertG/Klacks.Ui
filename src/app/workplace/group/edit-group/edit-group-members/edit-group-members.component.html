@@ -7,12 +7,11 @@
     <span class="filler"></span>
 
     <div class="expand-button" (click)="onClickVisibleTable()">
-      <app-icon-angle-down
-        *ngIf="visibleTable === 'inline'"
-      ></app-icon-angle-down>
-      <app-icon-angle-right
-        *ngIf="visibleTable === 'none'"
-      ></app-icon-angle-right>
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
     </div>
   </div>
 
@@ -38,25 +37,28 @@
             placeholder="{{ 'placeholder.search' | translate }}"
           />
           <datalist id="dynamicClientName">
-            <option *ngFor="let item of result" [ngValue]="item">
+            @for (item of result; track item) {
+            <option [ngValue]="item">
               {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
               {{ item.name }}
             </option>
+            }
           </datalist>
+          @if (!selectedClient) {
           <div
             class="input-group-text btn btn-outline-secondary container-search-button-disabled"
-            *ngIf="!selectedClient"
           >
             {{ "group.edit-group.edit-group-member.add" | translate }}
           </div>
+          } @if (selectedClient) {
           <div
             class="input-group-text btn btn-outline-secondary container-search-button"
-            *ngIf="selectedClient"
             (click)="onClickApply()"
             disabled="!authorizationService.isAuthorised"
           >
             {{ "group.edit-group.edit-group-member.add" | translate }}
           </div>
+          }
         </div>
       </div>
 
@@ -149,20 +151,13 @@
               ></th>
             </tr>
           </thead>
-          <tbody
-            *ngIf="
-              dataManagementGroupService.editGroup &&
-              dataManagementGroupService.editGroup.groupItems &&
-              dataManagementGroupService.editGroup.groupItems.length > 0
-            "
-          >
-            <tr
-              class="table-row"
-              *ngFor="
-                let data of dataManagementGroupService.editGroup.groupItems;
-                index as i
-              "
-            >
+          @if (dataManagementGroupService.editGroup &&
+          dataManagementGroupService.editGroup.groupItems &&
+          dataManagementGroupService.editGroup.groupItems.length > 0) {
+          <tbody>
+            @for (data of dataManagementGroupService.editGroup.groupItems; track
+            data; let i = $index) {
+            <tr class="table-row">
               <td class="table-cell">
                 <input
                   type="checkbox"
@@ -194,7 +189,9 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
+          }
         </table>
       </div>
       <div style="height: 35px"></div>

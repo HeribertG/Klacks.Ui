@@ -46,13 +46,9 @@
         </div>
       </div>
 
-      <div
-        class="row-line-modal"
-        *ngIf="
-          dataManagementClientService.clientAttribute &&
-          dataManagementClientService.clientAttribute.length > 1
-        "
-      >
+      @if (dataManagementClientService.clientAttribute &&
+      dataManagementClientService.clientAttribute.length > 1) {
+      <div class="row-line-modal">
         <div class="form-group">
           <label for="profile-gender">{{
             "address.edit-address.address-persona.modal-address-typ.type"
@@ -76,6 +72,7 @@
           </select>
         </div>
       </div>
+      }
     </div>
   </form>
 
@@ -192,12 +189,12 @@
 
     <span class="filler"></span>
 
-    <div *ngIf="!isDisabled()">
+    @if (!isDisabled()) {
+    <div>
       <app-button-new
         (click)="openNewAddress(newAddress)"
         placement="top"
         ngbTooltip="{{ newAddressString }}"
-        *ngIf="!isDisabled()"
       >
       </app-button-new>
 
@@ -212,11 +209,8 @@
 
       <ul class="dropdown-menu dropdown-menu-lg-end">
         <li>
-          <a
-            class="dropdown-item"
-            (click)="openAddressType(addressTypeModal)"
-            *ngIf="dataManagementClientService.editClientDeleted === false"
-          >
+          @if (dataManagementClientService.editClientDeleted === false) {
+          <a class="dropdown-item" (click)="openAddressType(addressTypeModal)">
             <div class="custom-control-inline" style="height: 25px">
               <i class="far fa-address-book"></i>
               <p style="margin-left: 10px; font-size: 13px">
@@ -226,14 +220,12 @@
               </p>
             </div>
           </a>
+          }
         </li>
 
         <li>
-          <a
-            class="dropdown-item"
-            *ngIf="dataManagementClientService.editClient !== undefined"
-            (click)="openDeleteAddress()"
-          >
+          @if (dataManagementClientService.editClient !== undefined) {
+          <a class="dropdown-item" (click)="openDeleteAddress()">
             <div class="custom-control-inline" style="height: 25px">
               <i
                 class="fas fa-trash"
@@ -252,25 +244,21 @@
               </p>
             </div>
           </a>
+          }
         </li>
       </ul>
     </div>
+    }
   </div>
 
   <div class="container-line"></div>
 
-  <div
-    class="container-bank-box"
-    *ngIf="dataManagementClientService.editClient !== undefined"
-  >
+  @if (dataManagementClientService.editClient !== undefined) {
+  <div class="container-bank-box">
     <div class="firstColumContainer">
-      <div
-        class="row-line-company"
-        *ngIf="
-          dataManagementClientService.editClient.legalEntity &&
-          dataManagementClientService.isCurrentAddressMainAddress()
-        "
-      >
+      @if (dataManagementClientService.editClient.legalEntity &&
+      dataManagementClientService.isCurrentAddressMainAddress()) {
+      <div class="row-line-company">
         <div class="form-group firstColumn">
           <label for="company">{{
             "address.edit-address.address-persona.firm" | translate
@@ -289,11 +277,8 @@
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line-simple"
-        *ngIf="dataManagementClientService.isCurrentAddressMainAddress()"
-      >
+      } @if (dataManagementClientService.isCurrentAddressMainAddress()) {
+      <div class="row-line-simple">
         <div class="form-group firstColumn">
           <div class="gender">
             <label for="gender">{{
@@ -321,14 +306,12 @@
                     | translate
                 }}
               </option>
-              <option
-                value="3"
-                *ngIf="
-                  dataManagementClientService.editClient.legalEntity === true
-                "
-              >
+              @if (dataManagementClientService.editClient.legalEntity === true)
+              {
+              <option value="3">
                 {{ "address.edit-address.address-persona.unknow" | translate }}
               </option>
+              }
             </select>
           </div>
         </div>
@@ -342,14 +325,9 @@
           {{ "address.edit-address.address-persona.legal-entity" | translate }}
         </label>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress() === true
-        "
-      >
+      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      dataManagementClientService.isCurrentAddressMainAddress() === true) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="title">{{
             "address.edit-address.address-persona.title" | translate
@@ -366,14 +344,9 @@
           />
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress() === true
-        "
-      >
+      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      dataManagementClientService.isCurrentAddressMainAddress() === true) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="firstname">{{
             "address.edit-address.address-persona.firstname" | translate
@@ -389,25 +362,21 @@
               name="FirstName"
               maxlength="50"
             />
+            @if (!addFirstNameLine2 === true && !isDisabled()) {
             <span
               class="add-button"
               type="button"
               (click)="addFirstNameLine2 = true"
-              *ngIf="!addFirstNameLine2 === true && !isDisabled()"
               >+</span
             >
+            }
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          addFirstNameLine2 === true &&
-          +dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress()
-        "
-      >
+      } @if (addFirstNameLine2 === true &&
+      +dataManagementClientService.editClient.gender !== 3 &&
+      dataManagementClientService.isCurrentAddressMainAddress()) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="secondName">{{
             "address.edit-address.address-persona.firstname2" | translate
@@ -422,24 +391,20 @@
               name="SecondName"
               maxlength="50"
             />
+            @if (addFirstNameLine2 === true && !isDisabled()) {
             <span
               class="del-button"
               type="button"
               (click)="addFirstNameLine2 = false"
-              *ngIf="addFirstNameLine2 === true && !isDisabled()"
               >-</span
             >
+            }
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          +dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress()
-        "
-      >
+      } @if (+dataManagementClientService.editClient.gender !== 3 &&
+      dataManagementClientService.isCurrentAddressMainAddress()) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="profile-name">{{
             "address.edit-address.address-persona.name" | translate
@@ -455,25 +420,17 @@
               required
               maxlength="50"
             />
-            <span
-              class="add-button"
-              type="button"
-              (click)="addNameLine2 = true"
-              *ngIf="!addNameLine2 === true && !isDisabled()"
+            @if (!addNameLine2 === true && !isDisabled()) {
+            <span class="add-button" type="button" (click)="addNameLine2 = true"
               >+</span
             >
+            }
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          addNameLine2 &&
-          +dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress()
-        "
-      >
+      } @if (addNameLine2 && +dataManagementClientService.editClient.gender !==
+      3 && dataManagementClientService.isCurrentAddressMainAddress()) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="maidenName">{{
             "address.edit-address.address-persona.maiden-name" | translate
@@ -488,23 +445,20 @@
               name="MaidenName"
               maxlength="50"
             />
+            @if (addNameLine2 === true && !isDisabled()) {
             <span
               class="del-button"
               type="button"
               (click)="addNameLine2 = false"
-              *ngIf="addNameLine2 === true && !isDisabled()"
               >-</span
             >
+            }
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          dataManagementClientService.isCurrentAddressMainAddress() === false
-        "
-      >
+      } @if (dataManagementClientService.isCurrentAddressMainAddress() ===
+      false) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="addressLine1">{{
             "address.edit-address.address-persona.address1" | translate
@@ -525,12 +479,9 @@
           </div>
         </div>
       </div>
-      <div
-        class="row-line"
-        *ngIf="
-          dataManagementClientService.isCurrentAddressMainAddress() === false
-        "
-      >
+      } @if (dataManagementClientService.isCurrentAddressMainAddress() ===
+      false) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="addressLine2">{{
             "address.edit-address.address-persona.address2" | translate
@@ -551,6 +502,7 @@
           </div>
         </div>
       </div>
+      }
 
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -570,18 +522,20 @@
               "
               name="street"
             />
+            @if (!addStreetLine2 === true && !isDisabled()) {
             <span
               class="add-button"
               type="button"
               (click)="addStreetLine2 = true"
-              *ngIf="!addStreetLine2 === true && !isDisabled()"
               >+</span
             >
+            }
           </div>
         </div>
       </div>
 
-      <div class="row-line" *ngIf="addStreetLine2">
+      @if (addStreetLine2) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="street2">{{
             "address.edit-address.address-persona.street2" | translate
@@ -599,25 +553,26 @@
               "
               name="street2"
             />
+            @if (!addStreetLine3 && !isDisabled()) {
             <span
               class="add-button"
               type="button"
               (click)="addStreetLine3 = true"
-              *ngIf="!addStreetLine3 && isDisabled()"
               >+</span
             >
+            } @if (addStreetLine2 && !isDisabled()) {
             <span
               class="del-button"
               type="button"
               (click)="addStreetLine2 = false"
-              *ngIf="addStreetLine2 && isDisabled()"
               >-</span
             >
+            }
           </div>
         </div>
       </div>
-
-      <div class="row-line" *ngIf="addStreetLine3">
+      } @if (addStreetLine3) {
+      <div class="row-line">
         <div class="form-group firstColumn">
           <label for="street3">{{
             "address.edit-address.address-persona.street3" | translate
@@ -635,16 +590,18 @@
               "
               name="street3"
             />
+            @if (addStreetLine3 && !isDisabled()) {
             <span
               class="del-button"
               type="button"
               (click)="addStreetLine3 = false"
-              *ngIf="addStreetLine3 && !isDisabled()"
               >-</span
             >
+            }
           </div>
         </div>
       </div>
+      }
 
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -775,168 +732,143 @@
     </div>
 
     <div class="secondColumnContainer">
-      <div
-        *ngFor="
-          let phoneData of dataManagementClientService.communicationPhoneList;
-          index as ii
-        "
-      >
-        <div class="row-line">
-          <div class="form-group">
-            <label for="profile-tel"
-              >{{
-                "address.edit-address.address-persona.phone-prefix" | translate
-              }}
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
-                "address.edit-address.address-persona.phone" | translate
-              }}</label
+      @for (phoneData of dataManagementClientService.communicationPhoneList;
+      track phoneData; let ii = $index) {
+      <div class="row-line">
+        <div class="form-group">
+          <label for="profile-tel"
+            >{{
+              "address.edit-address.address-persona.phone-prefix" | translate
+            }}
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{
+              "address.edit-address.address-persona.phone" | translate
+            }}</label
+          >
+          <div class="custom-control-inline">
+            <select
+              class="form-select gap-prefix"
+              [value]="phoneData.prefix"
+              name="phonePrefix"
+              aria-label="Vorwahl"
+              [disabled]="isDisabled()"
+              (change)="onChangePhonePrefix(ii, $event)"
             >
-            <div class="custom-control-inline">
-              <select
-                class="form-select gap-prefix"
-                [value]="phoneData.prefix"
-                name="phonePrefix"
-                aria-label="Vorwahl"
-                [disabled]="isDisabled()"
-                (change)="onChangePhonePrefix(ii, $event)"
-              >
-                <option
-                  *ngFor="
-                    let c of dataManagementClientService.communicationPrefixList
-                  "
-                  [value]="c.prefix"
-                  [selected]="phoneData.prefix === c.prefix"
-                  data-toggle="tooltip"
-                  title="{{ c.name }}"
-                >
-                  {{ c.prefix }}
-                </option>
-              </select>
-
-              <input
-                type="text"
-                class="form-control medium-width-tel"
-                [value]="phoneData.value"
-                name="phoneValue"
-                aria-label="Telefon"
-                [disabled]="isDisabled()"
-                (change)="onChangePhoneValue(ii, $event)"
-                (keyup)="onKeyupPhoneNumber(ii, $event)"
-              />
-
-              <select
-                class="form-select gap"
-                [value]="phoneData.type"
-                name="phoneType"
-                aria-label="phoneType"
-                (change)="onChangePhoneType(ii, $event)"
-                [disabled]="isDisabled()"
-              >
-                <option
-                  *ngFor="
-                    let c of dataManagementClientService.communicationTypePhoneList
-                  "
-                  [value]="c.type"
-                  [selected]="phoneData.type === c.type"
-                >
-                  {{ c.name }}
-                </option>
-              </select>
-              <span
-                class="add-button"
-                type="button"
-                *ngIf="
-                  ii ===
-                    dataManagementClientService.communicationPhoneList.length -
-                      1 && !isDisabled()
+              <option
+                *ngFor="
+                  let c of dataManagementClientService.communicationPrefixList
                 "
-                (click)="onClickAddPhone()"
-                >+</span
+                [value]="c.prefix"
+                [selected]="phoneData.prefix === c.prefix"
+                data-toggle="tooltip"
+                title="{{ c.name }}"
               >
-              <span
-                class="del-button"
-                type="button"
-                *ngIf="ii !== 0"
-                (click)="onClickDelPhone(phoneData)"
-                >-</span
+                {{ c.prefix }}
+              </option>
+            </select>
+
+            <input
+              type="text"
+              class="form-control medium-width-tel"
+              [value]="phoneData.value"
+              name="phoneValue"
+              aria-label="Telefon"
+              [disabled]="isDisabled()"
+              (change)="onChangePhoneValue(ii, $event)"
+              (keyup)="onKeyupPhoneNumber(ii, $event)"
+            />
+
+            <select
+              class="form-select gap"
+              [value]="phoneData.type"
+              name="phoneType"
+              aria-label="phoneType"
+              (change)="onChangePhoneType(ii, $event)"
+              [disabled]="isDisabled()"
+            >
+              <option
+                *ngFor="
+                  let c of dataManagementClientService.communicationTypePhoneList
+                "
+                [value]="c.type"
+                [selected]="phoneData.type === c.type"
               >
-            </div>
+                {{ c.name }}
+              </option>
+            </select>
+            @if (ii ===
+            dataManagementClientService.communicationPhoneList.length - 1 &&
+            !isDisabled()) {
+            <span class="add-button" type="button" (click)="onClickAddPhone()"
+              >+</span
+            >
+            } @if (ii !== 0) {
+            <span
+              class="del-button"
+              type="button"
+              (click)="onClickDelPhone(phoneData)"
+              >-</span
+            >
+            }
           </div>
         </div>
       </div>
+      } @for (emailData of dataManagementClientService.communicationEmailList;
+      track emailData; let i = $index) {
+      <div class="row-line">
+        <div class="form-group">
+          <label for="mail">{{
+            "address.edit-address.address-persona.mail" | translate
+          }}</label>
+          <div class="custom-control-inline">
+            <input
+              id="mail"
+              type="email"
+              class="form-control medium-width"
+              [value]="emailData.value"
+              aria-label="E-Mail"
+              [disabled]="isDisabled()"
+              (change)="onChangeEmailValue(i, $event)"
+              name="emailValue"
+              (keyup)="onChangeEmailValue(i, $event)"
+            />
 
-      <div
-        *ngFor="
-          let emailData of dataManagementClientService.communicationEmailList;
-          index as i
-        "
-      >
-        <div class="row-line">
-          <div class="form-group">
-            <label for="mail">{{
-              "address.edit-address.address-persona.mail" | translate
-            }}</label>
-            <div class="custom-control-inline">
-              <input
-                id="mail"
-                type="email"
-                class="form-control medium-width"
-                [value]="emailData.value"
-                aria-label="E-Mail"
-                [disabled]="isDisabled()"
-                (change)="onChangeEmailValue(i, $event)"
-                name="emailValue"
-                (keyup)="onChangeEmailValue(i, $event)"
-              />
-
-              <select
-                class="form-select gap"
-                [value]="emailData.type"
-                name="emailType"
-                aria-label="E-Mail Typ"
-                [disabled]="isDisabled()"
-                (change)="onChangeEmailType(i, $event)"
-              >
-                <option
-                  *ngFor="
-                    let c of dataManagementClientService.communicationTypeEmailList
-                  "
-                  [value]="c.type"
-                  [selected]="emailData.type === c.type"
-                >
-                  {{ c.name }}
-                </option>
-              </select>
-              <span
-                class="add-button"
-                type="button"
-                *ngIf="
-                  i ===
-                    dataManagementClientService.communicationEmailList.length -
-                      1 && !isDisabled()
+            <select
+              class="form-select gap"
+              [value]="emailData.type"
+              name="emailType"
+              aria-label="E-Mail Typ"
+              [disabled]="isDisabled()"
+              (change)="onChangeEmailType(i, $event)"
+            >
+              <option
+                *ngFor="
+                  let c of dataManagementClientService.communicationTypeEmailList
                 "
-                (click)="onClickAddEmail()"
-                >+</span
+                [value]="c.type"
+                [selected]="emailData.type === c.type"
               >
-              <span
-                class="del-button"
-                type="button"
-                *ngIf="i !== 0 && !isDisabled()"
-                (click)="onClickDelEmail(emailData)"
-                >-</span
-              >
-            </div>
+                {{ c.name }}
+              </option>
+            </select>
+            @if (i === dataManagementClientService.communicationEmailList.length
+            - 1 && !isDisabled()) {
+            <span class="add-button" type="button" (click)="onClickAddEmail()"
+              >+</span
+            >
+            } @if (i !== 0 && !isDisabled()) {
+            <span
+              class="del-button"
+              type="button"
+              (click)="onClickDelEmail(emailData)"
+              >-</span
+            >
+            }
           </div>
         </div>
       </div>
-
-      <div
-        class="row-line"
-        *ngIf="
-          dataManagementClientService.editClient.gender !== 3 &&
-          dataManagementClientService.isCurrentAddressMainAddress() === true
-        "
-      >
+      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      dataManagementClientService.isCurrentAddressMainAddress() === true) {
+      <div class="row-line">
         <div class="form-group">
           <label for="profile-birthday">{{
             "address.edit-address.address-persona.birthday" | translate
@@ -972,8 +904,10 @@
           </div>
         </div>
       </div>
+      }
     </div>
   </div>
+  }
 
   <div style="height: 30px"></div>
 </form>

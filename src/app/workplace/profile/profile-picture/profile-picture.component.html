@@ -8,18 +8,23 @@
 
   <div class="container-line"></div>
 
-  <div class="row" *ngIf="!dataLoadFileService.profileImage">
+  @if (!dataLoadFileService.profileImage) {
+  <div class="row">
     <label>{{ translate.instant("setting.picture.upload") }} </label>
   </div>
-  <div class="row" *ngIf="dataLoadFileService.profileImage">
+  } @if (dataLoadFileService.profileImage) {
+  <div class="row">
     <label>{{ translate.instant("setting.picture.picture") }} </label>
   </div>
+  }
+
   <div class="row">
-    <div class="image-container" *ngIf="dataLoadFileService.profileImage">
+    @if (dataLoadFileService.profileImage) {
+    <div class="image-container">
       <img [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
     </div>
-
-    <div *ngIf="!dataLoadFileService.profileImage">
+    } @if (!dataLoadFileService.profileImage) {
+    <div>
       <div
         class="fileupload"
         appDragDropFileUpload
@@ -39,8 +44,11 @@
         />
       </div>
     </div>
+    }
   </div>
-  <div class="row" *ngIf="dataLoadFileService.profileImage">
+
+  @if (dataLoadFileService.profileImage) {
+  <div class="row">
     <div class="filler"></div>
     <span
       class="delete-button firstColumn"
@@ -49,4 +57,5 @@
       >{{ translate.instant("setting.picture.delete") }}
     </span>
   </div>
+  }
 </div>

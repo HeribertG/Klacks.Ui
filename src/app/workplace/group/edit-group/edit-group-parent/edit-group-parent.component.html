@@ -4,7 +4,9 @@
     <span class="filler"></span>
   </div>
   <div class="container-line"></div>
-  <div class="parent-selection" *ngIf="dataManagementGroupService.editGroup">
+
+  @if (dataManagementGroupService.editGroup) {
+  <div class="parent-selection">
     <label for="parent-select">
       {{ "group.edit-group.edit-group-parent.select-parent" | translate }}
     </label>
@@ -20,23 +22,33 @@
         <option [ngValue]="null">
           {{ "group.edit-group.edit-group-parent.no-parent" | translate }}
         </option>
-        <option *ngFor="let node of availableParents" [ngValue]="node.id">
+        @for (node of availableParents; track node.id) {
+        <option [ngValue]="node.id">
           {{ getGroupPathDisplay(node) }}
         </option>
+        }
       </select>
     </div>
 
-    <div class="current-path mt-4" *ngIf="groupPath.length > 0">
+    @if (groupPath.length > 0) {
+    <div class="current-path mt-4">
       <label for="path-display-info">{{
         "group.edit-group.edit-group-parent.current-path" | translate
       }}</label>
       <div class="path-display" id="path-display-info">
-        <span *ngFor="let node of groupPath; let i = index" class="path-item">
+        @for (node of groupPath; track node.id; let i = $index) {
+        <span class="path-item">
           {{ node.name }}
-          <span *ngIf="i < groupPath.length - 1" class="path-separator">/</span>
+          @if (i < groupPath.length - 1) {
+          <span class="path-separator">/</span>
+          }
         </span>
+        }
       </div>
     </div>
+    }
+
     <div style="height: 30px"></div>
   </div>
+  }
 </form>

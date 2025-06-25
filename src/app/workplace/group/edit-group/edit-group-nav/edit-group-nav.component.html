@@ -135,13 +135,10 @@
           <div class="dropdown-divider"></div>
           <div class="form-group">
             <div class="checkbox-container-default2">
-              <div
-                *ngFor="
-                  let c of dataManagementGroupService.currentClientFilter
-                    .countries;
-                  index as i
-                "
-              >
+              @for (c of
+              dataManagementGroupService.currentClientFilter.countries; track c;
+              let i = $index) {
+              <div>
                 <label class="checkbox-label">
                   <input
                     type="checkbox"
@@ -155,6 +152,7 @@
                   {{ c.name | fallback : currentLang }}
                 </label>
               </div>
+              }
             </div>
           </div>
           <div class="dropdown-divider"></div>
@@ -203,19 +201,14 @@
               </button>
             </div>
           </div>
-          <div
-            class="form-group"
-            *ngIf="
-              dataManagementGroupService.currentClientFilter.filteredStateToken
-            "
-          >
+          @if
+          (dataManagementGroupService.currentClientFilter.filteredStateToken) {
+          <div class="form-group">
             <div class="checkbox-container">
-              <div
-                *ngFor="
-                  let item of dataManagementGroupService.currentClientFilter
-                    .filteredStateToken
-                "
-              >
+              @for (item of
+              dataManagementGroupService.currentClientFilter.filteredStateToken;
+              track item) {
+              <div>
                 <label
                   class="checkbox-label"
                   placement="right"
@@ -234,8 +227,10 @@
                   {{ item.state }} ( {{ item.country }})
                 </label>
               </div>
+              }
             </div>
           </div>
+          }
           <div class="dropdown-divider"></div>
 
           <button ngbDropdownItem>{{ "close" | translate }}</button>

@@ -1,40 +1,40 @@
-<ng-container *ngIf="isEditGroup">
-  <div class="container-dashboard">
-    <div class="container-headline">
-      {{ "group.edit-group.edit-group-home.header" | translate }}
-    </div>
-
-    <div class="container-profilline">
-      <app-edit-group-item
-        (isChangingEvent)="onIsChanging($event)"
-        class="container-profile first border-right-card border-bottom-card"
-      >
-      </app-edit-group-item>
-    </div>
-
-    <div class="container-profilline">
-      <app-edit-group-parent
-        (isChangingEvent)="onIsChanging($event)"
-        class="container-profile first border-right-card border-bottom-card"
-      >
-      </app-edit-group-parent>
-    </div>
-
-    <div class="container-profilline">
-      <app-edit-group-members
-        (isChangingEvent)="onIsChanging($event)"
-        class="container-profile first border-right-card border-bottom-card"
-      >
-      </app-edit-group-members>
-    </div>
-
-    <div
-      id="group-nav"
-      class="container-address-nav border-right-card border-bottom-card"
-    >
-      <app-edit-group-nav></app-edit-group-nav>
-    </div>
-
-    <div style="height: 30px"></div>
+@if (isEditGroup) {
+<div class="container-dashboard">
+  <div class="container-headline">
+    {{ "group.edit-group.edit-group-home.header" | translate }}
   </div>
-</ng-container>
+
+  <div class="container-profilline">
+    <app-edit-group-item
+      (isChangingEvent)="onIsChanging($event)"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-edit-group-item>
+  </div>
+
+  <div class="container-profilline">
+    <app-edit-group-parent
+      (isChangingEvent)="onIsChanging($event)"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-edit-group-parent>
+  </div>
+
+  <div class="container-profilline">
+    <app-edit-group-members
+      (isChangingEvent)="onIsChanging($event)"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-edit-group-members>
+  </div>
+
+  <div
+    id="group-nav"
+    class="container-address-nav border-right-card border-bottom-card"
+  >
+    <app-edit-group-nav></app-edit-group-nav>
+  </div>
+
+  <div style="height: 30px"></div>
+</div>
+}

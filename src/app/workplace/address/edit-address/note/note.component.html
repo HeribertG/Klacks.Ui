@@ -7,38 +7,34 @@
 
     <span class="filler"></span>
 
-    <div *ngIf="!isDisabled()">
+    @if (!isDisabled()) {
+    <div>
+      @if (dataManagementClientService.editClientDeleted === false) {
       <app-button-new
         placement="top"
         (click)="newAnnotation()"
         ngbTooltip="{{ note_new }}"
-        *ngIf="dataManagementClientService.editClientDeleted === false"
       >
       </app-button-new>
-
+      } @if (dataManagementClientService.editClientDeleted === false) {
       <div
         class="btn dropdown-toggle ownStyle-button"
         role="button"
         data-bs-toggle="dropdown"
         aria-label="note-delete"
-        *ngIf="dataManagementClientService.editClientDeleted === false"
       >
         <app-icon-gear-grey></app-icon-gear-grey>
       </div>
+      }
 
       <ul
         class="dropdown-menu dropdown-menu-lg-end"
         aria-labelledby="dropdownMenuDel"
       >
         <li>
-          <a
-            class="dropdown-item"
-            *ngIf="
-              dataManagementClientService.editClient !== undefined &&
-              dataManagementClientService.currentAnnotationIndex > -1
-            "
-            (click)="onDeleteCurrentAnnotation()"
-          >
+          @if (dataManagementClientService.editClient !== undefined &&
+          dataManagementClientService.currentAnnotationIndex > -1) {
+          <a class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
             <div class="custom-control-inline" style="height: 25px">
               <app-icon-trash-red></app-icon-trash-red>
               <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
@@ -46,15 +42,12 @@
               </p>
             </div>
           </a>
+          }
         </li>
         <li>
-          <a
-            class="dropdown-item disabled"
-            *ngIf="
-              dataManagementClientService.editClient !== undefined &&
-              dataManagementClientService.currentAnnotationIndex === -1
-            "
-          >
+          @if (dataManagementClientService.editClient !== undefined &&
+          dataManagementClientService.currentAnnotationIndex === -1) {
+          <a class="dropdown-item disabled">
             <div class="custom-control-inline" style="height: 25px">
               <app-icon-trash-light-red></app-icon-trash-light-red>
               <p style="margin-left: 10px; font-size: 13px; color: #fac1c7">
@@ -62,33 +55,27 @@
               </p>
             </div>
           </a>
+          }
         </li>
       </ul>
     </div>
+    }
 
     <button class="expand-button" (click)="onClickVisibleTable()">
-      <app-icon-angle-down
-        *ngIf="visibleTable === 'inline'"
-      ></app-icon-angle-down>
-      <app-icon-angle-right
-        *ngIf="visibleTable === 'none'"
-      ></app-icon-angle-right>
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
     </button>
   </div>
   <div class="container-line"></div>
   <div [ngStyle]="{ display: visibleTable }">
-    <div
-      class="container-main"
-      *ngIf="dataManagementClientService.editClient?.annotations"
-    >
-      <div
-        class="row-line"
-        *ngFor="
-          let annotation of dataManagementClientService.editClient
-            ?.annotations || [];
-          index as i
-        "
-      >
+    @if (dataManagementClientService.editClient?.annotations) {
+    <div class="container-main">
+      @for (annotation of dataManagementClientService.editClient?.annotations ||
+      []; track annotation; let i = $index) {
+      <div class="row-line">
         <button
           [ngClass]="{
             'container-box':
@@ -113,20 +100,16 @@
               "
               tabindex="0"
             >
-              <app-icon-angle-right
-                *ngIf="!expandedNotes[i]"
-              ></app-icon-angle-right>
-              <app-icon-angle-down
-                *ngIf="expandedNotes[i]"
-              ></app-icon-angle-down>
+              @if (!expandedNotes[i]) {
+              <app-icon-angle-right></app-icon-angle-right>
+              } @if (expandedNotes[i]) {
+              <app-icon-angle-down></app-icon-angle-down>
+              }
             </button>
           </div>
           <div class="firstColumn note-container">
-            <div
-              *ngIf="!expandedNotes[i]"
-              class="collapsed-note"
-              [attr.id]="'noteContent' + i"
-            >
+            @if (!expandedNotes[i]) {
+            <div class="collapsed-note" [attr.id]="'noteContent' + i">
               <div
                 class="first-line"
                 (click)="toggleNoteExpansion(i, $event)"
@@ -136,7 +119,8 @@
                 {{ getFirstLine(annotation.note) }}
               </div>
             </div>
-            <div *ngIf="expandedNotes[i]" [attr.id]="'noteContent' + i">
+            } @if (expandedNotes[i]) {
+            <div [attr.id]="'noteContent' + i">
               <textarea
                 [id]="'note' + i"
                 [value]="annotation.note"
@@ -147,10 +131,13 @@
                 [name]="'note' + i"
               ></textarea>
             </div>
+            }
           </div>
         </button>
       </div>
+      }
     </div>
+    }
   </div>
   <div style="height: 30px"></div>
 </form>

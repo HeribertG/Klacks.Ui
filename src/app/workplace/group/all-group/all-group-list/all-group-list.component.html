@@ -127,12 +127,10 @@
         </tr>
       </thead>
       <tbody>
+        @for (data of dataManagementGroupService.listWrapper?.groups; track
+        data.id; let i = $index) {
         <tr
           class="table-row"
-          *ngFor="
-            let data of dataManagementGroupService.listWrapper?.groups;
-            index as i
-          "
           (click)="onClickedRow(data)"
           [class.active]="data.id === highlightRowId"
         >
@@ -157,9 +155,11 @@
             {{ data.validFrom | date : "dd.MM.yyyy" }}
           </td>
           <td class="table-cell">
-            <p *ngIf="data.validUntil">
+            @if (data.validUntil) {
+            <p>
               {{ data.validUntil | date : "dd.MM.yyyy" }}
             </p>
+            }
           </td>
 
           <td class="table-cell cell-right">
@@ -174,12 +174,14 @@
             </div>
           </td>
         </tr>
+        }
       </tbody>
     </table>
   </div>
 
   <div class="pagination justify-content-end">
-    <div *ngIf="visibleRow">
+    @if (visibleRow) {
+    <div>
       <label for="selection" class="entry-row">{{
         translate.instant("pagination.line")
       }}</label>
@@ -189,15 +191,14 @@
         value="realRow"
         (change)="onChangeRowSize($event)"
       >
-        <option
-          *ngFor="let c of visibleRow"
-          [value]="c.value"
-          [selected]="c.value === realRow"
-        >
+        @for (c of visibleRow; track c.value) {
+        <option [value]="c.value" [selected]="c.value === realRow">
           {{ c.text }}
         </option>
+        }
       </select>
     </div>
+    }
 
     <label for="pagination" class="entry-info"
       >{{ translate.instant("pagination.sum") }}

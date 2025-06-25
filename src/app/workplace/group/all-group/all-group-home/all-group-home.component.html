@@ -1,34 +1,38 @@
-<ng-container *ngIf="isGroup">
-  <div class="container-dashboard">
-    <div class="container-headline">
-      {{ "group.all-group.all-group-home.header" | translate }}
-    </div>
-
-    <div *ngIf="showGrid">
-      <div class="container-profilline">
-        <app-all-group-list
-          class="container-profile first border-right-card border-bottom-card"
-          (switchToTree)="showAsTree()"
-        >
-        </app-all-group-list>
-      </div>
-
-      <div
-        id="group-nav"
-        class="container-address-nav border-right-card border-bottom-card"
-        *ngIf="authorizationService.isAuthorised"
-      >
-        <app-all-group-nav></app-all-group-nav>
-      </div>
-    </div>
-    <div class="container-profilline" *ngIf="!showGrid">
-      <app-tree-group
-        class="container-profile first border-right-card border-bottom-card"
-        (switchToGrid)="showAsGrid()"
-      >
-      </app-tree-group>
-    </div>
-
-    <div class="bottom-border-space"></div>
+@if (isGroup) {
+<div class="container-dashboard">
+  <div class="container-headline">
+    {{ "group.all-group.all-group-home.header" | translate }}
   </div>
-</ng-container>
+
+  @if (showGrid) {
+  <div>
+    <div class="container-profilline">
+      <app-all-group-list
+        class="container-profile first border-right-card border-bottom-card"
+        (switchToTree)="showAsTree()"
+      >
+      </app-all-group-list>
+    </div>
+
+    @if (authorizationService.isAuthorised) {
+    <div
+      id="group-nav"
+      class="container-address-nav border-right-card border-bottom-card"
+    >
+      <app-all-group-nav></app-all-group-nav>
+    </div>
+    }
+  </div>
+  } @if (!showGrid) {
+  <div class="container-profilline">
+    <app-tree-group
+      class="container-profile first border-right-card border-bottom-card"
+      (switchToGrid)="showAsGrid()"
+    >
+    </app-tree-group>
+  </div>
+  }
+
+  <div class="bottom-border-space"></div>
+</div>
+}
