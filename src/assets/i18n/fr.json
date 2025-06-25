@@ -470,9 +470,6 @@
 
   "settings.group.Sum": "Nombre",
 
-  {
-  "_comment": "=================== API ERROR MESSAGES ===================",
-
   "DELETE_ABSENCE_ERROR": "Erreur lors de la suppression de l'absence",
   "ADD_ABSENCE_ERROR": "Erreur lors de l'ajout de l'absence",
   "UPDATE_ABSENCE_ERROR": "Erreur lors de la mise à jour de l'absence",

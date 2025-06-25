@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
@@ -10,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  Renderer2,
   ViewChild,
   effect,
   inject,
@@ -74,6 +76,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
+  private renderer = inject(Renderer2);
   private injector = inject(Injector);
   private effectRef: EffectRef | null = null;
 
@@ -120,21 +123,16 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
-    const tmp = restoreFilter('edit-group');
-    this.visibleRow = visibleRow();
-    this.dataManagementGroupService.init;
+    this.dataManagementGroupService.init();
 
-    if (!tmp) {
-      this.dataManagementGroupService.currentFilter.setEmpty();
+    this.reReadSortData();
+    this.visibleRow = visibleRow();
+
+    setTimeout(() => {
+      this.page =
+        this.dataManagementGroupService.currentFilter.requiredPage + 1;
       this.recalcHeight();
-    } else {
-      setTimeout(() => {
-        this.restoreFilter(tmp);
-        this.page =
-          this.dataManagementGroupService.currentFilter.requiredPage + 1;
-        this.recalcHeight();
-      }, 100);
-    }
+    }, 600);
     this.readSignals();
   }
 
@@ -147,12 +145,24 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
+    this.resizeWindow = this.renderer.listen('window', 'resize', (event) => {
+      this.resize(event);
+    });
+
     setTimeout(() => (this.spinnerService.showProgressSpinner = false), 300);
   }
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+
+    try {
+      if (this.resizeWindow) {
+        this.resizeWindow();
+      }
+    } catch {
+      this.resizeWindow = undefined;
+    }
 
     if (this.effectRef) {
       this.effectRef.destroy();
@@ -358,6 +368,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       setTimeout(() => this.recalcHeight(true), 100);
     }
   }
+
+  private resize = (event: any): void => {
+    setTimeout(() => this.recalcHeight(), 100);
+  };
 
   private recalcHeight(isSecondRead = false) {
     if (this.myGridTable) {

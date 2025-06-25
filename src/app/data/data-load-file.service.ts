@@ -125,8 +125,19 @@ export class DataLoadFileService {
       () => {
         this.iconImage = reader.result;
 
-        const favicon = document.getElementById('appIcon') as HTMLLinkElement;
-        favicon.href = reader.result!.toString();
+        const favicon =
+          (document.getElementById('appIcon') as HTMLLinkElement) ||
+          (document.querySelector('link[rel="icon"]') as HTMLLinkElement) ||
+          (document.querySelector(
+            'link[rel="shortcut icon"]'
+          ) as HTMLLinkElement) ||
+          (document.querySelector(
+            'link[rel="apple-touch-icon"]'
+          ) as HTMLLinkElement);
+
+        if (favicon) {
+          favicon.href = reader.result!.toString();
+        }
       },
       false
     );

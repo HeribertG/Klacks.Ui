@@ -42,7 +42,6 @@ export function measureTableHeight(
       }
     }
     const tooBigVar = biggestRow / smallestRow >= 2.5;
-    // console.log('tooBigVar', tooBigVar, (biggestRow / smallestRow));
     const tableHeight = win - (realTopCard + 9 * 26);
     const addLine = Math.round(tableHeight / averageHeight);
 

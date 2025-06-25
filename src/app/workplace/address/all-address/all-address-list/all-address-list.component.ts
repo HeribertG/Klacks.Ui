@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
@@ -226,7 +227,6 @@ export class AllAddressListComponent
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private resize = (event: any): void => {
     setTimeout(() => this.recalcHeight(), 100);
   };
