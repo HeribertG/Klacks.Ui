@@ -18,6 +18,7 @@ import { TrashIconLightRedComponent } from 'src/app/icons/trash-icon-light-red.c
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { ButtonNewComponent } from 'src/app/shared/button-new/button-new.component';
 
 @Component({
   selector: 'app-note',
@@ -34,6 +35,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     TrashIconLightRedComponent,
     GearGreyComponent,
     TranslateModule,
+    ButtonNewComponent,
   ],
 })
 export class NoteComponent implements OnInit, AfterViewInit {

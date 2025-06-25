@@ -194,35 +194,10 @@
     @if (!isDisabled()) {
     <div>
       <app-button-new
-        class="btn ownStyle-button"
         (click)="openNewAddress(newAddress)"
-        placement="top"
         ngbTooltip="{{ newAddressString }}"
-      >
-      </app-button-new>
-      <button class="btn ownStyle-button">
-        <div style="margin-top: -2px; margin-left: -2px">
-          <svg
-            version="1.2"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-            overflow="visible"
-            preserveAspectRatio="none"
-            viewBox="0 0 24 24"
-            width="16"
-            height="16"
-          >
-            <g>
-              <path
-                xmlns:default="http://www.w3.org/2000/svg"
-                d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"
-                style="fill: rgb(27, 197, 189)"
-                vector-effect="non-scaling-stroke"
-              />
-            </g>
-          </svg>
-        </div>
-      </button>
+      ></app-button-new>
+
       <button
         class="btn dropdown-toggle ownStyle-button"
         role="button"

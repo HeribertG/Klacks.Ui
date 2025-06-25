@@ -40,6 +40,7 @@ import { CommonModule } from '@angular/common';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { ButtonNewComponent } from 'src/app/shared/button-new/button-new.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -55,6 +56,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     FontAwesomeModule,
     GearGreyComponent,
     FallbackPipe,
+    ButtonNewComponent,
   ],
 })
 export class AddressPersonaComponent
