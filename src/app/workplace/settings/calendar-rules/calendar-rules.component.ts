@@ -16,7 +16,6 @@ import {
   NgbModule,
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
@@ -56,7 +55,6 @@ import { CalendarDropdownComponent } from 'src/app/shared/calendar-dropdown/cale
     TranslateModule,
     NgbModule,
     NgbPaginationModule,
-    SharedModule,
     SpinnerModule,
     TrashIconRedComponent,
     IconCopyGreyComponent,

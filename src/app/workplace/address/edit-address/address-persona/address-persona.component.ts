@@ -4,6 +4,7 @@ import {
   Component,
   EffectRef,
   EventEmitter,
+  Injector,
   LOCALE_ID,
   OnDestroy,
   OnInit,
@@ -11,6 +12,7 @@ import {
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
@@ -33,7 +35,6 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
@@ -52,7 +53,6 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     NgbTooltipModule,
     NgbDatepickerModule,
     FontAwesomeModule,
-    SharedModule,
     GearGreyComponent,
     FallbackPipe,
   ],
@@ -66,6 +66,7 @@ export class AddressPersonaComponent
   private locale = inject(LOCALE_ID);
   private translateService = inject(TranslateService);
   private modalService = inject(ModalService);
+  private injector = inject(Injector);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -517,21 +518,23 @@ export class AddressPersonaComponent
   }
 
   private readSignals(): void {
-    const effect1 = effect(() => {
-      const isRead = this.dataManagementClientService.isRead();
-      if (isRead) {
-        setTimeout(() => this.setEnvironmentVariable(), 100);
-        this.dataManagementClientService.isRead.set(false);
-      }
-    });
-    this.effects.push(effect1);
+    runInInjectionContext(this.injector, () => {
+      const effect1 = effect(() => {
+        const isRead = this.dataManagementClientService.isRead();
+        if (isRead) {
+          setTimeout(() => this.setEnvironmentVariable(), 100);
+          this.dataManagementClientService.isRead.set(false);
+        }
+      });
+      this.effects.push(effect1);
 
-    const effect2 = effect(() => {
-      const isReset = this.dataManagementClientService.isReset();
-      if (isReset) {
-        setTimeout(() => this.isChangingEvent.emit(false), 100);
-      }
+      const effect2 = effect(() => {
+        const isReset = this.dataManagementClientService.isReset();
+        if (isReset) {
+          setTimeout(() => this.isChangingEvent.emit(false), 100);
+        }
+      });
+      this.effects.push(effect2);
     });
-    this.effects.push(effect2);
   }
 }

@@ -8,7 +8,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-settings-general',
@@ -21,7 +20,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     NgbModule,
     SpinnerModule,
-    SharedModule,
   ],
 })
 export class SettingsGeneralComponent {

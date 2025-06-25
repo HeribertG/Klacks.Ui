@@ -15,7 +15,6 @@ import {
   NgbModule,
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
@@ -34,6 +33,7 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { ExcelComponent } from 'src/app/icons/excel.component';
+import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-absence',
@@ -46,12 +46,12 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
     TranslateModule,
     NgbModule,
     NgbPaginationModule,
-    SharedModule,
     SpinnerModule,
     TrashIconRedComponent,
     IconCopyGreyComponent,
     PencilIconGreyComponent,
     ExcelComponent,
+    FallbackPipe,
   ],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {

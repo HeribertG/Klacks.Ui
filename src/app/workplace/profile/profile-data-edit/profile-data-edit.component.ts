@@ -5,7 +5,8 @@ import {
   Output,
   ViewChild,
   effect,
-  inject, DoCheck,
+  inject,
+  DoCheck,
 } from '@angular/core';
 
 // Angular und Bibliotheksmodule
@@ -18,7 +19,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // Anwendungsmodule
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services und Utilities
@@ -39,7 +39,6 @@ import {
     FormsModule,
     RouterModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
     TranslateModule,
     FontAwesomeModule,

@@ -9,7 +9,6 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
@@ -29,7 +28,6 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     FormsModule,
     CommonModule,
     NgbTooltipModule,
-    SharedModule,
     IconAngleRightComponent,
     IconAngleDownComponent,
     TrashIconRedComponent,

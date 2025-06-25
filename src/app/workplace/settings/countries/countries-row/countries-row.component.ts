@@ -14,7 +14,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/core/client-class';
@@ -27,13 +26,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   templateUrl: './countries-row.component.html',
   styleUrls: ['./countries-row.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    NgbModule,
-    SharedModule,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
 })
 export class CountriesRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: ICountry | undefined;

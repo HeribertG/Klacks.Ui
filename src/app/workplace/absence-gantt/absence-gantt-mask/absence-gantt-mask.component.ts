@@ -39,7 +39,6 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgClass, NgFor, NgStyle } from '@angular/common';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-absence-gantt-mask',
@@ -58,7 +57,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     PdfIconComponent,
     FallbackPipe,
     AbsenceGanttGridComponent,
-    SharedModule,
   ],
 })
 export class AbsenceGanttMaskComponent

@@ -19,7 +19,6 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { SharedModule } from 'src/app/shared/shared.module';
 import {
   NgbDatepickerModule,
   NgbDropdownModule,
@@ -42,7 +41,6 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
     NgbDropdownModule,
     NgbDatepickerModule,
     NgbTooltipModule,
-    SharedModule,
     FallbackPipe,
   ],
 })

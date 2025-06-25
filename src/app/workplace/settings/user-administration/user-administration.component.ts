@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Unterkomponenten
@@ -32,7 +31,6 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
     FormsModule,
     TranslateModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
     UserAdministrationHeaderComponent,
     UserAdministrationRowComponent,

@@ -16,9 +16,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-
 import { Subject, Subscription } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
@@ -32,7 +30,6 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
     FormsModule,
     TranslateModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
   ],
 })

@@ -16,20 +16,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-bank-accounts-row',
   templateUrl: './bank-accounts-row.component.html',
   styleUrls: ['./bank-accounts-row.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    NgbModule,
-    SharedModule,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
 })
 export class BankAccountsRowComponent implements AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();

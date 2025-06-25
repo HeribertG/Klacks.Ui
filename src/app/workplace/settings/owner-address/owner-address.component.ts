@@ -21,7 +21,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 @Component({
   selector: 'app-owner-address',
@@ -34,7 +33,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
     FormsModule,
     NgbModule,
     SpinnerModule,
-    SharedModule,
   ],
 })
 export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {

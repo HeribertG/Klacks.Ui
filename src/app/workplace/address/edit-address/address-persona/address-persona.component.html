@@ -60,8 +60,9 @@
             name="editClient.type"
             aria-label="Adresstyp"
           >
+            @for (c of dataManagementClientService.clientAttribute; track
+            c.type) {
             <option
-              *ngFor="let c of dataManagementClientService.clientAttribute"
               [value]="c.type"
               [selected]="
                 dataManagementClientService.editClient!.type === c.type
@@ -69,6 +70,7 @@
             >
               {{ c.name }}
             </option>
+            }
           </select>
         </div>
       </div>
@@ -192,20 +194,43 @@
     @if (!isDisabled()) {
     <div>
       <app-button-new
+        class="btn ownStyle-button"
         (click)="openNewAddress(newAddress)"
         placement="top"
         ngbTooltip="{{ newAddressString }}"
       >
       </app-button-new>
-
-      <div
+      <button class="btn ownStyle-button">
+        <div style="margin-top: -2px; margin-left: -2px">
+          <svg
+            version="1.2"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            overflow="visible"
+            preserveAspectRatio="none"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+          >
+            <g>
+              <path
+                xmlns:default="http://www.w3.org/2000/svg"
+                d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"
+                style="fill: rgb(27, 197, 189)"
+                vector-effect="non-scaling-stroke"
+              />
+            </g>
+          </svg>
+        </div>
+      </button>
+      <button
         class="btn dropdown-toggle ownStyle-button"
         role="button"
         data-bs-toggle="dropdown"
         aria-label="ownStyle-button"
       >
         <app-icon-gear-grey></app-icon-gear-grey>
-      </div>
+      </button>
 
       <ul class="dropdown-menu dropdown-menu-lg-end">
         <li>
@@ -640,12 +665,12 @@
             list="dynamicPlace"
           />
           <datalist id="dynamicPlace">
-            <option
-              *ngFor="let item of dataManagementClientService.lastCountries"
-              [ngValue]="item"
-            >
+            @for (item of dataManagementClientService.lastCountries; track item)
+            {
+            <option [ngValue]="item">
               {{ item.city }}
             </option>
+            }
           </datalist>
         </div>
       </div>
@@ -676,8 +701,8 @@
             "
             name="state"
           >
+            @for (c of dataManagementClientService.stateList; track c.state) {
             <option
-              *ngFor="let c of dataManagementClientService.stateList"
               [value]="c.state"
               [selected]="
                 dataManagementClientService.editClient.addresses[
@@ -689,6 +714,7 @@
             >
               {{ c.state }}
             </option>
+            }
           </select>
         </div>
         <div>
@@ -708,10 +734,9 @@
             name="country"
             (ngModelChange)="dataManagementClientService.filterState()"
           >
+            @for (c of dataManagementClientService.currentFilter.countries;
+            track c.abbreviation) {
             <option
-              *ngFor="
-                let c of dataManagementClientService.currentFilter.countries
-              "
               [value]="c.abbreviation"
               [selected]="
                 dataManagementClientService.editClient.addresses[
@@ -721,6 +746,7 @@
             >
               {{ c.name | fallback : currentLang }}
             </option>
+            }
           </select>
         </div>
       </div>
@@ -753,10 +779,9 @@
               [disabled]="isDisabled()"
               (change)="onChangePhonePrefix(ii, $event)"
             >
+              @for (c of dataManagementClientService.communicationPrefixList;
+              track c.prefix) {
               <option
-                *ngFor="
-                  let c of dataManagementClientService.communicationPrefixList
-                "
                 [value]="c.prefix"
                 [selected]="phoneData.prefix === c.prefix"
                 data-toggle="tooltip"
@@ -764,6 +789,7 @@
               >
                 {{ c.prefix }}
               </option>
+              }
             </select>
 
             <input
@@ -785,15 +811,12 @@
               (change)="onChangePhoneType(ii, $event)"
               [disabled]="isDisabled()"
             >
-              <option
-                *ngFor="
-                  let c of dataManagementClientService.communicationTypePhoneList
-                "
-                [value]="c.type"
-                [selected]="phoneData.type === c.type"
-              >
+              @for (c of dataManagementClientService.communicationTypePhoneList;
+              track c.type) {
+              <option [value]="c.type" [selected]="phoneData.type === c.type">
                 {{ c.name }}
               </option>
+              }
             </select>
             @if (ii ===
             dataManagementClientService.communicationPhoneList.length - 1 &&
@@ -840,15 +863,12 @@
               [disabled]="isDisabled()"
               (change)="onChangeEmailType(i, $event)"
             >
-              <option
-                *ngFor="
-                  let c of dataManagementClientService.communicationTypeEmailList
-                "
-                [value]="c.type"
-                [selected]="emailData.type === c.type"
-              >
+              @for (c of dataManagementClientService.communicationTypeEmailList;
+              track c.type) {
+              <option [value]="c.type" [selected]="emailData.type === c.type">
                 {{ c.name }}
               </option>
+              }
             </select>
             @if (i === dataManagementClientService.communicationEmailList.length
             - 1 && !isDisabled()) {

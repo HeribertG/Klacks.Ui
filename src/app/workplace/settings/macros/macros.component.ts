@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
@@ -26,7 +25,6 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
     TranslateModule,
     FormsModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
     CodemirrorModule,
     MacroHeaderComponent,

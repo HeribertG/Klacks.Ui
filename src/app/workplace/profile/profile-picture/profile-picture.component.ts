@@ -10,7 +10,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 // Anwendungsmodule
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services und Utilities
@@ -29,7 +28,6 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
     FormsModule,
     RouterModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
     TranslateModule,
     FontAwesomeModule,

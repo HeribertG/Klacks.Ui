@@ -9,7 +9,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { CountriesHeaderComponent } from './countries-header/countries-header.component';
 import { CountriesRowComponent } from './countries-row/countries-row.component';
 
@@ -24,7 +23,6 @@ import { CountriesRowComponent } from './countries-row/countries-row.component';
     FormsModule,
     NgbModule,
     SpinnerModule,
-    SharedModule,
     CountriesHeaderComponent,
     CountriesRowComponent,
   ],

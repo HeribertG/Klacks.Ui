@@ -11,7 +11,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
-import { SharedModule } from 'src/app/shared/shared.module';
 
 // Services
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
@@ -44,7 +43,6 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
     FormsModule,
     NgbModule,
     SpinnerModule,
-    SharedModule,
     SettingsGeneralComponent,
     OwnerAddressComponent,
     BankAccountsComponent,

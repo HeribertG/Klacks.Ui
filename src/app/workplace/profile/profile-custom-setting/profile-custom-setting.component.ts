@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 import { Language } from 'src/app/helpers/sharedItems';
@@ -26,7 +25,6 @@ import { ThemeService } from 'src/app/services/theme.service';
     FormsModule,
     TranslateModule,
     NgbModule,
-    SharedModule,
     SpinnerModule,
   ],
 })

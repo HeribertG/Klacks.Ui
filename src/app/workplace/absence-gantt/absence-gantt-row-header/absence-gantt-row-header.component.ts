@@ -27,7 +27,6 @@ import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { NgStyle } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { CursorEnum } from 'src/app/shared/grid/enums/cursor_enums';
 
 @Component({
@@ -35,13 +34,7 @@ import { CursorEnum } from 'src/app/shared/grid/enums/cursor_enums';
   templateUrl: './absence-gantt-row-header.component.html',
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
-  imports: [
-    NgStyle,
-    AbsenceGanttFilterComponent,
-    ResizeDirective,
-    SharedModule,
-    ResizeDirective,
-  ],
+  imports: [NgStyle, AbsenceGanttFilterComponent, ResizeDirective],
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

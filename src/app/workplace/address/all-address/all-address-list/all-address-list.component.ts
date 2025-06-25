@@ -34,7 +34,6 @@ import { isNumeric } from 'src/app/helpers/format-helper';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -55,7 +54,6 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     FormsModule,
     TranslateModule,
     NgbPaginationModule,
-    SharedModule,
     TrashIconRedComponent,
     PencilIconGreyComponent,
     ExcelComponent,

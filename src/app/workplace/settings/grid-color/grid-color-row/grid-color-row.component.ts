@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { ISetting } from 'src/app/core/settings-various-class';
 
 @Component({
@@ -11,13 +10,7 @@ import { ISetting } from 'src/app/core/settings-various-class';
   templateUrl: './grid-color-row.component.html',
   styleUrls: ['./grid-color-row.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    NgbModule,
-    SharedModule,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
 })
 export class GridColorRowComponent {
   @Input() data: ISetting | undefined;

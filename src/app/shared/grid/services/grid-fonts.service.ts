@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ISetting, Setting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
@@ -10,42 +10,48 @@ import { Subject } from 'rxjs';
   providedIn: 'root',
 })
 export class GridFontsService {
+  private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private pixelToPt = inject(PixelToPtService);
+
   public isReset = signal(false);
   public isChangingEvent = new Subject<boolean>();
 
-  settingList: ISetting[] = [];
+  public settingList: ISetting[] = [];
   private settingListDummy: ISetting[] = [];
 
   private _zoom = 1;
+  private weight = '350 ';
+  private fontName = 'system-ui';
+  private point = 'pt ';
 
-  constructor(
-    private dataSettingsVariousService: DataSettingsVariousService,
-    private pixelToPt: PixelToPtService
-  ) {}
-  headerFontPoint = 11;
-  mainFontPoint = 11;
-  firstSubFontPoint = 9;
-  secondSubFontPoint = 9;
-  baselineReducer = 0.8;
-  symbolFontPoint = 12;
+  private headerFontPoint = 11;
+  private mainFontPoint = 11;
+  private firstSubFontPoint = 9;
+  private secondSubFontPoint = 9;
+  private baselineReducer = 0.8;
+  private symbolFontPoint = 12;
 
-  mainFontName = 'system-ui';
-  firstSubFontName = 'system-ui';
-  secondSubFontName = 'system-ui';
-  headerFontName = 'system-ui';
-  symbolFontName = 'system-ui';
+  public mainFontName = this.fontName;
+  public firstSubFontName = this.fontName;
+  public secondSubFontName = this.fontName;
+  public headerFontName = this.fontName;
+  public symbolFontName = this.fontName;
 
-  mainFontSize = this.mainFontPoint.toString();
-  headerFontSize = this.headerFontPoint.toString();
-  firstSubFontSize = this.firstSubFontPoint.toString();
-  secondSubFontSize = this.secondSubFontPoint.toString();
-  symbolFontSize = this.symbolFontPoint.toString();
+  public mainFontSize = this.mainFontPoint.toString();
+  public headerFontSize = this.headerFontPoint.toString();
+  public firstSubFontSize = this.firstSubFontPoint.toString();
+  public secondSubFontSize = this.secondSubFontPoint.toString();
+  public symbolFontSize = this.symbolFontPoint.toString();
 
-  mainFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
-  headerFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
-  firstSubFontHeight = this.pixelToPt.pointToPixel(this.firstSubFontPoint);
-  secondSubFontHeight = this.pixelToPt.pointToPixel(this.secondSubFontPoint);
-  symbolFontHeight = +this.pixelToPt
+  private mainFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
+  private headerFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
+  private firstSubFontHeight = this.pixelToPt.pointToPixel(
+    this.firstSubFontPoint
+  );
+  private secondSubFontHeight = this.pixelToPt.pointToPixel(
+    this.secondSubFontPoint
+  );
+  private symbolFontHeight = +this.pixelToPt
     .pointToPixel(this.symbolFontPoint)
     .toFixed(2);
 
@@ -96,19 +102,23 @@ export class GridFontsService {
   }
 
   public get mainFontString(): string {
-    return '400 ' + this.mainFontSize + 'pt ' + this.mainFontName;
+    return this.weight + this.mainFontSize + this.point + this.mainFontName;
   }
 
   public get headerFontString(): string {
-    return '400 ' + this.headerFontSize + 'pt ' + this.headerFontName;
+    return this.weight + this.headerFontSize + this.point + this.headerFontName;
   }
 
   public get firstSubFontString(): string {
-    return '400 ' + this.firstSubFontSize + 'pt ' + this.firstSubFontName;
+    return (
+      this.weight + this.firstSubFontSize + this.point + this.firstSubFontName
+    );
   }
 
   public get secondSubFontString(): string {
-    return '400 ' + this.secondSubFontSize + 'pt ' + this.secondSubFontName;
+    return (
+      this.weight + this.secondSubFontSize + this.point + this.secondSubFontName
+    );
   }
 
   private settingsCount = 0;
@@ -119,36 +129,45 @@ export class GridFontsService {
 
   public get mainFontStringZoom(): string {
     return (
-      '400 ' + this.headerFontPoint * this._zoom + 'pt ' + this.mainFontName
+      this.weight +
+      this.headerFontPoint * this._zoom +
+      this.point +
+      this.mainFontName
     );
   }
 
   public get headerFontStringZoom(): string {
     return (
-      '400 ' + this.headerFontPoint * this._zoom + 'pt ' + this.headerFontName
+      this.weight +
+      this.headerFontPoint * this._zoom +
+      this.point +
+      this.headerFontName
     );
   }
 
   public get symbolFontStringZoom(): string {
     return (
-      '900 ' + this.symbolFontPoint * this._zoom + 'pt ' + this.symbolFontName
+      '900 ' +
+      this.symbolFontPoint * this._zoom +
+      this.point +
+      this.symbolFontName
     );
   }
 
   public get firstSubFontStringZoom(): string {
     return (
-      '400 ' +
+      this.weight +
       this.firstSubFontPoint * this._zoom +
-      'pt ' +
+      this.point +
       this.firstSubFontName
     );
   }
 
   public get secondSubFontStringZoom(): string {
     return (
-      '400 ' +
+      this.weight +
       this.secondSubFontPoint * this._zoom +
-      'pt ' +
+      this.point +
       this.secondSubFontName
     );
   }

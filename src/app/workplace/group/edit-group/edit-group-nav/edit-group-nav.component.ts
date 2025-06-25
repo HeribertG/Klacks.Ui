@@ -2,12 +2,14 @@
 import {
   AfterViewInit,
   Component,
+  Injector,
   IterableDiffers,
   OnDestroy,
   OnInit,
   ViewChild,
   effect,
   inject,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -51,6 +53,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private iterableDiffers = inject(IterableDiffers);
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
+  private injector = inject(Injector);
 
   public navGroup: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -192,10 +195,12 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readSignals(): void {
-    effect(() => {
-      if (this.dataManagementGroupService.initIsRead()) {
-        this.isInit();
-      }
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        if (this.dataManagementGroupService.initIsRead()) {
+          this.isInit();
+        }
+      });
     });
   }
 }

@@ -4,7 +4,6 @@ import { IClient } from 'src/app/core/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -14,13 +13,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './edit-address-nav.component.html',
   styleUrls: ['./edit-address-nav.component.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-    NgbTooltipModule,
-    SharedModule,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule, NgbTooltipModule],
 })
 export class EditAddressNavComponent implements OnInit, AfterViewInit {
   public validFrom = MessageLibrary.VALID_FROM;
