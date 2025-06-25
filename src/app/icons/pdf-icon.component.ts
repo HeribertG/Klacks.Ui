@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-pdf-icon',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `
     <svg
       data-name="Layer 1"

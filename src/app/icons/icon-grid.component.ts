@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-grid',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `
     <svg
       svg

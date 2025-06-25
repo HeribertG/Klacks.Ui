@@ -3,7 +3,7 @@ import { NavIconColorService } from '../services/nav-icon-color.service';
 
 @Component({
   selector: 'app-icon-gantt',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `
     <svg
       width="28px"

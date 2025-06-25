@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-trash-light-red',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: ` <svg
     version="1.2"
     xmlns="http://www.w3.org/2000/svg"

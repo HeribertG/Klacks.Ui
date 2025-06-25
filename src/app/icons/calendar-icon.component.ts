@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-calendar-icon-ball',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `<svg
     width="20px"
     height="20px"

@@ -3,7 +3,7 @@ import { NavIconColorService } from '../services/nav-icon-color.service';
 
 @Component({
   selector: 'app-icon-order',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"

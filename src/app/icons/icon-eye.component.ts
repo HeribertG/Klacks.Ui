@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-eye-grey',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: ` <svg
     fill="var(--iconStandartColor)"
     opacity="0.4"

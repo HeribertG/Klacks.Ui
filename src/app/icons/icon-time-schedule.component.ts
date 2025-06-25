@@ -3,7 +3,7 @@ import { NavIconColorService } from '../services/nav-icon-color.service';
 
 @Component({
   selector: 'app-time-schedule',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: `
     <svg
       width="24px"

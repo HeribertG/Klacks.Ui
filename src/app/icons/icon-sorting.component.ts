@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-icon-sorting',
-  styleUrls: ['./buttons.scss'],
+  styleUrls: ['./icon.scss'],
   template: ` <svg
     width="24"
     height="24"
