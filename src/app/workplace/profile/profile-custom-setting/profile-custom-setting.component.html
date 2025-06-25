@@ -31,9 +31,11 @@
         [ngModel]="selectedLanguage"
         (ngModelChange)="onChange(); selectedLanguage = $event"
       >
-        <option *ngFor="let language of languages" [value]="language">
+        @for (language of languages; track language) {
+        <option [value]="language">
           {{ flagMap[language] }}
         </option>
+        }
       </select>
     </div>
   </div>

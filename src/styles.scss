@@ -1,8 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* Importing Bootstrap SCSS file. */
-// @use "codemirror/lib/codemirror.css";
-// @use "codemirror/theme/material.css";
+@use "codemirror/lib/codemirror.css";
+@use "codemirror/theme/material.css";
 @use "bootstrap" as bootstrap;
 @use "assets/standard-styles/colors.scss" as colors;
 @use "assets/standard-styles/datepicker.scss";

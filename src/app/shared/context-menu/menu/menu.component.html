@@ -6,8 +6,10 @@
   (mouseleave)="closeMenu()"
   (contextmenu)="stopEvent($event)"
 >
-  <div *ngFor="let item of menu.list">
+  @for (item of menu.list; track item.name || $index) {
+  <div>
     <app-menu-item [menuItem]="item" #menuItem></app-menu-item>
   </div>
+  }
 </div>
 }

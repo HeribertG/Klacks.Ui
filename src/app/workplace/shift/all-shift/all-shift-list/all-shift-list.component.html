@@ -18,7 +18,8 @@
       (deleteClicked)="onClickDelete($event)"
     ></app-original-table>
     <div class="pagination justify-content-end">
-      <div *ngIf="visibleRow">
+      @if (visibleRow) {
+      <div>
         <label for="selection" class="entry-row">{{
           translate.instant("pagination.line")
         }}</label>
@@ -28,15 +29,14 @@
           value="realRow"
           (change)="onChangeRowSize($event)"
         >
-          <option
-            *ngFor="let c of visibleRow"
-            [value]="c.value"
-            [selected]="c.value === realRow"
-          >
+          @for (c of visibleRow; track c.value) {
+          <option [value]="c.value" [selected]="c.value === realRow">
             {{ c.text }}
           </option>
+          }
         </select>
       </div>
+      }
 
       <label for="pagination" class="entry-info"
         >{{ translate.instant("pagination.sum") }}

@@ -152,13 +152,15 @@
                     "
                     aria-label="type"
                   >
+                    @for (c of dataManagementAbsence.absenceList(); track c.id)
+                    {
                     <option
-                      *ngFor="let c of dataManagementAbsence.absenceList()"
                       [value]="c.id"
                       [selected]="selectedBreak!.absenceId === c.id"
                     >
                       {{ c.name | fallback : currentLang }}
                     </option>
+                    }
                   </select>
                 </div>
               </div>

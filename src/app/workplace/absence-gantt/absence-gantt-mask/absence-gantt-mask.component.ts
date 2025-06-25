@@ -38,7 +38,7 @@ import {
   NgbPaginationModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { NgClass, NgFor, NgStyle } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-absence-gantt-mask',
@@ -47,7 +47,6 @@ import { NgClass, NgFor, NgStyle } from '@angular/common';
   standalone: true,
   imports: [
     NgStyle,
-    NgFor,
     NgClass,
     FormsModule,
     NgbDatepickerModule,

@@ -19,14 +19,12 @@
       (ngModelChange)="onChangeSelection()"
       [attr.aria-describedby]="'calendar-help'"
     >
-      <option
-        *ngFor="
-          let c of dataManagementCalendarSelectionService.calendarsSelections
-        "
-        [ngValue]="c"
-      >
+      @for (c of dataManagementCalendarSelectionService.calendarsSelections;
+      track c.id || c.name) {
+      <option [ngValue]="c">
         {{ c.name }}
       </option>
+      }
     </select>
 
     <div id="calendar-help" class="visually-hidden">
@@ -73,12 +71,14 @@
   role="region"
   [attr.aria-label]="'calendar.selector.selected-items' | translate"
 >
-  <div *ngFor="let chip of chipList; trackBy: trackByChip">
+  @for (chip of chipList; track trackByChip($index, chip)) {
+  <div>
     <app-chips
       [name]="getChipDisplayName(chip)"
       [key]="getChipKey(chip)"
       (delete)="onDeleteChip($event)"
     ></app-chips>
   </div>
+  }
 </div>
 }

@@ -55,49 +55,46 @@
     <div class="group-tree-container">
       @if (displayTree && displayTree.length > 0) {
       <ul class="group-tree-root">
-        <ng-container *ngFor="let node of displayTree">
-          <li class="group-tree-node">
-            @if (isVirtualGroup(node)) {
+        @for (node of displayTree; track node.id) {
+        <li class="group-tree-node">
+          @if (isVirtualGroup(node)) {
+          <div
+            class="group-tree-node-item all-groups-option"
+            [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+            (click)="selectGroup(node, $event)"
+          >
+            <div class="group-tree-node-indicator" [style.padding-left.px]="0">
+              <span class="group-tree-toggle-placeholder"></span>
+            </div>
             <div
-              class="group-tree-node-item all-groups-option"
-              [class.selected]="selectedGroupId === ALL_GROUPS_ID"
-              (click)="selectGroup(node, $event)"
+              class="group-option-button"
+              tabindex="0"
+              role="option"
+              [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+              [attr.aria-label]="'Select all groups'"
             >
               <div
-                class="group-tree-node-indicator"
-                [style.padding-left.px]="0"
-              >
-                <span class="group-tree-toggle-placeholder"></span>
-              </div>
-              <div
-                class="group-option-button"
-                tabindex="0"
-                role="option"
-                [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-                [attr.aria-label]="'Select all groups'"
-              >
-                <div
-                  class="option-circle"
-                  [class.selected]="selectedGroupId === ALL_GROUPS_ID"
-                ></div>
-              </div>
-              <div
-                class="group-tree-node-content"
-                tabindex="0"
-                role="option"
-                [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
-                [attr.aria-label]="'Select all groups'"
-              >
-                <span class="group-tree-node-name">{{ node.name }}</span>
-              </div>
+                class="option-circle"
+                [class.selected]="selectedGroupId === ALL_GROUPS_ID"
+              ></div>
             </div>
-            } @if (isRealGroup(node)) {
-            <ng-container
-              *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
-            ></ng-container>
-            }
-          </li>
-        </ng-container>
+            <div
+              class="group-tree-node-content"
+              tabindex="0"
+              role="option"
+              [attr.aria-selected]="selectedGroupId === ALL_GROUPS_ID"
+              [attr.aria-label]="'Select all groups'"
+            >
+              <span class="group-tree-node-name">{{ node.name }}</span>
+            </div>
+          </div>
+          } @if (isRealGroup(node)) {
+          <ng-container
+            *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
+          ></ng-container>
+          }
+        </li>
+        }
       </ul>
       } @else {
       <div class="no-tree-message">
@@ -178,11 +175,13 @@
   @if (hasChildren(node) && isNodeExpanded(node)) {
   <div class="group-tree-children">
     <ul>
-      <li *ngFor="let child of node.children" class="group-tree-node">
+      @for (child of node.children; track child.id) {
+      <li class="group-tree-node">
         <ng-container
           *ngTemplateOutlet="recursiveTree; context: { $implicit: child }"
         ></ng-container>
       </li>
+      }
     </ul>
   </div>
   }

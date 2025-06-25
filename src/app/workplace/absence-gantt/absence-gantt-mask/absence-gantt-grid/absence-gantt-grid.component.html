@@ -49,10 +49,9 @@
     </tr>
   </thead>
   <tbody>
+    @for (data of selectedRowData; track data.id || $index; let i = $index) {
     <tr
       class="table-row"
-      class="table-row"
-      *ngFor="let data of selectedRowData; index as i"
       (click)="onClickedRow(data)"
       [class.active]="data.id === highlightRowId"
     >
@@ -62,5 +61,6 @@
       <td class="table-cell">{{ onAbsenceValue(data) }}</td>
       <td class="table-cell">{{ data.information }}</td>
     </tr>
+    }
   </tbody>
 </table>

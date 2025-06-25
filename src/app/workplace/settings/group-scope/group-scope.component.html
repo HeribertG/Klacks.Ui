@@ -6,10 +6,11 @@
   <div class="container-line"></div>
   <div class="container-box">
     <app-group-scope-header></app-group-scope-header>
-    <div
-      *ngFor="let c of dataManagementSettingsService.accountsList; index as i"
-    >
+    @for (c of dataManagementSettingsService.accountsList; track c.id ||
+    c.userName || $index; let i = $index) {
+    <div>
       <app-group-scope-row [user]="c"></app-group-scope-row>
     </div>
+    }
   </div>
 </form>

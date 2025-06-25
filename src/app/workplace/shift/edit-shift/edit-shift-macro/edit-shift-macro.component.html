@@ -9,34 +9,36 @@
     <span class="filler"></span>
 
     <div class="expand-button" (click)="onClickVisibleTable()">
-      <app-icon-angle-down
-        *ngIf="visibleTable === 'inline'"
-      ></app-icon-angle-down>
-      <app-icon-angle-right
-        *ngIf="visibleTable === 'none'"
-      ></app-icon-angle-right>
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
     </div>
   </div>
 
   <div class="container-line"></div>
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
-    <div *ngIf="dataManagementShiftService.editShift !== undefined">
+    @if (dataManagementShiftService.editShift !== undefined) {
+    <div>
+      @if (dataManagementShiftService.macroList.length > 0) {
       <select
-        *ngIf="dataManagementShiftService.macroList.length > 0"
         name="macro-list"
         class="form-select macro-list"
         [(ngModel)]="dataManagementShiftService.editShift.macroId"
         aria-label="macro-list"
         (ngModelChange)="onSelectionChange($event)"
       >
+        @for (item of dataManagementShiftService.macroList; track item.id) {
         <option
-          *ngFor="let item of dataManagementShiftService.macroList"
           [value]="item.id"
           [selected]="dataManagementShiftService.editShift.macroId === item.id"
         >
           {{ item.name }}
         </option>
+        }
       </select>
+      }
 
       <div class="macro-description">
         <div class="form-group">
@@ -55,6 +57,7 @@
         </div>
       </div>
     </div>
+    }
   </div>
   <div style="height: 30px"></div>
 </form>

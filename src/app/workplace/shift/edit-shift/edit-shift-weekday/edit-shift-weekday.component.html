@@ -9,22 +9,19 @@
     <span class="filler"></span>
 
     <div class="expand-button" (click)="onClickVisibleTable()">
-      <app-icon-angle-down
-        *ngIf="visibleTable === 'inline'"
-      ></app-icon-angle-down>
-      <app-icon-angle-right
-        *ngIf="visibleTable === 'none'"
-      ></app-icon-angle-right>
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
     </div>
   </div>
 
   <div class="container-line"></div>
 
   <div class="container-bank" [ngStyle]="{ display: visibleTable }">
-    <div
-      class="container-bank-box"
-      *ngIf="dataManagementShiftService.editShift !== undefined"
-    >
+    @if (dataManagementShiftService.editShift !== undefined) {
+    <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
           <div class="row-line1">
@@ -77,12 +74,12 @@
       <div class="secondColumnContainer">
         <div class="row-line2 endColumn">
           <div class="row-line1">
-            <label for="start-hours">{{
+            <label for="end-hours">{{
               "shift.edit-shift.weekday.until" | translate
             }}</label>
             <div class="row-line-inline-simple">
               <input
-                id="start-hours"
+                id="end-hours"
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalEndShift.hours
                 "
@@ -168,12 +165,10 @@
         </div>
       </div>
     </div>
-
-    <div
-      class="firstColumn endColumn"
-      *ngIf="dataManagementShiftService.editShift !== undefined"
-    >
-      <div class="form-group" *ngIf="isComplex">
+    } @if (dataManagementShiftService.editShift !== undefined) {
+    <div class="firstColumn endColumn">
+      @if (isComplex) {
+      <div class="form-group">
         <label class="checkbox-label" for="isTimeRange">
           <input
             type="checkbox"
@@ -184,8 +179,8 @@
           {{ "shift.edit-shift.weekday.time-range" | translate }}
         </label>
       </div>
-
-      <div class="form-group top-margin15" *ngIf="isComplex">
+      } @if (isComplex) {
+      <div class="form-group top-margin15">
         <div class="d-flex align-items-center">
           <input
             type="number"
@@ -201,14 +196,14 @@
           </label>
         </div>
       </div>
+      }
     </div>
+    }
 
     <!-- -------------------------------------------------------------- -->
 
-    <div
-      class="container-bank-box"
-      *ngIf="dataManagementShiftService.editShift !== undefined"
-    >
+    @if (dataManagementShiftService.editShift !== undefined) {
+    <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
           <div class="form-group">
@@ -327,6 +322,7 @@
         </div>
       </div>
     </div>
+    }
   </div>
   <div style="height: 30px"></div>
 </form>

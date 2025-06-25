@@ -13,13 +13,11 @@
       [(ngModel)]="selectedMonth"
       (ngChange)="onChangeMonth()"
     >
-      <option
-        *ngFor="let c of gridSettingsService.monthsName; index as i"
-        [ngValue]="i"
-        [selected]="i === selectedMonth"
-      >
+      @for (c of gridSettingsService.monthsName; track $index; let i = $index) {
+      <option [ngValue]="i" [selected]="i === selectedMonth">
         {{ c | translate }}
       </option>
+      }
     </select>
   </div>
   <div class="custom-counter">

@@ -1,4 +1,4 @@
-import { DatePipe, NgFor } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import {
   AfterViewInit,
   Component,
@@ -29,7 +29,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
   templateUrl: './absence-gantt-grid.component.html',
   styleUrls: ['./absence-gantt-grid.component.scss'],
   standalone: true,
-  imports: [NgFor, DatePipe, TranslateModule],
+  imports: [DatePipe, TranslateModule],
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy

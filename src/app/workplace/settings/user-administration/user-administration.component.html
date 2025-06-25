@@ -143,9 +143,9 @@
 
   <div class="container-box">
     <app-user-administration-header></app-user-administration-header>
-    <div
-      *ngFor="let c of dataManagementSettingsService.accountsList; index as i"
-    >
+    @for (c of dataManagementSettingsService.accountsList; track c.id ||
+    c.userName || $index; let i = $index) {
+    <div>
       <app-user-administration-row
         [user]="c"
         [enabled]="!(c.id === dataManagementSettingsService.CurrentAccountId)"
@@ -155,6 +155,7 @@
       >
       </app-user-administration-row>
     </div>
+    }
   </div>
 
   <div class="row">

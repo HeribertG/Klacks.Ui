@@ -19,15 +19,13 @@
         (change)="onCountryChange()"
       >
         <option value="">{{ "all" | translate }}</option>
-        <option
-          *ngFor="
-            let country of dataManagementCalendarRulesService.currentFilter
-              .countries
-          "
-          [value]="country"
-        >
+        @for (country of
+        dataManagementCalendarRulesService.currentFilter.countries; track
+        country) {
+        <option [value]="country">
           {{ country }}
         </option>
+        }
       </select>
 
       <div class="form-group">
@@ -52,28 +50,24 @@
     <div class="form-group">
       @if (hasFilteredTokens) {
       <div class="checkbox-container">
-        <ng-container
-          *ngFor="
-            let item of dataManagementCalendarRulesService.filteredRulesToken;
-            index as i
-          "
+        @for (item of dataManagementCalendarRulesService.filteredRulesToken;
+        track item.state; let i = $index) {
+        <label
+          class="checkbox-label single-line"
+          placement="right"
+          ngbTooltip="{{ item.stateName | fallback : currentLang }}"
+          autoClose="true"
         >
-          <label
-            class="checkbox-label single-line"
-            placement="right"
-            ngbTooltip="{{ item.stateName | fallback : currentLang }}"
-            autoClose="true"
-          >
-            <input
-              type="checkbox"
-              [(ngModel)]="item.select"
-              name="{{ item.state }}"
-              (change)="onChangeStateSelection(item)"
-            />
-            <div class="column">{{ item.state }}</div>
-            <div class="column">({{ item.country }})</div>
-          </label>
-        </ng-container>
+          <input
+            type="checkbox"
+            [(ngModel)]="item.select"
+            name="{{ item.state }}"
+            (change)="onChangeStateSelection(item)"
+          />
+          <div class="column">{{ item.state }}</div>
+          <div class="column">({{ item.country }})</div>
+        </label>
+        }
       </div>
       }
     </div>

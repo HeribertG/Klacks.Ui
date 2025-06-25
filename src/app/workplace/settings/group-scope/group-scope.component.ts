@@ -12,12 +12,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './group-scope.component.html',
   styleUrl: './group-scope.component.scss',
   standalone: true,
-  imports: [
-    NgFor,
-    GroupScopeRowComponent,
-    GroupScopeHeaderComponent,
-    NgbModule,
-  ],
+  imports: [GroupScopeRowComponent, GroupScopeHeaderComponent, NgbModule],
 })
 export class GroupScopeComponent {
   @Output() isChangingEvent = new EventEmitter<boolean>();
