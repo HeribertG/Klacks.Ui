@@ -134,7 +134,7 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
   scopeUntil?: Date;
   internalScopeUntil?: NgbDateStruct;
   showDeleteEntries = false;
-  activeDateRange = false;
+  activeDateRange = true;
   formerDateRange = false;
   futureDateRange = false;
 

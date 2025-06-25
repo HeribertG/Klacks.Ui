@@ -1,9 +1,9 @@
-<ng-container *ngIf="isSchedule">
-  <div class="schedule-main-header">
-    <app-schedule-header (zoomChange)="onZoomChange($event)">
-    </app-schedule-header>
-  </div>
-  <div class="schedule-body">
-    <app-schedule-container [zoom]="currentZoom"></app-schedule-container>
-  </div>
-</ng-container>
+@if (isSchedule) {
+<div class="schedule-main-header">
+  <app-schedule-header (zoomChange)="onZoomChange($event)">
+  </app-schedule-header>
+</div>
+<div class="schedule-body">
+  <app-schedule-container [zoom]="currentZoom"></app-schedule-container>
+</div>
+}

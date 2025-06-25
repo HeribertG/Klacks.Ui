@@ -7,31 +7,31 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-toasts',
   template: `
+    @for (toast of toastService.toasts; track toast.id || $index) {
     <ngb-toast
-      *ngFor="let toast of toastService.toasts"
       [class]="toast.classname"
       [autohide]="true"
       [delay]="toast.delay || 5000"
       (hidden)="toastService.remove(toast)"
       style="height: auto !important;"
     >
-      <ng-template [ngIf]="isTemplate(toast)" [ngIfElse]="text">
-        <ng-template [ngTemplateOutlet]="toast.textOrTpl"></ng-template>
-      </ng-template>
+      @if (isTemplate(toast)) {
+      <ng-template [ngTemplateOutlet]="toast.textOrTpl"></ng-template>
+      } @else {
+      {{ toast.textOrTpl }}
 
-      <ng-template #text>
-        {{ toast.textOrTpl }}
-
-        <div *ngIf="toast.showTextField" class="mt-2">
-          <textarea
-            class="form-control form-control-sm"
-            [ngModel]="toast.textFieldValue"
-            [rows]="calculateRows(toast.textFieldValue)"
-            style="resize: none; overflow: hidden;"
-          ></textarea>
-        </div>
-      </ng-template>
+      @if (toast.showTextField) {
+      <div class="mt-2">
+        <textarea
+          class="form-control form-control-sm"
+          [ngModel]="toast.textFieldValue"
+          [rows]="calculateRows(toast.textFieldValue)"
+          style="resize: none; overflow: hidden;"
+        ></textarea>
+      </div>
+      } }
     </ngb-toast>
+    }
   `,
   styleUrls: ['./toast.component.scss'],
   host: {

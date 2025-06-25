@@ -6,20 +6,15 @@
 
     <span class="filler"></span>
 
-    <div class="tree-actions" *ngIf="authorizationService.isAuthorised">
+    @if (authorizationService.isAuthorised) {
+    <div class="tree-actions">
       <button class="btn new-btn" (click)="onAddAddress()" tabindex="0">
         {{ "new-address" | translate }}
       </button>
     </div>
-
-    <div
-      *ngIf="
-        !(
-          dataManagementClientService.headerCheckBoxValue ||
-          checkBoxIndeterminate
-        )
-      "
-    >
+    } @if (!(dataManagementClientService.headerCheckBoxValue ||
+    checkBoxIndeterminate)) {
+    <div>
       <button
         class="btn ownStyle-button-disabled"
         role="button"
@@ -28,12 +23,9 @@
         <app-excel-icon></app-excel-icon>
       </button>
     </div>
-
-    <div
-      *ngIf="
-        dataManagementClientService.headerCheckBoxValue || checkBoxIndeterminate
-      "
-    >
+    } @if (dataManagementClientService.headerCheckBoxValue ||
+    checkBoxIndeterminate) {
+    <div>
       <div
         tabindex="1"
         class="btn ownStyle-button"
@@ -45,6 +37,7 @@
         <app-excel-icon></app-excel-icon>
       </div>
     </div>
+    }
   </div>
 
   <div class="container-subline">
@@ -152,12 +145,10 @@
         </tr>
       </thead>
       <tbody>
+        @for (data of dataManagementClientService.listWrapper?.clients; track
+        data.id; let i = $index) {
         <tr
           class="table-row"
-          *ngFor="
-            let data of dataManagementClientService.listWrapper?.clients;
-            index as i
-          "
           (click)="onClickedRow(data)"
           [class.active]="data.id === highlightRowId"
         >
@@ -206,29 +197,35 @@
           </td>
 
           <td class="table-cell cell-right">
-            <div *ngIf="authorizationService.isAuthorised">
+            @if (authorizationService.isAuthorised) {
+            <div>
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>
 
-              <div class="icon" (click)="open(data)" *ngIf="!data.isDeleted">
+              @if (!data.isDeleted) {
+              <div class="icon" (click)="open(data)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
+              }
             </div>
-
-            <div *ngIf="!authorizationService.isAuthorised">
+            } @if (!authorizationService.isAuthorised) {
+            <div>
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-eye-grey></app-icon-eye-grey>
               </div>
             </div>
+            }
           </td>
         </tr>
+        }
       </tbody>
     </table>
   </div>
 
   <div class="pagination justify-content-end">
-    <div *ngIf="visibleRow">
+    @if (visibleRow) {
+    <div>
       <label for="selection" class="entry-row">{{
         translate.instant("pagination.line")
       }}</label>
@@ -238,15 +235,14 @@
         value="realRow"
         (change)="onChangeRowSize($event)"
       >
-        <option
-          *ngFor="let c of visibleRow"
-          [value]="c.value"
-          [selected]="c.value === realRow"
-        >
+        @for (c of visibleRow; track c.value) {
+        <option [value]="c.value" [selected]="c.value === realRow">
           {{ c.text }}
         </option>
+        }
       </select>
     </div>
+    }
 
     <label for="pagination" class="entry-info"
       >{{ translate.instant("pagination.sum") }}

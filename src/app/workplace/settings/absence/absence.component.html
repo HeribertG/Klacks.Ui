@@ -33,6 +33,7 @@
         <label for="ruleName">{{
           "setting.absence.modal.name" | translate
         }}</label>
+        @if (currentLang === 'de') {
         <input
           type="text"
           class="form-control"
@@ -40,8 +41,8 @@
           aria-label="ruleName.de"
           name="ruleName.de"
           maxlength="256"
-          *ngIf="currentLang === 'de'"
         />
+        } @if (currentLang === 'en') {
         <input
           type="text"
           class="form-control"
@@ -49,8 +50,8 @@
           aria-label="ruleName.en"
           name="ruleName.en"
           maxlength="256"
-          *ngIf="currentLang === 'en'"
         />
+        } @if (currentLang === 'fr') {
         <input
           type="text"
           class="form-control"
@@ -58,8 +59,8 @@
           aria-label="ruleName.fr"
           name="ruleName.fr"
           maxlength="256"
-          *ngIf="currentLang === 'fr'"
         />
+        } @if (currentLang === 'it') {
         <input
           type="text"
           class="form-control"
@@ -67,46 +68,47 @@
           aria-label="ruleName.it"
           name="ruleName.it"
           maxlength="256"
-          *ngIf="currentLang === 'it'"
         />
+        }
       </div>
 
       <div class="row-line">
         <label for="description">{{
           "setting.absence.modal.description" | translate
         }}</label>
+        @if (currentLang === 'de') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentAbsence.description!.de!"
           aria-label="description.de"
           name="description.de"
           maxlength="256"
-          *ngIf="currentLang === 'de'"
         ></textarea>
+        } @if (currentLang === 'en') {
         <textarea
           class="form-control rule-description"
           [ngModel]="currentAbsence.description!.en!"
           aria-label="description.en"
           name="description.en"
           maxlength="256"
-          *ngIf="currentLang === 'en'"
         ></textarea>
+        } @if (currentLang === 'fr') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentAbsence.description!.fr"
           aria-label="description.fr"
           name="description.fr"
           maxlength="256"
-          *ngIf="currentLang === 'fr'"
         ></textarea>
+        } @if (currentLang === 'it') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentAbsence.description!.it!"
           aria-label="description.it"
           name="description.it"
           maxlength="256"
-          *ngIf="currentLang === 'it'"
         ></textarea>
+        }
       </div>
 
       <div class="row-line">
@@ -279,13 +281,10 @@
             </tr>
           </thead>
           <tbody>
+            @for (data of dataManagementAbsenceService.listWrapper?.absences;
+            track data.id; let i = $index) {
             <tr
               class="table-row"
-              class="table-row"
-              *ngFor="
-                let data of dataManagementAbsenceService.listWrapper?.absences;
-                index as i
-              "
               (click)="onClickedRow(data)"
               [class.active]="data.id === highlightRowId"
             >
@@ -324,6 +323,7 @@
                 </div>
               </td>
             </tr>
+            }
           </tbody>
         </table>
       </div>

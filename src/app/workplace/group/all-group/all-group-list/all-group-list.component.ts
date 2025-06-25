@@ -120,8 +120,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
-    runInInjectionContext(this.injector, () => this.readSignals());
-
     const tmp = restoreFilter('edit-group');
     this.visibleRow = visibleRow();
     this.dataManagementGroupService.init;
@@ -137,6 +135,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         this.recalcHeight();
       }, 100);
     }
+    this.readSignals();
   }
 
   ngAfterViewInit(): void {
@@ -522,16 +521,18 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readSignals(): void {
-    this.effectRef = effect(() => {
-      const isRead = this.dataManagementGroupService.isRead();
-      if (isRead) {
-        if (this.isFirstRead) {
-          setTimeout(() => this.recalcHeight(), 100);
-          this.isFirstRead = false;
-          return;
+    runInInjectionContext(this.injector, () => {
+      this.effectRef = effect(() => {
+        const isRead = this.dataManagementGroupService.isRead();
+        if (isRead) {
+          if (this.isFirstRead) {
+            setTimeout(() => this.recalcHeight(), 100);
+            this.isFirstRead = false;
+            return;
+          }
+          this.isMeasureTable = true;
         }
-        this.isMeasureTable = true;
-      }
+      });
     });
   }
 }

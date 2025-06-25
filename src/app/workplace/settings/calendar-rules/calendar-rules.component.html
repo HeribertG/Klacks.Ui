@@ -14,6 +14,7 @@
         <label for="ruleName">{{
           translate.instant("setting.holiday-rules.name")
         }}</label>
+        @if (currentLang === 'de') {
         <input
           type="text"
           class="form-control"
@@ -22,8 +23,8 @@
           name="ruleName.de"
           maxlength="256"
           (change)="onModalChange()"
-          *ngIf="currentLang === 'de'"
         />
+        } @if (currentLang === 'en') {
         <input
           type="text"
           class="form-control"
@@ -32,8 +33,8 @@
           name="ruleName.en"
           maxlength="256"
           (change)="onModalChange()"
-          *ngIf="currentLang === 'en'"
         />
+        } @if (currentLang === 'fr') {
         <input
           type="text"
           class="form-control"
@@ -42,8 +43,8 @@
           name="ruleName.fr"
           maxlength="256"
           (change)="onModalChange()"
-          *ngIf="currentLang === 'fr'"
         />
+        } @if (currentLang === 'it') {
         <input
           type="text"
           class="form-control"
@@ -52,8 +53,8 @@
           name="ruleName.it"
           maxlength="256"
           (change)="onModalChange()"
-          *ngIf="currentLang === 'it'"
         />
+        }
       </div>
 
       <div class="row-line">
@@ -92,24 +93,26 @@
               translate.instant("setting.holiday-rules.states-modal")
             }}</label>
 
+            @if (modalSelectedState) {
             <select
-              *ngIf="modalSelectedState"
               name="state"
               class="form-select rule-state"
               [ngModel]="modalSelectedState.id"
               aria-label="state"
               (ngModelChange)="onSelectionChange($event)"
             >
+              @for (item of
+              dataManagementCalendarRulesService.filteredRulesToken; track
+              item.id) {
               <option
-                *ngFor="
-                  let item of dataManagementCalendarRulesService.filteredRulesToken
-                "
                 [value]="item.id"
                 [selected]="modalSelectedState.id === item.id"
               >
                 {{ item.state }}
               </option>
+              }
             </select>
+            }
           </div>
           <div class="row-line">
             <label for="state" class="col-form-label">{{
@@ -156,6 +159,7 @@
         <label for="description">{{
           translate.instant("setting.absence.modal.description")
         }}</label>
+        @if (currentLang === 'de') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentRule.description!.de!"
@@ -163,8 +167,8 @@
           (change)="onModalChange()"
           name="description.de"
           maxlength="256"
-          *ngIf="currentLang === 'de'"
         ></textarea>
+        } @if (currentLang === 'en') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentRule.description!.en!"
@@ -172,8 +176,8 @@
           (change)="onModalChange()"
           name="description.en"
           maxlength="256"
-          *ngIf="currentLang === 'en'"
         ></textarea>
+        } @if (currentLang === 'fr') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentRule.description!.fr!"
@@ -181,8 +185,8 @@
           (change)="onModalChange()"
           name="description.fr"
           maxlength="256"
-          *ngIf="currentLang === 'fr'"
         ></textarea>
+        } @if (currentLang === 'it') {
         <textarea
           class="form-control rule-description"
           [(ngModel)]="currentRule.description!.it!"
@@ -190,8 +194,8 @@
           (change)="onModalChange()"
           name="description.it"
           maxlength="256"
-          *ngIf="currentLang === 'it'"
         ></textarea>
+        }
       </div>
 
       <div class="row-line">
@@ -300,14 +304,11 @@
           </tr>
         </thead>
         <tbody>
+          @for (data of
+          dataManagementCalendarRulesService.listWrapper?.calendarRules; track
+          data.id; let i = $index) {
           <tr
             class="table-row"
-            class="table-row"
-            *ngFor="
-              let data of dataManagementCalendarRulesService.listWrapper
-                ?.calendarRules;
-              index as i
-            "
             (click)="onClickedRow(data)"
             [class.active]="data.id === highlightRowId"
           >
@@ -344,6 +345,7 @@
               </div>
             </td>
           </tr>
+          }
         </tbody>
       </table>
     </div>

@@ -3,192 +3,153 @@
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <form #navClientForm="ngForm">
   <ul class="list-group">
-    <ng-container *ngIf="dataManagementClientService.editClient">
-      <li
-        class="list-group-item-action"
-        *ngIf="
-          dataManagementClientService &&
-          dataManagementClientService.editClient.hasScopeAddress
-        "
-      >
-        <div class="form-group">
-          <label>{{
-            "address.edit-address.nav.active-addresses" | translate
-          }}</label>
+    @if (dataManagementClientService.editClient) { @if
+    (dataManagementClientService &&
+    dataManagementClientService.editClient.hasScopeAddress) {
+    <li class="list-group-item-action">
+      <div class="form-group">
+        <label>{{
+          "address.edit-address.nav.active-addresses" | translate
+        }}</label>
 
-          <ng-container *ngIf="!dataManagementClientService.editClientDeleted">
-            <div
-              *ngFor="
-                let c of dataManagementClientService.editClient.addresses;
-                index as i
-              "
-            >
-              <button
-                type="button"
-                class="btn btn-sm max-width"
-                [ngClass]="{
-                  'btn-primary':
-                    i === dataManagementClientService.currentAddressIndex,
-                  'btn-outline-primary':
-                    i !== dataManagementClientService.currentAddressIndex
-                }"
-                (click)="onClickAddressArray(i)"
-                [value]="c.id"
-                *ngIf="c.isScoped"
-                placement="left"
-                ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-                  c.validFrom | date : 'dd.MM.yyyy'
-                }}"
-              >
-                {{ onAddressTypeName(i) }}
-              </button>
-            </div>
-          </ng-container>
-        </div>
-      </li>
-
-      <li
-        class="list-group-item-action"
-        *ngIf="
-          dataManagementClientService &&
-          dataManagementClientService.editClient.hasFutureAddress
-        "
-      >
-        <div class="form-group">
-          <label>{{ "ADDRESS_FUTURE" | translate }}</label>
-
-          <ng-container *ngIf="!dataManagementClientService.editClientDeleted">
-            <div
-              *ngFor="
-                let c of dataManagementClientService.editClient.addresses;
-                index as i
-              "
-            >
-              <button
-                class="btn btn-sm btn-outline-info max-width"
-                [ngClass]="{
-                  'btn-info':
-                    i === dataManagementClientService.currentAddressIndex
-                }"
-                (click)="onClickAddressArray(i)"
-                [value]="c.id"
-                *ngIf="c.isFuture"
-                placement="left"
-                ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-                  c.validFrom | date : 'dd.MM.yyyy'
-                }}"
-              >
-                {{ onAddressTypeName(i) }}
-              </button>
-            </div>
-          </ng-container>
-        </div>
-      </li>
-
-      <li
-        class="list-group-item-action"
-        *ngIf="
-          dataManagementClientService &&
-          dataManagementClientService.editClient.hasPastAddress
-        "
-      >
-        <div class="form-group">
-          <label>{{
-            "address.edit-address.nav.past-addresses" | translate
-          }}</label>
-
-          <ng-container *ngIf="!dataManagementClientService.editClientDeleted">
-            <div
-              *ngFor="
-                let c of dataManagementClientService.editClient.addresses;
-                index as i
-              "
-            >
-              <button
-                class="btn btn-sm btn-outline-warning max-width"
-                [ngClass]="{
-                  'btn-warning':
-                    i === dataManagementClientService.currentAddressIndex
-                }"
-                (click)="onClickAddressArray(i)"
-                [value]="c.id"
-                *ngIf="
-                  c.isDeleted === false &&
-                  c.isScoped === false &&
-                  c.isFuture === false
-                "
-                placement="left"
-                ngbTooltip="{{ 'VALID_FROM' | translate }} {{
-                  c.validFrom | date : 'dd.MM.yyyy'
-                }}"
-              >
-                {{ onAddressTypeName(i) }}
-              </button>
-            </div>
-          </ng-container>
-        </div>
-      </li>
-
-      <li
-        class="list-group-item-action"
-        *ngIf="
-          dataManagementClientService &&
-          dataManagementClientService.findClient.length > 0
-        "
-      >
-        <div class="form-group">
-          <label
-            >{{ "address.edit-address.nav.find-addresses" | translate }} ({{
-              dataManagementClientService.findClient.length
-            }})</label
+        @if (!dataManagementClientService.editClientDeleted) { @for (c of
+        dataManagementClientService.editClient.addresses; track c.id; let i =
+        $index) { @if (c.isScoped) {
+        <div>
+          <button
+            type="button"
+            class="btn btn-sm max-width"
+            [ngClass]="{
+              'btn-primary':
+                i === dataManagementClientService.currentAddressIndex,
+              'btn-outline-primary':
+                i !== dataManagementClientService.currentAddressIndex
+            }"
+            (click)="onClickAddressArray(i)"
+            [value]="c.id"
+            placement="left"
+            ngbTooltip="{{ 'VALID_FROM' | translate }} {{
+              c.validFrom | date : 'dd.MM.yyyy'
+            }}"
           >
-          <ul class="findUl">
-            <li
-              type="button"
-              class="onwListButton"
-              *ngFor="
-                let c of dataManagementClientService.sortedFindClient;
-                index as i
-              "
-              (click)="onClickFindClient(c)"
-            >
-              {{ c.firstName }} {{ c.name }}
-            </li>
-          </ul>
+            {{ onAddressTypeName(i) }}
+          </button>
+        </div>
+        } } }
+      </div>
+    </li>
+    } @if (dataManagementClientService &&
+    dataManagementClientService.editClient.hasFutureAddress) {
+    <li class="list-group-item-action">
+      <div class="form-group">
+        <label>{{ "ADDRESS_FUTURE" | translate }}</label>
+
+        @if (!dataManagementClientService.editClientDeleted) { @for (c of
+        dataManagementClientService.editClient.addresses; track c.id; let i =
+        $index) { @if (c.isFuture) {
+        <div>
+          <button
+            class="btn btn-sm btn-outline-info max-width"
+            [ngClass]="{
+              'btn-info': i === dataManagementClientService.currentAddressIndex
+            }"
+            (click)="onClickAddressArray(i)"
+            [value]="c.id"
+            placement="left"
+            ngbTooltip="{{ 'VALID_FROM' | translate }} {{
+              c.validFrom | date : 'dd.MM.yyyy'
+            }}"
+          >
+            {{ onAddressTypeName(i) }}
+          </button>
+        </div>
+        } } }
+      </div>
+    </li>
+    } @if (dataManagementClientService &&
+    dataManagementClientService.editClient.hasPastAddress) {
+    <li class="list-group-item-action">
+      <div class="form-group">
+        <label>{{
+          "address.edit-address.nav.past-addresses" | translate
+        }}</label>
+
+        @if (!dataManagementClientService.editClientDeleted) { @for (c of
+        dataManagementClientService.editClient.addresses; track c.id; let i =
+        $index) { @if (c.isDeleted === false && c.isScoped === false &&
+        c.isFuture === false) {
+        <div>
+          <button
+            class="btn btn-sm btn-outline-warning max-width"
+            [ngClass]="{
+              'btn-warning':
+                i === dataManagementClientService.currentAddressIndex
+            }"
+            (click)="onClickAddressArray(i)"
+            [value]="c.id"
+            placement="left"
+            ngbTooltip="{{ 'VALID_FROM' | translate }} {{
+              c.validFrom | date : 'dd.MM.yyyy'
+            }}"
+          >
+            {{ onAddressTypeName(i) }}
+          </button>
+        </div>
+        } } }
+      </div>
+    </li>
+    } @if (dataManagementClientService &&
+    dataManagementClientService.findClient.length > 0) {
+    <li class="list-group-item-action">
+      <div class="form-group">
+        <label
+          >{{ "address.edit-address.nav.find-addresses" | translate }} ({{
+            dataManagementClientService.findClient.length
+          }})</label
+        >
+        <ul class="findUl">
+          @for (c of dataManagementClientService.sortedFindClient; track c.id;
+          let i = $index) {
+          <li
+            type="button"
+            class="onwListButton"
+            (click)="onClickFindClient(c)"
+          >
+            {{ c.firstName }} {{ c.name }}
+          </li>
+          }
+        </ul>
+      </div>
+      @if (dataManagementClientService.findClientCount >
+      dataManagementClientService.findClientMaxVisiblePage) {
+      <div class="form-group onwPaginationContainer">
+        <div
+          type="button"
+          class="onwPaginationblock onwPaginationblockLeft"
+          (click)="onClickPaginationButton(-1)"
+        >
+          <i class="fas fa-angle-left"></i>
+        </div>
+        <div class="onwPaginationblock">
+          {{ dataManagementClientService.findClientPage }} /
+          {{ dataManagementClientService.findClientMaxPages }}
         </div>
         <div
-          class="form-group onwPaginationContainer"
-          *ngIf="
-            dataManagementClientService.findClientCount >
-            dataManagementClientService.findClientMaxVisiblePage
-          "
+          type="button"
+          class="onwPaginationblock onwPaginationblockRight"
+          (click)="onClickPaginationButton(1)"
         >
-          <div
-            type="button"
-            class="onwPaginationblock onwPaginationblockLeft"
-            (click)="onClickPaginationButton(-1)"
-          >
-            <i class="fas fa-angle-left"></i>
-          </div>
-          <div class="onwPaginationblock">
-            {{ dataManagementClientService.findClientPage }} /
-            {{ dataManagementClientService.findClientMaxPages }}
-          </div>
-          <div
-            type="button"
-            class="onwPaginationblock onwPaginationblockRight"
-            (click)="onClickPaginationButton(1)"
-          >
-            <i class="fas fa-angle-right"></i>
-          </div>
+          <i class="fas fa-angle-right"></i>
         </div>
-      </li>
-
-      <li class="list-group-item-action" *ngIf="isRestPossible()">
-        <button class="btn btn-sm btn-info max-width" (click)="onClickReset()">
-          {{ "address.edit-address.nav.back" | translate }}
-        </button>
-      </li>
-    </ng-container>
+      </div>
+      }
+    </li>
+    } @if (isRestPossible()) {
+    <li class="list-group-item-action">
+      <button class="btn btn-sm btn-info max-width" (click)="onClickReset()">
+        {{ "address.edit-address.nav.back" | translate }}
+      </button>
+    </li>
+    } }
   </ul>
 </form>
