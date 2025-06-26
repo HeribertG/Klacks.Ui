@@ -565,5 +565,7 @@
   "DELETE_ENTRY_ERROR": "Fehler beim Löschen des Eintrags",
   "ADD_ENTRY_ERROR": "Fehler beim Hinzufügen des Eintrags",
   "UPDATE_ENTRY_ERROR": "Fehler beim Aktualisieren des Eintrags",
-  "MODIFY_ENTRY_ERROR": "Fehler beim Bearbeiten des Eintrags"
+  "MODIFY_ENTRY_ERROR": "Fehler beim Bearbeiten des Eintrags",
+
+  "setting.group.chose-headline": "Sichtbare Rootgruppe"
 }

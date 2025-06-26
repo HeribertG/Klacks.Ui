@@ -32,7 +32,6 @@ interface VirtualGroup {
   description?: string;
 }
 
-// Kombinierter Typ für die Knoten im Baum
 type TreeNode = Group | VirtualGroup;
 
 @Component({
