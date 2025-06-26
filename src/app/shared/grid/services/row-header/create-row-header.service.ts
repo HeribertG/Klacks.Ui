@@ -51,8 +51,8 @@ export class BaseCreateRowHeaderService {
     const cell = new GridRowHeader();
     this.calculateRowProperties(cell, row);
 
-    const client = this.gridData.getIndex(
-      this.gridData.rowEmployeeIndex[row]
+    const client = this.gridData.getGroupIndex(
+      this.gridData.rowGroupIndex[row]
     ) as ClientWork;
 
     if (client === undefined) {
@@ -312,16 +312,13 @@ export class BaseCreateRowHeaderService {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private isDataValid(row: number): boolean {
-    return !(
-      this.gridData.dataManagementSchedule.clients.length === 0 ||
-      this.gridData.rowEmployeeIndex.length === 0
-    );
+    return this.gridData.rows >= row;
   }
 
   private calculateRowProperties(cell: GridRowHeader, row: number): void {
-    const index: number = this.gridData.rowEmployeeIndex[row];
-    cell.firstRow = this.gridData.indexEmployeeRow[index];
-    const client = this.gridData.getIndex(index) as ClientWork;
+    const index: number = this.gridData.rowGroupIndex[row];
+    cell.firstRow = this.gridData.indexGroupRow[index];
+    const client = this.gridData.getGroupIndex(index) as ClientWork;
     const neededRows = client?.neededRows ?? 0;
     cell.lastRow = cell.firstRow + neededRows - 1;
   }

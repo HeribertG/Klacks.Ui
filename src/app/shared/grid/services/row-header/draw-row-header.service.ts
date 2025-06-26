@@ -316,9 +316,9 @@ export class BaseDrawRowHeaderService {
     }
     const width = Math.floor(this.canvas!.clientWidth);
     const tmpPos = this.cellManipulation.Position;
-    const index: number = this.gridData.rowEmployeeIndex[tmpPos.row];
-    const firstRow: number = this.gridData.indexEmployeeRow[index];
-    let neededRows: number = this.gridData.getIndex(index).neededRows;
+    const index: number = this.gridData.rowGroupIndex[tmpPos.row];
+    const firstRow: number = this.gridData.indexGroupRow[index];
+    let neededRows: number = this.gridData.getGroupIndex(index).neededRows;
     if (redraw && firstRow === this.lastSelection) {
       return;
     }
@@ -478,14 +478,7 @@ export class BaseDrawRowHeaderService {
       return false;
     }
 
-    if (!this.gridData.dataManagementSchedule) {
-      return false;
-    }
-
-    if (
-      !this.gridData.dataManagementSchedule.clients ||
-      this.gridData.dataManagementSchedule.clients.length === 0
-    ) {
+    if (!this.gridData.indexes) {
       return false;
     }
 

@@ -128,7 +128,7 @@ export class BaseCreateCellService {
 
     const gridCell: GridCell = this.gridData.getCell(row, col);
     const weekDay = this.gridData.getWeekday(col);
-    const lastRowFlag = this.gridData.isLastRow(row) ? this.lastLine : 0;
+    const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
     const img = this.getCellImage(weekDay, lastRowFlag);
 
     this.drawImage(ctx, img);
@@ -162,13 +162,13 @@ export class BaseCreateCellService {
   }
 
   drawCellTexts(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {
-    if (gridCell.mainText !== '') {
+    if (gridCell.mainText) {
       this.drawMainText(ctx, gridCell.mainText);
     }
-    if (gridCell.firstSubText !== '') {
+    if (gridCell.firstSubText) {
       this.drawFirstSubText(ctx, gridCell.firstSubText);
     }
-    if (gridCell.secondSubText !== '') {
+    if (gridCell.secondSubText) {
       this.drawSecondSubText(ctx, gridCell.secondSubText);
     }
   }

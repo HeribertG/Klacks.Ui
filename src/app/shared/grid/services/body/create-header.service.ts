@@ -96,8 +96,8 @@ export class BaseCreateHeaderService {
   }
 
   getTitle(column: number): string {
-    if (this.gridData.startDate) {
-      const today: Date = new Date(this.gridData.startDate);
+    if (this.gridData.indexes) {
+      const today: Date = new Date(this.gridData.startDate!);
       today.setDate(today.getDate() + column);
 
       return this.formatDate(today);

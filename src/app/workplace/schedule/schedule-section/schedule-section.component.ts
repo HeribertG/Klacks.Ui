@@ -31,7 +31,6 @@ import { BaseCreateCellService } from 'src/app/shared/grid/services/body/create-
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
-import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
 @Component({
@@ -45,7 +44,6 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
     ScheduleSurfaceTemplateComponent,
   ],
   providers: [
-    BaseDataService,
     BaseSettingsService,
     ScrollService,
     BaseCellManipulationService,

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
@@ -15,8 +14,10 @@ import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 
-@Injectable()
-export class ShiftDataService extends BaseDataService {
+@Injectable({
+  providedIn: 'root',
+})
+export class ScheduleDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
@@ -30,7 +31,7 @@ export class ShiftDataService extends BaseDataService {
 
   public override setMetrics(): void {
     this.initializeDateAndColumns();
-    this.initializeIndices();
+    this.initializeGroupIndices();
 
     this.refreshSignal.set(true);
     setTimeout(() => this.refreshSignal.set(false), 0);
@@ -39,15 +40,16 @@ export class ShiftDataService extends BaseDataService {
   public override getCell(row: number, col: number): GridCell {
     const c = new GridCell();
 
-    c.mainText = 'Shift ' + (row * this.columns + col).toString();
+    c.mainText = 'Zelle ' + (row * this.columns + col).toString();
     c.firstSubText = row.toString() + ' / ' + col.toString();
     c.cellType = CellTypeEnum.Standard;
+    c.secondSubText = 'Lorem ipsum dolor sit amet';
 
     return c;
   }
 
   public getGroupIndex(index: number) {
-    return index;
+    return this.dataManagementSchedule.clients[index];
   }
   public override initializeDateAndColumns(): void {
     const dayVisibleBeforeMonth =
@@ -66,14 +68,15 @@ export class ShiftDataService extends BaseDataService {
   }
 
   public override isLastGroupRow(row: number): boolean {
-    return true;
+    const result = this.indexGroupRow.find((x) => x === row + 1);
+    return result === undefined ? false : true;
   }
 
   public override getItemMainText(row: number, col: number): string {
-    return 'Shift ' + (row * this.columns + col).toString();
+    return 'Zelle ' + (row * this.columns + col).toString();
   }
 
-  private initializeIndices(): void {
+  private initializeGroupIndices(): void {
     this.rowGroupIndex = [];
     this.indexGroupRow = [];
     let count = 0;

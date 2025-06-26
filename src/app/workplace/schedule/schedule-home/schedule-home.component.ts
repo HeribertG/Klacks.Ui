@@ -8,6 +8,7 @@ import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
+import { ScheduleDataService } from '../services/schedule-data.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -16,11 +17,11 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
   standalone: true,
   imports: [CommonModule, ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
+    { provide: BaseDataService, useClass: ScheduleDataService },
     ScrollService,
     BaseCellRenderService,
     HolidayCollectionService,
     ScrollbarService,
-    BaseDataService,
     BaseSettingsService,
   ],
 })

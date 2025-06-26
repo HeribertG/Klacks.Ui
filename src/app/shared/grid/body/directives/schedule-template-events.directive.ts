@@ -13,6 +13,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseCellManipulationService } from 'src/app/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/schedule-surface-template.component';
+import { HolidayCollectionService } from '../../services/holiday-collection.service';
 
 @Directive({
   selector: '[appScheduleTemplateEvents]',
