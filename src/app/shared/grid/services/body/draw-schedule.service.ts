@@ -192,6 +192,7 @@ export class BaseDrawScheduleService {
     const oldVisibleCol = this.nominalVisibleCol();
 
     const tempCanvas = document.createElement('canvas');
+
     const pixelRatio = DrawHelper.pixelRatio();
     const oldLogicalWidth = oldVisibleCol * this.settings.cellWidth;
     const oldLogicalHeight = oldVisibleRow * this.settings.cellHeight;

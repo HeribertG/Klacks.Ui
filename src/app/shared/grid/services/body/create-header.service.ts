@@ -67,7 +67,7 @@ export class BaseCreateHeaderService {
     this.emptyHeader = undefined;
   }
 
-  createHeader(col: number): HTMLCanvasElement | undefined {
+  createHeaderCell(col: number): HTMLCanvasElement | undefined {
     if (this.emptyHeader === undefined) {
       this.init();
     }

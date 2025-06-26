@@ -110,10 +110,10 @@ export class BaseGridRenderService {
     headerCanvas.width = columns * this.settings.cellWidth;
 
     for (let col = 0; col < columns; col++) {
-      const imgHeader = this.createHeader.createHeader(col);
-      if (imgHeader) {
+      const headerCell = this.createHeader.createHeaderCell(col);
+      if (headerCell) {
         headerCtx.drawImage(
-          imgHeader,
+          headerCell,
           col * this.settings.cellWidth,
           0,
           this.settings.cellWidth,
@@ -127,7 +127,6 @@ export class BaseGridRenderService {
     col: number,
     headerCtx: CanvasRenderingContext2D
   ): void {
-    // Erstelle temporäres Canvas für eine Header-Zelle
     const tempCanvas = document.createElement('canvas');
     const tempCtx = DrawHelper.createHiDPICanvas(
       tempCanvas,
@@ -139,14 +138,11 @@ export class BaseGridRenderService {
     if (tempCtx) {
       DrawHelper.setAntiAliasing(tempCtx);
 
-      // Zeichne Header-Hintergrund und Border
       this.createHeader.createRowHeaderHeader(tempCtx, this.settings.cellWidth);
 
-      // Zeichne Header-Text
       const title = this.createHeader.getTitle(col);
       this.createHeader.drawText(tempCtx, title);
 
-      // ✅ Verwende drawImage für korrekte pixelRatio-Behandlung
       const x = col * this.settings.cellWidth;
       headerCtx.drawImage(
         tempCanvas,
