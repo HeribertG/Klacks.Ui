@@ -6,12 +6,12 @@
   @for (c of dataManagementAbsence.absenceList(); track c.id || c.name ||
   $index) {
   <div class="name-line" draggable="true" (dragstart)="dragStart($event, c)">
-    <div class="name-icon" [ngStyle]="{ 'background-color': onColor(c) }">
+    <div class="name-icon" [style.background-color]="onColor(c)">
       @if (onIsChecked(c)) {
       <p
         class="checkmark"
         (click)="onCheck(c)"
-        [ngStyle]="{ color: onInvertColor(c) }"
+        [style.color]="onInvertColor(c)"
       >
         &#10004;
       </p>
@@ -19,7 +19,7 @@
       <p
         class="checkmark"
         (click)="onCheck(c)"
-        [ngStyle]="{ color: onInvertColor(c) }"
+        [style.color]="onInvertColor(c)"
       ></p>
       }
     </div>

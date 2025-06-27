@@ -20,7 +20,6 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { invertColor } from 'src/app/helpers/format-helper';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { NgStyle } from '@angular/common';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 
 @Component({
@@ -28,7 +27,7 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
   templateUrl: './absence-gantt-absence-list.component.html',
   styleUrls: ['./absence-gantt-absence-list.component.scss'],
   standalone: true,
-  imports: [NgStyle, TranslateModule, FallbackPipe],
+  imports: [TranslateModule, FallbackPipe],
 })
 export class AbsenceGanttAbsenceListComponent
   implements OnInit, AfterViewInit, OnDestroy
