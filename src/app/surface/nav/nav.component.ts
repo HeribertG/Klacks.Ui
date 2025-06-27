@@ -4,12 +4,20 @@ import {
   AfterViewInit,
   Component,
   OnInit,
+  OnDestroy,
   ViewChild,
   inject,
+  signal,
+  computed,
+  effect,
+  EffectRef,
+  Injector,
+  runInInjectionContext,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject, takeUntil } from 'rxjs';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
@@ -30,6 +38,18 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
 
+type NavigationPage =
+  | 'absence'
+  | 'group'
+  | 'shift'
+  | 'schedule'
+  | 'client'
+  | 'profile'
+  | 'settings'
+  | 'edit-address'
+  | 'edit-group'
+  | '';
+
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
@@ -46,7 +66,7 @@ import { TranslateStringConstantsService } from 'src/app/translate/translate-str
     IconSettingComponent,
   ],
 })
-export class NavComponent implements OnInit, AfterViewInit {
+export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;
   @ViewChild('groupIcon') groupIcon!: IconGroupComponent;
   @ViewChild('shiftIcon') shiftIcon!: IconOrderComponent;
@@ -55,6 +75,7 @@ export class NavComponent implements OnInit, AfterViewInit {
   @ViewChild('userIcon') userIcon!: IconUserComponent;
   @ViewChild('settingsIcon') settingsIcon!: IconSettingComponent;
 
+  // Services
   public authorizationService = inject(AuthorizationService);
   public router = inject(Router);
   public dataLoadFileService = inject(DataLoadFileService);
@@ -67,8 +88,40 @@ export class NavComponent implements OnInit, AfterViewInit {
   private localeService = inject(LocaleService);
   private themeService = inject(ThemeService);
   private urlParameterService = inject(UrlParameterService);
+  private injector = inject(Injector);
 
-  profileImage: any;
+  private currentLanguage = signal<string>(MessageLibrary.DEFAULT_LANG);
+  private currentTheme = signal<string>('');
+  private currentPage = signal<NavigationPage>('');
+  private iconsInitialized = signal<boolean>(false);
+  profileImage = signal<string | null>(null);
+
+  isAdmin = computed(() => this.authorizationService.isAdmin);
+  hasProfileImage = computed(() => !!this.profileImage());
+
+  selectedIcon = computed(() => {
+    const page = this.currentPage();
+    switch (page) {
+      case 'client':
+      case 'edit-address':
+        return 'employees';
+      case 'settings':
+        return 'settings';
+      case 'profile':
+        return 'user';
+      case 'group':
+      case 'edit-group':
+        return 'group';
+      case 'shift':
+        return 'shift';
+      case 'absence':
+        return 'absence';
+      case 'schedule':
+        return 'schedule';
+      default:
+        return '';
+    }
+  });
 
   absence = MessageLibrary.ABSENCE;
   all_schedule = MessageLibrary.ALL_SCHEDULE;
@@ -77,187 +130,242 @@ export class NavComponent implements OnInit, AfterViewInit {
   all_shift = MessageLibrary.ALL_SHIFT;
   statistic = MessageLibrary.STATISTIC;
 
+  private ngUnsubscribe = new Subject<void>();
+  private effectRefs: EffectRef[] = [];
+  private profileImageInterval: any;
+
+  constructor() {
+    this.setupEffects();
+  }
+
   ngOnInit(): void {
-    this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
-
-    const lang =
-      this.localStorageService.get(MessageLibrary.CURRENT_LANG) !== null;
-
-    if (lang) {
-      this.onChangeLanguage(
-        this.localStorageService.get(MessageLibrary.CURRENT_LANG) as string
-      );
-    }
+    this.initializeTranslation();
+    this.loadSavedLanguage();
     this.tryLoadProfileImage();
+    this.updateCurrentPage();
 
     this.absence = MessageLibrary.ABSENCE;
     this.all_schedule = MessageLibrary.ALL_SCHEDULE;
     this.all_employee = MessageLibrary.ALL_EMPLOYEE;
+    this.all_group = MessageLibrary.ALL_GROUP;
+    this.all_shift = MessageLibrary.ALL_SHIFT;
     this.statistic = MessageLibrary.STATISTIC;
   }
 
   ngAfterViewInit(): void {
-    this.translateService.onLangChange.subscribe(() => {
-      setTimeout(() => {
-        this.absence = MessageLibrary.ABSENCE;
-        this.all_schedule = MessageLibrary.ALL_SCHEDULE;
-        this.all_employee = MessageLibrary.ALL_EMPLOYEE;
-        this.statistic = MessageLibrary.STATISTIC;
-      }, 200);
-    });
+    this.iconsInitialized.set(true);
+    this.setupRxJSSubscriptions();
 
-    this.resetIconColor();
+    this.updateTranslations();
+  }
 
-    const page = this.urlParameterService.getWorkplaceSubRoute();
-    this.setSelectedIconColor(page);
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+    this.effectRefs.forEach((ref) => ref.destroy());
+    this.effectRefs = [];
 
-    this.themeService.theme$.subscribe(() => {
-      this.resetIconColor();
-      const page = this.urlParameterService.getWorkplaceSubRoute();
-      this.setSelectedIconColor(page);
+    if (this.profileImageInterval) {
+      clearInterval(this.profileImageInterval);
+    }
+  }
+
+  private setupEffects(): void {
+    runInInjectionContext(this.injector, () => {
+      const langEffect = effect(() => {
+        const lang = this.currentLanguage();
+        this.translateService.use(lang);
+        this.localStorageService.set(MessageLibrary.CURRENT_LANG, lang);
+        this.translateStringConstantsService.translate();
+        this.localeService.setLocale(lang as SupportedLocales);
+      });
+      this.effectRefs.push(langEffect);
+
+      const themeEffect = effect(() => {
+        const theme = this.currentTheme();
+        if (theme && this.iconsInitialized()) {
+          this.resetIconColor();
+          this.setSelectedIconColor();
+        }
+      });
+      this.effectRefs.push(themeEffect);
+
+      const pageEffect = effect(() => {
+        if (this.iconsInitialized()) {
+          this.resetIconColor();
+          this.setSelectedIconColor();
+        }
+      });
+      this.effectRefs.push(pageEffect);
+
+      const iconEffect = effect(() => {
+        const selected = this.selectedIcon();
+        if (this.iconsInitialized() && selected) {
+          this.resetIconColor();
+          this.activateIcon(selected);
+        }
+      });
+      this.effectRefs.push(iconEffect);
     });
   }
 
-  onClickAbsence(): void {
-    this.resetIconColor();
-    if (this.absenceIcon) {
-      this.absenceIcon.ChangeColor(true);
+  private setupRxJSSubscriptions(): void {
+    // Theme subscription
+    this.themeService.theme$
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((theme) => {
+        this.currentTheme.set(theme);
+      });
+
+    // Language change subscription - verwende original approach
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(() => {
+        setTimeout(() => {
+          this.updateTranslations();
+        }, 200);
+      });
+  }
+
+  private updateTranslations(): void {
+    // Original approach - aktualisiere properties direkt
+    this.absence = MessageLibrary.ABSENCE;
+    this.all_schedule = MessageLibrary.ALL_SCHEDULE;
+    this.all_employee = MessageLibrary.ALL_EMPLOYEE;
+    this.all_group = MessageLibrary.ALL_GROUP;
+    this.all_shift = MessageLibrary.ALL_SHIFT;
+    this.statistic = MessageLibrary.STATISTIC;
+  }
+
+  private initializeTranslation(): void {
+    this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
+  }
+
+  private loadSavedLanguage(): void {
+    const savedLang = this.localStorageService.get(MessageLibrary.CURRENT_LANG);
+    if (savedLang) {
+      this.onChangeLanguage(savedLang);
     }
+  }
+
+  private updateCurrentPage(): void {
+    const page =
+      this.urlParameterService.getWorkplaceSubRoute() as NavigationPage;
+    this.currentPage.set(page);
+  }
+
+  private tryLoadProfileImage(): void {
+    const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    if (id) {
+      const imgId = `${id}profile`;
+      this.dataLoadFileService.downLoadFile(imgId);
+      this.startProfileImageWatcher();
+    }
+  }
+
+  private startProfileImageWatcher(): void {
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    this.profileImageInterval = setInterval(() => {
+      if (this.dataLoadFileService.profileImage) {
+        this.profileImage.set(this.dataLoadFileService.profileImage);
+        clearInterval(this.profileImageInterval);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(this.profileImageInterval);
+      }
+      attempts++;
+    }, 200);
+
+    if (this.dataLoadFileService.profileImage) {
+      this.profileImage.set(this.dataLoadFileService.profileImage);
+      clearInterval(this.profileImageInterval);
+    }
+  }
+
+  onClickAbsence(): void {
+    this.currentPage.set('absence');
     this.navigationService.navigateToAbsence();
   }
 
   onClickGroup(): void {
-    this.resetIconColor();
-    if (this.groupIcon) {
-      this.groupIcon.ChangeColor(true);
-    }
+    this.currentPage.set('group');
     this.navigationService.navigateToGroup();
   }
 
   onClickShift(): void {
-    this.resetIconColor();
-    if (this.shiftIcon) {
-      this.shiftIcon.ChangeColor(true);
-    }
+    this.currentPage.set('shift');
     this.navigationService.navigateToShift();
   }
 
   onClickSchedule(): void {
-    this.resetIconColor();
-    if (this.scheduleIcon) {
-      this.scheduleIcon.ChangeColor(true);
-    }
+    this.currentPage.set('schedule');
     this.navigationService.navigateToSchedule();
   }
 
   onClickClients(): void {
-    this.resetIconColor();
-    if (this.employeesIcon) {
-      this.employeesIcon.ChangeColor(true);
-    }
+    this.currentPage.set('client');
     this.navigationService.navigateToClient();
   }
 
-  onClickProviders(): void {}
-
   onClickProfile(): void {
-    this.resetIconColor();
-    if (this.userIcon) {
-      this.userIcon.ChangeColor(true);
-    }
+    this.currentPage.set('profile');
     this.navigationService.navigateToProfile();
   }
 
   onClickSettings(): void {
-    this.resetIconColor();
-    if (this.settingsIcon) {
-      this.settingsIcon.ChangeColor(true);
-    }
+    this.currentPage.set('settings');
     this.navigationService.navigateToSettings();
   }
 
-  private tryLoadProfileImage() {
-    const id = localStorage.getItem(MessageLibrary.TOKEN_USERID);
-
-    if (id) {
-      const imgId = `${id}profile`;
-
-      this.dataLoadFileService.downLoadFile(imgId);
-    }
-  }
-
-  onChangeLanguage(lang: string) {
+  onChangeLanguage(lang: string): void {
     this.translateService.use(lang);
     localStorage.setItem(MessageLibrary.CURRENT_LANG, lang);
     this.translateStringConstantsService.translate();
     this.localeService.setLocale(lang as SupportedLocales);
+    this.currentLanguage.set(lang);
   }
 
-  private resetIconColor() {
-    if (this.absenceIcon) {
-      this.absenceIcon.ChangeColor();
-    }
-    if (this.groupIcon) {
-      this.groupIcon.ChangeColor();
-    }
-    if (this.shiftIcon) {
-      this.shiftIcon.ChangeColor();
-    }
-    if (this.scheduleIcon) {
-      this.scheduleIcon.ChangeColor();
-    }
-    if (this.employeesIcon) {
-      this.employeesIcon.ChangeColor();
-    }
-    if (this.userIcon) {
-      this.userIcon.ChangeColor();
-    }
-    if (this.settingsIcon) {
-      this.settingsIcon.ChangeColor();
+  // Icon Management
+  private resetIconColor(): void {
+    const icons = [
+      this.absenceIcon,
+      this.groupIcon,
+      this.shiftIcon,
+      this.scheduleIcon,
+      this.employeesIcon,
+      this.userIcon,
+      this.settingsIcon,
+    ];
+
+    icons.forEach((icon) => {
+      if (icon) {
+        icon.ChangeColor();
+      }
+    });
+  }
+
+  private activateIcon(iconName: string): void {
+    const iconMap = {
+      absence: this.absenceIcon,
+      group: this.groupIcon,
+      shift: this.shiftIcon,
+      schedule: this.scheduleIcon,
+      employees: this.employeesIcon,
+      user: this.userIcon,
+      settings: this.settingsIcon,
+    };
+
+    const icon = iconMap[iconName as keyof typeof iconMap];
+    if (icon) {
+      icon.ChangeColor(true);
     }
   }
 
-  private setSelectedIconColor(page: string) {
-    switch (page) {
-      case 'client':
-      case 'edit-address':
-        if (this.employeesIcon) {
-          this.employeesIcon.ChangeColor(true);
-        }
-        break;
-      case 'settings':
-        if (this.settingsIcon) {
-          this.settingsIcon.ChangeColor(true);
-        }
-        break;
-      case 'profile':
-        if (this.userIcon) {
-          this.userIcon.ChangeColor(true);
-        }
-        break;
-      case 'group':
-      case 'edit-group':
-        if (this.groupIcon) {
-          this.groupIcon.ChangeColor(true);
-        }
-        break;
-      case 'shift':
-        if (this.shiftIcon) {
-          this.shiftIcon.ChangeColor(true);
-        }
-        break;
-      case 'absence':
-        if (this.absenceIcon) {
-          this.absenceIcon.ChangeColor(true);
-        }
-        break;
-      case 'schedule':
-        if (this.scheduleIcon) {
-          this.scheduleIcon.ChangeColor(true);
-        }
-        break;
-      default:
-        return;
+  private setSelectedIconColor(): void {
+    const selectedIcon = this.selectedIcon();
+    if (selectedIcon) {
+      this.activateIcon(selectedIcon);
     }
   }
 }

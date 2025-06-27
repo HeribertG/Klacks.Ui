@@ -12,7 +12,7 @@
       ></app-icon-gantt>
     </div>
 
-    @if (authorizationService.isAdmin) {
+    @if (isAdmin()) {
     <div class="icon">
       <app-icon-group
         #groupIcon
@@ -61,11 +61,11 @@
   </div>
 
   <div class="main-bottomcell">
-    @if (!dataLoadFileService.profileImage) {
+    @if (!hasProfileImage()) {
     <div class="icon icon_user" aria-label="Open profile (Alt+7)">
       <app-icon-user #userIcon (click)="onClickProfile()"></app-icon-user>
     </div>
-    } @if (dataLoadFileService.profileImage) {
+    } @if (hasProfileImage()) {
     <div
       class="imgIconContainer"
       tabindex="6"
@@ -75,9 +75,9 @@
       (keydown.space)="onClickProfile()"
       aria-label="Open profile (Alt+7)"
     >
-      <img [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
+      <img [src]="profileImage()" alt="" class="imgIcon" />
     </div>
-    } @if (authorizationService.isAdmin) {
+    } @if (isAdmin()) {
     <div class="icon">
       <app-icon-setting
         #settingsIcon
