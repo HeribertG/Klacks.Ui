@@ -159,3 +159,13 @@ export class GroupTree implements IGroupTree {
   rootId?: string;
   nodes: Group[] = [];
 }
+
+export interface IGroupVisibility {
+  id?: string;
+  groupId?: string;
+}
+
+export class GroupVisibility implements IGroupVisibility {
+  id?: string;
+  groupId?: string;
+}
