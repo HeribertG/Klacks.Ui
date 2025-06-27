@@ -1,4 +1,12 @@
-import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
+  signal,
+  computed,
+  effect,
+} from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
@@ -46,34 +54,45 @@ export class AbsenceGanttHeaderComponent implements OnInit {
     DataManagementCalendarSelectionService
   );
 
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  currentLang = signal<Language>(MessageLibrary.DEFAULT_LANG);
+  value = signal<number>(100);
+  currentYear = signal<number>(new Date().getFullYear());
 
-  value = 100;
+  maxYear = computed(() => this.currentYear() + 30);
+  zoomLevel = computed(() => this.value() / 100);
 
-  options: Options = {
+  options = signal<Options>({
     floor: 50,
     ceil: 300,
     step: 10,
     showSelectionBarEnd: false,
     showSelectionBar: false,
-  };
+  });
 
-  currentYear: number = new Date().getFullYear();
-  maxYear: number = this.currentYear + 30;
+  constructor() {
+    effect(() => {
+      this.calendarSetting.zoom = this.zoomLevel();
+    });
+
+    effect(() => {
+      const year = this.currentYear();
+      this.dataManagementBreak.breakFilter.currentYear = year;
+      this.holidayCollection.currentYear = year;
+      this.dataManagementBreak.readYear();
+    });
+
+    effect(() => {
+      this.currentLang.set(this.translateService.currentLang as Language);
+    });
+  }
 
   ngOnInit(): void {
-    this.currentLang = this.translateService.currentLang as Language;
+    this.currentLang.set(this.translateService.currentLang as Language);
     this.holidayCollection.readData();
   }
 
-  onChange() {
-    this.calendarSetting.zoom = this.value / 100;
-  }
-
   changeYear(event: number) {
-    this.dataManagementBreak.breakFilter.currentYear = event;
-    this.holidayCollection.currentYear = event;
-    this.dataManagementBreak.readYear();
+    this.currentYear.set(event);
   }
 
   onOpenMenu() {
@@ -95,5 +114,21 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   onReRead() {
     this.onChangeCalendar();
+  }
+
+  get currentYearValue() {
+    return this.currentYear();
+  }
+
+  get maxYearValue() {
+    return this.maxYear();
+  }
+
+  get sliderValue() {
+    return this.value();
+  }
+
+  get sliderOptions() {
+    return this.options();
   }
 }

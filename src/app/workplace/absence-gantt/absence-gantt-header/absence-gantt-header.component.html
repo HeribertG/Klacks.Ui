@@ -39,8 +39,8 @@
       }}
     </span>
     <app-counter
-      [maxNumber]="maxYear"
-      [currentNumber]="currentYear"
+      [maxNumber]="maxYear()"
+      [currentNumber]="currentYear()"
       (isChanged)="changeYear($event)"
     >
     </app-counter>
@@ -52,10 +52,6 @@
     ngbTooltip="Zoom"
     autoClose="true"
   >
-    <ngx-slider
-      [(value)]="value"
-      (valueChange)="onChange()"
-      [options]="options"
-    ></ngx-slider>
+    <ngx-slider [(value)]="value" [options]="options()"></ngx-slider>
   </div>
 </div>
