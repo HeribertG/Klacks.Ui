@@ -28,7 +28,7 @@
             <!-- Inhalt für Links oben -->
             <app-absence-gantt-row-header
               #absenceRowHeader
-              [valueChangeVScrollbar]="vScrollbar.value"
+              [valueChangeVScrollbar]="vScrollbarValue()"
             >
             </app-absence-gantt-row-header>
           </as-split-area>
@@ -45,35 +45,39 @@
                     tabindex="0"
                     id="absence-gantt-surface-id"
                     [absenceRowHeader]="absenceRowHeader"
-                    [valueChangeHScrollbar]="hScrollbar.value"
-                    (valueHScrollbar)="hScrollbar.value = $event"
-                    (maxValueHScrollbar)="hScrollbar.maxValue = $event"
-                    (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
-                    [valueChangeVScrollbar]="vScrollbar.value"
-                    (valueVScrollbar)="vScrollbar.value = $event"
-                    (maxValueVScrollbar)="vScrollbar.maxValue = $event"
-                    (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
+                    [valueChangeHScrollbar]="hScrollbarValue()"
+                    (valueHScrollbar)="onHScrollbarValueChange($event)"
+                    (maxValueHScrollbar)="onHScrollbarMaxValueChange($event)"
+                    (visibleValueHScrollbar)="
+                      onHScrollbarVisibleValueChange($event)
+                    "
+                    [valueChangeVScrollbar]="vScrollbarValue()"
+                    (valueVScrollbar)="onVScrollbarValueChange($event)"
+                    (maxValueVScrollbar)="onVScrollbarMaxValueChange($event)"
+                    (visibleValueVScrollbar)="
+                      onVScrollbarVisibleValueChange($event)
+                    "
                   >
                   </app-absence-gantt-surface>
                 </div>
                 <app-v-scrollbar
-                  [class.hidden]="vScrollbarSize === 0"
+                  [class.hidden]="vScrollbarSize() === 0"
                   class="vScrollArea"
-                  [(value)]="vScrollbar.value"
-                  [maxValue]="vScrollbar.maxValue"
-                  [visibleValue]="vScrollbar.visibleValue"
-                  (valueChange)="absenceBody.valueChangeVScrollbar = $event"
+                  [(value)]="vScrollbarValue"
+                  [maxValue]="vScrollbarMaxValue()"
+                  [visibleValue]="vScrollbarVisibleValue()"
+                  (valueChange)="onVScrollbarValueChange($event)"
                   #vScrollbar
                 >
                 </app-v-scrollbar>
               </div>
               <app-h-scrollbar
-                [class.hidden]="hScrollbarSize === 0"
+                [class.hidden]="hScrollbarSize() === 0"
                 class="hScrollArea"
-                [(value)]="hScrollbar.value"
-                [maxValue]="hScrollbar.maxValue"
-                [visibleValue]="hScrollbar.visibleValue"
-                (valueChange)="absenceBody.valueChangeHScrollbar = $event"
+                [(value)]="hScrollbarValue"
+                [maxValue]="hScrollbarMaxValue()"
+                [visibleValue]="hScrollbarVisibleValue()"
+                (valueChange)="onHScrollbarValueChange($event)"
                 #hScrollbar
               >
               </app-h-scrollbar>
@@ -86,15 +90,11 @@
       <as-split-area>
         <app-absence-gantt-mask
           #absenceMask
-          [selectedRow]="absenceBody.drawCalendarGantt.selectedRow"
-          [selectedBreakIndex]="
-            absenceBody.drawCalendarGantt.selectedBreakIndex
-          "
-          [selectedRowBreaksMaxIndex]="
-            absenceBody.drawCalendarGantt.selectedRowBreaksMaxIndex
-          "
-          (UpdateEvent)="onUpdate(absenceBody.drawCalendarGantt.selectedBreak!)"
-          (selectedBreakIndexEvent)="absenceBody.onChangeIndex($event)"
+          [selectedRow]="selectedRow"
+          [selectedBreakIndex]="selectedBreakIndex"
+          [selectedRowBreaksMaxIndex]="selectedRowBreaksMaxIndex"
+          (UpdateEvent)="onUpdate(selectedBreak!)"
+          (selectedBreakIndexEvent)="onChangeIndex($event)"
           (ErrorMessageEvent)="onShowErrorMessage($event)"
         >
         </app-absence-gantt-mask>
@@ -103,7 +103,7 @@
   </as-split-area>
 
   <!-- Rechter (Info) Split-Bereich -->
-  <as-split-area [maxSize]="20" unit="percent" [visible]="IsInfoVisible">
+  <as-split-area [maxSize]="20" unit="percent" [visible]="IsInfoVisible()">
     <div class="info"></div>
   </as-split-area>
 </as-split>
