@@ -1,4 +1,11 @@
-import { Injectable, effect, inject, signal } from '@angular/core';
+import {
+  Injectable,
+  effect,
+  inject,
+  signal,
+  computed,
+  EffectRef,
+} from '@angular/core';
 import { DataManagementAbsenceService } from './data-management-absence.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementProfileService } from './data-management-profile.service';
@@ -21,84 +28,119 @@ export class DataManagementSwitchboardService {
   public dataManagementShiftService = inject(DataManagementShiftService);
   private spinnerService = inject(SpinnerService);
 
-  public isFocusChanged = signal(false);
+  // Signals für internen State
+  private _nameOfVisibleEntity = signal<string>('');
+  private _lastNameOfVisibleEntity = signal<string>('');
+  private _isDirty = signal<boolean>(false);
+  private _isDisabled = signal<boolean>(false);
+  private _isSavedOrReset = signal<boolean>(false);
+  private _isSearchVisible = signal<boolean>(true);
 
-  public lastNameOfVisibleEntity = '';
-  public isDirty = false;
-  public isDisabled = false;
-  public isSavedOrReset = false;
+  public isFocusChanged = signal<boolean>(false);
 
-  private _nameOfVisibleEntity = '';
-  private _isSearchVisible = true;
+  private spinnerStates = computed(() => ({
+    client: this.dataManagementClientService.showProgressSpinner(),
+    group: this.dataManagementGroupService.showProgressSpinner(),
+    absence: this.dataManagementAbsenceService.showProgressSpinner(),
+    schedule: this.dataManagementScheduleService.showProgressSpinner(),
+  }));
 
-  private effects: ReturnType<typeof effect>[] = [];
+  private shouldShowSpinner = computed(() => {
+    const states = this.spinnerStates();
+    return states.client || states.group || states.absence || states.schedule;
+  });
 
-  constructor() {
-    effect(() => {
-      const showSpinner =
-        this.dataManagementClientService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
+  public get lastNameOfVisibleEntity(): string {
+    return this._lastNameOfVisibleEntity();
+  }
 
-    effect(() => {
-      const showSpinner = this.dataManagementGroupService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
+  public get isDirty(): boolean {
+    return this._isDirty();
+  }
 
-    effect(() => {
-      const showSpinner =
-        this.dataManagementAbsenceService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
+  public set isDirty(value: boolean) {
+    this._isDirty.set(value);
+  }
 
-    effect(() => {
-      const showSpinner =
-        this.dataManagementScheduleService.showProgressSpinner();
-      if (showSpinner) {
-        this.showProgressSpinner(true);
-      } else if (!showSpinner) {
-        this.showProgressSpinner(false);
-      }
-    });
+  public get isDisabled(): boolean {
+    return this._isDisabled();
+  }
+
+  public set isDisabled(value: boolean) {
+    this._isDisabled.set(value);
+  }
+
+  public get isSavedOrReset(): boolean {
+    return this._isSavedOrReset();
+  }
+
+  public set isSavedOrReset(value: boolean) {
+    this._isSavedOrReset.set(value);
   }
 
   public get isSearchVisible(): boolean {
-    return this._isSearchVisible;
+    return this._isSearchVisible();
   }
 
   public set isSearchVisible(value: boolean) {
-    this._isSearchVisible = value;
+    this._isSearchVisible.set(value);
     this.isFocusChanged.set(true);
+  }
+
+  public get nameOfVisibleEntity(): string {
+    return this._nameOfVisibleEntity();
+  }
+
+  public set nameOfVisibleEntity(value: string) {
+    this._lastNameOfVisibleEntity.set(this._nameOfVisibleEntity());
+    this._nameOfVisibleEntity.set(value);
+
+    // Handle search visibility based on entity
+    switch (value) {
+      case 'DataManagementGroupService':
+        this._isSearchVisible.set(false);
+        break;
+      default:
+        this._isSearchVisible.set(true);
+        break;
+    }
+
+    this.isFocusChanged.set(true);
+  }
+
+  private effectRefs: EffectRef[] = [];
+
+  constructor() {
+    this.setupEffects();
+  }
+
+  private setupEffects(): void {
+    // Consolidated spinner effect
+    const spinnerEffect = effect(() => {
+      const shouldShow = this.shouldShowSpinner();
+      this.showProgressSpinner(shouldShow);
+    });
+    this.effectRefs.push(spinnerEffect);
+
+    // Auto-cleanup for dirty state
+    const dirtyCleanupEffect = effect(() => {
+      const isDirty = this._isDirty();
+      const isSavedOrReset = this._isSavedOrReset();
+
+      if (isDirty && isSavedOrReset) {
+        this.checkObjectDirty();
+      }
+
+      if (!isDirty) {
+        this._isSavedOrReset.set(false);
+        this._isDisabled.set(false);
+      }
+    });
+    this.effectRefs.push(dirtyCleanupEffect);
   }
 
   public showProgressSpinner(value: boolean): void {
     this.spinnerService.showProgressSpinner = value;
-  }
-  public get nameOfVisibleEntity(): string {
-    return this._nameOfVisibleEntity;
-  }
-
-  public set nameOfVisibleEntity(value: string) {
-    this.lastNameOfVisibleEntity = this._nameOfVisibleEntity;
-    this._nameOfVisibleEntity = value;
-    switch (this.nameOfVisibleEntity) {
-      case 'DataManagementGroupService':
-        this._isSearchVisible = false;
-    }
-
-    this.isFocusChanged.set(true);
   }
 
   areObjectsDirty(): void {
@@ -121,7 +163,6 @@ export class DataManagementSwitchboardService {
       case 'DataManagementClientService_Edit':
       case 'DataManagementClientService':
         return 'employees';
-
       case 'DataManagementSettingsService':
         return 'settings';
       case 'DataManagementProfileService':
@@ -138,98 +179,95 @@ export class DataManagementSwitchboardService {
         return '';
     }
   }
+
   private checkObjectDirty(): void {
+    let isDirty = false;
+
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':
       case 'DataManagementClientService':
-        this.isDirty = this.dataManagementClientService.areObjectsDirty();
+        isDirty = this.dataManagementClientService.areObjectsDirty();
         break;
-
       case 'DataManagementSettingsService':
-        this.isDirty = this.dataManagementSettingsService.areObjectsDirty();
-
+        isDirty = this.dataManagementSettingsService.areObjectsDirty();
         break;
       case 'DataManagementProfileService':
-        this.isDirty = this.dataManagementProfileService.areObjectsDirty();
+        isDirty = this.dataManagementProfileService.areObjectsDirty();
         break;
-
       case 'DataManagementGroupService_Edit':
-        this.isDirty = this.dataManagementGroupService.areObjectsDirty();
-
+        isDirty = this.dataManagementGroupService.areObjectsDirty();
         break;
-
       case 'DataManagementShiftService_Edit':
-        this.isDirty = this.dataManagementShiftService.areObjectsDirty();
+        isDirty = this.dataManagementShiftService.areObjectsDirty();
         break;
       default:
-        this.isDirty = false;
+        isDirty = false;
         break;
     }
 
-    if (!this.isDirty) {
-      this.isDisabled = false;
+    this._isDirty.set(isDirty);
+
+    if (!isDirty) {
+      this._isDisabled.set(false);
       this.showProgressSpinner(false);
     }
   }
 
   onClickSave(): void {
+    this.isDisabled = true;
+    this.isSavedOrReset = true;
+
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':
-        this.isDisabled = true;
-        this.isSavedOrReset = true;
         this.dataManagementClientService.save();
-
         break;
       case 'DataManagementSettingsService':
-        this.isDisabled = true;
-        this.isSavedOrReset = true;
         this.dataManagementSettingsService.save();
         break;
       case 'DataManagementProfileService':
-        this.isDisabled = true;
-        this.isSavedOrReset = true;
         this.dataManagementProfileService.save();
         break;
       case 'DataManagementGroupService_Edit':
-        this.isDisabled = true;
-        this.isSavedOrReset = true;
         this.dataManagementGroupService.save();
         break;
       case 'DataManagementShiftService_Edit':
-        this.isDisabled = true;
-        this.isSavedOrReset = true;
         this.dataManagementShiftService.save();
         break;
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  reset(resethard = false): void {
+  reset(): void {
+    this.isSavedOrReset = true;
+
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementClientService_Edit':
       case 'DataManagementClientService':
-        this.isSavedOrReset = true;
         this.dataManagementClientService.resetData();
         break;
       case 'DataManagementSettingsService':
-        this.isSavedOrReset = true;
         this.dataManagementSettingsService.resetData();
         break;
       case 'DataManagementProfileService':
-        this.isSavedOrReset = true;
         this.dataManagementProfileService.readData();
         break;
       case 'DataManagementGroupService_Edit':
-        this.isSavedOrReset = true;
         this.dataManagementGroupService.resetData();
-
         break;
       case 'DataManagementShiftService_Edit':
-        this.isSavedOrReset = true;
         this.dataManagementShiftService.resetData();
         break;
     }
   }
 
-  refresh(): void {}
+  resetAllSignals(): void {
+    this._isDirty.set(false);
+    this._isDisabled.set(false);
+    this._isSavedOrReset.set(false);
+    this.isFocusChanged.set(false);
+  }
+
+  destroy(): void {
+    this.effectRefs.forEach((ref) => ref.destroy());
+    this.effectRefs = [];
+  }
 }
