@@ -310,7 +310,6 @@ export class BaseCreateRowHeaderService {
     return this.oldWidth !== width;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private isDataValid(row: number): boolean {
     return this.gridData.rows >= row;
   }

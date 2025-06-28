@@ -4,7 +4,6 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { GroupScopeHeaderComponent } from './group-scope-header/group-scope-header.component';
 import { GroupScopeRowComponent } from './group-scope-row/group-scope-row.component';
-import { NgFor } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({

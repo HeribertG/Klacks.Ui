@@ -1,13 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { IGroup } from '../core/group-class';
+import { IGroup, IGroupVisibility } from '../core/group-class';
 import { Observable, retry } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import {
-  dateWithLocalTimeCorrection,
-  isNgbDateStructOk,
-  transformNgbDateStructToDate,
-} from '../helpers/format-helper';
 
 @Injectable({
   providedIn: 'root',
@@ -15,51 +10,35 @@ import {
 export class DataGroupVisibilityService {
   private httpClient = inject(HttpClient);
 
-  getGroupVisibility(id: string): Observable<IGroup> {
+  getGroupVisibility(id: string): Observable<IGroupVisibility> {
     return this.httpClient
-      .get<IGroup>(`${environment.baseUrl}Groups/` + id)
+      .get<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/` + id)
       .pipe(retry(3));
   }
 
-  updateGroupVisibility(value: IGroup): Observable<IGroup> {
-    this.setCorrectDate(value);
+  updateGroupVisibility(value: IGroupVisibility): Observable<IGroupVisibility> {
     return this.httpClient
-      .put<IGroup>(`${environment.baseUrl}Groups/`, value)
+      .put<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/`, value)
       .pipe(retry(3));
   }
 
-  addGroupVisibility(value: IGroup): Observable<IGroup> {
+  addGroupVisibility(value: IGroupVisibility): Observable<IGroupVisibility> {
     delete value.id;
 
-    this.setCorrectDate(value);
     return this.httpClient
-      .post<IGroup>(`${environment.baseUrl}Groups/`, value)
+      .post<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/`, value)
       .pipe(retry(3));
   }
 
-  deleteGroupVisibility(id: string): Observable<IGroup> {
+  deleteGroupVisibility(id: string): Observable<IGroupVisibility> {
     return this.httpClient
-      .delete<IGroup>(`${environment.baseUrl}Groups/` + id)
+      .delete<IGroupVisibility>(`${environment.baseUrl}GroupVisibilities/` + id)
       .pipe(retry(3));
   }
 
-  setCorrectDate(value: IGroup): void {
-    if (isNgbDateStructOk(value!.internalValidFrom)) {
-      value.validFrom = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalValidFrom)
-      )!;
-    } else {
-      value.validFrom = new Date();
-    }
-    value.validFrom = dateWithLocalTimeCorrection(value.validFrom)!;
-
-    if (isNgbDateStructOk(value!.internalValidUntil)) {
-      value.validUntil = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalValidUntil)
-      )!;
-      value.validUntil = dateWithLocalTimeCorrection(value.validUntil)!;
-    } else {
-      value.validUntil = undefined;
-    }
+  getRoots(): Observable<IGroup[]> {
+    return this.httpClient
+      .get<IGroup[]>(`${environment.baseUrl}Groups/roots`)
+      .pipe(retry(3));
   }
 }

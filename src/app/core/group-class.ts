@@ -163,9 +163,11 @@ export class GroupTree implements IGroupTree {
 export interface IGroupVisibility {
   id?: string;
   groupId?: string;
+  appUserId?: string;
 }
 
 export class GroupVisibility implements IGroupVisibility {
   id?: string;
   groupId?: string;
+  appUserId?: string;
 }
