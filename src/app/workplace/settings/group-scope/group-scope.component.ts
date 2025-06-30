@@ -4,7 +4,9 @@ import { DataManagementGroupService } from 'src/app/data/management/data-managem
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { GroupScopeHeaderComponent } from './group-scope-header/group-scope-header.component';
 import { GroupScopeRowComponent } from './group-scope-row/group-scope-row.component';
+
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DataManagementGroupVisibilityService } from 'src/app/data/management/data-management-group-visibility.service';
 
 @Component({
   selector: 'app-group-scope',
@@ -19,6 +21,10 @@ export class GroupScopeComponent {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public translate = inject(TranslateService);
   public dataManagementGroupService = inject(DataManagementGroupService);
+  public dataManagementGroupVisibilityService = inject(
+    DataManagementGroupVisibilityService
+  );
+  public readonly rootList = this.dataManagementGroupVisibilityService.rootList;
 
   onIsChanging(value: boolean): void {
     this.isChangingEvent.emit(value);

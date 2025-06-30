@@ -25,7 +25,29 @@
         >
       </div>
     </div>
-    <div class="modal-body"></div>
+    <div class="modal-body">
+      <div class="checkbox-container">
+        @for (group of rootList(); track group.id;) {
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="group-{{ group.id }}"
+            name="selectedGroups"
+            [checked]="selectedGroups.includes(group.id!)"
+            (change)="onCheckboxChange($event, group.id!)"
+            [value]="group.id"
+          />
+          <label class="form-check-label" for="group-{{ group.id }}">
+            {{ group.name }}
+            @if (group.description) {
+            <span class="text-muted"> - {{ group.description }}</span>
+            }
+          </label>
+        </div>
+        }
+      </div>
+    </div>
   </form>
 
   <div class="modal-footer">
@@ -53,7 +75,7 @@
       aria-label="number"
       (click)="open(content)"
     >
-      {{ number }}
+      {{ assignedGroupsCount }}
     </button>
   </div>
 </div>

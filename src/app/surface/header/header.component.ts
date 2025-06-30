@@ -87,21 +87,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private setupEffects(): void {
-    runInInjectionContext(this.injector, () => {
-      const themeEffect = effect(() => {
-        const theme = this.currentTheme();
-        console.log('Theme changed to:', theme);
-      });
-      this.effectRefs.push(themeEffect);
-
-      const logoEffect = effect(() => {
-        const logo = this.logoImage();
-        if (logo) {
-          console.log('Logo image loaded:', logo);
-        }
-      });
-      this.effectRefs.push(logoEffect);
-    });
+    runInInjectionContext(this.injector, () => {});
   }
 
   private setupRxJSSubscriptions(): void {

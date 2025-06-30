@@ -20,3 +20,57 @@ button {
   height: 35px;
   width: 80px;
 }
+
+.checkbox-container .form-check-input {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  margin-right: 0.75rem;
+  border: 2px solid var(--cardBorderColor);
+  border-radius: 0.25rem;
+  background-color: var(--backgroundColorCard);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.checkbox-container .form-check-input:checked {
+  background-color: colors.$standartBlueColor;
+  border-color: colors.$standartBlueColor;
+}
+
+.checkbox-container .form-check-input:focus {
+  border-color: colors.$standartBlueColor;
+  box-shadow: 0 0 0 0.2rem rgba(colors.$standartBlueColor, 0.25);
+}
+
+.checkbox-container .form-check-label {
+  font-size: 0.875rem; // 14px
+  color: var(--colorHeadline);
+  cursor: pointer;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.checkbox-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.checkbox-container::-webkit-scrollbar-track {
+  background: var(--backgroundColorCard);
+  border-radius: 4px;
+}
+
+.checkbox-container::-webkit-scrollbar-thumb {
+  background: var(--cardBorderColor);
+  border-radius: 4px;
+}
+
+.checkbox-container::-webkit-scrollbar-thumb:hover {
+  background: var(--colorLabel);
+}
+
+.checkbox-container .form-check .text-muted {
+  font-weight: 500;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--colorLabel) !important;
+}
