@@ -23,11 +23,10 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { GroupSelectionService } from '../data/management/group-selection.service';
 
-// Definiere einen Typ für die virtuelle Gruppe
 interface VirtualGroup {
   id: string | null;
   name: string;
-  children?: never; // Virtual groups never have children
+  children?: never;
   depth?: number;
   description?: string;
 }

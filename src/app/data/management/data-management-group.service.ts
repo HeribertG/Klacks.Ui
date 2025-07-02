@@ -84,6 +84,7 @@ export class DataManagementGroupService {
   private temporaryClientFilterDummy: Filter | undefined;
 
   /* #region   init */
+
   init() {
     this.dataClientService
       .getStateTokenList(true)
@@ -105,6 +106,36 @@ export class DataManagementGroupService {
     this.readPage();
   }
 
+  initTree(rootId?: string) {
+    this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+    setTimeout(() => this.showProgressSpinner.set(true), 0);
+
+    this.dataGroupService.getGroupTree(rootId).subscribe({
+      next: (tree: IGroupTree) => {
+        this.groupTree = new GroupTree();
+        this.groupTree.rootId = tree.rootId;
+        this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
+        this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+
+        const expandedSet = new Set<string>();
+        this.groupTree.nodes.forEach((node) => {
+          if (node.id) {
+            expandedSet.add(node.id);
+          }
+        });
+        this.expandedNodes = expandedSet;
+
+        this.fireIsReadEvent();
+      },
+      error: (error) => {
+        this.toastShowService.showError(error, 'GroupTreeError');
+      },
+      complete: () => {
+        setTimeout(() => this.showProgressSpinner.set(false), 0);
+      },
+    });
+  }
+
   /* #endregion   init */
 
   showExternalClient(id: string) {
@@ -116,7 +147,7 @@ export class DataManagementGroupService {
         this.showProgressSpinner.set(false);
       },
       error: (error) => {
-        console.error('Fehler beim Laden der Gruppe:', error);
+        console.error('Error while loading groups:', error);
         this.toastShowService.showError(error, 'GroupLoadError');
         this.showProgressSpinner.set(false);
       },
@@ -420,36 +451,6 @@ export class DataManagementGroupService {
     this.navigationService.navigateToGroupTree();
   }
 
-  initTree(rootId?: string) {
-    this.flatNodeList = this.flattenTree(this.groupTree.nodes);
-    setTimeout(() => this.showProgressSpinner.set(true), 0);
-
-    this.dataGroupService.getGroupTree(rootId).subscribe({
-      next: (tree: IGroupTree) => {
-        this.groupTree = new GroupTree();
-        this.groupTree.rootId = tree.rootId;
-        this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
-        this.flatNodeList = this.flattenTree(this.groupTree.nodes);
-
-        const expandedSet = new Set<string>();
-        this.groupTree.nodes.forEach((node) => {
-          if (node.id) {
-            expandedSet.add(node.id);
-          }
-        });
-        this.expandedNodes = expandedSet;
-
-        this.fireIsReadEvent();
-      },
-      error: (error) => {
-        this.toastShowService.showError(error, 'GroupTreeError');
-      },
-      complete: () => {
-        setTimeout(() => this.showProgressSpinner.set(false), 0);
-      },
-    });
-  }
-
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient
       .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
@@ -511,11 +512,6 @@ export class DataManagementGroupService {
     });
   }
 
-  /**
-   * Wandelt eine hierarchische Baumstruktur in eine flache Liste um
-   * @param nodes Die Knoten, die abgeflacht werden sollen
-   * @returns Eine flache Liste aller Knoten
-   */
   private flattenTree(nodes: IGroup[]): Group[] {
     const result: Group[] = [];
 
