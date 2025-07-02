@@ -186,6 +186,7 @@ export interface IWorkFilter {
   search: string;
   sortOrder: string;
   works: Work[];
+  selectedGroup: string | undefined;
 }
 
 export class WorkFilter implements IWorkFilter {
@@ -197,6 +198,7 @@ export class WorkFilter implements IWorkFilter {
   search = '';
   sortOrder = '';
   works: Work[] = [];
+  selectedGroup: string | undefined = undefined;
 }
 
 export interface IOwnTime {

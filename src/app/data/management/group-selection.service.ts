@@ -1,18 +1,16 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/core/group-class';
-import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementSwitchboardService } from './data-management-switchboard.service';
 import { DataManagementBreakService } from './data-management-break.service';
-import { DataManagementGroupService } from './data-management-group.service';
+import { DataManagementScheduleService } from './data-management-schedule.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroupSelectionService {
   private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
-  private dataManagementClient = inject(DataManagementClientService);
   private dataManagementBreak = inject(DataManagementBreakService);
-  private dataManagementGroup = inject(DataManagementGroupService);
+  private dataManagementScheduleService = inject(DataManagementScheduleService);
 
   // Signal für den aktuell ausgewählten Knoten
   private _selectedGroup = signal<Group | undefined>(undefined);
@@ -47,21 +45,15 @@ export class GroupSelectionService {
     setTimeout(() => this.selectedGroupChanged.set(false), 100);
 
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
-      case 'DataManagementClientService':
-        this.dataManagementClient.currentFilter.selectedGroup =
-          this.selectedGroupId;
-
-        this.dataManagementClient.readPage();
-        break;
       case 'DataManagementBreakService':
         this.dataManagementBreak.breakFilter.selectedGroup =
           this.selectedGroupId;
         this.dataManagementBreak.readYear();
         break;
-      case 'DataManagementGroupService':
-        this.dataManagementGroup.currentFilter.selectedGroup =
+      case 'DataManagementScheduleService':
+        this.dataManagementScheduleService.workFilter.selectedGroup =
           this.selectedGroupId;
-        this.dataManagementGroup.readPage();
+        this.dataManagementScheduleService.readDatas();
         break;
     }
   }

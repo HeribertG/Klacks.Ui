@@ -13,6 +13,7 @@ import {
   inject,
   runInInjectionContext,
   effect,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,6 +23,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { GroupSelectionService } from '../data/management/group-selection.service';
+import { DataManagementSwitchboardService } from '../data/management/data-management-switchboard.service';
 
 interface VirtualGroup {
   id: string | null;
@@ -57,24 +59,27 @@ export class GroupSelectComponent
   implements OnInit, OnDestroy, ControlValueAccessor
 {
   public dataManagementGroupService = inject(DataManagementGroupService);
-  private injector = inject(Injector);
   public translate = inject(TranslateService);
   public groupSelectionService = inject(GroupSelectionService);
+  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private injector = inject(Injector);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
   @Output() groupSelected = new EventEmitter<Group | null>();
 
-  hierarchicalTree: Group[] = [];
-  displayTree: TreeNode[] = [];
-  isDropdownOpen = false;
-  selectedGroup: Group | null = null;
-  selectedGroupId: string | null = null;
-  expandedNodes = new Set<string>();
-  isDisabled = false;
-  private effectRef: EffectRef | null = null;
-  private serviceEffectRef: EffectRef | null = null;
+  public hierarchicalTree: Group[] = [];
+  public displayTree: TreeNode[] = [];
+  public isDropdownOpen = false;
+  public selectedGroup: Group | null = null;
+  public selectedGroupId: string | null = null;
+  public expandedNodes = new Set<string>();
+  public isDisabled = false;
+  public isVisible = false;
+
+  private effects: EffectRef[] = [];
 
   readonly ALL_GROUPS_ID = 'all-groups-virtual';
 
@@ -85,39 +90,46 @@ export class GroupSelectComponent
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
 
-    this.setupEffect();
-    this.setupServiceEffect();
+    this.readSignals();
+    this.readSignalsService();
   }
 
   ngOnDestroy(): void {
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
-    if (this.serviceEffectRef) {
-      this.serviceEffectRef.destroy();
-      this.serviceEffectRef = null;
-    }
+    this.effects.forEach((effectRef) => {
+      if (effectRef) {
+        effectRef.destroy();
+      }
+    });
+    this.effects = [];
   }
 
-  private setupEffect(): void {
+  private readSignals(): void {
     try {
-      this.effectRef = runInInjectionContext(this.injector, () => {
-        return effect(() => {
+      runInInjectionContext(this.injector, () => {
+        const effect1 = effect(() => {
           if (this.dataManagementGroupService.isRead()) {
             this.buildHierarchicalTree();
           }
         });
+        this.effects.push(effect1);
+
+        const effect2 = effect(() => {
+          this.dataManagementSwitchboard.isFocusChanged();
+
+          this.handleFocusChange();
+          this.dataManagementSwitchboard.isFocusChanged.set(false);
+        });
+        this.effects.push(effect2);
       });
     } catch (error) {
       console.error('Error when setting up the effect:', error);
     }
   }
 
-  private setupServiceEffect(): void {
+  private readSignalsService(): void {
     try {
-      this.serviceEffectRef = runInInjectionContext(this.injector, () => {
-        return effect(() => {
+      runInInjectionContext(this.injector, () => {
+        const effect3 = effect(() => {
           const serviceSelectedGroup = this.groupSelectionService.selectedGroup;
 
           if (
@@ -143,6 +155,7 @@ export class GroupSelectComponent
             }
           }
         });
+        this.effects.push(effect3);
       });
     } catch (error) {
       console.error('Error when setting up the service effect:', error);
@@ -329,5 +342,20 @@ export class GroupSelectComponent
         if (this.selectedGroup) return;
       }
     }
+  }
+
+  private isComponentVisible(): boolean {
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
+      case 'DataManagementBreakService':
+      case 'DataManagementScheduleService':
+        return true;
+    }
+
+    return false;
+  }
+
+  private handleFocusChange() {
+    this.isVisible = this.isComponentVisible();
+    this.cdr.detectChanges();
   }
 }

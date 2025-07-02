@@ -1,5 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+@if (isVisible) {
 <div class="group-select-container">
   @if (label) {
   <label [for]="'group-select-' + label" class="group-select-label">
@@ -185,3 +186,4 @@
   </div>
   }
 </ng-template>
+}
