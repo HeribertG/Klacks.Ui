@@ -264,6 +264,9 @@ export class AllAddressListComponent
       this.firstItemOnLastPage = this.dataManagementClientService.firstItem;
     }
     this.page = event;
+    setTimeout(() => {
+      this.readPage();
+    }, 100);
   }
 
   private readPage(isSecondRead = false) {
