@@ -180,10 +180,9 @@ export class DrawCalendarGanttService {
   /* #endregion   draw */
 
   /* #region   draw intern */
-  // Zeichnet direkt auf Anzeige-Canvas
 
-  public drawRowIntern(index: number): void {
-    this.renderCalendarGrid.drawRowIntern(index);
+  public drawRowIntern(index: number, isUnselect?: boolean): void {
+    this.renderCalendarGrid.drawRowIntern(index, isUnselect);
   }
 
   private drawBreakIntern(rec: Rectangle, color: string) {

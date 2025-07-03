@@ -37,7 +37,6 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   private isMeasureTable = false;
 
   ngOnInit(): void {
-    // Load saved row preference
     const savedRow = this.localStorageService.get(
       MessageLibrary.SELECTED_ROW_ORDER
     );
@@ -48,14 +47,11 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
       }
     }
 
-    // Setup ResizeObserver
     this.setupResizeObserver();
 
-    // Setup window resize listener
     this.windowResizeListener = this.onWindowResize.bind(this);
     window.addEventListener('resize', this.windowResizeListener, true);
 
-    // Initial calculation
     setTimeout(() => this.recalcHeight(), 100);
   }
 

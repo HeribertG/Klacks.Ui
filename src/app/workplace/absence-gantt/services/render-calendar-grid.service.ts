@@ -329,7 +329,7 @@ export class RenderCalendarGridService {
   public unDrawSelectionRow(): void {
     if (this.selectedRow > -1) {
       if (this.isSelectedRowVisible()) {
-        this.drawRowIntern(this.selectedRow);
+        this.drawRowIntern(this.selectedRow, true);
 
         this.drawRow(this.selectedRow, undefined);
       }
@@ -429,7 +429,7 @@ export class RenderCalendarGridService {
     );
   }
 
-  public drawRowIntern(index: number, isUndraw = false): void {
+  public drawRowIntern(index: number, isUnselect = false): void {
     const dy = index - this.scroll.verticalScrollPosition;
     const left =
       this.scroll.horizontalScrollPosition *
@@ -444,7 +444,7 @@ export class RenderCalendarGridService {
       top + height
     );
 
-    this.drawRowSubIntern(index, rowRec, isUndraw);
+    this.drawRowSubIntern(index, rowRec, isUnselect);
   }
 
   firstVisibleColumn(): number {
@@ -515,7 +515,7 @@ export class RenderCalendarGridService {
   private drawRowSubIntern(
     index: number,
     rowRec: Rectangle,
-    isUndraw: boolean
+    isUnselect: boolean
   ): void {
     if (index < this.dataManagementBreak.rows) {
       // loads background in rowCtx
@@ -525,7 +525,7 @@ export class RenderCalendarGridService {
         0
       );
       // Draws all breaks in rowCtx
-      if (isUndraw) {
+      if (isUnselect) {
         this.drawRowBreaks(index, undefined);
       } else {
         this.drawRowBreaks(index, this.selectedBreak);
