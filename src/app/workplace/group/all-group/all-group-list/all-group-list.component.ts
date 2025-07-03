@@ -31,6 +31,7 @@ import {
   HeaderProperties,
 } from 'src/app/core/headerProperties';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+import { isNumeric } from 'src/app/helpers/format-helper';
 import {
   cloneObject,
   compareComplexObjects,
@@ -45,6 +46,7 @@ import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
@@ -78,6 +80,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private renderer = inject(Renderer2);
   private injector = inject(Injector);
+  private localStorageService = inject(LocalStorageService);
+
   private effectRef: EffectRef | null = null;
 
   highlightRowId: string | undefined = undefined;
@@ -128,6 +132,15 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.reReadSortData();
     this.visibleRow = visibleRow();
 
+    window.addEventListener('resize', this.resize, true);
+
+    const tmpRow = this.localStorageService.get(
+      MessageLibrary.SELECTED_ROW_ORDER
+    );
+    if (tmpRow && isNumeric(tmpRow)) {
+      setTimeout(() => (this.realRow = +tmpRow), 100);
+    }
+
     setTimeout(() => {
       this.page =
         this.dataManagementGroupService.currentFilter.requiredPage + 1;
@@ -137,6 +150,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
+    this.getReset();
+
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
@@ -153,6 +168,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resize, true);
+
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
