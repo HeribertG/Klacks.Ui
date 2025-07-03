@@ -8,7 +8,6 @@ import {
   Injector,
   OnDestroy,
   OnInit,
-  Renderer2,
   ViewChild,
   effect,
   inject,
@@ -30,7 +29,6 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { measureTableHeight } from 'src/app/helpers/tableResize';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
@@ -75,7 +73,6 @@ export class AllAddressListComponent
   public translate = inject(TranslateService);
   public authorizationService = inject(AuthorizationService);
   private navigationService = inject(NavigationService);
-  private renderer = inject(Renderer2);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
@@ -139,6 +136,8 @@ export class AllAddressListComponent
       .subscribe(() => {
         this.message = this.translate.instant('DELETE_ENTRY');
       });
+
+    setTimeout(() => this.resizeDirective.recalcHeight(), 500);
 
     this.getReset();
 

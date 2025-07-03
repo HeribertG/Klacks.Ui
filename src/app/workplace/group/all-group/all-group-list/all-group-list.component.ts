@@ -45,7 +45,6 @@ import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 
@@ -81,7 +80,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private renderer = inject(Renderer2);
   private injector = inject(Injector);
-  private localStorageService = inject(LocalStorageService);
 
   private effectRef: EffectRef | null = null;
 
