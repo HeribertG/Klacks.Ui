@@ -31,8 +31,12 @@
       (blur)="onLostFocus()"
       #myGridTable
       id="myGridTable"
-      appResizeObserver
-      (resizeElement)="onResize($event)"
+      appResizeTable
+      [defaultItemsPerPage]="numberOfItemsPerPage"
+      [maxItems]="dataManagementGroupService.maxItems"
+      [currentPage]="page"
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+      (recalculateRequired)="onRecalculateRequired($event)"
     >
       <thead>
         <tr>

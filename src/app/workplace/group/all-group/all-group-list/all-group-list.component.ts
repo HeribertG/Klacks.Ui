@@ -31,12 +31,11 @@ import {
   HeaderProperties,
 } from 'src/app/core/headerProperties';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { isNumeric } from 'src/app/helpers/format-helper';
+import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 import {
   cloneObject,
   compareComplexObjects,
   copyObjectValues,
-  restoreFilter,
   saveFilter,
 } from 'src/app/helpers/object-helpers';
 import { visibleRow } from 'src/app/helpers/sharedItems';
@@ -64,9 +63,11 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
     PencilIconGreyComponent,
     TrashIconRedComponent,
     IconTreeComponent,
+    ResizeTableDirective,
   ],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild(ResizeTableDirective) resizeDirective!: ResizeTableDirective;
   @ViewChild('myGridTable', { static: true }) myGridTable:
     | ElementRef
     | undefined;
@@ -128,24 +129,15 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataManagementGroupService.init();
-
     this.reReadSortData();
     this.visibleRow = visibleRow();
-
-    window.addEventListener('resize', this.resize, true);
-
-    const tmpRow = this.localStorageService.get(
-      MessageLibrary.SELECTED_ROW_ORDER
-    );
-    if (tmpRow && isNumeric(tmpRow)) {
-      setTimeout(() => (this.realRow = +tmpRow), 100);
-    }
 
     setTimeout(() => {
       this.page =
         this.dataManagementGroupService.currentFilter.requiredPage + 1;
       this.recalcHeight();
     }, 600);
+
     this.readSignals();
   }
 
@@ -369,6 +361,19 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /* #region   resize */
 
+  onItemsPerPageChange(value: number): void {
+    this.numberOfItemsPerPage = value;
+    this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = value;
+  }
+
+  onRecalculateRequired(shouldRead: boolean): void {
+    if (shouldRead) {
+      this.readPage(true);
+    } else {
+      this.readPage();
+    }
+  }
+
   private getReset(): void {
     this.page = 1;
     this.dataManagementGroupService.currentFilter.firstItemOnLastPage = 0;
@@ -489,22 +494,18 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onChangeRowSize(event: any): void {
-    this.realRow = +event.srcElement.value;
+    const value = +event.srcElement.value;
+    this.realRow = value;
     this.dataManagementGroupService.firstItem = 0;
     this.page = 1;
-    localStorage.removeItem(MessageLibrary.SELECTED_ROW_ORDER);
-    localStorage.setItem(
-      MessageLibrary.SELECTED_ROW_ORDER,
-      this.realRow.toString()
-    );
 
-    if (this.realRow !== -1) {
-      this.numberOfItemsPerPage = this.realRow;
+    if (value !== -1) {
+      this.numberOfItemsPerPage = value;
       this.dataManagementGroupService.maxPages = 0;
       this.dataManagementGroupService.maxItems = 0;
     }
 
-    setTimeout(() => this.recalcHeight(), 100);
+    this.resizeDirective?.onRowSizeChange(value);
   }
 
   onPageChange(event: number) {
@@ -561,7 +562,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
             this.isFirstRead = false;
             return;
           }
-          this.isMeasureTable = true;
+          this.resizeDirective?.triggerMeasurement();
         }
       });
     });

@@ -44,6 +44,7 @@ import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.componen
 import { NavigationService } from 'src/app/services/navigation.service';
 import { IconEyeGreyComponent } from 'src/app/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 
 @Component({
   selector: 'app-all-address-list',
@@ -59,11 +60,13 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     PencilIconGreyComponent,
     ExcelComponent,
     IconEyeGreyComponent,
+    ResizeTableDirective,
   ],
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  @ViewChild(ResizeTableDirective) resizeDirective!: ResizeTableDirective;
   @ViewChild('myAddressTable', { static: true }) myAddressTable:
     | ElementRef
     | undefined;
@@ -106,14 +109,10 @@ export class AllAddressListComponent
   isAuthorised = false;
   monthList = [];
 
-  tableSize: DOMRectReadOnly | any;
-  isMeasureTable = false;
   isFirstRead = true;
 
   visibleRow: { text: string; value: number }[] = [];
   realRow = -1;
-
-  resizeWindow: (() => void) | undefined;
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -131,8 +130,6 @@ export class AllAddressListComponent
 
     this.reReadSortData();
     this.visibleRow = visibleRow();
-
-    window.addEventListener('resize', this.resize, true);
     this.readSignals();
   }
 
@@ -143,13 +140,7 @@ export class AllAddressListComponent
         this.message = this.translate.instant('DELETE_ENTRY');
       });
 
-    setTimeout(() => this.recalcHeight(), 600);
-
     this.getReset();
-
-    this.resizeWindow = this.renderer.listen('window', 'resize', (event) => {
-      this.resize(event);
-    });
 
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -163,13 +154,6 @@ export class AllAddressListComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-    try {
-      if (this.resizeWindow) {
-        this.resizeWindow();
-      }
-    } catch {
-      this.resizeWindow = undefined;
-    }
 
     this.effects.forEach((effectRef) => {
       if (effectRef) {
@@ -197,64 +181,35 @@ export class AllAddressListComponent
 
     if (!tmp) {
       this.dataManagementClientService.currentFilter.setEmpty();
-      this.recalcHeight();
     } else {
       setTimeout(() => {
         this.restoreFilter(tmp);
         this.page =
           this.dataManagementClientService.currentFilter.requiredPage + 1;
-        this.recalcHeight();
       }, 100);
     }
   }
 
   /* #region   resize */
 
+  onItemsPerPageChange(value: number): void {
+    this.numberOfItemsPerPage = value;
+    this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
+  }
+
+  onRecalculateRequired(shouldRead: boolean): void {
+    if (shouldRead) {
+      this.readPage(true);
+    } else {
+      this.readPage();
+    }
+  }
+
   private getReset(): void {
     this.page = 1;
     this.dataManagementClientService.currentFilter.firstItemOnLastPage = 0;
     this.dataManagementClientService.currentFilter.isPreviousPage = undefined;
     this.dataManagementClientService.currentFilter.isNextPage = undefined;
-
-    setTimeout(() => this.recalcHeight(), 100);
-  }
-
-  onResize(event: DOMRectReadOnly | any): void {
-    this.tableSize = event;
-    if (this.isMeasureTable) {
-      this.isMeasureTable = false;
-      setTimeout(() => this.recalcHeight(true), 100);
-    }
-  }
-
-  private resize = (event: any): void => {
-    setTimeout(() => this.recalcHeight(), 100);
-  };
-
-  private recalcHeight(isSecondRead = false) {
-    if (this.myAddressTable) {
-      const addLine = measureTableHeight(this.myAddressTable);
-
-      const tmpNumberOfItemsPerPage = this.numberOfItemsPerPage;
-
-      if (
-        this.page * addLine!.lines <
-        this.dataManagementClientService.maxItems
-      ) {
-        this.numberOfItemsPerPage = 5;
-        if (addLine!.lines > 5) {
-          this.numberOfItemsPerPage = addLine!.lines;
-        }
-      }
-
-      if (!isSecondRead) {
-        this.readPage();
-      } else {
-        if (tmpNumberOfItemsPerPage !== this.numberOfItemsPerPage) {
-          this.readPage(true);
-        }
-      }
-    }
   }
 
   /* #endregion   resize */
@@ -277,22 +232,18 @@ export class AllAddressListComponent
   }
 
   onChangeRowSize(event: any): void {
-    this.realRow = +event.srcElement.value;
+    const value = +event.srcElement.value;
+    this.realRow = value;
     this.dataManagementClientService.firstItem = 0;
     this.page = 1;
-    localStorage.removeItem(MessageLibrary.SELECTED_ROW_ORDER);
-    localStorage.setItem(
-      MessageLibrary.SELECTED_ROW_ORDER,
-      this.realRow.toString()
-    );
 
-    if (this.realRow !== -1) {
-      this.numberOfItemsPerPage = this.realRow;
+    if (value !== -1) {
+      this.numberOfItemsPerPage = value;
       this.dataManagementClientService.maxPages = 0;
       this.dataManagementClientService.maxItems = 0;
     }
 
-    setTimeout(() => this.recalcHeight(), 100);
+    this.resizeDirective?.onRowSizeChange(value);
   }
 
   onPageChange(event: number) {
@@ -313,9 +264,6 @@ export class AllAddressListComponent
       this.firstItemOnLastPage = this.dataManagementClientService.firstItem;
     }
     this.page = event;
-    setTimeout(() => {
-      this.recalcHeight();
-    }, 100);
   }
 
   private readPage(isSecondRead = false) {
@@ -628,10 +576,9 @@ export class AllAddressListComponent
       return effect(() => {
         if (this.dataManagementClientService.isRead()) {
           if (this.isFirstRead) {
-            setTimeout(() => this.recalcHeight(), 100);
             this.isFirstRead = false;
           } else {
-            this.isMeasureTable = true;
+            this.resizeDirective?.triggerMeasurement();
           }
         }
       });

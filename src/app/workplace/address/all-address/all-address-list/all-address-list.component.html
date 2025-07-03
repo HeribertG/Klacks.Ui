@@ -52,8 +52,12 @@
       (blur)="onLostFocus()"
       #myAddressTable
       id="myAddressTable"
-      appResizeObserver
-      (resizeElement)="onResize($event)"
+      appResizeTable
+      [defaultItemsPerPage]="numberOfItemsPerPage"
+      [maxItems]="dataManagementClientService.maxItems"
+      [currentPage]="page"
+      (itemsPerPageChange)="onItemsPerPageChange($event)"
+      (recalculateRequired)="onRecalculateRequired($event)"
     >
       <thead>
         <tr>
