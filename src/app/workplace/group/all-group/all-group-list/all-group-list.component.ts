@@ -114,9 +114,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   checkBoxIndeterminate = false;
   isAuthorised = false;
   monthList = [];
-
-  tableSize: DOMRectReadOnly | any;
-  isMeasureTable = false;
   isFirstRead = true;
 
   visibleRow: { text: string; value: number }[] = [];
@@ -130,12 +127,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementGroupService.init();
     this.reReadSortData();
     this.visibleRow = visibleRow();
-
-    setTimeout(() => {
-      this.page =
-        this.dataManagementGroupService.currentFilter.requiredPage + 1;
-      this.recalcHeight();
-    }, 600);
 
     this.readSignals();
   }
@@ -151,16 +142,16 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       });
 
-    this.resizeWindow = this.renderer.listen('window', 'resize', (event) => {
-      this.resize(event);
-    });
+    setTimeout(() => {
+      if (this.resizeDirective) {
+        this.resizeDirective.recalcHeight();
+      }
+    }, 100);
 
     setTimeout(() => (this.spinnerService.showProgressSpinner = false), 300);
   }
 
   ngOnDestroy(): void {
-    window.removeEventListener('resize', this.resize, true);
-
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -378,46 +369,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementGroupService.currentFilter.firstItemOnLastPage = 0;
     this.dataManagementGroupService.currentFilter.isPreviousPage = undefined;
     this.dataManagementGroupService.currentFilter.isNextPage = undefined;
-
-    setTimeout(() => this.recalcHeight(), 100);
-  }
-
-  onResize(event: DOMRectReadOnly | any): void {
-    this.tableSize = event;
-    if (this.isMeasureTable) {
-      this.isMeasureTable = false;
-      setTimeout(() => this.recalcHeight(true), 100);
-    }
-  }
-
-  private resize = (event: any): void => {
-    setTimeout(() => this.recalcHeight(), 100);
-  };
-
-  private recalcHeight(isSecondRead = false) {
-    if (this.myGridTable) {
-      const addLine = measureTableHeight(this.myGridTable);
-
-      const tmpNumberOfItemsPerPage = this.numberOfItemsPerPage;
-
-      if (
-        this.page * addLine!.lines <
-        this.dataManagementGroupService.maxItems
-      ) {
-        this.numberOfItemsPerPage = 5;
-        if (addLine!.lines > 5) {
-          this.numberOfItemsPerPage = addLine!.lines;
-        }
-      }
-
-      if (!isSecondRead) {
-        this.readPage();
-      } else {
-        if (tmpNumberOfItemsPerPage !== this.numberOfItemsPerPage) {
-          this.readPage(true);
-        }
-      }
-    }
   }
 
   /* #endregion   resize */
@@ -523,7 +474,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.page = event;
     setTimeout(() => {
-      this.recalcHeight();
+      this.readPage();
     }, 100);
   }
 
@@ -557,11 +508,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         const isRead = this.dataManagementGroupService.isRead();
         if (isRead) {
           if (this.isFirstRead) {
-            setTimeout(() => this.recalcHeight(), 100);
             this.isFirstRead = false;
-            return;
+          } else {
+            this.resizeDirective?.triggerMeasurement();
           }
-          this.resizeDirective?.triggerMeasurement();
         }
       });
     });
