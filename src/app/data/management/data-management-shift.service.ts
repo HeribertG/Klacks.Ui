@@ -1,5 +1,4 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { IShift, Shift } from 'src/app/core/schedule-class';
 import {
   transformDateToNgbDateStruct,
   transformNumberToOwnTime,
@@ -16,6 +15,7 @@ import { DataMacroService } from '../data-macro.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { ITruncatedShift, ShiftFilter } from 'src/app/core/shift-data-class';
 import { CheckBoxValue } from 'src/app/core/client-class';
+import { IShift, Shift } from 'src/app/core/shift-class';
 
 @Injectable({
   providedIn: 'root',

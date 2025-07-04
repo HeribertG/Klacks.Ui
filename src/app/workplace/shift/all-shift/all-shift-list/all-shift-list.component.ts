@@ -11,7 +11,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { MockDataManagementShiftService } from 'src/app/data/management/mock-data-management-shift.service';
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
-import { Shift } from 'src/app/core/schedule-class';
+import { Shift } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-all-shift-list',

@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IShift } from '../core/schedule-class';
+
 import {
   dateWithLocalTimeCorrection,
   isNgbDateStructOk,
   transformNgbDateStructToDate,
 } from '../helpers/format-helper';
 import { ITruncatedShift, ShiftFilter } from '../core/shift-data-class';
+import { IShift } from '../core/shift-class';
 
 @Injectable({
   providedIn: 'root',

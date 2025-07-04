@@ -2,10 +2,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ShiftType } from 'src/app/core/shift-class';
 import {
   PropertyMetadata,
   ShiftData,
-  ShiftType,
   Weekday,
 } from 'src/app/core/shift-data-class';
 

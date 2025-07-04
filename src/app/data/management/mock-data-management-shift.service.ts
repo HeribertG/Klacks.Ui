@@ -2,12 +2,8 @@ import { Injectable } from '@angular/core';
 
 import { TruncatedShift } from 'src/app/core/shift-data-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import {
-  OwnTime,
-  Shift,
-  ShiftStatus,
-  ShiftType,
-} from 'src/app/core/schedule-class';
+import { OwnTime } from 'src/app/core/schedule-class';
+import { Shift, ShiftStatus, ShiftType } from 'src/app/core/shift-class';
 
 @Injectable({
   providedIn: 'root',
