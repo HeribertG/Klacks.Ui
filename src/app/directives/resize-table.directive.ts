@@ -97,13 +97,19 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
       const currentItemsPerPage = this.defaultItemsPerPage;
       let newItemsPerPage = this.minItemsPerPage;
 
+      // Calculate the optimal number of items per page based on available space
       if (addLine.lines > this.minItemsPerPage) {
-        newItemsPerPage = Math.min(addLine.lines, this.maxItems);
+        // If we can fit more than the minimum, use the calculated lines
+        // But don't exceed the total number of items available
+        if (this.maxItems > 0) {
+          newItemsPerPage = Math.min(addLine.lines, this.maxItems);
+        } else {
+          newItemsPerPage = addLine.lines;
+        }
       }
 
-      if (currentItemsPerPage !== newItemsPerPage) {
-        this.itemsPerPageChange.emit(newItemsPerPage);
-      }
+      // Always emit the new value to ensure filter gets initialized
+      this.itemsPerPageChange.emit(newItemsPerPage);
 
       if (!isSecondRead) {
         this.recalculateRequired.emit(false);
