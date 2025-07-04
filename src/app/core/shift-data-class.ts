@@ -87,15 +87,17 @@ export interface IShift {
   parentId?: string;
   rootId?: string;
   status: ShiftStatus;
-  numberEmployees: number;
+  sumEmployees: number;
 
   // Date and Time
   afterShift: string; // TimeOnly -> string im Format "HH:mm"
   beforeShift: string;
   endShift: string;
   fromDate: string; // DateOnly -> string im Format "YYYY-MM-DD"
+  internalFromDate: NgbDateStruct | undefined;
   startShift: string;
   untilDate?: string;
+  internalUntilDate: NgbDateStruct | undefined;
 
   // WeekDay
   isFriday: boolean;
@@ -134,8 +136,10 @@ export class Shift implements IShift {
   beforeShift = '00:00';
   endShift = '00:00';
   fromDate = '';
+  internalFromDate: NgbDateStruct | undefined = undefined;
   startShift = '00:00';
   untilDate?: string;
+  internalUntilDate: NgbDateStruct | undefined = undefined;
 
   isFriday = false;
   isHoliday = false;
@@ -150,7 +154,7 @@ export class Shift implements IShift {
   isSporadic = false;
   isTimeRange = false;
   quantity = 1;
-  numberEmployees = 1;
+  sumEmployees = 1;
   travelTimeAfter = 0;
   travelTimeBefore = 0;
   workTime = 0;

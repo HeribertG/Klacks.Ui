@@ -147,6 +147,21 @@
           </div>
         </div>
       </div>
+
+      @if (isChecked) {
+      <div class="form-group is-container">
+        <label class="checkbox-label" for="isContainer">
+          <input
+            type="checkbox"
+            [(ngModel)]="dataManagementShiftService.editShift.shiftType"
+            id="isContainer"
+            name="isContainer"
+          />
+          {{ "shift.edit-shift.main.is-container" | translate }}
+        </label>
+      </div>
+      }
+
       <div class="endColumn" style="margin-top: 5px">
         <div class="form-group">
           <label for="description">{{

@@ -426,6 +426,11 @@
   "shift.edit-shift.weekday.work-hour": "Dauer",
   "shift.edit-shift.weekday.time-range": "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm - Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben",
   "shift.edit-shift.main.complex-mode": "Experten Modus",
+  "shift.edit-shift.main.is-container": "Ist ein Kontainer",
+  "shift.edit-shift.special-feature.travel-time-before": "Anreisezeit",
+  "shift.edit-shift.special-feature.travel-time-after": "Rückreisezeit",
+  "shift.edit-shift.special-feature.sum-employees": "Anzahl Mitarbeiter pro Schicht",
+  "shift.edit-shift.special-feature.sum-quantity": "Anzahl Aufgabe pro Schicht",
 
   "shift.all-shift.all-shift-home.header": "Alle Dienste",
   "shift.all-shift.list.title": "Dienste",
