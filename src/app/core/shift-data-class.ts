@@ -5,6 +5,7 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
+import { IShift } from './schedule-class';
 
 export enum ShiftStatus {
   Original = 0,
@@ -78,93 +79,93 @@ export class ShiftData {
   };
 }
 
-export interface IShift {
-  id?: string;
-  cuttingAfterMidnight: boolean;
-  description: string;
-  macroId: string;
-  name: string;
-  parentId?: string;
-  rootId?: string;
-  status: ShiftStatus;
-  sumEmployees: number;
+// export interface IShift {
+//   id?: string;
+//   cuttingAfterMidnight: boolean;
+//   description: string;
+//   macroId: string;
+//   name: string;
+//   parentId?: string;
+//   rootId?: string;
+//   status: ShiftStatus;
+//   sumEmployees: number;
 
-  // Date and Time
-  afterShift: string; // TimeOnly -> string im Format "HH:mm"
-  beforeShift: string;
-  endShift: string;
-  fromDate: string; // DateOnly -> string im Format "YYYY-MM-DD"
-  internalFromDate: NgbDateStruct | undefined;
-  startShift: string;
-  untilDate?: string;
-  internalUntilDate: NgbDateStruct | undefined;
+//   // Date and Time
+//   afterShift: string; // TimeOnly -> string im Format "HH:mm"
+//   beforeShift: string;
+//   endShift: string;
+//   fromDate: string; // DateOnly -> string im Format "YYYY-MM-DD"
+//   internalFromDate: NgbDateStruct | undefined;
+//   startShift: string;
+//   untilDate?: string;
+//   internalUntilDate: NgbDateStruct | undefined;
 
-  // WeekDay
-  isFriday: boolean;
-  isHoliday: boolean;
-  isMonday: boolean;
-  isSaturday: boolean;
-  isSunday: boolean;
-  isThursday: boolean;
-  isTuesday: boolean;
-  isWednesday: boolean;
-  isWeekdayOrHoliday: boolean;
+//   // WeekDay
+//   isFriday: boolean;
+//   isHoliday: boolean;
+//   isMonday: boolean;
+//   isSaturday: boolean;
+//   isSunday: boolean;
+//   isThursday: boolean;
+//   isTuesday: boolean;
+//   isWednesday: boolean;
+//   isWeekdayOrHoliday: boolean;
 
-  // Time
-  isSporadic: boolean;
-  isTimeRange: boolean;
-  quantity: number;
-  travelTimeAfter: number;
-  travelTimeBefore: number;
-  workTime: number;
+//   // Time
+//   isSporadic: boolean;
+//   isTimeRange: boolean;
+//   quantity: number;
+//   travelTimeAfter: number;
+//   travelTimeBefore: number;
+//   workTime: number;
 
-  // Type
-  shiftType: ShiftType;
-}
+//   // Type
+//   shiftType: ShiftType;
+// }
 
-export class Shift implements IShift {
-  id?: string;
-  cuttingAfterMidnight = false;
-  description = '';
-  macroId = '';
-  name = '';
-  parentId?: string;
-  rootId?: string;
-  status = ShiftStatus.Original;
+// export class Shift implements IShift {
+//   id?: string;
+//   cuttingAfterMidnight = false;
+//   description = '';
+//   macroId = '';
+//   name = '';
+//   parentId?: string;
+//   rootId?: string;
+//   status = ShiftStatus.Original;
 
-  afterShift = '00:00';
-  beforeShift = '00:00';
-  endShift = '00:00';
-  fromDate = '';
-  internalFromDate: NgbDateStruct | undefined = undefined;
-  startShift = '00:00';
-  untilDate?: string;
-  internalUntilDate: NgbDateStruct | undefined = undefined;
+//   afterShift = '00:00';
+//   beforeShift = '00:00';
+//   endShift = '00:00';
+//   fromDate = '';
+//   internalFromDate: NgbDateStruct | undefined = undefined;
+//   startShift = '00:00';
+//   untilDate?: string;
+//   internalUntilDate: NgbDateStruct | undefined = undefined;
 
-  isFriday = false;
-  isHoliday = false;
-  isMonday = false;
-  isSaturday = false;
-  isSunday = false;
-  isThursday = false;
-  isTuesday = false;
-  isWednesday = false;
-  isWeekdayOrHoliday = false;
+//   isFriday = false;
+//   isHoliday = false;
+//   isMonday = false;
+//   isSaturday = false;
+//   isSunday = false;
+//   isThursday = false;
+//   isTuesday = false;
+//   isWednesday = false;
+//   isWeekdayOrHoliday = false;
 
-  isSporadic = false;
-  isTimeRange = false;
-  quantity = 1;
-  sumEmployees = 1;
-  travelTimeAfter = 0;
-  travelTimeBefore = 0;
-  workTime = 0;
+//   isSporadic = false;
+//   isTimeRange = false;
+//   quantity = 1;
+//   sumEmployees = 1;
+//   travelTimeAfter = 0;
+//   travelTimeBefore = 0;
+//   workTime = 0;
 
-  shiftType = ShiftType.IsTask;
+//   shiftType = ShiftType.IsTask;
 
-  constructor(init?: Partial<IShift>) {
-    Object.assign(this, init);
-  }
-}
+//   constructor(init?: Partial<IShift>) {
+//     Object.assign(this, init);
+//   }
+// }
 
 export interface ITruncatedShift extends IBaseTruncated {
   shifts: IShift[];

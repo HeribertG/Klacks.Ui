@@ -45,8 +45,8 @@ export interface IShift {
   isWeekdayOrHoliday: boolean;
   isSporadic: boolean;
   isTimeRange: boolean;
-  _quantity: number;
   quantity: number;
+  sumEmployees: number;
   travelTimeAfter: string;
   internalTravelTimeAfter: OwnTime;
   travelTimeBefore: string;
@@ -89,20 +89,8 @@ export class Shift implements IShift {
   isWeekdayOrHoliday = false;
   isSporadic = false;
   isTimeRange = false;
-  _quantity = 1;
-  set quantity(value: number) {
-    if (!value) {
-      value = 1;
-    }
-    if (value < 1) {
-      value = 1;
-    }
-
-    this._quantity = value;
-  }
-  get quantity(): number {
-    return this._quantity;
-  }
+  quantity = 1;
+  sumEmployees = 1;
   travelTimeAfter = '';
   internalTravelTimeAfter = new OwnTime('0', '0');
   travelTimeBefore = '';

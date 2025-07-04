@@ -1,18 +1,29 @@
 import { Injectable } from '@angular/core';
+
+import { TruncatedShift } from 'src/app/core/shift-data-class';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
+  OwnTime,
   Shift,
   ShiftStatus,
   ShiftType,
-  TruncatedShift,
-} from 'src/app/core/shift-data-class';
+} from 'src/app/core/schedule-class';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockDataManagementShiftService {
   public listWrapper: TruncatedShift = {
-    shifts: [
-      new Shift({
+    shifts: this.buildMockShifts(),
+    maxItems: 7,
+    maxPages: 1,
+    currentPage: 1,
+    firstItemOnPage: 1,
+  };
+
+  private buildMockShifts(): Shift[] {
+    const raw = [
+      {
         id: '1',
         name: 'Normale Arbeitszeit',
         description: 'Standard Arbeitszeiten für die Woche',
@@ -20,20 +31,19 @@ export class MockDataManagementShiftService {
         untilDate: '2025-12-31',
         startShift: '08:00',
         endShift: '17:00',
-        isMonday: true,
-        isTuesday: true,
-        isWednesday: true,
-        isThursday: true,
-        isFriday: true,
-        isSaturday: false,
-        isSunday: false,
-        isHoliday: false,
-        isWeekdayOrHoliday: false,
-        workTime: 9 * 60, // 9 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
+        days: {
+          Mon: true,
+          Tue: true,
+          Wed: true,
+          Thu: true,
+          Fri: true,
+          Sat: false,
+          Sun: false,
+          Holiday: false,
+        },
+        workTime: 9 * 60,
+      },
+      {
         id: '2',
         name: 'Frühschicht',
         description: 'Frühe Schicht für Produktionsabteilung',
@@ -41,130 +51,71 @@ export class MockDataManagementShiftService {
         untilDate: '2025-06-30',
         startShift: '06:00',
         endShift: '14:00',
-        isMonday: true,
-        isTuesday: true,
-        isWednesday: true,
-        isThursday: true,
-        isFriday: true,
-        isSaturday: false,
-        isSunday: false,
-        isHoliday: false,
-        isWeekdayOrHoliday: false,
-        workTime: 8 * 60, // 8 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
-        id: '3',
-        name: 'Spätschicht',
-        description: 'Späte Schicht für Produktionsabteilung',
-        fromDate: '2025-01-01',
-        untilDate: '2025-06-30',
-        startShift: '14:00',
-        endShift: '22:00',
-        isMonday: true,
-        isTuesday: true,
-        isWednesday: true,
-        isThursday: true,
-        isFriday: true,
-        isSaturday: false,
-        isSunday: false,
-        isHoliday: false,
-        isWeekdayOrHoliday: false,
-        workTime: 8 * 60, // 8 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
-        id: '4',
-        name: 'Wochenendarbeit',
-        description: 'Spezielle Arbeitszeiten für Wochenenden',
-        fromDate: '2025-01-01',
-        startShift: '10:00',
-        endShift: '18:00',
-        isMonday: false,
-        isTuesday: false,
-        isWednesday: false,
-        isThursday: false,
-        isFriday: false,
-        isSaturday: true,
-        isSunday: true,
-        isHoliday: false,
-        isWeekdayOrHoliday: false,
-        workTime: 8 * 60, // 8 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
-        id: '5',
-        name: 'Feiertagsdienst',
-        description: 'Spezielle Arbeitszeiten für gesetzliche Feiertage',
-        fromDate: '2025-01-01',
-        untilDate: '2025-12-31',
-        startShift: '09:00',
-        endShift: '15:00',
-        isMonday: false,
-        isTuesday: false,
-        isWednesday: false,
-        isThursday: false,
-        isFriday: false,
-        isSaturday: false,
-        isSunday: false,
-        isHoliday: true,
-        isWeekdayOrHoliday: false,
-        workTime: 6 * 60, // 6 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
-        id: '6',
-        name: 'Notfalldienst',
-        description:
-          'Bereitschaftsdienst für Notfälle an Werktagen und Feiertagen',
-        fromDate: '2025-04-01',
-        untilDate: '2025-09-30',
-        startShift: '00:00',
-        endShift: '23:59',
-        isMonday: true,
-        isTuesday: true,
-        isWednesday: true,
-        isThursday: true,
-        isFriday: true,
-        isSaturday: true,
-        isSunday: true,
-        isHoliday: true,
-        isWeekdayOrHoliday: true,
-        isSporadic: true,
-        workTime: 24 * 60, // 24 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-      new Shift({
-        id: '7',
-        name: 'Nachtschicht',
-        description: 'Nachtschicht mit Übergang über Mitternacht',
-        fromDate: '2025-01-01',
-        untilDate: '2025-12-31',
-        startShift: '22:00',
-        endShift: '06:00',
-        cuttingAfterMidnight: true,
-        isMonday: true,
-        isTuesday: true,
-        isWednesday: true,
-        isThursday: true,
-        isFriday: false,
-        isSaturday: false,
-        isSunday: false,
-        isHoliday: false,
-        isWeekdayOrHoliday: false,
-        workTime: 8 * 60, // 8 Stunden in Minuten
-        shiftType: ShiftType.IsTask,
-        status: ShiftStatus.Original,
-      }),
-    ],
-    maxItems: 7,
-    maxPages: 1,
-    currentPage: 1,
-    firstItemOnPage: 1,
-  };
+        days: {
+          Mon: true,
+          Tue: true,
+          Wed: true,
+          Thu: true,
+          Fri: true,
+          Sat: false,
+          Sun: false,
+          Holiday: false,
+        },
+        workTime: 8 * 60,
+      },
+      // … weitere Einträge analog
+    ];
+
+    return raw.map((d) => {
+      const s = new Shift();
+      s.id = d.id;
+      s.name = d.name;
+      s.description = d.description;
+      s.status = ShiftStatus.Original;
+      s.shiftType = ShiftType.IsTask;
+
+      // Datum
+      s.fromDate = new Date(d.fromDate);
+      s.internalFromDate = this.toNgbDate(s.fromDate);
+      if (d.untilDate) {
+        s.untilDate = new Date(d.untilDate);
+        s.internalUntilDate = this.toNgbDate(s.untilDate);
+      }
+
+      // Zeiten
+      const [h1, m1] = d.startShift.split(':');
+      s.internalStartShift = new OwnTime(h1, m1);
+      s.startShift = d.startShift;
+      const [h2, m2] = d.endShift.split(':');
+      s.internalEndShift = new OwnTime(h2, m2);
+      s.endShift = d.endShift;
+
+      // Wochentage
+      s.isMonday = d.days.Mon;
+      s.isTuesday = d.days.Tue;
+      s.isWednesday = d.days.Wed;
+      s.isThursday = d.days.Thu;
+      s.isFriday = d.days.Fri;
+      s.isSaturday = d.days.Sat;
+      s.isSunday = d.days.Sun;
+      s.isHoliday = d.days.Holiday;
+
+      // Arbeitszeit
+      s.workTime = d.workTime;
+      s.internalWorkTime = new OwnTime(
+        String(Math.floor(d.workTime / 60)),
+        String(d.workTime % 60)
+      );
+
+      return s;
+    });
+  }
+
+  private toNgbDate(date: Date): NgbDateStruct {
+    return {
+      year: date.getFullYear(),
+      month: date.getMonth() + 1,
+      day: date.getDate(),
+    };
+  }
 }
