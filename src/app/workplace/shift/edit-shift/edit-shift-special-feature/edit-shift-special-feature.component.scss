@@ -27,11 +27,15 @@
 }
 
 .secondColumnContainer {
-  width: 50%;
+  width: 20%;
+}
+
+.titleColumContainer {
+  width: calc(40%);
 }
 
 .firstColumContainer {
-  width: calc(50% - 10px);
+  width: calc(20% - 10px);
 }
 
 .expand-button {

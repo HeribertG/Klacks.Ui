@@ -18,6 +18,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 @Directive({
   selector: '[appResizeTable]',
   standalone: true,
+  exportAs: 'resizeTable',
 })
 export class ResizeTableDirective implements OnInit, OnDestroy {
   private elementRef = inject(ElementRef);

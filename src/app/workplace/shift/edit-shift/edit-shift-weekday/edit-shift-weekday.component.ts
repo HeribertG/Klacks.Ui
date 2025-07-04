@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -65,7 +66,6 @@ export class EditShiftWeekdayComponent implements AfterViewInit, OnDestroy {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyUpInput(event: any, data: string) {
     event.currentTarget.value = data;
     this.isChangingEvent.emit(true);

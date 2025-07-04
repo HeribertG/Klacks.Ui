@@ -179,23 +179,6 @@
           {{ "shift.edit-shift.weekday.time-range" | translate }}
         </label>
       </div>
-      } @if (isComplex) {
-      <div class="form-group top-margin15">
-        <div class="d-flex align-items-center">
-          <input
-            type="number"
-            min="1"
-            max="100"
-            class="form-control quantity"
-            [(ngModel)]="dataManagementShiftService.editShift.quantity"
-            id="quantity"
-            name="quantity"
-          />
-          <label class="checkbox-label ms-2" for="quantity">
-            {{ "shift.edit-shift.main.until" | translate }}
-          </label>
-        </div>
-      </div>
       }
     </div>
     }

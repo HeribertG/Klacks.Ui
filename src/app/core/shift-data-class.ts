@@ -47,13 +47,11 @@ export class ShiftData {
   hourWithoutAddition = 8; // Arbeitszeit ohne Zusatz
   hourWithAddition = 0; // Arbeitszeit mit Zusatz
   hourAddition = 0.0; // Zusatz
-  blockShiftNumber = 1;
   shiftType: MacroShiftType = MacroShiftType.NightShift;
   weekdayNumber: Weekday = Weekday.Monday;
   nightHour = 7;
   holydayHour = 1;
   dayBeforeHolydayHour = 7;
-  blockNumber = 2;
   lastType = 0;
   isHolyday = false;
   isNextDayHolyday = true;
@@ -89,6 +87,7 @@ export interface IShift {
   parentId?: string;
   rootId?: string;
   status: ShiftStatus;
+  numberEmployees: number;
 
   // Date and Time
   afterShift: string; // TimeOnly -> string im Format "HH:mm"
@@ -150,7 +149,8 @@ export class Shift implements IShift {
 
   isSporadic = false;
   isTimeRange = false;
-  quantity = 0;
+  quantity = 1;
+  numberEmployees = 1;
   travelTimeAfter = 0;
   travelTimeBefore = 0;
   workTime = 0;

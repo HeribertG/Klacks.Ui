@@ -66,7 +66,8 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
   ],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(ResizeTableDirective) resizeDirective!: ResizeTableDirective;
+  @ViewChild(ResizeTableDirective, { static: false })
+  resizeDirective!: ResizeTableDirective;
   @ViewChild('myGridTable', { static: true }) myGridTable:
     | ElementRef
     | undefined;

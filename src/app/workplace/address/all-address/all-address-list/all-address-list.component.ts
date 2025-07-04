@@ -64,7 +64,8 @@ import { ResizeTableDirective } from 'src/app/directives/resize-table.directive'
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @ViewChild(ResizeTableDirective) resizeDirective!: ResizeTableDirective;
+  @ViewChild(ResizeTableDirective, { static: false })
+  resizeDirective!: ResizeTableDirective;
   @ViewChild('myAddressTable', { static: true }) myAddressTable:
     | ElementRef
     | undefined;
@@ -137,9 +138,11 @@ export class AllAddressListComponent
         this.message = this.translate.instant('DELETE_ENTRY');
       });
 
-    setTimeout(() => this.resizeDirective.recalcHeight(), 500);
-
-    this.getReset();
+    setTimeout(() => {
+      if (this.resizeDirective) {
+        this.resizeDirective.recalcHeight();
+      }
+    }, 100);
 
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
