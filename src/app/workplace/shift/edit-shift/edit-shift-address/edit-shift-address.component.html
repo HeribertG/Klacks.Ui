@@ -20,6 +20,49 @@
   <div class="container-line"></div>
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     @if (dataManagementShiftService.editShift !== undefined) {
+
+    <div class="firstColumn endColumn">
+      <label for="member">{{
+        "group.edit-group.edit-group-member.search" | translate
+      }}</label>
+      <div class="input-group mb-3">
+        <input
+          type="search"
+          class="form-control"
+          [(ngModel)]="selectedClientName"
+          autocomplete="off"
+          (keyup)="onKeyupSearchField($event)"
+          (keydown)="onKeydownEnterSearchField($event)"
+          id="member"
+          list="dynamicClientName"
+          name="selectedClient"
+          placeholder="{{ 'placeholder.search' | translate }}"
+        />
+        <datalist id="dynamicClientName">
+          @for (item of result; track item) {
+          <option [ngValue]="item">
+            {{ item.idNumber }} - {{ item.company }} {{ item.firstName }}
+            {{ item.name }}
+          </option>
+          }
+        </datalist>
+        @if (!selectedClient) {
+        <div
+          class="input-group-text btn btn-outline-secondary container-search-button-disabled"
+        >
+          {{ "group.edit-group.edit-group-member.add" | translate }}
+        </div>
+        } @if (selectedClient) {
+        <div
+          class="input-group-text btn btn-outline-secondary container-search-button"
+          (click)="onClickApply()"
+          disabled="!authorizationService.isAuthorised"
+        >
+          {{ "group.edit-group.edit-group-member.add" | translate }}
+        </div>
+        }
+      </div>
+    </div>
     <div>
       <div style="height: 30px"></div>
     </div>

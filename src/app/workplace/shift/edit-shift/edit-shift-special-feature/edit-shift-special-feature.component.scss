@@ -27,7 +27,8 @@
 }
 
 .secondColumnContainer {
-  width: 20%;
+  width: 50%;
+  margin-right: 30px;
 }
 
 .titleColumContainer {
@@ -36,7 +37,7 @@
 }
 
 .firstColumContainer {
-  width: calc(30% - 10px);
+  width: calc(50% - 10px);
 }
 
 .expand-button {
@@ -98,7 +99,6 @@
 
 .number-with {
   width: 80px;
-  margin-top: 5px;
 }
 
 .number-height {

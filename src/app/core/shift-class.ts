@@ -52,6 +52,10 @@ export interface IShift {
   internalTravelTimeBefore: OwnTime;
   workTime: number;
   internalWorkTime: OwnTime;
+  briefingTime: string;
+  internalBriefingTime: OwnTime;
+  debriefingTime: string;
+  internalDebriefingTime: OwnTime;
   shiftType: ShiftType;
 }
 
@@ -71,10 +75,14 @@ export class Shift implements IShift {
   internalBeforeShift = new OwnTime('0', '0');
   endShift = '';
   internalEndShift = new OwnTime('0', '0');
+  briefingTime = '';
+  internalBriefingTime = new OwnTime('0', '0');
   fromDate: Date | undefined = undefined;
   internalFromDate: NgbDateStruct | undefined = undefined;
   startShift = '';
   internalStartShift = new OwnTime('0', '0');
+  debriefingTime = '';
+  internalDebriefingTime = new OwnTime('0', '0');
   untilDate: Date | undefined = undefined;
   internalUntilDate: NgbDateStruct | undefined = undefined;
   isFriday = false;

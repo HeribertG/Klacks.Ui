@@ -39,29 +39,33 @@
     @if (dataManagementShiftService.editShift !== undefined) {
     <div class="firstColumn first-row">
       <!-- Abbreviation -->
-      <label for="abbreviation">{{
-        "shift.edit-shift.main.abbreviation" | translate
-      }}</label>
+      <label for="abbreviation"
+        >{{ "shift.edit-shift.main.abbreviation" | translate }}Name
+        <span class="required-asterisk">*</span></label
+      >
       <div class="custom-control-inline short-width">
         <input
           type="text"
-          class="form-control"
+          class="form-control is-invalid"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
           id="abbreviation"
           name="abbreviation"
           required
+          minlength="1"
+          maxlength="6"
         />
       </div>
       <!-- Name -->
 
-      <label class="row-line" for="name">{{
-        "shift.edit-shift.main.name" | translate
-      }}</label>
+      <label class="row-line" for="name"
+        >{{ "shift.edit-shift.main.name" | translate
+        }}<span class="required-asterisk">*</span></label
+      >
       <div class="custom-control-inline default-width">
         <input
           type="text"
-          class="form-control"
+          class="form-control is-invalid"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.name"
           id="name"
@@ -75,9 +79,10 @@
       <div class="container-bank-box">
         <div class="firstColumContainer row-line">
           <div class="form-group">
-            <label for="validFrom">{{
-              "shift.edit-shift.main.from" | translate
-            }}</label>
+            <label for="validFrom"
+              >{{ "shift.edit-shift.main.from" | translate
+              }}<span class="required-asterisk">*</span></label
+            >
 
             <div class="input-group medium-width">
               <input

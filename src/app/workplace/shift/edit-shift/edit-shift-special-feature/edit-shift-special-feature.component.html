@@ -21,460 +21,244 @@
   <div class="container-line"></div>
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     @if (dataManagementShiftService.editShift !== undefined) {
-    <div>
-      <div class="container-bank-box">
-        <div class="titleColumContainer">
-          <div class="title-row-line1">
-            <label>
-              {{
-                "shift.edit-shift.special-feature.briefing" | translate
-              }}</label
-            >
-          </div>
-          <div class="title-row-line1">
-            <label>
-              {{
-                "shift.edit-shift.special-feature.debriefing" | translate
-              }}</label
-            >
-          </div>
-          <div class="title-row-line1">
-            <label>
-              {{
-                "shift.edit-shift.special-feature.travel-time-before"
-                  | translate
-              }}</label
-            >
-          </div>
-          <div class="title-row-line2">
-            <label>{{
-              "shift.edit-shift.special-feature.travel-time-after" | translate
-            }}</label>
-          </div>
-          <div class="title-row-line2">
-            <label>{{
-              "shift.edit-shift.special-feature.sum-employees" | translate
-            }}</label>
-          </div>
-          <div class="title-row-line3">
-            <label>{{
-              "shift.edit-shift.special-feature.sum-quantity" | translate
-            }}</label>
+    <div class="container-bank-box">
+      <!-- Linke Spalte -->
+      <div class="firstColumContainer firstColumn">
+        <!-- Briefing -->
+        <div class="row-line1">
+          <label for="briefing">
+            {{ "shift.edit-shift.special-feature.briefing" | translate }}</label
+          >
+          <div class="row-line-inline-simple">
+            <input
+              id="briefing"
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalBriefingTime.hours
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalBriefingTime
+                    .hours
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-hour hours"
+              type="text"
+              maxlength="3"
+              placeholder="hh"
+            />
+            <Label class="delimiter-time">:</Label>
+            <input
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalBriefingTime
+                  .minutes
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalBriefingTime
+                    .minutes
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-minute minutes"
+              type="text"
+              maxlength="3"
+              placeholder="mm"
+            />
           </div>
         </div>
-        <div class="firstColumContainer">
-          <!-- briefing Linie -->
 
-          <div class="row-line1">
-            <label for="briefing-from-hour">
-              {{ "shift.edit-shift.weekday.from" | translate }}</label
-            >
-            <div class="row-line-inline-simple">
-              <input
-                id="briefing-from-hours"
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift.hours
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .hours
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-hour hours"
-                type="text"
-                maxlength="3"
-                placeholder="hh"
-              />
-              <Label class="delimiter-time">:</Label>
-              <input
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift
-                    .minutes
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .minutes
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-minute minutes"
-                type="text"
-                maxlength="3"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-
-          <!-- debriefing Linie -->
-
-          <div class="row-line1">
-            <label for="debriefing-from-hours">
-              {{ "shift.edit-shift.weekday.from" | translate }}</label
-            >
-            <div class="row-line-inline-simple">
-              <input
-                id="debriefing-from-hours"
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift.hours
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .hours
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-hour hours"
-                type="text"
-                maxlength="3"
-                placeholder="hh"
-              />
-              <Label class="delimiter-time">:</Label>
-              <input
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift
-                    .minutes
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .minutes
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-minute minutes"
-                type="text"
-                maxlength="3"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-
-          <!-- travel-time-before Linie -->
-
-          <div class="row-line1">
-            <label for="travel-time-before-hours">
-              {{ "shift.edit-shift.weekday.from" | translate }}</label
-            >
-            <div class="row-line-inline-simple">
-              <input
-                id="travel-time-before-hours"
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift.hours
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .hours
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-hour hours"
-                type="text"
-                maxlength="3"
-                placeholder="hh"
-              />
-              <Label class="delimiter-time">:</Label>
-              <input
-                id="travel-time-before-minute"
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift
-                    .minutes
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .minutes
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-minute minutes"
-                type="text"
-                maxlength="3"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-
-          <!-- travel-time-after Linie -->
-
-          <div class="row-line1">
-            <label for="travel-time-after-hours">
-              {{ "shift.edit-shift.weekday.from" | translate }}</label
-            >
-            <div class="row-line-inline-simple">
-              <input
-                id="travel-time-after-hours"
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift.hours
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .hours
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-hour hours"
-                type="text"
-                maxlength="3"
-                placeholder="hh"
-              />
-              <Label class="delimiter-time">:</Label>
-              <input
-                [(ngModel)]="
-                  dataManagementShiftService.editShift.internalStartShift
-                    .minutes
-                "
-                (keyup)="
-                  onKeyUpInput(
-                    $event,
-                    dataManagementShiftService.editShift.internalStartShift
-                      .minutes
-                  )
-                "
-                [ngModelOptions]="{ standalone: true }"
-                class="form-control time-minute minutes"
-                type="text"
-                maxlength="3"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-
-          <!-- sum-employees -->
-
-          <div class="number-with">
+        <!-- Anreisezeit -->
+        <div class="row-line1">
+          <label for="travel-time-before">
+            {{
+              "shift.edit-shift.special-feature.travel-time-before" | translate
+            }}</label
+          >
+          <div class="row-line-inline-simple">
             <input
+              id="travel-time-before"
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalTravelTimeBefore
+                  .hours
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalTravelTimeBefore
+                    .hours
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-hour hours"
+              type="text"
+              maxlength="3"
+              placeholder="hh"
+            />
+            <Label class="delimiter-time">:</Label>
+            <input
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalTravelTimeBefore
+                  .minutes
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalTravelTimeBefore
+                    .minutes
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-minute minutes"
+              type="text"
+              maxlength="3"
+              placeholder="mm"
+            />
+          </div>
+        </div>
+
+        <!-- Anzahl Mitarbeiter pro Schicht -->
+        <div class="field-group">
+          <label class="field-label">
+            {{
+              "shift.edit-shift.special-feature.sum-employees" | translate
+            }}</label
+          >
+          <div class="number-input-container">
+            <input
+              [(ngModel)]="dataManagementShiftService.editShift.sumEmployees"
+              (input)="onNumberChange()"
+              class="form-control number-with"
               type="number"
+              value="1"
               min="1"
               max="100"
-              class="form-control quantity"
-              [(ngModel)]="dataManagementShiftService.editShift.sumEmployees"
               id="sumEmployees"
               name="sumEmployees"
             />
           </div>
+        </div>
+      </div>
 
-          <!-- sum-quantity -->
-
-          <div class="number-with number-height">
+      <!-- Rechte Spalte -->
+      <div class="secondColumnContainer">
+        <!-- Debriefing -->
+        <div class="row-line1">
+          <label for="debriefing">
+            {{
+              "shift.edit-shift.special-feature.debriefing" | translate
+            }}</label
+          >
+          <div class="row-line-inline-simple">
             <input
-              type="number"
-              min="1"
-              max="100"
-              class="form-control quantity"
-              [(ngModel)]="dataManagementShiftService.editShift.quantity"
-              id="quantity"
-              name="quantity"
+              id="debriefing"
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalBriefingTime.hours
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalBriefingTime
+                    .hours
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-hour hours"
+              type="text"
+              maxlength="3"
+              placeholder="hh"
+            />
+            <Label class="delimiter-time">:</Label>
+            <input
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalBriefingTime
+                  .minutes
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalBriefingTime
+                    .minutes
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-minute minutes"
+              type="text"
+              maxlength="3"
+              placeholder="mm"
             />
           </div>
         </div>
 
-        <div class="secondColumnContainer">
-          <!-- briefing Linie -->
-          <div class="row-line2 endColumn">
-            <div class="row-line1">
-              <label for="briefing-until-hours2">{{
-                "shift.edit-shift.weekday.until" | translate
-              }}</label>
-              <div class="row-line-inline-simple">
-                <input
-                  id="briefing-until-hours2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift.hours
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .hours
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-hour hours"
-                  type="text"
-                  maxlength="3"
-                  placeholder="hh"
-                />
-                <Label class="delimiter-time">:</Label>
-                <input
-                  id="briefing-until-minutes2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift
-                      .minutes
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .minutes
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-minute minutes"
-                  type="text"
-                  maxlength="3"
-                  placeholder="mm"
-                />
-              </div>
-            </div>
+        <!-- Rückreisezeit -->
+        <div class="row-line1">
+          <label for="travel-time-after">
+            {{
+              "shift.edit-shift.special-feature.travel-time-after" | translate
+            }}</label
+          >
+          <div class="row-line-inline-simple">
+            <input
+              id="travel-time-after"
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalTravelTimeAfter
+                  .hours
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalTravelTimeAfter
+                    .hours
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-hour hours"
+              type="text"
+              maxlength="3"
+              placeholder="hh"
+            />
+            <Label class="delimiter-time">:</Label>
+            <input
+              [(ngModel)]="
+                dataManagementShiftService.editShift.internalTravelTimeAfter
+                  .minutes
+              "
+              (keyup)="
+                onKeyUpInput(
+                  $event,
+                  dataManagementShiftService.editShift.internalTravelTimeAfter
+                    .minutes
+                )
+              "
+              [ngModelOptions]="{ standalone: true }"
+              class="form-control time-minute minutes"
+              type="text"
+              maxlength="3"
+              placeholder="mm"
+            />
           </div>
-
-          <!-- debriefing Linie -->
-          <div class="row-line2 endColumn">
-            <div class="row-line1">
-              <label for="debriefing-until-hours2">{{
-                "shift.edit-shift.weekday.until" | translate
-              }}</label>
-              <div class="row-line-inline-simple">
-                <input
-                  id="debriefing-until-hours2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift.hours
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .hours
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-hour hours"
-                  type="text"
-                  maxlength="3"
-                  placeholder="hh"
-                />
-                <Label class="delimiter-time">:</Label>
-                <input
-                  id="debriefing-until-minutes2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift
-                      .minutes
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .minutes
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-minute minutes"
-                  type="text"
-                  maxlength="3"
-                  placeholder="mm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- travel-time-before -->
-          <div class="row-line2 endColumn">
-            <div class="row-line1">
-              <label for="travel-time-before-hours2">{{
-                "shift.edit-shift.weekday.until" | translate
-              }}</label>
-              <div class="row-line-inline-simple">
-                <input
-                  id="travel-time-before-hours2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift.hours
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .hours
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-hour hours"
-                  type="text"
-                  maxlength="3"
-                  placeholder="hh"
-                />
-                <Label class="delimiter-time">:</Label>
-                <input
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift
-                      .minutes
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .minutes
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-minute minutes"
-                  type="text"
-                  maxlength="3"
-                  placeholder="mm"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- travel-time-after -->
-          <div class="row-line2 endColumn">
-            <div class="row-line1">
-              <label for="travel-time-after-hours2">{{
-                "shift.edit-shift.weekday.until" | translate
-              }}</label>
-              <div class="row-line-inline-simple">
-                <input
-                  id="travel-time-after-hours2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift.hours
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .hours
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-hour hours"
-                  type="text"
-                  maxlength="3"
-                  placeholder="hh"
-                />
-                <Label class="delimiter-time">:</Label>
-                <input
-                  id="travel-time-after-minutes2"
-                  [(ngModel)]="
-                    dataManagementShiftService.editShift.internalEndShift
-                      .minutes
-                  "
-                  (keyup)="
-                    onKeyUpInput(
-                      $event,
-                      dataManagementShiftService.editShift.internalEndShift
-                        .minutes
-                    )
-                  "
-                  [ngModelOptions]="{ standalone: true }"
-                  class="form-control time-minute minutes"
-                  type="text"
-                  maxlength="3"
-                  placeholder="mm"
-                />
-              </div>
-            </div>
+        </div>
+        <!-- Anzahl Aufgabe pro Schicht -->
+        <div class="field-group">
+          <label class="field-label">
+            {{
+              "shift.edit-shift.special-feature.sum-quantity" | translate
+            }}</label
+          >
+          <div class="number-input-container">
+            <input
+              [(ngModel)]="dataManagementShiftService.editShift.quantity"
+              (input)="onNumberChange()"
+              class="form-control number-with"
+              type="number"
+              value="1"
+              min="1"
+              max="100"
+              id="sumQuantity"
+              name="sumQuantity"
+            />
           </div>
         </div>
       </div>

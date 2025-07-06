@@ -44,4 +44,8 @@ export class EditShiftSpecialFeatureComponent {
     event.currentTarget.value = data;
     this.isChangingEvent.emit(true);
   }
+
+  onNumberChange() {
+    this.isChangingEvent.emit(true);
+  }
 }

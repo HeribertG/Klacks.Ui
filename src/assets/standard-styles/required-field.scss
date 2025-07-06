@@ -1,0 +1,46 @@
+/* Required field asterisk styling */
+.required-asterisk {
+  color: #dc3545;
+  font-weight: bold;
+  margin-left: 2px;
+}
+
+/* Invalid field styling */
+.form-control.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Invalid feedback styling */
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #dc3545;
+}
+
+/* Required label styling */
+label:has(.required-asterisk) {
+  font-weight: 500;
+}
+
+/* Form validation summary */
+.validation-summary {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 0.25rem;
+  color: #721c24;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.validation-summary h6 {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.validation-summary ul {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+}

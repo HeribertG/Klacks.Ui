@@ -3,14 +3,19 @@ import { Injectable } from '@angular/core';
 import { TruncatedShift } from 'src/app/core/shift-data-class';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from 'src/app/core/schedule-class';
-import { Shift, ShiftStatus, ShiftType } from 'src/app/core/shift-class';
+import {
+  IShift,
+  Shift,
+  ShiftStatus,
+  ShiftType,
+} from 'src/app/core/shift-class';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MockDataManagementShiftService {
   public listWrapper: TruncatedShift = {
-    shifts: this.buildMockShifts(),
+    shifts: this.buildMockShifts() as IShift[],
     maxItems: 7,
     maxPages: 1,
     currentPage: 1,

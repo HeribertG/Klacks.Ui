@@ -20,11 +20,15 @@
   <div class="container-line"></div>
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     @if (dataManagementShiftService.editShift !== undefined) {
-    <div>
+    <div class="macro-list">
       @if (dataManagementShiftService.macroList.length > 0) {
+
+      <label for="macro-list">{{
+        "shift.edit-shift.special-feature.sum-macro.list" | translate
+      }}</label>
       <select
         name="macro-list"
-        class="form-select macro-list"
+        class="form-select default-width"
         [(ngModel)]="dataManagementShiftService.editShift.macroId"
         aria-label="macro-list"
         (ngModelChange)="onSelectionChange($event)"
@@ -38,9 +42,10 @@
         </option>
         }
       </select>
+
       }
 
-      <div class="macro-description">
+      <div>
         <div class="form-group">
           <label for="description">{{
             "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
