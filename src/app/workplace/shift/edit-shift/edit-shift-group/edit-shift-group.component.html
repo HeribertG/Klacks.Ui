@@ -1,0 +1,30 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form #groupShiftForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    <div>
+      {{ "group.edit-group.edit-group-home.header" | translate }}
+    </div>
+
+    <span class="filler"></span>
+
+    <div class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </div>
+  </div>
+
+  <div class="container-line"></div>
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    @if (dataManagementShiftService.editShift !== undefined) {
+
+    <div>
+      <div style="height: 30px"></div>
+    </div>
+    }
+  </div>
+  <div style="height: 30px"></div>
+</form>

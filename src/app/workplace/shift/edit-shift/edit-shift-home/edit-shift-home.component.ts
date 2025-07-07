@@ -18,6 +18,7 @@ import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-addr
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
+import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -33,6 +34,7 @@ import { UrlParameterService } from 'src/app/services/url-parameter.service';
     EditShiftAddressComponent,
     EditShiftSpecialFeatureComponent,
     EditShiftNavComponent,
+    EditShiftGroupComponent,
   ],
 })
 export class EditShiftHomeComponent implements OnInit {

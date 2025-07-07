@@ -13,6 +13,14 @@
   </div>
 
   <div class="container-profilline">
+    <app-edit-shift-group
+      (isChangingEvent)="onIsChanging($event)"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-edit-shift-group>
+  </div>
+
+  <div class="container-profilline">
     <app-edit-shift-weekday
       (isChangingEvent)="onIsChanging($event)"
       [isComplex]="isComplex"
