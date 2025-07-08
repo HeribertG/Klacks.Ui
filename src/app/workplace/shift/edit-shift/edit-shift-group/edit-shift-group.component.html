@@ -18,13 +18,81 @@
   </div>
 
   <div class="container-line"></div>
-  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
-    @if (dataManagementShiftService.editShift !== undefined) {
 
+  <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
+    <div class="row-line endColumn">
+      <span class="filler"></span>
+      <div class="default-width">
+        <app-simple-group-select
+          [hasOptionButton]="false"
+          [required]="false"
+          [(ngModel)]="selectedGroupId"
+          (groupSelected)="onGroupSelected($event)"
+          name="groupSelect"
+        ></app-simple-group-select>
+      </div>
+    </div>
+
+    <div class="container-table-borderless-no-height">
+      <table
+        class="table"
+        (blur)="onLostFocus()"
+        #myGroupTable
+        id="myGroupTable"
+      >
+        <thead>
+          <tr>
+            <th class="table-header" style="width: 250px">
+              <div class="table-header-cell custom-control-inline">
+                {{
+                  translate.instant("group.all-group.all-group-list.table.name")
+                }}
+              </div>
+            </th>
+            <th class="table-header" style="width: 350px">
+              <div class="table-header-cell custom-control-inline">
+                {{
+                  translate.instant(
+                    "group.all-group.all-group-list.table.description"
+                  )
+                }}
+              </div>
+            </th>
+            <th
+              class="table-header action"
+              style="width: 90px; max-width: 90px; min-width: 90px"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (group of dataManagementShiftService.editShift?.groups; track
+          group.id; let i = $index) {
+          <tr
+            class="table-row"
+            (click)="onClickedRow(group)"
+            [class.active]="group.id === highlightRowId"
+          >
+            <td class="table-cell">
+              {{ group.name }}
+            </td>
+            <td class="table-cell">
+              {{ group.description }}
+            </td>
+            <td class="table-cell cell-right">
+              <div>
+                <div class="icon" (click)="onDelete(group)">
+                  <app-icon-trash-red></app-icon-trash-red>
+                </div>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
     <div>
       <div style="height: 30px"></div>
     </div>
-    }
   </div>
   <div style="height: 30px"></div>
 </form>

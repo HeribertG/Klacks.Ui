@@ -1,10 +1,17 @@
 import {
   AfterViewInit,
   Component,
+  effect,
+  EffectRef,
   EventEmitter,
   inject,
+  Injector,
+  OnChanges,
   OnDestroy,
+  OnInit,
   Output,
+  runInInjectionContext,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -34,7 +41,9 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
     NgbDatepickerModule,
   ],
 })
-export class EditShiftItemComponent implements AfterViewInit, OnDestroy {
+export class EditShiftItemComponent
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+{
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isChangingMode = new EventEmitter();
 
@@ -44,12 +53,22 @@ export class EditShiftItemComponent implements AfterViewInit, OnDestroy {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   private localStorageService = inject(LocalStorageService);
+  private injector = inject(Injector);
 
   public faCalendar = faCalendar;
   public visibleTable = 'inline';
   public isChecked = false;
+  public isAbbreviationValid: boolean | undefined;
+  public isNameValid: boolean | undefined;
+  public isFromDateValid: boolean | undefined;
 
   public objectForUnsubscribe: Subscription | undefined;
+
+  private effects: EffectRef[] = [];
+
+  ngOnInit(): void {
+    this.readSignals();
+  }
 
   ngAfterViewInit(): void {
     this.setMode();
@@ -61,6 +80,12 @@ export class EditShiftItemComponent implements AfterViewInit, OnDestroy {
         }
       }
     );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['abbreviation']) {
+      this.calcValidationAbbreviation();
+    }
   }
 
   ngOnDestroy(): void {
@@ -95,5 +120,63 @@ export class EditShiftItemComponent implements AfterViewInit, OnDestroy {
       : null;
 
     this.isChecked = currentMode === 'complex' ? true : false;
+  }
+
+  private readSignals(): void {
+    try {
+      runInInjectionContext(this.injector, () => {
+        const effect1 = effect(() => {
+          if (!this.dataManagementShiftService.isValid()) {
+            this.calcValidation();
+          }
+        });
+        this.effects.push(effect1);
+      });
+    } catch (error) {
+      console.error('Error when setting up the effect:', error);
+    }
+  }
+
+  private calcValidation() {
+    this.isNameValid = undefined;
+    this.isFromDateValid = undefined;
+
+    this.calcValidationAbbreviation();
+
+    const name = this.dataManagementShiftService.editShift?.name;
+    const fromDate =
+      this.dataManagementShiftService.editShift?.internalFromDate;
+
+    if (name) {
+      if (name === undefined || name === null) {
+        this.isNameValid = undefined;
+      } else if (name === '') {
+        this.isNameValid = false;
+      } else {
+        this.isNameValid = true;
+      }
+    }
+
+    if (fromDate) {
+      if (fromDate === undefined || fromDate === null) {
+        this.isFromDateValid = undefined;
+      } else {
+        this.isFromDateValid = true;
+      }
+    }
+  }
+  private calcValidationAbbreviation() {
+    this.isAbbreviationValid = undefined;
+
+    const abbreviation =
+      this.dataManagementShiftService.editShift?.abbreviation;
+
+    if (abbreviation === undefined || abbreviation === null) {
+      this.isAbbreviationValid = undefined;
+    } else if (abbreviation === '') {
+      this.isAbbreviationValid = false;
+    } else {
+      this.isAbbreviationValid = true;
+    }
   }
 }

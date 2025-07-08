@@ -40,6 +40,16 @@
   min-height: 310px;
 }
 
+.container-table-borderless-no-height {
+  padding-top: 25px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gridColorLine);
+  background-color: transparent;
+}
+
 .action {
   text-align: right;
 }

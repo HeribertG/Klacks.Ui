@@ -1,10 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
+import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/simple-group-select.component';
 
 @Component({
   selector: 'app-edit-shift-group',
@@ -16,6 +27,8 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
     TranslateModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
+    TrashIconRedComponent,
+    SimpleGroupSelectComponent,
   ],
 })
 export class EditShiftGroupComponent {
@@ -23,11 +36,54 @@ export class EditShiftGroupComponent {
     | NgForm
     | undefined;
 
+  @Output() isChangingEvent = new EventEmitter<boolean>();
+
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public translate = inject(TranslateService);
 
   visibleTable = 'inline';
+  highlightRowId: string | undefined = undefined;
+  selectedGroupId?: string;
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
+  }
+
+  onGroupSelected(group: IGroup | null): void {
+    if (this.dataManagementShiftService.editShift && group) {
+      const indexToRemove =
+        this.dataManagementShiftService.editShift?.groups.findIndex(
+          (x) => x.id === group.id
+        );
+      if (indexToRemove === -1) {
+        this.dataManagementShiftService.editShift?.groups.push(group as Group);
+      }
+    }
+    this.selectedGroupId = '';
+    this.isChangingEvent.emit(true);
+  }
+
+  onLostFocus() {
+    this.highlightRowId = undefined;
+  }
+
+  onClickedRow(value: Group) {
+    this.highlightRowId = value.id;
+  }
+
+  onDelete(group: Group) {
+    if (this.dataManagementShiftService.editShift && group) {
+      const indexToRemove =
+        this.dataManagementShiftService.editShift?.groups.findIndex(
+          (x) => x.id === group.id
+        );
+      if (indexToRemove > -1) {
+        this.dataManagementShiftService.editShift?.groups.splice(
+          indexToRemove,
+          1
+        );
+        this.isChangingEvent.emit(true);
+      }
+    }
   }
 }

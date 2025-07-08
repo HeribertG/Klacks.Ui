@@ -28,8 +28,14 @@ label {
 }
 
 .row-line {
-  margin-top: 5px;
+  margin-top: 40px;
   display: inline-flex;
+  width: calc(100% - 60px);
+  margin-right: 30px;
+
+  .filler {
+    flex-grow: 1;
+  }
 }
 
 .row-line-company {
@@ -91,7 +97,6 @@ label {
 .container-bank-box {
   margin-top: 40px;
   display: inline-flex;
-  background-color: greenyellow;
 }
 
 .container-bank-value {

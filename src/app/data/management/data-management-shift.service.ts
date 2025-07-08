@@ -28,6 +28,7 @@ export class DataManagementShiftService {
 
   public isReset = signal(false);
   public isRead = signal(false);
+  public isValid = signal(false);
   public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
@@ -275,20 +276,21 @@ export class DataManagementShiftService {
       'workTime',
     ];
     if (!compareComplexObjects(a, b, exclude)) {
-      return this.isValid();
+      return this.isValidate();
     }
     return false;
   }
 
-  isValid(): boolean {
-    const isActive = this.isWeekDayActive();
+  private isValidate(): boolean {
+    let isActive = this.isWeekDayActive();
     const d = this.editShift;
     if (d) {
       if (!d.abbreviation || !d.startShift || !d.quantity || !isActive) {
-        return false;
+        isActive = false;
       }
     }
-    return true;
+    this.isValid.set(isActive);
+    return isActive;
   }
 
   private isWeekDayActive(): boolean {

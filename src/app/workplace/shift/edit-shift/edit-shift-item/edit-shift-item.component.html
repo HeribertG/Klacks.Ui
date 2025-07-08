@@ -40,17 +40,22 @@
     <div class="firstColumn first-row">
       <!-- Abbreviation -->
       <label for="abbreviation"
-        >{{ "shift.edit-shift.main.abbreviation" | translate }}Name
+        >{{ "shift.edit-shift.main.abbreviation" | translate }}
         <span class="required-asterisk">*</span></label
       >
       <div class="custom-control-inline short-width">
         <input
           type="text"
-          class="form-control is-invalid"
+          class="form-control"
+          [ngClass]="{
+            'is-invalid': isAbbreviationValid === false,
+            'is-valid': isAbbreviationValid === true
+          }"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
           id="abbreviation"
           name="abbreviation"
+          #abbreviation
           required
           minlength="1"
           maxlength="6"
@@ -65,7 +70,11 @@
       <div class="custom-control-inline default-width">
         <input
           type="text"
-          class="form-control is-invalid"
+          class="form-control"
+          [ngClass]="{
+            'is-invalid': isAbbreviationValid === false,
+            'is-valid': isAbbreviationValid === true
+          }"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.name"
           id="name"
