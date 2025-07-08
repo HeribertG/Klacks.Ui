@@ -10,19 +10,6 @@
   width: 390px;
 }
 
-.medium-width-tel {
-  margin-left: 20px;
-  width: 180px;
-}
-
-.medium-width {
-  width: 280px;
-}
-
-.medium-width-without-button {
-  width: 200px;
-}
-
 label {
   width: 400px;
 }
@@ -44,118 +31,14 @@ label {
   max-height: 82px;
 }
 
-.grey-color {
-  color: #b6b6c3;
-}
-
-.row-line-add {
-  display: inline-flex;
-  padding-bottom: 20px;
-}
-
-.row-line-simple {
-  padding: 0;
-  margin-top: 5px;
-  display: inline-flex;
-}
-
-.firstColumn {
-  margin-left: 30px;
-}
-
-.gap {
-  margin-left: 20px;
-  width: 130px;
-}
-
-.gap-prefix {
-  width: 80px;
-}
-
-.secondColumnContainer {
-  width: 50%;
-}
-
-.firstColumContainer {
-  width: calc(50% - 10px);
-}
-
-.ownStyle-button {
-  width: 180px;
-  height: 40px;
-  background-color: colors.$standartBlueColor;
-  font-weight: 600;
-  font-size: 14px;
-  color: colors.$standartWhiteColor;
-}
-
-.own-boolean {
-  width: 40px;
-  margin-left: 0px;
-}
 
 .container-bank-box {
   margin-top: 40px;
   display: inline-flex;
 }
 
-.container-bank-value {
-  flex-direction: column;
-  width: 450px;
-}
 
-.add-button {
-  margin-left: 5px;
-  margin-top: 5px;
-  color: colors.$standartGreenColor;
-  font-weight: 800;
-  font-size: 18px;
-}
 
-.del-button {
-  margin-left: 5px;
-  margin-top: 5px;
-  color: rosybrown;
-  font-weight: 800;
-  font-size: 18px;
-}
-
-.ownStyle-button {
-  width: 53px;
-  height: 34px;
-  background-color: #e5eaee;
-  color: black;
-  font-size: 13px;
-  margin-right: 20px;
-}
-
-.zip {
-  width: 90px;
-  margin-right: 20px;
-}
-
-.gender {
-  width: 130px;
-  margin-right: 20px;
-}
-
-.place {
-  width: 280px;
-}
-
-.row-line-add {
-  display: inline-flex;
-  padding-bottom: 20px;
-}
-
-btn-outline-secondary {
-  height: 33px;
-}
-
-.legal-entity {
-  width: 100px;
-  margin-top: 40px;
-}
 
 .expand-button {
   margin-right: 30px;
@@ -165,15 +48,6 @@ btn-outline-secondary {
   margin-right: 30px;
 }
 
-.container-bank-box {
-  margin-top: 40px;
-  width: calc(100% - 60px);
-  margin-left: 30px;
-}
-
-.with-large {
-  width: 100%;
-}
 
 ::placeholder {
   color: var(--colorPlaceholder);
@@ -188,15 +62,3 @@ btn-outline-secondary {
   color: var(--colorPlaceholder);
 }
 
-.container-search-button {
-  font-weight: 600;
-  font-size: 13px;
-  background-color: colors.$standartBlueColor;
-  color: colors.$standartWhiteColor;
-}
-.container-search-button-disabled {
-  font-weight: 600;
-  font-size: 13px;
-  background-color: #b6b6c3;
-  color: colors.$standartWhiteColor;
-}

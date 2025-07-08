@@ -34,15 +34,6 @@ label {
   color: var(--standartRedColor);
 }
 
-.container-attribute-box {
-  display: inline-flex;
-  margin-left: 0px;
-  padding-left: 0px;
-}
-
-.container-attribute-value {
-  flex-direction: column;
-}
 
 .firstColumn {
   margin-left: 30px;
@@ -58,13 +49,6 @@ label {
   width: 160px;
 }
 
-.container-second-header {
-  margin-top: 20px;
-  margin-left: 30px;
-  font-size: 16px;
-  font-weight: 600;
-  color: #212121;
-}
 .container-line {
   margin-top: 25px;
   border-top: 1px solid #e5eaee;
@@ -83,10 +67,6 @@ label {
   pointer-events: none;
 }
 
-.container-degree {
-  margin-left: 30px;
-  height: 25px;
-}
 
 .add-button {
   margin-left: 100px;

@@ -15,26 +15,7 @@
   flex-flow: row;
 }
 
-.ownStyle-button {
-  margin-top: 12px;
-  width: 213px;
-  height: 40px;
-  background-color: colors.$standartGreenColor;
 
-  font-size: 13px;
-  color: colors.$standartWhiteColor;
-}
-
-.ownStyle-split {
-  margin-top: 12px;
-  height: 40px;
-  width: 30px;
-  background-color: colors.$splitButtonGreenColor;
-
-  font-size: 13px;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
 
 .icon-logOut {
   cursor: pointer;

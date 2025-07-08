@@ -16,13 +16,6 @@ ng-container {
   width: 100%;
 }
 
-.container-profile-line {
-  display: flex;
-  flex-flow: row;
-
-  padding-top: 40px;
-  max-width: 100%;
-}
 
 .first {
   margin-left: 80px;
@@ -40,9 +33,6 @@ ng-container {
   background-color: var(--backgroundColorCard);
 }
 
-.container-profile-mask {
-  height: 620px;
-}
 
 .container-profile-login {
   height: 507px;
