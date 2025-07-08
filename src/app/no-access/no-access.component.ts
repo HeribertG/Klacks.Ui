@@ -13,9 +13,13 @@ import { NavigationService } from '../services/navigation.service';
   standalone: true,
 })
 export class NoAccessComponent {
+  // Public injected services
   public translate = inject(TranslateService);
+
+  // Private injected services
   private navigationService = inject(NavigationService);
 
+  // Public methods
   onClick(): void {
     this.navigationService.navigateToRoot();
   }

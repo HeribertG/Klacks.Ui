@@ -7,5 +7,6 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class AppComponent {
-  title = 'klacks';
+  // Public properties (used in templates)
+  public title = 'klacks';
 }

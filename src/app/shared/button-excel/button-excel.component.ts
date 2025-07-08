@@ -10,5 +10,6 @@ import { ExcelComponent } from 'src/app/icons/excel.component';
   imports: [CommonModule, ExcelComponent],
 })
 export class ButtonExcelComponent {
+  // @Input() properties
   @Input() buttonDisabled = false;
 }

@@ -34,35 +34,39 @@ import { ThemeService } from 'src/app/services/theme.service';
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
+  // Public injected services
   public dataLoadFileService = inject(DataLoadFileService);
-  private navigationService = inject(NavigationService);
+
+  // Private injected services
   private auth = inject(AuthService);
-  private themeService = inject(ThemeService);
   private injector = inject(Injector);
+  private navigationService = inject(NavigationService);
+  private themeService = inject(ThemeService);
 
+  // Public properties (used in templates)
+  public authorised = signal<boolean>(false);
+  public hasLogoImage = computed(() => !!this.logoImage());
+  public logoImage = signal<string | null>(null);
+  public registerDropdown: HTMLDivElement | undefined;
+  public searchString = signal<string>('');
+  public selectedName = signal<string>('new-address');
+  public version = signal<string>('');
+
+  // Private properties
   private currentTheme = signal<string>('light');
-  logoImage = signal<string | null>(null);
-  searchString = signal<string>('');
-  version = signal<string>('');
-  authorised = signal<boolean>(false);
-  selectedName = signal<string>('new-address');
+  private effectRefs: EffectRef[] = [];
+  private logoImageInterval: any;
+  private ngUnsubscribe = new Subject<void>();
 
-  hasLogoImage = computed(() => !!this.logoImage());
-
-  imageName = computed(() => {
+  // Computed properties
+  public imageName = computed(() => {
     const theme = this.currentTheme();
     return theme === 'dark' ? 'ok-symbol dark.png' : 'ok-symbol.png';
   });
 
-  public registerDropdown: HTMLDivElement | undefined;
-
   get ImageName(): string {
     return this.imageName();
   }
-
-  private ngUnsubscribe = new Subject<void>();
-  private effectRefs: EffectRef[] = [];
-  private logoImageInterval: any;
 
   constructor() {
     this.setupEffects();

@@ -35,6 +35,4 @@ import { Component } from '@angular/core';
   </svg>`,
   standalone: true,
 })
-export class CalendarIconComponent {
-  constructor() {}
-}
+export class CalendarIconComponent {}

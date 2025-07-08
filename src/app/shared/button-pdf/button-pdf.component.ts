@@ -10,5 +10,6 @@ import { PdfIconComponent } from 'src/app/icons/pdf-icon.component';
   imports: [CommonModule, PdfIconComponent],
 })
 export class ButtonPdfComponent {
+  // @Input() properties
   @Input() buttonDisabled = false;
 }

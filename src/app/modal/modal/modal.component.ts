@@ -31,20 +31,31 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
   ],
 })
 export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
+  // @ViewChild properties
+  @ViewChild('contentInput', { static: true })
+  public contentInput!: ElementRef<HTMLElement>;
   @ViewChild('contentDelete', { static: true })
   private contentDelete!: ElementRef<HTMLElement>;
   @ViewChild('contentMessage', { static: true })
   private contentMessage!: ElementRef<HTMLElement>;
-  @ViewChild('contentInput', { static: true })
-  public contentInput!: ElementRef<HTMLElement>;
 
+  // Public properties (used in templates)
+  public modalService: ModalService;
+
+  // Private properties
+  private ngbModal: NgbModal;
   private ngUnsubscribe = new Subject<void>();
+  private translateService: TranslateService;
 
   constructor(
-    public modalService: ModalService,
-    private ngbModal: NgbModal,
-    private translateService: TranslateService
-  ) {}
+    modalService: ModalService,
+    ngbModal: NgbModal,
+    translateService: TranslateService
+  ) {
+    this.modalService = modalService;
+    this.ngbModal = ngbModal;
+    this.translateService = translateService;
+  }
 
   ngOnInit(): void {
     this.translateService

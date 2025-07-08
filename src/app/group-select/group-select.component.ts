@@ -58,33 +58,41 @@ type TreeNode = Group | VirtualGroup;
 export class GroupSelectComponent
   implements OnInit, OnDestroy, ControlValueAccessor
 {
-  public dataManagementGroupService = inject(DataManagementGroupService);
-  public translate = inject(TranslateService);
-  public groupSelectionService = inject(GroupSelectionService);
-  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
-  private injector = inject(Injector);
-  private cdr = inject(ChangeDetectorRef);
-
+  // @Input() properties
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+
+  // @Output() properties
   @Output() groupSelected = new EventEmitter<Group | null>();
 
-  public hierarchicalTree: Group[] = [];
+  // Public injected services
+  public dataManagementGroupService = inject(DataManagementGroupService);
+  public groupSelectionService = inject(GroupSelectionService);
+  public translate = inject(TranslateService);
+
+  // Private injected services
+  private cdr = inject(ChangeDetectorRef);
+  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private injector = inject(Injector);
+
+  // Public properties (used in templates)
   public displayTree: TreeNode[] = [];
+  public expandedNodes = new Set<string>();
+  public hierarchicalTree: Group[] = [];
+  public isDisabled = false;
   public isDropdownOpen = false;
+  public isVisible = false;
   public selectedGroup: Group | null = null;
   public selectedGroupId: string | null = null;
-  public expandedNodes = new Set<string>();
-  public isDisabled = false;
-  public isVisible = false;
 
+  // Private properties
   private effects: EffectRef[] = [];
-
-  readonly ALL_GROUPS_ID = 'all-groups-virtual';
-
   private onChange: any = () => {};
   private onTouched: any = () => {};
+
+  // Constants
+  readonly ALL_GROUPS_ID = 'all-groups-virtual';
 
   ngOnInit(): void {
     this.dataManagementGroupService.init();

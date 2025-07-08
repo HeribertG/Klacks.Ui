@@ -9,18 +9,18 @@ import {
   inject,
   EnvironmentInjector,
 } from '@angular/core';
-import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
-import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
-import { ProfileHomeComponent } from 'src/app/workplace/profile/profile-home/profile-home.component';
-import { SettingsHomeComponent } from 'src/app/workplace/settings/settings-home/settings-home.component';
+import { CommonModule } from '@angular/common';
 import { AbsenceGanttHomeComponent } from '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component';
-import { ScheduleHomeComponent } from 'src/app/workplace/schedule/schedule-home/schedule-home.component';
+import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
 import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-group-home/all-group-home.component';
-import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
-import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
 import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
 import { DashboardHomeComponent } from 'src/app/workplace/dashboard/dashboard-home/dashboard-home.component';
-import { CommonModule } from '@angular/common';
+import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
+import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
+import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
+import { ProfileHomeComponent } from 'src/app/workplace/profile/profile-home/profile-home.component';
+import { ScheduleHomeComponent } from 'src/app/workplace/schedule/schedule-home/schedule-home.component';
+import { SettingsHomeComponent } from 'src/app/workplace/settings/settings-home/settings-home.component';
 
 @Component({
   selector: 'app-main',
@@ -30,38 +30,44 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, DashboardHomeComponent],
 })
 export class MainComponent implements OnChanges {
-  @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })
-  viewContainer!: ViewContainerRef;
-
-  private environmentInjector = inject(EnvironmentInjector);
-
-  @Input() isDashboard = false;
-  @Input() isProfile = false;
-  @Input() isClient = false;
-  @Input() isEditClient = false;
-  @Input() isSetting = false;
+  // @Input() properties
   @Input() isAbsence = false;
-  @Input() isSchedule = false;
-  @Input() isGroup = false;
-  @Input() isEditGroup = false;
+  @Input() isClient = false;
   @Input() isCreateShift = false;
-  @Input() isShift = false;
+  @Input() isDashboard = false;
+  @Input() isEditClient = false;
+  @Input() isEditGroup = false;
+  @Input() isGroup = false;
   @Input() isGroupStructure = false;
+  @Input() isProfile = false;
+  @Input() isSchedule = false;
+  @Input() isSetting = false;
+  @Input() isShift = false;
 
+  // @Output() properties
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
 
-  compInstanceProfileHome: ProfileHomeComponent | undefined;
-  compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
-  compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
-  compInstanceSettingHome: SettingsHomeComponent | undefined;
-  compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
-  compInstanceScheduleHome: ScheduleHomeComponent | undefined;
-  compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
-  compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
-  compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
-  compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
+  // @ViewChild properties
+  @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })
+  viewContainer!: ViewContainerRef;
 
+  // Private injected services
+  private environmentInjector = inject(EnvironmentInjector);
+
+  // Public properties (used in templates)
+  public compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
+  public compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
+  public compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
+  public compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
+  public compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
+  public compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
+  public compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
+  public compInstanceProfileHome: ProfileHomeComponent | undefined;
+  public compInstanceScheduleHome: ScheduleHomeComponent | undefined;
+  public compInstanceSettingHome: SettingsHomeComponent | undefined;
+
+  // Lifecycle hooks
   ngOnChanges(): void {
     if (this.isSetting && !this.compInstanceSettingHome) {
       import(
@@ -275,6 +281,7 @@ export class MainComponent implements OnChanges {
     }
   }
 
+  // Public methods
   onIsChanging(value: boolean | undefined): void {
     this.isChangingEvent.emit(value);
   }

@@ -55,40 +55,42 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
   ],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
+  // @ViewChild properties
   @ViewChild(NgForm, { static: false }) absenceForm: NgForm | undefined;
 
+  // Public injected services
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
+
+  // Private injected services
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
   private translate = inject(TranslateService);
 
-  // Pagination properties
-  highlightRowId: string | undefined = undefined;
-  page = 1;
-  firstItemOnLastPage: number | undefined = undefined;
-  isPreviousPage: boolean | undefined = undefined;
-  isNextPage: boolean | undefined = undefined;
-  numberOfItemsPerPage = 7;
-  numberOfItemsPerPageMap = new Map<number, number>();
+  // Public properties (used in templates)
+  public arrowDescription = '';
+  public arrowName = '';
+  public currentAbsence = new Absence();
+  public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public descriptionHeader = new HeaderProperties();
+  public firstItemOnLastPage: number | undefined = undefined;
+  public highlightRowId: string | undefined = undefined;
+  public isComboBoxOpen = false;
+  public isNextPage: boolean | undefined = undefined;
+  public isPreviousPage: boolean | undefined = undefined;
+  public message = MessageLibrary.DELETE_ENTRY;
+  public nameHeader = new HeaderProperties();
+  public numberOfItemsPerPage = 7;
+  public numberOfItemsPerPageMap = new Map<number, number>();
+  public orderBy = 'name';
+  public page = 1;
+  public sortOrder = 'asc';
 
-  // Sorting properties
+  // Private properties
+  private ngUnsubscribe = new Subject<void>();
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
-  arrowName = '';
-  arrowDescription = '';
-  orderBy = 'name';
-  sortOrder = 'asc';
 
-  nameHeader = new HeaderProperties();
-  descriptionHeader = new HeaderProperties();
-
-  currentLang: Language = MessageLibrary.DEFAULT_LANG;
-  currentAbsence = new Absence();
-  message = MessageLibrary.DELETE_ENTRY;
-  isComboBoxOpen = false;
-
-  private ngUnsubscribe = new Subject<void>();
-
+  // Lifecycle hooks
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
     this.reReadSortData();
@@ -116,89 +118,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
   }
 
-  private readPage(): void {
-    const filter = this.dataManagementAbsenceService.currentFilter;
-
-    filter.firstItemOnLastPage = this.firstItemOnLastPage;
-    filter.isPreviousPage = this.isPreviousPage;
-    filter.isNextPage = this.isNextPage;
-
-    filter.orderBy = this.orderBy;
-    filter.sortOrder = this.sortOrder;
-
-    filter.requiredPage = this.page - 1;
-    filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
-
-    this.dataManagementAbsenceService.readPage(this.currentLang);
-  }
-
-  onPageChange(event: number): void {
-    this.firstItemOnLastPage = undefined;
-    this.isPreviousPage = undefined;
-    this.isNextPage = undefined;
-
-    if (event === this.page + 1) {
-      this.isNextPage = true;
-
-      if (!this.numberOfItemsPerPageMap.get(this.page)) {
-        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
-      }
-
-      this.firstItemOnLastPage = this.dataManagementAbsenceService.firstItem;
-    } else if (event === this.page - 1) {
-      this.isPreviousPage = true;
-      this.firstItemOnLastPage = this.dataManagementAbsenceService.firstItem;
-    }
-
-    setTimeout(() => {
-      this.readPage();
-    }, 200);
-  }
-
-  onClickedRow(value: IAbsence): void {
-    this.highlightRowId = value.id;
-  }
-
-  onClickDownloadExcel() {}
-
-  /* #region Filter */
-  onOpenChange(event: boolean): void {
-    this.isComboBoxOpen = event;
-    if (this.isComboBoxOpen) {
-      this.dataManagementAbsenceService.setTemporaryFilter();
-    }
-    if (
-      !this.isComboBoxOpen &&
-      this.dataManagementAbsenceService.isTemoraryFilter_Dirty()
-    ) {
-      setTimeout(() => {
-        this.readPage();
-      }, 100);
-    }
-  }
-  /* #endregion Filter */
-
-  /* #region MsgBox */
-  openDeleteAbsence(data: IAbsence): void {
-    if (data.id) {
-      this.modalService.Filing = data.id;
-      this.modalService.deleteMessage = this.message;
-      this.modalService.setDefault(ModalType.Delete);
-      this.modalService.openModel(ModalType.Delete);
-    }
-  }
-
-  onCopyAbsence(content: any, data: Absence): void {
-    this.currentAbsence = cloneObject<Absence>(data);
-    this.currentAbsence.id = undefined;
-
-    this.openNewAbsence(content);
-  }
-
-  onEditAbsence(content: any, data: Absence): void {
-    this.currentAbsence = data;
-    this.openNewAbsence(content);
-  }
+  // Public methods
 
   createNewAbsence(content: any): void {
     this.currentAbsence = new Absence();
@@ -207,39 +127,8 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.openNewAbsence(content);
   }
 
-  openNewAbsence(content: any): void {
-    this.ngbModal
-      .open(content, {
-        size: 'md',
-        centered: true,
-        windowClass: 'custom-class',
-        ariaLabelledBy: 'modal-edit',
-      })
-      .result.then(
-        () => {
-          if (this.currentAbsence.id) {
-            this.dataManagementAbsenceService.updateAbsence(
-              this.currentAbsence,
-              this.currentLang
-            );
-          } else {
-            delete this.currentAbsence.id;
-            this.dataManagementAbsenceService.addAbsence(
-              this.currentAbsence,
-              this.currentLang
-            );
-          }
-        },
-        () => {}
-      );
-  }
+  onClickDownloadExcel(): void {}
 
-  private deleteAbsence(id: string): void {
-    this.dataManagementAbsenceService.deleteAbsence(id, this.currentLang);
-  }
-  /* #endregion MsgBox */
-
-  /* #region header */
   onClickHeader(orderBy: string): void {
     let sortOrder = '';
 
@@ -269,27 +158,119 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.readPage();
   }
 
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    const header = this.setPosition(orderBy);
-    if (header) {
-      this.setDirection(sortOrder, header);
-    }
-    this.setHeaderArrowTemplate();
+  onClickedRow(value: IAbsence): void {
+    this.highlightRowId = value.id;
   }
 
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'name') {
-      return this.nameHeader;
+  onCopyAbsence(content: any, data: Absence): void {
+    this.currentAbsence = cloneObject<Absence>(data);
+    this.currentAbsence.id = undefined;
+
+    this.openNewAbsence(content);
+  }
+
+  onEditAbsence(content: any, data: Absence): void {
+    this.currentAbsence = data;
+    this.openNewAbsence(content);
+  }
+
+  onOpenChange(event: boolean): void {
+    this.isComboBoxOpen = event;
+    if (this.isComboBoxOpen) {
+      this.dataManagementAbsenceService.setTemporaryFilter();
+    }
+    if (
+      !this.isComboBoxOpen &&
+      this.dataManagementAbsenceService.isTemoraryFilter_Dirty()
+    ) {
+      setTimeout(() => {
+        this.readPage();
+      }, 100);
+    }
+  }
+
+  onPageChange(event: number): void {
+    this.firstItemOnLastPage = undefined;
+    this.isPreviousPage = undefined;
+    this.isNextPage = undefined;
+
+    if (event === this.page + 1) {
+      this.isNextPage = true;
+
+      if (!this.numberOfItemsPerPageMap.get(this.page)) {
+        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
+      }
+
+      this.firstItemOnLastPage = this.dataManagementAbsenceService.firstItem;
+    } else if (event === this.page - 1) {
+      this.isPreviousPage = true;
+      this.firstItemOnLastPage = this.dataManagementAbsenceService.firstItem;
     }
 
-    if (orderBy === 'description') {
-      return this.descriptionHeader;
-    }
+    setTimeout(() => {
+      this.readPage();
+    }, 200);
+  }
 
-    return undefined;
+  openDeleteAbsence(data: IAbsence): void {
+    if (data.id) {
+      this.modalService.Filing = data.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  openNewAbsence(content: any): void {
+    this.ngbModal
+      .open(content, {
+        size: 'md',
+        centered: true,
+        windowClass: 'custom-class',
+        ariaLabelledBy: 'modal-edit',
+      })
+      .result.then(
+        () => {
+          if (this.currentAbsence.id) {
+            this.dataManagementAbsenceService.updateAbsence(
+              this.currentAbsence,
+              this.currentLang
+            );
+          } else {
+            delete this.currentAbsence.id;
+            this.dataManagementAbsenceService.addAbsence(
+              this.currentAbsence,
+              this.currentLang
+            );
+          }
+        },
+        () => {}
+      );
+  }
+
+  // Private methods
+  private deleteAbsence(id: string): void {
+    this.dataManagementAbsenceService.deleteAbsence(id, this.currentLang);
+  }
+
+  private readPage(): void {
+    const filter = this.dataManagementAbsenceService.currentFilter;
+
+    filter.firstItemOnLastPage = this.firstItemOnLastPage;
+    filter.isPreviousPage = this.isPreviousPage;
+    filter.isNextPage = this.isNextPage;
+
+    filter.orderBy = this.orderBy;
+    filter.sortOrder = this.sortOrder;
+
+    filter.requiredPage = this.page - 1;
+    filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
+
+    this.dataManagementAbsenceService.readPage(this.currentLang);
+  }
+
+  private reReadSortData(): void {
+    this.sort(this.orderBy, this.sortOrder);
   }
 
   private setDirection(sortOrder: string, value: HeaderProperties): void {
@@ -319,13 +300,32 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private reReadSortData(): void {
-    this.sort(this.orderBy, this.sortOrder);
-  }
-
   private setHeaderArrowToUndefined(): void {
     this.nameHeader.order = HeaderDirection.None;
     this.descriptionHeader.order = HeaderDirection.None;
   }
-  /* #endregion header */
+
+  private setPosition(orderBy: string): HeaderProperties | undefined {
+    if (orderBy === 'name') {
+      return this.nameHeader;
+    }
+
+    if (orderBy === 'description') {
+      return this.descriptionHeader;
+    }
+
+    return undefined;
+  }
+
+  private sort(orderBy: string, sortOrder: string): void {
+    this.orderBy = orderBy;
+    this.sortOrder = sortOrder;
+    this.setHeaderArrowToUndefined();
+    const header = this.setPosition(orderBy);
+    if (header) {
+      this.setDirection(sortOrder, header);
+    }
+    this.setHeaderArrowTemplate();
+  }
+
 }

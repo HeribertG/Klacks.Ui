@@ -25,20 +25,22 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   ],
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  public isClicked = false;
-  public username = '';
-  public password = '';
-  public token = '';
-  public faEye = faEye;
-  public faEyeSlash = faEyeSlash;
-  public showPassword = false;
-  public currentLang = MessageLibrary.CURRENT_LANG;
-
+  // Private injected services
   private auth = inject(AuthService);
+  private authorizationService = inject(AuthorizationService);
+  private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
-  private localStorageService = inject(LocalStorageService);
-  private authorizationService = inject(AuthorizationService);
+
+  // Public properties (used in templates)
+  public currentLang = MessageLibrary.CURRENT_LANG;
+  public faEye = faEye;
+  public faEyeSlash = faEyeSlash;
+  public isClicked = false;
+  public password = '';
+  public showPassword = false;
+  public token = '';
+  public username = '';
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);

@@ -10,5 +10,6 @@ import { GearGreyComponent } from 'src/app/icons/gear-grey.component';
   imports: [CommonModule, GearGreyComponent],
 })
 export class ButtonSettingComponent {
+  // @Input() properties
   @Input() buttonDisabled = false;
 }
