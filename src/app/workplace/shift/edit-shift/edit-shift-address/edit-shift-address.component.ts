@@ -18,6 +18,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 
 @Component({
   selector: 'app-edit-shift-address',
@@ -30,6 +31,7 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
     TranslateModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
+    TrashIconRedComponent,
   ],
 })
 export class EditShiftAddressComponent implements OnInit {

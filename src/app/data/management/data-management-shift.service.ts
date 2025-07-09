@@ -51,7 +51,6 @@ export class DataManagementShiftService {
   public headerCheckBoxValue = false;
   public stateList: StateCountryToken[] | undefined;
 
-  private isInit = false;
   private initCount = 0;
   private initFinished = 1;
 
@@ -208,18 +207,20 @@ export class DataManagementShiftService {
     }
 
     value.fromDate = new Date();
-    value.startShift = '08:00';
-    value.endShift = '16:00';
+    value.startShift = '07:00';
+    value.endShift = '15:00';
     value.workTime = 8;
     value.beforeShift = '';
     value.afterShift = '';
-    value.abbreviation = 'abc';
+    value.abbreviation = '';
     value.isMonday = true;
     value.isTuesday = true;
     value.isWednesday = true;
     value.isThursday = true;
     value.isFriday = true;
     value.quantity = 1;
+    value.sumEmployees = 1;
+    value.status = 0;
 
     this.editShift = value;
 

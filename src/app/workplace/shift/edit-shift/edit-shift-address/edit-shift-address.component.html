@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form #addressShiftForm="ngForm" class="container-card">
@@ -61,26 +62,27 @@
         </div>
         }
       </div>
-    </div>
 
-    <!-- Display selected address -->
-    @if (dataManagementShiftService.editShift && dataManagementShiftService.editShift.clientId) {
-    <div class="selected-address-container">
-      <div class="selected-address-header">
-        <h6>{{ "shift.edit-shift.address.selected-address" | translate }}</h6>
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-danger"
-          (click)="onRemoveAddress()"
+      <!-- Display selected address -->
+      @if (dataManagementShiftService.editShift &&
+      dataManagementShiftService.editShift.clientId) {
+      <div class="selected-address-container">
+        <div class="selected-address-header">
+          <label>{{
+            "shift.edit-shift.address.selected-address" | translate
+          }}</label>
+        </div>
+        <div
+          class="selected-address-info d-flex justify-content-between align-items-center"
         >
-          {{ "shift.edit-shift.address.remove" | translate }}
-        </button>
+          <span>{{ dataManagementShiftService.editShift.addressName }}</span>
+          <button type="button" class="delete-btn" (click)="onRemoveAddress()">
+            <app-icon-trash-red></app-icon-trash-red>
+          </button>
+        </div>
       </div>
-      <div class="selected-address-info">
-        {{ dataManagementShiftService.editShift.addressName }}
-      </div>
+      }
     </div>
-    }
     <div>
       <div style="height: 30px"></div>
     </div>

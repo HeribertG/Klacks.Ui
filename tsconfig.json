@@ -23,6 +23,7 @@
     "types": ["node", "jasmine"],
     "skipLibCheck": true
   },
+  "exclude": ["./build"],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
