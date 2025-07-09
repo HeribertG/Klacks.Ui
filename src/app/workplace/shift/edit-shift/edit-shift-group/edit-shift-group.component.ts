@@ -11,6 +11,8 @@ import {
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { Group, IGroup } from 'src/app/core/group-class';
@@ -28,6 +30,7 @@ import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/s
     CommonModule,
     FormsModule,
     TranslateModule,
+    FontAwesomeModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
     TrashIconRedComponent,
@@ -48,6 +51,7 @@ export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
   highlightRowId: string | undefined = undefined;
   selectedGroupId?: string;
   public showGroupInfoBox = false;
+  public faInfoCircle = faInfoCircle;
 
   private objectForUnsubscribe: Subscription | undefined;
 

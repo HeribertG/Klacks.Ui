@@ -21,9 +21,12 @@
 
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     <div class="row-line endColumn">
-      <@if (showGroupInfoBox) {
+      @if (showGroupInfoBox) {
       <div class="info-box">
-        {{ "shift.edit-shift.group.please-select-group" | translate }}
+        <fa-icon [icon]="faInfoCircle" class="info-icon"></fa-icon>
+        <span class="info-text">{{
+          "shift.edit-shift.group.please-select-group" | translate
+        }}</span>
       </div>
       }
       <span class="filler"></span>
