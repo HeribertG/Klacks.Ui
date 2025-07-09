@@ -103,10 +103,10 @@ export class EditShiftAddressComponent {
     this.applyClient();
   }
 
-  private searchText(isNumer = false) {
+  private searchText(isNummer = false) {
     if (
       this.selectedClientName &&
-      (this.selectedClientName.toString().length >= 2 || isNumer)
+      (this.selectedClientName.toString().length >= 2 || isNummer)
     ) {
       const split = this.selectedClientName.toString().split(' - ');
 

@@ -6,12 +6,10 @@ import {
   EventEmitter,
   inject,
   Injector,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
   runInInjectionContext,
-  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -42,7 +40,7 @@ import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
   ],
 })
 export class EditShiftItemComponent
-  implements OnInit, AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnDestroy
 {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isChangingMode = new EventEmitter();
@@ -80,12 +78,6 @@ export class EditShiftItemComponent
         }
       }
     );
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['abbreviation']) {
-      this.calcValidationAbbreviation();
-    }
   }
 
   ngOnDestroy(): void {
@@ -126,9 +118,8 @@ export class EditShiftItemComponent
     try {
       runInInjectionContext(this.injector, () => {
         const effect1 = effect(() => {
-          if (!this.dataManagementShiftService.isValid()) {
-            this.calcValidation();
-          }
+          this.dataManagementShiftService.isValid();
+          this.calcValidation();
         });
         this.effects.push(effect1);
       });
@@ -138,33 +129,11 @@ export class EditShiftItemComponent
   }
 
   private calcValidation() {
-    this.isNameValid = undefined;
-    this.isFromDateValid = undefined;
-
     this.calcValidationAbbreviation();
-
-    const name = this.dataManagementShiftService.editShift?.name;
-    const fromDate =
-      this.dataManagementShiftService.editShift?.internalFromDate;
-
-    if (name) {
-      if (name === undefined || name === null) {
-        this.isNameValid = undefined;
-      } else if (name === '') {
-        this.isNameValid = false;
-      } else {
-        this.isNameValid = true;
-      }
-    }
-
-    if (fromDate) {
-      if (fromDate === undefined || fromDate === null) {
-        this.isFromDateValid = undefined;
-      } else {
-        this.isFromDateValid = true;
-      }
-    }
+    this.calcValidationName();
+    this.calcValidationFromDate();
   }
+
   private calcValidationAbbreviation() {
     this.isAbbreviationValid = undefined;
 
@@ -177,6 +146,34 @@ export class EditShiftItemComponent
       this.isAbbreviationValid = false;
     } else {
       this.isAbbreviationValid = true;
+    }
+  }
+
+  private calcValidationName() {
+    this.isNameValid = undefined;
+    const name = this.dataManagementShiftService.editShift?.name;
+
+    if (name === undefined || name === null) {
+      this.isNameValid = undefined;
+    } else if (name === '') {
+      this.isNameValid = false;
+    } else {
+      this.isNameValid = true;
+    }
+  }
+
+  private calcValidationFromDate() {
+    this.isFromDateValid = undefined;
+
+    const fromDate =
+      this.dataManagementShiftService.editShift?.internalFromDate;
+
+    if (fromDate) {
+      if (fromDate === undefined || fromDate === null) {
+        this.isFromDateValid = undefined;
+      } else {
+        this.isFromDateValid = true;
+      }
     }
   }
 }

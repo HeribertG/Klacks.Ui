@@ -72,13 +72,14 @@
           type="text"
           class="form-control"
           [ngClass]="{
-            'is-invalid': isAbbreviationValid === false,
-            'is-valid': isAbbreviationValid === true
+            'is-invalid': isNameValid === false,
+            'is-valid': isNameValid === true
           }"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.name"
           id="name"
           name="name"
+          #shiftName
           required
         />
       </div>
@@ -108,6 +109,10 @@
                 btn-dark
                 #validFrom="ngbDatepicker"
                 required
+                [ngClass]="{
+                  'is-invalid': isFromDateValid === false,
+                  'is-valid': isFromDateValid === true
+                }"
               />
               <span
                 class="input-group-text"

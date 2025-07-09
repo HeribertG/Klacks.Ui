@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/core/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -20,7 +20,6 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
   public faCalendar = faCalendar;
 
   public dataManagementClientService = inject(DataManagementClientService);
-  private translate = inject(TranslateService);
 
   ngOnInit(): void {
     this.validFrom = MessageLibrary.VALID_FROM;

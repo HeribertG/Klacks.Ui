@@ -413,13 +413,6 @@ export class AllAddressListComponent
     }
   }
 
-  private getReset(): void {
-    this.page = 1;
-    this.dataManagementClientService.currentFilter.firstItemOnLastPage = 0;
-    this.dataManagementClientService.currentFilter.isPreviousPage = undefined;
-    this.dataManagementClientService.currentFilter.isNextPage = undefined;
-  }
-
   private readPage(isSecondRead = false): void {
     if (!isSecondRead) {
       const lastNumberOfItemsPerPage = this.numberOfItemsPerPageMap.get(
@@ -584,5 +577,4 @@ export class AllAddressListComponent
     this.nameHeader.order = HeaderDirection.None;
     this.statusHeader.order = HeaderDirection.None;
   }
-
 }

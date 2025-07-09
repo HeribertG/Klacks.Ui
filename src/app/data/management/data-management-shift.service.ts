@@ -261,6 +261,7 @@ export class DataManagementShiftService {
   /* #endregion   edit shift */
 
   private isEditShift_Dirty(): boolean {
+    let result = false;
     const a = this.editShift as IShift;
     const b = this.editShiftDummy as IShift;
     const exclude = [
@@ -276,20 +277,30 @@ export class DataManagementShiftService {
       'workTime',
     ];
     if (!compareComplexObjects(a, b, exclude)) {
-      return this.isValidate();
+      result = this.isValidate();
     }
-    return false;
+    this.isValid.set(result);
+    return result;
   }
 
   private isValidate(): boolean {
     let isActive = this.isWeekDayActive();
-    const d = this.editShift;
-    if (d) {
-      if (!d.abbreviation || !d.startShift || !d.quantity || !isActive) {
-        isActive = false;
+    if (isActive) {
+      const d = this.editShift;
+      if (d) {
+        if (
+          !d.abbreviation ||
+          !d.name ||
+          !d.startShift ||
+          !d.quantity ||
+          !d.sumEmployees ||
+          !d.workTime
+        ) {
+          isActive = false;
+        }
       }
     }
-    this.isValid.set(isActive);
+
     return isActive;
   }
 
