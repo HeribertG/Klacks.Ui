@@ -64,7 +64,7 @@
     </div>
 
     <!-- Display selected address -->
-    @if (dataManagementShiftService.editShift?.clientId) {
+    @if (dataManagementShiftService.editShift && dataManagementShiftService.editShift.clientId) {
     <div class="selected-address-container">
       <div class="selected-address-header">
         <h6>{{ "shift.edit-shift.address.selected-address" | translate }}</h6>
