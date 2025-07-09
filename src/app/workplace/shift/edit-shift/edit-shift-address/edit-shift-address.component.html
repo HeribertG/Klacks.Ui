@@ -23,7 +23,7 @@
 
     <div class="firstColumn endColumn">
       <label for="member">{{
-        "group.edit-group.edit-group-member.search" | translate
+        "shift.edit-shift.address.search" | translate
       }}</label>
       <div class="input-group mb-3">
         <input
@@ -50,19 +50,37 @@
         <div
           class="input-group-text btn btn-outline-secondary container-search-button-disabled"
         >
-          {{ "group.edit-group.edit-group-member.add" | translate }}
+          {{ "shift.edit-shift.address.select" | translate }}
         </div>
         } @if (selectedClient) {
         <div
           class="input-group-text btn btn-outline-secondary container-search-button"
           (click)="onClickApply()"
-          disabled="!authorizationService.isAuthorised"
         >
-          {{ "group.edit-group.edit-group-member.add" | translate }}
+          {{ "shift.edit-shift.address.select" | translate }}
         </div>
         }
       </div>
     </div>
+
+    <!-- Display selected address -->
+    @if (dataManagementShiftService.editShift?.clientId) {
+    <div class="selected-address-container">
+      <div class="selected-address-header">
+        <h6>{{ "shift.edit-shift.address.selected-address" | translate }}</h6>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          (click)="onRemoveAddress()"
+        >
+          {{ "shift.edit-shift.address.remove" | translate }}
+        </button>
+      </div>
+      <div class="selected-address-info">
+        {{ dataManagementShiftService.editShift.addressName }}
+      </div>
+    </div>
+    }
     <div>
       <div style="height: 30px"></div>
     </div>

@@ -1,6 +1,7 @@
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { OwnTime } from './schedule-class';
 import { Group } from './group-class';
+import { IClient } from './client-class';
 
 export enum ShiftStatus {
   Original = 0,
@@ -59,6 +60,9 @@ export interface IShift {
   internalDebriefingTime: OwnTime;
   shiftType: ShiftType;
   groups: Group[];
+  clientId: string | undefined;
+  client?: IClient | undefined;
+  addressName: string | undefined;
 }
 
 export class Shift implements IShift {
@@ -108,4 +112,7 @@ export class Shift implements IShift {
   internalWorkTime = new OwnTime('0', '0');
   shiftType: ShiftType = ShiftType.IsTask;
   groups: Group[] = [];
+  clientId: string | undefined = undefined;
+  client?: IClient | undefined = undefined;
+  addressName: string | undefined = undefined;
 }

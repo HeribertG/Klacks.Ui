@@ -6,6 +6,7 @@ import {
   EventEmitter,
   HostListener,
   inject,
+  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -13,7 +14,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/core/client-class';
 import { DataClientService } from 'src/app/data/data-client.service';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
@@ -32,7 +32,7 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
     IconAngleRightComponent,
   ],
 })
-export class EditShiftAddressComponent {
+export class EditShiftAddressComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('addressShiftForm', { static: false }) addressShiftForm:
@@ -47,13 +47,16 @@ export class EditShiftAddressComponent {
   }
 
   public dataManagementShiftService = inject(DataManagementShiftService);
-  public dataManagementGroupService = inject(DataManagementGroupService);
   private dataClientService = inject(DataClientService);
 
   result = new Array<IClient>();
   visibleTable = 'inline';
   selectedClientName = '';
   selectedClient: IClient | undefined = undefined;
+
+  ngOnInit(): void {
+    this.setFilter();
+  }
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
@@ -103,6 +106,14 @@ export class EditShiftAddressComponent {
     this.applyClient();
   }
 
+  onRemoveAddress() {
+    if (this.dataManagementShiftService.editShift) {
+      this.dataManagementShiftService.editShift.clientId = undefined;
+      this.dataManagementShiftService.editShift.addressName = undefined;
+      this.onIsChanging(true);
+    }
+  }
+
   private searchText(isNummer = false) {
     if (
       this.selectedClientName &&
@@ -119,10 +130,10 @@ export class EditShiftAddressComponent {
   }
 
   private refreshList(term: string) {
-    this.dataManagementGroupService.currentClientFilter.searchString = term;
+    this.dataManagementShiftService.currentClientFilter.searchString = term;
 
     this.dataClientService
-      .readClientList(this.dataManagementGroupService.currentClientFilter)
+      .readClientList(this.dataManagementShiftService.currentClientFilter)
       .subscribe((x) => {
         this.result = x.clients;
 
@@ -136,18 +147,16 @@ export class EditShiftAddressComponent {
   }
 
   private applyClient() {
-    if (this.selectedClient) {
-      const id = this.selectedClient.id;
-
-      const result = this.dataManagementGroupService.editGroup?.groupItems.find(
-        (x) => x.clientId === id
+    if (this.selectedClient && this.dataManagementShiftService.editShift) {
+      // For shift address, we only allow one address to be selected
+      this.dataManagementShiftService.editShift.clientId =
+        this.selectedClient.id;
+      this.dataManagementShiftService.editShift.addressName = this.visualName(
+        this.selectedClient
       );
 
-      if (!result) {
-        this.dataManagementGroupService.add(this.selectedClient);
-        this.clearSelection();
-        this.onIsChanging(true);
-      }
+      this.clearSelection();
+      this.onIsChanging(true);
     }
   }
 
@@ -163,5 +172,10 @@ export class EditShiftAddressComponent {
     }
 
     return `${value.idNumber} - ${value.company} ${value.firstName} ${value.name}`;
+  }
+
+  private setFilter() {
+    this.dataManagementShiftService.currentClientFilter.numberOfItemsPerPage = 20;
+    this.dataManagementShiftService.currentClientFilter.firstItemOnLastPage = 0;
   }
 }

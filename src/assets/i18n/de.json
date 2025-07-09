@@ -436,6 +436,10 @@
   "shift.edit-shift.special-feature.sum-macro.list": "Macro Liste",
   "shift.edit-shift.group.please-select-group": "Bitte wählen Sie mindestens eine Gruppe aus",
   "shift.edit-shift.group.select-group-label": "Gruppe auswählen",
+  "shift.edit-shift.address.search": "Adresse suchen",
+  "shift.edit-shift.address.select": "Auswählen",
+  "shift.edit-shift.address.selected-address": "Ausgewählte Adresse",
+  "shift.edit-shift.address.remove": "Entfernen",
 
   "shift.all-shift.all-shift-home.header": "Alle Dienste",
   "shift.all-shift.list.title": "Dienste",

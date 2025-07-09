@@ -195,3 +195,30 @@ btn-outline-secondary {
   background-color: #b6b6c3;
   color: colors.$standartWhiteColor;
 }
+
+.selected-address-container {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background-color: var(--backgroundColorCard);
+}
+
+.selected-address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.selected-address-header h6 {
+  margin: 0;
+  color: var(--colorHeadline);
+}
+
+.selected-address-info {
+  padding: 8px;
+  background-color: var(--backgroundColorFocus);
+  border-radius: 4px;
+  color: var(--standartTextColor);
+}

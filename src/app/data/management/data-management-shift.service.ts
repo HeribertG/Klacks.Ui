@@ -14,8 +14,11 @@ import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { ITruncatedShift, ShiftFilter } from 'src/app/core/shift-data-class';
-import { CheckBoxValue } from 'src/app/core/client-class';
+import { CheckBoxValue, Filter, ICountry } from 'src/app/core/client-class';
 import { IShift, Shift } from 'src/app/core/shift-class';
+import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { DataClientService } from '../data-client.service';
+import { DataCountryStateService } from '../data-country-state.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +28,8 @@ export class DataManagementShiftService {
   private navigationService = inject(NavigationService);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
+  public dataClientService = inject(DataClientService);
+  private dataCountryStateService = inject(DataCountryStateService);
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -35,6 +40,7 @@ export class DataManagementShiftService {
 
   public listWrapper: ITruncatedShift | undefined;
   public currentFilter: ShiftFilter = new ShiftFilter();
+  public currentClientFilter: Filter = new Filter();
   public editGroup: IShift | undefined;
 
   public shift: IShift[] = [];
@@ -43,6 +49,7 @@ export class DataManagementShiftService {
   public macroList: IMacro[] = [];
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
   public headerCheckBoxValue = false;
+  public stateList: StateCountryToken[] | undefined;
 
   private isInit = false;
   private initCount = 0;
@@ -61,11 +68,24 @@ export class DataManagementShiftService {
   /* #region   init */
 
   init() {
-    if (this.isInit === false) {
-      this.initCount = 0;
-      this.readMacroList();
-      this.isInit = true;
-    }
+    this.dataClientService
+      .getStateTokenList(true)
+      .subscribe((x: StateCountryToken[]) => {
+        this.stateList = x.filter((c) => c.state !== c.country);
+        this.currentClientFilter.filteredStateToken = this.stateList;
+        this.currentClientFilter.list = this.stateList;
+      });
+
+    this.dataCountryStateService.getCountryList().subscribe((x: ICountry[]) => {
+      if (x) {
+        x.forEach((s) => (s.select = true));
+        this.currentClientFilter.countries = x;
+
+        this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
+      }
+    });
+    this.initCount = 0;
+    this.readMacroList();
   }
 
   private isInitFinished(hit: number): void {
@@ -285,19 +305,22 @@ export class DataManagementShiftService {
   }
 
   private isValidate(): boolean {
+    const d = this.editShift;
     let isActive = this.isWeekDayActive();
-    if (isActive) {
-      const d = this.editShift;
-      if (d) {
-        if (
-          !d.abbreviation ||
-          !d.name ||
-          !d.startShift ||
-          !d.quantity ||
-          !d.sumEmployees
-        ) {
-          isActive = false;
-        }
+    if (isActive && d) {
+      if (
+        !d.abbreviation ||
+        !d.name ||
+        !d.startShift ||
+        !d.quantity ||
+        !d.sumEmployees
+      ) {
+        isActive = false;
+      }
+    }
+    if (isActive && d) {
+      if (d.groups.length === 0 || d.groups == null) {
+        isActive = false;
       }
     }
 

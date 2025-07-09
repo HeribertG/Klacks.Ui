@@ -21,6 +21,7 @@
 
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     <div class="row-line endColumn">
+      <span class="filler"></span>
       @if (showGroupInfoBox) {
       <div class="info-box">
         <fa-icon [icon]="faInfoCircle" class="info-icon"></fa-icon>
@@ -29,7 +30,7 @@
         }}</span>
       </div>
       }
-      <span class="filler"></span>
+
       <div class="default-width">
         <app-simple-group-select
           [hasOptionButton]="false"
