@@ -433,6 +433,8 @@
   "shift.edit-shift.special-feature.sum-employees": "Number of employees per shift",
   "shift.edit-shift.special-feature.sum-quantity": "Number of tasks per shift",
   "shift.edit-shift.special-feature.sum-macro.list": "Macro list",
+  "shift.edit-shift.group.please-select-group": "Please select at least one group",
+  "shift.edit-shift.group.select-group-label": "Select group",
   "shift.all-shift.all-shift-home.header": "All Services",
   "shift.all-shift.list.title": "Services",
   "shift.all-shift.list.original": "Original",

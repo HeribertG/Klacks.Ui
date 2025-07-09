@@ -433,6 +433,8 @@
   "shift.edit-shift.special-feature.sum-employees": "Numero di dipendenti per turno",
   "shift.edit-shift.special-feature.sum-quantity": "Numero di attività per turno",
   "shift.edit-shift.special-feature.sum-macro.list": "Elenco macro",
+  "shift.edit-shift.group.please-select-group": "Si prega di selezionare almeno un gruppo",
+  "shift.edit-shift.group.select-group-label": "Seleziona gruppo",
   "shift.all-shift.all-shift-home.header": "Tutti i servizi",
   "shift.all-shift.list.title": "Servizi",
   "shift.all-shift.list.original": "Originale",

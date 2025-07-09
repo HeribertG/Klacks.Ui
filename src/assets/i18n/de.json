@@ -434,6 +434,8 @@
   "shift.edit-shift.special-feature.sum-employees": "Anzahl Mitarbeiter pro Schicht",
   "shift.edit-shift.special-feature.sum-quantity": "Anzahl Aufgabe pro Schicht",
   "shift.edit-shift.special-feature.sum-macro.list": "Macro Liste",
+  "shift.edit-shift.group.please-select-group": "Bitte wählen Sie mindestens eine Gruppe aus",
+  "shift.edit-shift.group.select-group-label": "Gruppe auswählen",
 
   "shift.all-shift.all-shift-home.header": "Alle Dienste",
   "shift.all-shift.list.title": "Dienste",

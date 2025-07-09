@@ -2,14 +2,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   EventEmitter,
   inject,
+  OnDestroy,
   Output,
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
@@ -31,7 +34,7 @@ import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/s
     SimpleGroupSelectComponent,
   ],
 })
-export class EditShiftGroupComponent {
+export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
   @ViewChild('groupShiftForm', { static: false }) groupShiftForm:
     | NgForm
     | undefined;
@@ -44,6 +47,26 @@ export class EditShiftGroupComponent {
   visibleTable = 'inline';
   highlightRowId: string | undefined = undefined;
   selectedGroupId?: string;
+  public showGroupInfoBox = false;
+
+  private objectForUnsubscribe: Subscription | undefined;
+
+  ngAfterViewInit(): void {
+    this.objectForUnsubscribe = this.groupShiftForm!.valueChanges!.subscribe(
+      () => {
+        if (this.groupShiftForm!.dirty === true) {
+          setTimeout(() => this.validateGroups(), 100);
+        }
+      }
+    );
+    this.validateGroups();
+  }
+
+  ngOnDestroy(): void {
+    if (this.objectForUnsubscribe) {
+      this.objectForUnsubscribe.unsubscribe();
+    }
+  }
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
@@ -61,6 +84,7 @@ export class EditShiftGroupComponent {
     }
     this.selectedGroupId = '';
     this.isChangingEvent.emit(true);
+    this.validateGroups();
   }
 
   onLostFocus() {
@@ -83,7 +107,13 @@ export class EditShiftGroupComponent {
           1
         );
         this.isChangingEvent.emit(true);
+        this.validateGroups();
       }
     }
+  }
+
+  private validateGroups() {
+    const groups = this.dataManagementShiftService.editShift?.groups;
+    this.showGroupInfoBox = !groups || groups.length === 0;
   }
 }

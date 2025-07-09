@@ -21,6 +21,11 @@
 
   <div class="container-bank-box" [ngStyle]="{ display: visibleTable }">
     <div class="row-line endColumn">
+      <@if (showGroupInfoBox) {
+      <div class="info-box">
+        {{ "shift.edit-shift.group.please-select-group" | translate }}
+      </div>
+      }
       <span class="filler"></span>
       <div class="default-width">
         <app-simple-group-select

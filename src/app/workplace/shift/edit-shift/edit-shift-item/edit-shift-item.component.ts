@@ -81,6 +81,9 @@ export class EditShiftItemComponent
   }
 
   ngOnDestroy(): void {
+    this.effects.forEach((e) => e?.destroy());
+    this.effects = [];
+
     if (this.objectForUnsubscribe) {
       this.objectForUnsubscribe.unsubscribe();
     }
@@ -118,7 +121,7 @@ export class EditShiftItemComponent
     try {
       runInInjectionContext(this.injector, () => {
         const effect1 = effect(() => {
-          this.dataManagementShiftService.isValid();
+          this.dataManagementShiftService.makeValidation();
           this.calcValidation();
         });
         this.effects.push(effect1);

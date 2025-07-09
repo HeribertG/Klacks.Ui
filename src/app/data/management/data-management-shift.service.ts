@@ -28,7 +28,7 @@ export class DataManagementShiftService {
 
   public isReset = signal(false);
   public isRead = signal(false);
-  public isValid = signal(false);
+  public makeValidation = signal(false);
   public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
@@ -279,7 +279,8 @@ export class DataManagementShiftService {
     if (!compareComplexObjects(a, b, exclude)) {
       result = this.isValidate();
     }
-    this.isValid.set(result);
+    this.makeValidation.set(true);
+    setTimeout(() => this.makeValidation.set(false), 100);
     return result;
   }
 
@@ -293,8 +294,7 @@ export class DataManagementShiftService {
           !d.name ||
           !d.startShift ||
           !d.quantity ||
-          !d.sumEmployees ||
-          !d.workTime
+          !d.sumEmployees
         ) {
           isActive = false;
         }
