@@ -420,6 +420,20 @@ export function isNgbDateStructOk(event: NgbDateStruct | undefined): boolean {
   return false;
 }
 
+export function isOwnTimeStructOk(event: OwnTime | undefined): boolean {
+  if (event) {
+    if (
+      typeof event === 'object' &&
+      event !== null &&
+      'hours' in event &&
+      'minutes' in event
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function transformStringToOwnTimeStruct(value: string): OwnTime {
   if (value) {
     let hours = 0;
@@ -443,6 +457,13 @@ export function transformStringToOwnTimeStruct(value: string): OwnTime {
     return new OwnTime(hours.toString(), minutes.toString());
   }
   return new OwnTime('00', '00');
+}
+
+export function transformOwnTimeToString(value: OwnTime): string {
+  if (value) {
+    return +value.hours + ':' + value.minutes + ':00';
+  }
+  return '00:00:00';
 }
 
 export function transformOwnTimeToNumber(value: OwnTime): number {

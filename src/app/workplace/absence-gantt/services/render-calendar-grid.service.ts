@@ -562,11 +562,6 @@ export class RenderCalendarGridService {
     this.ganttCanvasManager.rowCanvas!.width =
       this.ganttCanvasManager.backgroundRowCanvas!.width;
     this.ganttCanvasManager.headerCanvas!.width = maxWidth;
-
-    //TODO: HiDPI-Einstellungen!
-    // this.ganttCanvasManager.resizeBackgroundRowCanvas(maxWidth);
-    // this.ganttCanvasManager.resizeRowCanvas(maxWidth);
-    // this.ganttCanvasManager.resizeHeaderCanvas(maxWidth);
   }
 
   drawDaysBorderlineOnRuler(

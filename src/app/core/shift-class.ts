@@ -18,7 +18,7 @@ export interface IShift {
   abbreviation: string;
   description: string;
   id: string | undefined;
-  macroId: string;
+  macroId: string | undefined;
   name: string;
   parentId?: string;
   rootId?: string;
@@ -70,7 +70,7 @@ export class Shift implements IShift {
   abbreviation = '';
   description = '';
   id: string | undefined = undefined;
-  macroId = '';
+  macroId: string | undefined = undefined;
   name = '';
   parentId?: string;
   rootId?: string;
