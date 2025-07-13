@@ -11,6 +11,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/core/shift-class';
+import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -24,6 +25,7 @@ import { Shift } from 'src/app/core/shift-class';
     NgbPaginationModule,
     TranslateModule,
     OriginalTableComponent,
+    IconScissorComponent,
   ],
 })
 export class AllShiftListComponent implements OnInit {

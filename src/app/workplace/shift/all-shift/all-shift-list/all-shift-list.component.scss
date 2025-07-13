@@ -7,7 +7,13 @@
 @use "../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../assets/standard-styles/menu.scss";
 
-.tree-actions {
+.btn-scissor {
+  margin-right: 30px !important;
+  background-color: transparent !important;
+  border: none;
+}
+
+.actions {
   margin-bottom: 15px;
   padding: 0 15px;
 }
@@ -69,10 +75,6 @@ tr:nth-child(4n + 4) {
 .table-cell {
   background-color: inherit;
 }
-// thead tr:last-child th,
-// thead tr:first-child th {
-//   background-color: var(--backgroundColorWorkplace);
-// }
 
 .hover-row {
   background-color: var(--gridBackgroundColorRowHover) !important;
