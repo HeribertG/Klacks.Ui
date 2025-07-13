@@ -468,6 +468,7 @@
   "group.select.no-groups": "Keine Gruppen verfügbar",
   "group.select.all-groups": "Alle Gruppen",
 
+  "list.all-list.all-shift-list.table.index": "NR.",
   "list.all-list.all-shift-list.table.name": "NAME",
   "list.all-list.all-shift-list.table.description": "BESCHREIBUNG",
   "list.all-list.all-shift-list.table.from": "VON DATUM",
