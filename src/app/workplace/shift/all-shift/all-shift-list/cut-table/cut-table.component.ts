@@ -8,9 +8,9 @@ import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.componen
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 
 @Component({
-  selector: 'app-original-table-with-index',
-  templateUrl: './original-table-with-index.component.html',
-  styleUrl: './original-table-with-index.component.scss',
+  selector: 'app-cut-table',
+  templateUrl: './cut-table.component.html',
+  styleUrl: './cut-table.component.scss',
   standalone: true,
   imports: [
     CommonModule,
@@ -21,7 +21,7 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
     IconScissorComponent,
   ],
 })
-export class OriginalTableWithIndexComponent {
+export class CutTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
   @Output() editClicked = new EventEmitter<Shift>();

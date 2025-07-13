@@ -465,7 +465,7 @@
   "group.select.collapse": "Collapse All",
   "group.select.all-groups": "All groups",
 
-  "list.all-list.all-shift-list.table.index": "NO.",
+  "list.all-list.all-shift-list.table.Abbreviation": "Abbr.",
   "list.all-list.all-shift-list.table.name": "NAME",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
   "list.all-list.all-shift-list.table.from": "FROM DATE",
