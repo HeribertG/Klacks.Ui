@@ -12,6 +12,7 @@ import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/core/shift-class';
 import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
+import { CutTableComponent } from './cut-table/cut-table.component';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -26,6 +27,7 @@ import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
     TranslateModule,
     OriginalTableComponent,
     IconScissorComponent,
+    CutTableComponent,
   ],
 })
 export class AllShiftListComponent implements OnInit {
