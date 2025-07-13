@@ -465,7 +465,7 @@
   "group.select.collapse": "Tout replier",
   "group.select.all-groups": "Tous les groupes",
 
-  "list.all-list.all-shift-list.table.index": "N°",
+  "list.all-list.all-shift-list.table.Abbreviation": "Abr.",
   "list.all-list.all-shift-list.table.name": "NOM",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
   "list.all-list.all-shift-list.table.from": "DATE DE DÉBUT",
