@@ -43,7 +43,7 @@ export class DataManagementShiftService {
   public currentClientFilter: Filter = new Filter();
   public editGroup: IShift | undefined;
 
-  public shift: IShift[] = [];
+  public shifts: IShift[] = [];
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
@@ -168,6 +168,7 @@ export class DataManagementShiftService {
   readPage(isSecondRead = false) {
     this.showProgressSpinner.set(true);
     this.dataShiftService.readShiftList(this.currentFilter).subscribe((x) => {
+      this.shifts = x.shifts;
       this.listWrapper = x;
       this.maxItems = x.maxItems;
       this.firstItem = x.firstItemOnPage;

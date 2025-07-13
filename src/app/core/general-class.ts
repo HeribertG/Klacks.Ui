@@ -34,7 +34,7 @@ export class BaseFilter implements IBaseFilter {
   searchString = '';
   orderBy = 'name';
   sortOrder = 'asc';
-  numberOfItemsPerPage = 0;
+  numberOfItemsPerPage = 5;
   requiredPage = 0;
   numberOfItemOnPreviousPage: number | undefined = undefined;
   firstItemOnLastPage: number | undefined = undefined;

@@ -99,7 +99,7 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   scopeUntil?: Date;
   internalScopeUntil?: NgbDateStruct;
   showDeleteEntries = false;
-  activeDateRange = false;
+  activeDateRange = true;
   formerDateRange = false;
   futureDateRange = false;
 
