@@ -197,16 +197,12 @@ export class DataManagementShiftService {
   }
 
   createShift() {
-    const x = new Shift();
-    this.prepareShift(x);
+    this.prepareShift(this.prepareNewShift());
     this.navigationService.navigateToEditShift();
   }
 
-  prepareShift(value: IShift, withoutUpdateDummy = false) {
-    if (value == null) {
-      return;
-    }
-
+  private prepareNewShift(): IShift {
+    const value = new Shift();
     value.fromDate = new Date();
     value.startShift = '07:00';
     value.endShift = '15:00';
@@ -223,6 +219,13 @@ export class DataManagementShiftService {
     value.sumEmployees = 1;
     value.status = 0;
 
+    return value;
+  }
+
+  prepareShift(value: IShift, withoutUpdateDummy = false) {
+    if (value == null) {
+      return;
+    }
     this.editShift = value;
 
     this.setDateStruc();
@@ -245,6 +248,7 @@ export class DataManagementShiftService {
     if (id !== '') {
       this.dataShiftService.getShift(id).subscribe((x) => {
         this.prepareShift(x);
+        this.navigationService.navigateToEditShift();
       });
     }
   }

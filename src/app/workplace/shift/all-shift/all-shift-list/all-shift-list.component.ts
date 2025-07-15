@@ -13,6 +13,7 @@ import { OriginalTableComponent } from './original-table/original-table.componen
 import { Shift } from 'src/app/core/shift-class';
 import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 import { CutTableComponent } from './cut-table/cut-table.component';
+import { IconOriginalComponent } from 'src/app/icons/icon-original.component';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -28,6 +29,7 @@ import { CutTableComponent } from './cut-table/cut-table.component';
     OriginalTableComponent,
     IconScissorComponent,
     CutTableComponent,
+    IconOriginalComponent,
   ],
 })
 export class AllShiftListComponent implements OnInit {
@@ -68,9 +70,10 @@ export class AllShiftListComponent implements OnInit {
     //this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onClickEdit(data: any): void {
-    // Weitere bestehende Logik beibehalten
+  onClickEdit(data: Shift): void {
+    if (data && data.id) {
+      this.dataManagementShiftService.readShift(data.id);
+    }
   }
 
   onMouseEnter(data: any): void {
