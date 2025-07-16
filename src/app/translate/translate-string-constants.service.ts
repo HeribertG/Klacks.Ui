@@ -242,5 +242,30 @@ export class TranslateStringConstantsService {
     this.translateService.get('ERROR_TOASTTITLE').subscribe((x: string) => {
       MessageLibrary.ERROR_TOASTTITLE = x;
     });
+
+    this.translateService.get('SHIFT_SPORADIC_WEEK').subscribe((x: string) => {
+      MessageLibrary.SHIFT_SPORADIC_WEEK = x;
+    });
+    this.translateService.get('SHIFT_SPORADIC_MONTH').subscribe((x: string) => {
+      MessageLibrary.SHIFT_SPORADIC_MONTH = x;
+    });
+    this.translateService.get('SHIFT_SPORADIC_YEAR').subscribe((x: string) => {
+      MessageLibrary.SHIFT_SPORADIC_YEAR = x;
+    });
+    this.translateService
+      .get('SHIFT_SPORADIC_QUARTER')
+      .subscribe((x: string) => {
+        MessageLibrary.SHIFT_SPORADIC_QUARTER = x;
+      });
+    this.translateService
+      .get('SHIFT_SPORADIC_SEMESTER')
+      .subscribe((x: string) => {
+        MessageLibrary.SHIFT_SPORADIC_SEMESTER = x;
+      });
+    this.translateService
+      .get('SHIFT_SPORADIC_CONTRACTUALTERM')
+      .subscribe((x: string) => {
+        MessageLibrary.SHIFT_SPORADIC_CONTRACTUALTERM = x;
+      });
   }
 }

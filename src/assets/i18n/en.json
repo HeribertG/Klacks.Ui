@@ -424,6 +424,7 @@
   "shift.edit-shift.weekday.until": "Until Time hh:mm",
   "shift.edit-shift.weekday.work-hour": "Duration",
   "shift.edit-shift.weekday.time-range": "Service within the time frame (From Time hh:mm - Until Time hh:mm). Please specify the duration of the service in the Duration field.",
+  "shift.edit-shift.weekday.is-sporadic": "Sporadic use",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
   "shift.edit-shift.main.is-container": "Is a container",
   "shift.edit-shift.special-feature.briefing": "Briefing",
@@ -577,5 +578,12 @@
   "DELETE_ENTRY_ERROR": "Error deleting entry",
   "ADD_ENTRY_ERROR": "Error adding entry",
   "UPDATE_ENTRY_ERROR": "Error updating entry",
-  "MODIFY_ENTRY_ERROR": "Error modifying entry"
+  "MODIFY_ENTRY_ERROR": "Error modifying entry",
+
+  "SHIFT_SPORADIC_WEEK": "Weekly",
+  "SHIFT_SPORADIC_MONTH": "Monthly",
+  "SHIFT_SPORADIC_YEAR": "Yearly",
+  "SHIFT_SPORADIC_QUARTER": "Quarterly",
+  "SHIFT_SPORADIC_SEMESTER": "Semester",
+  "SHIFT_SPORADIC_CONTRACTUALTERM": "Contract Duration"
 }

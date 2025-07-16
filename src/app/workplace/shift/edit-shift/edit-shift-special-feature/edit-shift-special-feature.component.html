@@ -23,7 +23,22 @@
     @if (dataManagementShiftService.editShift !== undefined) {
     <div class="container-bank-box">
       <!-- Linke Spalte -->
+
       <div class="firstColumContainer firstColumn">
+        <!-- Sporadic -->
+        <div class="row-line1">
+          <div class="form-group">
+            <label class="checkbox-label" for="isSporadic">
+              <input
+                type="checkbox"
+                [(ngModel)]="dataManagementShiftService.editShift.isSporadic"
+                id="isSporadic"
+                name="isSporadic"
+              />
+              {{ "shift.edit-shift.weekday.is-sporadic" | translate }}
+            </label>
+          </div>
+        </div>
         <!-- Briefing -->
         <div class="row-line1">
           <label for="briefing">
@@ -145,6 +160,40 @@
 
       <!-- Rechte Spalte -->
       <div class="secondColumnContainer">
+        <!-- Sporadic -->
+        <div class="row-line1">
+          <div class="form-group">
+            @if (dataManagementShiftService.editShift.isSporadic) {
+            <select
+              class="form-select sporadic-scope"
+              [(ngModel)]="dataManagementShiftService.editShift.sporadicScope"
+              name="sporadicScope"
+              aria-label="Adressart"
+            >
+              <option value="0" [selected]="sporadicType === 0">
+                {{ onSporadicTypeName(0) }}
+              </option>
+              <option value="1" [selected]="sporadicType === 1">
+                {{ onSporadicTypeName(1) }}
+              </option>
+              <option value="2" [selected]="sporadicType === 2">
+                {{ onSporadicTypeName(2) }}
+              </option>
+              <option value="3" [selected]="sporadicType === 3">
+                {{ onSporadicTypeName(3) }}
+              </option>
+              <option value="4" [selected]="sporadicType === 4">
+                {{ onSporadicTypeName(4) }}
+              </option>
+              <option value="5" [selected]="sporadicType === 5">
+                {{ onSporadicTypeName(5) }}
+              </option>
+            </select>
+            } @else {
+            <div class="empty-group"></div>
+            }
+          </div>
+        </div>
         <!-- Debriefing -->
         <div class="row-line1">
           <label for="debriefing">

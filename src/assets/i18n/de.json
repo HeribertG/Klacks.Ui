@@ -425,6 +425,7 @@
   "shift.edit-shift.weekday.until": "Bis Zeit hh:mm",
   "shift.edit-shift.weekday.work-hour": "Dauer",
   "shift.edit-shift.weekday.time-range": "Dienst innerhalb des Zeitrahmens (Von Zeit hh:mm - Bis Zeit hh:mm). Bitte in Feld Dauer die Dauer des Diensten angeben",
+  "shift.edit-shift.weekday.is-sporadic": "sporadischer Einsatz",
   "shift.edit-shift.main.complex-mode": "Experten Modus",
   "shift.edit-shift.main.is-container": "Ist ein Container",
   "shift.edit-shift.special-feature.briefing": "Briefing",
@@ -582,5 +583,12 @@
   "UPDATE_ENTRY_ERROR": "Fehler beim Aktualisieren des Eintrags",
   "MODIFY_ENTRY_ERROR": "Fehler beim Bearbeiten des Eintrags",
 
-  "setting.group.chose-headline": "Sichtbare Rootgruppe"
+  "setting.group.chose-headline": "Sichtbare Rootgruppe",
+
+  "SHIFT_SPORADIC_WEEK": "Wöchendlich",
+  "SHIFT_SPORADIC_MONTH": "Monatlich",
+  "SHIFT_SPORADIC_YEAR": "Jährlich",
+  "SHIFT_SPORADIC_QUARTER": "Quartal",
+  "SHIFT_SPORADIC_SEMESTER": "Semester",
+  "SHIFT_SPORADIC_CONTRACTUALTERM": "Laufzeit des Vertrages"
 }

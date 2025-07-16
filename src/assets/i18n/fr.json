@@ -424,6 +424,7 @@
   "shift.edit-shift.weekday.until": "Heure de Fin hh:mm",
   "shift.edit-shift.weekday.work-hour": "Durée",
   "shift.edit-shift.weekday.time-range": "Service dans la plage horaire (Heure de Début hh:mm Heure de Fin hh:mm). Veuillez indiquer la durée du service dans le champ Durée.",
+  "shift.edit-shift.weekday.is-sporadic": "Utilisation sporadique",
   "shift.edit-shift.main.complex-mode": "Expert Mode",
   "shift.edit-shift.main.is-container": "Est un conteneur",
   "shift.edit-shift.special-feature.briefing": "Briefing",
@@ -577,5 +578,12 @@
   "DELETE_ENTRY_ERROR": "Erreur lors de la suppression de l'entrée",
   "ADD_ENTRY_ERROR": "Erreur lors de l'ajout de l'entrée",
   "UPDATE_ENTRY_ERROR": "Erreur lors de la mise à jour de l'entrée",
-  "MODIFY_ENTRY_ERROR": "Erreur lors de la modification de l'entrée"
+  "MODIFY_ENTRY_ERROR": "Erreur lors de la modification de l'entrée",
+
+  "SHIFT_SPORADIC_WEEK": "Hebdomadaire",
+  "SHIFT_SPORADIC_MONTH": "Mensuel",
+  "SHIFT_SPORADIC_YEAR": "Annuel",
+  "SHIFT_SPORADIC_QUARTER": "Trimestriel",
+  "SHIFT_SPORADIC_SEMESTER": "Semestre",
+  "SHIFT_SPORADIC_CONTRACTUALTERM": "Durée du contrat"
 }

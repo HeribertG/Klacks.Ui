@@ -13,6 +13,15 @@ export enum ShiftType {
   IsContainer = 1,
 }
 
+export enum ShiftSporadic {
+  Week = 0,
+  Month = 1,
+  Quarter = 2,
+  Semester = 3,
+  Year = 4,
+  ContractualTerm = 5,
+}
+
 export interface IShift {
   cuttingAfterMidnight: boolean;
   abbreviation: string;
@@ -45,6 +54,7 @@ export interface IShift {
   isWednesday: boolean;
   isWeekdayOrHoliday: boolean;
   isSporadic: boolean;
+  sporadicScope: ShiftSporadic;
   isTimeRange: boolean;
   quantity: number;
   sumEmployees: number;
@@ -101,6 +111,7 @@ export class Shift implements IShift {
   isWednesday = false;
   isWeekdayOrHoliday = false;
   isSporadic = false;
+  sporadicScope = ShiftSporadic.Week;
   isTimeRange = false;
   quantity = 1;
   sumEmployees = 1;

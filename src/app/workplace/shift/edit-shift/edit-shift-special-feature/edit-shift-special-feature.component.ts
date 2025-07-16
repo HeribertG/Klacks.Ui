@@ -12,6 +12,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 
@@ -38,11 +39,11 @@ export class EditShiftSpecialFeatureComponent
 
   public dataManagementShiftService = inject(DataManagementShiftService);
 
-  visibleTable = 'inline';
+  public visibleTable = 'inline';
   public isSumEmployeesValid: boolean | undefined;
   public isQuantityValid: boolean | undefined;
-
   private objectForUnsubscribe: Subscription | undefined;
+  public sporadicType = 0;
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe =
@@ -61,6 +62,24 @@ export class EditShiftSpecialFeatureComponent
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
+  }
+
+  onSporadicTypeName(index: number): string {
+    switch (index) {
+      case 0:
+        return MessageLibrary.SHIFT_SPORADIC_WEEK;
+      case 1:
+        return MessageLibrary.SHIFT_SPORADIC_MONTH;
+      case 2:
+        return MessageLibrary.SHIFT_SPORADIC_QUARTER;
+      case 3:
+        return MessageLibrary.SHIFT_SPORADIC_SEMESTER;
+      case 4:
+        return MessageLibrary.SHIFT_SPORADIC_YEAR;
+      case 5:
+        return MessageLibrary.SHIFT_SPORADIC_CONTRACTUALTERM;
+    }
+    return '';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

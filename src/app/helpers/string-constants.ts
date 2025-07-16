@@ -1,5 +1,4 @@
 export class MessageLibrary {
-  constructor() {}
   public static UPDATE_NOT_DONE =
     'Änderungen wurden von der Datenbank nicht übernommen';
   public static CANCEL_NOT_DONE =
@@ -261,4 +260,11 @@ export class MessageLibrary {
   public static readonly ADD_ENTRY_ERROR = 'ADD_ENTRY_ERROR';
   public static readonly UPDATE_ENTRY_ERROR = 'UPDATE_ENTRY_ERROR';
   public static readonly MODIFY_ENTRY_ERROR = 'MODIFY_ENTRY_ERROR';
+
+  public static SHIFT_SPORADIC_WEEK = 'Wöchendlich';
+  public static SHIFT_SPORADIC_MONTH = 'Monatlich';
+  public static SHIFT_SPORADIC_YEAR = 'Jährlich';
+  public static SHIFT_SPORADIC_QUARTER = 'Quartal';
+  public static SHIFT_SPORADIC_SEMESTER = 'Semester';
+  public static SHIFT_SPORADIC_CONTRACTUALTERM = 'Laufzeit des Vertrages';
 }
