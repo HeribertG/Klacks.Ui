@@ -594,3 +594,27 @@ export function padZero(str: string, len: number | null) {
   const zeros = new Array(len).join('0');
   return (zeros + str).slice(-len);
 }
+
+export function createSmartAbbreviation(text: string, maxLength = 5): string {
+  const words = text.split(' ');
+
+  if (words.length === 1) {
+    return words[0]
+      .replace(/[aeiou]/gi, '')
+      .substring(0, maxLength)
+      .toUpperCase();
+  } else {
+    let result = words.map((word) => word.charAt(0)).join('');
+
+    if (result.length < maxLength) {
+      for (const word of words) {
+        if (result.length >= maxLength) break;
+        if (word.length > 1) {
+          result += word.charAt(1);
+        }
+      }
+    }
+
+    return result.substring(0, maxLength).toUpperCase();
+  }
+}

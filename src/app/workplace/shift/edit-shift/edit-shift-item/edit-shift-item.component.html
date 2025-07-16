@@ -48,14 +48,14 @@
           type="text"
           class="form-control"
           [ngClass]="{
-            'is-invalid': isAbbreviationValid === false,
+            'is-invalid': isAbbreviationValid === false && abbreviation.dirty,
             'is-valid': isAbbreviationValid === true
           }"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
           id="abbreviation"
           name="abbreviation"
-          #abbreviation
+          #abbreviation="ngModel"
           required
           minlength="1"
           maxlength="6"
@@ -72,14 +72,17 @@
           type="text"
           class="form-control"
           [ngClass]="{
-            'is-invalid': isNameValid === false,
+            'is-invalid': isNameValid === false && shiftName.touched,
             'is-valid': isNameValid === true
           }"
           autocomplete="off"
           [(ngModel)]="dataManagementShiftService.editShift.name"
           id="name"
           name="name"
-          #shiftName
+          (focus)="onNameFocus()"
+          (blur)="onNameBlur()"
+          #shiftName="ngModel"
+          autofocus
           required
         />
       </div>

@@ -59,9 +59,7 @@ export class EditShiftItemComponent
   public isAbbreviationValid: boolean | undefined;
   public isNameValid: boolean | undefined;
   public isFromDateValid: boolean | undefined;
-
   public objectForUnsubscribe: Subscription | undefined;
-
   private effects: EffectRef[] = [];
 
   ngOnInit(): void {
