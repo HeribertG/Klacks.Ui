@@ -84,6 +84,10 @@ export class EditShiftWeekdayComponent
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
+  OnChangeTime() {
+    console.log('Time ist changes');
+  }
+
   onKeyUpInput(event: any, data: string) {
     event.currentTarget.value = data;
     this.isChangingEvent.emit(true);

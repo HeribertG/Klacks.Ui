@@ -439,7 +439,10 @@ export function transformStringToOwnTimeStruct(value: string): OwnTime {
     let hours = 0;
     let minutes = 0;
     const split = value.split(':');
-    if (split.length != 2) return new OwnTime('00', '00');
+    if (split.length <= 2) return new OwnTime('00', '00');
+    if (split.length > 2) {
+      value = value.substring(0, 5);
+    }
 
     if (isNumeric(split[0])) {
       hours = parseInt(split[0], 10);

@@ -14,7 +14,13 @@ import { IMacro } from 'src/app/core/macro-class';
 import { DataMacroService } from '../data-macro.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { ITruncatedShift, ShiftFilter } from 'src/app/core/shift-data-class';
-import { CheckBoxValue, Filter, ICountry } from 'src/app/core/client-class';
+import {
+  CheckBoxValue,
+  Filter,
+  IAddress,
+  IClient,
+  ICountry,
+} from 'src/app/core/client-class';
 import { IShift, Shift } from 'src/app/core/shift-class';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
@@ -50,6 +56,7 @@ export class DataManagementShiftService {
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
   public headerCheckBoxValue = false;
   public stateList: StateCountryToken[] | undefined;
+  public maxAddressType = 3;
 
   private initCount = 0;
   private initFinished = 1;
@@ -115,7 +122,6 @@ export class DataManagementShiftService {
 
   /* #endregion  Macros */
 
-  /* #region   edit shift */
   /* #region all shift */
   clearCheckedArray() {
     this.checkedArray = new Array<CheckBoxValue>();
@@ -188,13 +194,7 @@ export class DataManagementShiftService {
 
   /* #endregion all shift */
 
-  showExternalShift(id: string) {
-    this.dataShiftService.getShift(id).subscribe((x) => {
-      this.prepareShift(x);
-
-      this.navigationService.navigateToEditAddress();
-    });
-  }
+  /* #region   edit shift */
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
@@ -222,14 +222,15 @@ export class DataManagementShiftService {
     return value;
   }
 
-  prepareShift(value: IShift, withoutUpdateDummy = false) {
+  prepareShift(value: Shift, withoutUpdateDummy = false) {
     if (value == null) {
       return;
     }
-    this.editShift = value;
 
-    this.setDateStruc();
-    this.setTimeStruc();
+    this.setDateStruc(value);
+    this.setTimeStruc(value);
+
+    this.editShift = value;
 
     if (!withoutUpdateDummy) {
       this.editShiftDummy = cloneObject<Shift>(this.editShift);
@@ -247,7 +248,18 @@ export class DataManagementShiftService {
   readShift(id: string) {
     if (id !== '') {
       this.dataShiftService.getShift(id).subscribe((x) => {
-        this.prepareShift(x);
+        this.prepareShift(this.createShiftFromPlainObject(x));
+        if (this.editShift && this.editShift.fromDate && x.client) {
+          const index = this.setCurrentAddressIndex(
+            x.client,
+            this.editShift.fromDate
+          );
+          this.editShift.addressName = this.visualNameAndAddress(
+            x.client,
+            index
+          );
+        }
+
         this.navigationService.navigateToEditShift();
       });
     }
@@ -257,6 +269,43 @@ export class DataManagementShiftService {
     if (this.isEditShift_Dirty()) {
       this.saveEditShift();
     }
+  }
+
+  visualNameAndAddress(value: IClient, index = -1): string {
+    let address = `${value.idNumber} - ${value.company} ${value.firstName} ${value.name}`;
+    if (index > -1 && value.addresses.length > 0) {
+      const currentAddress = value.addresses[index];
+      address = address + this.formatAddress(currentAddress);
+    }
+
+    return address;
+  }
+
+  private formatAddress(currentAddress: IAddress): string {
+    const street = currentAddress.street ?? undefined;
+    const city = currentAddress.city ?? undefined;
+    const zip = currentAddress.zip ?? undefined;
+    const country = currentAddress.country ?? undefined;
+    let result = '';
+
+    if (street) {
+      result = result + street + ', ';
+    }
+    if (city) {
+      result = result + city + ' ';
+    }
+    if (zip) {
+      result = result + zip + ' ';
+    }
+    if (country) {
+      result = result + ', ' + country;
+    }
+
+    if (result != '') {
+      result = ' ' + result + '.';
+    }
+
+    return result;
   }
 
   private saveEditShift(withoutUpdateDummy = false) {
@@ -283,8 +332,6 @@ export class DataManagementShiftService {
       });
     }
   }
-
-  /* #endregion   edit shift */
 
   private isEditShift_Dirty(): boolean {
     let result = false;
@@ -363,50 +410,130 @@ export class DataManagementShiftService {
     this.prepareShift(this.editShiftDummy!);
   }
 
-  private setDateStruc() {
-    if (this.editShift) {
-      if (this.editShift.fromDate) {
-        this.editShift.internalFromDate = transformDateToNgbDateStruct(
-          this.editShift.fromDate
-        );
+  private setDateStruc(value: Shift) {
+    if (value) {
+      if (value.fromDate) {
+        value.internalFromDate = transformDateToNgbDateStruct(value.fromDate);
       }
 
-      if (this.editShift.untilDate) {
-        this.editShift.internalUntilDate = transformDateToNgbDateStruct(
-          this.editShift.untilDate
-        );
+      if (value.untilDate) {
+        value.internalUntilDate = transformDateToNgbDateStruct(value.untilDate);
       }
     }
   }
 
-  private setTimeStruc() {
-    if (this.editShift) {
-      this.editShift.internalStartShift = transformStringToOwnTimeStruct(
-        this.editShift.startShift
+  private setTimeStruc(value: Shift) {
+    if (value) {
+      value.internalStartShift = transformStringToOwnTimeStruct(
+        value.startShift
       );
 
-      this.editShift.internalEndShift = transformStringToOwnTimeStruct(
-        this.editShift.endShift
+      value.internalEndShift = transformStringToOwnTimeStruct(value.endShift);
+
+      value.internalBeforeShift = transformStringToOwnTimeStruct(
+        value.beforeShift
       );
 
-      this.editShift.internalBeforeShift = transformStringToOwnTimeStruct(
-        this.editShift.beforeShift
+      value.internalAfterShift = transformStringToOwnTimeStruct(
+        value.afterShift
       );
 
-      this.editShift.internalAfterShift = transformStringToOwnTimeStruct(
-        this.editShift.afterShift
+      value.internalTravelTimeAfter = transformStringToOwnTimeStruct(
+        value.travelTimeAfter
+      );
+      value.internalTravelTimeBefore = transformStringToOwnTimeStruct(
+        value.travelTimeBefore
       );
 
-      this.editShift.internalTravelTimeAfter = transformStringToOwnTimeStruct(
-        this.editShift.travelTimeAfter
-      );
-      this.editShift.internalTravelTimeBefore = transformStringToOwnTimeStruct(
-        this.editShift.travelTimeBefore
+      value.internalWorkTime = transformNumberToOwnTime(value.workTime);
+
+      value.internalBriefingTime = transformStringToOwnTimeStruct(
+        value.briefingTime
       );
 
-      this.editShift.internalWorkTime = transformNumberToOwnTime(
-        this.editShift.workTime
+      value.internalDebriefingTime = transformStringToOwnTimeStruct(
+        value.debriefingTime
       );
     }
   }
+
+  private createShiftFromPlainObject(plainObject: IShift): Shift {
+    const shift = new Shift();
+
+    Object.assign(shift, plainObject);
+
+    return shift;
+  }
+
+  private setCurrentAddressIndex(
+    value: IClient,
+    fromDate: Date | undefined
+  ): number {
+    // If it has more than one address, select which one is visible
+    if (value && fromDate && value.addresses.length > 1) {
+      // first sort by date
+
+      value.addresses.sort((a: IAddress, b: IAddress) => {
+        const first = a.validFrom as Date;
+        const second = b.validFrom as Date;
+
+        return first > second ? -1 : first < second ? 1 : 0;
+      });
+
+      // second search the current Address
+
+      const current = fromDate!;
+      const collectScopeAddresses = new Array<IAddress>();
+      const collectFutureAddresses = new Array<IAddress>();
+      let currentIndex = value.addresses.length - 1;
+
+      value.addresses.forEach((itm) => {
+        itm.isScoped = false;
+        itm.isFuture = false;
+        const tmpDate = new Date(itm.validFrom);
+
+        // all current and past addresses
+        // all future addresses are filtered out here
+        if (tmpDate <= current) {
+          collectScopeAddresses.push(itm);
+          itm.isScoped = true;
+        } else {
+          collectFutureAddresses.push(itm);
+          itm.isFuture = true;
+        }
+      });
+
+      collectScopeAddresses.sort((a: IAddress, b: IAddress) => {
+        const first = a.type as number;
+        const second = b.type as number;
+
+        return first < second ? -1 : first > second ? 0 : 1;
+      });
+
+      // all past addresses are sorted out
+      for (let i = 0; i < this.maxAddressType; i++) {
+        const findTypeArray = collectScopeAddresses.filter((x) => x.type === i);
+        if (findTypeArray && findTypeArray.length > 0) {
+          for (let ii = 1; ii < findTypeArray.length; ii++) {
+            findTypeArray[ii].isScoped = false;
+          }
+        }
+      }
+
+      value.addresses.sort((a: IAddress, b: IAddress) => {
+        const first = a.type as number;
+        const second = b.type as number;
+        return first < second ? -1 : first > second ? 0 : 1;
+      });
+
+      currentIndex = value.addresses.findIndex(
+        (x) => x.id === collectScopeAddresses[0].id
+      );
+
+      return currentIndex;
+    }
+    return 0;
+  }
+
+  /* #endregion   edit shift */
 }
