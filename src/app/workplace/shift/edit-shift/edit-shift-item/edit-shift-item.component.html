@@ -79,8 +79,7 @@
           [(ngModel)]="dataManagementShiftService.editShift.name"
           id="name"
           name="name"
-          (focus)="onNameFocus()"
-          (blur)="onNameBlur()"
+          (input)="onNameInput($event)"
           #shiftName="ngModel"
           autofocus
           required

@@ -12,7 +12,7 @@ import {
   runInInjectionContext,
   ViewChild,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -23,6 +23,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -47,6 +48,9 @@ export class EditShiftItemComponent
 
   @ViewChild('mainShiftForm', { static: false }) mainShiftForm:
     | NgForm
+    | undefined;
+  @ViewChild('abbreviation', { static: false }) abbreviation:
+    | NgModel
     | undefined;
 
   public dataManagementShiftService = inject(DataManagementShiftService);
@@ -85,6 +89,22 @@ export class EditShiftItemComponent
     if (this.objectForUnsubscribe) {
       this.objectForUnsubscribe.unsubscribe();
     }
+  }
+
+  onNameInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const nameValue = target.value;
+
+    if (
+      this.dataManagementShiftService.editShift &&
+      this.abbreviation?.untouched
+    ) {
+      if (nameValue && nameValue.trim() !== '') {
+        this.dataManagementShiftService.editShift.abbreviation =
+          createSmartAbbreviation(nameValue.trim(), 6);
+      }
+    }
+    this.isChangingEvent.emit(true);
   }
 
   onClickVisibleTable() {
