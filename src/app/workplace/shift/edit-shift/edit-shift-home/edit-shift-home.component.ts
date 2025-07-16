@@ -51,10 +51,6 @@ export class EditShiftHomeComponent implements OnInit {
   isComplex = false;
 
   ngOnInit(): void {
-    this.onIsChangingMode();
-
-    this.dataManagementShiftService.init();
-
     if (this.dataManagementShiftService.editShift === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-shift'
@@ -65,6 +61,10 @@ export class EditShiftHomeComponent implements OnInit {
         this.dataManagementShiftService.createShift();
       }
     }
+
+    this.onIsChangingMode();
+
+    this.dataManagementShiftService.init();
 
     this.dataManagementSwitchboardService.nameOfVisibleEntity =
       'DataManagementShiftService_Edit';

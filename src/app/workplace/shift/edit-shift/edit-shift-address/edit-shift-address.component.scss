@@ -216,10 +216,17 @@ btn-outline-secondary {
 
 .selected-address-info {
   padding: 5px 10px;
-  background-color: var(--backgroundColorFocus);
+  background-color: var(--backgroundColorCard);
   color: var(--standartTextColor);
   border-top: 1px solid var(--gridColorLine);
   border-bottom: 1px solid var(--gridColorLine);
+  font-size: 14px;
+  font-weight: 600;
+  height: 40px;
+
+  &:hover {
+    background-color: var(--backgroundColorHover);
+  }
 }
 
 .delete-btn {

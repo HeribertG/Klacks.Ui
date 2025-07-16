@@ -34,6 +34,7 @@
                 [(ngModel)]="dataManagementShiftService.editShift.isSporadic"
                 id="isSporadic"
                 name="isSporadic"
+                (input)="onStatusChange()"
               />
               {{ "shift.edit-shift.weekday.is-sporadic" | translate }}
             </label>
@@ -169,6 +170,7 @@
               [(ngModel)]="dataManagementShiftService.editShift.sporadicScope"
               name="sporadicScope"
               aria-label="Adressart"
+              (input)="onStatusChange()"
             >
               <option value="0" [selected]="sporadicType === 0">
                 {{ onSporadicTypeName(0) }}
@@ -316,5 +318,5 @@
     </div>
     }
   </div>
-  <div style="height: 30px"></div>
+  <div class="bottom-border-space"></div>
 </form>

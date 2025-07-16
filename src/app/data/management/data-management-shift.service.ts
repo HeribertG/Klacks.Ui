@@ -261,6 +261,7 @@ export class DataManagementShiftService {
         }
 
         this.navigationService.navigateToEditShift();
+        this.fireIsReadEvent();
       });
     }
   }

@@ -4,10 +4,15 @@ import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  effect,
+  EffectRef,
   EventEmitter,
   inject,
+  Injector,
   OnDestroy,
+  OnInit,
   Output,
+  runInInjectionContext,
   ViewChild,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -37,7 +42,9 @@ import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/s
     SimpleGroupSelectComponent,
   ],
 })
-export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
+export class EditShiftGroupComponent
+  implements OnInit, AfterViewInit, OnDestroy
+{
   @ViewChild('groupShiftForm', { static: false }) groupShiftForm:
     | NgForm
     | undefined;
@@ -46,6 +53,7 @@ export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public translate = inject(TranslateService);
+  private injector = inject(Injector);
 
   visibleTable = 'inline';
   highlightRowId: string | undefined = undefined;
@@ -54,7 +62,11 @@ export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
   public faInfoCircle = faInfoCircle;
 
   private objectForUnsubscribe: Subscription | undefined;
+  private effects: EffectRef[] = [];
 
+  ngOnInit(): void {
+    this.readSignals();
+  }
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.groupShiftForm!.valueChanges!.subscribe(
       () => {
@@ -63,7 +75,6 @@ export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
         }
       }
     );
-    this.validateGroups();
   }
 
   ngOnDestroy(): void {
@@ -119,5 +130,19 @@ export class EditShiftGroupComponent implements AfterViewInit, OnDestroy {
   private validateGroups() {
     const groups = this.dataManagementShiftService.editShift?.groups;
     this.showGroupInfoBox = !groups || groups.length === 0;
+  }
+
+  private readSignals(): void {
+    try {
+      runInInjectionContext(this.injector, () => {
+        const effect1 = effect(() => {
+          this.dataManagementShiftService.isRead();
+          this.validateGroups();
+        });
+        this.effects.push(effect1);
+      });
+    } catch (error) {
+      console.error('Error when setting up the effect:', error);
+    }
   }
 }

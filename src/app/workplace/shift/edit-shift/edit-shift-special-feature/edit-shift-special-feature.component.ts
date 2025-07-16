@@ -88,6 +88,10 @@ export class EditShiftSpecialFeatureComponent
     this.isChangingEvent.emit(true);
   }
 
+  onStatusChange() {
+    this.isChangingEvent.emit(true);
+  }
+
   onNumberChange() {
     this.isChangingEvent.emit(true);
     this.validateNumberInputs();
