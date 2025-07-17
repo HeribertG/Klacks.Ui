@@ -169,25 +169,25 @@
               class="form-select sporadic-scope"
               [(ngModel)]="dataManagementShiftService.editShift.sporadicScope"
               name="sporadicScope"
-              aria-label="Adressart"
+              aria-label="sporadic type"
               (input)="onStatusChange()"
             >
-              <option value="0" [selected]="sporadicType === 0">
+              <option [ngValue]="0" [selected]="sporadicType === 0">
                 {{ onSporadicTypeName(0) }}
               </option>
-              <option value="1" [selected]="sporadicType === 1">
+              <option [ngValue]="1" [selected]="sporadicType === 1">
                 {{ onSporadicTypeName(1) }}
               </option>
-              <option value="2" [selected]="sporadicType === 2">
+              <option [ngValue]="2" [selected]="sporadicType === 2">
                 {{ onSporadicTypeName(2) }}
               </option>
-              <option value="3" [selected]="sporadicType === 3">
+              <option [ngValue]="3" [selected]="sporadicType === 3">
                 {{ onSporadicTypeName(3) }}
               </option>
-              <option value="4" [selected]="sporadicType === 4">
+              <option [ngValue]="4" [selected]="sporadicType === 4">
                 {{ onSporadicTypeName(4) }}
               </option>
-              <option value="5" [selected]="sporadicType === 5">
+              <option [ngValue]="5" [selected]="sporadicType === 5">
                 {{ onSporadicTypeName(5) }}
               </option>
             </select>

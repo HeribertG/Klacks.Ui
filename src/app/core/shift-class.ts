@@ -111,7 +111,7 @@ export class Shift implements IShift {
   isWednesday = false;
   isWeekdayOrHoliday = false;
   isSporadic = false;
-  sporadicScope = ShiftSporadic.Week;
+  sporadicScope: ShiftSporadic = ShiftSporadic.Week;
   isTimeRange = false;
   quantity = 1;
   sumEmployees = 1;

@@ -36,7 +36,9 @@ export class DataShiftService {
   }
 
   updateShift(value: IShift) {
+    delete value.addressName;
     this.setCorrectDate(value);
+    this.setCorrectTime(value);
     return this.httpClient
       .put<IShift>(`${environment.baseUrl}Shifts/`, value)
       .pipe(retry(3));

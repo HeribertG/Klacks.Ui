@@ -318,7 +318,21 @@ export class DataManagementShiftService {
 
       action.subscribe({
         next: (x) => {
-          this.prepareShift(x, withoutUpdateDummy);
+          this.prepareShift(
+            this.createShiftFromPlainObject(x),
+            withoutUpdateDummy
+          );
+          if (this.editShift && this.editShift.fromDate && x.client) {
+            const index = this.setCurrentAddressIndex(
+              x.client,
+              this.editShift.fromDate
+            );
+            this.editShift.addressName = this.visualNameAndAddress(
+              x.client,
+              index
+            );
+          }
+          this.fireIsReadEvent();
         },
         error: (error) => {
           if (this.editShift?.id) {
