@@ -460,9 +460,9 @@ export function transformStringToOwnTimeStruct(
       }
     }
 
-    return new OwnTime(hours.toString(), minutes.toString());
+    return new OwnTime(hours.toString(), minutes.toString(), isDuration);
   }
-  return new OwnTime('00', '00');
+  return new OwnTime('00', '00', isDuration);
 }
 
 export function transformOwnTimeToString(value: OwnTime): string {
@@ -486,7 +486,7 @@ export function transformNumberToOwnTime(
   if (value) {
     const hours = Math.floor(value);
     const minutes = Math.round((value - hours) * 60);
-    return new OwnTime(hours.toString(), minutes.toString());
+    return new OwnTime(hours.toString(), minutes.toString(), isDuration);
   }
   return new OwnTime('00', '00', isDuration);
 }

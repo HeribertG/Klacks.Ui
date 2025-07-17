@@ -151,66 +151,29 @@ export class EditShiftWeekdayComponent
     const startMinutes = parseInt(shift.internalStartShift.minutes) || 0;
     const endHours = parseInt(shift.internalEndShift.hours) || 0;
     const endMinutes = parseInt(shift.internalEndShift.minutes) || 0;
-
-    console.log('DEBUG: Start:', startHours + ':' + startMinutes);
-    console.log('DEBUG: End:', endHours + ':' + endMinutes);
-
     const startTotalMinutes = startHours * 60 + startMinutes;
     const endTotalMinutes = endHours * 60 + endMinutes;
 
-    console.log(
-      'DEBUG: StartTotal:',
-      startTotalMinutes,
-      'EndTotal:',
-      endTotalMinutes
-    );
-
     let workTimeMinutes: number;
 
-    // ANGEPASSTE LOGIK: Gleiche Zeiten = 24-Stunden-Schicht
     if (startTotalMinutes === endTotalMinutes) {
-      workTimeMinutes = 24 * 60; // 1440 Minuten = 24 Stunden
-      console.log(
-        'DEBUG: 24h Schicht erkannt, workTimeMinutes:',
-        workTimeMinutes
-      );
+      workTimeMinutes = 24 * 60;
     } else if (endTotalMinutes < startTotalMinutes) {
       workTimeMinutes = 24 * 60 - startTotalMinutes + endTotalMinutes;
-      console.log('DEBUG: Über Mitternacht, workTimeMinutes:', workTimeMinutes);
     } else {
       workTimeMinutes = endTotalMinutes - startTotalMinutes;
-      console.log('DEBUG: Normale Schicht, workTimeMinutes:', workTimeMinutes);
     }
 
-    // Setze workTime
     shift.workTime = workTimeMinutes;
 
-    // Konvertiere zurück zu Stunden und Minuten
     const workHours = Math.floor(workTimeMinutes / 60);
     const workMinutesRemainder = workTimeMinutes % 60;
 
-    console.log(
-      'DEBUG: Berechnet - Stunden:',
-      workHours,
-      'Minuten:',
-      workMinutesRemainder
-    );
-    console.log('DEBUG: isDuration?', shift.internalWorkTime.isDuration);
-
-    // Setze die berechnete Arbeitszeit
     shift.internalWorkTime.hours = workHours.toString().padStart(2, '0');
     shift.internalWorkTime.minutes = workMinutesRemainder
       .toString()
       .padStart(2, '0');
 
-    console.log(
-      'DEBUG: Gesetzt - hours:',
-      shift.internalWorkTime.hours,
-      'minutes:',
-      shift.internalWorkTime.minutes
-    );
-
-    // Triggere Change Event
     this.isChangingEvent.emit(true);
   }
 }
