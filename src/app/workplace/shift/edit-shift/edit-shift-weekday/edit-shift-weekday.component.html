@@ -86,6 +86,7 @@
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalEndShift.hours
                 "
+                (ngModelChange)="OnChangeTime()"
                 (keyup)="
                   onKeyUpInput(
                     $event,
@@ -110,6 +111,7 @@
                       .minutes
                   )
                 "
+                (ngModelChange)="OnChangeTime()"
                 [ngModelOptions]="{ standalone: true }"
                 class="form-control time-minute minutes"
                 type="text"
@@ -132,7 +134,6 @@
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalWorkTime.hours
                 "
-                (change)="OnChangeTime()"
                 (keyup)="
                   onKeyUpInput(
                     $event,
@@ -151,7 +152,6 @@
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalWorkTime.minutes
                 "
-                (blur)="OnChangeTime()"
                 (keyup)="
                   onKeyUpInput(
                     $event,

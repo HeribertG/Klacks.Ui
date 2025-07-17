@@ -85,7 +85,12 @@ export class EditShiftWeekdayComponent
   }
 
   OnChangeTime() {
-    console.log('Time ist changes');
+    if (
+      this.dataManagementShiftService.editShift &&
+      !this.dataManagementShiftService.editShift.isTimeRange
+    ) {
+      this.calculateWorkTime();
+    }
   }
 
   onKeyUpInput(event: any, data: string) {
@@ -136,5 +141,53 @@ export class EditShiftWeekdayComponent
       shift.isHoliday;
 
     this.areWeekdaysValid = hasAnyWeekdaySelected;
+  }
+
+  private calculateWorkTime() {
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) return;
+
+    const startHours = parseInt(shift.internalStartShift.hours) || 0;
+    const startMinutes = parseInt(shift.internalStartShift.minutes) || 0;
+    const endHours = parseInt(shift.internalEndShift.hours) || 0;
+    const endMinutes = parseInt(shift.internalEndShift.minutes) || 0;
+
+    // Validierung der Eingaben
+    if (
+      startHours < 0 ||
+      startHours > 23 ||
+      startMinutes < 0 ||
+      startMinutes > 59 ||
+      endHours < 0 ||
+      endHours > 23 ||
+      endMinutes < 0 ||
+      endMinutes > 59
+    ) {
+      return; // Ungültige Zeiten, keine Berechnung
+    }
+
+    // Konvertiere zu Minuten seit Mitternacht
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    let endTotalMinutes = endHours * 60 + endMinutes;
+
+    // Prüfe ob Schicht über Mitternacht geht
+    if (endTotalMinutes <= startTotalMinutes) {
+      // Schicht geht über Mitternacht: addiere 24 Stunden zum Endzeit
+      endTotalMinutes += 24 * 60;
+    }
+
+    // Berechne Arbeitsdauer in Minuten
+    const workTimeMinutes = endTotalMinutes - startTotalMinutes;
+
+    // Konvertiere zurück zu Stunden und Minuten
+    const workHours = Math.floor(workTimeMinutes / 60);
+    const workMinutes = workTimeMinutes % 60;
+
+    // Setze die berechnete Arbeitszeit
+    shift.internalWorkTime.hours = workHours.toString().padStart(2, '0');
+    shift.internalWorkTime.minutes = workMinutes.toString().padStart(2, '0');
+
+    // Triggere Change Event
+    this.isChangingEvent.emit(true);
   }
 }

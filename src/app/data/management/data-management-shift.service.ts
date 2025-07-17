@@ -239,6 +239,11 @@ export class DataManagementShiftService {
     if (this.editShift.id) {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
+
+    setTimeout(() => {
+      this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
+    }, 200);
   }
 
   createUrl(): string {
@@ -332,7 +337,6 @@ export class DataManagementShiftService {
               index
             );
           }
-          this.fireIsReadEvent();
         },
         error: (error) => {
           if (this.editShift?.id) {

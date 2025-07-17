@@ -143,6 +143,14 @@ export class EditShiftItemComponent
           this.calcValidation();
         });
         this.effects.push(effect1);
+
+        const effect2 = effect(() => {
+          const isReset = this.dataManagementShiftService.isReset();
+          if (isReset) {
+            setTimeout(() => this.isChangingEvent.emit(false), 100);
+          }
+        });
+        this.effects.push(effect2);
       });
     } catch (error) {
       console.error('Error when setting up the effect:', error);

@@ -95,15 +95,20 @@ export class WorkFilter implements IWorkFilter {
 export interface IOwnTime {
   hours: string | undefined;
   minutes: string | undefined;
+  isDuration: boolean;
 }
 
 export class OwnTime implements IOwnTime {
   private pHours = '00';
   private pMinutes = '00';
-  constructor(hours: string, minutes: string) {
+  private pIsDuration = false;
+
+  constructor(hours: string, minutes: string, isDuration = false) {
+    this.pIsDuration = isDuration;
     this.hours = hours;
     this.minutes = minutes;
   }
+
   get hours(): string {
     return this.pHours;
   }
@@ -111,12 +116,24 @@ export class OwnTime implements IOwnTime {
   set hours(hours: string) {
     this.pHours = this.formatHours(hours);
   }
+
   get minutes(): string {
     return this.pMinutes;
   }
 
   set minutes(minutes: string) {
     this.pMinutes = this.formatMinutes(minutes);
+  }
+
+  get isDuration(): boolean {
+    return this.pIsDuration;
+  }
+
+  set isDuration(value: boolean) {
+    this.pIsDuration = value;
+    if (!value && parseInt(this.pHours) > 23) {
+      this.pHours = '23';
+    }
   }
 
   public toString(): string {
@@ -130,16 +147,22 @@ export class OwnTime implements IOwnTime {
       value = '00';
     } else if (value.length === 1) {
       value = '0' + value;
-      value = value.replace(/^(\d{0,2})/, '$1');
-    } else if (value.length >= 2) {
-      if (+value > 23) {
-        value = '23';
-      }
-      if (value.length === 3) {
-        value = value.substring(1);
+    } else {
+      const maxHours = this.pIsDuration ? 999 : 23;
+
+      if (+value > maxHours) {
+        value = maxHours.toString();
       }
 
-      value = value.replace(/^(\d{0,2})/, '$1');
+      if (+value < 10 && !this.pIsDuration) {
+        value = '0' + value;
+      } else if (+value < 100 && this.pIsDuration && value.length === 1) {
+        value = '0' + value;
+      }
+
+      if (value.length > 3) {
+        value = value.substring(0, 3);
+      }
     }
 
     return value;
@@ -152,7 +175,6 @@ export class OwnTime implements IOwnTime {
       value = '00';
     } else if (value.length === 1) {
       value = '0' + value;
-      value = value.replace(/^(\d{0,2})/, '$1');
     } else if (value.length >= 2) {
       if (+value > 59) {
         value = '59';
@@ -160,10 +182,30 @@ export class OwnTime implements IOwnTime {
       if (value.length === 3) {
         value = value.substring(1);
       }
-
-      value = value.replace(/^(\d{0,2})/, '$1');
     }
 
     return value;
+  }
+
+  public toMinutes(): number {
+    const hours = parseInt(this.pHours) || 0;
+    const minutes = parseInt(this.pMinutes) || 0;
+    return hours * 60 + minutes;
+  }
+
+  public fromMinutes(totalMinutes: number): void {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    this.hours = hours.toString();
+    this.minutes = minutes.toString();
+  }
+
+  static forTime(hours = '00', minutes = '00'): OwnTime {
+    return new OwnTime(hours, minutes, false);
+  }
+
+  static forDuration(hours = '00', minutes = '00'): OwnTime {
+    return new OwnTime(hours, minutes, true);
   }
 }

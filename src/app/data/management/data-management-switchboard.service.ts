@@ -111,32 +111,7 @@ export class DataManagementSwitchboardService {
   private effectRefs: EffectRef[] = [];
 
   constructor() {
-    this.setupEffects();
-  }
-
-  private setupEffects(): void {
-    // Consolidated spinner effect
-    const spinnerEffect = effect(() => {
-      const shouldShow = this.shouldShowSpinner();
-      this.showProgressSpinner(shouldShow);
-    });
-    this.effectRefs.push(spinnerEffect);
-
-    // Auto-cleanup for dirty state
-    const dirtyCleanupEffect = effect(() => {
-      const isDirty = this._isDirty();
-      const isSavedOrReset = this._isSavedOrReset();
-
-      if (isDirty && isSavedOrReset) {
-        this.checkObjectDirty();
-      }
-
-      if (!isDirty) {
-        this._isSavedOrReset.set(false);
-        this._isDisabled.set(false);
-      }
-    });
-    this.effectRefs.push(dirtyCleanupEffect);
+    this.readEffects();
   }
 
   public showProgressSpinner(value: boolean): void {
@@ -269,5 +244,30 @@ export class DataManagementSwitchboardService {
   destroy(): void {
     this.effectRefs.forEach((ref) => ref.destroy());
     this.effectRefs = [];
+  }
+
+  private readEffects(): void {
+    // Consolidated spinner effect
+    const spinnerEffect = effect(() => {
+      const shouldShow = this.shouldShowSpinner();
+      this.showProgressSpinner(shouldShow);
+    });
+    this.effectRefs.push(spinnerEffect);
+
+    // Auto-cleanup for dirty state
+    const dirtyCleanupEffect = effect(() => {
+      const isDirty = this._isDirty();
+      const isSavedOrReset = this._isSavedOrReset();
+
+      if (isDirty && isSavedOrReset) {
+        this.checkObjectDirty();
+      }
+
+      if (!isDirty) {
+        this._isSavedOrReset.set(false);
+        this._isDisabled.set(false);
+      }
+    });
+    this.effectRefs.push(dirtyCleanupEffect);
   }
 }

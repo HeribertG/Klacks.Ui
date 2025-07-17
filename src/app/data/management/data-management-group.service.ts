@@ -293,8 +293,11 @@ export class DataManagementGroupService {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
 
-    this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    setTimeout(() => {
+      this.isReset.set(true);
+      this.showProgressSpinner.set(false);
+      setTimeout(() => this.isReset.set(false), 100);
+    }, 200);
   }
 
   saveEditGroup(withoutUpdateDummy = false) {
