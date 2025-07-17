@@ -144,28 +144,25 @@ export class OwnTime implements IOwnTime {
     value = value.replace(/\D/g, '');
 
     if (value.length === 0) {
-      value = '00';
-    } else if (value.length === 1) {
-      value = '0' + value;
-    } else {
-      const maxHours = this.pIsDuration ? 999 : 23;
-
-      if (+value > maxHours) {
-        value = maxHours.toString();
-      }
-
-      if (+value < 10 && !this.pIsDuration) {
-        value = '0' + value;
-      } else if (+value < 100 && this.pIsDuration && value.length === 1) {
-        value = '0' + value;
-      }
-
-      if (value.length > 3) {
-        value = value.substring(0, 3);
-      }
+      return '00';
     }
 
-    return value;
+    const numValue = parseInt(value) || 0;
+
+    const maxHours = this.pIsDuration ? 999 : 23;
+    const clampedValue = Math.min(numValue, maxHours);
+
+    if (!this.pIsDuration) {
+      return clampedValue.toString().padStart(2, '0');
+    } else {
+      if (clampedValue < 10) {
+        return clampedValue.toString().padStart(2, '0');
+      } else if (clampedValue < 100) {
+        return clampedValue.toString();
+      } else {
+        return clampedValue.toString();
+      }
+    }
   }
 
   private formatMinutes(value: string): string {

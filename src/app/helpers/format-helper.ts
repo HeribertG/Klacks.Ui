@@ -434,12 +434,15 @@ export function isOwnTimeStructOk(event: OwnTime | undefined): boolean {
   return false;
 }
 
-export function transformStringToOwnTimeStruct(value: string): OwnTime {
+export function transformStringToOwnTimeStruct(
+  value: string,
+  isDuration = false
+): OwnTime {
   if (value) {
     let hours = 0;
     let minutes = 0;
     const split = value.split(':');
-    if (split.length <= 2) return new OwnTime('00', '00');
+    if (split.length <= 2) return new OwnTime('00', '00', isDuration);
     if (split.length > 2) {
       value = value.substring(0, 5);
     }
@@ -476,13 +479,16 @@ export function transformOwnTimeToNumber(value: OwnTime): number {
   return 0;
 }
 
-export function transformNumberToOwnTime(value: number): OwnTime {
+export function transformNumberToOwnTime(
+  value: number,
+  isDuration = false
+): OwnTime {
   if (value) {
     const hours = Math.floor(value);
     const minutes = Math.round((value - hours) * 60);
     return new OwnTime(hours.toString(), minutes.toString());
   }
-  return new OwnTime('00', '00');
+  return new OwnTime('00', '00', isDuration);
 }
 
 function isYearOk(value: number): boolean {

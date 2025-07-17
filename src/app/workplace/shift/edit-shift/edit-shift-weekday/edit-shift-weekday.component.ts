@@ -152,40 +152,63 @@ export class EditShiftWeekdayComponent
     const endHours = parseInt(shift.internalEndShift.hours) || 0;
     const endMinutes = parseInt(shift.internalEndShift.minutes) || 0;
 
-    // Validierung der Eingaben
-    if (
-      startHours < 0 ||
-      startHours > 23 ||
-      startMinutes < 0 ||
-      startMinutes > 59 ||
-      endHours < 0 ||
-      endHours > 23 ||
-      endMinutes < 0 ||
-      endMinutes > 59
-    ) {
-      return; // Ungültige Zeiten, keine Berechnung
-    }
+    console.log('DEBUG: Start:', startHours + ':' + startMinutes);
+    console.log('DEBUG: End:', endHours + ':' + endMinutes);
 
-    // Konvertiere zu Minuten seit Mitternacht
     const startTotalMinutes = startHours * 60 + startMinutes;
-    let endTotalMinutes = endHours * 60 + endMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
 
-    // Prüfe ob Schicht über Mitternacht geht
-    if (endTotalMinutes <= startTotalMinutes) {
-      // Schicht geht über Mitternacht: addiere 24 Stunden zum Endzeit
-      endTotalMinutes += 24 * 60;
+    console.log(
+      'DEBUG: StartTotal:',
+      startTotalMinutes,
+      'EndTotal:',
+      endTotalMinutes
+    );
+
+    let workTimeMinutes: number;
+
+    // ANGEPASSTE LOGIK: Gleiche Zeiten = 24-Stunden-Schicht
+    if (startTotalMinutes === endTotalMinutes) {
+      workTimeMinutes = 24 * 60; // 1440 Minuten = 24 Stunden
+      console.log(
+        'DEBUG: 24h Schicht erkannt, workTimeMinutes:',
+        workTimeMinutes
+      );
+    } else if (endTotalMinutes < startTotalMinutes) {
+      workTimeMinutes = 24 * 60 - startTotalMinutes + endTotalMinutes;
+      console.log('DEBUG: Über Mitternacht, workTimeMinutes:', workTimeMinutes);
+    } else {
+      workTimeMinutes = endTotalMinutes - startTotalMinutes;
+      console.log('DEBUG: Normale Schicht, workTimeMinutes:', workTimeMinutes);
     }
 
-    // Berechne Arbeitsdauer in Minuten
-    const workTimeMinutes = endTotalMinutes - startTotalMinutes;
+    // Setze workTime
+    shift.workTime = workTimeMinutes;
 
     // Konvertiere zurück zu Stunden und Minuten
     const workHours = Math.floor(workTimeMinutes / 60);
-    const workMinutes = workTimeMinutes % 60;
+    const workMinutesRemainder = workTimeMinutes % 60;
+
+    console.log(
+      'DEBUG: Berechnet - Stunden:',
+      workHours,
+      'Minuten:',
+      workMinutesRemainder
+    );
+    console.log('DEBUG: isDuration?', shift.internalWorkTime.isDuration);
 
     // Setze die berechnete Arbeitszeit
     shift.internalWorkTime.hours = workHours.toString().padStart(2, '0');
-    shift.internalWorkTime.minutes = workMinutes.toString().padStart(2, '0');
+    shift.internalWorkTime.minutes = workMinutesRemainder
+      .toString()
+      .padStart(2, '0');
+
+    console.log(
+      'DEBUG: Gesetzt - hours:',
+      shift.internalWorkTime.hours,
+      'minutes:',
+      shift.internalWorkTime.minutes
+    );
 
     // Triggere Change Event
     this.isChangingEvent.emit(true);

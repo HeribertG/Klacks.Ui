@@ -464,7 +464,7 @@ export class DataManagementShiftService {
         value.travelTimeBefore
       );
 
-      value.internalWorkTime = transformNumberToOwnTime(value.workTime);
+      value.internalWorkTime = transformNumberToOwnTime(value.workTime, true);
 
       value.internalBriefingTime = transformStringToOwnTimeStruct(
         value.briefingTime
