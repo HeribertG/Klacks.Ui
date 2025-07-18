@@ -3,7 +3,7 @@
     {{ translate.instant("shift.all-shift.list.title") }}
 
     <span class="filler"></span>
-    @if (authorizationService.isAdmin){
+    @if (authorizationService.isAdmin && dataManagementShiftService.currentFilter.isOriginal){
     <div class="actions">
       <button class="btn new-btn" (click)="onAddShift()">
         {{ "new-work" | translate }}

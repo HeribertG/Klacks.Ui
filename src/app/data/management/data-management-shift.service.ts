@@ -204,8 +204,8 @@ export class DataManagementShiftService {
   private prepareNewShift(): IShift {
     const value = new Shift();
     value.fromDate = new Date();
-    value.startShift = '07:00';
-    value.endShift = '15:00';
+    value.startShift = '07:00:00';
+    value.endShift = '15:00:00';
     value.workTime = 8;
     value.beforeShift = '';
     value.afterShift = '';

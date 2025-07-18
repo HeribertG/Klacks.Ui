@@ -7,7 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -20,6 +20,8 @@ import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.componen
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { AuthorizationService } from 'src/app/services/authorization.service';
+import { faEarListen } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -46,9 +48,11 @@ export class EditShiftHomeComponent implements OnInit {
     DataManagementSwitchboardService
   );
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
+  private translateService = inject(TranslateService);
 
   isComplex = false;
 
@@ -60,7 +64,11 @@ export class EditShiftHomeComponent implements OnInit {
       if (result1.isValidRoute && result1.hasId && result1.id) {
         this.dataManagementShiftService.readShift(result1.id);
       } else {
-        this.navigationService.navigateToPageNotFound();
+        if (this.authorizationService.isAdmin) {
+          this.dataManagementShiftService.createShift();
+        } else {
+          this.navigationService.navigateToPageNotFound();
+        }
       }
 
       const result2 = this.urlParameterService.parseCurrentUrl(

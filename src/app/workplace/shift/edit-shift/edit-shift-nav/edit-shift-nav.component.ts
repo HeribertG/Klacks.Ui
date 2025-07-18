@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -65,7 +66,6 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
-    //this.dataManagementShiftService.currentClientFilter.init();
 
     this.navShift = document.getElementById('navShiftForm')!;
     this.readSignals();
@@ -83,7 +83,6 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
         () => {
           if (this.navShiftForm!.dirty) {
             if (!this.isComboBoxOpen) {
-              // Trigger address search refresh when filters change
               setTimeout(() => this.onFilterChange(), 100);
             }
           }
@@ -102,17 +101,6 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onOpenChange(event: boolean) {
     this.isComboBoxOpen = event;
-    // if (this.isComboBoxOpen) {
-    //   //this.dataManagementShiftService.currentClientFilter.setTemporaryFilter();
-    // }
-    // if (
-    //   !this.isComboBoxOpen &&
-    //   //this.dataManagementShiftService.currentClientFilter.isTemporaryFilterDirty()
-    // ) {
-    //   setTimeout(() => {
-    //     this.onFilterChange();
-    //   }, 100);
-    // }
   }
 
   onClickSetEmpty() {
@@ -137,7 +125,6 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       effect(() => {
-        // React to shift service changes
         this.dataManagementShiftService.initIsRead();
       });
     });

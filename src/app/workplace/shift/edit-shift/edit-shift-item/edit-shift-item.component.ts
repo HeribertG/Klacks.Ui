@@ -29,7 +29,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -103,17 +103,10 @@ export class EditShiftItemComponent
   }
 
   onLockClick(): void {
-    // Hier können Sie die gewünschte Funktionalität implementieren
-    // Beispiel: Toggle einer Lock-Eigenschaft oder Modal öffnen
-    console.log('Lock button clicked');
-
-    // Beispiel-Implementierung:
-    // if (this.dataManagementShiftService.editShift) {
-    //   this.dataManagementShiftService.editShift.isLocked =
-    //     !this.dataManagementShiftService.editShift.isLocked;
-    // }
-
-    this.isChangingEvent.emit(true);
+    if (this.dataManagementShiftService.editShift) {
+      this.dataManagementShiftService.editShift.status = ShiftStatus.Cut;
+      this.isChangingEvent.emit(true);
+    }
   }
 
   onNameInput(event: Event): void {
@@ -259,8 +252,14 @@ export class EditShiftItemComponent
     const hasGroupsSelected = shift.groups && shift.groups.length > 0;
 
     // Check quantity and sumEmployees are not null or 0
-    const isQuantityValid = shift.quantity !== null && shift.quantity !== undefined && shift.quantity > 0;
-    const isSumEmployeesValid = shift.sumEmployees !== null && shift.sumEmployees !== undefined && shift.sumEmployees > 0;
+    const isQuantityValid =
+      shift.quantity !== null &&
+      shift.quantity !== undefined &&
+      shift.quantity > 0;
+    const isSumEmployeesValid =
+      shift.sumEmployees !== null &&
+      shift.sumEmployees !== undefined &&
+      shift.sumEmployees > 0;
 
     this.isLockButtonEnabled = Boolean(
       isAbbreviationValid &&

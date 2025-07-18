@@ -202,6 +202,7 @@
                 name="isMonday"
                 id="isMonday"
                 [class.is-invalid]="areWeekdaysValid === false"
+                (change)="validateWeekdays()"
               />
               {{ "monday" | translate }}
             </label>
@@ -215,6 +216,7 @@
                 name="isTuesday"
                 id="isTuesday"
                 [class.is-invalid]="areWeekdaysValid === false"
+                (change)="validateWeekdays()"
               />
               {{ "tuesday" | translate }}
             </label>
@@ -228,6 +230,7 @@
                 name="isWednesday"
                 id="isWednesday"
                 [class.is-invalid]="areWeekdaysValid === false"
+                (change)="validateWeekdays()"
               />
               {{ "wednesday" | translate }}
             </label>
@@ -241,6 +244,7 @@
                 name="isThursday"
                 id="isThursday"
                 [class.is-invalid]="areWeekdaysValid === false"
+                (change)="validateWeekdays()"
               />
               {{ "thursday" | translate }}
             </label>
@@ -254,6 +258,7 @@
                 name="isFriday"
                 id="isFriday"
                 [class.is-invalid]="areWeekdaysValid === false"
+                (change)="validateWeekdays()"
               />
               {{ "friday" | translate }}
             </label>
@@ -270,6 +275,7 @@
               name="isSaturday"
               id="isSaturday"
               [class.is-invalid]="areWeekdaysValid === false"
+              (change)="validateWeekdays()"
             />
             {{ "saturday" | translate }}
           </label>
@@ -283,6 +289,7 @@
               name="isSunday"
               id="isSunday"
               [class.is-invalid]="areWeekdaysValid === false"
+              (change)="validateWeekdays()"
             />
             {{ "sunday" | translate }}
           </label>
@@ -297,7 +304,9 @@
               [(ngModel)]="dataManagementShiftService.editShift.isHoliday"
               name="isHoliday"
               id="isHoliday"
+              [disabled]="isHolidayDisabled"
               [class.is-invalid]="areWeekdaysValid === false"
+              (change)="onHolidayChange()"
             />
             {{ "holiday" | translate }}
           </label>
@@ -307,11 +316,11 @@
           <label class="checkbox-label" for="isWeekdayOrHoliday">
             <input
               type="checkbox"
-              [(ngModel)]="
-                dataManagementShiftService.editShift.isWeekdayOrHoliday
-              "
+              [(ngModel)]="dataManagementShiftService.editShift.isWeekdayOrHoliday"
               name="isWeekdayOrHoliday"
               id="isWeekdayOrHoliday"
+              [class.is-invalid]="areWeekdaysValid === false"
+              (change)="onWeekdayOrHolidayChange()"
             />
             {{ "weekday-or-holiday" | translate }}
           </label>

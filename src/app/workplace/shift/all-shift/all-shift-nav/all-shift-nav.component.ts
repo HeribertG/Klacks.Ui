@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
   Component,
+  inject,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -28,17 +30,16 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
     | undefined;
   navClient: HTMLElement | undefined;
 
+  public dataManagementShiftService = inject(DataManagementShiftService);
+  public authorizationService = inject(AuthorizationService);
+  private translateService = inject(TranslateService);
+
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   objectForUnsubscribe: any;
 
   isComboBoxOpen = false;
-  constructor(
-    public dataManagementShiftService: DataManagementShiftService,
-    private translateService: TranslateService,
-    public authorizationService: AuthorizationService
-  ) {}
+
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
     this.checkAdminPermissions();
