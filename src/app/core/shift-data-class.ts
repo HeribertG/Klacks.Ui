@@ -102,6 +102,7 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   activeDateRange = true;
   formerDateRange = false;
   futureDateRange = false;
+  isOriginal = false;
 
   override orderBy = 'name';
   override sortOrder = 'asc';

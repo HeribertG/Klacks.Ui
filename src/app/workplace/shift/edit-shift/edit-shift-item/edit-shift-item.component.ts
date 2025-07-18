@@ -22,7 +22,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDatepickerModule,
+  NgbTooltipModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
@@ -70,6 +73,7 @@ export class EditShiftItemComponent
   public isAbbreviationValid: boolean | undefined;
   public isNameValid: boolean | undefined;
   public isFromDateValid: boolean | undefined;
+  public isLockButtonEnabled = false;
   public objectForUnsubscribe: Subscription | undefined;
   private effects: EffectRef[] = [];
 
@@ -156,7 +160,6 @@ export class EditShiftItemComponent
     this.isChecked = currentMode === 'complex' ? true : false;
   }
 
-
   private readSignals(): void {
     try {
       runInInjectionContext(this.injector, () => {
@@ -183,6 +186,7 @@ export class EditShiftItemComponent
     this.calcValidationAbbreviation();
     this.calcValidationName();
     this.calcValidationFromDate();
+    this.calcLockButtonValidation();
   }
 
   private calcValidationAbbreviation() {
@@ -226,5 +230,46 @@ export class EditShiftItemComponent
         this.isFromDateValid = true;
       }
     }
+  }
+
+  private calcLockButtonValidation() {
+    const shift = this.dataManagementShiftService.editShift;
+
+    if (!shift) {
+      this.isLockButtonEnabled = false;
+      return;
+    }
+
+    const isAbbreviationValid =
+      shift.abbreviation && shift.abbreviation.trim() !== '';
+    const isNameValid = shift.name && shift.name.trim() !== '';
+    const isFromDateValid =
+      shift.internalFromDate !== undefined && shift.internalFromDate !== null;
+
+    const hasAnyWeekdaySelected =
+      shift.isMonday ||
+      shift.isTuesday ||
+      shift.isWednesday ||
+      shift.isThursday ||
+      shift.isFriday ||
+      shift.isSaturday ||
+      shift.isSunday ||
+      shift.isHoliday;
+
+    const hasGroupsSelected = shift.groups && shift.groups.length > 0;
+
+    // Check quantity and sumEmployees are not null or 0
+    const isQuantityValid = shift.quantity !== null && shift.quantity !== undefined && shift.quantity > 0;
+    const isSumEmployeesValid = shift.sumEmployees !== null && shift.sumEmployees !== undefined && shift.sumEmployees > 0;
+
+    this.isLockButtonEnabled = Boolean(
+      isAbbreviationValid &&
+        isNameValid &&
+        isFromDateValid &&
+        hasAnyWeekdaySelected &&
+        hasGroupsSelected &&
+        isQuantityValid &&
+        isSumEmployeesValid
+    );
   }
 }

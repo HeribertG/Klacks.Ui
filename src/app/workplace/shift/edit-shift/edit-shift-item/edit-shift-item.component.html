@@ -74,6 +74,7 @@
               (click)="onLockClick()"
               [ngbTooltip]="'shift.edit-shift.main.lock-tooltip' | translate"
               placement="top"
+              [disabled]="!isLockButtonEnabled"
             >
               <app-icon-unlock></app-icon-unlock>
             </button>
