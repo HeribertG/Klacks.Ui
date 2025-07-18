@@ -24,6 +24,7 @@ import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.componen
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
+import { LockComponent } from 'src/app/icons/lock.component';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -38,6 +39,7 @@ import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
     IconAngleRightComponent,
     FontAwesomeModule,
     NgbDatepickerModule,
+    LockComponent,
   ],
 })
 export class EditShiftItemComponent
