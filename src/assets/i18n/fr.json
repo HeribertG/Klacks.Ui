@@ -440,6 +440,7 @@
   "shift.edit-shift.address.select": "Sélectionner",
   "shift.edit-shift.address.selected-address": "Adresse sélectionnée",
   "shift.edit-shift.address.remove": "Supprimer",
+  "shift.edit-shift.main.lock-tooltip": "Après verrouillage, la commande est immutable et prête pour la planification.",
   "shift.all-shift.all-shift-home.header": "Tous les services",
   "shift.all-shift.list.title": "Services",
   "shift.all-shift.list.original": "Original",

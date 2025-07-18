@@ -441,6 +441,7 @@
   "shift.edit-shift.address.select": "Auswählen",
   "shift.edit-shift.address.selected-address": "Ausgewählte Adresse",
   "shift.edit-shift.address.remove": "Entfernen",
+  "shift.edit-shift.main.lock-tooltip": "Nach Sperrung ist der Auftrag unveränderlich und steht zur Planung bereit.",
 
   "shift.all-shift.all-shift-home.header": "Alle Dienste",
   "shift.all-shift.list.title": "Dienste",

@@ -440,6 +440,7 @@
   "shift.edit-shift.address.select": "Seleziona",
   "shift.edit-shift.address.selected-address": "Indirizzo selezionato",
   "shift.edit-shift.address.remove": "Rimuovi",
+  "shift.edit-shift.main.lock-tooltip": "Dopo il blocco, l'ordine è immutabile e pronto per la pianificazione.",
   "shift.all-shift.all-shift-home.header": "Tutti i servizi",
   "shift.all-shift.list.title": "Servizi",
   "shift.all-shift.list.original": "Originale",

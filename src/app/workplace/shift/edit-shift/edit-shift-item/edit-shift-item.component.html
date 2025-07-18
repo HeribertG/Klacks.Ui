@@ -67,13 +67,19 @@
         </div>
 
         <div class="abbreviation-right">
-          <button
-            type="button"
-            class="btn btn-success normal-btn"
-            (click)="onLockClick()"
-          >
-            <app-icon-unlock></app-icon-unlock>
-          </button>
+          @if (dataManagementShiftService.editShift?.status === ShiftStatus.Original) {
+            <button
+              type="button"
+              class="btn btn-success normal-btn"
+              (click)="onLockClick()"
+              [ngbTooltip]="'shift.edit-shift.main.lock-tooltip' | translate"
+              placement="top"
+            >
+              <app-icon-unlock></app-icon-unlock>
+            </button>
+          } @else {
+            <app-icon-lock></app-icon-lock>
+          }
         </div>
       </div>
 

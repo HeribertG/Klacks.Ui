@@ -22,10 +22,11 @@ import { TranslateModule } from '@ngx-translate/core';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
+import { ShiftStatus } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -40,6 +41,7 @@ import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
     IconAngleRightComponent,
     FontAwesomeModule,
     NgbDatepickerModule,
+    NgbTooltipModule,
     LockComponent,
     UnlockComponent,
   ],
@@ -62,6 +64,7 @@ export class EditShiftItemComponent
   private injector = inject(Injector);
 
   public faCalendar = faCalendar;
+  public ShiftStatus = ShiftStatus;
   public visibleTable = 'inline';
   public isChecked = false;
   public isAbbreviationValid: boolean | undefined;
@@ -152,6 +155,7 @@ export class EditShiftItemComponent
 
     this.isChecked = currentMode === 'complex' ? true : false;
   }
+
 
   private readSignals(): void {
     try {
