@@ -49,3 +49,31 @@ ul li {
   max-width: 150px;
   font-size: 14px;
 }
+
+.radio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"] {
+  cursor: pointer;
+}
+
+.radio-label input[type="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.radio-label:has(input[type="radio"]:disabled) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

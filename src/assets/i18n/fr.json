@@ -447,6 +447,8 @@
   "shift.all-shift.list.original": "Original",
   "shift.all-shift.list.used": "Services modifiables",
   "shift.all-shift.list.cut": "Services découpés",
+  "shift.all-shift.nav.original": "Original",
+  "shift.all-shift.nav.planbar": "Services Planifiables",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",

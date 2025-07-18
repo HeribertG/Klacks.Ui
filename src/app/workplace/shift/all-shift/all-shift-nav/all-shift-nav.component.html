@@ -55,5 +55,36 @@
         </div>
       </div>
     </li>
+    
+    <!-- Original/Planbar Options -->
+    <li class="list-group-item-action">
+      <div class="form-group">
+        <div class="radio-container">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="shiftType"
+              [value]="true"
+              [(ngModel)]="dataManagementShiftService.currentFilter.isOriginal"
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+            />
+            {{ "shift.all-shift.nav.original" | translate }}
+          </label>
+          
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="shiftType"
+              [value]="false"
+              [(ngModel)]="dataManagementShiftService.currentFilter.isOriginal"
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+            />
+            {{ "shift.all-shift.nav.planbar" | translate }}
+          </label>
+        </div>
+      </div>
+    </li>
   </ul>
 </form>

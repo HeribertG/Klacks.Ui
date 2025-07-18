@@ -13,6 +13,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-all-shift-nav',
@@ -35,10 +36,12 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   isComboBoxOpen = false;
   constructor(
     public dataManagementShiftService: DataManagementShiftService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    public authorizationService: AuthorizationService
   ) {}
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
+    this.checkAdminPermissions();
   }
 
   ngAfterViewInit(): void {
@@ -59,5 +62,15 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClose() {
     this.dataManagementShiftService.readPage(false);
+  }
+
+  private checkAdminPermissions(): void {
+    if (!this.authorizationService.isAdmin) {
+      this.dataManagementShiftService.currentFilter.isOriginal = false;
+    }
+  }
+
+  onSelect(): void {
+    this.dataManagementShiftService.readPage();
   }
 }

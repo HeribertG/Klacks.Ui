@@ -13,16 +13,19 @@
   </div>
   <div class="container-line"></div>
   <div class="container-table">
-    <app-original-table
-      [shifts]="dataManagementShiftService.shifts"
-      (editClicked)="onClickEdit($event)"
-      (deleteClicked)="onClickDelete($event)"
-    ></app-original-table>
-    <app-cut-table
-      [shifts]="dataManagementShiftService.shifts"
-      (editClicked)="onClickEdit($event)"
-      (cutClicked)="onClickCut($event)"
-    ></app-cut-table>
+    @if (dataManagementShiftService.currentFilter.isOriginal) {
+      <app-original-table
+        [shifts]="dataManagementShiftService.shifts"
+        (editClicked)="onClickEdit($event)"
+        (deleteClicked)="onClickDelete($event)"
+      ></app-original-table>
+    } @else {
+      <app-cut-table
+        [shifts]="dataManagementShiftService.shifts"
+        (editClicked)="onClickEdit($event)"
+        (cutClicked)="onClickCut($event)"
+      ></app-cut-table>
+    }
     <div class="pagination justify-content-end">
       @if (visibleRow) {
       <div>

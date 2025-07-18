@@ -447,6 +447,8 @@
   "shift.all-shift.list.original": "Original",
   "shift.all-shift.list.used": "Editable Services",
   "shift.all-shift.list.cut": "Split Services",
+  "shift.all-shift.nav.original": "Original",
+  "shift.all-shift.nav.planbar": "Plannable Services",
 
   "group.tree.headline": "Group Structure",
   "group.tree.add-root": "+ New Root Group",

@@ -449,6 +449,8 @@
   "shift.all-shift.list.original": "Original",
   "shift.all-shift.list.used": "Editierbare Dienste",
   "shift.all-shift.list.cut": "Zerteilte Dienste",
+  "shift.all-shift.nav.original": "Original",
+  "shift.all-shift.nav.planbar": "Planbare Dienste",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",
