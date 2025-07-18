@@ -15,6 +15,7 @@ import { Shift } from 'src/app/core/shift-class';
 import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { IconOriginalComponent } from 'src/app/icons/icon-original.component';
+import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -36,6 +37,9 @@ import { IconOriginalComponent } from 'src/app/icons/icon-original.component';
 export class AllShiftListComponent implements OnInit {
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public authorizationService = inject(AuthorizationService);
+
+  selectedRowId?: string;
 
   visibleRow: { text: string; value: number }[] = [];
   realRow = 5;

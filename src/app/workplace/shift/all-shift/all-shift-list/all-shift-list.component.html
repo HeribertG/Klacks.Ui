@@ -3,15 +3,13 @@
     {{ translate.instant("shift.all-shift.list.title") }}
 
     <span class="filler"></span>
-
+    @if (authorizationService.isAdmin){
     <div class="actions">
       <button class="btn new-btn" (click)="onAddShift()">
         {{ "new-work" | translate }}
       </button>
-      <button class="btn btn-scissor">
-        <app-icon-original></app-icon-original>
-      </button>
     </div>
+    }
   </div>
   <div class="container-line"></div>
   <div class="container-table">
