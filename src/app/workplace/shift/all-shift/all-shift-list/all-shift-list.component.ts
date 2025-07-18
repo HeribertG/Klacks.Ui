@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
@@ -56,16 +57,12 @@ export class AllShiftListComponent implements OnInit {
 
   resizeWindow: (() => void) | undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onResize(event: DOMRectReadOnly | any): void {}
-
   onAddShift(): void {
     this.dataManagementShiftService.createShift();
   }
 
   onLostFocus(): void {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClickedRow(data: any): void {
     //this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
   }
@@ -80,8 +77,9 @@ export class AllShiftListComponent implements OnInit {
     this.hoveredRowId = data.id;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onClickDelete(s: Shift) {}
+
+  onClickCut(s: Shift) {}
 
   onMouseLeave(): void {
     this.hoveredRowId = undefined;

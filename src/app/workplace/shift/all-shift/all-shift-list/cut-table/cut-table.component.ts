@@ -25,7 +25,7 @@ export class CutTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
   @Output() editClicked = new EventEmitter<Shift>();
-  @Output() deleteClicked = new EventEmitter<Shift>();
+  @Output() cutClicked = new EventEmitter<Shift>();
 
   highlightRowId?: string;
   selectedRowId?: string;
@@ -44,8 +44,8 @@ export class CutTableComponent {
     $event.stopPropagation();
     this.editClicked.emit(s);
   }
-  onClickDelete(s: Shift, $event: MouseEvent) {
+  onClickCut(s: Shift, $event: MouseEvent) {
     $event.stopPropagation();
-    this.deleteClicked.emit(s);
+    this.cutClicked.emit(s);
   }
 }

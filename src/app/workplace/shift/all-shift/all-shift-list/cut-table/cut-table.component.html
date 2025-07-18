@@ -1,11 +1,10 @@
 <table style="width: 100%">
   <thead>
     <tr>
-      <th
-        class="table-header-border col-index cell-center"
-        rowspan="2"
-      >
-        {{ translate.instant("list.all-list.all-shift-list.table.Abbreviation") }}
+      <th class="table-header-border col-index cell-center" rowspan="2">
+        {{
+          translate.instant("list.all-list.all-shift-list.table.Abbreviation")
+        }}
       </th>
       <th class="table-header-border" colspan="2">
         {{ translate.instant("list.all-list.all-shift-list.table.name") }}
@@ -69,7 +68,7 @@
       [class.selected-row]="data.id === selectedRowId"
     >
       <td rowspan="2" class="table-cell-small-border cell-center">
-        {{ i + 1 }}
+        {{ data.abbreviation }}
       </td>
       <td colspan="2" class="table-cell-small-border">
         <p>{{ data.name }}</p>
@@ -97,11 +96,10 @@
             (click)="onClickEdit(data, $event)"
           ></app-icon-scissor>
         </div>
-        <div class="icon icon-padding">
-          <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
-        </div>
-        <div class="icon">
-          <app-icon-trash-red></app-icon-trash-red>
+        <div class="icon icon">
+          <app-icon-pencil-icon-grey
+            (click)="onClickEdit(data, $event)"
+          ></app-icon-pencil-icon-grey>
         </div>
       </td>
     </tr>
