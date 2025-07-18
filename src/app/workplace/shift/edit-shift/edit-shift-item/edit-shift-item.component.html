@@ -38,31 +38,46 @@
   <div [ngStyle]="{ display: visibleTable }">
     @if (dataManagementShiftService.editShift !== undefined) {
     <div class="firstColumn first-row">
-      <!-- Abbreviation -->
-      <label for="abbreviation"
-        >{{ "shift.edit-shift.main.abbreviation" | translate }}
-        <span class="required-asterisk">*</span></label
-      >
-      <div class="custom-control-inline short-width">
-        <input
-          type="text"
-          class="form-control"
-          [ngClass]="{
-            'is-invalid': isAbbreviationValid === false && abbreviation.dirty,
-            'is-valid': isAbbreviationValid === true
-          }"
-          autocomplete="off"
-          [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
-          id="abbreviation"
-          name="abbreviation"
-          #abbreviation="ngModel"
-          required
-          minlength="1"
-          maxlength="6"
-        />
-      </div>
-      <!-- Name -->
+      <!-- Abbreviation with Lock Button -->
+      <div class="abbreviation-row">
+        <div class="abbreviation-left">
+          <label for="abbreviation"
+            >{{ "shift.edit-shift.main.abbreviation" | translate }}
+            <span class="required-asterisk">*</span></label
+          >
+          <div class="custom-control-inline short-width">
+            <input
+              type="text"
+              class="form-control"
+              [ngClass]="{
+                'is-invalid':
+                  isAbbreviationValid === false && abbreviation.dirty,
+                'is-valid': isAbbreviationValid === true
+              }"
+              autocomplete="off"
+              [(ngModel)]="dataManagementShiftService.editShift.abbreviation"
+              id="abbreviation"
+              name="abbreviation"
+              #abbreviation="ngModel"
+              required
+              minlength="1"
+              maxlength="6"
+            />
+          </div>
+        </div>
 
+        <div class="abbreviation-right">
+          <button
+            type="button"
+            class="btn btn-success normal-btn"
+            (click)="onLockClick()"
+          >
+            <app-icon-lock></app-icon-lock>
+          </button>
+        </div>
+      </div>
+
+      <!-- Name -->
       <label class="row-line" for="name"
         >{{ "shift.edit-shift.main.name" | translate
         }}<span class="required-asterisk">*</span></label

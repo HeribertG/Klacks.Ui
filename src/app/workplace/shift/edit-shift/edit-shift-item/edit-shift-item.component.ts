@@ -93,6 +93,20 @@ export class EditShiftItemComponent
     }
   }
 
+  onLockClick(): void {
+    // Hier können Sie die gewünschte Funktionalität implementieren
+    // Beispiel: Toggle einer Lock-Eigenschaft oder Modal öffnen
+    console.log('Lock button clicked');
+
+    // Beispiel-Implementierung:
+    // if (this.dataManagementShiftService.editShift) {
+    //   this.dataManagementShiftService.editShift.isLocked =
+    //     !this.dataManagementShiftService.editShift.isLocked;
+    // }
+
+    this.isChangingEvent.emit(true);
+  }
+
   onNameInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     const nameValue = target.value;

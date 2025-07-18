@@ -106,3 +106,34 @@ label {
   height: 30px;
   margin-top: 20px;
 }
+
+// Neue Styles für die Abbreviation-Zeile mit Lock-Button
+.abbreviation-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.abbreviation-left {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.abbreviation-right {
+  display: flex;
+  align-items: flex-end;
+  margin-left: 20px;
+  padding-bottom: 8px;
+}
+
+.abbreviation-right .btn {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  min-width: 50px;
+}
