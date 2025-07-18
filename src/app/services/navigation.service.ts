@@ -60,6 +60,10 @@ export class NavigationService {
   navigateToNoAccess(): void {
     this.router.navigate(['/no-access']);
   }
+
+  navigateToPageNotFound(): void {
+    this.router.navigate(['/page-not-found']);
+  }
   navigateToEditAddress(): void {
     this.router.navigate(['/workplace/edit-address']);
   }
@@ -70,6 +74,10 @@ export class NavigationService {
 
   navigateToEditShift(): void {
     this.router.navigate(['/workplace/edit-shift']);
+  }
+
+  navigateToNewShift(): void {
+    this.router.navigate(['/workplace/new-shift']);
   }
 
   navigateToGroupTree(): void {

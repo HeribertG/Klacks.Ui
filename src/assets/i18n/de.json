@@ -406,6 +406,7 @@
   "error.message": "Bitte versuchen sie es nochmals...",
   "error.button": "neu laden",
   "no-access.message": "Sie haben keine Rechte, auf diese Funktion zuzugreifen.",
+  "page-not-found.message": "Seite nicht gefunden",
 
   "schedule.schedule-header.schedule-header.month": "Monat: ",
   "schedule.selector.select-calendar": "Monat und Jahr selektieren",

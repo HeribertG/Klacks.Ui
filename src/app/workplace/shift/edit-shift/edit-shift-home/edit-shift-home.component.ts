@@ -19,6 +19,7 @@ import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
+import { NavigationService } from 'src/app/services/navigation.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -47,17 +48,25 @@ export class EditShiftHomeComponent implements OnInit {
   public dataManagementShiftService = inject(DataManagementShiftService);
   private urlParameterService = inject(UrlParameterService);
   private localStorageService = inject(LocalStorageService);
+  private navigationService = inject(NavigationService);
 
   isComplex = false;
 
   ngOnInit(): void {
     if (this.dataManagementShiftService.editShift === undefined) {
-      const result = this.urlParameterService.parseCurrentUrl(
+      const result1 = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-shift'
       );
-      if (result.isValidRoute && result.hasId && result.id) {
-        this.dataManagementShiftService.readShift(result.id);
+      if (result1.isValidRoute && result1.hasId && result1.id) {
+        this.dataManagementShiftService.readShift(result1.id);
       } else {
+        this.navigationService.navigateToPageNotFound();
+      }
+
+      const result2 = this.urlParameterService.parseCurrentUrl(
+        '/workplace/new-shift'
+      );
+      if (result2.isValidRoute) {
         this.dataManagementShiftService.createShift();
       }
     }

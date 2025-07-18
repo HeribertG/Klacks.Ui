@@ -67,10 +67,6 @@ export class AllShiftListComponent implements OnInit {
 
   onLostFocus(): void {}
 
-  onClickedRow(data: any): void {
-    //this.selectedRowId = this.selectedRowId === data.id ? undefined : data.id;
-  }
-
   onClickEdit(data: Shift): void {
     if (data && data.id) {
       this.dataManagementShiftService.readShift(data.id);

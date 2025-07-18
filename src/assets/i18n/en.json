@@ -405,6 +405,7 @@
   "error.message": "Please try again...",
   "error.button": "reload",
   "no-access.message": "You do not have permission to access this feature.",
+  "page-not-found.message": "Page not found",
 
   "schedule.schedule-header.schedule-header.month": "Month: ",
   "schedule.selector.select-calendar": "Select Month and Year",

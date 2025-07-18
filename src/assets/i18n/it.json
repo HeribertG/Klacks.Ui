@@ -405,6 +405,7 @@
   "error.message": "Per favore riprova...",
   "error.button": "ricarica",
   "no-access.message": "Non hai il permesso di accedere a questa funzionalità.",
+  "page-not-found.message": "Pagina non trovata",
 
   "schedule.schedule-header.schedule-header.month": "Mese: ",
   "schedule.selector.select-calendar": "Seleziona Mese e Anno",

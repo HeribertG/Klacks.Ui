@@ -198,7 +198,7 @@ export class DataManagementShiftService {
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
-    this.navigationService.navigateToEditShift();
+    this.navigationService.navigateToNewShift();
   }
 
   private prepareNewShift(): IShift {

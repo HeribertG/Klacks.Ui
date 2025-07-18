@@ -310,6 +310,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
         break;
 
+      case 'new-shift':
       case 'edit-shift':
         pushOnStack('workplace/edit-shift');
         this.isCreateShift = true;
@@ -373,6 +374,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'settings':
       case 'group':
       case 'edit-group':
+      case 'new-shift':
       case 'group-structure':
         if (!this.authorizationService.isAdmin) {
           this.navigationService.navigateToNoAccess();

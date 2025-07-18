@@ -6,6 +6,7 @@ import { ErrorComponent } from './error/error.component';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { HomeComponent } from './surface/home/home.component';
 import { NoAccessComponent } from './no-access/no-access.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'error', component: ErrorComponent },
   { path: 'no-access', component: NoAccessComponent },
+  { path: 'page-not-found', component: PageNotFoundComponent },
 ];
 
 @NgModule({
