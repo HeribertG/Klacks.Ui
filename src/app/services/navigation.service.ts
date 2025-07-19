@@ -24,6 +24,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/shift']);
   }
 
+  navigateToCutShift(): void {
+    this.router.navigate(['/workplace/cut-shift']);
+  }
+
   navigateToSchedule(): void {
     this.router.navigate(['/workplace/schedule']);
   }

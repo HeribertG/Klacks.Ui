@@ -1,1 +1,17 @@
-<p>cut-shift-home works!</p>
+@if (isCutShift) {
+<div class="container-dashboard">
+  <div class="container-headline">
+    {{ "shift.cut-shift.header" | translate }}
+  </div>
+
+  <div class="container-profilline">
+    <app-cut-shift-list
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-cut-shift-list>
+  </div>
+
+  <div class="bottom-border-space"></div>
+  <div class="bottom-border-space"></div>
+</div>
+}

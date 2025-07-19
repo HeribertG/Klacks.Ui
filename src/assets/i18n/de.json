@@ -452,6 +452,8 @@
   "shift.all-shift.list.cut": "Zerteilte Dienste",
   "shift.all-shift.nav.original": "Original",
   "shift.all-shift.nav.planbar": "Planbare Dienste",
+  "shift.cut-shift.header": "Zuschnitt",
+  "shift.cut-shift.list.title": "Liste der zerteilten Dienste",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",

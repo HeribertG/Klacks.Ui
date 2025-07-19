@@ -450,6 +450,8 @@
   "shift.all-shift.list.cut": "Services découpés",
   "shift.all-shift.nav.original": "Original",
   "shift.all-shift.nav.planbar": "Services Planifiables",
+  "shift.cut-shift.header": "Découpage",
+  "shift.cut-shift.list.title": "Liste des services découpés",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",

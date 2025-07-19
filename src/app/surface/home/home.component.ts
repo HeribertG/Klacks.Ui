@@ -72,6 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   isEditGroup = false;
   isCreateShift = false;
   isShift = false;
+  isCutShift = false;
   isGroupStructure = false;
 
   isSavebarVisible = false;
@@ -185,6 +186,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.isEditGroup = false;
     this.isCreateShift = false;
     this.isShift = false;
+    this.isCutShift = false;
     this.isGroupStructure = false;
 
     this.dataManagementSwitchboardService.isDisabled = false;
@@ -307,6 +309,17 @@ export class HomeComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementShiftService';
+        }, 100);
+        break;
+
+      case 'cut-shift':
+        pushOnStack('workplace/cut-shift');
+        this.isCutShift = true;
+        this.setContainerWithNormal();
+        this.isSavebarVisible = false;
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.nameOfVisibleEntity =
+            'DataManagementCutShiftService';
         }, 100);
         break;
 

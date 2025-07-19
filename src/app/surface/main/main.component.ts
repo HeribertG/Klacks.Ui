@@ -14,6 +14,7 @@ import { AbsenceGanttHomeComponent } from '../../workplace/absence-gantt/absence
 import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
 import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-group-home/all-group-home.component';
 import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
+import { CutShiftHomeComponent } from '../../workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component';
 import { DashboardHomeComponent } from 'src/app/workplace/dashboard/dashboard-home/dashboard-home.component';
 import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
 import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
@@ -43,6 +44,7 @@ export class MainComponent implements OnChanges {
   @Input() isSchedule = false;
   @Input() isSetting = false;
   @Input() isShift = false;
+  @Input() isCutShift = false;
 
   // @Output() properties
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -60,6 +62,7 @@ export class MainComponent implements OnChanges {
   public compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
   public compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
   public compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
+  public compInstanceCutShiftHome: CutShiftHomeComponent | undefined;
   public compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
   public compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
   public compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
@@ -242,6 +245,24 @@ export class MainComponent implements OnChanges {
       });
     }
 
+    if (this.isCutShift && !this.compInstanceCutShiftHome) {
+      import(
+        '../../workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component'
+      ).then((m) => {
+        const comp = m.CutShiftHomeComponent;
+
+        const compRef =
+          this.viewContainer.createComponent<CutShiftHomeComponent>(comp);
+
+        this.compInstanceCutShiftHome = compRef.instance;
+        this.compInstanceCutShiftHome.isCutShift = this.isCutShift;
+
+        compRef.instance.isChangingEvent.subscribe((event) => {
+          this.isChangingEvent.emit(event);
+        });
+      });
+    }
+
     if (this.compInstanceAbsenceGanttHome) {
       this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
     }
@@ -278,6 +299,10 @@ export class MainComponent implements OnChanges {
 
     if (this.compInstanceAllShiftHome) {
       this.compInstanceAllShiftHome.isShift = this.isShift;
+    }
+
+    if (this.compInstanceCutShiftHome) {
+      this.compInstanceCutShiftHome.isCutShift = this.isCutShift;
     }
   }
 

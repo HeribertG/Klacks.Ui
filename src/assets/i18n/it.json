@@ -450,6 +450,8 @@
   "shift.all-shift.list.cut": "Servizi suddivisi",
   "shift.all-shift.nav.original": "Originale",
   "shift.all-shift.nav.planbar": "Servizi Pianificabili",
+  "shift.cut-shift.header": "Servizi suddivisi",
+  "shift.cut-shift.list.title": "Elenco dei servizi suddivisi",
 
   "group.tree.headline": "Struttura del Gruppo",
   "group.tree.add-root": "+ Nuovo Gruppo Radice",
