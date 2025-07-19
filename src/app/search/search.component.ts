@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   HostListener,
@@ -21,15 +23,15 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
   imports: [CommonModule, FormsModule, FontAwesomeModule, TranslateModule],
 })
 export class SearchComponent {
-  // Private injected services
   private cdr = inject(ChangeDetectorRef);
   private dataManagementSearch = inject(DataManagementSearchService);
   private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
 
-  // Public properties (used in templates)
   public faSearch = faSearch;
   public includeAddress = false;
   public isIncludeAddress = false;
+  public includeClient = false;
+  public isIncludeClient = false;
   public isVisible = false;
   public searchString = '';
 
@@ -52,7 +54,6 @@ export class SearchComponent {
     });
   }
 
-  // Public methods
   onClickSearch(): void {
     this.dataManagementSearch.globalSearch(
       this.searchString,
@@ -60,7 +61,6 @@ export class SearchComponent {
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onKeyupSearch(event: any): void {
     if (event.srcElement && event.srcElement.value.toString() === '') {
       this.onClickSearch();
@@ -68,7 +68,6 @@ export class SearchComponent {
   }
 
   @HostListener('search', ['$event'])
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onsearch(event: KeyboardEvent): void {
     this.onClickSearch();
   }
@@ -80,6 +79,9 @@ export class SearchComponent {
     this.isIncludeAddress =
       this.dataManagementSwitchboard.nameOfVisibleEntity ===
       'DataManagementClientService';
+    this.isIncludeClient =
+      this.dataManagementSwitchboard.nameOfVisibleEntity ===
+      'DataManagementShiftService';
     this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
   }
@@ -89,6 +91,7 @@ export class SearchComponent {
       case 'DataManagementClientService':
       case 'DataManagementBreakService':
       case 'DataManagementScheduleService':
+      case 'DataManagementShiftService':
         return true;
       case 'DataManagementGroupService':
         return this.dataManagementSwitchboard.isSearchVisible;

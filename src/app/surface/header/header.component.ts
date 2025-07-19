@@ -115,8 +115,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   private startLogoImageWatcher(): void {
     let attempts = 0;
-    const maxAttempts = 20; // 10 Sekunden
-
+    const maxAttempts = 20;
     this.logoImageInterval = setInterval(() => {
       if (this.dataLoadFileService.logoImage) {
         this.logoImage.set(this.dataLoadFileService.logoImage);
@@ -184,11 +183,5 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   get selectedNameValue(): string {
     return this.selectedName();
-  }
-
-  // Legacy method für Backward Compatibility
-  private setTheme(): void {
-    const currentTheme = this.themeService.getCurrentTheme();
-    this.currentTheme.set(currentTheme);
   }
 }

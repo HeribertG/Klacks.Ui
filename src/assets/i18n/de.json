@@ -111,6 +111,7 @@
   "button.search": "Suche",
   "placeholder.search": "Name oder ID Nummer eingeben",
   "search.inc.address": "inklusive Adresseanangabe",
+  "search.inc.client": "inklusive Kundenname",
 
   "header.selected-language": "Ausgewählte Sprache:",
 

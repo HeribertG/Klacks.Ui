@@ -4,6 +4,7 @@ import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataManagementScheduleService } from './data-management-schedule.service';
+import { DataManagementShiftService } from './data-management-shift.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,10 +15,15 @@ export class DataManagementSearchService {
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementGroup = inject(DataManagementGroupService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private dataManagementShift = inject(DataManagementShiftService);
 
   private _restoreSearch = signal('');
 
-  public globalSearch(value: string, isIncludeAddress = false): void {
+  public globalSearch(
+    value: string,
+    isIncludeAddress = false,
+    isIncludeClient = false
+  ): void {
     this._restoreSearch.set(value);
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
       case 'DataManagementClientService':
@@ -37,6 +43,12 @@ export class DataManagementSearchService {
       case 'DataManagementScheduleService':
         this.dataManagementSchedule.workFilter.search = value;
         this.dataManagementSchedule.readDatas();
+        break;
+      case 'DataManagementShiftService':
+        this.dataManagementShift.currentFilter.searchString = value;
+        this.dataManagementShift.currentFilter.includeClientName =
+          isIncludeClient;
+        this.dataManagementShift.readPage();
         break;
     }
   }
@@ -60,6 +72,11 @@ export class DataManagementSearchService {
       case 'DataManagementGroupService':
         this.dataManagementGroup.currentFilter.searchString = '';
         this.dataManagementGroup.readPage();
+        break;
+      case 'DataManagementShiftService':
+        this.dataManagementShift.currentFilter.searchString = '';
+        this.dataManagementShift.currentFilter.includeClientName = false;
+        this.dataManagementShift.readPage();
         break;
     }
   }

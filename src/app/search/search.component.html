@@ -32,6 +32,13 @@
       {{ "search.inc.address" | translate }}
     </label>
   </div>
+  } @if (isIncludeClient) {
+  <div class="include-address">
+    <label class="checkbox-label">
+      <input type="checkbox" name="includeClient" [(ngModel)]="includeClient" />
+      {{ "search.inc.client" | translate }}
+    </label>
+  </div>
   }
 </div>
 }

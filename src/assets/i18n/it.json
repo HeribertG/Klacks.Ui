@@ -111,6 +111,7 @@
   "button.search": "Cerca",
   "placeholder.search": "Inserisci nome o numero ID",
   "search.inc.address": "incluso l'indirizzo",
+  "search.inc.client": "incluso il nome del cliente",
 
   "header.selected-language": "Lingua selezionata:",
 
