@@ -3,7 +3,360 @@
     {{ "shift.cut-shift.list.title" | translate }}
   </div>
   <div class="container-line"></div>
+  <div class="button-row">
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutDate()">
+      {{ "shift.cut-shift.buttons.cut-date" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTime()">
+      {{ "shift.cut-shift.buttons.cut-time" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      (click)="onCutWeekdays()"
+    >
+      {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutStaff()">
+      {{ "shift.cut-shift.buttons.cut-staff" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTask()">
+      {{ "shift.cut-shift.buttons.cut-task" | translate }}
+    </button>
+  </div>
   <div class="container-table">
     <!-- Table content will be added here -->
   </div>
 </form>
+
+<!-- Cut Date Modal -->
+<ng-template #cutDateModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-date" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="form-group">
+      <label for="cutDatePicker">{{ "date" | translate }}</label>
+      <ngb-datepicker
+        id="cutDatePicker"
+        [(ngModel)]="cutDate"
+        [minDate]="minDate"
+        [maxDate]="maxDate"
+        navigation="select"
+        showWeekNumbers="true">
+      </ngb-datepicker>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      {{ "cancel" | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cut Time Modal -->
+<ng-template #cutTimeModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-time" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="container-bank-box">
+      <div class="firstColumContainer">
+        <div class="firstColumn">
+          <div class="row-line1">
+            <label for="start-hours">{{ "shift.edit-shift.weekday.from" | translate }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [(ngModel)]="startTime.hours"
+                id="start-hours"
+                name="start-hours"
+                class="form-control time-hour hours"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="hh"
+              />
+              <label class="delimiter-time">:</label>
+              <input
+                [(ngModel)]="startTime.minutes"
+                name="start-minutes"
+                class="form-control time-minute minutes"
+                type="number"
+                min="0"
+                max="59"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="secondColumnContainer">
+        <div class="row-line2 endColumn">
+          <div class="row-line1">
+            <label for="end-hours">{{ "shift.edit-shift.weekday.until" | translate }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [(ngModel)]="endTime.hours"
+                id="end-hours"
+                name="end-hours"
+                class="form-control time-hour hours"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="hh"
+              />
+              <label class="delimiter-time">:</label>
+              <input
+                [(ngModel)]="endTime.minutes"
+                name="end-minutes"
+                class="form-control time-minute minutes"
+                type="number"
+                min="0"
+                max="59"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+          <span class="filler"></span>
+          <div class="row-line1">
+            <label for="work-hours">{{ "shift.edit-shift.weekday.work-hour" | translate }}</label>
+            <div class="row-line-inline-simple">
+              <input
+                [(ngModel)]="workTime.hours"
+                id="work-hours"
+                name="work-hours"
+                class="form-control time-hour hours"
+                type="number"
+                min="0"
+                max="23"
+                placeholder="hh"
+              />
+              <label class="delimiter-time">:</label>
+              <input
+                [(ngModel)]="workTime.minutes"
+                name="work-minutes"
+                class="form-control time-minute minutes"
+                type="number"
+                min="0"
+                max="59"
+                placeholder="mm"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      {{ "cancel" | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cut Weekdays Modal -->
+<ng-template #cutWeekdaysModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="container-bank-box">
+      <div class="firstColumContainer">
+        <div class="firstColumn">
+          <div class="form-group">
+            <label class="checkbox-label" for="isMonday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isMonday"
+                name="isMonday"
+                id="isMonday"
+              />
+              {{ "monday" | translate }}
+            </label>
+          </div>
+          <div class="form-group top-margin5">
+            <label class="checkbox-label" for="isTuesday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isTuesday"
+                name="isTuesday"
+                id="isTuesday"
+              />
+              {{ "tuesday" | translate }}
+            </label>
+          </div>
+          <div class="form-group top-margin5">
+            <label class="checkbox-label" for="isWednesday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isWednesday"
+                name="isWednesday"
+                id="isWednesday"
+              />
+              {{ "wednesday" | translate }}
+            </label>
+          </div>
+          <div class="form-group top-margin5">
+            <label class="checkbox-label" for="isThursday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isThursday"
+                name="isThursday"
+                id="isThursday"
+              />
+              {{ "thursday" | translate }}
+            </label>
+          </div>
+          <div class="form-group top-margin5">
+            <label class="checkbox-label" for="isFriday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isFriday"
+                name="isFriday"
+                id="isFriday"
+              />
+              {{ "friday" | translate }}
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="secondColumnContainer">
+        <div class="form-group">
+          <label class="checkbox-label" for="isSaturday">
+            <input
+              type="checkbox"
+              [(ngModel)]="weekdays.isSaturday"
+              name="isSaturday"
+              id="isSaturday"
+            />
+            {{ "saturday" | translate }}
+          </label>
+        </div>
+        <div class="form-group top-margin5">
+          <label class="checkbox-label" for="isSunday">
+            <input
+              type="checkbox"
+              [(ngModel)]="weekdays.isSunday"
+              name="isSunday"
+              id="isSunday"
+            />
+            {{ "sunday" | translate }}
+          </label>
+        </div>
+        <div class="bottom-border-space"></div>
+        <div class="form-group top-margin5">
+          <label class="checkbox-label" for="isHoliday">
+            <input
+              type="checkbox"
+              [(ngModel)]="weekdays.isHoliday"
+              name="isHoliday"
+              id="isHoliday"
+            />
+            {{ "holiday" | translate }}
+          </label>
+        </div>
+        <div class="form-group top-margin5">
+          <label class="checkbox-label" for="isWeekdayOrHoliday">
+            <input
+              type="checkbox"
+              [(ngModel)]="weekdays.isWeekdayOrHoliday"
+              name="isWeekdayOrHoliday"
+              id="isWeekdayOrHoliday"
+            />
+            {{ "weekday-or-holiday" | translate }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      {{ "cancel" | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cut Staff Modal -->
+<ng-template #cutStaffModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-staff" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="form-group">
+      <label for="staffCount">{{ "shift.cut-shift.buttons.cut-staff" | translate }}</label>
+      <input
+        type="number"
+        id="staffCount"
+        name="staffCount"
+        class="form-control"
+        [(ngModel)]="staffCount"
+        [min]="minStaffCount"
+        [max]="maxStaffCount"
+        placeholder="Anzahl Personal eingeben"
+      />
+      <small class="form-text text-muted">
+        Min: {{ minStaffCount }}, Max: {{ maxStaffCount }}
+      </small>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      {{ "cancel" | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cut Task Modal -->
+<ng-template #cutTaskModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-task" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="form-group">
+      <label for="taskCount">{{ "shift.cut-shift.buttons.cut-task" | translate }}</label>
+      <input
+        type="number"
+        id="taskCount"
+        name="taskCount"
+        class="form-control"
+        [(ngModel)]="taskCount"
+        [min]="minTaskCount"
+        [max]="maxTaskCount"
+        placeholder="Anzahl Aufgaben eingeben"
+      />
+      <small class="form-text text-muted">
+        Min: {{ minTaskCount }}, Max: {{ maxTaskCount }}
+      </small>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+      {{ "cancel" | translate }}
+    </button>
+    <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

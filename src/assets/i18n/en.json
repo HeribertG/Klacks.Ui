@@ -451,7 +451,12 @@
   "shift.all-shift.nav.original": "Original",
   "shift.all-shift.nav.planbar": "Plannable Services",
   "shift.cut-shift.header": "Split Services",
-  "shift.cut-shift.list.title": "Split Services List",
+  "shift.cut-shift.list.title": "List of Services to Split",
+  "shift.cut-shift.buttons.cut-date": "Cut Date",
+  "shift.cut-shift.buttons.cut-time": "Cut Time",
+  "shift.cut-shift.buttons.cut-weekdays": "Cut Weekdays",
+  "shift.cut-shift.buttons.cut-staff": "Cut Staff",
+  "shift.cut-shift.buttons.cut-task": "Cut Task",
 
   "group.tree.headline": "Group Structure",
   "group.tree.add-root": "+ New Root Group",

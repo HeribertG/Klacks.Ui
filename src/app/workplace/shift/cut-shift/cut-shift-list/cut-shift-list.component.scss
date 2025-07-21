@@ -6,3 +6,23 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../assets/standard-styles/menu.scss";
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 30px;
+  margin-bottom: 15px;
+  
+  .btn {
+    flex: 1;
+    margin: 0 5px;
+    
+    &:first-child {
+      margin-left: 0;
+    }
+    
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}

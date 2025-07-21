@@ -13,7 +13,6 @@ import { IconCopyGreyComponent } from '../icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from '../icons/pencil-icon-grey.component';
 import { ExcelComponent } from '../icons/excel.component';
 import { CalendarIconComponent } from '../icons/calendar-icon.component';
-import { ChooseCalendarComponent } from '../icons/app-choose-calendar.component';
 import { TrashIconLightRedComponent } from '../icons/trash-icon-light-red.component ';
 import { GearGreyComponent } from '../icons/gear-grey.component';
 import { IconDescComponent } from '../icons/icon-desc.component';
@@ -24,6 +23,7 @@ import { IconSignOutComponent } from '../icons/icon-sign-out.component';
 import { IconSettingComponent } from '../icons/icon-setting.component';
 import { AttentionGreyComponent } from '../icons/attention-icon-grey.component';
 import { QuestionMarkRoundComponent } from '../icons/icon-round-question_mark.component';
+import { ChooseCalendarComponent } from '../icons/choose-calendar.component';
 
 @NgModule({
   declarations: [],

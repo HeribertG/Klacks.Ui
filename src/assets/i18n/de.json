@@ -453,7 +453,12 @@
   "shift.all-shift.nav.original": "Original",
   "shift.all-shift.nav.planbar": "Planbare Dienste",
   "shift.cut-shift.header": "Zuschnitt",
-  "shift.cut-shift.list.title": "Liste der zerteilten Dienste",
+  "shift.cut-shift.list.title": "Liste der zu teilenden Dienste",
+  "shift.cut-shift.buttons.cut-date": "Nach Datum trennen",
+  "shift.cut-shift.buttons.cut-time": "Nach Zeit trennen",
+  "shift.cut-shift.buttons.cut-weekdays": "Nach Wochentagen trennen",
+  "shift.cut-shift.buttons.cut-staff": "Nach Personal trennen",
+  "shift.cut-shift.buttons.cut-task": "Nach Aufgabe trennen",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",

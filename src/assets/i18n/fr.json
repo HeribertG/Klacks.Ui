@@ -451,7 +451,12 @@
   "shift.all-shift.nav.original": "Original",
   "shift.all-shift.nav.planbar": "Services Planifiables",
   "shift.cut-shift.header": "Découpage",
-  "shift.cut-shift.list.title": "Liste des services découpés",
+  "shift.cut-shift.list.title": "Liste des services à découper",
+  "shift.cut-shift.buttons.cut-date": "Couper par date",
+  "shift.cut-shift.buttons.cut-time": "Couper par heure",
+  "shift.cut-shift.buttons.cut-weekdays": "Couper par jours de semaine",
+  "shift.cut-shift.buttons.cut-staff": "Couper par personnel",
+  "shift.cut-shift.buttons.cut-task": "Couper par tâche",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",
