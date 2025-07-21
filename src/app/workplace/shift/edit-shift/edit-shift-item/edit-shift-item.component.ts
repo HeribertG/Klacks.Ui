@@ -29,7 +29,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
-import { ShiftStatus, ShiftType } from 'src/app/core/shift-class';
+import { ShiftStatus } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -104,7 +104,7 @@ export class EditShiftItemComponent
 
   onLockClick(): void {
     if (this.dataManagementShiftService.editShift) {
-      this.dataManagementShiftService.editShift.status = ShiftStatus.Cut;
+      this.dataManagementShiftService.editShift.status = ShiftStatus.ReadyToCut;
       this.isChangingEvent.emit(true);
     }
   }

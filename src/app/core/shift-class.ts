@@ -5,7 +5,9 @@ import { IClient } from './client-class';
 
 export enum ShiftStatus {
   Original = 0,
-  Cut = 1,
+  ReadyToCut = 1,
+  IsCutOriginal = 2,
+  IsCut = 3,
 }
 
 export enum ShiftType {

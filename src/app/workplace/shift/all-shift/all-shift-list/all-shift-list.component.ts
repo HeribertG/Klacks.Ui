@@ -79,13 +79,16 @@ export class AllShiftListComponent implements OnInit {
 
   onClickDelete(s: Shift) {}
 
-  onClickCut(s: Shift) {}
+  onClickCut(data: Shift) {
+    if (data && data.id) {
+      this.dataManagementShiftService.readCutShift(data.id);
+    }
+  }
 
   onMouseLeave(): void {
     this.hoveredRowId = undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   open(data: any): void {
     // Weitere bestehende Logik beibehalten
   }
@@ -94,7 +97,6 @@ export class AllShiftListComponent implements OnInit {
     this.dataManagementShiftService.init();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPageChange(event: number) {}
 
   onChangeRowSize(event: any): void {

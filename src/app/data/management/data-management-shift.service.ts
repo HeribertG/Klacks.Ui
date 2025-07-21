@@ -271,6 +271,27 @@ export class DataManagementShiftService {
     }
   }
 
+  readCutShift(id: string) {
+    if (id !== '') {
+      this.dataShiftService.getShift(id).subscribe((x) => {
+        this.prepareShift(this.createShiftFromPlainObject(x));
+        if (this.editShift && this.editShift.fromDate && x.client) {
+          const index = this.setCurrentAddressIndex(
+            x.client,
+            this.editShift.fromDate
+          );
+          this.editShift.addressName = this.visualNameAndAddress(
+            x.client,
+            index
+          );
+        }
+
+        this.navigationService.navigateToCutShift();
+        this.fireIsReadEvent();
+      });
+    }
+  }
+
   save() {
     if (this.isEditShift_Dirty()) {
       this.saveEditShift();
