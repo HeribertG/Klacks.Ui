@@ -18,7 +18,6 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
     TranslateModule,
     PencilIconGreyComponent,
     TrashIconRedComponent,
-    IconScissorComponent,
   ],
 })
 export class OriginalTableComponent {

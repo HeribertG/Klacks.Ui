@@ -457,6 +457,8 @@
   "shift.cut-shift.buttons.cut-weekdays": "Taglia per giorni della settimana",
   "shift.cut-shift.buttons.cut-staff": "Taglia per personale",
   "shift.cut-shift.buttons.cut-task": "Taglia per compito",
+  "shift.cut-shift.placeholders.staff-count": "Inserire il numero di personale",
+  "shift.cut-shift.placeholders.task-count": "Inserire il numero di compiti",
 
   "group.tree.headline": "Struttura del Gruppo",
   "group.tree.add-root": "+ Nuovo Gruppo Radice",

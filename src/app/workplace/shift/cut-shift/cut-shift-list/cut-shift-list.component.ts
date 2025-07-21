@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ViewChild, TemplateRef, inject } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  TemplateRef,
+  inject,
+  Input,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -68,13 +74,30 @@ export class CutShiftListComponent {
   maxStaffCount = 100;
   minTaskCount = 1;
   maxTaskCount = 50;
+
+  // Button enabled/disabled state properties
+  @Input() isCutDateEnabled = true;
+  @Input() isCutTimeEnabled = true;
+  @Input() isCutWeekdaysEnabled = true;
+  @Input() isCutStaffEnabled = true;
+  @Input() isCutTaskEnabled = false;
+
+  // Weekday checkboxes enabled/disabled state properties
+  @Input() isMondayEnabled = true;
+  @Input() isTuesdayEnabled = true;
+  @Input() isWednesdayEnabled = true;
+  @Input() isThursdayEnabled = true;
+  @Input() isFridayEnabled = true;
+  @Input() isSaturdayEnabled = false;
+  @Input() isSundayEnabled = false;
+  @Input() isHolidayEnabled = true;
+  @Input() isWeekdayOrHolidayEnabled = true;
   constructor() {
     // Set default date range (today to 1 year from now)
     this.minDate = this.calendar.getToday();
     this.maxDate = this.calendar.getNext(this.calendar.getToday(), 'y', 1);
   }
 
-  // Time control helper methods (similar to EditShiftWeekdayComponent)
   onKeyUpInput(event: any, value: string): void {
     // Handle keyup events for time input validation
   }
@@ -83,6 +106,9 @@ export class CutShiftListComponent {
     // Handle time change events and recalculations
   }
   onCutDate(): void {
+    if (!this.isCutDateEnabled) {
+      return;
+    }
     this.modalService
       .open(this.cutDateModal, {
         size: 'sm',
@@ -101,6 +127,9 @@ export class CutShiftListComponent {
   }
 
   onCutTime(): void {
+    if (!this.isCutTimeEnabled) {
+      return;
+    }
     this.modalService
       .open(this.cutTimeModal, {
         size: 'sm',

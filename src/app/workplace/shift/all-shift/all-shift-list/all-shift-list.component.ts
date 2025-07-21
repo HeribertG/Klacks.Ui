@@ -29,9 +29,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     NgbPaginationModule,
     TranslateModule,
     OriginalTableComponent,
-    IconScissorComponent,
     CutTableComponent,
-    IconOriginalComponent,
   ],
 })
 export class AllShiftListComponent implements OnInit {

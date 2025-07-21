@@ -459,6 +459,8 @@
   "shift.cut-shift.buttons.cut-weekdays": "Nach Wochentagen trennen",
   "shift.cut-shift.buttons.cut-staff": "Nach Personal trennen",
   "shift.cut-shift.buttons.cut-task": "Nach Aufgabe trennen",
+  "shift.cut-shift.placeholders.staff-count": "Anzahl Personal eingeben",
+  "shift.cut-shift.placeholders.task-count": "Anzahl Aufgaben eingeben",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",

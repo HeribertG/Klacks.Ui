@@ -457,6 +457,8 @@
   "shift.cut-shift.buttons.cut-weekdays": "Couper par jours de semaine",
   "shift.cut-shift.buttons.cut-staff": "Couper par personnel",
   "shift.cut-shift.buttons.cut-task": "Couper par tâche",
+  "shift.cut-shift.placeholders.staff-count": "Entrer le nombre de personnel",
+  "shift.cut-shift.placeholders.task-count": "Entrer le nombre de tâches",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",
