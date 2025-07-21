@@ -19,6 +19,8 @@ import {
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/core/schedule-class';
+import { CutTableComponent } from '../cut-table/cut-table.component';
+import { IShift, Shift } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -29,6 +31,7 @@ import { OwnTime } from 'src/app/core/schedule-class';
     TranslateModule,
     NgbDatepickerModule,
     FontAwesomeModule,
+    CutTableComponent,
   ],
   templateUrl: './cut-shift-list.component.html',
   styleUrl: './cut-shift-list.component.scss',
@@ -92,6 +95,9 @@ export class CutShiftListComponent {
   @Input() isSundayEnabled = false;
   @Input() isHolidayEnabled = true;
   @Input() isWeekdayOrHolidayEnabled = true;
+
+  // Shifts data for the table
+  @Input() shifts: IShift[] = [];
   constructor() {
     // Set default date range (today to 1 year from now)
     this.minDate = this.calendar.getToday();
@@ -179,5 +185,10 @@ export class CutShiftListComponent {
         console.log('Cut by task confirmed');
         // TODO: Implement cut by task functionality
       });
+  }
+
+  onTableRowClicked(shift: Shift): void {
+    console.log('Table row clicked:', shift);
+    // TODO: Implement row selection or other functionality
   }
 }

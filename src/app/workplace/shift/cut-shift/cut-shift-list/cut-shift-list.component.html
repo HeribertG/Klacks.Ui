@@ -366,6 +366,9 @@
     </button>
   </div>
   <div class="container-table">
-    <!-- Table content will be added here -->
+    <app-cut-shift-table 
+      [shifts]="shifts"
+      (rowClicked)="onTableRowClicked($event)">
+    </app-cut-shift-table>
   </div>
 </form>
