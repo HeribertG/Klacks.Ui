@@ -1,33 +1,6 @@
-<form id="cutShiftForm">
-  <div class="container-header header-container">
-    {{ "shift.cut-shift.list.title" | translate }}
-  </div>
-  <div class="container-line"></div>
-  <div class="button-row">
-    <button type="button" class="btn btn-sm btn-primary" (click)="onCutDate()">
-      {{ "shift.cut-shift.buttons.cut-date" | translate }}
-    </button>
-    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTime()">
-      {{ "shift.cut-shift.buttons.cut-time" | translate }}
-    </button>
-    <button
-      type="button"
-      class="btn btn-sm btn-primary"
-      (click)="onCutWeekdays()"
-    >
-      {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
-    </button>
-    <button type="button" class="btn btn-sm btn-primary" (click)="onCutStaff()">
-      {{ "shift.cut-shift.buttons.cut-staff" | translate }}
-    </button>
-    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTask()">
-      {{ "shift.cut-shift.buttons.cut-task" | translate }}
-    </button>
-  </div>
-  <div class="container-table">
-    <!-- Table content will be added here -->
-  </div>
-</form>
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
 <!-- Cut Date Modal -->
 <ng-template #cutDateModal let-modal role="dialog" class="modal-window">
@@ -38,21 +11,39 @@
   </div>
   <div class="modal-body first-modal">
     <div class="form-group">
-      <label for="cutDatePicker">{{ "date" | translate }}</label>
-      <ngb-datepicker
-        id="cutDatePicker"
-        [(ngModel)]="cutDate"
-        [minDate]="minDate"
-        [maxDate]="maxDate"
-        navigation="select"
-        showWeekNumbers="true">
-      </ngb-datepicker>
+      <div class="input-group cut-date-width">
+        <input
+          class="form-control"
+          name="cutDate"
+          id="cutDateInput"
+          [(ngModel)]="cutDate"
+          [minDate]="minDate"
+          [maxDate]="maxDate"
+          ngbDatepicker
+          #cutDatePicker="ngbDatepicker"
+          readonly
+        />
+        <span
+          class="input-group-text"
+          style="width: 40px"
+          (click)="cutDatePicker.toggle()"
+        >
+          <fa-icon
+            [icon]="faCalendar"
+            [style]="{ 'font-size': '16px', color: '#464e5f' }"
+          ></fa-icon>
+        </span>
+      </div>
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
       {{ "cancel" | translate }}
-    </button>
+    </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
@@ -70,82 +61,30 @@
     <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
-          <div class="row-line1">
-            <label for="start-hours">{{ "shift.edit-shift.weekday.from" | translate }}</label>
-            <div class="row-line-inline-simple">
+          <div class="row-line">
+            <div class="row-line1">
               <input
-                [(ngModel)]="startTime.hours"
+                [(ngModel)]="cutTimeShift.hours"
                 id="start-hours"
-                name="start-hours"
+                name="hours"
+                (keyup)="onKeyUpInput($event, cutTimeShift.hours)"
+                (change)="OnChangeTime()"
+                [ngModelOptions]="{ standalone: true }"
                 class="form-control time-hour hours"
-                type="number"
-                min="0"
-                max="23"
+                type="text"
+                maxlength="3"
                 placeholder="hh"
               />
               <label class="delimiter-time">:</label>
               <input
-                [(ngModel)]="startTime.minutes"
-                name="start-minutes"
+                [(ngModel)]="cutTimeShift.minutes"
+                (ngModelChange)="OnChangeTime()"
+                (keyup)="onKeyUpInput($event, cutTimeShift.minutes)"
+                (change)="OnChangeTime()"
+                [ngModelOptions]="{ standalone: true }"
                 class="form-control time-minute minutes"
-                type="number"
-                min="0"
-                max="59"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="secondColumnContainer">
-        <div class="row-line2 endColumn">
-          <div class="row-line1">
-            <label for="end-hours">{{ "shift.edit-shift.weekday.until" | translate }}</label>
-            <div class="row-line-inline-simple">
-              <input
-                [(ngModel)]="endTime.hours"
-                id="end-hours"
-                name="end-hours"
-                class="form-control time-hour hours"
-                type="number"
-                min="0"
-                max="23"
-                placeholder="hh"
-              />
-              <label class="delimiter-time">:</label>
-              <input
-                [(ngModel)]="endTime.minutes"
-                name="end-minutes"
-                class="form-control time-minute minutes"
-                type="number"
-                min="0"
-                max="59"
-                placeholder="mm"
-              />
-            </div>
-          </div>
-          <span class="filler"></span>
-          <div class="row-line1">
-            <label for="work-hours">{{ "shift.edit-shift.weekday.work-hour" | translate }}</label>
-            <div class="row-line-inline-simple">
-              <input
-                [(ngModel)]="workTime.hours"
-                id="work-hours"
-                name="work-hours"
-                class="form-control time-hour hours"
-                type="number"
-                min="0"
-                max="23"
-                placeholder="hh"
-              />
-              <label class="delimiter-time">:</label>
-              <input
-                [(ngModel)]="workTime.minutes"
-                name="work-minutes"
-                class="form-control time-minute minutes"
-                type="number"
-                min="0"
-                max="59"
+                type="text"
+                maxlength="3"
                 placeholder="mm"
               />
             </div>
@@ -155,9 +94,13 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
       {{ "cancel" | translate }}
-    </button>
+    </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
@@ -282,9 +225,13 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
       {{ "cancel" | translate }}
-    </button>
+    </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
@@ -298,14 +245,13 @@
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </div>
   </div>
-  <div class="modal-body first-modal">
+  <div class="modal-body first-modal row-line">
     <div class="form-group">
-      <label for="staffCount">{{ "shift.cut-shift.buttons.cut-staff" | translate }}</label>
       <input
         type="number"
         id="staffCount"
         name="staffCount"
-        class="form-control"
+        class="form-control number-control"
         [(ngModel)]="staffCount"
         [min]="minStaffCount"
         [max]="maxStaffCount"
@@ -317,9 +263,13 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
       {{ "cancel" | translate }}
-    </button>
+    </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
@@ -333,14 +283,13 @@
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </div>
   </div>
-  <div class="modal-body first-modal">
+  <div class="modal-body first-modal row-line">
     <div class="form-group">
-      <label for="taskCount">{{ "shift.cut-shift.buttons.cut-task" | translate }}</label>
       <input
         type="number"
         id="taskCount"
         name="taskCount"
-        class="form-control"
+        class="form-control .number-control"
         [(ngModel)]="taskCount"
         [min]="minTaskCount"
         [max]="maxTaskCount"
@@ -352,11 +301,46 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
       {{ "cancel" | translate }}
-    </button>
+    </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
       {{ "save" | translate }}
     </button>
   </div>
 </ng-template>
+
+<form id="cutShiftForm">
+  <div class="container-header header-container">
+    {{ "shift.cut-shift.list.title" | translate }}
+  </div>
+  <div class="container-line"></div>
+  <div class="button-row">
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutDate()">
+      {{ "shift.cut-shift.buttons.cut-date" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTime()">
+      {{ "shift.cut-shift.buttons.cut-time" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      (click)="onCutWeekdays()"
+    >
+      {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutStaff()">
+      {{ "shift.cut-shift.buttons.cut-staff" | translate }}
+    </button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="onCutTask()">
+      {{ "shift.cut-shift.buttons.cut-task" | translate }}
+    </button>
+  </div>
+  <div class="container-table">
+    <!-- Table content will be added here -->
+  </div>
+</form>

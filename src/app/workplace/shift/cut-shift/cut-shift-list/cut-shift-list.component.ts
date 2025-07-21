@@ -1,15 +1,31 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, ViewChild, TemplateRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgbModal, NgbCalendar, NgbDate, NgbDatepicker } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  NgbCalendar,
+  NgbDate,
+  NgbDatepickerModule,
+} from '@ng-bootstrap/ng-bootstrap';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { OwnTime } from 'src/app/core/schedule-class';
 
 @Component({
   selector: 'app-cut-shift-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbDatepicker],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    NgbDatepickerModule,
+    FontAwesomeModule,
+  ],
   templateUrl: './cut-shift-list.component.html',
-  styleUrl: './cut-shift-list.component.scss'
+  styleUrl: './cut-shift-list.component.scss',
 })
 export class CutShiftListComponent {
   private modalService = inject(NgbModal);
@@ -17,19 +33,20 @@ export class CutShiftListComponent {
 
   @ViewChild('cutDateModal', { static: true }) cutDateModal!: TemplateRef<any>;
   @ViewChild('cutTimeModal', { static: true }) cutTimeModal!: TemplateRef<any>;
-  @ViewChild('cutWeekdaysModal', { static: true }) cutWeekdaysModal!: TemplateRef<any>;
-  @ViewChild('cutStaffModal', { static: true }) cutStaffModal!: TemplateRef<any>;
+  @ViewChild('cutWeekdaysModal', { static: true })
+  cutWeekdaysModal!: TemplateRef<any>;
+  @ViewChild('cutStaffModal', { static: true })
+  cutStaffModal!: TemplateRef<any>;
   @ViewChild('cutTaskModal', { static: true }) cutTaskModal!: TemplateRef<any>;
 
   // Cut Date properties
   cutDate: NgbDate | null = null;
   minDate: NgbDate;
   maxDate: NgbDate;
+  faCalendar = faCalendar;
 
-  // Cut Time properties
-  startTime = { hours: 0, minutes: 0 };
-  endTime = { hours: 0, minutes: 0 };
-  workTime = { hours: 0, minutes: 0 };
+  // Cut Time properties (similar to dataManagementShiftService.editShift structure)
+  cutTimeShift = OwnTime.forTime();
 
   // Cut Weekdays properties
   weekdays = {
@@ -41,28 +58,36 @@ export class CutShiftListComponent {
     isSaturday: false,
     isSunday: false,
     isHoliday: false,
-    isWeekdayOrHoliday: false
+    isWeekdayOrHoliday: false,
   };
 
   // Cut Staff and Task properties
-  staffCount: number = 1;
-  taskCount: number = 1;
-  minStaffCount: number = 1;
-  maxStaffCount: number = 100;
-  minTaskCount: number = 1;
-  maxTaskCount: number = 50;
-
+  staffCount = 1;
+  taskCount = 1;
+  minStaffCount = 1;
+  maxStaffCount = 100;
+  minTaskCount = 1;
+  maxTaskCount = 50;
   constructor() {
     // Set default date range (today to 1 year from now)
     this.minDate = this.calendar.getToday();
     this.maxDate = this.calendar.getNext(this.calendar.getToday(), 'y', 1);
   }
+
+  // Time control helper methods (similar to EditShiftWeekdayComponent)
+  onKeyUpInput(event: any, value: string): void {
+    // Handle keyup events for time input validation
+  }
+
+  OnChangeTime(): void {
+    // Handle time change events and recalculations
+  }
   onCutDate(): void {
     this.modalService
       .open(this.cutDateModal, {
-        size: 'md',
+        size: 'sm',
         centered: true,
-        windowClass: 'modal-window'
+        windowClass: 'modal-window',
       })
       .result.then(
         () => {
@@ -78,19 +103,14 @@ export class CutShiftListComponent {
   onCutTime(): void {
     this.modalService
       .open(this.cutTimeModal, {
-        size: 'md',
+        size: 'sm',
         centered: true,
-        windowClass: 'modal-window'
+        windowClass: 'modal-window',
       })
-      .result.then(
-        () => {
-          console.log('Cut by time confirmed');
-          // TODO: Implement cut by time functionality
-        },
-        () => {
-          console.log('Cut by time cancelled');
-        }
-      );
+      .result.then(() => {
+        console.log('Cut by time confirmed');
+        // TODO: Implement cut by time functionality
+      });
   }
 
   onCutWeekdays(): void {
@@ -98,52 +118,37 @@ export class CutShiftListComponent {
       .open(this.cutWeekdaysModal, {
         size: 'md',
         centered: true,
-        windowClass: 'modal-window'
+        windowClass: 'modal-window',
       })
-      .result.then(
-        () => {
-          console.log('Cut by weekdays confirmed');
-          // TODO: Implement cut by weekdays functionality
-        },
-        () => {
-          console.log('Cut by weekdays cancelled');
-        }
-      );
+      .result.then(() => {
+        console.log('Cut by weekdays confirmed');
+        // TODO: Implement cut by weekdays functionality
+      });
   }
 
   onCutStaff(): void {
     this.modalService
       .open(this.cutStaffModal, {
-        size: 'md',
+        size: 'sm',
         centered: true,
-        windowClass: 'modal-window'
+        windowClass: 'modal-window',
       })
-      .result.then(
-        () => {
-          console.log('Cut by staff confirmed');
-          // TODO: Implement cut by staff functionality
-        },
-        () => {
-          console.log('Cut by staff cancelled');
-        }
-      );
+      .result.then(() => {
+        console.log('Cut by staff confirmed');
+        // TODO: Implement cut by staff functionality
+      });
   }
 
   onCutTask(): void {
     this.modalService
       .open(this.cutTaskModal, {
-        size: 'md',
+        size: 'sm',
         centered: true,
-        windowClass: 'modal-window'
+        windowClass: 'modal-window',
       })
-      .result.then(
-        () => {
-          console.log('Cut by task confirmed');
-          // TODO: Implement cut by task functionality
-        },
-        () => {
-          console.log('Cut by task cancelled');
-        }
-      );
+      .result.then(() => {
+        console.log('Cut by task confirmed');
+        // TODO: Implement cut by task functionality
+      });
   }
 }
