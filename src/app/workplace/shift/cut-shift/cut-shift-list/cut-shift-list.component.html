@@ -323,52 +323,60 @@
   </div>
 </ng-template>
 
-<form id="cutShiftForm">
+<form #cutShiftForm="ngForm" id="cutShiftForm" class="container-card">
   <div class="container-header header-container">
     {{ "shift.cut-shift.list.title" | translate }}
   </div>
   <div class="container-line"></div>
   <div class="button-row">
-    <button 
-      type="button" 
-      class="btn btn-sm btn-primary" 
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
       (click)="onCutDate()"
-      [disabled]="!isCutDateEnabled">
+      [disabled]="!isCutDateEnabled"
+    >
       {{ "shift.cut-shift.buttons.cut-date" | translate }}
     </button>
-    <button 
-      type="button" 
-      class="btn btn-sm btn-primary" 
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
       (click)="onCutTime()"
-      [disabled]="!isCutTimeEnabled">
+      [disabled]="!isCutTimeEnabled"
+    >
       {{ "shift.cut-shift.buttons.cut-time" | translate }}
     </button>
     <button
       type="button"
       class="btn btn-sm btn-primary"
       (click)="onCutWeekdays()"
-      [disabled]="!isCutWeekdaysEnabled">
+      [disabled]="!isCutWeekdaysEnabled"
+    >
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
     </button>
-    <button 
-      type="button" 
-      class="btn btn-sm btn-primary" 
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
-      [disabled]="!isCutStaffEnabled">
+      [disabled]="!isCutStaffEnabled"
+    >
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </button>
-    <button 
-      type="button" 
-      class="btn btn-sm btn-primary" 
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
       (click)="onCutTask()"
-      [disabled]="!isCutTaskEnabled">
+      [disabled]="!isCutTaskEnabled"
+    >
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </button>
   </div>
   <div class="container-table">
-    <app-cut-shift-table 
+    <app-cut-shift-table
       [shifts]="shifts"
-      (rowClicked)="onTableRowClicked($event)">
+      (rowClicked)="onTableRowClicked($event)"
+    >
     </app-cut-shift-table>
   </div>
+
+  <div class="bottom-border-space"></div>
 </form>
