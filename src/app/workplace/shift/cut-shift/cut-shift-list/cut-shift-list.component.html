@@ -78,9 +78,6 @@
               <label class="delimiter-time">:</label>
               <input
                 [(ngModel)]="cutTimeShift.minutes"
-                (ngModelChange)="OnChangeTime()"
-                (keyup)="onKeyUpInput($event, cutTimeShift.minutes)"
-                (change)="OnChangeTime()"
                 [ngModelOptions]="{ standalone: true }"
                 class="form-control time-minute minutes"
                 type="text"
