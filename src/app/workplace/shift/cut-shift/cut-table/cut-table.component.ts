@@ -7,55 +7,59 @@ import { IShift, Shift } from 'src/app/core/shift-class';
 @Component({
   selector: 'app-cut-shift-table',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TranslateModule,
-  ],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './cut-table.component.html',
-  styleUrl: './cut-table.component.scss'
+  styleUrl: './cut-table.component.scss',
 })
 export class CutTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
   @Output() rowClicked = new EventEmitter<Shift>();
-  @Output() cellUpdated = new EventEmitter<{shift: Shift, field: string, value: string}>();
+  @Output() cellUpdated = new EventEmitter<{
+    shift: Shift;
+    field: string;
+    value: string;
+  }>();
 
   highlightRowId?: string;
   selectedRowId?: string;
   hoveredRowId?: string;
 
   // Inline editing properties
-  editingCell: {rowId: string, field: string} | null = null;
+  editingCell: { rowId: string; field: string } | null = null;
   editingValue = '';
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;
   }
-  
+
   onMouseLeave(): void {
     this.hoveredRowId = undefined;
   }
-  
+
   onClickRow(data: Shift) {
     this.selectedRowId = data.id;
     this.rowClicked.emit(data);
   }
 
   onCellClick(event: Event, shift: Shift, field: string): void {
-    event.stopPropagation();
-    
-    // Only allow editing if this row is selected
-    if (this.selectedRowId === shift.id) {
-      this.startCellEditing(shift, field);
+    // First select the row if not already selected
+    if (this.selectedRowId !== shift.id) {
+      this.selectedRowId = shift.id;
+      this.rowClicked.emit(shift);
+      event.stopPropagation(); // Prevent double row selection
+      return;
     }
+
+    // If already selected, start editing
+    event.stopPropagation();
+    this.startCellEditing(shift, field);
   }
 
   private startCellEditing(shift: Shift, field: string): void {
-    this.editingCell = {rowId: shift.id!, field};
-    
-    // Set the current value
-    switch(field) {
+    this.editingCell = { rowId: shift.id!, field };
+
+    switch (field) {
       case 'name':
         this.editingValue = shift.name;
         break;
@@ -67,9 +71,10 @@ export class CutTableComponent {
         break;
     }
 
-    // Focus the input after the view updates
     setTimeout(() => {
-      const input = document.querySelector('.editing-input') as HTMLInputElement;
+      const input = document.querySelector(
+        '.editing-input'
+      ) as HTMLInputElement;
       if (input) {
         input.focus();
         input.select();
@@ -94,7 +99,7 @@ export class CutTableComponent {
       this.cellUpdated.emit({
         shift: shift,
         field: field,
-        value: this.editingValue
+        value: this.editingValue,
       });
     }
     this.editingCell = null;
@@ -107,15 +112,21 @@ export class CutTableComponent {
   }
 
   private getCellValue(shift: Shift, field: string): string {
-    switch(field) {
-      case 'name': return shift.name;
-      case 'description': return shift.description;
-      case 'abbreviation': return shift.abbreviation;
-      default: return '';
+    switch (field) {
+      case 'name':
+        return shift.name;
+      case 'description':
+        return shift.description;
+      case 'abbreviation':
+        return shift.abbreviation;
+      default:
+        return '';
     }
   }
 
   isEditing(rowId: string, field: string): boolean {
-    return this.editingCell?.rowId === rowId && this.editingCell?.field === field;
+    return (
+      this.editingCell?.rowId === rowId && this.editingCell?.field === field
+    );
   }
 }
