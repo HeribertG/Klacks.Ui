@@ -35,6 +35,12 @@ export class DataShiftService {
       .pipe(retry(3));
   }
 
+  getCutShiftList(id: string) {
+    return this.httpClient
+      .get<IShift[]>(`${environment.baseUrl}Shifts/CutList/` + id)
+      .pipe(retry(3));
+  }
+
   updateShift(value: IShift) {
     delete value.addressName;
     this.setCorrectDate(value);

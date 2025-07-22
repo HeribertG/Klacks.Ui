@@ -316,7 +316,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         pushOnStack('workplace/cut-shift');
         this.isCutShift = true;
         this.setContainerWithNormal();
-        this.isSavebarVisible = false;
+        this.isSavebarVisible = true;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementCutShiftService';

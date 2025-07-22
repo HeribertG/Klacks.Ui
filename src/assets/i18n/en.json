@@ -459,6 +459,8 @@
   "shift.cut-shift.buttons.cut-task": "Cut Task",
   "shift.cut-shift.placeholders.staff-count": "Enter staff count",
   "shift.cut-shift.placeholders.task-count": "Enter task count",
+  "shift.cut-shift.list.table.staff": "EMP.",
+  "shift.cut-shift.list.table.quantity": "QTY.",
 
   "group.tree.headline": "Group Structure",
   "group.tree.add-root": "+ New Root Group",
@@ -480,7 +482,7 @@
   "group.select.collapse": "Collapse All",
   "group.select.all-groups": "All groups",
 
-  "list.all-list.all-shift-list.table.Abbreviation": "Abbr.",
+  "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",
   "list.all-list.all-shift-list.table.name": "NAME",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
   "list.all-list.all-shift-list.table.from": "FROM DATE",

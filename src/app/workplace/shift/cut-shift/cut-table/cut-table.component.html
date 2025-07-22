@@ -20,6 +20,9 @@
       <th class="table-header-border cell-center" colspan="2">
         {{ translate.instant("list.all-list.all-shift-list.table.until") }}
       </th>
+      <th class="col-day table-header-border cell-center">
+        {{ translate.instant("shift.cut-shift.list.table.staff") }}
+      </th>
     </tr>
     <tr>
       <th class="col-time table-header-border cell-center">
@@ -55,6 +58,9 @@
       <th class="col-day table-header-border cell-center">
         {{ translate.instant("list.all-list.all-shift-list.table.plus-f") }}
       </th>
+      <th class="col-day table-header-border cell-center">
+        {{ translate.instant("shift.cut-shift.list.table.quantity") }}
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -66,15 +72,51 @@
       [class.hover-row]="data.id === hoveredRowId"
       [class.selected-row]="data.id === selectedRowId"
     >
-      <td rowspan="2" class="table-cell-small-border cell-center">
-        {{ data.abbreviation }}
+      <td rowspan="2" class="table-cell-small-border cell-center editable-cell"
+          (click)="onCellClick($event, data, 'abbreviation')"
+          [class.selected-editable]="selectedRowId === data.id">
+        @if (isEditing(data.id!, 'abbreviation')) {
+          <input
+            type="text"
+            [(ngModel)]="editingValue"
+            (keydown)="onInputKeyDown($event, data, 'abbreviation')"
+            (blur)="onInputBlur(data, 'abbreviation')"
+            class="editing-input"
+          />
+        } @else {
+          <span>{{ data.abbreviation }}</span>
+        }
       </td>
-      <td colspan="2" class="table-cell-small-border">
-        <p>{{ data.name }}</p>
+      <td colspan="2" class="table-cell-small-border editable-cell"
+          (click)="onCellClick($event, data, 'name')"
+          [class.selected-editable]="selectedRowId === data.id">
+        @if (isEditing(data.id!, 'name')) {
+          <input
+            type="text"
+            [(ngModel)]="editingValue"
+            (keydown)="onInputKeyDown($event, data, 'name')"
+            (blur)="onInputBlur(data, 'name')"
+            class="editing-input"
+          />
+        } @else {
+          <p>{{ data.name }}</p>
+        }
       </td>
 
-      <td colspan="5" class="table-cell-small-border">
-        <p>{{ data.description }}</p>
+      <td colspan="5" class="table-cell-small-border editable-cell"
+          (click)="onCellClick($event, data, 'description')"
+          [class.selected-editable]="selectedRowId === data.id">
+        @if (isEditing(data.id!, 'description')) {
+          <input
+            type="text"
+            [(ngModel)]="editingValue"
+            (keydown)="onInputKeyDown($event, data, 'description')"
+            (blur)="onInputBlur(data, 'description')"
+            class="editing-input"
+          />
+        } @else {
+          <p>{{ data.description }}</p>
+        }
       </td>
 
       <td colspan="2" class="table-cell-small-border">
@@ -87,6 +129,10 @@
           {{ data.untilDate | date : "dd.MM.yyyy" }}
         </p>
         }
+      </td>
+      
+      <td class="table-cell-small-border cell-center">
+        <p>{{ data.sumEmployees || 0 }}</p>
       </td>
     </tr>
 
@@ -204,6 +250,10 @@
             disabled
           />
         </p>
+      </td>
+      
+      <td class="table-cell-small-border-with-bottom cell-center">
+        <p>{{ data.quantity || 0 }}</p>
       </td>
     </tr>
     }

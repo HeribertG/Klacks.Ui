@@ -50,6 +50,7 @@ export class DataManagementShiftService {
   public editGroup: IShift | undefined;
 
   public shifts: IShift[] = [];
+  public cutShifts: IShift[] = [];
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
@@ -270,28 +271,6 @@ export class DataManagementShiftService {
       });
     }
   }
-
-  readCutShift(id: string) {
-    if (id !== '') {
-      this.dataShiftService.getShift(id).subscribe((x) => {
-        this.prepareShift(this.createShiftFromPlainObject(x));
-        if (this.editShift && this.editShift.fromDate && x.client) {
-          const index = this.setCurrentAddressIndex(
-            x.client,
-            this.editShift.fromDate
-          );
-          this.editShift.addressName = this.visualNameAndAddress(
-            x.client,
-            index
-          );
-        }
-
-        this.navigationService.navigateToCutShift();
-        this.fireIsReadEvent();
-      });
-    }
-  }
-
   save() {
     if (this.isEditShift_Dirty()) {
       this.saveEditShift();
@@ -576,4 +555,20 @@ export class DataManagementShiftService {
   }
 
   /* #endregion   edit shift */
+
+  /* #region   cut shift */
+
+  readCutShiftList(id: string) {
+    if (id !== '') {
+      this.showProgressSpinner.set(true);
+      this.dataShiftService.getCutShiftList(id).subscribe((x) => {
+        this.cutShifts = x;
+
+        this.navigationService.navigateToCutShift();
+        this.fireIsReadEvent();
+        this.showProgressSpinner.set(false);
+      });
+    }
+  }
+  /* #endregion   cut shift */
 }

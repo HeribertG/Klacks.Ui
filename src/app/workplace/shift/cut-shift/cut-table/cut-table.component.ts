@@ -19,10 +19,15 @@ export class CutTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
   @Output() rowClicked = new EventEmitter<Shift>();
+  @Output() cellUpdated = new EventEmitter<{shift: Shift, field: string, value: string}>();
 
   highlightRowId?: string;
   selectedRowId?: string;
   hoveredRowId?: string;
+
+  // Inline editing properties
+  editingCell: {rowId: string, field: string} | null = null;
+  editingValue = '';
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;
@@ -35,5 +40,82 @@ export class CutTableComponent {
   onClickRow(data: Shift) {
     this.selectedRowId = data.id;
     this.rowClicked.emit(data);
+  }
+
+  onCellClick(event: Event, shift: Shift, field: string): void {
+    event.stopPropagation();
+    
+    // Only allow editing if this row is selected
+    if (this.selectedRowId === shift.id) {
+      this.startCellEditing(shift, field);
+    }
+  }
+
+  private startCellEditing(shift: Shift, field: string): void {
+    this.editingCell = {rowId: shift.id!, field};
+    
+    // Set the current value
+    switch(field) {
+      case 'name':
+        this.editingValue = shift.name;
+        break;
+      case 'description':
+        this.editingValue = shift.description;
+        break;
+      case 'abbreviation':
+        this.editingValue = shift.abbreviation;
+        break;
+    }
+
+    // Focus the input after the view updates
+    setTimeout(() => {
+      const input = document.querySelector('.editing-input') as HTMLInputElement;
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    });
+  }
+
+  onInputKeyDown(event: KeyboardEvent, shift: Shift, field: string): void {
+    if (event.key === 'Enter') {
+      this.saveCellEdit(shift, field);
+    } else if (event.key === 'Escape') {
+      this.cancelCellEdit();
+    }
+  }
+
+  onInputBlur(shift: Shift, field: string): void {
+    this.saveCellEdit(shift, field);
+  }
+
+  private saveCellEdit(shift: Shift, field: string): void {
+    if (this.editingValue !== this.getCellValue(shift, field)) {
+      this.cellUpdated.emit({
+        shift: shift,
+        field: field,
+        value: this.editingValue
+      });
+    }
+    this.editingCell = null;
+    this.editingValue = '';
+  }
+
+  private cancelCellEdit(): void {
+    this.editingCell = null;
+    this.editingValue = '';
+  }
+
+  private getCellValue(shift: Shift, field: string): string {
+    switch(field) {
+      case 'name': return shift.name;
+      case 'description': return shift.description;
+      case 'abbreviation': return shift.abbreviation;
+      default: return '';
+    }
+  }
+
+  isEditing(rowId: string, field: string): boolean {
+    return this.editingCell?.rowId === rowId && this.editingCell?.field === field;
   }
 }

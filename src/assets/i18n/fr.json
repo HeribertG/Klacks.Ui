@@ -459,6 +459,8 @@
   "shift.cut-shift.buttons.cut-task": "Couper par tâche",
   "shift.cut-shift.placeholders.staff-count": "Entrer le nombre de personnel",
   "shift.cut-shift.placeholders.task-count": "Entrer le nombre de tâches",
+  "shift.cut-shift.list.table.staff": "PERS.",
+  "shift.cut-shift.list.table.quantity": "QTÉ.",
 
   "group.tree.headline": "Structure du Groupe",
   "group.tree.add-root": "+ Nouveau Groupe Racine",
@@ -480,7 +482,7 @@
   "group.select.collapse": "Tout replier",
   "group.select.all-groups": "Tous les groupes",
 
-  "list.all-list.all-shift-list.table.Abbreviation": "Abr.",
+  "list.all-list.all-shift-list.table.Abbreviation": "ABR.",
   "list.all-list.all-shift-list.table.name": "NOM",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
   "list.all-list.all-shift-list.table.from": "DATE DE DÉBUT",

@@ -12,9 +12,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/core/shift-class';
-import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 import { CutTableComponent } from './cut-table/cut-table.component';
-import { IconOriginalComponent } from 'src/app/icons/icon-original.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 
 @Component({
@@ -78,8 +76,8 @@ export class AllShiftListComponent implements OnInit {
   onClickDelete(s: Shift) {}
 
   onClickCut(data: Shift) {
-    if (data && data.id) {
-      this.dataManagementShiftService.readCutShift(data.id);
+    if (data && data.originalId) {
+      this.dataManagementShiftService.readCutShiftList(data.originalId);
     }
   }
 
@@ -87,15 +85,13 @@ export class AllShiftListComponent implements OnInit {
     this.hoveredRowId = undefined;
   }
 
-  open(data: any): void {
-    // Weitere bestehende Logik beibehalten
-  }
-
   initializeData(): void {
     this.dataManagementShiftService.init();
   }
 
-  onPageChange(event: number) {}
+  onPageChange(event: number) {
+    setTimeout(() => this.dataManagementShiftService.readPage(), 50);
+  }
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;

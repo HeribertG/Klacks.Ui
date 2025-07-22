@@ -33,6 +33,7 @@ export interface IShift {
   name: string;
   parentId?: string;
   rootId?: string;
+  originalId?: string;
   status: ShiftStatus;
   afterShift: string;
   internalAfterShift: OwnTime;
@@ -86,6 +87,7 @@ export class Shift implements IShift {
   name = '';
   parentId?: string;
   rootId?: string;
+  originalId?: string;
   status: ShiftStatus = ShiftStatus.Original;
   afterShift = '';
   internalAfterShift = OwnTime.forTime('0', '0');

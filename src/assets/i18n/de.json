@@ -461,6 +461,8 @@
   "shift.cut-shift.buttons.cut-task": "Nach Aufgabe trennen",
   "shift.cut-shift.placeholders.staff-count": "Anzahl Personal eingeben",
   "shift.cut-shift.placeholders.task-count": "Anzahl Aufgaben eingeben",
+  "shift.cut-shift.list.table.staff": "MA.",
+  "shift.cut-shift.list.table.quantity": "ANZ.",
 
   "group.tree.headline": "Gruppenstruktur",
   "group.tree.add-root": "+ Neue Wurzelgruppe",
@@ -483,7 +485,7 @@
   "group.select.no-groups": "Keine Gruppen verfügbar",
   "group.select.all-groups": "Alle Gruppen",
 
-  "list.all-list.all-shift-list.table.Abbreviation": "Abk.",
+  "list.all-list.all-shift-list.table.Abbreviation": "ABK.",
   "list.all-list.all-shift-list.table.name": "NAME",
   "list.all-list.all-shift-list.table.description": "BESCHREIBUNG",
   "list.all-list.all-shift-list.table.from": "VON DATUM",

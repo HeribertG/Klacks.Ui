@@ -77,6 +77,8 @@
               />
               <label class="delimiter-time">:</label>
               <input
+                (keyup)="onKeyUpInput($event, cutTimeShift.minutes)"
+                (change)="OnChangeTime()"
                 [(ngModel)]="cutTimeShift.minutes"
                 [ngModelOptions]="{ standalone: true }"
                 class="form-control time-minute minutes"
@@ -369,8 +371,9 @@
   </div>
   <div class="container-table">
     <app-cut-shift-table
-      [shifts]="shifts"
+      [shifts]="dataManagementShiftService.cutShifts"
       (rowClicked)="onTableRowClicked($event)"
+      (cellUpdated)="onCellUpdated($event)"
     >
     </app-cut-shift-table>
   </div>
