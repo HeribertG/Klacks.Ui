@@ -77,3 +77,9 @@ thead {
     border-bottom: 1px solid var(--colorLine);
   }
 }
+
+input[type="checkbox"]:disabled {
+  border: none !important;
+  background-color: transparent !important;
+  outline: none;
+}

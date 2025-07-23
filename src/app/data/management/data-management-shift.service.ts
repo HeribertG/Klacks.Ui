@@ -589,6 +589,51 @@ export class DataManagementShiftService {
     this.cutShifts = cloneObject<Shift[]>(this.cutShiftsDummy);
   }
 
+  addCutShift(shift: Shift): void {
+    this.cutShifts.push(shift);
+  }
+
+  calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
+    // Im Nested Set Model:
+    // - Das Parent hat lft und rgt Werte
+    // - Das neue Child wird als letztes Child eingefügt
+    // - Child.lft = Parent.rgt (das neue Child startet wo das Parent endet)
+    // - Child.rgt = Parent.rgt + 1 (das Child bekommt den nächsten Wert)
+    // - Parent.rgt wird um 2 erhöht (um Platz für das neue Child zu schaffen)
+    
+    if (parentShift.rgt !== undefined) {
+      // Setze die Werte für das neue Child
+      childShift.lft = parentShift.rgt;
+      childShift.rgt = parentShift.rgt + 1;
+      
+      // Erweitere den rgt-Wert des Parents um 2
+      parentShift.rgt = parentShift.rgt + 2;
+      
+      // Aktualisiere alle anderen Shifts in der Liste, die betroffen sind
+      this.updateOtherShiftsNestedSetValues(parentShift.rgt - 2);
+    } else {
+      // Falls das Parent keine rgt Werte hat, setze Standard-Werte
+      childShift.lft = 1;
+      childShift.rgt = 2;
+      parentShift.lft = parentShift.lft || 0;
+      parentShift.rgt = 3;
+    }
+  }
+
+  private updateOtherShiftsNestedSetValues(insertionPoint: number): void {
+    // Alle Shifts, die nach dem Einfügepunkt liegen, müssen ihre lft/rgt Werte um 2 erhöhen
+    const allShifts = [...this.shifts, ...this.cutShifts];
+    
+    allShifts.forEach(shift => {
+      if (shift.lft !== undefined && shift.lft > insertionPoint) {
+        shift.lft += 2;
+      }
+      if (shift.rgt !== undefined && shift.rgt > insertionPoint) {
+        shift.rgt += 2;
+      }
+    });
+  }
+
   areCutObjectsDirty(): boolean {
     if (this.isCutShifts_Dirty()) {
       return true;

@@ -33,6 +33,8 @@ export interface IShift {
   name: string;
   parentId?: string;
   rootId?: string;
+  lft: number | undefined;
+  rgt: number | undefined;
   originalId?: string;
   status: ShiftStatus;
   afterShift: string;
@@ -87,6 +89,8 @@ export class Shift implements IShift {
   name = '';
   parentId?: string;
   rootId?: string;
+  lft: number | undefined = undefined;
+  rgt: number | undefined = undefined;
   originalId?: string;
   status: ShiftStatus = ShiftStatus.Original;
   afterShift = '';

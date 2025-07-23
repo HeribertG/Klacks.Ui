@@ -28,7 +28,10 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import {
   transformStringToOwnTimeStruct,
   transformDateToNgbDateStruct,
+  transformNgbDateStructToDate,
+  newGuid,
 } from 'src/app/helpers/format-helper';
+import { cloneObject } from 'src/app/helpers/object-helpers';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -105,6 +108,8 @@ export class CutShiftListComponent implements OnInit {
 
   @Input() shifts: IShift[] = [];
 
+  private selectedShift: Shift | null = null;
+
   ngOnInit(): void {
     this.resetAllParameters();
   }
@@ -167,7 +172,7 @@ export class CutShiftListComponent implements OnInit {
       .result.then(
         () => {
           console.log('Cut by date confirmed');
-          // TODO: Implement cut by date functionality
+          this.performCutByDate();
         },
         () => {
           console.log('Cut by date cancelled');
@@ -187,7 +192,7 @@ export class CutShiftListComponent implements OnInit {
       })
       .result.then(() => {
         console.log('Cut by time confirmed');
-        // TODO: Implement cut by time functionality
+        this.performCutByTime();
       });
   }
 
@@ -200,7 +205,7 @@ export class CutShiftListComponent implements OnInit {
       })
       .result.then(() => {
         console.log('Cut by weekdays confirmed');
-        // TODO: Implement cut by weekdays functionality
+        this.performCutByWeekdays();
       });
   }
 
@@ -213,7 +218,7 @@ export class CutShiftListComponent implements OnInit {
       })
       .result.then(() => {
         console.log('Cut by staff confirmed');
-        // TODO: Implement cut by staff functionality
+        this.performCutByStaff();
       });
   }
 
@@ -226,12 +231,13 @@ export class CutShiftListComponent implements OnInit {
       })
       .result.then(() => {
         console.log('Cut by task confirmed');
-        // TODO: Implement cut by task functionality
+        this.performCutByTask();
       });
   }
 
   onTableRowClicked(shift: Shift): void {
     this.resetAllParameters();
+    this.selectedShift = shift;
 
     if (shift) {
       this.analyzeCutByDate(shift);
@@ -268,8 +274,8 @@ export class CutShiftListComponent implements OnInit {
         if (ngbFromDate) {
           const fromDate = NgbDate.from(ngbFromDate);
           if (fromDate) {
-            this.minDate = fromDate;
-            this.cutDate = fromDate;
+            this.minDate = this.calendar.getNext(fromDate, 'd', 1);
+            this.cutDate = this.minDate;
           }
         }
       }
@@ -284,7 +290,7 @@ export class CutShiftListComponent implements OnInit {
           }
         }
       } else {
-        if (shift.fromDate && this.minDate) {
+        if (this.minDate) {
           this.maxDate = this.calendar.getNext(this.minDate, 'y', 1);
         }
       }
@@ -391,6 +397,223 @@ export class CutShiftListComponent implements OnInit {
       this.isCutTaskEnabled = true;
       this.taskCount = shift.quantity;
     }
+  }
+
+  private performCutByDate(): void {
+    if (!this.selectedShift || !this.cutDate) {
+      return;
+    }
+
+    // Konvertiere NgbDate zu Date
+    const cutDateAsDate = transformNgbDateStructToDate(this.cutDate);
+    if (!cutDateAsDate) {
+      return;
+    }
+
+    // Erstelle eine tiefe Kopie des Original-Shifts
+    const copiedShift = cloneObject<Shift>(this.selectedShift);
+
+    // Original Shift: setze untilDate auf cutDate - 1 Tag
+    const dayBeforeCut = new Date(cutDateAsDate);
+    dayBeforeCut.setDate(dayBeforeCut.getDate() - 1);
+    this.selectedShift.untilDate = dayBeforeCut;
+    this.selectedShift.internalUntilDate =
+      transformDateToNgbDateStruct(dayBeforeCut);
+
+    // Kopierter Shift: setze fromDate auf cutDate und konfiguriere Nested Set Model
+    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
+    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
+    copiedShift.fromDate = cutDateAsDate;
+    copiedShift.internalFromDate = transformDateToNgbDateStruct(cutDateAsDate);
+    
+    // Nested Set Model: Berechne lft/rgt Werte
+    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+
+    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftService.addCutShift(copiedShift);
+
+    // Emit change event
+    this.isChangingEvent.emit(true);
+
+    console.log('Cut by date performed:', {
+      originalShift: this.selectedShift,
+      copiedShift: copiedShift,
+      cutDate: cutDateAsDate,
+    });
+  }
+
+  private performCutByTime(): void {
+    if (!this.selectedShift) {
+      return;
+    }
+
+    // Erstelle eine tiefe Kopie des Original-Shifts
+    const copiedShift = cloneObject<Shift>(this.selectedShift);
+
+    // Original Shift: setze endShift auf cutTime
+    this.selectedShift.endShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
+    this.selectedShift.internalEndShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
+
+    // Kopierter Shift: setze startShift auf cutTime und konfiguriere Nested Set Model
+    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
+    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
+    copiedShift.startShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
+    copiedShift.internalStartShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
+    
+    // Nested Set Model: Berechne lft/rgt Werte
+    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+
+    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftService.addCutShift(copiedShift);
+    
+    // Emit change event
+    this.isChangingEvent.emit(true);
+    
+    console.log('Cut by time performed:', {
+      originalShift: this.selectedShift,
+      copiedShift: copiedShift,
+      cutTime: this.cutTimeShift
+    });
+  }
+
+
+  private performCutByWeekdays(): void {
+    if (!this.selectedShift) {
+      return;
+    }
+
+    // Erstelle eine tiefe Kopie des Original-Shifts
+    const copiedShift = cloneObject<Shift>(this.selectedShift);
+
+    // Original Shift: setze die ausgewählten Weekdays auf false
+    this.updateOriginalShiftWeekdays(this.selectedShift);
+
+    // Kopierter Shift: setze nur die ausgewählten Weekdays auf true, rest auf false
+    this.updateCopiedShiftWeekdays(copiedShift);
+
+    // Konfiguriere Nested Set Model
+    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
+    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
+    
+    // Nested Set Model: Berechne lft/rgt Werte
+    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+
+    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftService.addCutShift(copiedShift);
+    
+    // Emit change event
+    this.isChangingEvent.emit(true);
+    
+    console.log('Cut by weekdays performed:', {
+      originalShift: this.selectedShift,
+      copiedShift: copiedShift,
+      selectedWeekdays: this.weekdays
+    });
+  }
+
+  private updateOriginalShiftWeekdays(originalShift: Shift): void {
+    // Entferne die ausgewählten Weekdays vom Original
+    if (this.weekdays.isMonday) originalShift.isMonday = false;
+    if (this.weekdays.isTuesday) originalShift.isTuesday = false;
+    if (this.weekdays.isWednesday) originalShift.isWednesday = false;
+    if (this.weekdays.isThursday) originalShift.isThursday = false;
+    if (this.weekdays.isFriday) originalShift.isFriday = false;
+    if (this.weekdays.isSaturday) originalShift.isSaturday = false;
+    if (this.weekdays.isSunday) originalShift.isSunday = false;
+    if (this.weekdays.isHoliday) originalShift.isHoliday = false;
+    if (this.weekdays.isWeekdayOrHoliday) originalShift.isWeekdayOrHoliday = false;
+  }
+
+  private updateCopiedShiftWeekdays(copiedShift: Shift): void {
+    // Setze alle Weekdays basierend auf der Auswahl
+    copiedShift.isMonday = this.weekdays.isMonday;
+    copiedShift.isTuesday = this.weekdays.isTuesday;
+    copiedShift.isWednesday = this.weekdays.isWednesday;
+    copiedShift.isThursday = this.weekdays.isThursday;
+    copiedShift.isFriday = this.weekdays.isFriday;
+    copiedShift.isSaturday = this.weekdays.isSaturday;
+    copiedShift.isSunday = this.weekdays.isSunday;
+    copiedShift.isHoliday = this.weekdays.isHoliday;
+    copiedShift.isWeekdayOrHoliday = this.weekdays.isWeekdayOrHoliday;
+  }
+
+  private performCutByStaff(): void {
+    if (!this.selectedShift) {
+      return;
+    }
+
+    // Erstelle eine tiefe Kopie des Original-Shifts
+    const copiedShift = cloneObject<Shift>(this.selectedShift);
+
+    // Berechne die Aufteilung der Mitarbeiter
+    const originalStaffCount = this.selectedShift.sumEmployees - this.staffCount;
+    const copiedStaffCount = this.staffCount;
+
+    // Original Shift: reduziere sumEmployees
+    this.selectedShift.sumEmployees = originalStaffCount;
+
+    // Kopierter Shift: setze sumEmployees auf ausgewählte Anzahl
+    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
+    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
+    copiedShift.sumEmployees = copiedStaffCount;
+    
+    // Nested Set Model: Berechne lft/rgt Werte
+    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+
+    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftService.addCutShift(copiedShift);
+    
+    // Emit change event
+    this.isChangingEvent.emit(true);
+    
+    console.log('Cut by staff performed:', {
+      originalShift: this.selectedShift,
+      copiedShift: copiedShift,
+      originalStaffCount: originalStaffCount,
+      copiedStaffCount: copiedStaffCount
+    });
+  }
+
+  private performCutByTask(): void {
+    if (!this.selectedShift) {
+      return;
+    }
+
+    // Erstelle eine tiefe Kopie des Original-Shifts
+    const copiedShift = cloneObject<Shift>(this.selectedShift);
+
+    // Berechne die Aufteilung der Tasks
+    const originalTaskCount = this.selectedShift.quantity - this.taskCount;
+    const copiedTaskCount = this.taskCount;
+
+    // Original Shift: reduziere quantity
+    this.selectedShift.quantity = originalTaskCount;
+
+    // Kopierter Shift: setze quantity auf ausgewählte Anzahl
+    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
+    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
+    copiedShift.quantity = copiedTaskCount;
+    
+    // Nested Set Model: Berechne lft/rgt Werte
+    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+
+    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftService.addCutShift(copiedShift);
+    
+    // Emit change event
+    this.isChangingEvent.emit(true);
+    
+    console.log('Cut by task performed:', {
+      originalShift: this.selectedShift,
+      copiedShift: copiedShift,
+      originalTaskCount: originalTaskCount,
+      copiedTaskCount: copiedTaskCount
+    });
   }
 
   private resetAllParameters(): void {
