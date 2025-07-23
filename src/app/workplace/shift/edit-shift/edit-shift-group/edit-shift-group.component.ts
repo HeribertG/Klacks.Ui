@@ -26,6 +26,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/simple-group-select.component';
+import { ShiftStatus } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-group',
@@ -144,5 +145,10 @@ export class EditShiftGroupComponent
     } catch (error) {
       console.error('Error when setting up the effect:', error);
     }
+  }
+
+  // Getter for groups - should remain enabled when IsCut
+  get isGroupFieldsDisabled(): boolean {
+    return false; // Groups should always remain enabled
   }
 }

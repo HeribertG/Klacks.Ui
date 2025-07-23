@@ -21,6 +21,7 @@ import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { ShiftStatus } from 'src/app/core/shift-class';
 import { faEarListen } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -55,6 +56,11 @@ export class EditShiftHomeComponent implements OnInit {
   private translateService = inject(TranslateService);
 
   isComplex = false;
+
+  // Getter to determine if nav should be hidden when shift status is IsCut
+  get isNavVisible(): boolean {
+    return this.dataManagementShiftService.editShift?.status !== ShiftStatus.IsCut;
+  }
 
   ngOnInit(): void {
     if (this.dataManagementShiftService.editShift === undefined) {

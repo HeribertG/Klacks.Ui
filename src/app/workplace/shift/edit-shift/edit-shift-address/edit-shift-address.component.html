@@ -38,6 +38,7 @@
           list="dynamicClientName"
           name="selectedClient"
           placeholder="{{ 'placeholder.search' | translate }}"
+          [disabled]="isFieldsDisabled"
         />
         <datalist id="dynamicClientName">
           @for (item of result; track item) {
@@ -57,6 +58,7 @@
         <div
           class="input-group-text btn btn-outline-secondary container-search-button"
           (click)="onClickApply()"
+          [class.disabled]="isFieldsDisabled"
         >
           {{ "shift.edit-shift.address.select" | translate }}
         </div>
@@ -76,7 +78,7 @@
           class="selected-address-info d-flex justify-content-between align-items-center"
         >
           <span>{{ dataManagementShiftService.editShift.addressName }}</span>
-          <button type="button" class="delete-btn" (click)="onRemoveAddress()">
+          <button type="button" class="delete-btn" (click)="onRemoveAddress()" [disabled]="isFieldsDisabled">
             <app-icon-trash-red></app-icon-trash-red>
           </button>
         </div>

@@ -21,6 +21,7 @@ import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { ShiftStatus } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-weekday',
@@ -58,6 +59,11 @@ export class EditShiftWeekdayComponent
 
   ngOnInit(): void {
     this.readSignals();
+    
+    // Auto-collapse when shift status is IsCut
+    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
+      this.visibleTable = 'none';
+    }
   }
 
   ngAfterViewInit(): void {
@@ -216,5 +222,10 @@ export class EditShiftWeekdayComponent
       .padStart(2, '0');
 
     this.isChangingEvent.emit(true);
+  }
+
+  // Getter to determine if fields should be disabled based on shift status
+  get isFieldsDisabled(): boolean {
+    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
   }
 }

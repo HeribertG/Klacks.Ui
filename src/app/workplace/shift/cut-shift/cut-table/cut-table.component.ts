@@ -43,15 +43,13 @@ export class CutTableComponent {
   }
 
   onCellClick(event: Event, shift: Shift, field: string): void {
-    // First select the row if not already selected
     if (this.selectedRowId !== shift.id) {
       this.selectedRowId = shift.id;
       this.rowClicked.emit(shift);
-      event.stopPropagation(); // Prevent double row selection
+      event.stopPropagation();
       return;
     }
 
-    // If already selected, start editing
     event.stopPropagation();
     this.startCellEditing(shift, field);
   }

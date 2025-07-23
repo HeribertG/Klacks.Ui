@@ -62,6 +62,7 @@
               required
               minlength="1"
               maxlength="6"
+              [disabled]="isEditableFieldsDisabled"
             />
           </div>
         </div>
@@ -107,6 +108,7 @@
           #shiftName="ngModel"
           autofocus
           required
+          [disabled]="isEditableFieldsDisabled"
         />
       </div>
 
@@ -139,11 +141,13 @@
                   'is-invalid': isFromDateValid === false,
                   'is-valid': isFromDateValid === true
                 }"
+                [disabled]="isFieldsDisabled"
               />
               <span
                 class="input-group-text"
                 style="width: 40px"
-                (click)="validFrom.toggle()"
+                (click)="!isFieldsDisabled && validFrom.toggle()"
+                [class.disabled]="isFieldsDisabled"
               >
                 <fa-icon
                   [icon]="faCalendar"
@@ -176,11 +180,13 @@
                   ngbDatepicker
                   btn-dark
                   #validUntil="ngbDatepicker"
+                  [disabled]="isFieldsDisabled"
                 />
                 <span
                   class="input-group-text"
                   style="width: 40px"
-                  (click)="validUntil.toggle()"
+                  (click)="!isFieldsDisabled && validUntil.toggle()"
+                  [class.disabled]="isFieldsDisabled"
                 >
                   <fa-icon
                     [icon]="faCalendar"
@@ -201,6 +207,7 @@
             [(ngModel)]="dataManagementShiftService.editShift.shiftType"
             id="isContainer"
             name="isContainer"
+            [disabled]="isFieldsDisabled"
           />
           {{ "shift.edit-shift.main.is-container" | translate }}
         </label>

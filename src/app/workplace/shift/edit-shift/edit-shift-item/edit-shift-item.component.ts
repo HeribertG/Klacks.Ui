@@ -271,4 +271,15 @@ export class EditShiftItemComponent
         isSumEmployeesValid
     );
   }
+
+  // Getter to determine if most fields should be disabled based on shift status
+  get isFieldsDisabled(): boolean {
+    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+  }
+
+  // Getter for fields that should remain enabled even when IsCut
+  // Returns false because these specific fields (abbreviation, name, description) should stay enabled
+  get isEditableFieldsDisabled(): boolean {
+    return false; // abbreviation, name, description always remain enabled
+  }
 }

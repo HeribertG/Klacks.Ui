@@ -32,6 +32,7 @@
         [(ngModel)]="dataManagementShiftService.editShift.macroId"
         aria-label="macro-list"
         (ngModelChange)="onSelectionChange($event)"
+        [disabled]="isFieldsDisabled"
       >
         @for (item of dataManagementShiftService.macroList; track item.id) {
         <option
@@ -56,6 +57,7 @@
               class="form-control"
               [ngModel]="macroDescription"
               name="description"
+              [disabled]="isFieldsDisabled"
             >
             </textarea>
           </div>

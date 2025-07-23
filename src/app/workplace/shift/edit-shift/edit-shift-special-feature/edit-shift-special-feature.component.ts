@@ -15,6 +15,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
+import { ShiftStatus } from 'src/app/core/shift-class';
 
 @Component({
   selector: 'app-edit-shift-special-feature',
@@ -129,5 +130,16 @@ export class EditShiftSpecialFeatureComponent
     } else {
       this.isQuantityValid = true;
     }
+  }
+
+  // Getter to determine if most fields should be disabled based on shift status
+  get isFieldsDisabled(): boolean {
+    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+  }
+
+  // Getter for time fields that should remain enabled when IsCut
+  // Returns false for briefingTime, debriefingTime, travelTimeBefore, travelTimeAfter
+  get isTimeFieldsDisabled(): boolean {
+    return false; // Time fields should remain enabled when IsCut
   }
 }

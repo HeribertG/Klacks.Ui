@@ -44,6 +44,7 @@
                 "
                 (change)="OnChangeTime()"
                 [ngModelOptions]="{ standalone: true }"
+                [disabled]="isFieldsDisabled"
                 class="form-control time-hour hours"
                 type="text"
                 maxlength="3"
@@ -65,6 +66,7 @@
                 "
                 (change)="OnChangeTime()"
                 [ngModelOptions]="{ standalone: true }"
+                [disabled]="isFieldsDisabled"
                 class="form-control time-minute minutes"
                 type="text"
                 maxlength="3"
@@ -94,6 +96,7 @@
                   )
                 "
                 [ngModelOptions]="{ standalone: true }"
+                [disabled]="isFieldsDisabled"
                 class="form-control time-hour hours"
                 type="text"
                 maxlength="3"
@@ -113,6 +116,7 @@
                 "
                 (ngModelChange)="OnChangeTime()"
                 [ngModelOptions]="{ standalone: true }"
+                [disabled]="isFieldsDisabled"
                 class="form-control time-minute minutes"
                 type="text"
                 maxlength="3"
@@ -130,7 +134,7 @@
             <div class="row-line-inline-simple">
               <input
                 id="internalWorkTime-hours"
-                [disabled]="disabledWorkTime"
+                [disabled]="disabledWorkTime || isFieldsDisabled"
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalWorkTime.hours
                 "
@@ -148,7 +152,7 @@
               />
               <Label class="delimiter-time">:</Label>
               <input
-                [disabled]="disabledWorkTime"
+                [disabled]="disabledWorkTime || isFieldsDisabled"
                 [(ngModel)]="
                   dataManagementShiftService.editShift.internalWorkTime.minutes
                 "
@@ -180,6 +184,7 @@
             [(ngModel)]="dataManagementShiftService.editShift.isTimeRange"
             id="isTimeRange"
             name="isTimeRange"
+            [disabled]="isFieldsDisabled"
           />
           {{ "shift.edit-shift.weekday.time-range" | translate }}
         </label>
@@ -203,6 +208,7 @@
                 id="isMonday"
                 [class.is-invalid]="areWeekdaysValid === false"
                 (change)="validateWeekdays()"
+                [disabled]="isFieldsDisabled"
               />
               {{ "monday" | translate }}
             </label>
@@ -217,6 +223,7 @@
                 id="isTuesday"
                 [class.is-invalid]="areWeekdaysValid === false"
                 (change)="validateWeekdays()"
+                [disabled]="isFieldsDisabled"
               />
               {{ "tuesday" | translate }}
             </label>
@@ -231,6 +238,7 @@
                 id="isWednesday"
                 [class.is-invalid]="areWeekdaysValid === false"
                 (change)="validateWeekdays()"
+                [disabled]="isFieldsDisabled"
               />
               {{ "wednesday" | translate }}
             </label>
@@ -245,6 +253,7 @@
                 id="isThursday"
                 [class.is-invalid]="areWeekdaysValid === false"
                 (change)="validateWeekdays()"
+                [disabled]="isFieldsDisabled"
               />
               {{ "thursday" | translate }}
             </label>
@@ -259,6 +268,7 @@
                 id="isFriday"
                 [class.is-invalid]="areWeekdaysValid === false"
                 (change)="validateWeekdays()"
+                [disabled]="isFieldsDisabled"
               />
               {{ "friday" | translate }}
             </label>
@@ -276,6 +286,7 @@
               id="isSaturday"
               [class.is-invalid]="areWeekdaysValid === false"
               (change)="validateWeekdays()"
+              [disabled]="isFieldsDisabled"
             />
             {{ "saturday" | translate }}
           </label>
@@ -290,6 +301,7 @@
               id="isSunday"
               [class.is-invalid]="areWeekdaysValid === false"
               (change)="validateWeekdays()"
+              [disabled]="isFieldsDisabled"
             />
             {{ "sunday" | translate }}
           </label>
@@ -304,7 +316,7 @@
               [(ngModel)]="dataManagementShiftService.editShift.isHoliday"
               name="isHoliday"
               id="isHoliday"
-              [disabled]="isHolidayDisabled"
+              [disabled]="isHolidayDisabled || isFieldsDisabled"
               [class.is-invalid]="areWeekdaysValid === false"
               (change)="onHolidayChange()"
             />
@@ -321,6 +333,7 @@
               id="isWeekdayOrHoliday"
               [class.is-invalid]="areWeekdaysValid === false"
               (change)="onWeekdayOrHolidayChange()"
+              [disabled]="isFieldsDisabled"
             />
             {{ "weekday-or-holiday" | translate }}
           </label>

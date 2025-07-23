@@ -16,6 +16,7 @@ import { IClient } from 'src/app/core/client-class';
 import { DataClientService } from 'src/app/data/data-client.service';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
+import { ShiftStatus } from 'src/app/core/shift-class';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
@@ -58,6 +59,16 @@ export class EditShiftAddressComponent implements OnInit {
 
   ngOnInit(): void {
     this.setFilter();
+    
+    // Auto-collapse when shift status is IsCut
+    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
+      this.visibleTable = 'none';
+    }
+  }
+
+  // Getter to determine if most fields should be disabled based on shift status
+  get isFieldsDisabled(): boolean {
+    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
   }
 
   onClickVisibleTable() {
@@ -68,6 +79,10 @@ export class EditShiftAddressComponent implements OnInit {
     this.isChangingEvent.emit(event);
   }
   onKeyupSearchField(event: KeyboardEvent) {
+    if (this.isFieldsDisabled) {
+      return;
+    }
+    
     event.preventDefault();
     event.stopPropagation();
 
@@ -91,6 +106,10 @@ export class EditShiftAddressComponent implements OnInit {
   }
 
   onKeydownEnterSearchField(event: KeyboardEvent) {
+    if (this.isFieldsDisabled) {
+      return;
+    }
+    
     if (event.key === 'Enter') {
       event.preventDefault();
       event.stopPropagation();
@@ -105,10 +124,17 @@ export class EditShiftAddressComponent implements OnInit {
   }
 
   onClickApply() {
+    if (this.isFieldsDisabled) {
+      return;
+    }
     this.applyClient();
   }
 
   onRemoveAddress() {
+    if (this.isFieldsDisabled) {
+      return;
+    }
+    
     if (this.dataManagementShiftService.editShift) {
       this.dataManagementShiftService.editShift.clientId = undefined;
       this.dataManagementShiftService.editShift.addressName = undefined;

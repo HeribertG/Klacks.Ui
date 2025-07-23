@@ -77,8 +77,6 @@ thead {
   }
 }
 
-// Inline editing styles
-
 .editing-input {
   width: calc(100% - 2px);
   height: calc(100% - 2px);
@@ -104,7 +102,6 @@ thead {
   }
 }
 
-// Make the editable cell relative positioned to contain the absolute input
 .editable-cell {
   position: relative;
   cursor: pointer;
@@ -114,7 +111,6 @@ thead {
     border: 1px solid var(--gridColorLine);
   }
 
-  // Ensure the cell content doesn't interfere with absolute positioning
   > span,
   > p {
     position: relative;

@@ -13,6 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { IMacro } from 'src/app/core/macro-class';
 import { IMultiLanguage } from 'src/app/core/multi-language-class';
+import { ShiftStatus } from 'src/app/core/shift-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -54,6 +55,11 @@ export class EditShiftMacroComponent
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
+    
+    // Auto-collapse when shift status is IsCut
+    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
+      this.visibleTable = 'none';
+    }
   }
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.macroShiftForm!.valueChanges!.subscribe(
@@ -85,6 +91,10 @@ export class EditShiftMacroComponent
       (x) => x.id === id
     );
     this.readCorrectDescription();
+  }
+
+  get isFieldsDisabled(): boolean {
+    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
   }
 
   private readCorrectDescription() {
