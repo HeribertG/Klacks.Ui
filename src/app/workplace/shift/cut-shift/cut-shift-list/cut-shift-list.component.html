@@ -371,7 +371,7 @@
   </div>
   <div class="container-table">
     <app-cut-shift-table
-      [shifts]="dataManagementShiftService.cutShifts"
+      [shifts]="dataManagementShiftCutService.cutShifts"
       (rowClicked)="onTableRowClicked($event)"
       (cellUpdated)="onCellUpdated($event)"
     >

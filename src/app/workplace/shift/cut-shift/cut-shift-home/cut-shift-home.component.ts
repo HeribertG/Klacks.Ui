@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 
 @Component({
   selector: 'app-cut-shift-home',
@@ -25,15 +25,15 @@ export class CutShiftHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   private urlParameterService = inject(UrlParameterService);
-  private dataManagementShiftService = inject(DataManagementShiftService);
+  private dataManagementShiftCutService = inject(DataManagementShiftCutService);
 
   ngOnInit(): void {
-    if (this.dataManagementShiftService.cutShifts.length == 0) {
+    if (this.dataManagementShiftCutService.cutShifts.length == 0) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/cut-shift'
       );
       if (result.isValidRoute && result.hasId && result.id) {
-        this.dataManagementShiftService.readCutShiftList(result.id);
+        this.dataManagementShiftCutService.readCutShiftList(result.id);
       }
     }
   }

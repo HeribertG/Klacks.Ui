@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, Signal, signal } from '@angular/core';
 import { DataClientService } from '../data-client.service';
 import {
   ITruncatedClient,
@@ -44,20 +44,33 @@ import {
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
+import { IManageable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementClientService {
+export class DataManagementClientService implements IManageable {
   public dataClientService = inject(DataClientService);
   public toastShowService = inject(ToastShowService);
   public dataSettingsVariousService = inject(DataSettingsVariousService);
   private dataCountryStateService = inject(DataCountryStateService);
   private navigationService = inject(NavigationService);
 
+  constructor() {
+    // Selbst-Registrierung für die relevanten Routes
+    ManageableServiceRegistry.register('client', DataManagementClientService);
+    ManageableServiceRegistry.register('edit-address', DataManagementClientService);
+  }
+
+  private _resetTrigger = signal(0);
+  public isDirtyNew = computed(() => {
+    this._resetTrigger(); // Abhängigkeit hinzufügen
+    return this.areObjectsDirty();
+  });
   public isReset = signal(false);
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
+  public showProgressSpinnerNew = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
@@ -254,18 +267,18 @@ export class DataManagementClientService {
     }
 
     if (this.currentFilter.isFilterValid() && this.isInit) {
-      this.showProgressSpinner.set(true);
+      this.showProgressSpinnerNew.set(true);
       this.dataClientService.readClientList(this.currentFilter).subscribe({
         next: (x) => {
           if (!x) {
             console.warn('readPage: Empty response received');
-            this.showProgressSpinner.set(false);
+            this.showProgressSpinnerNew.set(false);
             return;
           }
 
           if (!x.clients) {
             console.warn('readPage: No clients in response');
-            this.showProgressSpinner.set(false);
+            this.showProgressSpinnerNew.set(false);
             return;
           }
 
@@ -282,7 +295,7 @@ export class DataManagementClientService {
         },
         error: (err) => {
           console.error('Error reading client list:', err);
-          this.showProgressSpinner.set(false);
+          this.showProgressSpinnerNew.set(false);
         },
       });
     }
@@ -299,7 +312,7 @@ export class DataManagementClientService {
     }
 
     this.isRead.set(true);
-    this.showProgressSpinner.set(false);
+    this.showProgressSpinnerNew.set(false);
   }
 
   deleteClient(key: string): Observable<IClient> {
@@ -485,7 +498,7 @@ export class DataManagementClientService {
 
     setTimeout(() => {
       this.isReset.set(true);
-      this.showProgressSpinner.set(false);
+      this.showProgressSpinnerNew.set(false);
       setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
@@ -581,7 +594,7 @@ export class DataManagementClientService {
 
       setTimeout(() => {
         this.isRead.set(true);
-        this.showProgressSpinner.set(false);
+        this.showProgressSpinnerNew.set(false);
         setTimeout(() => this.isRead.set(false), 100);
       }, 300);
     });
@@ -1154,13 +1167,17 @@ export class DataManagementClientService {
     return false;
   }
 
-  save() {
+  saveNew() {
     if (this.isEditClient_Dirty()) {
       this.saveEditClient();
+      // Trigger eine Neuberechnung des isDirtyNew computed signals nach dem Speichern
+      this._resetTrigger.update(val => val + 1);
     }
   }
 
-  resetData() {
+  resetDataNew() {
     this.prepareClient(this.editClientDummy!);
+    // Trigger eine Neuberechnung des isDirtyNew computed signals
+    this._resetTrigger.update(val => val + 1);
   }
 }

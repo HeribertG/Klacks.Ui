@@ -241,6 +241,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isEditClient = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Try new approach first
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-address');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementClientService_Edit';
         }, 100);
@@ -253,6 +256,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isClient = true;
         this.isSavebarVisible = false;
         setTimeout(() => {
+          // Try new approach first
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('client');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementClientService';
         }, 100);
@@ -273,6 +279,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isProfile = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Try new approach first
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('profile');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementProfileService';
         }, 100);
@@ -284,6 +293,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSetting = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Try new approach first
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('settings');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementSettingsService';
         }, 100);
@@ -305,6 +317,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Try new approach first
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-group');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementGroupService_Edit';
         }, 100);
@@ -339,6 +354,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Use the dedicated Cut Service
+          this.dataManagementSwitchboardService.setActiveManagerByRoute('cut-shift');
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementShiftService_Cut';
         }, 100);
@@ -351,6 +369,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
+          // Use the main Shift Service for edit operations
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(value);
+          // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementShiftService_Edit';
         }, 100);

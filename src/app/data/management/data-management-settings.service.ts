@@ -1,5 +1,12 @@
 /* eslint-disable no-dupe-else-if */
-import { EffectRef, Injectable, effect, inject, signal } from '@angular/core';
+import {
+  EffectRef,
+  Injectable,
+  effect,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
@@ -25,17 +32,43 @@ import { DataMacroService } from '../data-macro.service';
 import { IMacro } from 'src/app/core/macro-class';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/core/multi-language-class';
+import { IManageable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementSettingsService {
+export class DataManagementSettingsService implements IManageable {
   public userAdministrationService = inject(UserAdministrationService);
   public dataSettingsVariousService = inject(DataSettingsVariousService);
   public dataCountryStateService = inject(DataCountryStateService);
   public dataMacroService = inject(DataMacroService);
   public toastShowService = inject(ToastShowService);
   public gridColorService = inject(GridColorService);
+
+  constructor() {
+    // Selbst-Registrierung für die settings Route
+    ManageableServiceRegistry.register(
+      'settings',
+      DataManagementSettingsService
+    );
+
+    effect(() => {
+      const isReset = this.gridColorService.isReset();
+      if (isReset) {
+        this.isReset.set(true);
+        this.gridColorService.isReset.set(false);
+      }
+    });
+  }
+
+  // IManageable implementation
+  private _resetTrigger = signal(0);
+  public isDirtyNew = computed(() => {
+    this._resetTrigger(); // Abhängigkeit für Trigger
+    return this.areObjectsDirty();
+  });
+  public showProgressSpinnerNew = signal(false);
 
   public isReset = signal(false);
 
@@ -119,16 +152,6 @@ export class DataManagementSettingsService {
   public isDirty = false;
 
   private effectRef: EffectRef | null = null;
-
-  constructor() {
-    effect(() => {
-      const isReset = this.gridColorService.isReset();
-      if (isReset) {
-        this.isReset.set(true);
-        this.gridColorService.isReset.set(false);
-      }
-    });
-  }
 
   /* #region  UserAdministration */
 
@@ -994,5 +1017,18 @@ export class DataManagementSettingsService {
     const isNotEmpty = value.de! + value.en! + value.fr! + value.it!;
 
     return isNotEmpty === '';
+  }
+
+  // IManageable methods
+  saveNew(): void {
+    this.save();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update((val) => val + 1);
+  }
+
+  resetDataNew(): void {
+    this.resetData();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update((val) => val + 1);
   }
 }

@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import {
   transformDateToNgbDateStruct,
   transformNumberToOwnTime,
@@ -26,17 +26,33 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
 import { DataCountryStateService } from '../data-country-state.service';
 import { pushOnStack } from 'src/app/helpers/local-storage-stack';
+import { IManageable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementShiftService {
+export class DataManagementShiftService implements IManageable {
   public toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+
+  constructor() {
+    // Selbst-Registrierung für die relevanten Routes (nur Edit-Modi)
+    ManageableServiceRegistry.register('new-shift', DataManagementShiftService);
+    ManageableServiceRegistry.register('edit-shift', DataManagementShiftService);
+  }
+
+  // IManageable implementation - nur für Edit-Modus
+  private _resetTrigger = signal(0);
+  public isDirtyNew = computed(() => {
+    this._resetTrigger(); // Abhängigkeit für Trigger
+    return this.areObjectsDirty();
+  });
+  public showProgressSpinnerNew = signal(false);
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -653,4 +669,17 @@ export class DataManagementShiftService {
     return result;
   }
   /* #endregion   cut shift */
+
+  // IManageable methods
+  saveNew(): void {
+    this.save();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
+  }
+
+  resetDataNew(): void {
+    this.resetData();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
+  }
 }

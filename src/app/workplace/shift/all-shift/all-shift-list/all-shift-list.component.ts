@@ -9,6 +9,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/core/shift-class';
@@ -33,6 +34,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 export class AllShiftListComponent implements OnInit {
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
+  private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
 
   selectedRowId?: string;
@@ -77,7 +79,7 @@ export class AllShiftListComponent implements OnInit {
 
   onClickCut(data: Shift) {
     if (data && data.originalId) {
-      this.dataManagementShiftService.readCutShiftList(data.originalId);
+      this.dataManagementShiftCutService.readCutShiftList(data.originalId);
     }
   }
 

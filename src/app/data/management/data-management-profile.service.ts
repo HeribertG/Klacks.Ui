@@ -1,18 +1,33 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import { ChangePassword } from 'src/app/core/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { UserAdministrationService } from '../user-administration.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { IManageable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementProfileService {
+export class DataManagementProfileService implements IManageable {
   public userAdministrationService = inject(UserAdministrationService);
   public toastShowService = inject(ToastShowService);
   private localStorageService = inject(LocalStorageService);
+
+  constructor() {
+    // Selbst-Registrierung für die profile Route
+    ManageableServiceRegistry.register('profile', DataManagementProfileService);
+  }
+
+  // IManageable implementation
+  private _resetTrigger = signal(0);
+  public isDirtyNew = computed(() => {
+    this._resetTrigger(); // Abhängigkeit für Trigger
+    return this.areObjectsDirty();
+  });
+  public showProgressSpinnerNew = signal(false);
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -83,5 +98,19 @@ export class DataManagementProfileService {
     this.changePasswordWrapperDummy = cloneObject<ChangePassword>(
       this.changePasswordWrapper
     );
+  }
+
+  // IManageable methods
+  saveNew(): void {
+    this.save();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
+  }
+
+  resetDataNew(): void {
+    this.readData();
+    this.isPasswordDirty = false;
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
   }
 }

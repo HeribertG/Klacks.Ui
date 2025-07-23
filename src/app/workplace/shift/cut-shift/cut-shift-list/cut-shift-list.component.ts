@@ -24,7 +24,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/core/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift } from 'src/app/core/shift-class';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import {
   transformStringToOwnTimeStruct,
   transformDateToNgbDateStruct,
@@ -50,7 +50,7 @@ import { cloneObject } from 'src/app/helpers/object-helpers';
 export class CutShiftListComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
-  public dataManagementShiftService = inject(DataManagementShiftService);
+  public dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
 
@@ -489,10 +489,10 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.internalFromDate = transformDateToNgbDateStruct(cutDateAsDate);
     
     // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
     // Füge den kopierten Shift zur Liste hinzu
-    this.dataManagementShiftService.addCutShift(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
 
     // Emit change event
     this.isChangingEvent.emit(true);
@@ -534,10 +534,10 @@ export class CutShiftListComponent implements OnInit {
     }
     
     // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
     // Füge den kopierten Shift zur Liste hinzu
-    this.dataManagementShiftService.addCutShift(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
     
     // Emit change event
     this.isChangingEvent.emit(true);
@@ -571,10 +571,10 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
     
     // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
     // Füge den kopierten Shift zur Liste hinzu
-    this.dataManagementShiftService.addCutShift(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
     
     // Emit change event
     this.isChangingEvent.emit(true);
@@ -634,10 +634,10 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.sumEmployees = copiedStaffCount;
     
     // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
     // Füge den kopierten Shift zur Liste hinzu
-    this.dataManagementShiftService.addCutShift(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
     
     // Emit change event
     this.isChangingEvent.emit(true);
@@ -672,10 +672,10 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.quantity = copiedTaskCount;
     
     // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
     // Füge den kopierten Shift zur Liste hinzu
-    this.dataManagementShiftService.addCutShift(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
     
     // Emit change event
     this.isChangingEvent.emit(true);

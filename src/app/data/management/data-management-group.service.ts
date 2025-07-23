@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, computed } from '@angular/core';
 import {
   CheckBoxValue,
   Client,
@@ -34,23 +34,39 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { IManageable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementGroupService {
-  public isReset = signal(false);
-  public isRead = signal(false);
-  public showProgressSpinner = signal(false);
-  public initIsRead = signal(false);
-  public restoreSearch = signal('');
-  public showTree = signal(true);
+export class DataManagementGroupService implements IManageable {
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
   public toastShowService = inject(ToastShowService);
   private dataCountryStateService = inject(DataCountryStateService);
   private navigationService = inject(NavigationService);
   private httpClient = inject(HttpClient);
+
+  constructor() {
+    // Selbst-Registrierung für die relevanten Routes
+    ManageableServiceRegistry.register('edit-group', DataManagementGroupService);
+  }
+
+  // IManageable implementation
+  private _resetTrigger = signal(0);
+  public isDirtyNew = computed(() => {
+    this._resetTrigger(); // Abhängigkeit für Trigger
+    return this.areObjectsDirty();
+  });
+  public showProgressSpinnerNew = signal(false);
+
+  public isReset = signal(false);
+  public isRead = signal(false);
+  public showProgressSpinner = signal(false);
+  public initIsRead = signal(false);
+  public restoreSearch = signal('');
+  public showTree = signal(true);
 
   public currentClientFilter: Filter = new Filter();
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
@@ -549,4 +565,17 @@ export class DataManagementGroupService {
     this.expandedNodes.clear();
   }
   /* #endregion   Tree Group */
+
+  // IManageable methods
+  saveNew(): void {
+    this.save();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
+  }
+
+  resetDataNew(): void {
+    this.resetData();
+    // Trigger Neuberechnung des isDirtyNew signals
+    this._resetTrigger.update(val => val + 1);
+  }
 }
