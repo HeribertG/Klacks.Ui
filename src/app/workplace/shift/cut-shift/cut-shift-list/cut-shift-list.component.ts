@@ -7,6 +7,8 @@ import {
   inject,
   Input,
   OnInit,
+  EventEmitter,
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -21,9 +23,12 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/core/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
-import { IShift, Shift, ShiftType } from 'src/app/core/shift-class';
+import { IShift, Shift } from 'src/app/core/shift-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
-import { transformStringToOwnTimeStruct, transformDateToNgbDateStruct } from 'src/app/helpers/format-helper';
+import {
+  transformStringToOwnTimeStruct,
+  transformDateToNgbDateStruct,
+} from 'src/app/helpers/format-helper';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -40,6 +45,8 @@ import { transformStringToOwnTimeStruct, transformDateToNgbDateStruct } from 'sr
   styleUrl: './cut-shift-list.component.scss',
 })
 export class CutShiftListComponent implements OnInit {
+  @Output() isChangingEvent = new EventEmitter<boolean>();
+
   public dataManagementShiftService = inject(DataManagementShiftService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
@@ -235,9 +242,9 @@ export class CutShiftListComponent implements OnInit {
     }
   }
 
-  onCellUpdated(event: {shift: Shift, field: string, value: string}): void {
+  onCellUpdated(event: { shift: Shift; field: string; value: string }): void {
     // Update the shift object with the new value
-    switch(event.field) {
+    switch (event.field) {
       case 'name':
         event.shift.name = event.value;
         break;
@@ -250,8 +257,11 @@ export class CutShiftListComponent implements OnInit {
     }
 
     // TODO: Here you can add service call to save the changes to backend
-    console.log(`Updated ${event.field} to "${event.value}" for shift:`, event.shift);
-    
+    console.log(
+      `Updated ${event.field} to "${event.value}" for shift:`,
+      event.shift
+    );
+
     // Optionally emit an event or call a service to persist the changes
     // this.dataManagementShiftService.updateShift(event.shift);
   }
@@ -262,7 +272,7 @@ export class CutShiftListComponent implements OnInit {
 
       if (shift.fromDate) {
         const ngbFromDate = transformDateToNgbDateStruct(shift.fromDate);
-        
+
         if (ngbFromDate) {
           const fromDate = NgbDate.from(ngbFromDate);
           if (fromDate) {
@@ -274,7 +284,7 @@ export class CutShiftListComponent implements OnInit {
 
       if (shift.untilDate) {
         const ngbUntilDate = transformDateToNgbDateStruct(shift.untilDate);
-        
+
         if (ngbUntilDate) {
           const untilDate = NgbDate.from(ngbUntilDate);
           if (untilDate) {

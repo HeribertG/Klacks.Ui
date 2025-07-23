@@ -25,6 +25,7 @@ import { IShift, Shift } from 'src/app/core/shift-class';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
 import { DataCountryStateService } from '../data-country-state.service';
+import { pushOnStack } from 'src/app/helpers/local-storage-stack';
 
 @Injectable({
   providedIn: 'root',
@@ -51,6 +52,7 @@ export class DataManagementShiftService {
 
   public shifts: IShift[] = [];
   public cutShifts: IShift[] = [];
+  public cutShiftsDummy: IShift[] = [];
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
@@ -558,17 +560,52 @@ export class DataManagementShiftService {
 
   /* #region   cut shift */
 
+  createCutShiftUrl(id: string): string {
+    return 'workplace/cut-shift?id=' + id;
+  }
+
   readCutShiftList(id: string) {
     if (id !== '') {
       this.showProgressSpinner.set(true);
       this.dataShiftService.getCutShiftList(id).subscribe((x) => {
         this.cutShifts = x;
+        pushOnStack('workplace/cut-shift?id=' + id);
+        this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
         this.navigationService.navigateToCutShift();
+
+        setTimeout(
+          () => history.pushState(null, '', this.createCutShiftUrl(id)),
+          100
+        );
+
         this.fireIsReadEvent();
         this.showProgressSpinner.set(false);
       });
     }
+  }
+
+  resetCutData() {
+    this.cutShifts = this.cutShiftsDummy;
+  }
+
+  areCutObjectsDirty(): boolean {
+    if (this.isCutShifts_Dirty()) {
+      return true;
+    }
+    return false;
+  }
+
+  private isCutShifts_Dirty(): boolean {
+    let result = false;
+    const a = this.cutShifts as IShift[];
+    const b = this.cutShiftsDummy as IShift[];
+
+    if (!compareComplexObjects(a, b)) {
+      result = true;
+    }
+
+    return result;
   }
   /* #endregion   cut shift */
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   Component,
@@ -53,13 +54,14 @@ export class EditShiftHomeComponent implements OnInit {
   private urlParameterService = inject(UrlParameterService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
-  private translateService = inject(TranslateService);
 
   isComplex = false;
 
   // Getter to determine if nav should be hidden when shift status is IsCut
   get isNavVisible(): boolean {
-    return this.dataManagementShiftService.editShift?.status !== ShiftStatus.IsCut;
+    return (
+      this.dataManagementShiftService.editShift?.status !== ShiftStatus.IsCut
+    );
   }
 
   ngOnInit(): void {
@@ -93,7 +95,6 @@ export class EditShiftHomeComponent implements OnInit {
       'DataManagementShiftService_Edit';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
   }

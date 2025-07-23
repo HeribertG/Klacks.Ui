@@ -204,19 +204,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         this.isAbsence = true;
         this.isSavebarVisible = false;
-        this.setContainerWithMax();
+        this.setContainerWithMaxSize();
 
         break;
       case 'dashboard':
         pushOnStack('workplace/dashboard');
 
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isDashboard = true;
         this.isSavebarVisible = false;
 
         break;
       case 'edit-address':
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isEditClient = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
@@ -228,7 +228,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'client':
         pushOnStack('workplace/client');
 
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isClient = true;
         this.isSavebarVisible = false;
         setTimeout(() => {
@@ -239,7 +239,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
       case 'schedule':
         this.isSchedule = true;
-        this.setContainerWithMax();
+        this.setContainerWithMaxSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -248,10 +248,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
         break;
       case 'profile':
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isProfile = true;
         this.isSavebarVisible = true;
-
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementProfileService';
@@ -259,7 +258,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'settings':
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
 
         this.isSetting = true;
         this.isSavebarVisible = true;
@@ -272,7 +271,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         pushOnStack('workplace/group');
 
         this.isGroup = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -280,8 +279,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
         break;
       case 'edit-group':
+        pushOnStack('workplace/group');
         this.isEditGroup = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -293,7 +293,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         pushOnStack('workplace/group-structure');
 
         this.isGroupStructure = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -304,7 +304,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       case 'shift':
         pushOnStack('workplace/shift');
         this.isShift = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -313,21 +313,21 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'cut-shift':
-        pushOnStack('workplace/cut-shift');
+        pushOnStack('workplace/shift');
         this.isCutShift = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementCutShiftService';
+            'DataManagementShiftService_Cut';
         }, 100);
         break;
 
       case 'new-shift':
       case 'edit-shift':
-        pushOnStack('workplace/edit-shift');
+        pushOnStack('workplace/shift');
         this.isCreateShift = true;
-        this.setContainerWithNormal();
+        this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
@@ -350,11 +350,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   open(content: any): Promise<boolean> | void {}
 
-  setContainerWithNormal() {
+  setContainerWithNormalSize() {
     const containerWrapper = document.getElementById('main_container');
     containerWrapper!.style.setProperty('max-width', '1445px');
   }
-  setContainerWithMax() {
+  setContainerWithMaxSize() {
     const containerWrapper = document.getElementById('main_container');
     containerWrapper!.style.setProperty('max-width', '100%');
   }

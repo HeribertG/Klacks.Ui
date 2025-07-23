@@ -144,6 +144,7 @@ export class DataManagementSwitchboardService {
         return 'profile';
       case 'DataManagementGroupService_Edit':
         return 'group';
+      case 'DataManagementShiftService_Cut':
       case 'DataManagementShiftService_Edit':
         return 'shift';
       case 'DataManagementAbsenceGanttService':
@@ -174,6 +175,9 @@ export class DataManagementSwitchboardService {
         break;
       case 'DataManagementShiftService_Edit':
         isDirty = this.dataManagementShiftService.areObjectsDirty();
+        break;
+      case 'DataManagementShiftService_Cut':
+        isDirty = this.dataManagementShiftService.areCutObjectsDirty();
         break;
       default:
         isDirty = false;
