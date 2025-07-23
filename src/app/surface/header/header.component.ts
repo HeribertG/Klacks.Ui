@@ -7,7 +7,6 @@ import {
   inject,
   signal,
   computed,
-  effect,
   EffectRef,
   Injector,
   runInInjectionContext,

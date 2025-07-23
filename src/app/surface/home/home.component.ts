@@ -61,7 +61,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   private localStorageService = inject(LocalStorageService);
   private authorizationService = inject(AuthorizationService);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   @ViewChild('content', { static: false }) private content: any;
 
   isDashboard = true;
@@ -242,7 +241,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = true;
         setTimeout(() => {
           // Try new approach first
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-address');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'edit-address'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementClientService_Edit';
@@ -257,7 +258,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = false;
         setTimeout(() => {
           // Try new approach first
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('client');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'client'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementClientService';
@@ -280,7 +283,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = true;
         setTimeout(() => {
           // Try new approach first
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('profile');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'profile'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementProfileService';
@@ -294,7 +299,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = true;
         setTimeout(() => {
           // Try new approach first
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('settings');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'settings'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementSettingsService';
@@ -318,7 +325,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = true;
         setTimeout(() => {
           // Try new approach first
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-group');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'edit-group'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementGroupService_Edit';
@@ -355,7 +364,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSavebarVisible = true;
         setTimeout(() => {
           // Use the dedicated Cut Service
-          this.dataManagementSwitchboardService.setActiveManagerByRoute('cut-shift');
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            'cut-shift'
+          );
           // Keep legacy for now during transition
           this.dataManagementSwitchboardService.nameOfVisibleEntity =
             'DataManagementShiftService_Cut';

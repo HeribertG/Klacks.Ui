@@ -8,7 +8,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -23,7 +23,6 @@ import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.co
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ShiftStatus } from 'src/app/core/shift-class';
-import { faEarListen } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -66,13 +65,21 @@ export class EditShiftHomeComponent implements OnInit {
 
   ngOnInit(): void {
     // Determine the route and set active manager
-    const result1 = this.urlParameterService.parseCurrentUrl('/workplace/edit-shift');
-    const result2 = this.urlParameterService.parseCurrentUrl('/workplace/new-shift');
-    
+    const result1 = this.urlParameterService.parseCurrentUrl(
+      '/workplace/edit-shift'
+    );
+    const result2 = this.urlParameterService.parseCurrentUrl(
+      '/workplace/new-shift'
+    );
+
     if (result1.isValidRoute) {
-      this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-shift');
+      this.dataManagementSwitchboardService.setActiveManagerByRoute(
+        'edit-shift'
+      );
     } else if (result2.isValidRoute) {
-      this.dataManagementSwitchboardService.setActiveManagerByRoute('new-shift');
+      this.dataManagementSwitchboardService.setActiveManagerByRoute(
+        'new-shift'
+      );
     }
 
     if (this.dataManagementShiftService.editShift === undefined) {
