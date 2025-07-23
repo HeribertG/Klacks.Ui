@@ -41,6 +41,9 @@ export class EditGroupHomeComponent implements OnInit {
   private urlParameterService = inject(UrlParameterService);
 
   ngOnInit(): void {
+    // Use new registry approach
+    this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-group');
+    
     if (this.dataManagementGroupService.editGroup === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-group'

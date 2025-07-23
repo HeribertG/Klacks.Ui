@@ -44,8 +44,8 @@ export class ProfileHomeComponent implements OnInit {
   public dataManagementProfileService = inject(DataManagementProfileService);
 
   ngOnInit(): void {
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementProfileService';
+    // Use new registry approach
+    this.dataManagementSwitchboardService.setActiveManagerByRoute('profile');
     this.dataManagementProfileService.readData();
   }
 

@@ -95,7 +95,7 @@ export class DataManagementSwitchboardService {
     this._lastNameOfVisibleEntity.set(this._nameOfVisibleEntity());
     this._nameOfVisibleEntity.set(value);
 
-    // Handle search visibility based on entity
+    // Handle search visibility based on entity (legacy for non-migrated services)
     switch (value) {
       case 'DataManagementGroupService':
         this._isSearchVisible.set(false);
@@ -150,19 +150,14 @@ export class DataManagementSwitchboardService {
   }
 
   public actualPage(): string {
+    // Simplified page detection based on route or active manager
+    if (this.activeManager()) {
+      // Could be enhanced to derive page from active manager type
+      return '';
+    }
+    
+    // Legacy logic for non-migrated services
     switch (this.nameOfVisibleEntity) {
-      case 'DataManagementClientService_Edit':
-      case 'DataManagementClientService':
-        return 'employees';
-      case 'DataManagementSettingsService':
-        return 'settings';
-      case 'DataManagementProfileService':
-        return 'profile';
-      case 'DataManagementGroupService_Edit':
-        return 'group';
-      case 'DataManagementShiftService_Cut':
-      case 'DataManagementShiftService_Edit':
-        return 'shift';
       case 'DataManagementAbsenceGanttService':
         return 'gantt';
       case 'DataManagementScheduleService':

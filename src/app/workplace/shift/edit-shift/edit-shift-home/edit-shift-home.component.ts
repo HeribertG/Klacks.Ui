@@ -65,10 +65,17 @@ export class EditShiftHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Determine the route and set active manager
+    const result1 = this.urlParameterService.parseCurrentUrl('/workplace/edit-shift');
+    const result2 = this.urlParameterService.parseCurrentUrl('/workplace/new-shift');
+    
+    if (result1.isValidRoute) {
+      this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-shift');
+    } else if (result2.isValidRoute) {
+      this.dataManagementSwitchboardService.setActiveManagerByRoute('new-shift');
+    }
+
     if (this.dataManagementShiftService.editShift === undefined) {
-      const result1 = this.urlParameterService.parseCurrentUrl(
-        '/workplace/edit-shift'
-      );
       if (result1.isValidRoute && result1.hasId && result1.id) {
         this.dataManagementShiftService.readShift(result1.id);
       } else {
@@ -79,20 +86,13 @@ export class EditShiftHomeComponent implements OnInit {
         }
       }
 
-      const result2 = this.urlParameterService.parseCurrentUrl(
-        '/workplace/new-shift'
-      );
       if (result2.isValidRoute) {
         this.dataManagementShiftService.createShift();
       }
     }
 
     this.onIsChangingMode();
-
     this.dataManagementShiftService.init();
-
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementShiftService_Edit';
   }
 
   onIsChanging(event: any) {

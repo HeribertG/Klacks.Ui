@@ -12,7 +12,10 @@
       "Bash(grep -n -A2 \"areObjectsDirty\\|^  save(\" src/app/data/management/data-management-settings.service.ts)",
       "Bash(grep -n \"areObjectsDirty\\|save()\\|resetData\" src/app/data/management/data-management-group.service.ts)",
       "Bash(grep -n \"areObjectsDirty\\|save()\\|resetData\\|areCutObjectsDirty\" src/app/data/management/data-management-shift.service.ts)",
-      "Bash(grep -n \"save()\" src/app/data/management/data-management-shift.service.ts)"
+      "Bash(grep -n \"save()\" src/app/data/management/data-management-shift.service.ts)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run lint)"
     ],
     "deny": []
   }

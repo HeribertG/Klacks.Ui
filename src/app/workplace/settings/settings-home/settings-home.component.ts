@@ -78,8 +78,8 @@ export class SettingsHomeComponent implements OnInit {
   ngOnInit(): void {
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementSettingsService';
+    // Use new registry approach
+    this.dataManagementSwitchboardService.setActiveManagerByRoute('settings');
     this.dataManagementSettingsService.readData();
   }
 
