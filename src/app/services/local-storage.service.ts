@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -16,7 +17,6 @@ export class LocalStorageService {
     localStorage.removeItem(key);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getJson(key: string): any {
     const item = this.get(key);
     if (item) {
@@ -25,7 +25,6 @@ export class LocalStorageService {
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setJson(key: string, value: any): void {
     this.set(key, JSON.stringify(value));
   }

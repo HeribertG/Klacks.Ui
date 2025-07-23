@@ -235,6 +235,9 @@ export class DataManagementSwitchboardService {
       case 'DataManagementShiftService_Edit':
         this.dataManagementShiftService.resetData();
         break;
+      case 'DataManagementShiftService_Cut':
+        this.dataManagementShiftService.resetCutData();
+        break;
     }
   }
 

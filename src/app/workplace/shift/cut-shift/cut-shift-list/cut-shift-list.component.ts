@@ -243,7 +243,6 @@ export class CutShiftListComponent implements OnInit {
   }
 
   onCellUpdated(event: { shift: Shift; field: string; value: string }): void {
-    // Update the shift object with the new value
     switch (event.field) {
       case 'name':
         event.shift.name = event.value;
@@ -256,14 +255,7 @@ export class CutShiftListComponent implements OnInit {
         break;
     }
 
-    // TODO: Here you can add service call to save the changes to backend
-    console.log(
-      `Updated ${event.field} to "${event.value}" for shift:`,
-      event.shift
-    );
-
-    // Optionally emit an event or call a service to persist the changes
-    // this.dataManagementShiftService.updateShift(event.shift);
+    this.isChangingEvent.emit(true);
   }
 
   private analyzeCutByDate(shift: Shift): void {
@@ -347,26 +339,21 @@ export class CutShiftListComponent implements OnInit {
     if (shift.isSaturday) selectedCount++;
     if (shift.isSunday) selectedCount++;
 
-    // Holiday and WeekdayOrHoliday are mutually exclusive
     if (shift.isHoliday && !shift.isWeekdayOrHoliday) selectedCount++;
     if (shift.isWeekdayOrHoliday && !shift.isHoliday) selectedCount++;
 
-    // Enable cut weekdays only if at least 2 options are selected
     if (selectedCount >= 2) {
       this.isCutWeekdaysEnabled = true;
 
-      // Set weekday values from shift
-      this.weekdays.isMonday = shift.isMonday;
-      this.weekdays.isTuesday = shift.isTuesday;
-      this.weekdays.isWednesday = shift.isWednesday;
-      this.weekdays.isThursday = shift.isThursday;
-      this.weekdays.isFriday = shift.isFriday;
-      this.weekdays.isSaturday = shift.isSaturday;
-      this.weekdays.isSunday = shift.isSunday;
+      this.weekdays.isMonday = false;
+      this.weekdays.isTuesday = false;
+      this.weekdays.isWednesday = false;
+      this.weekdays.isThursday = false;
+      this.weekdays.isFriday = false;
+      this.weekdays.isSaturday = false;
+      this.weekdays.isSunday = false;
 
-      // Handle mutual exclusivity of holiday and weekdayOrHoliday
       if (shift.isHoliday && shift.isWeekdayOrHoliday) {
-        // If both are set in the shift, prefer weekdayOrHoliday
         this.weekdays.isHoliday = false;
         this.weekdays.isWeekdayOrHoliday = true;
       } else {
@@ -374,7 +361,6 @@ export class CutShiftListComponent implements OnInit {
         this.weekdays.isWeekdayOrHoliday = shift.isWeekdayOrHoliday;
       }
 
-      // Enable corresponding weekday checkboxes
       this.isMondayEnabled = shift.isMonday;
       this.isTuesdayEnabled = shift.isTuesday;
       this.isWednesdayEnabled = shift.isWednesday;
@@ -383,7 +369,6 @@ export class CutShiftListComponent implements OnInit {
       this.isSaturdayEnabled = shift.isSaturday;
       this.isSundayEnabled = shift.isSunday;
 
-      // Enable holiday/weekdayOrHoliday based on mutual exclusivity
       if (shift.isHoliday && shift.isWeekdayOrHoliday) {
         this.isHolidayEnabled = false;
         this.isWeekdayOrHolidayEnabled = true;

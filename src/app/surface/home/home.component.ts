@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Component,
   HostListener,
@@ -7,7 +9,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import {
   deleteStack,
@@ -51,6 +53,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     DataManagementSwitchboardService
   );
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private navigationService = inject(NavigationService);
   private titleService = inject(Title);
   private dataSettingsVariousService = inject(DataSettingsVariousService);
@@ -97,6 +100,17 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.route.params.subscribe((params) => {
       this.getClientType(params['id']);
+    });
+
+    // Subscribe to navigation events to handle back navigation
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        // Re-read route params when navigation ends
+        const id = this.route.snapshot.params['id'];
+        if (id) {
+          this.getClientType(id);
+        }
+      }
     });
 
     try {
@@ -150,6 +164,13 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onClickSave(): void {
     this.dataManagementSwitchboardService.onClickSave();
+  }
+
+  onClickSaveAndClose(): void {
+    this.dataManagementSwitchboardService.onClickSave();
+    setTimeout(() => {
+      this.onClickGoBack();
+    }, 500);
   }
 
   onIsEnter(): void {
@@ -347,7 +368,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
   open(content: any): Promise<boolean> | void {}
 
   setContainerWithNormalSize() {

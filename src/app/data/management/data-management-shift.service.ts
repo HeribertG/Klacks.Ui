@@ -586,7 +586,7 @@ export class DataManagementShiftService {
   }
 
   resetCutData() {
-    this.cutShifts = this.cutShiftsDummy;
+    this.cutShifts = cloneObject<Shift[]>(this.cutShiftsDummy);
   }
 
   areCutObjectsDirty(): boolean {

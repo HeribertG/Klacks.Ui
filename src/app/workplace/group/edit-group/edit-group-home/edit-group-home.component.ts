@@ -51,9 +51,6 @@ export class EditGroupHomeComponent implements OnInit {
         this.dataManagementGroupService.createGroup();
       }
     }
-
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementGroupService_Edit';
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

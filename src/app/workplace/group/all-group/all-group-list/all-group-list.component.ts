@@ -40,7 +40,6 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { measureTableHeight } from 'src/app/helpers/tableResize';
 import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
@@ -79,7 +78,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
-  private renderer = inject(Renderer2);
   private injector = inject(Injector);
 
   private effectRef: EffectRef | null = null;
