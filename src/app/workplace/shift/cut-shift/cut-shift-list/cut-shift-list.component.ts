@@ -131,30 +131,63 @@ export class CutShiftListComponent implements OnInit {
     const minMinutes = this.minTimeShift.toMinutes();
     const maxMinutes = this.maxTimeShift.toMinutes();
 
+
     if (this.is24Hours) {
+      // Bei 24h-Shift: Jede Zeit ist erlaubt außer der exakten Startzeit
+      if (currentMinutes === minMinutes) {
+        const newMinutes = (currentMinutes + 1) % (24 * 60);
+        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+        this.cutTimeShift.minutes = (newMinutes % 60).toString();
+      }
       return;
     }
 
     if (this.isOverMidnight) {
-      if (currentMinutes < minMinutes && currentMinutes > maxMinutes) {
-        const distanceToMin = minMinutes - currentMinutes;
-        const distanceToMax = currentMinutes - maxMinutes;
+      // Bei Over-Midnight: gültige Zeit ist AUSSERHALB von endMinutes bis startMinutes
+      // Für 15:00-07:00: ungültig ist 07:01-14:59, gültig ist 15:00-07:00
+      const isInvalidRange = currentMinutes > maxMinutes && currentMinutes < minMinutes;
+      
+      if (isInvalidRange) {
+        // Springe zum nächstgelegenen gültigen Wert
+        const distanceToStart = Math.abs(minMinutes - currentMinutes);
+        const distanceToEnd = Math.abs(currentMinutes - maxMinutes);
 
-        if (distanceToMin <= distanceToMax) {
-          this.cutTimeShift.hours = this.minTimeShift.hours;
-          this.cutTimeShift.minutes = this.minTimeShift.minutes;
+        if (distanceToStart <= distanceToEnd) {
+          // Näher zum Start, springe zum Start + 1 Minute
+          const newMinutes = (minMinutes + 1) % (24 * 60);
+          this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+          this.cutTimeShift.minutes = (newMinutes % 60).toString();
         } else {
-          this.cutTimeShift.hours = this.maxTimeShift.hours;
-          this.cutTimeShift.minutes = this.maxTimeShift.minutes;
+          // Näher zum End, springe zum End - 1 Minute
+          let newMinutes = maxMinutes - 1;
+          if (newMinutes < 0) newMinutes = 24 * 60 - 1;
+          this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+          this.cutTimeShift.minutes = (newMinutes % 60).toString();
         }
       }
+      
+      // Zusätzliche Prüfung: darf nicht exakt Start- oder Endzeit sein
+      if (currentMinutes === minMinutes) {
+        const newMinutes = (minMinutes + 1) % (24 * 60);
+        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+        this.cutTimeShift.minutes = (newMinutes % 60).toString();
+      }
+      if (currentMinutes === maxMinutes) {
+        let newMinutes = maxMinutes - 1;
+        if (newMinutes < 0) newMinutes = 24 * 60 - 1;
+        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+        this.cutTimeShift.minutes = (newMinutes % 60).toString();
+      }
     } else {
-      if (currentMinutes < minMinutes) {
-        this.cutTimeShift.hours = this.minTimeShift.hours;
-        this.cutTimeShift.minutes = this.minTimeShift.minutes;
-      } else if (currentMinutes > maxMinutes) {
-        this.cutTimeShift.hours = this.maxTimeShift.hours;
-        this.cutTimeShift.minutes = this.maxTimeShift.minutes;
+      // Normaler Shift: Zeit muss zwischen min und max liegen
+      if (currentMinutes <= minMinutes) {
+        const newMinutes = minMinutes + 1;
+        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+        this.cutTimeShift.minutes = (newMinutes % 60).toString();
+      } else if (currentMinutes >= maxMinutes) {
+        const newMinutes = maxMinutes - 1;
+        this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
+        this.cutTimeShift.minutes = (newMinutes % 60).toString();
       }
     }
   }
@@ -301,6 +334,7 @@ export class CutShiftListComponent implements OnInit {
     shift.internalStartShift = transformStringToOwnTimeStruct(shift.startShift);
     shift.internalEndShift = transformStringToOwnTimeStruct(shift.endShift);
 
+
     if (shift.internalStartShift && shift.internalEndShift) {
       const startMinutes = shift.internalStartShift.toMinutes();
       const endMinutes = shift.internalEndShift.toMinutes();
@@ -321,16 +355,43 @@ export class CutShiftListComponent implements OnInit {
         this.isOverMidnight = false;
       }
 
+
       if (totalMinutes > 1) {
         this.isCutTimeEnabled = true;
 
         this.minTimeShift = shift.internalStartShift;
         this.maxTimeShift = shift.internalEndShift;
 
-        this.cutTimeShift = OwnTime.forTime(
-          shift.internalStartShift.hours,
-          shift.internalStartShift.minutes
-        );
+        // Setze cutTimeShift auf einen Wert zwischen Start und End, nicht auf Start
+        if (this.is24Hours) {
+          // Bei 24h-Shift: setze auf Startzeit + 1 Stunde als Default
+          const defaultCutHour = (Number(shift.internalStartShift.hours) + 1) % 24;
+          this.cutTimeShift = OwnTime.forTime(defaultCutHour.toString(), '0');
+        } else if (this.isOverMidnight) {
+          // Bei Over-Midnight: setze auf Mitte der gültigen Zeitspanne
+          const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
+          let midHours: number;
+          let remainingMinutes: number;
+          
+          if (midMinutes >= 24 * 60) {
+            // Wenn wir über Mitternacht gehen, ziehe 24h ab
+            const adjustedMinutes = midMinutes - 24 * 60;
+            midHours = Math.floor(adjustedMinutes / 60);
+            remainingMinutes = adjustedMinutes % 60;
+          } else {
+            midHours = Math.floor(midMinutes / 60);
+            remainingMinutes = midMinutes % 60;
+          }
+          
+          this.cutTimeShift = OwnTime.forTime(midHours.toString(), remainingMinutes.toString());
+        } else {
+          // Normaler Shift: setze auf Mitte zwischen Start und End
+          const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
+          const midHours = Math.floor(midMinutes / 60);
+          const remainingMinutes = midMinutes % 60;
+          this.cutTimeShift = OwnTime.forTime(midHours.toString(), remainingMinutes.toString());
+        }
+
       }
     }
   }
@@ -451,6 +512,10 @@ export class CutShiftListComponent implements OnInit {
     // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
 
+    // Speichere den ursprünglichen endShift für 24-Stunden-Shifts
+    const originalEndShift = this.selectedShift.endShift;
+    const originalInternalEndShift = this.selectedShift.internalEndShift;
+
     // Original Shift: setze endShift auf cutTime
     this.selectedShift.endShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
     this.selectedShift.internalEndShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
@@ -461,6 +526,12 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
     copiedShift.startShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
     copiedShift.internalStartShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
+    
+    // Bei 24-Stunden-Shifts: behalte den ursprünglichen endShift für die Kopie bei
+    if (this.is24Hours) {
+      copiedShift.endShift = originalEndShift;
+      copiedShift.internalEndShift = originalInternalEndShift;
+    }
     
     // Nested Set Model: Berechne lft/rgt Werte
     this.dataManagementShiftService.calculateNestedSetValues(copiedShift, this.selectedShift);
@@ -474,7 +545,8 @@ export class CutShiftListComponent implements OnInit {
     console.log('Cut by time performed:', {
       originalShift: this.selectedShift,
       copiedShift: copiedShift,
-      cutTime: this.cutTimeShift
+      cutTime: this.cutTimeShift,
+      is24Hours: this.is24Hours
     });
   }
 

@@ -24,6 +24,7 @@ export class CutTableComponent {
   @Input() shifts: IShift[] | undefined;
   @Output() editClicked = new EventEmitter<Shift>();
   @Output() cutClicked = new EventEmitter<Shift>();
+  @Output() rowClicked = new EventEmitter<Shift>();
 
   highlightRowId?: string;
   selectedRowId?: string;
@@ -37,6 +38,7 @@ export class CutTableComponent {
   }
   onClickRow(data: Shift) {
     this.selectedRowId = data.id;
+    this.rowClicked.emit(data);
   }
   onClickEdit(s: Shift, $event: MouseEvent) {
     $event.stopPropagation();

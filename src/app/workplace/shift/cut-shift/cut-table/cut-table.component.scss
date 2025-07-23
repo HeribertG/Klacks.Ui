@@ -117,3 +117,32 @@ thead {
     z-index: 1;
   }
 }
+
+table input[type="checkbox"]:disabled,
+td input[type="checkbox"]:disabled,
+.table input[type="checkbox"]:disabled {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  &:checked::after {
+    content: "✔" !important;
+    display: block !important;
+    color: var(--colorText) !important;
+    font-size: 12px !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    line-height: 16px !important;
+  }
+
+  &:not(:checked)::after {
+    content: "" !important;
+  }
+}
