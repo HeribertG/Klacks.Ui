@@ -1,9 +1,9 @@
 import { Injectable, Injector } from '@angular/core';
-import { IManageable } from './imanageable';
+import { IManageable, ISpinnable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 
 /**
- * Factory service for creating IManageable service instances based on route identifiers.
+ * Factory service for creating ISpinnable/IManageable service instances based on route identifiers.
  * This factory uses the ManageableServiceRegistry to resolve the appropriate service
  * and the Angular Injector to instantiate it.
  */
@@ -12,11 +12,11 @@ export class ManageableServiceFactory {
   constructor(private injector: Injector) {}
 
   /**
-   * Gets an instance of an IManageable service based on the route identifier
+   * Gets an instance of an ISpinnable service based on the route identifier
    * @param routeId - The route identifier (e.g., 'client', 'edit-address')
    * @returns The service instance or null if not found
    */
-  getService(routeId: string): IManageable | null {
+  getService(routeId: string): ISpinnable | null {
     const serviceToken = ManageableServiceRegistry.get(routeId);
     
     if (serviceToken) {

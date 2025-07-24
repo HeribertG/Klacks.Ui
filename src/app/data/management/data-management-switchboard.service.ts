@@ -6,27 +6,19 @@ import {
   computed,
   EffectRef,
 } from '@angular/core';
-import { DataManagementAbsenceService } from './data-management-absence.service';
-import { DataManagementScheduleService } from './data-management-schedule.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
-import { IManageable } from './imanageable';
+import { IManageable, ISpinnable } from './imanageable';
 import { ManageableServiceFactory } from './manageable-service.factory';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementSwitchboardService {
-  // Only non-migrated services still need direct injection
-  public dataManagementAbsenceService = inject(DataManagementAbsenceService);
-  public dataManagementScheduleService = inject(DataManagementScheduleService);
-  
   private spinnerService = inject(SpinnerService);
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
-  public activeManager = signal<IManageable | null>(null);
-  public isDirtyNew = computed(
-    () => this.activeManager()?.isDirtyNew() ?? false
-  );
+  public activeManager = signal<ISpinnable | null>(null);
+
   public showProgressSpinnerNew = computed(
     () => this.activeManager()?.showProgressSpinnerNew() ?? false
   );
@@ -40,15 +32,6 @@ export class DataManagementSwitchboardService {
 
   public isFocusChanged = signal<boolean>(false);
 
-  private spinnerStates = computed(() => ({
-    absence: this.dataManagementAbsenceService.showProgressSpinner(),
-    schedule: this.dataManagementScheduleService.showProgressSpinner(),
-  }));
-
-  private shouldShowSpinner = computed(() => {
-    const states = this.spinnerStates();
-    return states.absence || states.schedule;
-  });
 
   public get lastNameOfVisibleEntity(): string {
     return this._lastNameOfVisibleEntity();
@@ -122,11 +105,13 @@ export class DataManagementSwitchboardService {
   public setActiveManagerByRoute(routeId: string): void {
     const manager = this.manageableServiceFactory.getService(routeId);
     this.activeManager.set(manager);
-    
+
     if (manager) {
       console.log(`Active manager set for route: ${routeId}`);
     } else {
-      console.warn(`No IManageable service found for route: ${routeId}. Using legacy logic.`);
+      console.warn(
+        `No IManageable service found for route: ${routeId}. Using legacy logic.`
+      );
     }
   }
 
@@ -155,7 +140,7 @@ export class DataManagementSwitchboardService {
       // Could be enhanced to derive page from active manager type
       return '';
     }
-    
+
     // Legacy logic for non-migrated services
     switch (this.nameOfVisibleEntity) {
       case 'DataManagementAbsenceGanttService':
@@ -171,7 +156,14 @@ export class DataManagementSwitchboardService {
     let isDirty = false;
 
     if (this.activeManager()) {
-      isDirty = this.activeManager()!.isDirtyNew();
+      // Check if the service implements IManageable (has areObjectsDirty method)
+      const manager = this.activeManager()!;
+      if ('areObjectsDirty' in manager) {
+        isDirty = (manager as IManageable).areObjectsDirty();
+      } else {
+        // Service only implements ISpinnable, not dirty
+        isDirty = false;
+      }
     } else {
       // No active manager, not dirty
       isDirty = false;
@@ -187,9 +179,14 @@ export class DataManagementSwitchboardService {
 
   onClickSave(): void {
     if (this.activeManager()) {
-      this.activeManager()!.saveNew();
-      this._isDisabled.set(true);
-      this._isSavedOrReset.set(true);
+      const manager = this.activeManager()!;
+      if ('saveNew' in manager) {
+        (manager as IManageable).saveNew();
+        this._isDisabled.set(true);
+        this._isSavedOrReset.set(true);
+      } else {
+        console.warn('Active manager does not implement IManageable (no save functionality)');
+      }
     } else {
       // No active manager, cannot save
       console.warn('No active manager available for save operation');
@@ -198,8 +195,13 @@ export class DataManagementSwitchboardService {
 
   reset(): void {
     if (this.activeManager()) {
-      this.activeManager()!.resetDataNew();
-      this._isSavedOrReset.set(true);
+      const manager = this.activeManager()!;
+      if ('resetDataNew' in manager) {
+        (manager as IManageable).resetDataNew();
+        this._isSavedOrReset.set(true);
+      } else {
+        console.warn('Active manager does not implement IManageable (no reset functionality)');
+      }
     } else {
       // No active manager, cannot reset
       console.warn('No active manager available for reset operation');
@@ -219,9 +221,9 @@ export class DataManagementSwitchboardService {
   }
 
   private readEffects(): void {
-    // Consolidated spinner effect
+    // Spinner effect - now uses activeManager's showProgressSpinnerNew
     const spinnerEffect = effect(() => {
-      const shouldShow = this.shouldShowSpinner();
+      const shouldShow = this.showProgressSpinnerNew();
       this.showProgressSpinner(shouldShow);
     });
     this.effectRefs.push(spinnerEffect);

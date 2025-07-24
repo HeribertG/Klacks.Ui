@@ -63,11 +63,6 @@ export class DataManagementClientService implements IManageable {
     ManageableServiceRegistry.register('edit-address', DataManagementClientService);
   }
 
-  private _resetTrigger = signal(0);
-  public isDirtyNew = computed(() => {
-    this._resetTrigger(); // Abhängigkeit hinzufügen
-    return this.areObjectsDirty();
-  });
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinnerNew = signal(false);
@@ -1170,14 +1165,10 @@ export class DataManagementClientService implements IManageable {
   saveNew() {
     if (this.isEditClient_Dirty()) {
       this.saveEditClient();
-      // Trigger eine Neuberechnung des isDirtyNew computed signals nach dem Speichern
-      this._resetTrigger.update(val => val + 1);
     }
   }
 
   resetDataNew() {
     this.prepareClient(this.editClientDummy!);
-    // Trigger eine Neuberechnung des isDirtyNew computed signals
-    this._resetTrigger.update(val => val + 1);
   }
 }

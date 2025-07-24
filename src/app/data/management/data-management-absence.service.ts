@@ -13,17 +13,26 @@ import {
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataAbsenceService } from '../data-absence.service';
 import { DataLoadFileService } from '../data-load-file.service';
+import { ISpinnable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementAbsenceService {
+export class DataManagementAbsenceService implements ISpinnable {
   public dataAbsenceService = inject(DataAbsenceService);
   public toastShowService = inject(ToastShowService);
   private dataLoadFileService = inject(DataLoadFileService);
 
+  constructor() {
+    // Selbst-Registrierung für die absence Route
+    ManageableServiceRegistry.register('absence', DataManagementAbsenceService);
+  }
+
+  // ISpinnable implementation
+  public showProgressSpinnerNew = signal(false);
+
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
 
   public maxItems = 0;
   public firstItem = 0;
@@ -55,7 +64,7 @@ export class DataManagementAbsenceService {
   /* #endregion   temporary check is Filter dirty */
 
   readPage(language: string) {
-    this.showProgressSpinner.set(true);
+    this.showProgressSpinnerNew.set(true);
     this.currentFilter.language = language;
 
     this.dataAbsenceService
@@ -69,7 +78,7 @@ export class DataManagementAbsenceService {
           );
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
-          this.showProgressSpinner.set(false);
+          this.showProgressSpinnerNew.set(false);
           this.isRead.set(true);
           setTimeout(
             () => this.isRead.set(false),

@@ -63,11 +63,6 @@ export class DataManagementSettingsService implements IManageable {
   }
 
   // IManageable implementation
-  private _resetTrigger = signal(0);
-  public isDirtyNew = computed(() => {
-    this._resetTrigger(); // Abhängigkeit für Trigger
-    return this.areObjectsDirty();
-  });
   public showProgressSpinnerNew = signal(false);
 
   public isReset = signal(false);
@@ -1022,13 +1017,9 @@ export class DataManagementSettingsService implements IManageable {
   // IManageable methods
   saveNew(): void {
     this.save();
-    // Trigger Neuberechnung des isDirtyNew signals
-    this._resetTrigger.update((val) => val + 1);
   }
 
   resetDataNew(): void {
     this.resetData();
-    // Trigger Neuberechnung des isDirtyNew signals
-    this._resetTrigger.update((val) => val + 1);
   }
 }

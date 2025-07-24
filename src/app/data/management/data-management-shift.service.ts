@@ -47,11 +47,6 @@ export class DataManagementShiftService implements IManageable {
   }
 
   // IManageable implementation - nur für Edit-Modus
-  private _resetTrigger = signal(0);
-  public isDirtyNew = computed(() => {
-    this._resetTrigger(); // Abhängigkeit für Trigger
-    return this.areObjectsDirty();
-  });
   public showProgressSpinnerNew = signal(false);
 
   public isReset = signal(false);
@@ -673,13 +668,9 @@ export class DataManagementShiftService implements IManageable {
   // IManageable methods
   saveNew(): void {
     this.save();
-    // Trigger Neuberechnung des isDirtyNew signals
-    this._resetTrigger.update(val => val + 1);
   }
 
   resetDataNew(): void {
     this.resetData();
-    // Trigger Neuberechnung des isDirtyNew signals
-    this._resetTrigger.update(val => val + 1);
   }
 }

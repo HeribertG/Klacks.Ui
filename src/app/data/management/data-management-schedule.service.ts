@@ -12,17 +12,26 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
+import { ISpinnable } from './imanageable';
+import { ManageableServiceRegistry } from './manageable-service-registry';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementScheduleService {
+export class DataManagementScheduleService implements ISpinnable {
   public toastShowService = inject(ToastShowService);
   private dataSchedule = inject(DataScheduleService);
 
+  constructor() {
+    // Selbst-Registrierung für die schedule Route
+    ManageableServiceRegistry.register('schedule', DataManagementScheduleService);
+  }
+
+  // ISpinnable implementation
+  public showProgressSpinnerNew = signal(false);
+
   public isRead = signal(false);
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
-  public showProgressSpinner = signal(false);
 
   public workFilter: IWorkFilter = new WorkFilter();
   public clients: IClientWork[] = [];
@@ -30,12 +39,12 @@ export class DataManagementScheduleService {
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
   readDatas() {
-    this.showProgressSpinner.set(true);
+    this.showProgressSpinnerNew.set(true);
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this.isRead.set(true);
-      this.showProgressSpinner.set(false);
+      this.showProgressSpinnerNew.set(false);
       setTimeout(() => this.isRead.set(false), 100);
     });
   }

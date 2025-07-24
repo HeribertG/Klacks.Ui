@@ -1,20 +1,20 @@
 import { Type } from '@angular/core';
-import { IManageable } from './imanageable';
+import { IManageable, ISpinnable } from './imanageable';
 
 /**
- * Registry for managing IManageable service instances.
+ * Registry for managing IManageable and ISpinnable service instances.
  * Services register themselves with route identifiers to enable
  * dynamic service resolution based on the current route.
  */
 export class ManageableServiceRegistry {
-  private static registry = new Map<string, Type<IManageable>>();
+  private static registry = new Map<string, Type<ISpinnable>>();
 
   /**
    * Registers a service with one or more route identifiers
    * @param routeId - The route identifier (e.g., 'client', 'edit-address')
-   * @param serviceToken - The service class that implements IManageable
+   * @param serviceToken - The service class that implements ISpinnable or IManageable
    */
-  static register(routeId: string, serviceToken: Type<IManageable>): void {
+  static register(routeId: string, serviceToken: Type<ISpinnable>): void {
     this.registry.set(routeId, serviceToken);
     console.log(`Registered ${serviceToken.name} for route: ${routeId}`);
   }
@@ -24,7 +24,7 @@ export class ManageableServiceRegistry {
    * @param routeId - The route identifier
    * @returns The service token or undefined if not found
    */
-  static get(routeId: string): Type<IManageable> | undefined {
+  static get(routeId: string): Type<ISpinnable> | undefined {
     return this.registry.get(routeId);
   }
 

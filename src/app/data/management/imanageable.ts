@@ -1,11 +1,13 @@
 import { Signal } from '@angular/core';
 
-export interface IManageable {
-  isDirtyNew: Signal<boolean>;
-
+export interface ISpinnable {
   showProgressSpinnerNew: Signal<boolean>;
+}
 
+export interface IManageable extends ISpinnable {
   saveNew(): void;
 
   resetDataNew(): void;
+
+  areObjectsDirty(): boolean;
 }
