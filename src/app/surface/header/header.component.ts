@@ -33,31 +33,25 @@ import { ThemeService } from 'src/app/services/theme.service';
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
-  // Public injected services
   public dataLoadFileService = inject(DataLoadFileService);
 
-  // Private injected services
   private auth = inject(AuthService);
   private injector = inject(Injector);
   private navigationService = inject(NavigationService);
   private themeService = inject(ThemeService);
 
-  // Public properties (used in templates)
   public authorised = signal<boolean>(false);
+  public logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public hasLogoImage = computed(() => !!this.logoImage());
-  public logoImage = signal<string | null>(null);
   public registerDropdown: HTMLDivElement | undefined;
   public searchString = signal<string>('');
   public selectedName = signal<string>('new-address');
   public version = signal<string>('');
 
-  // Private properties
   private currentTheme = signal<string>('light');
   private effectRefs: EffectRef[] = [];
-  private logoImageInterval: any;
   private ngUnsubscribe = new Subject<void>();
 
-  // Computed properties
   public imageName = computed(() => {
     const theme = this.currentTheme();
     return theme === 'dark' ? 'ok-symbol dark.png' : 'ok-symbol.png';
@@ -74,7 +68,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     this.initializeTheme();
     this.setupRxJSSubscriptions();
-    this.startLogoImageWatcher();
     this.initializeAuthState();
   }
 
@@ -83,10 +76,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
     this.effectRefs.forEach((ref) => ref.destroy());
     this.effectRefs = [];
-
-    if (this.logoImageInterval) {
-      clearInterval(this.logoImageInterval);
-    }
   }
 
   private setupEffects(): void {
@@ -94,7 +83,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private setupRxJSSubscriptions(): void {
-    // Theme subscription
     this.themeService.theme$
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((theme) => {
@@ -112,27 +100,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.authorised.set(currentAuthState);
   }
 
-  private startLogoImageWatcher(): void {
-    let attempts = 0;
-    const maxAttempts = 20;
-    this.logoImageInterval = setInterval(() => {
-      if (this.dataLoadFileService.logoImage) {
-        this.logoImage.set(this.dataLoadFileService.logoImage);
-        clearInterval(this.logoImageInterval);
-      } else if (attempts >= maxAttempts) {
-        clearInterval(this.logoImageInterval);
-      }
-      attempts++;
-    }, 500);
-
-    // Initial check
-    if (this.dataLoadFileService.logoImage) {
-      this.logoImage.set(this.dataLoadFileService.logoImage);
-      clearInterval(this.logoImageInterval);
-    }
-  }
-
-  // Public Methods
   onClickDashboard(): void {
     this.navigationService.navigateToDashboard();
   }
@@ -142,7 +109,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.authorised.set(false);
   }
 
-  // Utility methods für potentielle Integration
   updateSearchString(searchValue: string): void {
     this.searchString.set(searchValue);
   }
@@ -155,7 +121,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.version.set(versionString);
   }
 
-  // Getter für Template-Kompatibilität
   get currentThemeValue(): string {
     return this.currentTheme();
   }
