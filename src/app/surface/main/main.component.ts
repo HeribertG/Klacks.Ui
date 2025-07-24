@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   Input,
@@ -8,20 +9,19 @@ import {
   OnChanges,
   inject,
   EnvironmentInjector,
+  ComponentRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbsenceGanttHomeComponent } from '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component';
-import { AllAddressHomeComponent } from 'src/app/workplace/address/all-address/all-address-home/all-address-home.component';
-import { AllGroupHomeComponent } from 'src/app/workplace/group/all-group/all-group-home/all-group-home.component';
-import { AllShiftHomeComponent } from '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component';
-import { CutShiftHomeComponent } from '../../workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component';
 import { DashboardHomeComponent } from 'src/app/workplace/dashboard/dashboard-home/dashboard-home.component';
-import { EditAddressHomeComponent } from 'src/app/workplace/address/edit-address/edit-address-home/edit-address-home.component';
-import { EditGroupHomeComponent } from 'src/app/workplace/group/edit-group/edit-group-home/edit-group-home.component';
-import { EditShiftHomeComponent } from 'src/app/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component';
-import { ProfileHomeComponent } from 'src/app/workplace/profile/profile-home/profile-home.component';
-import { ScheduleHomeComponent } from 'src/app/workplace/schedule/schedule-home/schedule-home.component';
-import { SettingsHomeComponent } from 'src/app/workplace/settings/settings-home/settings-home.component';
+
+interface ComponentConfig {
+  importPath: () => Promise<any>;
+  componentProperty: string;
+  inputProperty: string;
+  hasEventHandlers: boolean;
+}
+
+type RouteComponentMap = Record<string, ComponentConfig>;
 
 @Component({
   selector: 'app-main',
@@ -31,7 +31,6 @@ import { SettingsHomeComponent } from 'src/app/workplace/settings/settings-home/
   imports: [CommonModule, DashboardHomeComponent],
 })
 export class MainComponent implements OnChanges {
-  // @Input() properties
   @Input() isAbsence = false;
   @Input() isClient = false;
   @Input() isCreateShift = false;
@@ -46,267 +45,160 @@ export class MainComponent implements OnChanges {
   @Input() isShift = false;
   @Input() isCutShift = false;
 
-  // @Output() properties
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
 
-  // @ViewChild properties
   @ViewChild('LazyLoadingPlaceholder', { read: ViewContainerRef, static: true })
   viewContainer!: ViewContainerRef;
 
-  // Private injected services
   private environmentInjector = inject(EnvironmentInjector);
 
-  // Public properties (used in templates)
-  public compInstanceAbsenceGanttHome: AbsenceGanttHomeComponent | undefined;
-  public compInstanceAllAddressHomeComponent: AllAddressHomeComponent | undefined;
-  public compInstanceAllGroupHome: AllGroupHomeComponent | undefined;
-  public compInstanceAllShiftHome: AllShiftHomeComponent | undefined;
-  public compInstanceCutShiftHome: CutShiftHomeComponent | undefined;
-  public compInstanceCreateShiftHome: EditShiftHomeComponent | undefined;
-  public compInstanceEditAddressHomeComponent: EditAddressHomeComponent | undefined;
-  public compInstanceEditGroupHome: EditGroupHomeComponent | undefined;
-  public compInstanceProfileHome: ProfileHomeComponent | undefined;
-  public compInstanceScheduleHome: ScheduleHomeComponent | undefined;
-  public compInstanceSettingHome: SettingsHomeComponent | undefined;
+  private componentInstances = new Map<string, ComponentRef<any>>();
 
-  // Lifecycle hooks
-  ngOnChanges(): void {
-    if (this.isSetting && !this.compInstanceSettingHome) {
-      import(
-        '../../workplace/settings/settings-home/settings-home.component'
-      ).then((m) => {
-        const comp = m.SettingsHomeComponent;
+  private readonly COMPONENT_MAP: RouteComponentMap = {
+    isSetting: {
+      importPath: () =>
+        import(
+          '../../workplace/settings/settings-home/settings-home.component'
+        ),
+      componentProperty: 'SettingsHomeComponent',
+      inputProperty: 'isSetting',
+      hasEventHandlers: true,
+    },
+    isProfile: {
+      importPath: () =>
+        import('../../workplace/profile/profile-home/profile-home.component'),
+      componentProperty: 'ProfileHomeComponent',
+      inputProperty: 'isProfile',
+      hasEventHandlers: true,
+    },
+    isClient: {
+      importPath: () =>
+        import(
+          '../../workplace/address/all-address/all-address-home/all-address-home.component'
+        ),
+      componentProperty: 'AllAddressHomeComponent',
+      inputProperty: 'isClient',
+      hasEventHandlers: true,
+    },
+    isEditClient: {
+      importPath: () =>
+        import(
+          '../../workplace/address/edit-address/edit-address-home/edit-address-home.component'
+        ),
+      componentProperty: 'EditAddressHomeComponent',
+      inputProperty: 'isEditClient',
+      hasEventHandlers: true,
+    },
+    isAbsence: {
+      importPath: () =>
+        import(
+          '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component'
+        ),
+      componentProperty: 'AbsenceGanttHomeComponent',
+      inputProperty: 'isAbsence',
+      hasEventHandlers: false,
+    },
+    isSchedule: {
+      importPath: () =>
+        import(
+          '../../workplace/schedule/schedule-home/schedule-home.component'
+        ),
+      componentProperty: 'ScheduleHomeComponent',
+      inputProperty: 'isSchedule',
+      hasEventHandlers: false,
+    },
+    isGroup: {
+      importPath: () =>
+        import(
+          '../../workplace/group/all-group/all-group-home/all-group-home.component'
+        ),
+      componentProperty: 'AllGroupHomeComponent',
+      inputProperty: 'isGroup',
+      hasEventHandlers: true,
+    },
+    isEditGroup: {
+      importPath: () =>
+        import(
+          '../../workplace/group/edit-group/edit-group-home/edit-group-home.component'
+        ),
+      componentProperty: 'EditGroupHomeComponent',
+      inputProperty: 'isEditGroup',
+      hasEventHandlers: true,
+    },
+    isCreateShift: {
+      importPath: () =>
+        import(
+          '../../workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component'
+        ),
+      componentProperty: 'EditShiftHomeComponent',
+      inputProperty: 'isCreateShift',
+      hasEventHandlers: true,
+    },
+    isShift: {
+      importPath: () =>
+        import(
+          '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component'
+        ),
+      componentProperty: 'AllShiftHomeComponent',
+      inputProperty: 'isShift',
+      hasEventHandlers: true,
+    },
+    isCutShift: {
+      importPath: () =>
+        import(
+          '../../workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component'
+        ),
+      componentProperty: 'CutShiftHomeComponent',
+      inputProperty: 'isCutShift',
+      hasEventHandlers: true,
+    },
+  };
 
-        const compRef = this.viewContainer.createComponent(comp, {
-          environmentInjector: this.environmentInjector,
-        });
+  async ngOnChanges(): Promise<void> {
+    for (const [routeKey, config] of Object.entries(this.COMPONENT_MAP)) {
+      const isActive = (this as any)[routeKey];
 
-        this.compInstanceSettingHome = compRef.instance;
-        this.compInstanceSettingHome.isSetting = this.isSetting;
+      if (isActive && !this.componentInstances.has(routeKey)) {
+        await this.loadComponent(routeKey, config);
+      }
 
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isProfile && !this.compInstanceProfileHome) {
-      import(
-        '../../workplace/profile/profile-home/profile-home.component'
-      ).then((m) => {
-        const comp = m.ProfileHomeComponent;
-
-        const compRef = this.viewContainer.createComponent(comp, {
-          environmentInjector: this.environmentInjector,
-        });
-
-        this.compInstanceProfileHome = compRef.instance;
-        this.compInstanceProfileHome.isProfile = this.isProfile;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isClient && !this.compInstanceAllAddressHomeComponent) {
-      import(
-        '../../workplace/address/all-address/all-address-home/all-address-home.component'
-      ).then((m) => {
-        const comp = m.AllAddressHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<AllAddressHomeComponent>(comp);
-
-        this.compInstanceAllAddressHomeComponent = compRef.instance;
-        this.compInstanceAllAddressHomeComponent.isClient = this.isClient;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isEditClient && !this.compInstanceEditAddressHomeComponent) {
-      import(
-        '../../workplace/address/edit-address/edit-address-home/edit-address-home.component'
-      ).then((m) => {
-        const comp = m.EditAddressHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<EditAddressHomeComponent>(comp);
-
-        this.compInstanceEditAddressHomeComponent = compRef.instance;
-        this.compInstanceEditAddressHomeComponent.isEditClient =
-          this.isEditClient;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-    if (this.isAbsence && !this.compInstanceAbsenceGanttHome) {
-      import(
-        '../../workplace/absence-gantt/absence-gantt-home/absence-gantt-home.component'
-      ).then((m) => {
-        const comp = m.AbsenceGanttHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<AbsenceGanttHomeComponent>(comp);
-
-        this.compInstanceAbsenceGanttHome = compRef.instance;
-        this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
-      });
-    }
-
-    if (this.isSchedule && !this.compInstanceScheduleHome) {
-      import(
-        '../../workplace/schedule/schedule-home/schedule-home.component'
-      ).then((m) => {
-        const comp = m.ScheduleHomeComponent;
-        const compRef =
-          this.viewContainer.createComponent<ScheduleHomeComponent>(comp);
-
-        this.compInstanceScheduleHome = compRef.instance;
-        this.compInstanceScheduleHome.isSchedule = this.isSchedule;
-      });
-    }
-
-    if (this.isGroup && !this.compInstanceAllGroupHome) {
-      import(
-        '../../workplace/group/all-group/all-group-home/all-group-home.component'
-      ).then((m) => {
-        const comp = m.AllGroupHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<AllGroupHomeComponent>(comp);
-
-        this.compInstanceAllGroupHome = compRef.instance;
-        this.compInstanceAllGroupHome.isGroup = this.isGroup;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isEditGroup && !this.compInstanceEditGroupHome) {
-      import(
-        '../../workplace/group/edit-group/edit-group-home/edit-group-home.component'
-      ).then((m) => {
-        const comp = m.EditGroupHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<EditGroupHomeComponent>(comp);
-
-        this.compInstanceEditGroupHome = compRef.instance;
-        this.compInstanceEditGroupHome.isEditGroup = this.isEditGroup;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isCreateShift && !this.compInstanceCreateShiftHome) {
-      import(
-        '../../workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component'
-      ).then((m) => {
-        const comp = m.EditShiftHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<EditShiftHomeComponent>(comp);
-
-        this.compInstanceCreateShiftHome = compRef.instance;
-        this.compInstanceCreateShiftHome.isCreateShift = this.isCreateShift;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isShift && !this.compInstanceAllShiftHome) {
-      import(
-        '../../workplace/shift/all-shift/all-shift-home/all-shift-home.component'
-      ).then((m) => {
-        const comp = m.AllShiftHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<AllShiftHomeComponent>(comp);
-
-        this.compInstanceAllShiftHome = compRef.instance;
-        this.compInstanceAllShiftHome.isShift = this.isShift;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.isCutShift && !this.compInstanceCutShiftHome) {
-      import(
-        '../../workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component'
-      ).then((m) => {
-        const comp = m.CutShiftHomeComponent;
-
-        const compRef =
-          this.viewContainer.createComponent<CutShiftHomeComponent>(comp);
-
-        this.compInstanceCutShiftHome = compRef.instance;
-        this.compInstanceCutShiftHome.isCutShift = this.isCutShift;
-
-        compRef.instance.isChangingEvent.subscribe((event) => {
-          this.isChangingEvent.emit(event);
-        });
-      });
-    }
-
-    if (this.compInstanceAbsenceGanttHome) {
-      this.compInstanceAbsenceGanttHome.isAbsence = this.isAbsence;
-    }
-
-    if (this.compInstanceAllAddressHomeComponent) {
-      this.compInstanceAllAddressHomeComponent.isClient = this.isClient;
-    }
-    if (this.compInstanceSettingHome) {
-      this.compInstanceSettingHome.isSetting = this.isSetting;
-    }
-    if (this.compInstanceEditAddressHomeComponent) {
-      this.compInstanceEditAddressHomeComponent.isEditClient =
-        this.isEditClient;
-    }
-    if (this.compInstanceProfileHome) {
-      this.compInstanceProfileHome.isProfile = this.isProfile;
-    }
-
-    if (this.compInstanceScheduleHome) {
-      this.compInstanceScheduleHome.isSchedule = this.isSchedule;
-    }
-
-    if (this.compInstanceAllGroupHome) {
-      this.compInstanceAllGroupHome.isGroup = this.isGroup;
-    }
-
-    if (this.compInstanceEditGroupHome) {
-      this.compInstanceEditGroupHome.isEditGroup = this.isEditGroup;
-    }
-
-    if (this.compInstanceCreateShiftHome) {
-      this.compInstanceCreateShiftHome.isCreateShift = this.isCreateShift;
-    }
-
-    if (this.compInstanceAllShiftHome) {
-      this.compInstanceAllShiftHome.isShift = this.isShift;
-    }
-
-    if (this.compInstanceCutShiftHome) {
-      this.compInstanceCutShiftHome.isCutShift = this.isCutShift;
+      const componentRef = this.componentInstances.get(routeKey);
+      if (componentRef) {
+        (componentRef.instance as any)[config.inputProperty] = isActive;
+      }
     }
   }
 
-  // Public methods
+  private async loadComponent(
+    routeKey: string,
+    config: ComponentConfig
+  ): Promise<void> {
+    try {
+      const module = await config.importPath();
+      const componentType = module[config.componentProperty];
+
+      const compRef = this.viewContainer.createComponent(componentType, {
+        environmentInjector: this.environmentInjector,
+      });
+
+      (compRef.instance as any)[config.inputProperty] = (this as any)[routeKey];
+
+      if (
+        config.hasEventHandlers &&
+        (compRef.instance as any).isChangingEvent
+      ) {
+        (compRef.instance as any).isChangingEvent.subscribe((event: any) => {
+          this.isChangingEvent.emit(event);
+        });
+      }
+
+      this.componentInstances.set(routeKey, compRef);
+    } catch (error) {
+      console.error(`Failed to load component for ${routeKey}:`, error);
+    }
+  }
+
   onIsChanging(value: boolean | undefined): void {
     this.isChangingEvent.emit(value);
   }
