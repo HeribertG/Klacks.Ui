@@ -101,31 +101,10 @@ export class DataManagementSwitchboardService {
     this.readEffects();
   }
 
-  /**
-   * Sets the active manager based on the route identifier.
-   * This method tries to find a registered IManageable service for the given route.
-   * @param routeId - The route identifier from RouteName enum
-   */
   public setActiveManagerByRoute(routeId: RouteName | string): void {
     const manager = this.manageableServiceFactory.getService(routeId);
     this.activeManager.set(manager);
     this.activeRoute.set(routeId);
-
-    const currentName = this.nameOfVisibleEntity();
-
-    this.isFocusChanged.set(true);
-
-    if (!environment.production) {
-      if (manager) {
-        console.log(
-          `Active manager set for route: ${routeId}, entity: ${currentName}`
-        );
-      } else {
-        console.warn(
-          `No IManageable service found for route: ${routeId}. Using legacy logic.`
-        );
-      }
-    }
   }
 
   public showProgressSpinner(value: boolean): void {
