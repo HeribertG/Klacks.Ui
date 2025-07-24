@@ -5,9 +5,9 @@ export interface ISpinnable {
 }
 
 export interface IManageable extends ISpinnable {
-  saveNew(): void;
+  save(): void;
 
-  resetDataNew(): void;
+  resetData(): void;
 
   areObjectsDirty(): boolean;
 }

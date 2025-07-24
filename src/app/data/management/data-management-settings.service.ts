@@ -1015,12 +1015,4 @@ export class DataManagementSettingsService implements IManageable {
     return isNotEmpty === '';
   }
 
-  // IManageable methods
-  saveNew(): void {
-    this.save();
-  }
-
-  resetDataNew(): void {
-    this.resetData();
-  }
 }

@@ -562,12 +562,4 @@ export class DataManagementGroupService implements IManageable {
   }
   /* #endregion   Tree Group */
 
-  // IManageable methods
-  saveNew(): void {
-    this.save();
-  }
-
-  resetDataNew(): void {
-    this.resetData();
-  }
 }

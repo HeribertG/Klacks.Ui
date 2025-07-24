@@ -139,13 +139,13 @@ export class DataManagementShiftCutService implements IManageable {
   /* #endregion Cut Shift Methods */
 
   // IManageable methods
-  saveNew(): void {
+  save(): void {
     // Cut shifts don't have a traditional save method, they are handled differently
     // This could be implemented if needed in the future
     console.log('Cut shifts save not implemented yet');
   }
 
-  resetDataNew(): void {
+  resetData(): void {
     this.resetCutData();
   }
 }

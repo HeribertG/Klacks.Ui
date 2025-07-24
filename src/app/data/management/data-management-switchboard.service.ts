@@ -186,8 +186,8 @@ export class DataManagementSwitchboardService {
   onClickSave(): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('saveNew' in manager) {
-        (manager as IManageable).saveNew();
+      if ('save' in manager) {
+        (manager as IManageable).save();
         this._isDisabled.set(true);
         this._isSavedOrReset.set(true);
       } else {
@@ -207,8 +207,8 @@ export class DataManagementSwitchboardService {
   reset(): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('resetDataNew' in manager) {
-        (manager as IManageable).resetDataNew();
+      if ('resetData' in manager) {
+        (manager as IManageable).resetData();
         this._isSavedOrReset.set(true);
       } else {
         if (!environment.production) {

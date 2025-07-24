@@ -569,12 +569,4 @@ export class DataManagementShiftService implements IManageable {
   /* #endregion   edit shift */
 
 
-  // IManageable methods
-  saveNew(): void {
-    this.save();
-  }
-
-  resetDataNew(): void {
-    this.resetData();
-  }
 }

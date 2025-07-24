@@ -96,12 +96,7 @@ export class DataManagementProfileService implements IManageable {
     );
   }
 
-  // IManageable methods
-  saveNew(): void {
-    this.save();
-  }
-
-  resetDataNew(): void {
+  resetData(): void {
     this.readData();
     this.isPasswordDirty = false;
   }

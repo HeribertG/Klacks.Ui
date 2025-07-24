@@ -1163,13 +1163,13 @@ export class DataManagementClientService implements IManageable {
     return false;
   }
 
-  saveNew() {
+  save(): void {
     if (this.isEditClient_Dirty()) {
       this.saveEditClient();
     }
   }
 
-  resetDataNew() {
+  resetData(): void {
     this.prepareClient(this.editClientDummy!);
   }
 }
