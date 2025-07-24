@@ -28,6 +28,7 @@ import { DataCountryStateService } from '../data-country-state.service';
 import { pushOnStack } from 'src/app/helpers/local-storage-stack';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -41,9 +42,10 @@ export class DataManagementShiftService implements IManageable {
   private dataCountryStateService = inject(DataCountryStateService);
 
   constructor() {
-    // Selbst-Registrierung für die relevanten Routes (nur Edit-Modi)
-    ManageableServiceRegistry.register('new-shift', DataManagementShiftService);
-    ManageableServiceRegistry.register('edit-shift', DataManagementShiftService);
+    // Selbst-Registrierung für die relevanten Routes
+    ManageableServiceRegistry.register(RouteName.SHIFT, DataManagementShiftService);
+    ManageableServiceRegistry.register(RouteName.NEW_SHIFT, DataManagementShiftService);
+    ManageableServiceRegistry.register(RouteName.EDIT_SHIFT, DataManagementShiftService);
   }
 
   // IManageable implementation - nur für Edit-Modus
@@ -61,8 +63,6 @@ export class DataManagementShiftService implements IManageable {
   public editGroup: IShift | undefined;
 
   public shifts: IShift[] = [];
-  public cutShifts: IShift[] = [];
-  public cutShiftsDummy: IShift[] = [];
   public editShift: Shift | undefined;
   public editShiftDummy: Shift | undefined;
   public macroList: IMacro[] = [];
@@ -568,101 +568,6 @@ export class DataManagementShiftService implements IManageable {
 
   /* #endregion   edit shift */
 
-  /* #region   cut shift */
-
-  createCutShiftUrl(id: string): string {
-    return 'workplace/cut-shift?id=' + id;
-  }
-
-  readCutShiftList(id: string) {
-    if (id !== '') {
-      this.showProgressSpinner.set(true);
-      this.dataShiftService.getCutShiftList(id).subscribe((x) => {
-        this.cutShifts = x;
-        pushOnStack('workplace/cut-shift?id=' + id);
-        this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
-
-        this.navigationService.navigateToCutShift();
-
-        setTimeout(
-          () => history.pushState(null, '', this.createCutShiftUrl(id)),
-          100
-        );
-
-        this.fireIsReadEvent();
-        this.showProgressSpinner.set(false);
-      });
-    }
-  }
-
-  resetCutData() {
-    this.cutShifts = cloneObject<Shift[]>(this.cutShiftsDummy);
-  }
-
-  addCutShift(shift: Shift): void {
-    this.cutShifts.push(shift);
-  }
-
-  calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
-    // Im Nested Set Model:
-    // - Das Parent hat lft und rgt Werte
-    // - Das neue Child wird als letztes Child eingefügt
-    // - Child.lft = Parent.rgt (das neue Child startet wo das Parent endet)
-    // - Child.rgt = Parent.rgt + 1 (das Child bekommt den nächsten Wert)
-    // - Parent.rgt wird um 2 erhöht (um Platz für das neue Child zu schaffen)
-    
-    if (parentShift.rgt !== undefined) {
-      // Setze die Werte für das neue Child
-      childShift.lft = parentShift.rgt;
-      childShift.rgt = parentShift.rgt + 1;
-      
-      // Erweitere den rgt-Wert des Parents um 2
-      parentShift.rgt = parentShift.rgt + 2;
-      
-      // Aktualisiere alle anderen Shifts in der Liste, die betroffen sind
-      this.updateOtherShiftsNestedSetValues(parentShift.rgt - 2);
-    } else {
-      // Falls das Parent keine rgt Werte hat, setze Standard-Werte
-      childShift.lft = 1;
-      childShift.rgt = 2;
-      parentShift.lft = parentShift.lft || 0;
-      parentShift.rgt = 3;
-    }
-  }
-
-  private updateOtherShiftsNestedSetValues(insertionPoint: number): void {
-    // Alle Shifts, die nach dem Einfügepunkt liegen, müssen ihre lft/rgt Werte um 2 erhöhen
-    const allShifts = [...this.shifts, ...this.cutShifts];
-    
-    allShifts.forEach(shift => {
-      if (shift.lft !== undefined && shift.lft > insertionPoint) {
-        shift.lft += 2;
-      }
-      if (shift.rgt !== undefined && shift.rgt > insertionPoint) {
-        shift.rgt += 2;
-      }
-    });
-  }
-
-  areCutObjectsDirty(): boolean {
-    if (this.isCutShifts_Dirty()) {
-      return true;
-    }
-    return false;
-  }
-
-  private isCutShifts_Dirty(): boolean {
-    let result = false;
-    const a = this.cutShifts as IShift[];
-    const b = this.cutShiftsDummy as IShift[];
-
-    if (!compareComplexObjects(a, b)) {
-      result = true;
-    }
-
-    return result;
-  }
-  /* #endregion   cut shift */
 
   // IManageable methods
   saveNew(): void {

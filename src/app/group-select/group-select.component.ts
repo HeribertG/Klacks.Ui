@@ -18,6 +18,7 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
+import { EntityName } from 'src/app/data/management/entity-names.enum';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
@@ -353,9 +354,9 @@ export class GroupSelectComponent
   }
 
   private isComponentVisible(): boolean {
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
-      case 'DataManagementBreakService':
-      case 'DataManagementScheduleService':
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+      case EntityName.ABSENCE:
+      case EntityName.SCHEDULE:
         return true;
     }
 

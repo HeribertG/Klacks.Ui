@@ -14,6 +14,7 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { ISpinnable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,7 @@ export class DataManagementScheduleService implements ISpinnable {
 
   constructor() {
     // Selbst-Registrierung für die schedule Route
-    ManageableServiceRegistry.register('schedule', DataManagementScheduleService);
+    ManageableServiceRegistry.register(RouteName.SCHEDULE, DataManagementScheduleService);
   }
 
   // ISpinnable implementation

@@ -1,4 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { EntityName } from './entity-names.enum';
 import { DataManagementSwitchboardService } from './data-management-switchboard.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
@@ -25,26 +26,26 @@ export class DataManagementSearchService {
     isIncludeClient = false
   ): void {
     this._restoreSearch.set(value);
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
-      case 'DataManagementClientService':
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+      case EntityName.CLIENT:
         this.dataManagementClient.currentFilter.searchString = value;
         this.dataManagementClient.currentFilter.includeAddress =
           isIncludeAddress;
         this.dataManagementClient.readPage();
         break;
-      case 'DataManagementBreakService':
+      case EntityName.ABSENCE:
         this.dataManagementBreak.breakFilter.search = value;
         this.dataManagementBreak.readYear();
         break;
-      case 'DataManagementGroupService':
+      case EntityName.GROUP:
         this.dataManagementGroup.currentFilter.searchString = value;
         this.dataManagementGroup.readPage();
         break;
-      case 'DataManagementScheduleService':
+      case EntityName.SCHEDULE:
         this.dataManagementSchedule.workFilter.search = value;
         this.dataManagementSchedule.readDatas();
         break;
-      case 'DataManagementShiftService':
+      case EntityName.SHIFT:
         this.dataManagementShift.currentFilter.searchString = value;
         this.dataManagementShift.currentFilter.includeClientName =
           isIncludeClient;
@@ -59,21 +60,21 @@ export class DataManagementSearchService {
   }
 
   public resetFilterWithoutSignalWrite(): void {
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
-      case 'DataManagementClientService':
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+      case EntityName.CLIENT:
         this.dataManagementClient.currentFilter.searchString = '';
         this.dataManagementClient.currentFilter.includeAddress = false;
         this.dataManagementClient.readPage();
         break;
-      case 'DataManagementBreakService':
+      case EntityName.ABSENCE:
         this.dataManagementBreak.breakFilter.search = '';
         this.dataManagementBreak.readYear();
         break;
-      case 'DataManagementGroupService':
+      case EntityName.GROUP:
         this.dataManagementGroup.currentFilter.searchString = '';
         this.dataManagementGroup.readPage();
         break;
-      case 'DataManagementShiftService':
+      case EntityName.SHIFT:
         this.dataManagementShift.currentFilter.searchString = '';
         this.dataManagementShift.currentFilter.includeClientName = false;
         this.dataManagementShift.readPage();

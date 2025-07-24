@@ -9,6 +9,8 @@ import {
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { IManageable, ISpinnable } from './imanageable';
 import { ManageableServiceFactory } from './manageable-service.factory';
+import { EntityName, RouteName, isValidRouteName } from './entity-names.enum';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -18,24 +20,34 @@ export class DataManagementSwitchboardService {
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
   public activeManager = signal<ISpinnable | null>(null);
+  private activeRoute = signal<RouteName | string>('');
+
+  private static readonly ROUTE_ENTITY_MAP: Record<RouteName, EntityName> = {
+    [RouteName.CLIENT]: EntityName.CLIENT,
+    [RouteName.EDIT_ADDRESS]: EntityName.CLIENT_EDIT,
+    [RouteName.PROFILE]: EntityName.PROFILE,
+    [RouteName.SETTINGS]: EntityName.SETTINGS,
+    [RouteName.GROUP]: EntityName.GROUP,
+    [RouteName.EDIT_GROUP]: EntityName.GROUP_EDIT,
+    [RouteName.GROUP_STRUCTURE]: EntityName.GROUP_STRUCTURE,
+    [RouteName.SHIFT]: EntityName.SHIFT,
+    [RouteName.NEW_SHIFT]: EntityName.SHIFT_EDIT,
+    [RouteName.EDIT_SHIFT]: EntityName.SHIFT_EDIT,
+    [RouteName.CUT_SHIFT]: EntityName.SHIFT_CUT,
+    [RouteName.SCHEDULE]: EntityName.SCHEDULE,
+    [RouteName.ABSENCE]: EntityName.ABSENCE,
+  };
 
   public showProgressSpinnerNew = computed(
     () => this.activeManager()?.showProgressSpinner() ?? false
   );
 
-  private _nameOfVisibleEntity = signal<string>('');
-  private _lastNameOfVisibleEntity = signal<string>('');
   private _isDirty = signal<boolean>(false);
   private _isDisabled = signal<boolean>(false);
   private _isSavedOrReset = signal<boolean>(false);
-  private _isSearchVisible = signal<boolean>(true);
 
   public isFocusChanged = signal<boolean>(false);
 
-
-  public get lastNameOfVisibleEntity(): string {
-    return this._lastNameOfVisibleEntity();
-  }
 
   public get isDirty(): boolean {
     return this._isDirty();
@@ -61,34 +73,27 @@ export class DataManagementSwitchboardService {
     this._isSavedOrReset.set(value);
   }
 
-  public get isSearchVisible(): boolean {
-    return this._isSearchVisible();
-  }
+  public nameOfVisibleEntity = computed(() => {
+    const route = this.activeRoute();
+    return isValidRouteName(route)
+      ? DataManagementSwitchboardService.ROUTE_ENTITY_MAP[route]
+      : '';
+  });
 
-  public set isSearchVisible(value: boolean) {
-    this._isSearchVisible.set(value);
-    this.isFocusChanged.set(true);
-  }
+  private _isGroupSearchVisible = signal<boolean>(true);
 
-  public get nameOfVisibleEntity(): string {
-    return this._nameOfVisibleEntity();
-  }
+  public isSearchVisible = computed(() => {
+    const route = this.activeRoute();
 
-  public set nameOfVisibleEntity(value: string) {
-    this._lastNameOfVisibleEntity.set(this._nameOfVisibleEntity());
-    this._nameOfVisibleEntity.set(value);
-
-    // Handle search visibility based on entity (legacy for non-migrated services)
-    switch (value) {
-      case 'DataManagementGroupService':
-        this._isSearchVisible.set(false);
-        break;
-      default:
-        this._isSearchVisible.set(true);
-        break;
+    if (route === RouteName.GROUP) {
+      return this._isGroupSearchVisible();
     }
 
-    this.isFocusChanged.set(true);
+    return true;
+  });
+
+  public setGroupSearchVisible(visible: boolean): void {
+    this._isGroupSearchVisible.set(visible);
   }
 
   private effectRefs: EffectRef[] = [];
@@ -100,18 +105,27 @@ export class DataManagementSwitchboardService {
   /**
    * Sets the active manager based on the route identifier.
    * This method tries to find a registered IManageable service for the given route.
-   * @param routeId - The route identifier (e.g., 'client', 'edit-address')
+   * @param routeId - The route identifier from RouteName enum
    */
-  public setActiveManagerByRoute(routeId: string): void {
+  public setActiveManagerByRoute(routeId: RouteName | string): void {
     const manager = this.manageableServiceFactory.getService(routeId);
     this.activeManager.set(manager);
+    this.activeRoute.set(routeId);
 
-    if (manager) {
-      console.log(`Active manager set for route: ${routeId}`);
-    } else {
-      console.warn(
-        `No IManageable service found for route: ${routeId}. Using legacy logic.`
-      );
+    const currentName = this.nameOfVisibleEntity();
+
+    this.isFocusChanged.set(true);
+
+    if (!environment.production) {
+      if (manager) {
+        console.log(
+          `Active manager set for route: ${routeId}, entity: ${currentName}`
+        );
+      } else {
+        console.warn(
+          `No IManageable service found for route: ${routeId}. Using legacy logic.`
+        );
+      }
     }
   }
 
@@ -135,17 +149,12 @@ export class DataManagementSwitchboardService {
   }
 
   public actualPage(): string {
-    // Simplified page detection based on route or active manager
-    if (this.activeManager()) {
-      // Could be enhanced to derive page from active manager type
-      return '';
-    }
+    const route = this.activeRoute();
 
-    // Legacy logic for non-migrated services
-    switch (this.nameOfVisibleEntity) {
-      case 'DataManagementAbsenceGanttService':
+    switch (route) {
+      case RouteName.ABSENCE:
         return 'gantt';
-      case 'DataManagementScheduleService':
+      case RouteName.SCHEDULE:
         return 'schedule';
       default:
         return '';
@@ -156,16 +165,13 @@ export class DataManagementSwitchboardService {
     let isDirty = false;
 
     if (this.activeManager()) {
-      // Check if the service implements IManageable (has areObjectsDirty method)
       const manager = this.activeManager()!;
       if ('areObjectsDirty' in manager) {
         isDirty = (manager as IManageable).areObjectsDirty();
       } else {
-        // Service only implements ISpinnable, not dirty
         isDirty = false;
       }
     } else {
-      // No active manager, not dirty
       isDirty = false;
     }
 
@@ -185,11 +191,16 @@ export class DataManagementSwitchboardService {
         this._isDisabled.set(true);
         this._isSavedOrReset.set(true);
       } else {
-        console.warn('Active manager does not implement IManageable (no save functionality)');
+        if (!environment.production) {
+          console.warn(
+            'Active manager does not implement IManageable (no save functionality)'
+          );
+        }
       }
     } else {
-      // No active manager, cannot save
-      console.warn('No active manager available for save operation');
+      if (!environment.production) {
+        console.warn('No active manager available for save operation');
+      }
     }
   }
 
@@ -200,11 +211,16 @@ export class DataManagementSwitchboardService {
         (manager as IManageable).resetDataNew();
         this._isSavedOrReset.set(true);
       } else {
-        console.warn('Active manager does not implement IManageable (no reset functionality)');
+        if (!environment.production) {
+          console.warn(
+            'Active manager does not implement IManageable (no reset functionality)'
+          );
+        }
       }
     } else {
-      // No active manager, cannot reset
-      console.warn('No active manager available for reset operation');
+      if (!environment.production) {
+        console.warn('No active manager available for reset operation');
+      }
     }
   }
 
@@ -221,14 +237,12 @@ export class DataManagementSwitchboardService {
   }
 
   private readEffects(): void {
-    // Spinner effect - now uses activeManager's showProgressSpinner
     const spinnerEffect = effect(() => {
       const shouldShow = this.showProgressSpinnerNew();
       this.showProgressSpinner(shouldShow);
     });
     this.effectRefs.push(spinnerEffect);
 
-    // Auto-cleanup for dirty state
     const dirtyCleanupEffect = effect(() => {
       const isDirty = this._isDirty();
       const isSavedOrReset = this._isSavedOrReset();

@@ -86,8 +86,7 @@ export class AbsenceGanttContainerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementBreakService';
+    // nameOfVisibleEntity is now automatically set via route mapping
   }
 
   onHScrollbarValueChange(value: number): void {

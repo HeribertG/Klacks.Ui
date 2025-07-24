@@ -10,6 +10,7 @@ import { IShift, Shift } from 'src/app/core/shift-class';
 import { pushOnStack } from 'src/app/helpers/local-storage-stack';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +23,7 @@ export class DataManagementShiftCutService implements IManageable {
   constructor() {
     // Selbst-Registrierung für die cut-shift Route
     ManageableServiceRegistry.register(
-      'cut-shift',
+      RouteName.CUT_SHIFT,
       DataManagementShiftCutService
     );
   }

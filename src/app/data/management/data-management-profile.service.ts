@@ -7,6 +7,7 @@ import { UserAdministrationService } from '../user-administration.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -18,7 +19,7 @@ export class DataManagementProfileService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die profile Route
-    ManageableServiceRegistry.register('profile', DataManagementProfileService);
+    ManageableServiceRegistry.register(RouteName.PROFILE, DataManagementProfileService);
   }
 
   // IManageable implementation

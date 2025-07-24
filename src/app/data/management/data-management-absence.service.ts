@@ -15,6 +15,7 @@ import { DataAbsenceService } from '../data-absence.service';
 import { DataLoadFileService } from '../data-load-file.service';
 import { ISpinnable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +27,7 @@ export class DataManagementAbsenceService implements ISpinnable {
 
   constructor() {
     // Selbst-Registrierung für die absence Route
-    ManageableServiceRegistry.register('absence', DataManagementAbsenceService);
+    ManageableServiceRegistry.register(RouteName.ABSENCE, DataManagementAbsenceService);
   }
 
   // ISpinnable implementation

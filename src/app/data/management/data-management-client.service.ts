@@ -46,6 +46,7 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -59,8 +60,8 @@ export class DataManagementClientService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die relevanten Routes
-    ManageableServiceRegistry.register('client', DataManagementClientService);
-    ManageableServiceRegistry.register('edit-address', DataManagementClientService);
+    ManageableServiceRegistry.register(RouteName.CLIENT, DataManagementClientService);
+    ManageableServiceRegistry.register(RouteName.EDIT_ADDRESS, DataManagementClientService);
   }
 
   public isReset = signal(false);

@@ -13,6 +13,7 @@ import { AllGroupListComponent } from '../all-group-list/all-group-list.componen
 import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { EntityName } from 'src/app/data/management/entity-names.enum';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
@@ -45,10 +46,10 @@ export class AllGroupHomeComponent implements OnInit {
   constructor() {
     // Effect für das Zurücknavigieren - reagiert auf nameOfVisibleEntity
     effect(() => {
-      const currentEntity = this.dataManagementSwitchboardService.nameOfVisibleEntity;
+      const currentEntity = this.dataManagementSwitchboardService.nameOfVisibleEntity();
       
       // Wenn wir bei DataManagementGroupService sind, stelle View-Modus wieder her
-      if (currentEntity === 'DataManagementGroupService') {
+      if (currentEntity === EntityName.GROUP) {
         this.restoreViewMode();
       }
     });
@@ -60,7 +61,7 @@ export class AllGroupHomeComponent implements OnInit {
 
   set showGrid(value: boolean) {
     this._showGrid = value;
-    this.dataManagementSwitchboardService.isSearchVisible = value;
+    this.dataManagementSwitchboardService.setGroupSearchVisible(value);
     this.localStorageService.set(this.STORAGE_KEY, value.toString());
   }
 

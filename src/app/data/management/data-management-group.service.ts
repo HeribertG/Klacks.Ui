@@ -36,6 +36,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -50,7 +51,8 @@ export class DataManagementGroupService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die relevanten Routes
-    ManageableServiceRegistry.register('edit-group', DataManagementGroupService);
+    ManageableServiceRegistry.register(RouteName.GROUP, DataManagementGroupService);
+    ManageableServiceRegistry.register(RouteName.EDIT_GROUP, DataManagementGroupService);
   }
 
   // IManageable implementation

@@ -11,6 +11,7 @@ import {
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { RouteName } from 'src/app/data/management/entity-names.enum';
 import {
   deleteStack,
   popFromStack,
@@ -101,10 +102,8 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.getClientType(params['id']);
     });
 
-    // Subscribe to navigation events to handle back navigation
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        // Re-read route params when navigation ends
         const id = this.route.snapshot.params['id'];
         if (id) {
           this.getClientType(id);
@@ -240,13 +239,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isEditClient = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Try new approach first
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'edit-address'
+            RouteName.EDIT_ADDRESS
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementClientService_Edit';
         }, 100);
         break;
 
@@ -257,13 +252,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isClient = true;
         this.isSavebarVisible = false;
         setTimeout(() => {
-          // Try new approach first
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'client'
+            RouteName.CLIENT
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementClientService';
         }, 100);
 
         break;
@@ -272,8 +263,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithMaxSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementScheduleService';
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            RouteName.SCHEDULE
+          );
         }, 100);
 
         break;
@@ -282,13 +274,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isProfile = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Try new approach first
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'profile'
+            RouteName.PROFILE
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementProfileService';
         }, 100);
         break;
 
@@ -298,13 +286,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isSetting = true;
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Try new approach first
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'settings'
+            RouteName.SETTINGS
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementSettingsService';
         }, 100);
         break;
       case 'group':
@@ -314,8 +298,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementGroupService';
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            RouteName.GROUP
+          );
         }, 100);
         break;
       case 'edit-group':
@@ -324,13 +309,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Try new approach first
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'edit-group'
+            RouteName.EDIT_GROUP
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementGroupService_Edit';
         }, 100);
         break;
 
@@ -341,8 +322,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementGroupTreeService_Structure';
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            RouteName.GROUP_STRUCTURE
+          );
         }, 100);
         break;
 
@@ -352,8 +334,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
         setTimeout(() => {
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementShiftService';
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            RouteName.SHIFT
+          );
         }, 100);
         break;
 
@@ -363,13 +346,9 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Use the dedicated Cut Service
           this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            'cut-shift'
+            RouteName.CUT_SHIFT
           );
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementShiftService_Cut';
         }, 100);
         break;
 
@@ -380,11 +359,12 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
         setTimeout(() => {
-          // Use the main Shift Service for edit operations
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(value);
-          // Keep legacy for now during transition
-          this.dataManagementSwitchboardService.nameOfVisibleEntity =
-            'DataManagementShiftService_Edit';
+          // Both new-shift and edit-shift use the same service route
+          const routeName =
+            value === 'new-shift' ? RouteName.NEW_SHIFT : RouteName.EDIT_SHIFT;
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            routeName
+          );
         }, 100);
         break;
 

@@ -34,6 +34,7 @@ import { GridColorService } from 'src/app/shared/grid/services/grid-color.servic
 import { MultiLanguage } from 'src/app/core/multi-language-class';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
+import { RouteName } from './entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +50,7 @@ export class DataManagementSettingsService implements IManageable {
   constructor() {
     // Selbst-Registrierung für die settings Route
     ManageableServiceRegistry.register(
-      'settings',
+      RouteName.SETTINGS,
       DataManagementSettingsService
     );
 

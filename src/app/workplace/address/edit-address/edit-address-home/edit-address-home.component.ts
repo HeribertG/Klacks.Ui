@@ -64,8 +64,7 @@ export class EditAddressHomeComponent implements OnInit {
       }
     }
 
-    this.dataManagementSwitchboardService.nameOfVisibleEntity =
-      'DataManagementClientService_Edit';
+    // nameOfVisibleEntity is now automatically set via route mapping
   }
 
   onIsChanging(event: boolean) {

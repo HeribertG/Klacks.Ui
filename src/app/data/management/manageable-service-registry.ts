@@ -1,5 +1,7 @@
 import { Type } from '@angular/core';
 import { IManageable, ISpinnable } from './imanageable';
+import { RouteName } from './entity-names.enum';
+import { environment } from 'src/environments/environment';
 
 /**
  * Registry for managing IManageable and ISpinnable service instances.
@@ -11,12 +13,15 @@ export class ManageableServiceRegistry {
 
   /**
    * Registers a service with one or more route identifiers
-   * @param routeId - The route identifier (e.g., 'client', 'edit-address')
+   * @param routeId - The route identifier from RouteName enum
    * @param serviceToken - The service class that implements ISpinnable or IManageable
    */
-  static register(routeId: string, serviceToken: Type<ISpinnable>): void {
+  static register(routeId: RouteName | string, serviceToken: Type<ISpinnable>): void {
     this.registry.set(routeId, serviceToken);
-    console.log(`Registered ${serviceToken.name} for route: ${routeId}`);
+    // Development only logging
+    if (!environment.production) {
+      console.log(`Registered ${serviceToken.name} for route: ${routeId}`);
+    }
   }
 
   /**
@@ -24,7 +29,7 @@ export class ManageableServiceRegistry {
    * @param routeId - The route identifier
    * @returns The service token or undefined if not found
    */
-  static get(routeId: string): Type<ISpinnable> | undefined {
+  static get(routeId: RouteName | string): Type<ISpinnable> | undefined {
     return this.registry.get(routeId);
   }
 
@@ -33,7 +38,7 @@ export class ManageableServiceRegistry {
    * @param routeId - The route identifier
    * @returns true if the route is registered
    */
-  static has(routeId: string): boolean {
+  static has(routeId: RouteName | string): boolean {
     return this.registry.has(routeId);
   }
 

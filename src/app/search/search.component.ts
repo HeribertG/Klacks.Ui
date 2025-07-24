@@ -14,6 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { EntityName } from 'src/app/data/management/entity-names.enum';
 
 @Component({
   selector: 'app-search',
@@ -77,24 +78,24 @@ export class SearchComponent {
     this.dataManagementSearch.resetFilter();
     this.searchString = '';
     this.isIncludeAddress =
-      this.dataManagementSwitchboard.nameOfVisibleEntity ===
-      'DataManagementClientService';
+      this.dataManagementSwitchboard.nameOfVisibleEntity() ===
+      EntityName.CLIENT;
     this.isIncludeClient =
-      this.dataManagementSwitchboard.nameOfVisibleEntity ===
-      'DataManagementShiftService';
+      this.dataManagementSwitchboard.nameOfVisibleEntity() ===
+      EntityName.SHIFT;
     this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
   }
 
   private isComponentVisible(): boolean {
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity) {
-      case 'DataManagementClientService':
-      case 'DataManagementBreakService':
-      case 'DataManagementScheduleService':
-      case 'DataManagementShiftService':
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+      case EntityName.CLIENT:
+      case EntityName.ABSENCE:
+      case EntityName.SCHEDULE:
+      case EntityName.SHIFT:
         return true;
-      case 'DataManagementGroupService':
-        return this.dataManagementSwitchboard.isSearchVisible;
+      case EntityName.GROUP:
+        return this.dataManagementSwitchboard.isSearchVisible();
     }
 
     return false;
