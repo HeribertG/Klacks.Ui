@@ -22,7 +22,7 @@ export class DataManagementProfileService implements IManageable {
   }
 
   // IManageable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isReset = signal(false);
   public isRead = signal(false);

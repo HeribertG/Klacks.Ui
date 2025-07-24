@@ -54,11 +54,10 @@ export class DataManagementGroupService implements IManageable {
   }
 
   // IManageable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isReset = signal(false);
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public showTree = signal(true);

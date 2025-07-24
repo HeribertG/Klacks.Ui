@@ -20,7 +20,7 @@ export class DataManagementSwitchboardService {
   public activeManager = signal<ISpinnable | null>(null);
 
   public showProgressSpinnerNew = computed(
-    () => this.activeManager()?.showProgressSpinnerNew() ?? false
+    () => this.activeManager()?.showProgressSpinner() ?? false
   );
 
   private _nameOfVisibleEntity = signal<string>('');
@@ -221,7 +221,7 @@ export class DataManagementSwitchboardService {
   }
 
   private readEffects(): void {
-    // Spinner effect - now uses activeManager's showProgressSpinnerNew
+    // Spinner effect - now uses activeManager's showProgressSpinner
     const spinnerEffect = effect(() => {
       const shouldShow = this.showProgressSpinnerNew();
       this.showProgressSpinner(shouldShow);

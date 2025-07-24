@@ -63,7 +63,7 @@ export class DataManagementSettingsService implements IManageable {
   }
 
   // IManageable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isReset = signal(false);
 

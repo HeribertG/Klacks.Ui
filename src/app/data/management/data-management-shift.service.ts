@@ -47,12 +47,11 @@ export class DataManagementShiftService implements IManageable {
   }
 
   // IManageable implementation - nur für Edit-Modus
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isReset = signal(false);
   public isRead = signal(false);
   public makeValidation = signal(false);
-  public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
 

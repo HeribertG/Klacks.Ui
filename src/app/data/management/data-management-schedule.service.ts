@@ -28,7 +28,7 @@ export class DataManagementScheduleService implements ISpinnable {
   }
 
   // ISpinnable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isRead = signal(false);
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
@@ -39,12 +39,12 @@ export class DataManagementScheduleService implements ISpinnable {
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
   readDatas() {
-    this.showProgressSpinnerNew.set(true);
+    this.showProgressSpinner.set(true);
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this.isRead.set(true);
-      this.showProgressSpinnerNew.set(false);
+      this.showProgressSpinner.set(false);
       setTimeout(() => this.isRead.set(false), 100);
     });
   }

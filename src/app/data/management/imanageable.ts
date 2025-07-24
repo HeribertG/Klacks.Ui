@@ -1,7 +1,7 @@
 import { Signal } from '@angular/core';
 
 export interface ISpinnable {
-  showProgressSpinnerNew: Signal<boolean>;
+  showProgressSpinner: Signal<boolean>;
 }
 
 export interface IManageable extends ISpinnable {

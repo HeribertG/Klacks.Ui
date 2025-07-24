@@ -65,7 +65,7 @@ export class DataManagementClientService implements IManageable {
 
   public isReset = signal(false);
   public isRead = signal(false);
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
@@ -262,18 +262,18 @@ export class DataManagementClientService implements IManageable {
     }
 
     if (this.currentFilter.isFilterValid() && this.isInit) {
-      this.showProgressSpinnerNew.set(true);
+      this.showProgressSpinner.set(true);
       this.dataClientService.readClientList(this.currentFilter).subscribe({
         next: (x) => {
           if (!x) {
             console.warn('readPage: Empty response received');
-            this.showProgressSpinnerNew.set(false);
+            this.showProgressSpinner.set(false);
             return;
           }
 
           if (!x.clients) {
             console.warn('readPage: No clients in response');
-            this.showProgressSpinnerNew.set(false);
+            this.showProgressSpinner.set(false);
             return;
           }
 
@@ -290,7 +290,7 @@ export class DataManagementClientService implements IManageable {
         },
         error: (err) => {
           console.error('Error reading client list:', err);
-          this.showProgressSpinnerNew.set(false);
+          this.showProgressSpinner.set(false);
         },
       });
     }
@@ -307,7 +307,7 @@ export class DataManagementClientService implements IManageable {
     }
 
     this.isRead.set(true);
-    this.showProgressSpinnerNew.set(false);
+    this.showProgressSpinner.set(false);
   }
 
   deleteClient(key: string): Observable<IClient> {
@@ -493,7 +493,7 @@ export class DataManagementClientService implements IManageable {
 
     setTimeout(() => {
       this.isReset.set(true);
-      this.showProgressSpinnerNew.set(false);
+      this.showProgressSpinner.set(false);
       setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
@@ -589,7 +589,7 @@ export class DataManagementClientService implements IManageable {
 
       setTimeout(() => {
         this.isRead.set(true);
-        this.showProgressSpinnerNew.set(false);
+        this.showProgressSpinner.set(false);
         setTimeout(() => this.isRead.set(false), 100);
       }, 300);
     });

@@ -30,7 +30,7 @@ export class DataManagementAbsenceService implements ISpinnable {
   }
 
   // ISpinnable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   public isRead = signal(false);
 
@@ -64,7 +64,7 @@ export class DataManagementAbsenceService implements ISpinnable {
   /* #endregion   temporary check is Filter dirty */
 
   readPage(language: string) {
-    this.showProgressSpinnerNew.set(true);
+    this.showProgressSpinner.set(true);
     this.currentFilter.language = language;
 
     this.dataAbsenceService
@@ -78,7 +78,7 @@ export class DataManagementAbsenceService implements ISpinnable {
           );
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
-          this.showProgressSpinnerNew.set(false);
+          this.showProgressSpinner.set(false);
           this.isRead.set(true);
           setTimeout(
             () => this.isRead.set(false),

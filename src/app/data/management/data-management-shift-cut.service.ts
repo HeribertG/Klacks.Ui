@@ -28,12 +28,11 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   // IManageable implementation
-  public showProgressSpinnerNew = signal(false);
+  public showProgressSpinner = signal(false);
 
   // Cut-specific properties
   public isReset = signal(false);
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
 
   public cutShifts: Shift[] = [];
   public cutShiftsDummy: Shift[] = [];
