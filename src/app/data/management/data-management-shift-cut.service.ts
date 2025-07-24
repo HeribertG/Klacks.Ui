@@ -7,7 +7,6 @@ import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { DataShiftService } from '../data-shift.service';
 import { IShift, Shift } from 'src/app/core/shift-class';
-import { pushOnStack } from 'src/app/helpers/local-storage-stack';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from './entity-names.enum';
@@ -45,7 +44,6 @@ export class DataManagementShiftCutService implements IManageable {
       this.showProgressSpinner.set(true);
       this.dataShiftService.getCutShiftList(id).subscribe((x) => {
         this.cutShifts = x;
-        pushOnStack('workplace/cut-shift?id=' + id);
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
         this.navigationService.navigateToCutShift();
@@ -147,5 +145,9 @@ export class DataManagementShiftCutService implements IManageable {
 
   resetData(): void {
     this.resetCutData();
+  }
+
+  goBack(): string {
+    return 'workplace/shift';
   }
 }

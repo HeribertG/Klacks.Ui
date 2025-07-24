@@ -29,9 +29,11 @@
 
   @if (isSavebarVisible) {
   <div class="footer custom-control-inline">
+    @if (hasGoBackRoute()) {
     <span type="button" class="link-button blue-font" (click)="onClickGoBack()">
       {{ "back" | translate }}
     </span>
+    }
 
     <div class="filler"></div>
 

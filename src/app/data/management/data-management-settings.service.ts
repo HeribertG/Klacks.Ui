@@ -1015,4 +1015,7 @@ export class DataManagementSettingsService implements IManageable {
     return isNotEmpty === '';
   }
 
+  goBack(): string {
+    return '';
+  }
 }

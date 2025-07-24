@@ -25,7 +25,6 @@ import { IShift, Shift } from 'src/app/core/shift-class';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
 import { DataCountryStateService } from '../data-country-state.service';
-import { pushOnStack } from 'src/app/helpers/local-storage-stack';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from './entity-names.enum';
@@ -568,5 +567,7 @@ export class DataManagementShiftService implements IManageable {
 
   /* #endregion   edit shift */
 
-
+  goBack(): string {
+    return 'workplace/shift';
+  }
 }

@@ -224,6 +224,16 @@ export class DataManagementSwitchboardService {
     }
   }
 
+  goBack(): string {
+    if (this.activeManager()) {
+      const manager = this.activeManager()!;
+      if ('goBack' in manager) {
+        return (manager as IManageable).goBack();
+      }
+    }
+    return '';
+  }
+
   resetAllSignals(): void {
     this._isDirty.set(false);
     this._isDisabled.set(false);

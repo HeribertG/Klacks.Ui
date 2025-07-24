@@ -7,16 +7,12 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
+  computed,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
-import {
-  deleteStack,
-  popFromStack,
-  pushOnStack,
-} from 'src/app/helpers/local-storage-stack';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { AppSetting, ISetting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
@@ -82,15 +78,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private saveBarWrapper = document.querySelector('body');
 
+  public hasGoBackRoute = computed(() => {
+    return this.dataManagementSwitchboardService.goBack() !== '';
+  });
+
   @HostListener('keyup', ['$event']) onkeyup(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       this.onClickGoBack();
     }
   }
 
-  @HostListener('window:beforeunload') beforeunload(): void {
-    deleteStack();
-  }
 
   ngOnInit(): void {
     this.setDefaults();
@@ -183,9 +180,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.dataManagementSwitchboardService.isDisabled = true;
     this.dataManagementSwitchboardService.reset();
     setTimeout(() => {
-      const routerToken = popFromStack();
-      if (routerToken !== '') {
-        this.navigationService.navigateToRouterToken(routerToken);
+      const backRoute = this.dataManagementSwitchboardService.goBack();
+      if (backRoute !== '') {
+        this.navigationService.navigateToRouterToken(backRoute);
         return;
       }
       this.navigationService.navigateToRoot();
@@ -219,16 +216,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     switch (value) {
       case 'absence':
-        pushOnStack('workplace/absence');
-
         this.isAbsence = true;
         this.isSavebarVisible = false;
         this.setContainerWithMaxSize();
 
         break;
       case 'dashboard':
-        pushOnStack('workplace/dashboard');
-
         this.setContainerWithNormalSize();
         this.isDashboard = true;
         this.isSavebarVisible = false;
@@ -246,8 +239,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'client':
-        pushOnStack('workplace/client');
-
         this.setContainerWithNormalSize();
         this.isClient = true;
         this.isSavebarVisible = false;
@@ -292,8 +283,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
         break;
       case 'group':
-        pushOnStack('workplace/group');
-
         this.isGroup = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
@@ -304,7 +293,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         }, 100);
         break;
       case 'edit-group':
-        pushOnStack('workplace/group');
         this.isEditGroup = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
@@ -316,8 +304,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'group-structure':
-        pushOnStack('workplace/group-structure');
-
         this.isGroupStructure = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
@@ -329,7 +315,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'shift':
-        pushOnStack('workplace/shift');
         this.isShift = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = false;
@@ -341,7 +326,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         break;
 
       case 'cut-shift':
-        pushOnStack('workplace/shift');
         this.isCutShift = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;
@@ -354,7 +338,6 @@ export class HomeComponent implements OnInit, OnDestroy {
 
       case 'new-shift':
       case 'edit-shift':
-        pushOnStack('workplace/shift');
         this.isCreateShift = true;
         this.setContainerWithNormalSize();
         this.isSavebarVisible = true;

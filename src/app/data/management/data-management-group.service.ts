@@ -562,4 +562,7 @@ export class DataManagementGroupService implements IManageable {
   }
   /* #endregion   Tree Group */
 
+  goBack(): string {
+    return 'workplace/group';
+  }
 }

@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { deleteStack } from '../helpers/local-storage-stack';
 
 @Injectable({
   providedIn: 'root',
@@ -33,17 +32,14 @@ export class NavigationService {
   }
 
   navigateToClient(): void {
-    deleteStack();
     this.router.navigate(['/workplace/client']);
   }
 
   navigateToProfile(): void {
-    deleteStack();
     this.router.navigate(['/workplace/profile']);
   }
 
   navigateToSettings(): void {
-    deleteStack();
     this.router.navigate(['/workplace/settings']);
   }
 

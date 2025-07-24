@@ -59,9 +59,14 @@ export class DataManagementClientService implements IManageable {
   private navigationService = inject(NavigationService);
 
   constructor() {
-    // Selbst-Registrierung für die relevanten Routes
-    ManageableServiceRegistry.register(RouteName.CLIENT, DataManagementClientService);
-    ManageableServiceRegistry.register(RouteName.EDIT_ADDRESS, DataManagementClientService);
+    ManageableServiceRegistry.register(
+      RouteName.CLIENT,
+      DataManagementClientService
+    );
+    ManageableServiceRegistry.register(
+      RouteName.EDIT_ADDRESS,
+      DataManagementClientService
+    );
   }
 
   public isReset = signal(false);
@@ -1171,5 +1176,9 @@ export class DataManagementClientService implements IManageable {
 
   resetData(): void {
     this.prepareClient(this.editClientDummy!);
+  }
+
+  goBack(): string {
+    return 'workplace/client';
   }
 }

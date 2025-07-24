@@ -100,4 +100,8 @@ export class DataManagementProfileService implements IManageable {
     this.readData();
     this.isPasswordDirty = false;
   }
+
+  goBack(): string {
+    return '';
+  }
 }

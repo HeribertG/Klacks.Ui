@@ -10,4 +10,6 @@ export interface IManageable extends ISpinnable {
   resetData(): void;
 
   areObjectsDirty(): boolean;
+
+  goBack(): string;
 }
