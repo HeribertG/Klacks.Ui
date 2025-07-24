@@ -44,13 +44,16 @@ export class AllGroupHomeComponent implements OnInit {
   private _showGrid = true;
 
   constructor() {
-    // Effect für das Zurücknavigieren - reagiert auf nameOfVisibleEntity
     effect(() => {
-      const currentEntity = this.dataManagementSwitchboardService.nameOfVisibleEntity();
-      
-      // Wenn wir bei DataManagementGroupService sind, stelle View-Modus wieder her
-      if (currentEntity === EntityName.GROUP) {
-        this.restoreViewMode();
+      const focusChanged =
+        this.dataManagementSwitchboardService.isFocusChanged();
+      const currentEntity =
+        this.dataManagementSwitchboardService.nameOfVisibleEntity();
+
+      if (focusChanged && currentEntity === EntityName.GROUP) {
+        setTimeout(() => {
+          this.restoreViewMode();
+        }, 10);
       }
     });
   }
@@ -67,15 +70,18 @@ export class AllGroupHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.restoreViewMode();
+    this.dataManagementSwitchboardService.setGroupSearchVisible(this._showGrid);
   }
 
   private restoreViewMode(): void {
     const savedViewMode = this.localStorageService.get(this.STORAGE_KEY);
     if (savedViewMode !== null) {
-      this.showGrid = savedViewMode === 'true';
+      this._showGrid = savedViewMode === 'true';
     } else {
-      this.showGrid = true;
+      this._showGrid = true;
     }
+
+    this.dataManagementSwitchboardService.setGroupSearchVisible(this._showGrid);
   }
 
   showAsGrid() {

@@ -48,7 +48,6 @@ export class DataManagementSwitchboardService {
 
   public isFocusChanged = signal<boolean>(false);
 
-
   public get isDirty(): boolean {
     return this._isDirty();
   }
@@ -80,7 +79,7 @@ export class DataManagementSwitchboardService {
       : '';
   });
 
-  private _isGroupSearchVisible = signal<boolean>(true);
+  private _isGroupSearchVisible = signal<boolean>(false);
 
   public isSearchVisible = computed(() => {
     const route = this.activeRoute();

@@ -219,6 +219,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.isAbsence = true;
         this.isSavebarVisible = false;
         this.setContainerWithMaxSize();
+        setTimeout(() => {
+          this.dataManagementSwitchboardService.setActiveManagerByRoute(
+            RouteName.ABSENCE
+          );
+        }, 100);
 
         break;
       case 'dashboard':

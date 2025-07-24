@@ -53,6 +53,17 @@ export class SearchComponent {
         this.dataManagementSwitchboard.isFocusChanged.set(false);
       }
     });
+
+    effect(() => {
+      const currentEntity =
+        this.dataManagementSwitchboard.nameOfVisibleEntity();
+
+      if (currentEntity === EntityName.GROUP) {
+        const searchVisible = this.dataManagementSwitchboard.isSearchVisible();
+        this.isVisible = searchVisible;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onClickSearch(): void {
@@ -73,7 +84,6 @@ export class SearchComponent {
     this.onClickSearch();
   }
 
-  // Private methods
   private handleFocusChange(): void {
     this.dataManagementSearch.resetFilter();
     this.searchString = '';
@@ -81,8 +91,7 @@ export class SearchComponent {
       this.dataManagementSwitchboard.nameOfVisibleEntity() ===
       EntityName.CLIENT;
     this.isIncludeClient =
-      this.dataManagementSwitchboard.nameOfVisibleEntity() ===
-      EntityName.SHIFT;
+      this.dataManagementSwitchboard.nameOfVisibleEntity() === EntityName.SHIFT;
     this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
   }
