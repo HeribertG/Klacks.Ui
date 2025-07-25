@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModalComponent } from 'src/app/modal/modal/modal.component';
@@ -8,6 +8,7 @@ import { NavComponent } from '../nav/nav.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
+import { ApplicationInitService } from 'src/app/services/application-init.service';
 
 @Component({
   selector: 'app-home',
@@ -26,7 +27,14 @@ import { SavebarComponent } from '../savebar/savebar.component';
     FooterComponent,
   ],
 })
-export class HomeComponent implements OnDestroy {
+export class HomeComponent implements OnInit, OnDestroy {
+  private applicationInitService = inject(ApplicationInitService);
+
+  ngOnInit(): void {
+    // Initialize application resources after successful login
+    this.applicationInitService.initialize();
+  }
+
   ngOnDestroy(): void {
     // Cleaning up
     localStorage.removeItem('edit-address');

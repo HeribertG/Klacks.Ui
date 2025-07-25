@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ApplicationInitService } from './services/application-init.service';
 
 @Component({
@@ -9,11 +9,10 @@ import { ApplicationInitService } from './services/application-init.service';
 })
 export class AppComponent implements OnInit {
   private applicationInitService = inject(ApplicationInitService);
-  
   public title = 'klacks';
 
   ngOnInit(): void {
-    // Initialize application-wide settings once at app start
-    this.applicationInitService.initialize();
+    // Initialize only basic settings that don't require authentication
+    this.applicationInitService.initializeBasics();
   }
 }

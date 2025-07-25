@@ -16,9 +16,14 @@ export class ApplicationInitService {
   private localStorageService = inject(LocalStorageService);
 
   public initialize(): void {
+    // This is now called after login from HomeComponent
+    this.loadIconsAndTitle();
+  }
+
+  public initializeBasics(): void {
+    // Basic settings that don't require authentication
     this.setDefaults();
     this.setTheme();
-    this.loadIconsAndTitle();
   }
 
   private setDefaults(): void {
