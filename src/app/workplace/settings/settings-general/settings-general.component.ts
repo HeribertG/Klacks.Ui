@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 
@@ -31,6 +31,26 @@ export class SettingsGeneralComponent {
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+
+  // Computed properties for logo dimensions and display
+  public logoImage = computed(() => this.dataLoadFileService.logoImage$());
+  public logoDimensions = computed(() => this.dataLoadFileService.logoImageDimensions$());
+  
+  // Calculated proportional dimensions for the logo (adjust size as needed for settings)
+  public logoDisplayDimensions = computed(() => {
+    const dimensions = this.logoDimensions();
+    if (!dimensions) {
+      return { width: 64, height: 64 }; // fallback for settings view
+    }
+    
+    return this.dataLoadFileService.calculateProportionalDimensions(
+      dimensions.width,
+      dimensions.height,
+      64, // max width for settings
+      64, // max height for settings  
+      80  // absolute max for settings
+    );
+  });
 
   onChange() {
     this.isChangingEvent.emit(true);

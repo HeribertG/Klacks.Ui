@@ -67,9 +67,14 @@
         />
       </div>
     </div>
-    } @if (dataLoadFileService.logoImage) {
+    } @if (logoImage()) {
     <div class="image-container-show">
-      <img [src]="dataLoadFileService.logoImage" alt="" class="imgIcon" />
+      <img 
+        [src]="logoImage()" 
+        [width]="logoDisplayDimensions().width" 
+        [height]="logoDisplayDimensions().height" 
+        alt="Logo" 
+        class="imgIcon" />
 
       <div class="row">
         <div class="filler"></div>
@@ -81,7 +86,7 @@
         >
       </div>
     </div>
-    } @if (!dataLoadFileService.logoImage) {
+    } @if (!logoImage()) {
     <div
       class="image-container"
       ngbTooltip="png Datei 32px x 32px"

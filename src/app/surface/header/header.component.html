@@ -13,7 +13,11 @@
   </div>
   } @if (hasLogoImage()) {
   <div (click)="onClickDashboard()" class="icon">
-    <img [src]="logoImage()" width="32" height="32" alt="" />
+    <img 
+      [src]="logoImage()" 
+      [width]="logoDisplayDimensions().width" 
+      [height]="logoDisplayDimensions().height" 
+      alt="Logo" />
   </div>
   }
 

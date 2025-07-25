@@ -43,6 +43,23 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   public authorised = signal<boolean>(false);
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public hasLogoImage = computed(() => !!this.logoImage());
+  public logoDimensions = computed(() => this.dataLoadFileService.logoImageDimensions$());
+  
+  // Calculated proportional dimensions for the logo
+  public logoDisplayDimensions = computed(() => {
+    const dimensions = this.logoDimensions();
+    if (!dimensions) {
+      return { width: 32, height: 32 }; // fallback
+    }
+    
+    return this.dataLoadFileService.calculateProportionalDimensions(
+      dimensions.width,
+      dimensions.height,
+      32, // max width
+      32, // max height
+      40  // absolute max
+    );
+  });
   public registerDropdown: HTMLDivElement | undefined;
   public searchString = signal<string>('');
   public selectedName = signal<string>('new-address');
