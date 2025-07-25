@@ -5,6 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 
 @Component({
   selector: 'app-all-address-home',
@@ -21,6 +23,8 @@ import { LayoutService } from 'src/app/services/layout.service';
 export class AllAddressHomeComponent implements OnInit {
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
+  private workplaceStateService = inject(WorkplaceStateService);
   
   @Input() isClient = false;
   @Output() isChangingEvent = new EventEmitter();
@@ -28,5 +32,9 @@ export class AllAddressHomeComponent implements OnInit {
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.footerService.setFooterVisibility(false);
+    this.searchService.setSearchVisibility(true);
+    
+    // Set active manager for client route to enable search functionality
+    this.workplaceStateService.setActiveManagerByRoute('client');
   }
 }

@@ -15,6 +15,7 @@ import { DataManagementShiftCutService } from 'src/app/data/management/data-mana
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-cut-shift-home',
@@ -31,9 +32,13 @@ export class CutShiftHomeComponent implements OnInit {
   private workplaceStateService = inject(WorkplaceStateService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+    
+    // Hide search for cut pages
+    this.searchService.setSearchVisibility(false);
     
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('cut-shift');

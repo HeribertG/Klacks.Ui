@@ -11,6 +11,8 @@ import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/s
 import { ScheduleDataService } from '../services/schedule-data.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -30,11 +32,17 @@ import { LayoutService } from 'src/app/services/layout.service';
 export class ScheduleHomeComponent implements OnInit {
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
+  private workplaceStateService = inject(WorkplaceStateService);
 
   public currentZoom = 1.0;
 
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
+    this.searchService.setSearchVisibility(true);
+    
+    // Set active manager for schedule route to enable search functionality
+    this.workplaceStateService.setActiveManagerByRoute('schedule');
     
     // Set full width for schedule
     this.layoutService.setContainerToFullSize();

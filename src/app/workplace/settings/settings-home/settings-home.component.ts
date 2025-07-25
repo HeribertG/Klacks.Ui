@@ -19,6 +19,7 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
 
 // Standalone Komponenten
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -69,6 +70,7 @@ export class SettingsHomeComponent implements OnInit {
   private localStorageService = inject(LocalStorageService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
 
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
@@ -80,6 +82,9 @@ export class SettingsHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+    
+    // Hide search for settings pages
+    this.searchService.setSearchVisibility(false);
     
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;

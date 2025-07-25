@@ -5,6 +5,8 @@ import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 
 @Component({
   selector: 'app-all-shift-home',
@@ -21,11 +23,17 @@ import { LayoutService } from 'src/app/services/layout.service';
 export class AllShiftHomeComponent implements OnInit {
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
+  private workplaceStateService = inject(WorkplaceStateService);
   
   @Output() isChangingEvent = new EventEmitter();
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.footerService.setFooterVisibility(false);
+    this.searchService.setSearchVisibility(true);
+    
+    // Set active manager for shift route to enable search functionality
+    this.workplaceStateService.setActiveManagerByRoute('shift');
   }
 }

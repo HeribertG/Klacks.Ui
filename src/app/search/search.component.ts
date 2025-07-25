@@ -15,6 +15,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { EntityName } from 'src/app/data/management/entity-names.enum';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-search',
@@ -26,14 +27,12 @@ import { EntityName } from 'src/app/data/management/entity-names.enum';
 export class SearchComponent {
   private cdr = inject(ChangeDetectorRef);
   private dataManagementSearch = inject(DataManagementSearchService);
-  private dataManagementSwitchboard = inject(WorkplaceStateService);
+  private workplaceState = inject(WorkplaceStateService);
+  public searchService = inject(SearchService);
 
   public faSearch = faSearch;
   public includeAddress = false;
-  public isIncludeAddress = false;
   public includeClient = false;
-  public isIncludeClient = false;
-  public isVisible = false;
   public searchString = '';
 
   constructor() {
@@ -46,22 +45,11 @@ export class SearchComponent {
     });
 
     effect(() => {
-      const focusChanged = this.dataManagementSwitchboard.isFocusChanged();
+      const focusChanged = this.workplaceState.isFocusChanged();
 
       if (focusChanged) {
         this.handleFocusChange();
-        this.dataManagementSwitchboard.isFocusChanged.set(false);
-      }
-    });
-
-    effect(() => {
-      const currentEntity =
-        this.dataManagementSwitchboard.nameOfVisibleEntity();
-
-      if (currentEntity === EntityName.GROUP) {
-        const searchVisible = this.dataManagementSwitchboard.isSearchVisible();
-        this.isVisible = searchVisible;
-        this.cdr.detectChanges();
+        this.workplaceState.isFocusChanged.set(false);
       }
     });
   }
@@ -87,26 +75,6 @@ export class SearchComponent {
   private handleFocusChange(): void {
     this.dataManagementSearch.resetFilter();
     this.searchString = '';
-    this.isIncludeAddress =
-      this.dataManagementSwitchboard.nameOfVisibleEntity() ===
-      EntityName.CLIENT;
-    this.isIncludeClient =
-      this.dataManagementSwitchboard.nameOfVisibleEntity() === EntityName.SHIFT;
-    this.isVisible = this.isComponentVisible();
     this.cdr.detectChanges();
-  }
-
-  private isComponentVisible(): boolean {
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
-      case EntityName.CLIENT:
-      case EntityName.ABSENCE:
-      case EntityName.SCHEDULE:
-      case EntityName.SHIFT:
-        return true;
-      case EntityName.GROUP:
-        return this.dataManagementSwitchboard.isSearchVisible();
-    }
-
-    return false;
   }
 }

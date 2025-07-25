@@ -1,4 +1,4 @@
-@if (isVisible) {
+@if (searchService.showSearch()) {
 <div class="container-search form-group">
   <div class="input-group">
     <input
@@ -21,7 +21,7 @@
     </button>
   </div>
 
-  @if (isIncludeAddress) {
+  @if (searchService.showIncludeAddress()) {
   <div class="include-address">
     <label class="checkbox-label">
       <input
@@ -32,7 +32,7 @@
       {{ "search.inc.address" | translate }}
     </label>
   </div>
-  } @if (isIncludeClient) {
+  } @if (searchService.showIncludeClient()) {
   <div class="include-address">
     <label class="checkbox-label">
       <input type="checkbox" name="includeClient" [(ngModel)]="includeClient" />

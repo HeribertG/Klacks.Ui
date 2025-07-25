@@ -25,6 +25,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ShiftStatus } from 'src/app/core/shift-class';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -56,6 +57,7 @@ export class EditShiftHomeComponent implements OnInit {
   private navigationService = inject(NavigationService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
 
   isComplex = false;
 
@@ -68,6 +70,9 @@ export class EditShiftHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+    
+    // Hide search for edit/new pages
+    this.searchService.setSearchVisibility(false);
     
     // Determine the route and set active manager
     const result1 = this.urlParameterService.parseCurrentUrl(

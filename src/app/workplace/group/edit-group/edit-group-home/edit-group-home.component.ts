@@ -17,6 +17,7 @@ import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-edit-group-home',
@@ -42,9 +43,13 @@ export class EditGroupHomeComponent implements OnInit {
   private urlParameterService = inject(UrlParameterService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+    
+    // Hide search for edit pages
+    this.searchService.setSearchVisibility(false);
     
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('edit-group');

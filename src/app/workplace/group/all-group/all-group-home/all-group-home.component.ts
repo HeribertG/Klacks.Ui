@@ -18,6 +18,7 @@ import { WorkplaceStateService } from 'src/app/data/management/workplace-state.s
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
+import { SearchService } from 'src/app/services/search.service';
 
 @Component({
   selector: 'app-all-group-home',
@@ -40,6 +41,7 @@ export class AllGroupHomeComponent implements OnInit {
   private localStorageService = inject(LocalStorageService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
+  private searchService = inject(SearchService);
 
   @Output() isChangingEvent = new EventEmitter();
 
@@ -67,15 +69,19 @@ export class AllGroupHomeComponent implements OnInit {
 
   set showGrid(value: boolean) {
     this._showGrid = value;
-    this.workplaceStateService.setGroupSearchVisible(value);
+    this.searchService.setGroupViewMode(value);
     this.localStorageService.set(this.STORAGE_KEY, value.toString());
   }
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.footerService.setFooterVisibility(false);
+    this.searchService.setSearchVisibility(true);
+    
+    // Set active manager for group route to enable search functionality
+    this.workplaceStateService.setActiveManagerByRoute('group');
+    
     this.restoreViewMode();
-    this.workplaceStateService.setGroupSearchVisible(this._showGrid);
   }
 
   private restoreViewMode(): void {
@@ -86,7 +92,7 @@ export class AllGroupHomeComponent implements OnInit {
       this._showGrid = true;
     }
 
-    this.workplaceStateService.setGroupSearchVisible(this._showGrid);
+    this.searchService.setGroupViewMode(this._showGrid);
   }
 
   showAsGrid() {
