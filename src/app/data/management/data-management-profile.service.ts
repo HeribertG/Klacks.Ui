@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/core/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -19,7 +19,10 @@ export class DataManagementProfileService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die profile Route
-    ManageableServiceRegistry.register(RouteName.PROFILE, DataManagementProfileService);
+    ManageableServiceRegistry.register(
+      RouteName.PROFILE,
+      DataManagementProfileService
+    );
   }
 
   // IManageable implementation

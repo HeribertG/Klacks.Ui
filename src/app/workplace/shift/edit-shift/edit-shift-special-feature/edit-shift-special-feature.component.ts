@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/class-literal-property-style */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -134,7 +135,9 @@ export class EditShiftSpecialFeatureComponent
 
   // Getter to determine if most fields should be disabled based on shift status
   get isFieldsDisabled(): boolean {
-    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+    return (
+      this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut
+    );
   }
 
   // Getter for time fields that should remain enabled when IsCut

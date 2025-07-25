@@ -15,11 +15,20 @@ export class DataLoadFileService {
   public logoImage$ = signal<string | null>(null);
   public profileImage$ = signal<string | null>(null);
   public iconImage$ = signal<string | null>(null);
-  
+
   // Image dimensions
-  public logoImageDimensions$ = signal<{width: number, height: number} | null>(null);
-  public profileImageDimensions$ = signal<{width: number, height: number} | null>(null);
-  public iconImageDimensions$ = signal<{width: number, height: number} | null>(null);
+  public logoImageDimensions$ = signal<{
+    width: number;
+    height: number;
+  } | null>(null);
+  public profileImageDimensions$ = signal<{
+    width: number;
+    height: number;
+  } | null>(null);
+  public iconImageDimensions$ = signal<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   private httpClient = inject(HttpClient);
 
@@ -195,9 +204,9 @@ export class DataLoadFileService {
         const result = reader.result as string;
         this.logoImage = result;
         this.logoImage$.set(result);
-        
+
         // Get image dimensions
-        this.getImageDimensions(result).then(dimensions => {
+        this.getImageDimensions(result).then((dimensions) => {
           this.logoImageDimensions$.set(dimensions);
         });
       },
@@ -209,13 +218,15 @@ export class DataLoadFileService {
     }
   }
 
-  private getImageDimensions(src: string): Promise<{width: number, height: number}> {
+  private getImageDimensions(
+    src: string
+  ): Promise<{ width: number; height: number }> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
         resolve({
           width: img.naturalWidth,
-          height: img.naturalHeight
+          height: img.naturalHeight,
         });
       };
       img.onerror = () => {
@@ -225,23 +236,13 @@ export class DataLoadFileService {
     });
   }
 
-  /**
-   * Calculates proportional dimensions for an image to fit within given constraints
-   * @param originalWidth Original image width
-   * @param originalHeight Original image height
-   * @param maxWidth Maximum allowed width (default: 32)
-   * @param maxHeight Maximum allowed height (default: 32)
-   * @param absoluteMax Absolute maximum size (default: 40)
-   * @returns {width: number, height: number} Calculated dimensions
-   */
   calculateProportionalDimensions(
-    originalWidth: number, 
-    originalHeight: number, 
-    maxWidth: number = 32, 
-    maxHeight: number = 32,
-    absoluteMax: number = 40
-  ): {width: number, height: number} {
-    
+    originalWidth: number,
+    originalHeight: number,
+    maxWidth = 32,
+    maxHeight = 32,
+    absoluteMax = 40
+  ): { width: number; height: number } {
     if (originalWidth === 0 || originalHeight === 0) {
       return { width: maxWidth, height: maxHeight };
     }
@@ -249,26 +250,43 @@ export class DataLoadFileService {
     // Calculate scale factors
     const scaleX = maxWidth / originalWidth;
     const scaleY = maxHeight / originalHeight;
-    
+
     // Use the smaller scale factor to maintain proportions
     const scale = Math.min(scaleX, scaleY);
-    
+
     let newWidth = Math.round(originalWidth * scale);
     let newHeight = Math.round(originalHeight * scale);
-    
+
     // Ensure we don't exceed absolute maximum
     if (newWidth > absoluteMax) {
       const absoluteScale = absoluteMax / newWidth;
       newWidth = absoluteMax;
       newHeight = Math.round(newHeight * absoluteScale);
     }
-    
+
     if (newHeight > absoluteMax) {
       const absoluteScale = absoluteMax / newHeight;
       newHeight = absoluteMax;
       newWidth = Math.round(newWidth * absoluteScale);
     }
-    
+
     return { width: newWidth, height: newHeight };
+  }
+
+  /**
+   * Clears all cached images (used on logout)
+   */
+  clearAllImages(): void {
+    this.profileImage = undefined;
+    this.iconImage = undefined;
+    this.logoImage = undefined;
+
+    this.profileImage$.set(null);
+    this.iconImage$.set(null);
+    this.logoImage$.set(null);
+
+    this.profileImageDimensions$.set(null);
+    this.iconImageDimensions$.set(null);
+    this.logoImageDimensions$.set(null);
   }
 }

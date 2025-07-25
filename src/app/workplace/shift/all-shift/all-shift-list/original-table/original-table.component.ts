@@ -3,7 +3,6 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/core/shift-class';
-import { IconScissorComponent } from 'src/app/icons/icon-scissor.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 

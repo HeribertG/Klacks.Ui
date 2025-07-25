@@ -75,7 +75,7 @@
       (keydown.space)="onClickProfile()"
       aria-label="Open profile (Alt+7)"
     >
-      <img [src]="profileImage()" alt="" class="imgIcon" />
+      <img [src]="dataLoadFileService.profileImage$()" alt="" class="imgIcon" />
     </div>
     } @if (isAdmin()) {
     <div class="icon">

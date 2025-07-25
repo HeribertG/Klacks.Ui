@@ -7,6 +7,7 @@ import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from '../services/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
+import { DataLoadFileService } from '../data/data-load-file.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class AuthService {
   private httpClient = inject(HttpClient);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
+  private dataLoadFileService = inject(DataLoadFileService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
     const user = {
@@ -60,6 +62,7 @@ export class AuthService {
 
   logOut() {
     this.removeToken();
+    this.dataLoadFileService.clearAllImages();
   }
 
   authenticated(): boolean {

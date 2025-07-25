@@ -2,7 +2,6 @@ import {
   Component,
   effect,
   inject,
-  OnInit,
   signal,
   viewChild,
   output,
@@ -39,7 +38,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   ],
   providers: [ScrollbarService],
 })
-export class AbsenceGanttContainerComponent implements OnInit {
+export class AbsenceGanttContainerComponent {
   refreshEvent = output<void>();
   changeCalendar = output<void>();
 
@@ -52,9 +51,7 @@ export class AbsenceGanttContainerComponent implements OnInit {
   contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
 
   private dataManagementBreakService = inject(DataManagementBreakService);
-  private workplaceStateService = inject(
-    WorkplaceStateService
-  );
+  private workplaceStateService = inject(WorkplaceStateService);
   private toastShowService = inject(ToastShowService);
   private scrollService = inject(ScrollService);
 
@@ -83,10 +80,6 @@ export class AbsenceGanttContainerComponent implements OnInit {
       this.hScrollbarSize.set(isLocked ? 0 : this.defaultHScrollbarSize);
       this.updateScrollbarSizes();
     });
-  }
-
-  ngOnInit(): void {
-    // nameOfVisibleEntity is now automatically set via route mapping
   }
 
   onHScrollbarValueChange(value: number): void {

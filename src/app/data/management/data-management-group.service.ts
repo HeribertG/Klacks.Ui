@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   CheckBoxValue,
   Client,
@@ -51,8 +51,14 @@ export class DataManagementGroupService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die relevanten Routes
-    ManageableServiceRegistry.register(RouteName.GROUP, DataManagementGroupService);
-    ManageableServiceRegistry.register(RouteName.EDIT_GROUP, DataManagementGroupService);
+    ManageableServiceRegistry.register(
+      RouteName.GROUP,
+      DataManagementGroupService
+    );
+    ManageableServiceRegistry.register(
+      RouteName.EDIT_GROUP,
+      DataManagementGroupService
+    );
   }
 
   // IManageable implementation

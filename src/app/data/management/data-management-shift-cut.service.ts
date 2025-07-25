@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
@@ -102,7 +102,7 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   private createCutShiftUrl(id: string): string {
-    return '/workplace/cut-shift';
+    return '/workplace/cut-shift/' + id;
   }
 
   private fireIsReadEvent(): void {

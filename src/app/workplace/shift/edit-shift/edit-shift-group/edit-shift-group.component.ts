@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/class-literal-property-style */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonModule } from '@angular/common';
 import {

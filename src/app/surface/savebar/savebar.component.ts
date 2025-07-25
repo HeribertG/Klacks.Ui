@@ -13,16 +13,34 @@ import { FooterService } from 'src/app/services/footer.service';
     @if (footerService.showFooter()) {
     <div class="footer custom-control-inline">
       @if (showGoBackButton()) {
-      <span type="button" class="link-button blue-font" (click)="onClickGoBack()">
-        {{ "back" | translate }}
+      <span
+        type="button"
+        class="link-button blue-font"
+        role="button"
+        tabindex="0"
+        (click)="onClickGoBack()"
+        (keydown.enter)="onClickGoBack()"
+        (keydown.space)="onClickGoBack()"
+        aria-label="Go back"
+      >
+        {{ 'back' | translate }}
       </span>
       }
 
       <div class="filler"></div>
 
       @if (workplaceStateService.isDirty && !workplaceStateService.isDisabled) {
-      <span type="button" class="link-button red-font" (click)="onClickReset()">
-        {{ "reset" | translate }}
+      <span
+        type="button"
+        class="link-button red-font"
+        role="button"
+        tabindex="0"
+        (click)="onClickReset()"
+        (keydown.enter)="onClickReset()"
+        (keydown.space)="onClickReset()"
+        aria-label="Reset changes"
+      >
+        {{ 'reset' | translate }}
       </span>
       } @if (workplaceStateService.isDirty) {
       <button
@@ -31,7 +49,7 @@ import { FooterService } from 'src/app/services/footer.service';
         (click)="onClickSave()"
         [disabled]="workplaceStateService.isDisabled"
       >
-        {{ "store" | translate }}
+        {{ 'store' | translate }}
       </button>
       <button
         type="button"
@@ -39,13 +57,13 @@ import { FooterService } from 'src/app/services/footer.service';
         (click)="onClickSaveAndClose()"
         [disabled]="workplaceStateService.isDisabled"
       >
-        {{ "saveAndClose" | translate }}
+        {{ 'saveAndClose' | translate }}
       </button>
       }
     </div>
     }
   `,
-  styleUrls: ['../home/home.component.scss']
+  styleUrls: ['../home/home.component.scss'],
 })
 export class SavebarComponent {
   public workplaceStateService = inject(WorkplaceStateService);

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -94,10 +93,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   private currentTheme = signal<string>('');
   private currentPage = signal<NavigationPage>('');
   private iconsInitialized = signal<boolean>(false);
-  profileImage = signal<string | null>(null);
-
   isAdmin = computed(() => this.authorizationService.isAdmin);
-  hasProfileImage = computed(() => !!this.profileImage());
+  hasProfileImage = computed(() => !!this.dataLoadFileService.profileImage$());
 
   selectedIcon = computed(() => {
     const page = this.currentPage();
@@ -132,7 +129,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ngUnsubscribe = new Subject<void>();
   private effectRefs: EffectRef[] = [];
-  private profileImageInterval: any;
 
   constructor() {
     this.setupEffects();
@@ -164,10 +160,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
     this.effectRefs.forEach((ref) => ref.destroy());
     this.effectRefs = [];
-
-    if (this.profileImageInterval) {
-      clearInterval(this.profileImageInterval);
-    }
   }
 
   private setupEffects(): void {
@@ -264,23 +256,8 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private startProfileImageWatcher(): void {
-    let attempts = 0;
-    const maxAttempts = 20;
-
-    this.profileImageInterval = setInterval(() => {
-      if (this.dataLoadFileService.profileImage) {
-        this.profileImage.set(this.dataLoadFileService.profileImage);
-        clearInterval(this.profileImageInterval);
-      } else if (attempts >= maxAttempts) {
-        clearInterval(this.profileImageInterval);
-      }
-      attempts++;
-    }, 200);
-
-    if (this.dataLoadFileService.profileImage) {
-      this.profileImage.set(this.dataLoadFileService.profileImage);
-      clearInterval(this.profileImageInterval);
-    }
+    // No longer needed since we use reactive signals directly from DataLoadFileService
+    // The profileImage$() signal will automatically update when the image loads
   }
 
   onClickAbsence(): void {
