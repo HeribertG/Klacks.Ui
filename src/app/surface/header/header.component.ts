@@ -106,7 +106,9 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   onClickLogOut(): void {
     this.auth.logOut();
-    this.authorised.set(false);
+    this.navigationService.navigateToRoot().then(() => {
+      this.authorised.set(false);
+    });
   }
 
   updateSearchString(searchValue: string): void {

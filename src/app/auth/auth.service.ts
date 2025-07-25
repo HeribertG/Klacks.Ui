@@ -60,7 +60,6 @@ export class AuthService {
 
   logOut() {
     this.removeToken();
-    this.navigationService.navigateToRoot();
   }
 
   authenticated(): boolean {

@@ -31,4 +31,8 @@ export class HomeComponent implements OnDestroy {
     // Cleaning up
     localStorage.removeItem('edit-address');
   }
+
+  canDeactivate(): boolean {
+    return true;
+  }
 }

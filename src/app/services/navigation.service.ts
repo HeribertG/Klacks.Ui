@@ -45,8 +45,8 @@ export class NavigationService {
 
   navigateToStatistic(): void {}
 
-  navigateToRoot(): void {
-    this.router.navigate(['/']);
+  navigateToRoot(): Promise<boolean> {
+    return this.router.navigate(['/']);
   }
 
   navigateToWorkplace(): void {
