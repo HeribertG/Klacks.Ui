@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ApplicationInitService } from './services/application-init.service';
 
 @Component({
   selector: 'app-root',
@@ -6,7 +7,13 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
   standalone: false,
 })
-export class AppComponent {
-  // Public properties (used in templates)
+export class AppComponent implements OnInit {
+  private applicationInitService = inject(ApplicationInitService);
+  
   public title = 'klacks';
+
+  ngOnInit(): void {
+    // Initialize application-wide settings once at app start
+    this.applicationInitService.initialize();
+  }
 }

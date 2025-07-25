@@ -19,6 +19,8 @@ import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile
 // Services
 import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-profile-home',
@@ -41,10 +43,18 @@ export class ProfileHomeComponent implements OnInit {
     WorkplaceStateService
   );
   public dataManagementProfileService = inject(DataManagementProfileService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('profile');
+    
+    // Show footer for this profile page
+    this.footerService.setFooterVisibility(true);
+    
     this.dataManagementProfileService.readData();
   }
 

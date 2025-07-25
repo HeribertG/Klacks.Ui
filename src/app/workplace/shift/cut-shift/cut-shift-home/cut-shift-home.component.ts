@@ -13,6 +13,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-cut-shift-home',
@@ -27,10 +29,17 @@ export class CutShiftHomeComponent implements OnInit {
   private urlParameterService = inject(UrlParameterService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private workplaceStateService = inject(WorkplaceStateService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('cut-shift');
+    
+    // Show footer for this cut page
+    this.footerService.setFooterVisibility(true);
     
     if (this.dataManagementShiftCutService.cutShifts.length == 0) {
       const result = this.urlParameterService.parseCurrentUrl(

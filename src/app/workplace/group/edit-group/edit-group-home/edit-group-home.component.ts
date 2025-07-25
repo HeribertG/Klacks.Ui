@@ -15,6 +15,8 @@ import { EditGroupMembersComponent } from '../edit-group-members/edit-group-memb
 import { EditGroupNavComponent } from '../edit-group-nav/edit-group-nav.component';
 import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent.component';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-edit-group-home',
@@ -38,10 +40,17 @@ export class EditGroupHomeComponent implements OnInit {
   );
   public dataManagementGroupService = inject(DataManagementGroupService);
   private urlParameterService = inject(UrlParameterService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('edit-group');
+    
+    // Show footer for this edit page
+    this.footerService.setFooterVisibility(true);
     
     if (this.dataManagementGroupService.editGroup === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(

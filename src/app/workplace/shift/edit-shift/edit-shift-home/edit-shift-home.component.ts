@@ -19,10 +19,12 @@ import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-addr
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
+import { FooterService } from 'src/app/services/footer.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ShiftStatus } from 'src/app/core/shift-class';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -52,6 +54,8 @@ export class EditShiftHomeComponent implements OnInit {
   private urlParameterService = inject(UrlParameterService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   isComplex = false;
 
@@ -63,6 +67,8 @@ export class EditShiftHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     // Determine the route and set active manager
     const result1 = this.urlParameterService.parseCurrentUrl(
       '/workplace/edit-shift'
@@ -80,6 +86,9 @@ export class EditShiftHomeComponent implements OnInit {
         'new-shift'
       );
     }
+    
+    // Show footer for this edit/new page
+    this.footerService.setFooterVisibility(true);
 
     if (this.dataManagementShiftService.editShift === undefined) {
       if (result1.isValidRoute && result1.hasId && result1.id) {

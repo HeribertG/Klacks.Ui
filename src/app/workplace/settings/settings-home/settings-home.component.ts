@@ -17,6 +17,8 @@ import { DataManagementSettingsService } from 'src/app/data/management/data-mana
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 // Standalone Komponenten
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -65,6 +67,8 @@ export class SettingsHomeComponent implements OnInit {
   );
   private dataManagementSettingsService = inject(DataManagementSettingsService);
   private localStorageService = inject(LocalStorageService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   get settingsService(): DataManagementSettingsService {
     return this.dataManagementSettingsService;
@@ -75,10 +79,13 @@ export class SettingsHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
     // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('settings');
+    this.footerService.setFooterVisibility(true);
     this.dataManagementSettingsService.readData();
   }
 

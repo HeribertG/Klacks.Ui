@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.component';
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-all-address-home',
@@ -16,7 +18,15 @@ import { CommonModule } from '@angular/common';
     AllAddressNavComponent,
   ],
 })
-export class AllAddressHomeComponent {
+export class AllAddressHomeComponent implements OnInit {
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
+  
   @Input() isClient = false;
   @Output() isChangingEvent = new EventEmitter();
+
+  ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    this.footerService.setFooterVisibility(false);
+  }
 }

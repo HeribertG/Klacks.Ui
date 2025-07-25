@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
@@ -9,6 +9,8 @@ import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-r
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { ScheduleDataService } from '../services/schedule-data.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -25,9 +27,18 @@ import { ScheduleDataService } from '../services/schedule-data.service';
     BaseSettingsService,
   ],
 })
-export class ScheduleHomeComponent {
+export class ScheduleHomeComponent implements OnInit {
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   public currentZoom = 1.0;
+
+  ngOnInit(): void {
+    this.footerService.setFooterVisibility(false);
+    
+    // Set full width for schedule
+    this.layoutService.setContainerToFullSize();
+  }
 
   onZoomChange(zoomValue: number) {
     this.currentZoom = zoomValue;

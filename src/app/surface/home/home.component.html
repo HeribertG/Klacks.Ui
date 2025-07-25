@@ -10,41 +10,7 @@
 
   <app-main></app-main>
 
-  @if (isSavebarVisible()) {
-  <div class="footer custom-control-inline">
-    @if (hasGoBackRoute()) {
-    <span type="button" class="link-button blue-font" (click)="onClickGoBack()">
-      {{ "back" | translate }}
-    </span>
-    }
-
-    <div class="filler"></div>
-
-    @if ( workplaceStateService.isDirty &&
-    workplaceStateService.isDisabled === false ) {
-    <span type="button" class="link-button red-font" (click)="onClickReset()">
-      {{ "reset" | translate }}
-    </span>
-    } @if (workplaceStateService.isDirty) {
-    <button
-      type="button"
-      class="btn save-btn"
-      (click)="onClickSave()"
-      [disabled]="workplaceStateService.isDisabled"
-    >
-      {{ "store" | translate }}
-    </button>
-    <button
-      type="button"
-      class="btn save-btn"
-      (click)="onClickSaveAndClose()"
-      [disabled]="workplaceStateService.isDisabled"
-    >
-      {{ "saveAndClose" | translate }}
-    </button>
-    }
-  </div>
-  }
+  <app-savebar></app-savebar>
 
   <!-- <app-aside></app-aside> -->
   <app-footer></app-footer>

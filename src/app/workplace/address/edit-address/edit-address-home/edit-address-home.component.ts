@@ -17,6 +17,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -51,10 +53,17 @@ export class EditAddressHomeComponent implements OnInit {
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    
     // Register the service with the switchboard for this route
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
+    
+    // Show footer for this edit page
+    this.footerService.setFooterVisibility(true);
     
     if (this.dataManagementClientService.editClient === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(

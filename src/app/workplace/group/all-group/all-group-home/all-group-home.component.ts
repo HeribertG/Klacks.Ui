@@ -16,6 +16,8 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 import { EntityName } from 'src/app/data/management/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { FooterService } from 'src/app/services/footer.service';
+import { LayoutService } from 'src/app/services/layout.service';
 
 @Component({
   selector: 'app-all-group-home',
@@ -36,6 +38,8 @@ export class AllGroupHomeComponent implements OnInit {
     WorkplaceStateService
   );
   private localStorageService = inject(LocalStorageService);
+  private footerService = inject(FooterService);
+  private layoutService = inject(LayoutService);
 
   @Output() isChangingEvent = new EventEmitter();
 
@@ -68,6 +72,8 @@ export class AllGroupHomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.layoutService.setContainerToNormalSize();
+    this.footerService.setFooterVisibility(false);
     this.restoreViewMode();
     this.workplaceStateService.setGroupSearchVisible(this._showGrid);
   }
