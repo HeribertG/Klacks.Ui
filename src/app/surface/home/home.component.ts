@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   HostListener,
@@ -10,24 +10,24 @@ import {
   computed,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
-import { RouteName } from 'src/app/data/management/entity-names.enum';
+import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { AppSetting, ISetting } from 'src/app/core/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { LayoutService } from 'src/app/services/layout.service';
+import { CanComponentDeactivate } from 'src/app/helpers/can-deactivate.guard';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ModalComponent } from 'src/app/modal/modal/modal.component';
 import { SpinnerWrapperComponent } from 'src/app/spinner/spinner-wrapper/spinner-wrapper.component';
 import { HeaderComponent } from '../header/header.component';
 import { NavComponent } from '../nav/nav.component';
-import { MainComponent } from '../main/main.component';
 import { FooterComponent } from '../footer/footer.component';
+import { MainComponent } from '../main/main.component';
 
 @Component({
   selector: 'app-home',
@@ -45,41 +45,39 @@ import { FooterComponent } from '../footer/footer.component';
     FooterComponent,
   ],
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  public dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+export class HomeComponent
+  implements OnInit, OnDestroy, CanComponentDeactivate
+{
+  public workplaceStateService = inject(
+    WorkplaceStateService
   );
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private navigationService = inject(NavigationService);
+  private layoutService = inject(LayoutService);
   private titleService = inject(Title);
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
-  private authorizationService = inject(AuthorizationService);
 
   @ViewChild('content', { static: false }) private content: any;
 
-  isDashboard = true;
-  isProfile = false;
-  isSetting = false;
-  isClient = false;
-  isEditClient = false;
-  isAbsence = false;
-  isSchedule = false;
-  isGroup = false;
-  isEditGroup = false;
-  isCreateShift = false;
-  isShift = false;
-  isCutShift = false;
-  isGroupStructure = false;
-
-  isSavebarVisible = false;
+  // Save bar visibility based on route
+  public isSavebarVisible = computed(() => {
+    const url = this.router.url;
+    return (
+      url.includes('/edit-') ||
+      url.includes('/profile') ||
+      url.includes('/settings') ||
+      url.includes('/group-structure') ||
+      url.includes('/new-shift') ||
+      url.includes('/cut-shift')
+    );
+  });
 
   private saveBarWrapper = document.querySelector('body');
 
   public hasGoBackRoute = computed(() => {
-    return this.dataManagementSwitchboardService.goBack() !== '';
+    return this.workplaceStateService.goBack() !== '';
   });
 
   @HostListener('keyup', ['$event']) onkeyup(event: KeyboardEvent): void {
@@ -88,25 +86,26 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
   }
 
-
   ngOnInit(): void {
     this.setDefaults();
     this.setTheme();
     this.tryLoadIcon();
-    this.saveBarWrapper!.style.setProperty('--footer_height', '0px');
 
-    this.route.params.subscribe((params) => {
-      this.getClientType(params['id']);
-    });
-
+    // Watch for route changes to update footer height and container size
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        const id = this.route.snapshot.params['id'];
-        if (id) {
-          this.getClientType(id);
-        }
+        setTimeout(() => {
+          this.updateFooterHeight();
+          this.layoutService.setContainerSizeForRoute(event.url);
+        }, 0);
       }
     });
+
+    // Set initial container size and footer height
+    this.layoutService.setContainerSizeForRoute(this.router.url);
+    setTimeout(() => {
+      this.updateFooterHeight();
+    }, 0);
 
     try {
       this.dataSettingsVariousService.readSettingList().subscribe((l) => {
@@ -129,10 +128,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   async canDeactivate(): Promise<boolean> {
-    if (this.dataManagementSwitchboardService === undefined) {
+    if (this.workplaceStateService === undefined) {
       return true;
     }
-    if (this.dataManagementSwitchboardService.isDirty === false) {
+    if (this.workplaceStateService.isDirty === false) {
       return true;
     }
 
@@ -141,7 +140,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isOpen) {
       return isOpen.then((x) => {
         if (x) {
-          this.dataManagementSwitchboardService.isDirty = false;
+          this.workplaceStateService.isDirty = false;
         }
 
         return x;
@@ -151,18 +150,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
   onIsChanging(value: boolean): void {
     if (value === true) {
-      this.dataManagementSwitchboardService.areObjectsDirty();
+      this.workplaceStateService.areObjectsDirty();
     } else {
-      this.dataManagementSwitchboardService.checkIfDirtyIsNecessary();
+      this.workplaceStateService.checkIfDirtyIsNecessary();
     }
   }
 
   onClickSave(): void {
-    this.dataManagementSwitchboardService.onClickSave();
+    this.workplaceStateService.onClickSave();
   }
 
   onClickSaveAndClose(): void {
-    this.dataManagementSwitchboardService.onClickSave();
+    this.workplaceStateService.onClickSave();
     setTimeout(() => {
       this.onClickGoBack();
     }, 500);
@@ -173,14 +172,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onClickReset(): void {
-    this.dataManagementSwitchboardService.reset();
+    this.workplaceStateService.reset();
   }
 
   onClickGoBack(): void {
-    this.dataManagementSwitchboardService.isDisabled = true;
-    this.dataManagementSwitchboardService.reset();
+    this.workplaceStateService.isDisabled = true;
+    this.workplaceStateService.reset();
     setTimeout(() => {
-      const backRoute = this.dataManagementSwitchboardService.goBack();
+      const backRoute = this.workplaceStateService.goBack();
       if (backRoute !== '') {
         this.navigationService.navigateToRouterToken(backRoute);
         return;
@@ -189,179 +188,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     }, 200);
   }
 
-  private reset(): void {
-    this.dataManagementSwitchboardService.showProgressSpinner(false);
-    this.isDashboard = false;
-    this.isProfile = false;
-    this.isSetting = false;
-    this.isClient = false;
-    this.isEditClient = false;
-    this.isAbsence = false;
-    this.isSchedule = false;
-    this.isGroup = false;
-    this.isEditGroup = false;
-    this.isCreateShift = false;
-    this.isShift = false;
-    this.isCutShift = false;
-    this.isGroupStructure = false;
-
-    this.dataManagementSwitchboardService.isDisabled = false;
-  }
-
-  getClientType(value: string): void {
-    this.reset();
-    if (!this.checkAccessRights(value)) {
-      return;
-    }
-
-    switch (value) {
-      case 'absence':
-        this.isAbsence = true;
-        this.isSavebarVisible = false;
-        this.setContainerWithMaxSize();
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.ABSENCE
-          );
-        }, 100);
-
-        break;
-      case 'dashboard':
-        this.setContainerWithNormalSize();
-        this.isDashboard = true;
-        this.isSavebarVisible = false;
-
-        break;
-      case 'edit-address':
-        this.setContainerWithNormalSize();
-        this.isEditClient = true;
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.EDIT_ADDRESS
-          );
-        }, 100);
-        break;
-
-      case 'client':
-        this.setContainerWithNormalSize();
-        this.isClient = true;
-        this.isSavebarVisible = false;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.CLIENT
-          );
-        }, 100);
-
-        break;
-      case 'schedule':
-        this.isSchedule = true;
-        this.setContainerWithMaxSize();
-        this.isSavebarVisible = false;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.SCHEDULE
-          );
-        }, 100);
-
-        break;
-      case 'profile':
-        this.setContainerWithNormalSize();
-        this.isProfile = true;
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.PROFILE
-          );
-        }, 100);
-        break;
-
-      case 'settings':
-        this.setContainerWithNormalSize();
-
-        this.isSetting = true;
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.SETTINGS
-          );
-        }, 100);
-        break;
-      case 'group':
-        this.isGroup = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = false;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.GROUP
-          );
-        }, 100);
-        break;
-      case 'edit-group':
-        this.isEditGroup = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.EDIT_GROUP
-          );
-        }, 100);
-        break;
-
-      case 'group-structure':
-        this.isGroupStructure = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.GROUP_STRUCTURE
-          );
-        }, 100);
-        break;
-
-      case 'shift':
-        this.isShift = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = false;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.SHIFT
-          );
-        }, 100);
-        break;
-
-      case 'cut-shift':
-        this.isCutShift = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            RouteName.CUT_SHIFT
-          );
-        }, 100);
-        break;
-
-      case 'new-shift':
-      case 'edit-shift':
-        this.isCreateShift = true;
-        this.setContainerWithNormalSize();
-        this.isSavebarVisible = true;
-        setTimeout(() => {
-          // Both new-shift and edit-shift use the same service route
-          const routeName =
-            value === 'new-shift' ? RouteName.NEW_SHIFT : RouteName.EDIT_SHIFT;
-          this.dataManagementSwitchboardService.setActiveManagerByRoute(
-            routeName
-          );
-        }, 100);
-        break;
-
-      default:
-        this.isDashboard = true;
-        this.isSavebarVisible = false;
-    }
-
-    if (this.isSavebarVisible) {
+  private updateFooterHeight(): void {
+    if (this.isSavebarVisible()) {
       this.saveBarWrapper!.style.setProperty('--footer_height', '65px');
     } else {
       this.saveBarWrapper!.style.setProperty('--footer_height', '0px');
@@ -369,15 +197,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   open(content: any): Promise<boolean> | void {}
-
-  setContainerWithNormalSize() {
-    const containerWrapper = document.getElementById('main_container');
-    containerWrapper!.style.setProperty('max-width', '1445px');
-  }
-  setContainerWithMaxSize() {
-    const containerWrapper = document.getElementById('main_container');
-    containerWrapper!.style.setProperty('max-width', '100%');
-  }
 
   tryLoadIcon(): void {
     this.dataLoadFileService.downLoadIcon();
@@ -400,21 +219,5 @@ export class HomeComponent implements OnInit, OnDestroy {
         MessageLibrary.DEFAULT_LANG
       );
     }
-  }
-
-  private checkAccessRights(value: string): boolean {
-    switch (value) {
-      case 'settings':
-      case 'group':
-      case 'edit-group':
-      case 'new-shift':
-      case 'group-structure':
-        if (!this.authorizationService.isAdmin) {
-          this.navigationService.navigateToNoAccess();
-          return false;
-        }
-    }
-
-    return true;
   }
 }

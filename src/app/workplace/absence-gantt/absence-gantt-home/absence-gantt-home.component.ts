@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
 import { CalendarSettingService } from '../services/calendar-setting.service';
@@ -41,5 +41,4 @@ import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-c
   ],
 })
 export class AbsenceGanttHomeComponent {
-  @Input() isAbsence = false;
 }

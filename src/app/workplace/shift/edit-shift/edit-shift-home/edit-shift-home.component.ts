@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { EditShiftItemComponent } from '../edit-shift-item/edit-shift-item.component';
 import { EditShiftWeekdayComponent } from '../edit-shift-weekday/edit-shift-weekday.component';
@@ -42,11 +42,10 @@ import { ShiftStatus } from 'src/app/core/shift-class';
   ],
 })
 export class EditShiftHomeComponent implements OnInit {
-  @Input() isCreateShift = false;
   @Output() isChangingEvent = new EventEmitter();
 
-  public dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  public workplaceStateService = inject(
+    WorkplaceStateService
   );
   public dataManagementShiftService = inject(DataManagementShiftService);
   public authorizationService = inject(AuthorizationService);
@@ -73,11 +72,11 @@ export class EditShiftHomeComponent implements OnInit {
     );
 
     if (result1.isValidRoute) {
-      this.dataManagementSwitchboardService.setActiveManagerByRoute(
+      this.workplaceStateService.setActiveManagerByRoute(
         'edit-shift'
       );
     } else if (result2.isValidRoute) {
-      this.dataManagementSwitchboardService.setActiveManagerByRoute(
+      this.workplaceStateService.setActiveManagerByRoute(
         'new-shift'
       );
     }

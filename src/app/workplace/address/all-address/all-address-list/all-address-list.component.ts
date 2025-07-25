@@ -213,7 +213,7 @@ export class AllAddressListComponent
   onClickEdit(data: IClient): void {
     saveFilter(this.dataManagementClientService.currentFilter, 'edit-address');
     this.dataManagementClientService.prepareClient(data);
-    this.navigationService.navigateToEditAddress();
+    this.navigationService.navigateToEditAddress(data.id);
   }
 
   onClickExportExcel(index: number): void {

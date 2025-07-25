@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Break, IBreak } from 'src/app/core/break-class';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { ContextMenuComponent } from 'src/app/shared/context-menu/context-menu.component';
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
@@ -52,8 +52,8 @@ export class AbsenceGanttContainerComponent implements OnInit {
   contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
 
   private dataManagementBreakService = inject(DataManagementBreakService);
-  private dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  private workplaceStateService = inject(
+    WorkplaceStateService
   );
   private toastShowService = inject(ToastShowService);
   private scrollService = inject(ScrollService);

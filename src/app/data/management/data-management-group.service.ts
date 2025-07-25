@@ -155,7 +155,7 @@ export class DataManagementGroupService implements IManageable {
     this.dataGroupService.getGroup(id).subscribe({
       next: (x: IGroup) => {
         this.prepareGroup(x);
-        this.navigationService.navigateToEditGroup();
+        this.navigationService.navigateToEditGroup(id);
         this.showProgressSpinner.set(false);
       },
       error: (error) => {
@@ -337,7 +337,7 @@ export class DataManagementGroupService implements IManageable {
   }
 
   createUrl(): string {
-    return 'workplace/edit-group?id=' + this.editGroup!.id;
+    return '/workplace/edit-group/' + this.editGroup!.id;
   }
 
   readGroup(id: string) {
@@ -563,6 +563,6 @@ export class DataManagementGroupService implements IManageable {
   /* #endregion   Tree Group */
 
   goBack(): string {
-    return 'workplace/group';
+    return '/workplace/group';
   }
 }

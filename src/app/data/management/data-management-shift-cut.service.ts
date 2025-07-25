@@ -102,7 +102,7 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   private createCutShiftUrl(id: string): string {
-    return 'workplace/cut-shift?id=' + id;
+    return '/workplace/cut-shift';
   }
 
   private fireIsReadEvent(): void {
@@ -148,6 +148,6 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   goBack(): string {
-    return 'workplace/shift';
+    return '/workplace/shift';
   }
 }

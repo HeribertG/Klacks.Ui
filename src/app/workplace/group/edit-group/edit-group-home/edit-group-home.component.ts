@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { EditGroupItemComponent } from '../edit-group-item/edit-group-item.component';
 import { EditGroupMembersComponent } from '../edit-group-members/edit-group-members.component';
 import { EditGroupNavComponent } from '../edit-group-nav/edit-group-nav.component';
@@ -31,18 +31,17 @@ import { UrlParameterService } from 'src/app/services/url-parameter.service';
   ],
 })
 export class EditGroupHomeComponent implements OnInit {
-  @Input() isEditGroup = false;
   @Output() isChangingEvent = new EventEmitter();
 
-  public dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  public workplaceStateService = inject(
+    WorkplaceStateService
   );
   public dataManagementGroupService = inject(DataManagementGroupService);
   private urlParameterService = inject(UrlParameterService);
 
   ngOnInit(): void {
     // Use new registry approach
-    this.dataManagementSwitchboardService.setActiveManagerByRoute('edit-group');
+    this.workplaceStateService.setActiveManagerByRoute('edit-group');
     
     if (this.dataManagementGroupService.editGroup === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(

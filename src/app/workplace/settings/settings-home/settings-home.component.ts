@@ -14,7 +14,7 @@ import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
@@ -56,13 +56,12 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
   ],
 })
 export class SettingsHomeComponent implements OnInit {
-  @Input() isSetting = false;
   @Output() isChangingEvent = new EventEmitter();
 
   public translate = inject(TranslateService);
 
-  private dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  private workplaceStateService = inject(
+    WorkplaceStateService
   );
   private dataManagementSettingsService = inject(DataManagementSettingsService);
   private localStorageService = inject(LocalStorageService);
@@ -71,15 +70,15 @@ export class SettingsHomeComponent implements OnInit {
     return this.dataManagementSettingsService;
   }
 
-  get switchboardService(): DataManagementSwitchboardService {
-    return this.dataManagementSwitchboardService;
+  get switchboardService(): WorkplaceStateService {
+    return this.workplaceStateService;
   }
 
   ngOnInit(): void {
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
     // Use new registry approach
-    this.dataManagementSwitchboardService.setActiveManagerByRoute('settings');
+    this.workplaceStateService.setActiveManagerByRoute('settings');
     this.dataManagementSettingsService.readData();
   }
 

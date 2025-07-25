@@ -8,26 +8,9 @@
   <app-header></app-header>
   <app-nav></app-nav>
 
-  <app-main
-    [isDashboard]="isDashboard"
-    [isSetting]="isSetting"
-    [isClient]="isClient"
-    [isEditClient]="isEditClient"
-    [isProfile]="isProfile"
-    [isAbsence]="isAbsence"
-    [isSchedule]="isSchedule"
-    [isGroup]="isGroup"
-    [isEditGroup]="isEditGroup"
-    [isGroupStructure]="isGroupStructure"
-    [isCreateShift]="isCreateShift"
-    [isShift]="isShift"
-    [isCutShift]="isCutShift"
-    (isChangingEvent)="onIsChanging($event)"
-    (isEnterEvent)="onIsEnter()"
-  >
-  </app-main>
+  <app-main></app-main>
 
-  @if (isSavebarVisible) {
+  @if (isSavebarVisible()) {
   <div class="footer custom-control-inline">
     @if (hasGoBackRoute()) {
     <span type="button" class="link-button blue-font" (click)="onClickGoBack()">
@@ -37,17 +20,17 @@
 
     <div class="filler"></div>
 
-    @if ( dataManagementSwitchboardService.isDirty &&
-    dataManagementSwitchboardService.isDisabled === false ) {
+    @if ( workplaceStateService.isDirty &&
+    workplaceStateService.isDisabled === false ) {
     <span type="button" class="link-button red-font" (click)="onClickReset()">
       {{ "reset" | translate }}
     </span>
-    } @if (dataManagementSwitchboardService.isDirty) {
+    } @if (workplaceStateService.isDirty) {
     <button
       type="button"
       class="btn save-btn"
       (click)="onClickSave()"
-      [disabled]="dataManagementSwitchboardService.isDisabled"
+      [disabled]="workplaceStateService.isDisabled"
     >
       {{ "store" | translate }}
     </button>
@@ -55,7 +38,7 @@
       type="button"
       class="btn save-btn"
       (click)="onClickSaveAndClose()"
-      [disabled]="dataManagementSwitchboardService.isDisabled"
+      [disabled]="workplaceStateService.isDisabled"
     >
       {{ "saveAndClose" | translate }}
     </button>

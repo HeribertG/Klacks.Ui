@@ -1,5 +1,5 @@
 /**
- * String Enum for Entity Names used in DataManagementSwitchboardService
+ * String Enum for Entity Names used in WorkplaceStateService
  * This replaces magic strings with type-safe constants
  */
 export enum EntityName {

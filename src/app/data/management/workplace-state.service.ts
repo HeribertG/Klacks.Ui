@@ -11,11 +11,12 @@ import { IManageable, ISpinnable } from './imanageable';
 import { ManageableServiceFactory } from './manageable-service.factory';
 import { EntityName, RouteName, isValidRouteName } from './entity-names.enum';
 import { environment } from 'src/environments/environment';
+import { FooterService } from 'src/app/services/footer.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementSwitchboardService {
+export class WorkplaceStateService {
   private spinnerService = inject(SpinnerService);
   private manageableServiceFactory = inject(ManageableServiceFactory);
 

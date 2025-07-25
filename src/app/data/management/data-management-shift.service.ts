@@ -259,7 +259,7 @@ export class DataManagementShiftService implements IManageable {
   }
 
   createUrl(): string {
-    return 'workplace/edit-shift?id=' + this.editShift!.id;
+    return '/workplace/edit-shift/' + this.editShift!.id;
   }
 
   readShift(id: string) {
@@ -277,7 +277,7 @@ export class DataManagementShiftService implements IManageable {
           );
         }
 
-        this.navigationService.navigateToEditShift();
+        this.navigationService.navigateToEditShift(id);
         this.fireIsReadEvent();
       });
     }
@@ -568,6 +568,6 @@ export class DataManagementShiftService implements IManageable {
   /* #endregion   edit shift */
 
   goBack(): string {
-    return 'workplace/shift';
+    return '/workplace/shift';
   }
 }

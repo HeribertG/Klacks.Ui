@@ -19,7 +19,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Group, IGroup } from 'src/app/core/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { GroupSelectionService } from 'src/app/data/management/group-selection.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
@@ -51,7 +51,7 @@ export class SimpleGroupSelectComponent
   public dataManagementGroupService = inject(DataManagementGroupService);
   public translate = inject(TranslateService);
   public groupSelectionService = inject(GroupSelectionService);
-  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementSwitchboard = inject(WorkplaceStateService);
   private injector = inject(Injector);
   private cdr = inject(ChangeDetectorRef);
 

@@ -438,7 +438,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickEdit(data: IGroup) {
     saveFilter(this.dataManagementGroupService.currentFilter, 'edit-group');
     this.dataManagementGroupService.prepareGroup(data);
-    this.navigationService.navigateToEditGroup();
+    this.navigationService.navigateToEditGroup(data.id);
   }
 
   onChangeRowSize(event: any): void {

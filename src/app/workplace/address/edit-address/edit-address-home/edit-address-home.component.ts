@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';
 import { MembershipComponent } from '../membership/membership.component';
@@ -45,14 +45,17 @@ export class EditAddressHomeComponent implements OnInit {
     }
   }
 
-  public dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  public workplaceStateService = inject(
+    WorkplaceStateService
   );
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
 
   ngOnInit(): void {
+    // Register the service with the switchboard for this route
+    this.workplaceStateService.setActiveManagerByRoute('edit-address');
+    
     if (this.dataManagementClientService.editClient === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-address'

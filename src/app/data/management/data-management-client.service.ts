@@ -448,7 +448,7 @@ export class DataManagementClientService implements IManageable {
 
       this.prepareClient(x);
 
-      this.navigationService.navigateToEditAddress();
+      this.navigationService.navigateToEditAddress(id);
     });
   }
 
@@ -505,7 +505,7 @@ export class DataManagementClientService implements IManageable {
   }
 
   createUrl(): string {
-    return 'workplace/edit-address?id=' + this.editClient!.id;
+    return '/workplace/edit-address/' + this.editClient!.id;
   }
 
   readClient(id: string) {
@@ -1179,6 +1179,6 @@ export class DataManagementClientService implements IManageable {
   }
 
   goBack(): string {
-    return 'workplace/client';
+    return '/workplace/client';
   }
 }

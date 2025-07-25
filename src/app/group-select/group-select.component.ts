@@ -24,7 +24,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { GroupSelectionService } from '../data/management/group-selection.service';
-import { DataManagementSwitchboardService } from '../data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from '../data/management/workplace-state.service';
 
 interface VirtualGroup {
   id: string | null;
@@ -74,7 +74,7 @@ export class GroupSelectComponent
 
   // Private injected services
   private cdr = inject(ChangeDetectorRef);
-  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementSwitchboard = inject(WorkplaceStateService);
   private injector = inject(Injector);
 
   // Public properties (used in templates)

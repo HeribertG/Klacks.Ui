@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
@@ -26,7 +26,6 @@ import { ScheduleDataService } from '../services/schedule-data.service';
   ],
 })
 export class ScheduleHomeComponent {
-  @Input() isSchedule = false;
 
   public currentZoom = 1.0;
 

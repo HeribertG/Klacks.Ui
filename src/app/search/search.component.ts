@@ -13,7 +13,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { EntityName } from 'src/app/data/management/entity-names.enum';
 
 @Component({
@@ -26,7 +26,7 @@ import { EntityName } from 'src/app/data/management/entity-names.enum';
 export class SearchComponent {
   private cdr = inject(ChangeDetectorRef);
   private dataManagementSearch = inject(DataManagementSearchService);
-  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementSwitchboard = inject(WorkplaceStateService);
 
   public faSearch = faSearch;
   public includeAddress = false;

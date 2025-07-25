@@ -11,14 +11,14 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { MessageLibrary } from '../helpers/string-constants';
 import { catchError } from 'rxjs/operators';
-import { DataManagementSwitchboardService } from '../data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from '../data/management/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from '../services/navigation.service';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {
-  private dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  private workplaceStateService = inject(
+    WorkplaceStateService
   );
   private toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
@@ -63,9 +63,9 @@ export class ResponseInterceptor implements HttpInterceptor {
   }
 
   private resetUIState(): void {
-    this.dataManagementSwitchboardService.isDirty = false;
-    this.dataManagementSwitchboardService.showProgressSpinner(false);
-    this.dataManagementSwitchboardService.isSavedOrReset = false;
+    this.workplaceStateService.isDirty = false;
+    this.workplaceStateService.showProgressSpinner(false);
+    this.workplaceStateService.isSavedOrReset = false;
   }
 
   private handleSpecificErrors(

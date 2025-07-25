@@ -18,7 +18,7 @@ import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile
 
 // Services
 import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 
 @Component({
   selector: 'app-profile-home',
@@ -35,17 +35,16 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
 })
 export class ProfileHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
-  @Input() isProfile = false;
 
   public translate = inject(TranslateService);
-  public dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  public workplaceStateService = inject(
+    WorkplaceStateService
   );
   public dataManagementProfileService = inject(DataManagementProfileService);
 
   ngOnInit(): void {
     // Use new registry approach
-    this.dataManagementSwitchboardService.setActiveManagerByRoute('profile');
+    this.workplaceStateService.setActiveManagerByRoute('profile');
     this.dataManagementProfileService.readData();
   }
 

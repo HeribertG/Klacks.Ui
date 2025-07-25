@@ -64,16 +64,28 @@ export class NavigationService {
   navigateToPageNotFound(): void {
     this.router.navigate(['/page-not-found']);
   }
-  navigateToEditAddress(): void {
-    this.router.navigate(['/workplace/edit-address']);
+  navigateToEditAddress(id?: string): void {
+    if (id) {
+      this.router.navigate(['/workplace/edit-address', id]);
+    } else {
+      this.router.navigate(['/workplace/edit-address']);
+    }
   }
 
-  navigateToEditGroup(): void {
-    this.router.navigate(['/workplace/edit-group']);
+  navigateToEditGroup(id?: string): void {
+    if (id) {
+      this.router.navigate(['/workplace/edit-group', id]);
+    } else {
+      this.router.navigate(['/workplace/edit-group']);
+    }
   }
 
-  navigateToEditShift(): void {
-    this.router.navigate(['/workplace/edit-shift']);
+  navigateToEditShift(id?: string): void {
+    if (id) {
+      this.router.navigate(['/workplace/edit-shift', id]);
+    } else {
+      this.router.navigate(['/workplace/edit-shift']);
+    }
   }
 
   navigateToNewShift(): void {

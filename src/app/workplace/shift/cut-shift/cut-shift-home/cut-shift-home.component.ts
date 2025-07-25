@@ -12,7 +12,7 @@ import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.componen
 import { TranslateModule } from '@ngx-translate/core';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 
 @Component({
   selector: 'app-cut-shift-home',
@@ -22,16 +22,15 @@ import { DataManagementSwitchboardService } from 'src/app/data/management/data-m
   styleUrl: './cut-shift-home.component.scss',
 })
 export class CutShiftHomeComponent implements OnInit {
-  @Input() isCutShift = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   private urlParameterService = inject(UrlParameterService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
-  private dataManagementSwitchboardService = inject(DataManagementSwitchboardService);
+  private workplaceStateService = inject(WorkplaceStateService);
 
   ngOnInit(): void {
     // Use new registry approach
-    this.dataManagementSwitchboardService.setActiveManagerByRoute('cut-shift');
+    this.workplaceStateService.setActiveManagerByRoute('cut-shift');
     
     if (this.dataManagementShiftCutService.cutShifts.length == 0) {
       const result = this.urlParameterService.parseCurrentUrl(

@@ -15,14 +15,48 @@ export class UrlParameterService {
 
   parseCurrentUrl(expectedRoute: string): UrlParseResult {
     const tmpUrl = this.router.url;
-    const res = tmpUrl.replace('?id=', ';').split(';');
-
-    const isValidRoute = res.length === 2 && res[0] === expectedRoute;
-    const hasId = Boolean(isValidRoute && res[1] && res[1].trim() !== '');
+    
+    // Handle both old query parameter format (?id=) and new path parameter format (/id)
+    let isValidRoute = false;
+    let hasId = false;
+    let id: string | undefined = undefined;
+    
+    // Check for new path parameter format: /workplace/edit-address/123
+    if (tmpUrl.startsWith(expectedRoute + '/')) {
+      const pathSegments = tmpUrl.split('/');
+      const expectedSegments = expectedRoute.split('/');
+      
+      // Check if the base route matches
+      if (pathSegments.length > expectedSegments.length) {
+        const baseRouteMatches = expectedSegments.every((segment, index) => 
+          pathSegments[index] === segment
+        );
+        
+        if (baseRouteMatches) {
+          isValidRoute = true;
+          const idSegment = pathSegments[expectedSegments.length];
+          hasId = Boolean(idSegment && idSegment.trim() !== '');
+          id = hasId ? idSegment : undefined;
+        }
+      }
+    }
+    // Fallback to old query parameter format: /workplace/edit-address?id=123
+    else if (tmpUrl.includes('?id=')) {
+      const res = tmpUrl.replace('?id=', ';').split(';');
+      isValidRoute = res.length === 2 && res[0] === expectedRoute;
+      hasId = Boolean(isValidRoute && res[1] && res[1].trim() !== '');
+      id = hasId ? res[1] : undefined;
+    }
+    // Check for exact route match without ID
+    else if (tmpUrl === expectedRoute) {
+      isValidRoute = true;
+      hasId = false;
+      id = undefined;
+    }
 
     return {
       hasId: hasId,
-      id: hasId ? res[1] : undefined,
+      id: id,
       isValidRoute: isValidRoute,
     };
   }

@@ -14,7 +14,7 @@ import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { EntityName } from 'src/app/data/management/entity-names.enum';
-import { DataManagementSwitchboardService } from 'src/app/data/management/data-management-switchboard.service';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
@@ -32,12 +32,11 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 })
 export class AllGroupHomeComponent implements OnInit {
   public authorizationService = inject(AuthorizationService);
-  private dataManagementSwitchboardService = inject(
-    DataManagementSwitchboardService
+  private workplaceStateService = inject(
+    WorkplaceStateService
   );
   private localStorageService = inject(LocalStorageService);
 
-  @Input() isGroup = false;
   @Output() isChangingEvent = new EventEmitter();
 
   private readonly STORAGE_KEY = 'group-view-mode';
@@ -46,9 +45,9 @@ export class AllGroupHomeComponent implements OnInit {
   constructor() {
     effect(() => {
       const focusChanged =
-        this.dataManagementSwitchboardService.isFocusChanged();
+        this.workplaceStateService.isFocusChanged();
       const currentEntity =
-        this.dataManagementSwitchboardService.nameOfVisibleEntity();
+        this.workplaceStateService.nameOfVisibleEntity();
 
       if (focusChanged && currentEntity === EntityName.GROUP) {
         setTimeout(() => {
@@ -64,13 +63,13 @@ export class AllGroupHomeComponent implements OnInit {
 
   set showGrid(value: boolean) {
     this._showGrid = value;
-    this.dataManagementSwitchboardService.setGroupSearchVisible(value);
+    this.workplaceStateService.setGroupSearchVisible(value);
     this.localStorageService.set(this.STORAGE_KEY, value.toString());
   }
 
   ngOnInit(): void {
     this.restoreViewMode();
-    this.dataManagementSwitchboardService.setGroupSearchVisible(this._showGrid);
+    this.workplaceStateService.setGroupSearchVisible(this._showGrid);
   }
 
   private restoreViewMode(): void {
@@ -81,7 +80,7 @@ export class AllGroupHomeComponent implements OnInit {
       this._showGrid = true;
     }
 
-    this.dataManagementSwitchboardService.setGroupSearchVisible(this._showGrid);
+    this.workplaceStateService.setGroupSearchVisible(this._showGrid);
   }
 
   showAsGrid() {

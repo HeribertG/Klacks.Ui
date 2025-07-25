@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { EntityName } from './entity-names.enum';
-import { DataManagementSwitchboardService } from './data-management-switchboard.service';
+import { WorkplaceStateService } from './workplace-state.service';
 import { DataManagementClientService } from './data-management-client.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementGroupService } from './data-management-group.service';
@@ -11,7 +11,7 @@ import { DataManagementShiftService } from './data-management-shift.service';
   providedIn: 'root',
 })
 export class DataManagementSearchService {
-  private dataManagementSwitchboard = inject(DataManagementSwitchboardService);
+  private dataManagementSwitchboard = inject(WorkplaceStateService);
   private dataManagementClient = inject(DataManagementClientService);
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementGroup = inject(DataManagementGroupService);

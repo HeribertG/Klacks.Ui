@@ -158,7 +158,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   editNode(node: IGroup): void {
     this.dataManagementGroupService.prepareGroup(node);
-    this.navigationService.navigateToEditGroup();
+    this.navigationService.navigateToEditGroup(node.id);
   }
 
   addChildNode(parentNode: Group): void {
