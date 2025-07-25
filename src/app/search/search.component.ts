@@ -57,13 +57,15 @@ export class SearchComponent {
   onClickSearch(): void {
     this.dataManagementSearch.globalSearch(
       this.searchString,
-      this.includeAddress
+      this.includeAddress,
+      this.includeClient
     );
   }
 
   onKeyupSearch(event: any): void {
     if (event.srcElement && event.srcElement.value.toString() === '') {
-      this.onClickSearch();
+      // When search input is cleared, reset filter and trigger search
+      this.dataManagementSearch.resetFilterWithoutSignalWrite();
     }
   }
 
@@ -75,6 +77,8 @@ export class SearchComponent {
   private handleFocusChange(): void {
     this.dataManagementSearch.resetFilter();
     this.searchString = '';
+    this.includeAddress = false;
+    this.includeClient = false;
     this.cdr.detectChanges();
   }
 }

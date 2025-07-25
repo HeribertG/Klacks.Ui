@@ -1,4 +1,4 @@
-import { inject, Injectable, signal, computed } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   transformDateToNgbDateStruct,
   transformNumberToOwnTime,
@@ -42,9 +42,18 @@ export class DataManagementShiftService implements IManageable {
 
   constructor() {
     // Selbst-Registrierung für die relevanten Routes
-    ManageableServiceRegistry.register(RouteName.SHIFT, DataManagementShiftService);
-    ManageableServiceRegistry.register(RouteName.NEW_SHIFT, DataManagementShiftService);
-    ManageableServiceRegistry.register(RouteName.EDIT_SHIFT, DataManagementShiftService);
+    ManageableServiceRegistry.register(
+      RouteName.SHIFT,
+      DataManagementShiftService
+    );
+    ManageableServiceRegistry.register(
+      RouteName.NEW_SHIFT,
+      DataManagementShiftService
+    );
+    ManageableServiceRegistry.register(
+      RouteName.EDIT_SHIFT,
+      DataManagementShiftService
+    );
   }
 
   // IManageable implementation - nur für Edit-Modus
