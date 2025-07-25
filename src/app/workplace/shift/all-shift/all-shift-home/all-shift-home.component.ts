@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';
 import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -26,7 +26,6 @@ export class AllShiftHomeComponent implements OnInit {
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   
-  @Output() isChangingEvent = new EventEmitter();
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();

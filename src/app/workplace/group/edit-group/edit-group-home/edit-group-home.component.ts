@@ -1,11 +1,8 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  EventEmitter,
   inject,
-  Input,
   OnInit,
-  Output,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
@@ -34,7 +31,6 @@ import { SearchService } from 'src/app/services/search.service';
   ],
 })
 export class EditGroupHomeComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter();
 
   private workplaceStateService = inject(
     WorkplaceStateService
@@ -71,8 +67,6 @@ export class EditGroupHomeComponent implements OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any) {
-    this.isChangingEvent.emit(event);
-    
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();

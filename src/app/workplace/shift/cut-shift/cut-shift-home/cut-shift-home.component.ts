@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
-  Input,
-  Output,
-  EventEmitter,
   inject,
   OnInit,
 } from '@angular/core';
@@ -25,7 +22,6 @@ import { SearchService } from 'src/app/services/search.service';
   styleUrl: './cut-shift-home.component.scss',
 })
 export class CutShiftHomeComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
 
   private urlParameterService = inject(UrlParameterService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
@@ -57,7 +53,6 @@ export class CutShiftHomeComponent implements OnInit {
   }
 
   onIsChanging(event: any) {
-    this.isChangingEvent.emit(event);
     
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {

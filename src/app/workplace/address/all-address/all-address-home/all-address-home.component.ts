@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.component';
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
@@ -25,15 +25,13 @@ export class AllAddressHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
-  
-  @Input() isClient = false;
-  @Output() isChangingEvent = new EventEmitter();
+
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.footerService.setFooterVisibility(false);
     this.searchService.setSearchVisibility(true);
-    
+
     // Set active manager for client route to enable search functionality
     this.workplaceStateService.setActiveManagerByRoute('client');
   }

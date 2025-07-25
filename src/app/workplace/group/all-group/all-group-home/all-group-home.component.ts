@@ -1,10 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  EventEmitter,
   inject,
-  Input,
-  Output,
   OnInit,
   effect,
 } from '@angular/core';
@@ -43,7 +40,6 @@ export class AllGroupHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
 
-  @Output() isChangingEvent = new EventEmitter();
 
   private readonly STORAGE_KEY = 'group-view-mode';
   private _showGrid = true;

@@ -2,11 +2,8 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  EventEmitter,
   inject,
-  Input,
   OnInit,
-  Output,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
@@ -45,7 +42,6 @@ import { SearchService } from 'src/app/services/search.service';
   ],
 })
 export class EditShiftHomeComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter();
 
   private workplaceStateService = inject(
     WorkplaceStateService
@@ -116,7 +112,6 @@ export class EditShiftHomeComponent implements OnInit {
   }
 
   onIsChanging(event: any) {
-    this.isChangingEvent.emit(event);
     
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {

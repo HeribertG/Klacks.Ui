@@ -37,7 +37,6 @@ import { SearchService } from 'src/app/services/search.service';
 })
 export class EditAddressHomeComponent implements OnInit {
   @Input() isEditClient = false;
-  @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isEnterEvent = new EventEmitter();
 
   @HostListener('keyup', ['$event']) onkeyup(event: KeyboardEvent) {
@@ -48,9 +47,7 @@ export class EditAddressHomeComponent implements OnInit {
     }
   }
 
-  private workplaceStateService = inject(
-    WorkplaceStateService
-  );
+  private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
@@ -60,16 +57,16 @@ export class EditAddressHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    
+
     // Hide search for edit pages
     this.searchService.setSearchVisibility(false);
-    
+
     // Register the service with the switchboard for this route
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
-    
+
     // Show footer for this edit page
     this.footerService.setFooterVisibility(true);
-    
+
     if (this.dataManagementClientService.editClient === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-address'
@@ -80,13 +77,10 @@ export class EditAddressHomeComponent implements OnInit {
         this.dataManagementClientService.createClient();
       }
     }
-
-    // nameOfVisibleEntity is now automatically set via route mapping
   }
 
   onIsChanging(event: boolean) {
-    this.isChangingEvent.emit(event);
-    
+
     // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();
