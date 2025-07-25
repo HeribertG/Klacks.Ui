@@ -55,8 +55,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    await this.auth.checkIfTokenIsValid();
+  ngAfterViewInit(): void {
+    this.auth.checkIfTokenIsValid();
   }
 
   async onSave(): Promise<void> {
