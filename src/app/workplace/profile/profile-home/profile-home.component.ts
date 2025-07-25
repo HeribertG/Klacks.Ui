@@ -39,7 +39,7 @@ export class ProfileHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
 
   public translate = inject(TranslateService);
-  public workplaceStateService = inject(
+  private workplaceStateService = inject(
     WorkplaceStateService
   );
   public dataManagementProfileService = inject(DataManagementProfileService);
@@ -61,5 +61,12 @@ export class ProfileHomeComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any): void {
     this.isChangingEvent.emit(event);
+    
+    // Forward to WorkplaceStateService to update footer buttons
+    if (event === true) {
+      this.workplaceStateService.areObjectsDirty();
+    } else {
+      this.workplaceStateService.checkIfDirtyIsNecessary();
+    }
   }
 }

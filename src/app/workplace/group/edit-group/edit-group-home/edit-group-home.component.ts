@@ -35,7 +35,7 @@ import { LayoutService } from 'src/app/services/layout.service';
 export class EditGroupHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
 
-  public workplaceStateService = inject(
+  private workplaceStateService = inject(
     WorkplaceStateService
   );
   public dataManagementGroupService = inject(DataManagementGroupService);
@@ -67,5 +67,12 @@ export class EditGroupHomeComponent implements OnInit {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
+    
+    // Forward to WorkplaceStateService to update footer buttons
+    if (event === true) {
+      this.workplaceStateService.areObjectsDirty();
+    } else {
+      this.workplaceStateService.checkIfDirtyIsNecessary();
+    }
   }
 }

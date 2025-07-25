@@ -47,7 +47,7 @@ export class EditAddressHomeComponent implements OnInit {
     }
   }
 
-  public workplaceStateService = inject(
+  private workplaceStateService = inject(
     WorkplaceStateService
   );
   public dataManagementClientService = inject(DataManagementClientService);
@@ -81,5 +81,12 @@ export class EditAddressHomeComponent implements OnInit {
 
   onIsChanging(event: boolean) {
     this.isChangingEvent.emit(event);
+    
+    // Forward to WorkplaceStateService to update footer buttons
+    if (event === true) {
+      this.workplaceStateService.areObjectsDirty();
+    } else {
+      this.workplaceStateService.checkIfDirtyIsNecessary();
+    }
   }
 }

@@ -46,7 +46,7 @@ import { LayoutService } from 'src/app/services/layout.service';
 export class EditShiftHomeComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter();
 
-  public workplaceStateService = inject(
+  private workplaceStateService = inject(
     WorkplaceStateService
   );
   public dataManagementShiftService = inject(DataManagementShiftService);
@@ -112,6 +112,13 @@ export class EditShiftHomeComponent implements OnInit {
 
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
+    
+    // Forward to WorkplaceStateService to update footer buttons
+    if (event === true) {
+      this.workplaceStateService.areObjectsDirty();
+    } else {
+      this.workplaceStateService.checkIfDirtyIsNecessary();
+    }
   }
 
   onIsChangingMode(): void {

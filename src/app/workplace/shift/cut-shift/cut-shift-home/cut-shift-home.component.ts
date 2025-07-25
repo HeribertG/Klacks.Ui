@@ -53,5 +53,12 @@ export class CutShiftHomeComponent implements OnInit {
 
   onIsChanging(event: any) {
     this.isChangingEvent.emit(event);
+    
+    // Forward to WorkplaceStateService to update footer buttons
+    if (event === true) {
+      this.workplaceStateService.areObjectsDirty();
+    } else {
+      this.workplaceStateService.checkIfDirtyIsNecessary();
+    }
   }
 }
