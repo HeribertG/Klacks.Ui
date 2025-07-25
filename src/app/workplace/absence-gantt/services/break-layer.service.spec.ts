@@ -6,7 +6,9 @@ describe('BreakLayerService', () => {
   let service: BreakLayerService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [BreakLayerService]
+    });
     service = TestBed.inject(BreakLayerService);
   });
 
