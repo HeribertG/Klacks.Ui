@@ -71,7 +71,7 @@ export class DataManagementShiftCutService implements IManageable {
     // - Child.rgt = Parent.rgt + 1 (das Child bekommt den nächsten Wert)
     // - Parent.rgt wird um 2 erhöht (um Platz für das neue Child zu schaffen)
 
-    if (parentShift.rgt !== undefined) {
+    if (parentShift.rgt !== undefined && parentShift.lft !== undefined) {
       // Setze die Werte für das neue Child
       childShift.lft = parentShift.rgt;
       childShift.rgt = parentShift.rgt + 1;
@@ -82,11 +82,13 @@ export class DataManagementShiftCutService implements IManageable {
       // Aktualisiere alle anderen Shifts in der Liste, die betroffen sind
       this.updateOtherShiftsNestedSetValues(parentShift.rgt - 2);
     } else {
-      // Falls das Parent keine rgt Werte hat, setze Standard-Werte
-      childShift.lft = 1;
-      childShift.rgt = 2;
-      parentShift.lft = parentShift.lft || 0;
-      parentShift.rgt = 3;
+      // Falls das Parent keine rgt/lft Werte hat, initialisiere sie
+      // Parent bekommt lft=1, rgt=4
+      // Child bekommt lft=2, rgt=3 (als Kind von Parent)
+      parentShift.lft = 1;
+      parentShift.rgt = 4;
+      childShift.lft = 2;
+      childShift.rgt = 3;
     }
   }
 

@@ -78,6 +78,7 @@ export interface IShift {
   clientId: string | undefined;
   client?: IClient | undefined;
   addressName: string | undefined;
+  isNew?: boolean; // Flag um neue (CREATE) von aktualisierten (UPDATE) Shifts zu unterscheiden
 }
 
 export class Shift implements IShift {
@@ -134,4 +135,5 @@ export class Shift implements IShift {
   clientId: string | undefined = undefined;
   client?: IClient | undefined = undefined;
   addressName: string | undefined = undefined;
+  isNew?: boolean = false; // Default: false, wird auf true gesetzt bei neuen Cut-Shifts
 }

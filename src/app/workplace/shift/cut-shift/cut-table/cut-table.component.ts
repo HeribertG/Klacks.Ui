@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/core/shift-class';
@@ -11,9 +11,10 @@ import { IShift, Shift } from 'src/app/core/shift-class';
   templateUrl: './cut-table.component.html',
   styleUrl: './cut-table.component.scss',
 })
-export class CutTableComponent {
+export class CutTableComponent implements OnChanges {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
+  @Input() selectedShiftId?: string; // Input für externe Selektion
   @Output() rowClicked = new EventEmitter<Shift>();
   @Output() cellUpdated = new EventEmitter<{
     shift: Shift;
@@ -28,6 +29,13 @@ export class CutTableComponent {
   // Inline editing properties
   editingCell: { rowId: string; field: string } | null = null;
   editingValue = '';
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // Reagiere auf Änderungen der selectedShiftId von außen
+    if (changes['selectedShiftId'] && changes['selectedShiftId'].currentValue) {
+      this.selectedRowId = changes['selectedShiftId'].currentValue;
+    }
+  }
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;
