@@ -11,54 +11,46 @@ import {
   transformOwnTimeToNumber,
   transformOwnTimeToString,
 } from '../helpers/format-helper';
-import { ITruncatedShift, ShiftFilter } from '../core/shift-data-class';
 import { IShift } from '../core/shift-class';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataShiftService {
+export class DataShiftCutsService {
   private httpClient = inject(HttpClient);
 
-  readShiftList(filter: ShiftFilter) {
+  getCutShiftList(id: string) {
     return this.httpClient
-      .post<ITruncatedShift>(
-        `${environment.baseUrl}Shifts/GetSimpleList/`,
-        filter
-      )
-      .pipe();
-  }
-
-  getShift(id: string) {
-    return this.httpClient
-      .get<IShift>(`${environment.baseUrl}Shifts/` + id)
+      .get<IShift[]>(`${environment.baseUrl}Shifts/CutList/` + id)
       .pipe(retry(3));
   }
 
+  addCuts(cuts: IShift[]) {
+    const processedCuts = cuts.map(cut => {
+      const processedCut = { ...cut };
+      // WICHTIG: ID, macroId, lft, rgt, parentId NICHT löschen für korrekte Hierarchie
+      delete processedCut.addressName;
+      this.setCorrectDate(processedCut);
+      this.setCorrectTime(processedCut);
+      return processedCut;
+    });
 
-  updateShift(value: IShift) {
-    delete value.addressName;
-    this.setCorrectDate(value);
-    this.setCorrectTime(value);
     return this.httpClient
-      .put<IShift>(`${environment.baseUrl}Shifts/`, value)
+      .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts`, processedCuts)
       .pipe(retry(3));
   }
 
-  addShift(value: IShift) {
-    delete value.id;
-    delete value.macroId;
-    delete value.addressName;
-    this.setCorrectDate(value);
-    this.setCorrectTime(value);
-    return this.httpClient
-      .post<IShift>(`${environment.baseUrl}Shifts/`, value)
-      .pipe(retry(3));
-  }
+  updateCuts(cuts: IShift[]) {
+    const processedCuts = cuts.map(cut => {
+      const processedCut = { ...cut };
+      delete processedCut.addressName;
+      this.setCorrectDate(processedCut);
+      this.setCorrectTime(processedCut);
+      return processedCut;
+    });
 
-  deleteShift(id: string) {
     return this.httpClient
-      .delete<IShift>(`${environment.baseUrl}Shifts/` + id)
+      .put<IShift[]>(`${environment.baseUrl}Shifts/Cuts`, processedCuts)
       .pipe(retry(3));
   }
 
@@ -71,15 +63,6 @@ export class DataShiftService {
       value.fromDate = new Date();
     }
     value.fromDate = dateWithLocalTimeCorrection(value.fromDate)!;
-
-    if (isNgbDateStructOk(value!.internalUntilDate)) {
-      value.untilDate = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalUntilDate)
-      )!;
-      value.untilDate = dateWithLocalTimeCorrection(value.untilDate)!;
-    } else {
-      value.untilDate = undefined;
-    }
 
     if (isNgbDateStructOk(value!.internalUntilDate)) {
       value.untilDate = dateWithLocalTimeCorrection(
@@ -125,17 +108,6 @@ export class DataShiftService {
       isOwnTimeStructOk(value!.internalBeforeShift)
     ) {
       value.beforeShift = transformOwnTimeToString(value!.internalBeforeShift);
-    }
-
-    if (value!.internalEndShift && isOwnTimeStructOk(value!.internalEndShift)) {
-      value.endShift = transformOwnTimeToString(value!.internalEndShift);
-    }
-
-    if (
-      value!.internalStartShift &&
-      isOwnTimeStructOk(value!.internalStartShift)
-    ) {
-      value.startShift = transformOwnTimeToString(value!.internalStartShift);
     }
 
     if (

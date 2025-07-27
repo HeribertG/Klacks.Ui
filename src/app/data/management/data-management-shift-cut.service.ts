@@ -5,7 +5,7 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { DataShiftService } from '../data-shift.service';
+import { DataShiftCutsService } from '../data-shift-cuts.service';
 import { IShift, Shift } from 'src/app/core/shift-class';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
@@ -17,7 +17,11 @@ import { RouteName } from './entity-names.enum';
 export class DataManagementShiftCutService implements IManageable {
   public toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
-  private dataShiftService = inject(DataShiftService);
+  private dataShiftCutsService = inject(DataShiftCutsService);
+  
+  // Track which cuts are new vs existing
+  private newCuts: Shift[] = [];
+  private existingCuts: Shift[] = [];
 
   constructor() {
     // Selbst-Registrierung für die cut-shift Route
@@ -42,7 +46,7 @@ export class DataManagementShiftCutService implements IManageable {
   readCutShiftList(id: string): void {
     if (id !== '') {
       this.showProgressSpinner.set(true);
-      this.dataShiftService.getCutShiftList(id).subscribe((x) => {
+      this.dataShiftCutsService.getCutShiftList(id).subscribe((x) => {
         this.cutShifts = x;
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
@@ -140,9 +144,102 @@ export class DataManagementShiftCutService implements IManageable {
 
   // IManageable methods
   save(): void {
-    // Cut shifts don't have a traditional save method, they are handled differently
-    // This could be implemented if needed in the future
-    console.log('Cut shifts save not implemented yet');
+    if (this.areObjectsDirty()) {
+      this.saveCuts();
+    }
+  }
+  
+  private saveCuts(): void {
+    this.showProgressSpinner.set(true);
+    
+    // Separate new cuts from existing cuts
+    this.separateNewAndExistingCuts();
+    
+    // Handle new cuts (POST)
+    if (this.newCuts.length > 0) {
+      this.dataShiftCutsService.addCuts(this.newCuts).subscribe({
+        next: (createdCuts) => {
+          // Update the local array with the returned cuts
+          this.updateCutsAfterSave(createdCuts, true);
+          this.toastShowService.showSuccess(`${createdCuts.length} neue Cuts erstellt`);
+        },
+        error: (error) => {
+          this.toastShowService.showError(error, 'Cut Create Error');
+          this.showProgressSpinner.set(false);
+        }
+      });
+    }
+    
+    // Handle existing cuts (PUT)
+    if (this.existingCuts.length > 0) {
+      this.dataShiftCutsService.updateCuts(this.existingCuts).subscribe({
+        next: (updatedCuts) => {
+          // Update the local array with the returned cuts
+          this.updateCutsAfterSave(updatedCuts, false);
+          this.toastShowService.showSuccess(`${updatedCuts.length} Cuts aktualisiert`);
+        },
+        error: (error) => {
+          this.toastShowService.showError(error, 'Cut Update Error');
+          this.showProgressSpinner.set(false);
+        },
+        complete: () => {
+          this.showProgressSpinner.set(false);
+        }
+      });
+    }
+    
+    // If no cuts to save, just hide spinner
+    if (this.newCuts.length === 0 && this.existingCuts.length === 0) {
+      this.showProgressSpinner.set(false);
+    }
+  }
+  
+  private separateNewAndExistingCuts(): void {
+    this.newCuts = [];
+    this.existingCuts = [];
+    
+    this.cutShifts.forEach(cut => {
+      // Check if cut exists in dummy array (original data)
+      const existsInOriginal = this.cutShiftsDummy.some(dummy => dummy.id === cut.id);
+      
+      if (!existsInOriginal || !cut.id) {
+        // New cut
+        this.newCuts.push(cut);
+      } else {
+        // Existing cut - check if it was modified
+        const originalCut = this.cutShiftsDummy.find(dummy => dummy.id === cut.id);
+        if (originalCut && !compareComplexObjects(cut, originalCut)) {
+          this.existingCuts.push(cut);
+        }
+      }
+    });
+  }
+  
+  private updateCutsAfterSave(savedCuts: Shift[], isNew: boolean): void {
+    if (isNew) {
+      // For new cuts, replace temporary cuts with saved ones
+      savedCuts.forEach(savedCut => {
+        const index = this.cutShifts.findIndex(cut => 
+          cut.parentId === savedCut.parentId && 
+          cut.lft === savedCut.lft && 
+          cut.rgt === savedCut.rgt
+        );
+        if (index !== -1) {
+          this.cutShifts[index] = savedCut;
+        }
+      });
+    } else {
+      // For existing cuts, update them
+      savedCuts.forEach(savedCut => {
+        const index = this.cutShifts.findIndex(cut => cut.id === savedCut.id);
+        if (index !== -1) {
+          this.cutShifts[index] = savedCut;
+        }
+      });
+    }
+    
+    // Update dummy array to reflect saved state
+    this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
   }
 
   resetData(): void {
