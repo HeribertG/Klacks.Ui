@@ -8,17 +8,18 @@ import {
   isNgbDateStructOk,
   isOwnTimeStructOk,
   transformNgbDateStructToDate,
-  transformOwnTimeToNumber,
   transformOwnTimeToString,
 } from '../helpers/format-helper';
 import { ITruncatedShift, ShiftFilter } from '../core/shift-data-class';
 import { IShift } from '../core/shift-class';
+import { WorkTimeCalculationService } from '../services/work-time-calculation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataShiftService {
   private httpClient = inject(HttpClient);
+  private workTimeCalculationService = inject(WorkTimeCalculationService);
 
   readShiftList(filter: ShiftFilter) {
     return this.httpClient
@@ -156,10 +157,12 @@ export class DataShiftService {
       );
     }
 
-    if (value!.internalWorkTime && isOwnTimeStructOk(value!.internalWorkTime)) {
-      value.workTime = 0;
-      value.workTime = transformOwnTimeToNumber(value!.internalWorkTime);
-    }
+    // Berechne workTime mit dem WorkTimeCalculationService
+    value.workTime = this.workTimeCalculationService.calculateWorkTimeWithFallback(
+      value!.internalStartShift,
+      value!.internalEndShift,
+      value!.internalWorkTime
+    );
 
     if (
       value!.internalBriefingTime &&

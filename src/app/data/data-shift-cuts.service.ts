@@ -8,16 +8,17 @@ import {
   isNgbDateStructOk,
   isOwnTimeStructOk,
   transformNgbDateStructToDate,
-  transformOwnTimeToNumber,
   transformOwnTimeToString,
 } from '../helpers/format-helper';
 import { IShift } from '../core/shift-class';
+import { WorkTimeCalculationService } from '../services/work-time-calculation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataShiftCutsService {
   private httpClient = inject(HttpClient);
+  private workTimeCalculationService = inject(WorkTimeCalculationService);
 
   getCutShiftList(id: string) {
     return this.httpClient
@@ -28,7 +29,7 @@ export class DataShiftCutsService {
   addCuts(cuts: IShift[]) {
     const processedCuts = cuts.map(cut => {
       const processedCut = { ...cut };
-      // WICHTIG: ID, macroId, lft, rgt, parentId NICHT löschen für korrekte Hierarchie
+      // WICHTIG: ID, macroId, lft, rgt, parentId, originalId NICHT löschen für korrekte Hierarchie
       delete processedCut.addressName;
       this.setCorrectDate(processedCut);
       this.setCorrectTime(processedCut);
@@ -128,10 +129,12 @@ export class DataShiftCutsService {
       );
     }
 
-    if (value!.internalWorkTime && isOwnTimeStructOk(value!.internalWorkTime)) {
-      value.workTime = 0;
-      value.workTime = transformOwnTimeToNumber(value!.internalWorkTime);
-    }
+    // Berechne workTime mit dem WorkTimeCalculationService
+    value.workTime = this.workTimeCalculationService.calculateWorkTimeWithFallback(
+      value!.internalStartShift,
+      value!.internalEndShift,
+      value!.internalWorkTime
+    );
 
     if (
       value!.internalBriefingTime &&

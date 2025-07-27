@@ -22,6 +22,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { ShiftStatus } from 'src/app/core/shift-class';
+import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
 
 @Component({
   selector: 'app-edit-shift-weekday',
@@ -47,6 +48,7 @@ export class EditShiftWeekdayComponent
     | undefined;
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  private workTimeCalculationService = inject(WorkTimeCalculationService);
   private injector = inject(Injector);
 
   public visibleTable = 'inline';
@@ -194,25 +196,17 @@ export class EditShiftWeekdayComponent
     const shift = this.dataManagementShiftService.editShift;
     if (!shift) return;
 
-    const startHours = parseInt(shift.internalStartShift.hours) || 0;
-    const startMinutes = parseInt(shift.internalStartShift.minutes) || 0;
-    const endHours = parseInt(shift.internalEndShift.hours) || 0;
-    const endMinutes = parseInt(shift.internalEndShift.minutes) || 0;
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    // Verwende den WorkTimeCalculationService für konsistente Berechnung
+    const workTimeHours = this.workTimeCalculationService.calculateWorkTime(
+      shift.internalStartShift,
+      shift.internalEndShift
+    );
 
-    let workTimeMinutes: number;
-
-    if (startTotalMinutes === endTotalMinutes) {
-      workTimeMinutes = 24 * 60;
-    } else if (endTotalMinutes < startTotalMinutes) {
-      workTimeMinutes = 24 * 60 - startTotalMinutes + endTotalMinutes;
-    } else {
-      workTimeMinutes = endTotalMinutes - startTotalMinutes;
-    }
-
+    // Konvertiere Dezimalstunden zu Minuten für die UI
+    const workTimeMinutes = Math.round(workTimeHours * 60);
     shift.workTime = workTimeMinutes;
 
+    // Aktualisiere auch internalWorkTime für die UI-Anzeige
     const workHours = Math.floor(workTimeMinutes / 60);
     const workMinutesRemainder = workTimeMinutes % 60;
 
