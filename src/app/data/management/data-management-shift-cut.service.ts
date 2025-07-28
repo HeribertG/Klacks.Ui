@@ -40,6 +40,8 @@ export class DataManagementShiftCutService implements IManageable {
   public cutShifts: Shift[] = [];
   public cutShiftsDummy: Shift[] = [];
 
+  public onSaveCompleted?: () => void;
+
   /* #region Cut Shift Methods */
 
   readCutShiftList(id: string): void {
@@ -67,19 +69,10 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
-    // Im Nested Set Model:
-    // - Parent umschließt alle seine Children
-    // - Child wird INNERHALB des Parents eingefügt
-    // - Child.lft = Parent.rgt - 1 (neues Child wird vor dem Ende des Parents eingefügt)
-    // - Child.rgt = Parent.rgt (Child endet wo Parent ursprünglich endete)
-    // - Parent.rgt wird um 2 erhöht (um Platz für das neue Child zu schaffen)
-
     if (parentShift.rgt !== undefined && parentShift.lft !== undefined) {
-      // Das neue Child wird INNERHALB des Parents eingefügt
       childShift.lft = parentShift.rgt - 1;
       childShift.rgt = parentShift.rgt;
 
-      // Erweitere den rgt-Wert des Parents um 2 (macht Platz für das Child)
       parentShift.rgt = parentShift.rgt + 2;
 
       // Aktualisiere alle anderen Shifts in der Liste, die betroffen sind
@@ -155,20 +148,26 @@ export class DataManagementShiftCutService implements IManageable {
     // Separate new cuts from existing cuts
     this.separateNewAndExistingCuts();
 
+    // Reset operation counters
+    this.operationsCompleted = 0;
+    this.totalOperations = 0;
+    if (this.newCuts.length > 0) this.totalOperations++;
+    if (this.existingCuts.length > 0) this.totalOperations++;
+
     // Handle new cuts (POST)
     if (this.newCuts.length > 0) {
       this.dataShiftCutsService.addCuts(this.newCuts).subscribe({
         next: (createdCuts) => {
           // Update the local array with the returned cuts
           this.updateCutsAfterSave(createdCuts, true);
-          this.toastShowService.showSuccess(
-            `${createdCuts.length} neue Cuts erstellt`,
-            'Erfolg'
-          );
+          this.checkAndCallSaveCompleted();
         },
         error: (error) => {
           this.toastShowService.showError(error, 'Cut Create Error');
           this.showProgressSpinner.set(false);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
       });
     }
@@ -183,10 +182,14 @@ export class DataManagementShiftCutService implements IManageable {
             `${updatedCuts.length} Cuts aktualisiert`,
             'Erfolg'
           );
+          this.checkAndCallSaveCompleted();
         },
         error: (error) => {
           this.toastShowService.showError(error, 'Cut Update Error');
           this.showProgressSpinner.set(false);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
         complete: () => {
           this.showProgressSpinner.set(false);
@@ -197,6 +200,9 @@ export class DataManagementShiftCutService implements IManageable {
     // If no cuts to save, just hide spinner
     if (this.newCuts.length === 0 && this.existingCuts.length === 0) {
       this.showProgressSpinner.set(false);
+      if (this.onSaveCompleted) {
+        this.onSaveCompleted();
+      }
     }
   }
 
@@ -267,5 +273,21 @@ export class DataManagementShiftCutService implements IManageable {
 
   goBack(): string {
     return '/workplace/shift';
+  }
+
+  private operationsCompleted = 0;
+  private totalOperations = 0;
+
+  private checkAndCallSaveCompleted(): void {
+    this.operationsCompleted++;
+    if (this.operationsCompleted >= this.totalOperations) {
+      this.showProgressSpinner.set(false);
+      if (this.onSaveCompleted) {
+        this.onSaveCompleted();
+      }
+      // Reset for next save operation
+      this.operationsCompleted = 0;
+      this.totalOperations = 0;
+    }
   }
 }

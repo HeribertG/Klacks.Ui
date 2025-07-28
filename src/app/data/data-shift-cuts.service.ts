@@ -27,9 +27,8 @@ export class DataShiftCutsService {
   }
 
   addCuts(cuts: IShift[]) {
-    const processedCuts = cuts.map(cut => {
+    const processedCuts = cuts.map((cut) => {
       const processedCut = { ...cut };
-      // WICHTIG: ID, macroId, lft, rgt, parentId, originalId NICHT löschen für korrekte Hierarchie
       delete processedCut.addressName;
       this.setCorrectDate(processedCut);
       this.setCorrectTime(processedCut);
@@ -42,7 +41,7 @@ export class DataShiftCutsService {
   }
 
   updateCuts(cuts: IShift[]) {
-    const processedCuts = cuts.map(cut => {
+    const processedCuts = cuts.map((cut) => {
       const processedCut = { ...cut };
       delete processedCut.addressName;
       this.setCorrectDate(processedCut);
@@ -130,11 +129,12 @@ export class DataShiftCutsService {
     }
 
     // Berechne workTime mit dem WorkTimeCalculationService
-    value.workTime = this.workTimeCalculationService.calculateWorkTimeWithFallback(
-      value!.internalStartShift,
-      value!.internalEndShift,
-      value!.internalWorkTime
-    );
+    value.workTime =
+      this.workTimeCalculationService.calculateWorkTimeWithFallback(
+        value!.internalStartShift,
+        value!.internalEndShift,
+        value!.internalWorkTime
+      );
 
     if (
       value!.internalBriefingTime &&

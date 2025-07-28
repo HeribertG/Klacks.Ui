@@ -23,7 +23,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/core/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
-import { IShift, Shift } from 'src/app/core/shift-class';
+import { IShift, Shift, ShiftStatus } from 'src/app/core/shift-class';
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import {
   transformStringToOwnTimeStruct,
@@ -130,13 +130,8 @@ export class CutShiftListComponent implements OnInit {
     const currentMinutes = this.cutTimeShift.toMinutes();
     const minMinutes = this.minTimeShift.toMinutes();
     const maxMinutes = this.maxTimeShift.toMinutes();
-
-    // Debug logging removed for cleaner test output
-
     if (this.is24Hours) {
-      // Bei 24h-Shift: Jede Zeit ist erlaubt außer der exakten Startzeit
       if (currentMinutes === minMinutes) {
-        // console.log('24h-Shift: Korrigiere exakte Startzeit');
         const newMinutes = (currentMinutes + 1) % (24 * 60);
         this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
         this.cutTimeShift.minutes = (newMinutes % 60).toString();
@@ -145,62 +140,27 @@ export class CutShiftListComponent implements OnInit {
     }
 
     if (this.isOverMidnight) {
-      // Bei Over-Midnight: gültige Zeit ist AUSSERHALB von endMinutes bis startMinutes
-      // Für 15:00-07:00: ungültig ist 07:01-14:59, gültig ist 15:00-06:59
-      const isInvalidRange = currentMinutes > maxMinutes && currentMinutes < minMinutes;
-      
-      // console.log('Over-Midnight Shift:', {
-      //   isInvalidRange,
-      //   currentMinutes,
-      //   maxMinutes,
-      //   minMinutes,
-      //   'currentMinutes > maxMinutes': currentMinutes > maxMinutes,
-      //   'currentMinutes < minMinutes': currentMinutes < minMinutes
-      // });
-      
+      const isInvalidRange =
+        currentMinutes > maxMinutes && currentMinutes < minMinutes;
+
       if (isInvalidRange) {
-        // Springe zum nächstgelegenen gültigen Wert
         const distanceToStart = Math.abs(minMinutes - currentMinutes);
         const distanceToEnd = Math.abs(currentMinutes - maxMinutes);
 
-        // console.log('Invalid range detected:', {
-        //   distanceToStart,
-        //   distanceToEnd
-        // });
-
         if (distanceToStart <= distanceToEnd) {
-          // Näher zum Start, springe zum Start
-          // console.log('Korrigiere zu Start-Zeit');
           this.cutTimeShift.hours = Math.floor(minMinutes / 60).toString();
           this.cutTimeShift.minutes = (minMinutes % 60).toString();
         } else {
-          // Näher zum End, springe zum End
-          // console.log('Korrigiere zu End-Zeit');
           this.cutTimeShift.hours = Math.floor(maxMinutes / 60).toString();
           this.cutTimeShift.minutes = (maxMinutes % 60).toString();
         }
       }
-      
-      // Zusätzliche Prüfung: darf nicht exakt Start- oder Endzeit sein
-      if (currentMinutes === minMinutes || currentMinutes === maxMinutes) {
-        // console.log('Zeit entspricht Start oder Ende - keine Korrektur bei Over-Midnight');
-        // Bei Over-Midnight Shifts sind Start und Ende als Cut-Punkte erlaubt
-        // Keine Korrektur notwendig
-      }
     } else {
-      // Normaler Shift: Zeit muss zwischen min und max liegen
-      // console.log('Normaler Shift Prüfung:', {
-      //   'currentMinutes <= minMinutes': currentMinutes <= minMinutes,
-      //   'currentMinutes >= maxMinutes': currentMinutes >= maxMinutes
-      // });
-      
       if (currentMinutes <= minMinutes) {
-        // console.log('Korrigiere zu Min+1');
         const newMinutes = minMinutes + 1;
         this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
         this.cutTimeShift.minutes = (newMinutes % 60).toString();
       } else if (currentMinutes >= maxMinutes) {
-        // console.log('Korrigiere zu Max-1');
         const newMinutes = maxMinutes - 1;
         this.cutTimeShift.hours = Math.floor(newMinutes / 60).toString();
         this.cutTimeShift.minutes = (newMinutes % 60).toString();
@@ -218,15 +178,9 @@ export class CutShiftListComponent implements OnInit {
         centered: true,
         windowClass: 'modal-window',
       })
-      .result.then(
-        () => {
-          // console.log('Cut by date confirmed');
-          this.performCutByDate();
-        },
-        () => {
-          // console.log('Cut by date cancelled');
-        }
-      );
+      .result.then(() => {
+        this.performCutByDate();
+      });
   }
 
   onCutTime(): void {
@@ -240,7 +194,6 @@ export class CutShiftListComponent implements OnInit {
         windowClass: 'modal-window',
       })
       .result.then(() => {
-        // console.log('Cut by time confirmed');
         this.performCutByTime();
       });
   }
@@ -253,7 +206,6 @@ export class CutShiftListComponent implements OnInit {
         windowClass: 'modal-window',
       })
       .result.then(() => {
-        // console.log('Cut by weekdays confirmed');
         this.performCutByWeekdays();
       });
   }
@@ -266,7 +218,6 @@ export class CutShiftListComponent implements OnInit {
         windowClass: 'modal-window',
       })
       .result.then(() => {
-        // console.log('Cut by staff confirmed');
         this.performCutByStaff();
       });
   }
@@ -279,7 +230,6 @@ export class CutShiftListComponent implements OnInit {
         windowClass: 'modal-window',
       })
       .result.then(() => {
-        // console.log('Cut by task confirmed');
         this.performCutByTask();
       });
   }
@@ -347,14 +297,15 @@ export class CutShiftListComponent implements OnInit {
   }
 
   private analyzeCutByTime(shift: Shift): void {
-    // Normalisiere die Zeitformate (entferne :00 Sekunden falls vorhanden)
-    const normalizedStartShift = shift.startShift.split(':').slice(0, 2).join(':');
+    const normalizedStartShift = shift.startShift
+      .split(':')
+      .slice(0, 2)
+      .join(':');
     const normalizedEndShift = shift.endShift.split(':').slice(0, 2).join(':');
-    
-    shift.internalStartShift = transformStringToOwnTimeStruct(normalizedStartShift);
-    shift.internalEndShift = transformStringToOwnTimeStruct(normalizedEndShift);
 
-    // Debug logging removed for cleaner test output
+    shift.internalStartShift =
+      transformStringToOwnTimeStruct(normalizedStartShift);
+    shift.internalEndShift = transformStringToOwnTimeStruct(normalizedEndShift);
 
     if (shift.internalStartShift && shift.internalEndShift) {
       const startMinutes = shift.internalStartShift.toMinutes();
@@ -376,27 +327,22 @@ export class CutShiftListComponent implements OnInit {
         this.isOverMidnight = false;
       }
 
-      // Debug calculation data removed for cleaner test output
-
       if (totalMinutes > 1) {
         this.isCutTimeEnabled = true;
 
         this.minTimeShift = shift.internalStartShift;
         this.maxTimeShift = shift.internalEndShift;
 
-        // Setze cutTimeShift auf einen Wert zwischen Start und End, nicht auf Start
         if (this.is24Hours) {
-          // Bei 24h-Shift: setze auf Startzeit + 1 Stunde als Default
-          const defaultCutHour = (Number(shift.internalStartShift.hours) + 1) % 24;
+          const defaultCutHour =
+            (Number(shift.internalStartShift.hours) + 1) % 24;
           this.cutTimeShift = OwnTime.forTime(defaultCutHour.toString(), '0');
         } else if (this.isOverMidnight) {
-          // Bei Over-Midnight: setze auf Mitte der gültigen Zeitspanne
           const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
           let midHours: number;
           let remainingMinutes: number;
-          
+
           if (midMinutes >= 24 * 60) {
-            // Wenn wir über Mitternacht gehen, ziehe 24h ab
             const adjustedMinutes = midMinutes - 24 * 60;
             midHours = Math.floor(adjustedMinutes / 60);
             remainingMinutes = adjustedMinutes % 60;
@@ -404,22 +350,20 @@ export class CutShiftListComponent implements OnInit {
             midHours = Math.floor(midMinutes / 60);
             remainingMinutes = midMinutes % 60;
           }
-          
-          this.cutTimeShift = OwnTime.forTime(midHours.toString(), remainingMinutes.toString());
+
+          this.cutTimeShift = OwnTime.forTime(
+            midHours.toString(),
+            remainingMinutes.toString()
+          );
         } else {
-          // Normaler Shift: setze auf Mitte zwischen Start und End
           const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
           const midHours = Math.floor(midMinutes / 60);
           const remainingMinutes = midMinutes % 60;
-          this.cutTimeShift = OwnTime.forTime(midHours.toString(), remainingMinutes.toString());
+          this.cutTimeShift = OwnTime.forTime(
+            midHours.toString(),
+            remainingMinutes.toString()
+          );
         }
-
-        // console.log('analyzeCutByTime - Ergebnis:', {
-        //   minTimeShift: this.minTimeShift,
-        //   maxTimeShift: this.maxTimeShift,
-        //   cutTimeShift: this.cutTimeShift,
-        //   'cutTime': `${this.cutTimeShift.hours}:${this.cutTimeShift.minutes}`
-        // });
       }
     }
   }
@@ -493,55 +437,38 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    // Konvertiere NgbDate zu Date
     const cutDateAsDate = transformNgbDateStructToDate(this.cutDate);
     if (!cutDateAsDate) {
       return;
     }
 
-    // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
-    
-    // Konvertiere die OwnTime Objekte zurück zu echten OwnTime Instanzen nach dem Klonen
+
     this.restoreOwnTimeObjects(copiedShift);
 
-    // Original Shift: setze untilDate auf cutDate - 1 Tag
     const dayBeforeCut = new Date(cutDateAsDate);
     dayBeforeCut.setDate(dayBeforeCut.getDate() - 1);
     this.selectedShift.untilDate = dayBeforeCut;
     this.selectedShift.internalUntilDate =
       transformDateToNgbDateStruct(dayBeforeCut);
 
-    // Kopierter Shift: setze fromDate auf cutDate und konfiguriere Nested Set Model
-    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
-    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
-    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
-    copiedShift.isNew = true; // Markiere als neuen Shift für CREATE Operation
-    copiedShift.fromDate = cutDateAsDate;
-    copiedShift.internalFromDate = transformDateToNgbDateStruct(cutDateAsDate);
-    
-    // Vererbe cuttingAfterMidnight vom Parent
-    if (this.selectedShift.cuttingAfterMidnight) {
-      copiedShift.cuttingAfterMidnight = true;
-    }
-    
-    // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.prepareCutShift(copiedShift, {
+      fromDate: cutDateAsDate,
+      internalFromDate: transformDateToNgbDateStruct(cutDateAsDate),
+    });
 
-    // Füge den kopierten Shift zur Liste hinzu
+    this.selectedShift.status = ShiftStatus.IsCut;
+
+    this.dataManagementShiftCutService.calculateNestedSetValues(
+      copiedShift,
+      this.selectedShift
+    );
+
     this.dataManagementShiftCutService.addCutShift(copiedShift);
 
-    // Automatisch den neuen Child-Cut selektieren
     this.selectNewChildCut(copiedShift);
 
-    // Emit change event
     this.isChangingEvent.emit(true);
-
-    // console.log('Cut by date performed:', {
-    //   originalShift: this.selectedShift,
-    //   copiedShift: copiedShift,
-    //   cutDate: cutDateAsDate,
-    // });
   }
 
   private performCutByTime(): void {
@@ -549,144 +476,124 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
 
-    // Konvertiere die OwnTime Objekte zurück zu echten OwnTime Instanzen nach dem Klonen
     this.restoreOwnTimeObjects(copiedShift);
 
-    // Speichere den ursprünglichen endShift für 24-Stunden-Shifts
     const originalEndShift = this.selectedShift.endShift;
     const originalInternalEndShift = this.selectedShift.internalEndShift;
 
-    // Original Shift: setze endShift auf cutTime
-    this.selectedShift.endShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
-    this.selectedShift.internalEndShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
+    this.selectedShift.endShift = `${this.cutTimeShift.hours
+      .toString()
+      .padStart(2, '0')}:${this.cutTimeShift.minutes
+      .toString()
+      .padStart(2, '0')}`;
+    this.selectedShift.internalEndShift = OwnTime.forTime(
+      this.cutTimeShift.hours,
+      this.cutTimeShift.minutes
+    );
 
-    // Prüfe ob der Original-Shift jetzt über Mitternacht geht
-    const originalStartMinutes = this.selectedShift.internalStartShift?.toMinutes() || 0;
+    const originalStartMinutes =
+      this.selectedShift.internalStartShift?.toMinutes() || 0;
     const originalEndMinutes = this.selectedShift.internalEndShift.toMinutes();
-    if (originalEndMinutes < originalStartMinutes && originalEndMinutes !== originalStartMinutes) {
+    if (
+      originalEndMinutes < originalStartMinutes &&
+      originalEndMinutes !== originalStartMinutes
+    ) {
       this.selectedShift.cuttingAfterMidnight = true;
     } else {
       this.selectedShift.cuttingAfterMidnight = false;
     }
 
-    // Kopierter Shift: setze startShift auf cutTime und konfiguriere Nested Set Model
-    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
-    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
-    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
-    copiedShift.isNew = true; // Markiere als neuen Shift für CREATE Operation
-    copiedShift.startShift = `${this.cutTimeShift.hours.toString().padStart(2, '0')}:${this.cutTimeShift.minutes.toString().padStart(2, '0')}`;
-    copiedShift.internalStartShift = OwnTime.forTime(this.cutTimeShift.hours, this.cutTimeShift.minutes);
-    
-    // Bei 24-Stunden-Shifts: behalte den ursprünglichen endShift für die Kopie bei
+    const cutTimeProps: any = {
+      startShift: `${this.cutTimeShift.hours
+        .toString()
+        .padStart(2, '0')}:${this.cutTimeShift.minutes
+        .toString()
+        .padStart(2, '0')}`,
+      internalStartShift: OwnTime.forTime(
+        this.cutTimeShift.hours,
+        this.cutTimeShift.minutes
+      ),
+    };
+
     if (this.is24Hours) {
-      copiedShift.endShift = originalEndShift;
-      copiedShift.internalEndShift = originalInternalEndShift;
+      cutTimeProps.endShift = originalEndShift;
+      cutTimeProps.internalEndShift = originalInternalEndShift;
     }
 
-    // Prüfe ob der kopierte Shift über Mitternacht geht
+    this.prepareCutShift(copiedShift, cutTimeProps);
+
+    this.selectedShift.status = ShiftStatus.IsCut;
+
     const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
     const copiedEndMinutes = copiedShift.internalEndShift?.toMinutes() || 0;
-    
-    // Setze cuttingAfterMidnight basierend auf dem kopierten Shift
-    if (copiedEndMinutes < copiedStartMinutes && copiedEndMinutes !== copiedStartMinutes) {
+
+    if (
+      copiedEndMinutes < copiedStartMinutes &&
+      copiedEndMinutes !== copiedStartMinutes
+    ) {
       copiedShift.cuttingAfterMidnight = true;
     } else {
       copiedShift.cuttingAfterMidnight = false;
     }
-    
-    // Universelle Regel für Datumsanpassung:
-    // Wenn das Parent über Mitternacht ging (cuttingAfterMidnight = true) UND
-    // der neue Shift-Start zeitlich VOR dem Original-Start des Parents liegt,
-    // dann muss das Datum erhöht werden
-    const parentOriginalStartMinutes = this.selectedShift.internalStartShift?.toMinutes() || 0;
-    
-    if (this.selectedShift.cuttingAfterMidnight && 
-        copiedStartMinutes < parentOriginalStartMinutes && 
-        copiedShift.fromDate) {
+
+    const parentOriginalStartMinutes =
+      this.selectedShift.internalStartShift?.toMinutes() || 0;
+
+    if (
+      this.selectedShift.cuttingAfterMidnight &&
+      copiedStartMinutes < parentOriginalStartMinutes &&
+      copiedShift.fromDate
+    ) {
       const adjustedDate = new Date(copiedShift.fromDate);
       adjustedDate.setDate(adjustedDate.getDate() + 1);
       copiedShift.fromDate = adjustedDate;
       copiedShift.internalFromDate = transformDateToNgbDateStruct(adjustedDate);
     }
-    
-    // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
 
-    // Füge den kopierten Shift zur Liste hinzu
+    this.dataManagementShiftCutService.calculateNestedSetValues(
+      copiedShift,
+      this.selectedShift
+    );
+
     this.dataManagementShiftCutService.addCutShift(copiedShift);
-    
-    // Automatisch den neuen Child-Cut selektieren
-    this.selectNewChildCut(copiedShift);
-    
-    // Emit change event
-    this.isChangingEvent.emit(true);
-    
-    // Log only for debugging failed tests in development
-    // if (typeof jasmine !== 'undefined' && jasmine.getEnv().currentSpec.failedExpectations.length > 0) {
-    //   console.log('Cut by time performed:', {
-    //     originalShift: this.selectedShift,
-    //     copiedShift: copiedShift,
-    //     cutTime: this.cutTimeShift,
-    //     is24Hours: this.is24Hours,
-    //     originalCuttingAfterMidnight: this.selectedShift.cuttingAfterMidnight,
-    //     copiedCuttingAfterMidnight: copiedShift.cuttingAfterMidnight
-    //   });
-    // }
-  }
 
+    this.selectNewChildCut(copiedShift);
+
+    this.isChangingEvent.emit(true);
+  }
 
   private performCutByWeekdays(): void {
     if (!this.selectedShift) {
       return;
     }
 
-    // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
-    
-    // Konvertiere die OwnTime Objekte zurück zu echten OwnTime Instanzen nach dem Klonen
+
     this.restoreOwnTimeObjects(copiedShift);
 
-    // Original Shift: setze die ausgewählten Weekdays auf false
     this.updateOriginalShiftWeekdays(this.selectedShift);
 
-    // Kopierter Shift: setze nur die ausgewählten Weekdays auf true, rest auf false
     this.updateCopiedShiftWeekdays(copiedShift);
 
-    // Konfiguriere Nested Set Model
-    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
-    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
-    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
-    copiedShift.isNew = true; // Markiere als neuen Shift für CREATE Operation
-    
-    // Vererbe cuttingAfterMidnight vom Parent
-    if (this.selectedShift.cuttingAfterMidnight) {
-      copiedShift.cuttingAfterMidnight = true;
-    }
-    
-    // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.prepareCutShift(copiedShift);
 
-    // Füge den kopierten Shift zur Liste hinzu
+    this.selectedShift.status = ShiftStatus.IsCut;
+
+    this.dataManagementShiftCutService.calculateNestedSetValues(
+      copiedShift,
+      this.selectedShift
+    );
+
     this.dataManagementShiftCutService.addCutShift(copiedShift);
-    
-    // Automatisch den neuen Child-Cut selektieren
+
     this.selectNewChildCut(copiedShift);
-    
-    // Emit change event
+
     this.isChangingEvent.emit(true);
-    
-    // console.log('Cut by weekdays performed:', {
-    //   originalShift: this.selectedShift,
-    //   copiedShift: copiedShift,
-    //   selectedWeekdays: this.weekdays
-    // });
   }
 
   private updateOriginalShiftWeekdays(originalShift: Shift): void {
-    // Entferne die ausgewählten Weekdays vom Original
     if (this.weekdays.isMonday) originalShift.isMonday = false;
     if (this.weekdays.isTuesday) originalShift.isTuesday = false;
     if (this.weekdays.isWednesday) originalShift.isWednesday = false;
@@ -695,11 +602,11 @@ export class CutShiftListComponent implements OnInit {
     if (this.weekdays.isSaturday) originalShift.isSaturday = false;
     if (this.weekdays.isSunday) originalShift.isSunday = false;
     if (this.weekdays.isHoliday) originalShift.isHoliday = false;
-    if (this.weekdays.isWeekdayOrHoliday) originalShift.isWeekdayOrHoliday = false;
+    if (this.weekdays.isWeekdayOrHoliday)
+      originalShift.isWeekdayOrHoliday = false;
   }
 
   private updateCopiedShiftWeekdays(copiedShift: Shift): void {
-    // Setze alle Weekdays basierend auf der Auswahl
     copiedShift.isMonday = this.weekdays.isMonday;
     copiedShift.isTuesday = this.weekdays.isTuesday;
     copiedShift.isWednesday = this.weekdays.isWednesday;
@@ -716,49 +623,32 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
-    
-    // Konvertiere die OwnTime Objekte zurück zu echten OwnTime Instanzen nach dem Klonen
+
     this.restoreOwnTimeObjects(copiedShift);
 
-    // Berechne die Aufteilung der Mitarbeiter
-    const originalStaffCount = this.selectedShift.sumEmployees - this.staffCount;
+    const originalStaffCount =
+      this.selectedShift.sumEmployees - this.staffCount;
     const copiedStaffCount = this.staffCount;
 
-    // Original Shift: reduziere sumEmployees
     this.selectedShift.sumEmployees = originalStaffCount;
 
-    // Kopierter Shift: setze sumEmployees auf ausgewählte Anzahl
-    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
-    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
-    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
-    copiedShift.isNew = true; // Markiere als neuen Shift für CREATE Operation
-    copiedShift.sumEmployees = copiedStaffCount;
-    
-    // Vererbe cuttingAfterMidnight vom Parent
-    if (this.selectedShift.cuttingAfterMidnight) {
-      copiedShift.cuttingAfterMidnight = true;
-    }
-    
-    // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.prepareCutShift(copiedShift, {
+      sumEmployees: copiedStaffCount,
+    });
 
-    // Füge den kopierten Shift zur Liste hinzu
+    this.selectedShift.status = ShiftStatus.IsCut;
+
+    this.dataManagementShiftCutService.calculateNestedSetValues(
+      copiedShift,
+      this.selectedShift
+    );
+
     this.dataManagementShiftCutService.addCutShift(copiedShift);
-    
-    // Automatisch den neuen Child-Cut selektieren
+
     this.selectNewChildCut(copiedShift);
-    
-    // Emit change event
+
     this.isChangingEvent.emit(true);
-    
-    // console.log('Cut by staff performed:', {
-    //   originalShift: this.selectedShift,
-    //   copiedShift: copiedShift,
-    //   originalStaffCount: originalStaffCount,
-    //   copiedStaffCount: copiedStaffCount
-    // });
   }
 
   private performCutByTask(): void {
@@ -766,98 +656,107 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    // Erstelle eine tiefe Kopie des Original-Shifts
     const copiedShift = cloneObject<Shift>(this.selectedShift);
 
-    // Berechne die Aufteilung der Tasks
     const originalTaskCount = this.selectedShift.quantity - this.taskCount;
     const copiedTaskCount = this.taskCount;
 
-    // Original Shift: reduziere quantity
     this.selectedShift.quantity = originalTaskCount;
 
-    // Kopierter Shift: setze quantity auf ausgewählte Anzahl
-    copiedShift.id = newGuid(); // Temporäre ID für UI (wird im Backend durch EF ersetzt)
-    copiedShift.parentId = this.selectedShift.id; // parentId = ID des Original-Shifts
-    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id; // rootId beibehalten oder auf Original setzen
-    copiedShift.isNew = true; // Markiere als neuen Shift für CREATE Operation
-    copiedShift.quantity = copiedTaskCount;
-    
-    // Vererbe cuttingAfterMidnight vom Parent
-    if (this.selectedShift.cuttingAfterMidnight) {
-      copiedShift.cuttingAfterMidnight = true;
-    }
-    
-    // Nested Set Model: Berechne lft/rgt Werte
-    this.dataManagementShiftCutService.calculateNestedSetValues(copiedShift, this.selectedShift);
+    this.prepareCutShift(copiedShift, {
+      quantity: copiedTaskCount,
+    });
 
-    // Füge den kopierten Shift zur Liste hinzu
+    this.selectedShift.status = ShiftStatus.IsCut;
+
+    this.dataManagementShiftCutService.calculateNestedSetValues(
+      copiedShift,
+      this.selectedShift
+    );
+
     this.dataManagementShiftCutService.addCutShift(copiedShift);
-    
-    // Automatisch den neuen Child-Cut selektieren
+
     this.selectNewChildCut(copiedShift);
-    
-    // Emit change event
+
     this.isChangingEvent.emit(true);
-    
-    // console.log('Cut by task performed:', {
-    //   originalShift: this.selectedShift,
-    //   copiedShift: copiedShift,
-    //   originalTaskCount: originalTaskCount,
-    //   copiedTaskCount: copiedTaskCount
-    // });
   }
 
   private restoreOwnTimeObjects(shift: Shift): void {
-    // Konvertiere alle OwnTime Objekte zurück zu echten OwnTime Instanzen
-    // Verwende die String-Repräsentation und transformStringToOwnTimeStruct
     if (shift.startShift) {
-      shift.internalStartShift = transformStringToOwnTimeStruct(shift.startShift);
+      shift.internalStartShift = transformStringToOwnTimeStruct(
+        shift.startShift
+      );
     }
     if (shift.endShift) {
       shift.internalEndShift = transformStringToOwnTimeStruct(shift.endShift);
     }
     if (shift.beforeShift) {
-      shift.internalBeforeShift = transformStringToOwnTimeStruct(shift.beforeShift);
+      shift.internalBeforeShift = transformStringToOwnTimeStruct(
+        shift.beforeShift
+      );
     }
     if (shift.afterShift) {
-      shift.internalAfterShift = transformStringToOwnTimeStruct(shift.afterShift);
+      shift.internalAfterShift = transformStringToOwnTimeStruct(
+        shift.afterShift
+      );
     }
     if (shift.travelTimeBefore) {
-      shift.internalTravelTimeBefore = transformStringToOwnTimeStruct(shift.travelTimeBefore);
+      shift.internalTravelTimeBefore = transformStringToOwnTimeStruct(
+        shift.travelTimeBefore
+      );
     }
     if (shift.travelTimeAfter) {
-      shift.internalTravelTimeAfter = transformStringToOwnTimeStruct(shift.travelTimeAfter);
+      shift.internalTravelTimeAfter = transformStringToOwnTimeStruct(
+        shift.travelTimeAfter
+      );
     }
     if (shift.briefingTime) {
-      shift.internalBriefingTime = transformStringToOwnTimeStruct(shift.briefingTime);
+      shift.internalBriefingTime = transformStringToOwnTimeStruct(
+        shift.briefingTime
+      );
     }
     if (shift.debriefingTime) {
-      shift.internalDebriefingTime = transformStringToOwnTimeStruct(shift.debriefingTime);
+      shift.internalDebriefingTime = transformStringToOwnTimeStruct(
+        shift.debriefingTime
+      );
     }
-    // WorkTime ist eine Duration, nicht eine Zeit
     if (shift.workTime !== undefined && shift.workTime !== null) {
       const hours = Math.floor(shift.workTime / 60);
       const minutes = shift.workTime % 60;
-      shift.internalWorkTime = transformStringToOwnTimeStruct(`${hours}:${minutes}`, true);
+      shift.internalWorkTime = transformStringToOwnTimeStruct(
+        `${hours}:${minutes}`,
+        true
+      );
     }
   }
 
-  /**
-   * Automatische Selektion des neuen Child-Cuts nach einem Cut-Vorgang
-   * @param newChildCut Der neu erstellte Child-Cut der ausgewählt werden soll
-   */
   private selectNewChildCut(newChildCut: Shift): void {
-    // Setze den neuen Child-Cut als selectedShift
     this.selectedShift = newChildCut;
-    
-    // Analysiere die Cut-Möglichkeiten für den neuen Child-Cut
     if (newChildCut) {
       this.analyzeCutByDate(newChildCut);
       this.analyzeCutByTime(newChildCut);
       this.analyzeCutByWeekdays(newChildCut);
       this.analyzeCutByStaff(newChildCut);
       this.analyzeCutByTask(newChildCut);
+    }
+  }
+
+  private prepareCutShift(copiedShift: Shift, specificProperties?: any): void {
+    if (!this.selectedShift) {
+      return;
+    }
+
+    copiedShift.id = newGuid();
+    copiedShift.parentId = this.selectedShift.id;
+    copiedShift.rootId = this.selectedShift.rootId || this.selectedShift.id;
+    copiedShift.isNew = true;
+
+    if (this.selectedShift.cuttingAfterMidnight) {
+      copiedShift.cuttingAfterMidnight = true;
+    }
+
+    if (specificProperties) {
+      Object.assign(copiedShift, specificProperties);
     }
   }
 

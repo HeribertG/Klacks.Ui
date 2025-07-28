@@ -63,6 +63,7 @@ export class DataManagementGroupService implements IManageable {
 
   // IManageable implementation
   public showProgressSpinner = signal(false);
+  public onSaveCompleted?: () => void;
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -327,6 +328,9 @@ export class DataManagementGroupService implements IManageable {
       action.subscribe({
         next: (x) => {
           this.prepareGroup(x, withoutUpdateDummy);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
         error: (error) => {
           if (this.editGroup?.id) {
@@ -336,6 +340,9 @@ export class DataManagementGroupService implements IManageable {
           }
 
           this.toastShowService.showError(error, 'GroupError');
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
         complete: () => {},
       });

@@ -27,6 +27,7 @@ export class DataManagementProfileService implements IManageable {
 
   // IManageable implementation
   public showProgressSpinner = signal(false);
+  public onSaveCompleted?: () => void;
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -51,13 +52,23 @@ export class DataManagementProfileService implements IManageable {
     this.changePasswordWrapper!.title = MessageLibrary.CHANGEPASSWORD_TITLE;
     this.userAdministrationService
       .changePassword(this.changePasswordWrapper!)
-      .subscribe(() => {
-        this.isReset.set(true);
-        setTimeout(() => this.isReset.set(false), 100);
-        this.toastShowService.showSuccess(
-          MessageLibrary.REGISTER_CHANGE_PASSWORD,
-          MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
-        );
+      .subscribe({
+        next: () => {
+          this.isReset.set(true);
+          setTimeout(() => this.isReset.set(false), 100);
+          this.toastShowService.showSuccess(
+            MessageLibrary.REGISTER_CHANGE_PASSWORD,
+            MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
+          );
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        },
+        error: (error) => {
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        }
       });
   }
 

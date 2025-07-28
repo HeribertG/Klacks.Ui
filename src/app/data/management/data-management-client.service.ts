@@ -72,6 +72,7 @@ export class DataManagementClientService implements IManageable {
   public isReset = signal(false);
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
+  public onSaveCompleted?: () => void;
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
@@ -608,12 +609,32 @@ export class DataManagementClientService implements IManageable {
 
   saveEditClient(withoutUpdateDummy = false) {
     if (this.editClient!.id === '') {
-      this.dataClientService.addClient(this.editClient!).subscribe((x) => {
-        this.prepareClient(x, withoutUpdateDummy);
+      this.dataClientService.addClient(this.editClient!).subscribe({
+        next: (x) => {
+          this.prepareClient(x, withoutUpdateDummy);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        },
+        error: (error) => {
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        }
       });
     } else {
-      this.dataClientService.updateClient(this.editClient!).subscribe((x) => {
-        this.prepareClient(x);
+      this.dataClientService.updateClient(this.editClient!).subscribe({
+        next: (x) => {
+          this.prepareClient(x);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        },
+        error: (error) => {
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        }
       });
     }
   }

@@ -58,6 +58,7 @@ export class DataManagementSettingsService implements IManageable {
 
   // IManageable implementation
   public showProgressSpinner = signal(false);
+  public onSaveCompleted?: () => void;
 
   public isReset = signal(false);
 
@@ -961,18 +962,29 @@ export class DataManagementSettingsService implements IManageable {
   }
 
   save() {
+    let hasOperations = false;
+    
     if (this.isSetting_Dirty()) {
       this.saveSetting();
+      hasOperations = true;
     }
     if (this.isCountryList_Dirty()) {
       this.saveCountryList();
+      hasOperations = true;
     }
 
     if (this.isMacroList_Dirty()) {
       this.saveMacroList();
+      hasOperations = true;
     }
     if (this.gridColorService.isSetting_Dirty()) {
       this.gridColorService.save();
+      hasOperations = true;
+    }
+    
+    // If no operations were needed, call onSaveCompleted immediately
+    if (!hasOperations && this.onSaveCompleted) {
+      this.onSaveCompleted();
     }
   }
 
@@ -981,6 +993,9 @@ export class DataManagementSettingsService implements IManageable {
       this.isDirty = this.areObjectsDirty();
       this.isReset.set(true);
       setTimeout(() => this.isReset.set(false), 100);
+      if (this.onSaveCompleted) {
+        this.onSaveCompleted();
+      }
     }
   }
 

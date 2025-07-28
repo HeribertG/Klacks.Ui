@@ -165,9 +165,13 @@ export class WorkplaceStateService {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
       if ('save' in manager) {
-        (manager as IManageable).save();
+        const manageableManager = manager as IManageable;
+        manageableManager.onSaveCompleted = () => {
+          this._isDisabled.set(false);
+          this._isSavedOrReset.set(true);
+        };
         this._isDisabled.set(true);
-        this._isSavedOrReset.set(true);
+        manageableManager.save();
       } else {
         if (!environment.production) {
           console.warn(

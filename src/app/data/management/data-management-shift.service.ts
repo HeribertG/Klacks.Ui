@@ -41,7 +41,6 @@ export class DataManagementShiftService implements IManageable {
   private dataCountryStateService = inject(DataCountryStateService);
 
   constructor() {
-    // Selbst-Registrierung für die relevanten Routes
     ManageableServiceRegistry.register(
       RouteName.SHIFT,
       DataManagementShiftService
@@ -69,6 +68,8 @@ export class DataManagementShiftService implements IManageable {
   public currentFilter: ShiftFilter = new ShiftFilter();
   public currentClientFilter: Filter = new Filter();
   public editGroup: IShift | undefined;
+
+  public onSaveCompleted?: () => void;
 
   public shifts: IShift[] = [];
   public editShift: Shift | undefined;
@@ -357,6 +358,10 @@ export class DataManagementShiftService implements IManageable {
               index
             );
           }
+
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
         error: (error) => {
           if (this.editShift?.id) {
@@ -366,6 +371,9 @@ export class DataManagementShiftService implements IManageable {
           }
 
           this.toastShowService.showError(error, 'ShiftError');
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
         },
         complete: () => {},
       });
@@ -508,18 +516,13 @@ export class DataManagementShiftService implements IManageable {
     value: IClient,
     fromDate: Date | undefined
   ): number {
-    // If it has more than one address, select which one is visible
     if (value && fromDate && value.addresses.length > 1) {
-      // first sort by date
-
       value.addresses.sort((a: IAddress, b: IAddress) => {
         const first = a.validFrom as Date;
         const second = b.validFrom as Date;
 
         return first > second ? -1 : first < second ? 1 : 0;
       });
-
-      // second search the current Address
 
       const current = fromDate!;
       const collectScopeAddresses = new Array<IAddress>();
@@ -531,8 +534,6 @@ export class DataManagementShiftService implements IManageable {
         itm.isFuture = false;
         const tmpDate = new Date(itm.validFrom);
 
-        // all current and past addresses
-        // all future addresses are filtered out here
         if (tmpDate <= current) {
           collectScopeAddresses.push(itm);
           itm.isScoped = true;
@@ -549,7 +550,6 @@ export class DataManagementShiftService implements IManageable {
         return first < second ? -1 : first > second ? 0 : 1;
       });
 
-      // all past addresses are sorted out
       for (let i = 0; i < this.maxAddressType; i++) {
         const findTypeArray = collectScopeAddresses.filter((x) => x.type === i);
         if (findTypeArray && findTypeArray.length > 0) {

@@ -12,4 +12,6 @@ export interface IManageable extends ISpinnable {
   areObjectsDirty(): boolean;
 
   goBack(): string;
+  
+  onSaveCompleted?: () => void;
 }
