@@ -20,12 +20,10 @@ export class DataManagementShiftCutService implements IManageable {
   private navigationService = inject(NavigationService);
   private dataShiftCutsService = inject(DataShiftCutsService);
 
-  // Track which cuts are new vs existing
   private newCuts: Shift[] = [];
   private existingCuts: Shift[] = [];
 
   constructor() {
-    // Selbst-Registrierung für die cut-shift Route
     ManageableServiceRegistry.register(
       RouteName.CUT_SHIFT,
       DataManagementShiftCutService
@@ -69,24 +67,76 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
-    if (parentShift.rgt !== undefined && parentShift.lft !== undefined) {
-      childShift.lft = parentShift.rgt - 1;
-      childShift.rgt = parentShift.rgt;
-
-      parentShift.rgt = parentShift.rgt + 2;
-
-      // Aktualisiere alle anderen Shifts in der Liste, die betroffen sind
-      this.updateOtherShiftsNestedSetValues(childShift.lft!);
-    } else {
-      // Falls das Parent keine rgt/lft Werte hat, initialisiere sie
-      // Parent: lft=1, rgt=4 (umschließt das Child)
-      // Child: lft=2, rgt=3 (innerhalb des Parents)
-      parentShift.lft = 1;
-      parentShift.rgt = 4;
-      childShift.lft = 2;
-      childShift.rgt = 3;
+    // Setze Parent-Child Beziehungen ZUERST
+    childShift.parentId = parentShift.id;
+    childShift.rootId = parentShift.rootId || parentShift.id;
+    
+    // Stelle sicher, dass das childShift zur Liste hinzugefügt wurde
+    // (normalerweise passiert das durch addCutShift nach diesem Aufruf)
+    const childExists = this.cutShifts.some(shift => shift.id === childShift.id);
+    if (!childExists) {
+      this.cutShifts.push(childShift);
+    }
+    
+    // Jetzt berechne die gesamte Hierarchie neu
+    this.recalculateAllNestedSetValues();
+  }
+  
+  private recalculateAllNestedSetValues(): void {
+    // Finde alle Root-Knoten (Knoten ohne Parent)
+    const roots = this.cutShifts.filter(shift => !shift.parentId);
+    
+    let counter = 1;
+    
+    // Berechne für jeden Root-Baum
+    roots.forEach(root => {
+      counter = this.calculateTreeNestedSetValues(root, counter);
+    });
+  }
+  
+  private calculateTreeNestedSetValues(node: Shift, leftValue: number): number {
+    // Setze den linken Wert
+    node.lft = leftValue;
+    
+    // Finde alle direkten Kinder dieses Knotens
+    const children = this.cutShifts.filter(shift => shift.parentId === node.id);
+    
+    // Berechne die Werte für alle Kinder rekursiv
+    let rightValue = leftValue + 1;
+    children.forEach(child => {
+      rightValue = this.calculateTreeNestedSetValues(child, rightValue);
+    });
+    
+    // Setze den rechten Wert
+    node.rgt = rightValue;
+    
+    // Gebe den nächsten verfügbaren Wert zurück (für Geschwisterknoten)
+    return rightValue + 1;
+  }
+  
+  private shiftNodesRight(fromPosition: number, offset: number, parentShift?: Shift): void {
+    // Verschiebe alle Knoten in der cutShifts Liste
+    this.cutShifts.forEach(shift => {
+      if (shift.lft !== undefined && shift.lft >= fromPosition) {
+        shift.lft += offset;
+      }
+      if (shift.rgt !== undefined && shift.rgt >= fromPosition) {
+        shift.rgt += offset;
+      }
+    });
+    
+    // Verschiebe auch den parentShift, falls er übergeben wurde
+    // Dies ist wichtig, da der Parent möglicherweise noch nicht in cutShifts ist
+    if (parentShift) {
+      if (parentShift.lft !== undefined && parentShift.lft >= fromPosition) {
+        parentShift.lft += offset;
+      }
+      if (parentShift.rgt !== undefined && parentShift.rgt >= fromPosition) {
+        parentShift.rgt += offset;
+      }
     }
   }
+
 
   areObjectsDirty(): boolean {
     if (this.isCutShifts_Dirty()) {
@@ -120,19 +170,6 @@ export class DataManagementShiftCutService implements IManageable {
     return result;
   }
 
-  private updateOtherShiftsNestedSetValues(insertionPoint: number): void {
-    // Alle Cut-Shifts, die nach dem Einfügepunkt liegen, müssen ihre lft/rgt Werte um 2 erhöhen
-    // ABER: Nicht den Parent-Shift und das neue Child-Shift selbst aktualisieren
-    this.cutShifts.forEach((shift) => {
-      if (shift.lft !== undefined && shift.lft >= insertionPoint) {
-        shift.lft += 2;
-      }
-      if (shift.rgt !== undefined && shift.rgt >= insertionPoint) {
-        shift.rgt += 2;
-      }
-    });
-  }
-
   /* #endregion Cut Shift Methods */
 
   // IManageable methods
@@ -145,20 +182,16 @@ export class DataManagementShiftCutService implements IManageable {
   private saveCuts(): void {
     this.showProgressSpinner.set(true);
 
-    // Separate new cuts from existing cuts
     this.separateNewAndExistingCuts();
 
-    // Reset operation counters
     this.operationsCompleted = 0;
     this.totalOperations = 0;
     if (this.newCuts.length > 0) this.totalOperations++;
     if (this.existingCuts.length > 0) this.totalOperations++;
 
-    // Handle new cuts (POST)
     if (this.newCuts.length > 0) {
       this.dataShiftCutsService.addCuts(this.newCuts).subscribe({
         next: (createdCuts) => {
-          // Update the local array with the returned cuts
           this.updateCutsAfterSave(createdCuts, true);
           this.checkAndCallSaveCompleted();
         },
@@ -172,16 +205,10 @@ export class DataManagementShiftCutService implements IManageable {
       });
     }
 
-    // Handle existing cuts (PUT)
     if (this.existingCuts.length > 0) {
       this.dataShiftCutsService.updateCuts(this.existingCuts).subscribe({
         next: (updatedCuts) => {
-          // Update the local array with the returned cuts
           this.updateCutsAfterSave(updatedCuts, false);
-          this.toastShowService.showSuccess(
-            `${updatedCuts.length} Cuts aktualisiert`,
-            'Erfolg'
-          );
           this.checkAndCallSaveCompleted();
         },
         error: (error) => {
@@ -197,7 +224,6 @@ export class DataManagementShiftCutService implements IManageable {
       });
     }
 
-    // If no cuts to save, just hide spinner
     if (this.newCuts.length === 0 && this.existingCuts.length === 0) {
       this.showProgressSpinner.set(false);
       if (this.onSaveCompleted) {

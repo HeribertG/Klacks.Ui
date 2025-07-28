@@ -57,14 +57,9 @@ export class EditAddressHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-
-    // Hide search for edit pages
     this.searchService.setSearchVisibility(false);
-
-    // Register the service with the switchboard for this route
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
 
-    // Show footer for this edit page
     this.footerService.setFooterVisibility(true);
 
     if (this.dataManagementClientService.editClient === undefined) {
@@ -80,8 +75,6 @@ export class EditAddressHomeComponent implements OnInit {
   }
 
   onIsChanging(event: boolean) {
-
-    // Forward to WorkplaceStateService to update footer buttons
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();
     } else {

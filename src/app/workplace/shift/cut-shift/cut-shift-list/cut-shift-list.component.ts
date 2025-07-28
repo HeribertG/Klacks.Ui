@@ -108,7 +108,7 @@ export class CutShiftListComponent implements OnInit {
 
   @Input() shifts: IShift[] = [];
 
-  public selectedShift: Shift | null = null;
+  public selectedShift: Shift | undefined = undefined;
 
   ngOnInit(): void {
     this.resetAllParameters();
@@ -459,12 +459,12 @@ export class CutShiftListComponent implements OnInit {
 
     this.selectedShift.status = ShiftStatus.IsCut;
 
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
+
     this.dataManagementShiftCutService.calculateNestedSetValues(
       copiedShift,
       this.selectedShift
     );
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
 
     this.selectNewChildCut(copiedShift);
 
@@ -581,12 +581,12 @@ export class CutShiftListComponent implements OnInit {
 
     this.selectedShift.status = ShiftStatus.IsCut;
 
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
+
     this.dataManagementShiftCutService.calculateNestedSetValues(
       copiedShift,
       this.selectedShift
     );
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
 
     this.selectNewChildCut(copiedShift);
 
@@ -639,12 +639,12 @@ export class CutShiftListComponent implements OnInit {
 
     this.selectedShift.status = ShiftStatus.IsCut;
 
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
+
     this.dataManagementShiftCutService.calculateNestedSetValues(
       copiedShift,
       this.selectedShift
     );
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
 
     this.selectNewChildCut(copiedShift);
 
@@ -669,12 +669,12 @@ export class CutShiftListComponent implements OnInit {
 
     this.selectedShift.status = ShiftStatus.IsCut;
 
+    this.dataManagementShiftCutService.addCutShift(copiedShift);
+
     this.dataManagementShiftCutService.calculateNestedSetValues(
       copiedShift,
       this.selectedShift
     );
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
 
     this.selectNewChildCut(copiedShift);
 
