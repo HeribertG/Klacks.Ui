@@ -59,7 +59,7 @@ export class BaseCreateRowHeaderService {
       return undefined;
     }
 
-    this.drawCell(cell, width, client);
+    this.drawCell(cell, width, client, row);
     return cell;
   }
 
@@ -135,7 +135,7 @@ export class BaseCreateRowHeaderService {
       0,
       0,
       width,
-      height * this.settings.zoom,
+      height,  // height already includes zoom from drawCell()
       this.gridFonts.mainFontStringZoom,
       this.gridFonts.mainFontHeightZoom,
       this.gridColors.headerForeGroundColor,
@@ -235,7 +235,8 @@ export class BaseCreateRowHeaderService {
     ctx: CanvasRenderingContext2D,
     client: ClientWork,
     width: number,
-    height: number
+    height: number,
+    rowIndex: number
   ) {
     const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
 
@@ -243,17 +244,17 @@ export class BaseCreateRowHeaderService {
       widthWithoutInfoSpot,
       this.settings.increaseBorder,
       width,
-      this.settings.cellHeaderHeight
+      this.settings.cellHeaderHeight * this.settings.zoom
     );
     const workedHoursRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight + this.settings.borderWidth,
+      this.settings.cellHeaderHeight * this.settings.zoom + this.settings.borderWidth,
       width,
-      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth
+      this.settings.cellHeaderHeight * 2 * this.settings.zoom + this.settings.borderWidth
     );
     const emptyRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth,
+      this.settings.cellHeaderHeight * 2 * this.settings.zoom + this.settings.borderWidth,
       width,
       height
     );
@@ -263,14 +264,14 @@ export class BaseCreateRowHeaderService {
 
     this.drawInfoSpot(
       ctx,
-      '',
+      this.gridData.getInfo1(rowIndex),
       scheduledHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
     this.drawInfoSpot(
       ctx,
-      '',
+      this.gridData.getInfo2(rowIndex),
       workedHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
@@ -304,6 +305,23 @@ export class BaseCreateRowHeaderService {
       this.settings.borderWidth,
       Gradient3DBorderStyleEnum.Sunken
     );
+
+    // Draw the text if provided
+    if (info && info.trim() !== '') {
+      DrawHelper.drawText(
+        ctx,
+        info,
+        rect.left,
+        rect.top,
+        rect.width,
+        rect.height,
+        this.gridFonts.mainFontStringZoom,
+        this.gridFonts.mainFontHeightZoom,
+        this.gridColors.headerForeGroundColor,
+        TextAlignmentEnum.Center,
+        BaselineAlignmentEnum.Center
+      );
+    }
   }
 
   private shouldClearBackground(width: number): boolean {
@@ -325,13 +343,13 @@ export class BaseCreateRowHeaderService {
   private drawCell(
     cell: GridRowHeader,
     width: number,
-    client: ClientWork
+    client: ClientWork,
+    row: number
   ): void {
     const tempCanvas = document.createElement('canvas');
     const neededRows = client.neededRows;
     const height =
-      (this.settings.cellHeight * neededRows + this.settings.increaseBorder) *
-      this.settings.zoom;
+      this.settings.cellHeight * neededRows + this.settings.increaseBorder;
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
       if (ctx) {
@@ -344,13 +362,14 @@ export class BaseCreateRowHeaderService {
         );
 
         const name = this.getName(client);
-        this.drawTitle(ctx, name, width, height);
+        const textAreaWidth = width - this.settings.InfoSpotWidth;  // Only use first column width
+        this.drawTitle(ctx, name, textAreaWidth, height);
         const textSize =
           this.prepareFontMeasureText(ctx, name) + 25 * this.settings.zoom;
         this.drawGenderSymbols(
           ctx,
           this.getGenderSymbols(client),
-          textSize,
+          textAreaWidth,  // Use text area width, not textSize
           height
         );
 
@@ -358,7 +377,8 @@ export class BaseCreateRowHeaderService {
           ctx,
           client,
           width - this.settings.increaseBorder,
-          height - this.settings.increaseBorder * 2
+          height - this.settings.increaseBorder * 2,
+          row
         );
 
         //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;

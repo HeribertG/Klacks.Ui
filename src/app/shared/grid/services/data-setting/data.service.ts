@@ -29,4 +29,6 @@ export abstract class BaseDataService {
   abstract get rows(): number;
   abstract get columns(): number;
   abstract get indexes(): number;
+  abstract getInfo1(index: number): string;
+  abstract getInfo2(index: number): string;
 }

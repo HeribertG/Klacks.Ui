@@ -43,7 +43,7 @@ export class GridFontsService {
   public secondSubFontSize = this.secondSubFontPoint.toString();
   public symbolFontSize = this.symbolFontPoint.toString();
 
-  private mainFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
+  private mainFontHeight = this.pixelToPt.pointToPixel(this.mainFontPoint);
   private headerFontHeight = this.pixelToPt.pointToPixel(this.headerFontPoint);
   private firstSubFontHeight = this.pixelToPt.pointToPixel(
     this.firstSubFontPoint
@@ -87,7 +87,7 @@ export class GridFontsService {
   }
 
   public get mainFontSizeZoom(): string {
-    return (this.headerFontPoint * this._zoom).toFixed(2);
+    return (this.mainFontPoint * this._zoom).toFixed(2);
   }
   public get headerFontSizeZoom(): string {
     return (this.headerFontPoint * this._zoom).toFixed(2);
@@ -130,7 +130,7 @@ export class GridFontsService {
   public get mainFontStringZoom(): string {
     return (
       this.weight +
-      this.headerFontPoint * this._zoom +
+      this.mainFontPoint * this._zoom +
       this.point +
       this.mainFontName
     );
