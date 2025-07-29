@@ -66,61 +66,26 @@ export class DataManagementShiftCutService implements IManageable {
     this.cutShifts.push(shift);
   }
 
-  calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
-    childShift.parentId = parentShift.id;
-    childShift.rootId = parentShift.rootId || parentShift.id;
+  calculateNestedSetValues(insertAfterShift: Shift, newShift: Shift): void {
+    const insertPosition = insertAfterShift.rgt || 2;
 
-    this.recalculateAllNestedSetValues();
-  }
-
-  private recalculateAllNestedSetValues(): void {
-    const roots = this.cutShifts.filter((shift) => !shift.parentId);
-
-    let counter = 1;
-
-    roots.forEach((root) => {
-      counter = this.calculateTreeNestedSetValues(root, counter);
-    });
-  }
-
-  private calculateTreeNestedSetValues(node: Shift, leftValue: number): number {
-    node.lft = leftValue;
-
-    const children = this.cutShifts.filter(
-      (shift) => shift.parentId === node.id
-    );
-
-    let rightValue = leftValue + 1;
-    children.forEach((child) => {
-      rightValue = this.calculateTreeNestedSetValues(child, rightValue);
-    });
-
-    node.rgt = rightValue;
-
-    return rightValue + 1;
-  }
-
-  private shiftNodesRight(
-    fromPosition: number,
-    offset: number,
-    parentShift?: Shift
-  ): void {
     this.cutShifts.forEach((shift) => {
-      if (shift.lft !== undefined && shift.lft >= fromPosition) {
-        shift.lft += offset;
-      }
-      if (shift.rgt !== undefined && shift.rgt >= fromPosition) {
-        shift.rgt += offset;
-      }
+      if (shift.lft && shift.lft >= insertPosition) shift.lft += 2;
+      if (shift.rgt && shift.rgt >= insertPosition) shift.rgt += 2;
     });
 
-    if (parentShift) {
-      if (parentShift.lft !== undefined && parentShift.lft >= fromPosition) {
-        parentShift.lft += offset;
-      }
-      if (parentShift.rgt !== undefined && parentShift.rgt >= fromPosition) {
-        parentShift.rgt += offset;
-      }
+    newShift.lft = insertPosition;
+    newShift.rgt = insertPosition + 1;
+
+    const hasChildren =
+      (insertAfterShift.rgt || 2) - (insertAfterShift.lft || 1) > 1;
+
+    if (hasChildren) {
+      newShift.parentId = insertAfterShift.parentId;
+      newShift.rootId = insertAfterShift.rootId;
+    } else {
+      newShift.parentId = insertAfterShift.id;
+      newShift.rootId = insertAfterShift.rootId || insertAfterShift.id;
     }
   }
 
