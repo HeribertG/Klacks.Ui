@@ -171,10 +171,13 @@ export class BaseDrawRowHeaderService {
 
   private resizeMainCanvas() {
     if (this.isCanvasAvailable()) {
-      this.canvas!.style.width = `${this.width}px`;
-      this.canvas!.style.height = `${this.height}px`;
-      this.ctx!.canvas.height = this.height;
-      this.ctx!.canvas!.width = this.width;
+      this.ctx = DrawHelper.createHiDPICanvas(
+        this.canvas!,
+        this.width,
+        this.height,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.ctx);
     }
   }
 
@@ -238,8 +241,8 @@ export class BaseDrawRowHeaderService {
       this.renderCanvasCtx!.clearRect(
         0,
         0,
-        this.renderCanvas!.width,
-        this.renderCanvas!.height
+        width,
+        height
       );
 
       for (let row = 0; row < visibleRow; row++) {
@@ -296,10 +299,15 @@ export class BaseDrawRowHeaderService {
         if (result) {
           const diffRow: number = position + (result.firstRow - row);
 
+          // Calculate logical dimensions for proper HiDPI scaling
+          const logicalWidth = this.width;
+          const logicalHeight = (result.lastRow - result.firstRow + 1) * this.settings.cellHeight * this.settings.zoom;
+          const yPosition = diffRow * this.settings.cellHeight * this.settings.zoom;
+
           this.renderCanvasCtx!.drawImage(
             result.img,
-            0,
-            diffRow * this.settings.cellHeight * this.settings.zoom // Zoom berücksichtigen!
+            0, 0, result.img.width, result.img.height,  // Source: physical HiDPI size
+            0, yPosition, logicalWidth, logicalHeight   // Destination: logical size
           );
 
           return result.lastRow;
