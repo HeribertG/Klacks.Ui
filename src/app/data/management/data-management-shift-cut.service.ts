@@ -70,53 +70,54 @@ export class DataManagementShiftCutService implements IManageable {
     // Setze Parent-Child Beziehungen ZUERST
     childShift.parentId = parentShift.id;
     childShift.rootId = parentShift.rootId || parentShift.id;
+
     
-    // Stelle sicher, dass das childShift zur Liste hinzugefügt wurde
-    // (normalerweise passiert das durch addCutShift nach diesem Aufruf)
-    const childExists = this.cutShifts.some(shift => shift.id === childShift.id);
-    if (!childExists) {
-      this.cutShifts.push(childShift);
-    }
-    
+
     // Jetzt berechne die gesamte Hierarchie neu
     this.recalculateAllNestedSetValues();
   }
-  
+
   private recalculateAllNestedSetValues(): void {
     // Finde alle Root-Knoten (Knoten ohne Parent)
-    const roots = this.cutShifts.filter(shift => !shift.parentId);
-    
+    const roots = this.cutShifts.filter((shift) => !shift.parentId);
+
     let counter = 1;
-    
+
     // Berechne für jeden Root-Baum
-    roots.forEach(root => {
+    roots.forEach((root) => {
       counter = this.calculateTreeNestedSetValues(root, counter);
     });
   }
-  
+
   private calculateTreeNestedSetValues(node: Shift, leftValue: number): number {
     // Setze den linken Wert
     node.lft = leftValue;
-    
+
     // Finde alle direkten Kinder dieses Knotens
-    const children = this.cutShifts.filter(shift => shift.parentId === node.id);
-    
+    const children = this.cutShifts.filter(
+      (shift) => shift.parentId === node.id
+    );
+
     // Berechne die Werte für alle Kinder rekursiv
     let rightValue = leftValue + 1;
-    children.forEach(child => {
+    children.forEach((child) => {
       rightValue = this.calculateTreeNestedSetValues(child, rightValue);
     });
-    
+
     // Setze den rechten Wert
     node.rgt = rightValue;
-    
+
     // Gebe den nächsten verfügbaren Wert zurück (für Geschwisterknoten)
     return rightValue + 1;
   }
-  
-  private shiftNodesRight(fromPosition: number, offset: number, parentShift?: Shift): void {
+
+  private shiftNodesRight(
+    fromPosition: number,
+    offset: number,
+    parentShift?: Shift
+  ): void {
     // Verschiebe alle Knoten in der cutShifts Liste
-    this.cutShifts.forEach(shift => {
+    this.cutShifts.forEach((shift) => {
       if (shift.lft !== undefined && shift.lft >= fromPosition) {
         shift.lft += offset;
       }
@@ -124,7 +125,7 @@ export class DataManagementShiftCutService implements IManageable {
         shift.rgt += offset;
       }
     });
-    
+
     // Verschiebe auch den parentShift, falls er übergeben wurde
     // Dies ist wichtig, da der Parent möglicherweise noch nicht in cutShifts ist
     if (parentShift) {
@@ -136,7 +137,6 @@ export class DataManagementShiftCutService implements IManageable {
       }
     }
   }
-
 
   areObjectsDirty(): boolean {
     if (this.isCutShifts_Dirty()) {
@@ -237,18 +237,14 @@ export class DataManagementShiftCutService implements IManageable {
     this.existingCuts = [];
 
     this.cutShifts.forEach((cut) => {
-      // Check if cut exists in dummy array (original data)
       const existsInOriginal = this.cutShiftsDummy.some(
         (dummy) => dummy.id === cut.id
       );
 
-      // Neu: Prüfe auch das isNew Flag von der Component
       if (!existsInOriginal || !cut.id || (cut as any).isNew) {
-        // New cut - stelle sicher dass Status IsCut ist
         cut.status = ShiftStatus.IsCut;
         this.newCuts.push(cut);
       } else {
-        // Existing cut - check if it was modified
         const originalCut = this.cutShiftsDummy.find(
           (dummy) => dummy.id === cut.id
         );
@@ -261,7 +257,6 @@ export class DataManagementShiftCutService implements IManageable {
 
   private updateCutsAfterSave(savedCuts: Shift[], isNew: boolean): void {
     if (isNew) {
-      // For new cuts, replace temporary cuts with saved ones
       savedCuts.forEach((savedCut) => {
         const index = this.cutShifts.findIndex(
           (cut) =>
@@ -274,7 +269,6 @@ export class DataManagementShiftCutService implements IManageable {
         }
       });
     } else {
-      // For existing cuts, update them
       savedCuts.forEach((savedCut) => {
         const index = this.cutShifts.findIndex((cut) => cut.id === savedCut.id);
         if (index !== -1) {
@@ -283,7 +277,6 @@ export class DataManagementShiftCutService implements IManageable {
       });
     }
 
-    // Update dummy array to reflect saved state
     this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
   }
 
@@ -311,7 +304,7 @@ export class DataManagementShiftCutService implements IManageable {
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
       }
-      // Reset for next save operation
+
       this.operationsCompleted = 0;
       this.totalOperations = 0;
     }

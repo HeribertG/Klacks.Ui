@@ -32,6 +32,7 @@ import {
   newGuid,
 } from 'src/app/helpers/format-helper';
 import { cloneObject } from 'src/app/helpers/object-helpers';
+import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -51,6 +52,7 @@ export class CutShiftListComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
+  private workTimeCalculator = inject(WorkTimeCalculationService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
 
@@ -112,6 +114,14 @@ export class CutShiftListComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetAllParameters();
+  }
+
+  selectAllText(event: FocusEvent): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement) {
+      inputElement.setSelectionRange(0, inputElement.value.length);
+      inputElement.select();
+    }
   }
 
   onKeyUpInput(event: any, value: string): void {
@@ -525,6 +535,15 @@ export class CutShiftListComponent implements OnInit {
     this.prepareCutShift(copiedShift, cutTimeProps);
 
     this.selectedShift.status = ShiftStatus.IsCut;
+
+    this.selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
+      this.selectedShift.internalStartShift,
+      this.selectedShift.internalEndShift
+    );
+    copiedShift.workTime = this.workTimeCalculator.calculateWorkTime(
+      copiedShift.internalStartShift,
+      copiedShift.internalEndShift
+    );
 
     const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
     const copiedEndMinutes = copiedShift.internalEndShift?.toMinutes() || 0;
