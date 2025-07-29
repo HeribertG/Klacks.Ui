@@ -67,47 +67,36 @@ export class DataManagementShiftCutService implements IManageable {
   }
 
   calculateNestedSetValues(childShift: Shift, parentShift: Shift): void {
-    // Setze Parent-Child Beziehungen ZUERST
     childShift.parentId = parentShift.id;
     childShift.rootId = parentShift.rootId || parentShift.id;
 
-    
-
-    // Jetzt berechne die gesamte Hierarchie neu
     this.recalculateAllNestedSetValues();
   }
 
   private recalculateAllNestedSetValues(): void {
-    // Finde alle Root-Knoten (Knoten ohne Parent)
     const roots = this.cutShifts.filter((shift) => !shift.parentId);
 
     let counter = 1;
 
-    // Berechne für jeden Root-Baum
     roots.forEach((root) => {
       counter = this.calculateTreeNestedSetValues(root, counter);
     });
   }
 
   private calculateTreeNestedSetValues(node: Shift, leftValue: number): number {
-    // Setze den linken Wert
     node.lft = leftValue;
 
-    // Finde alle direkten Kinder dieses Knotens
     const children = this.cutShifts.filter(
       (shift) => shift.parentId === node.id
     );
 
-    // Berechne die Werte für alle Kinder rekursiv
     let rightValue = leftValue + 1;
     children.forEach((child) => {
       rightValue = this.calculateTreeNestedSetValues(child, rightValue);
     });
 
-    // Setze den rechten Wert
     node.rgt = rightValue;
 
-    // Gebe den nächsten verfügbaren Wert zurück (für Geschwisterknoten)
     return rightValue + 1;
   }
 
@@ -116,7 +105,6 @@ export class DataManagementShiftCutService implements IManageable {
     offset: number,
     parentShift?: Shift
   ): void {
-    // Verschiebe alle Knoten in der cutShifts Liste
     this.cutShifts.forEach((shift) => {
       if (shift.lft !== undefined && shift.lft >= fromPosition) {
         shift.lft += offset;
@@ -126,8 +114,6 @@ export class DataManagementShiftCutService implements IManageable {
       }
     });
 
-    // Verschiebe auch den parentShift, falls er übergeben wurde
-    // Dies ist wichtig, da der Parent möglicherweise noch nicht in cutShifts ist
     if (parentShift) {
       if (parentShift.lft !== undefined && parentShift.lft >= fromPosition) {
         parentShift.lft += offset;
