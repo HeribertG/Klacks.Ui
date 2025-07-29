@@ -30,6 +30,7 @@ export class BaseDrawRowHeaderService {
   public renderCanvas: HTMLCanvasElement | undefined;
 
   private lastSelection = -1;
+  private lastVerticalScrollPosition = 0;
 
   public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
 
@@ -238,12 +239,7 @@ export class BaseDrawRowHeaderService {
       })!;
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
-      this.renderCanvasCtx!.clearRect(
-        0,
-        0,
-        width,
-        height
-      );
+      this.renderCanvasCtx!.clearRect(0, 0, width, height);
 
       for (let row = 0; row < visibleRow; row++) {
         let tmpRow: number = row + this.firstVisibleRow;
@@ -267,7 +263,7 @@ export class BaseDrawRowHeaderService {
     const srcW = this.renderCanvas!.width;
     const srcH = this.renderCanvas!.height;
     const destX = 0;
-    const destY = this.headerCanvas!.height;
+    const destY = this.settings.cellHeaderHeight; // Use logical height, not physical canvas height
     const destW = srcW;
     const destH = srcH;
 
@@ -288,7 +284,11 @@ export class BaseDrawRowHeaderService {
       0,
       0,
       this.headerCanvas!.width,
-      this.headerCanvas!.height
+      this.headerCanvas!.height,
+      0,
+      0,
+      this.width,
+      this.settings.cellHeaderHeight
     );
   }
 
@@ -301,13 +301,25 @@ export class BaseDrawRowHeaderService {
 
           // Calculate logical dimensions for proper HiDPI scaling
           const logicalWidth = this.width;
-          const logicalHeight = (result.lastRow - result.firstRow + 1) * this.settings.cellHeight * this.settings.zoom;
-          const yPosition = diffRow * this.settings.cellHeight * this.settings.zoom;
+          // Don't apply zoom here - it's already applied in createCell()
+          const logicalHeight =
+            (result.lastRow - result.firstRow + 1) *
+            this.settings.cellHeight;
+          // Use original positioning without zoom - zoom is already in the image
+          const yPosition =
+            diffRow * this.settings.cellHeight;
+
 
           this.renderCanvasCtx!.drawImage(
             result.img,
-            0, 0, result.img.width, result.img.height,  // Source: physical HiDPI size
-            0, yPosition, logicalWidth, logicalHeight   // Destination: logical size
+            0,
+            0,
+            result.img.width,
+            result.img.height, // Source: physical HiDPI size
+            0,
+            yPosition,
+            logicalWidth,
+            logicalHeight // Destination: logical size
           );
 
           return result.lastRow;
@@ -357,20 +369,34 @@ export class BaseDrawRowHeaderService {
     if (!this.isCanvasAvailable()) {
       return;
     }
-    const dy = this.scroll.verticalScrollPosition;
+
+    // Calculate our own delta since Surface-Template resets it before we can use it
+    const verticalPos = this.scroll.verticalScrollPosition;
+    const verticalDiff = verticalPos - this.lastVerticalScrollPosition;
+    this.lastVerticalScrollPosition = verticalPos;
+
+    // If no delta change, just refresh normally
+    if (verticalDiff === 0) {
+      this.refreshGrid();
+      return;
+    }
+
     const visibleRow: number = this.visibleRow();
+
+    // Create temp canvas with current content
     const tempCanvas: HTMLCanvasElement = document.createElement(
       'canvas'
     ) as HTMLCanvasElement;
-    tempCanvas.height = this.renderCanvas!.height;
     tempCanvas.width = this.renderCanvas!.width;
-    const ctx = tempCanvas.getContext('2d');
+    tempCanvas.height = this.renderCanvas!.height;
+    const tempCtx = tempCanvas.getContext('2d');
 
-    if (ctx) {
-      ctx.drawImage(this.renderCanvas!, 0, 0);
+    if (tempCtx) {
+      // Copy current render canvas content to temp canvas
+      tempCtx.drawImage(this.renderCanvas!, 0, 0);
     }
 
-    this.renderCanvas!.height = visibleRow * this.settings.cellHeight;
+    // Clear render canvas (don't resize it!)
     this.renderCanvasCtx!.clearRect(
       0,
       0,
@@ -378,33 +404,31 @@ export class BaseDrawRowHeaderService {
       this.renderCanvas!.height
     );
 
-    this.renderCanvasCtx!.drawImage(
-      tempCanvas,
-      0,
-      this.settings.cellHeight * dy
-    );
+    // Calculate scroll offset
+    const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
 
-    // let firstRow = 0;
-    // let lastRow = 0;
+    // Draw shifted content back
+    this.renderCanvasCtx!.drawImage(tempCanvas, 0, scrollOffsetY);
 
-    // if (directionY > 0) {
-    //   firstRow = visibleRow + directionY - 1;
-    //   lastRow = visibleRow - directionY + 1;
-    // } else {
-    //   firstRow = -1;
-    //   lastRow = directionY + 2;
-    // }
+    // Add new cells for the scrolled area
+    if (verticalDiff > 0) {
+      // Scrolling down - add new rows at bottom
+      for (let i = 0; i < verticalDiff; i++) {
+        const row = visibleRow - verticalDiff + i;
+        const tmpRow = row + this.firstVisibleRow;
+        this.addCells(tmpRow, row);
+      }
+    } else if (verticalDiff < 0) {
+      // Scrolling up - add new rows at top
+      for (let i = 0; i < -verticalDiff; i++) {
+        const row = i;
+        const tmpRow = row + this.firstVisibleRow;
+        this.addCells(tmpRow, row);
+      }
+    }
 
-    // for (let row = firstRow; row < lastRow; row++) {
-    //   const tmpRow: number = row + this.firstVisibleRow;
-    //   const correctedRow = this.addCells(tmpRow, row);
-    //   if (correctedRow === undefined) {
-    //     continue;
-    //   }
-    //   row = correctedRow - this.firstVisibleRow;
-    // }
-
-    this.refreshGrid();
+    // Render the updated canvas to screen
+    this.renderGrid();
   }
 
   /* #endregion draw Row Header */
