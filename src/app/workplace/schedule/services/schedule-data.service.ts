@@ -59,6 +59,10 @@ export class ScheduleDataService extends BaseDataService {
   public getInfo2(index: number): string {
     return 'Info2-' + index;
   }
+
+  public getInfo3(index: number): string {
+    return 'Info3-' + index;
+  }
   public override initializeDateAndColumns(): void {
     const dayVisibleBeforeMonth =
       this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;

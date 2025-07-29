@@ -31,4 +31,5 @@ export abstract class BaseDataService {
   abstract get indexes(): number;
   abstract getInfo1(index: number): string;
   abstract getInfo2(index: number): string;
+  abstract getInfo3(index: number): string;
 }

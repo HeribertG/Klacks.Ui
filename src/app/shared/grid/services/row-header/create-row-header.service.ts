@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable } from '@angular/core';
 
 import { RowHeaderIconsService } from 'src/app/shared/grid/services/row-header-icons.service';
@@ -135,7 +136,7 @@ export class BaseCreateRowHeaderService {
       0,
       0,
       width,
-      height,  // height already includes zoom from drawCell()
+      height,
       this.gridFonts.mainFontStringZoom,
       this.gridFonts.mainFontHeightZoom,
       this.gridColors.headerForeGroundColor,
@@ -244,17 +245,25 @@ export class BaseCreateRowHeaderService {
       widthWithoutInfoSpot,
       this.settings.increaseBorder,
       width,
-      this.settings.cellHeaderHeight * this.settings.zoom
+      this.settings.cellHeaderHeight
     );
     const workedHoursRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight * this.settings.zoom + this.settings.borderWidth,
+      this.settings.cellHeaderHeight + this.settings.borderWidth,
       width,
-      this.settings.cellHeaderHeight * 2 * this.settings.zoom + this.settings.borderWidth
+      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth
     );
+
+    const addHoursRect = new Rectangle(
+      widthWithoutInfoSpot,
+      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth,
+      width,
+      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth
+    );
+
     const emptyRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight * 2 * this.settings.zoom + this.settings.borderWidth,
+      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth,
       width,
       height
     );
@@ -278,6 +287,13 @@ export class BaseCreateRowHeaderService {
     );
     this.drawInfoSpot(
       ctx,
+      this.gridData.getInfo3(rowIndex),
+      addHoursRect,
+      InfoBackColor,
+      Gradient3DBorderStyleEnum.Raised
+    );
+    this.drawInfoSpot(
+      ctx,
       '',
       emptyRect,
       emptyBackColor,
@@ -290,7 +306,6 @@ export class BaseCreateRowHeaderService {
     info: string,
     rect: Rectangle,
     backgroundColor: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     style: Gradient3DBorderStyleEnum
   ) {
     DrawHelper.fillRectangle(ctx, backgroundColor, rect);
@@ -303,7 +318,7 @@ export class BaseCreateRowHeaderService {
       rect.height,
       backgroundColor,
       this.settings.borderWidth,
-      Gradient3DBorderStyleEnum.Sunken
+      style
     );
 
     // Draw the text if provided
@@ -362,14 +377,13 @@ export class BaseCreateRowHeaderService {
         );
 
         const name = this.getName(client);
-        const textAreaWidth = width - this.settings.InfoSpotWidth;  // Only use first column width
+        const textAreaWidth = width - this.settings.InfoSpotWidth;
         this.drawTitle(ctx, name, textAreaWidth, height);
-        const textSize =
-          this.prepareFontMeasureText(ctx, name) + 25 * this.settings.zoom;
+
         this.drawGenderSymbols(
           ctx,
           this.getGenderSymbols(client),
-          textAreaWidth,  // Use text area width, not textSize
+          textAreaWidth,
           height
         );
 
@@ -380,6 +394,23 @@ export class BaseCreateRowHeaderService {
           height - this.settings.increaseBorder * 2,
           row
         );
+
+        // Fill remaining area of second column with same color as InfoSpots
+        const remainingAreaTop =
+          this.settings.cellHeaderHeight * 3 + this.settings.borderWidth;
+        if (remainingAreaTop < height) {
+          const remainingRect = new Rectangle(
+            width - this.settings.InfoSpotWidth,
+            remainingAreaTop,
+            width,
+            height
+          );
+          DrawHelper.fillRectangle(
+            ctx,
+            this.gridColors.backGroundColor,
+            remainingRect
+          );
+        }
 
         //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
         // this.drawIcon(ctx, client, widthWithoutInfoSpot, tempCanvas.height);

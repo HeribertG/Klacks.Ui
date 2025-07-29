@@ -182,4 +182,8 @@ export class ShiftDataService extends BaseDataService {
   getInfo2(index: number): string {
     return 'Shift-Info2-' + index;
   }
+
+  getInfo3(index: number): string {
+    return 'Shift-Info3-' + index;
+  }
 }
