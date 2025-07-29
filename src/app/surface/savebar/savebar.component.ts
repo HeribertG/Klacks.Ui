@@ -46,16 +46,20 @@ import { FooterService } from 'src/app/services/footer.service';
       <button
         type="button"
         class="btn save-btn"
+        tabindex="0"
         (click)="onClickSave()"
         [disabled]="workplaceStateService.isDisabled"
+        aria-label="Save changes"
       >
         {{ 'store' | translate }}
       </button>
       <button
         type="button"
         class="btn save-btn"
+        tabindex="0"
         (click)="onClickSaveAndClose()"
         [disabled]="workplaceStateService.isDisabled"
+        aria-label="Save changes and close"
       >
         {{ 'saveAndClose' | translate }}
       </button>

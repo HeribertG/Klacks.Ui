@@ -50,6 +50,7 @@ import { GroupSelectComponent } from './group-select/group-select.component';
 import { NoAccessComponent } from './no-access/no-access.component';
 import { AuthInterceptor } from './auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './auth/token-refresh.interceptor';
+import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -89,6 +90,7 @@ export function localeFactory(localeService: LocaleService) {
     NoAccessComponent,
     ErrorComponent,
     ToastsContainerComponent,
+    KeyboardShortcutDirective,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

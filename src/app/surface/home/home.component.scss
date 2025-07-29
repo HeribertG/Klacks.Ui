@@ -1,6 +1,7 @@
 @use "./../../../assets/standard-styles/standard-modal.scss";
 @use "./../../../assets/standard-styles/standard-controls.scss";
 @use "./../../../assets/standard-styles/colors.scss" as colors;
+@use "sass:color";
 
 $header_height: 65px;
 $footer_height: var(--footer_height);
@@ -56,6 +57,33 @@ app-main {
   background-color: colors.$standartBlueColor;
   color: colors.$standartWhiteColor;
   margin-right: 30px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border: 2px solid colors.$standartWhiteColor;
+    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border: 2px solid colors.$standartWhiteColor;
+    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+  }
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust(colors.$standartBlueColor, $lightness: -10%);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 app-aside {
@@ -76,6 +104,19 @@ app-footer {
 .link-button {
   font-size: 13px;
   text-decoration: underline;
+  cursor: pointer;
+  
+  &:focus {
+    outline: 2px solid colors.$standartBlueColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid colors.$standartBlueColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 .red-font {

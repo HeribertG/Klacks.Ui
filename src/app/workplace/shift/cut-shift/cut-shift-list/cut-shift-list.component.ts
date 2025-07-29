@@ -9,6 +9,7 @@ import {
   OnInit,
   EventEmitter,
   Output,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +19,7 @@ import {
   NgbCalendar,
   NgbDate,
   NgbDatepickerModule,
+  NgbModalRef,
 } from '@ng-bootstrap/ng-bootstrap';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -111,9 +113,23 @@ export class CutShiftListComponent implements OnInit {
   @Input() shifts: IShift[] = [];
 
   public selectedShift: Shift | undefined = undefined;
+  private activeModal: NgbModalRef | null = null;
 
   ngOnInit(): void {
     this.resetAllParameters();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    if (!this.activeModal) return;
+
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.activeModal.close();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.activeModal.dismiss();
+    }
   }
 
   selectAllText(event: FocusEvent): void {
@@ -182,66 +198,96 @@ export class CutShiftListComponent implements OnInit {
     if (!this.isCutDateEnabled) {
       return;
     }
-    this.modalService
-      .open(this.cutDateModal, {
-        size: 'sm',
-        centered: true,
-        windowClass: 'modal-window',
-      })
-      .result.then(() => {
+    this.activeModal = this.modalService.open(this.cutDateModal, {
+      size: 'sm',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+    
+    this.activeModal.result.then(
+      () => {
         this.performCutByDate();
-      });
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
   }
 
   onCutTime(): void {
     if (!this.isCutTimeEnabled) {
       return;
     }
-    this.modalService
-      .open(this.cutTimeModal, {
-        size: 'sm',
-        centered: true,
-        windowClass: 'modal-window',
-      })
-      .result.then(() => {
+    this.activeModal = this.modalService.open(this.cutTimeModal, {
+      size: 'sm',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+    
+    this.activeModal.result.then(
+      () => {
         this.performCutByTime();
-      });
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
   }
 
   onCutWeekdays(): void {
-    this.modalService
-      .open(this.cutWeekdaysModal, {
-        size: 'md',
-        centered: true,
-        windowClass: 'modal-window',
-      })
-      .result.then(() => {
+    this.activeModal = this.modalService.open(this.cutWeekdaysModal, {
+      size: 'md',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+    
+    this.activeModal.result.then(
+      () => {
         this.performCutByWeekdays();
-      });
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
   }
 
   onCutStaff(): void {
-    this.modalService
-      .open(this.cutStaffModal, {
-        size: 'sm',
-        centered: true,
-        windowClass: 'modal-window',
-      })
-      .result.then(() => {
+    this.activeModal = this.modalService.open(this.cutStaffModal, {
+      size: 'sm',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+    
+    this.activeModal.result.then(
+      () => {
         this.performCutByStaff();
-      });
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
   }
 
   onCutTask(): void {
-    this.modalService
-      .open(this.cutTaskModal, {
-        size: 'sm',
-        centered: true,
-        windowClass: 'modal-window',
-      })
-      .result.then(() => {
+    this.activeModal = this.modalService.open(this.cutTaskModal, {
+      size: 'sm',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+    
+    this.activeModal.result.then(
+      () => {
         this.performCutByTask();
-      });
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
   }
 
   onTableRowClicked(shift: Shift): void {
