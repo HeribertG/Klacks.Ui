@@ -130,6 +130,29 @@ export class BaseCreateRowHeaderService {
     width: number,
     height: number
   ): void {
+    // Measure text width using the correct font
+    const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
+    
+    // Calculate font height and background dimensions
+    const fontHeight = this.gridFonts.headerFontHeightZoom;
+    const padding = 2;
+    const idealBackgroundWidth = textWidth + (padding * 2);
+    
+    // Limit background width to available space (don't overflow into InfoSpot area)
+    const maxBackgroundWidth = width - 2; // Leave 2px margin from right edge
+    const backgroundWidth = Math.min(idealBackgroundWidth, maxBackgroundWidth);
+    const backgroundHeight = fontHeight + (padding * 2);
+    
+    // Calculate vertical center position for the background
+    const backgroundY = (height - backgroundHeight) / 2;
+    
+    // Draw background rectangle behind the text to cover gender symbol if overlapping
+    ctx.save();
+    ctx.fillStyle = this.gridColors.controlBackGroundColor;
+    ctx.fillRect(0, backgroundY, backgroundWidth, backgroundHeight);
+    ctx.restore();
+    
+    // Draw the text on top of the background
     DrawHelper.drawText(
       ctx,
       text,
@@ -158,8 +181,8 @@ export class BaseCreateRowHeaderService {
       0,
       width,
       height,
-      this.gridFonts.symbolFontStringZoom,
-      this.gridFonts.symbolFontHeightZoom,
+      this.gridFonts.headerFontStringZoom,
+      this.gridFonts.headerFontHeightZoom,
       this.gridColors.headerForeGroundColor,
       TextAlignmentEnum.Right,
       BaselineAlignmentEnum.Center
@@ -367,6 +390,8 @@ export class BaseCreateRowHeaderService {
     const neededRows = client.neededRows;
     const height =
       this.settings.cellHeight * neededRows + this.settings.increaseBorder;
+    
+    console.log(`ROW-HEADER: row=${row}, neededRows=${neededRows}, cellHeight=${this.settings.cellHeight}, increaseBorder=${this.settings.increaseBorder}, totalHeight=${height}`);
 
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
@@ -379,16 +404,17 @@ export class BaseCreateRowHeaderService {
           this.settings.headerBorderWidth
         );
 
-        const name = this.getName(client);
         const textAreaWidth = width - this.settings.InfoSpotWidth;
-        this.drawTitle(ctx, name, textAreaWidth, height);
 
         this.drawGenderSymbols(
           ctx,
           this.getGenderSymbols(client),
-          textAreaWidth,
+          textAreaWidth - 5,
           height
         );
+
+        const name = this.getName(client);
+        this.drawTitle(ctx, name, textAreaWidth, height);
 
         this.drawInfoSpots(
           ctx,
@@ -412,6 +438,17 @@ export class BaseCreateRowHeaderService {
   ): number {
     ctx.save();
     ctx.font = this.gridFonts.mainFontStringZoom;
+    const textSize = ctx.measureText(text).width;
+    ctx.restore();
+    return textSize;
+  }
+
+  private prepareFontMeasureTextForHeader(
+    ctx: CanvasRenderingContext2D,
+    text: string
+  ): number {
+    ctx.save();
+    ctx.font = this.gridFonts.headerFontStringZoom;
     const textSize = ctx.measureText(text).width;
     ctx.restore();
     return textSize;
