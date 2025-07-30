@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import {
   MyPosition,
   MyPositionCollection,
@@ -14,7 +14,18 @@ export class BaseCellManipulationService {
   protected gridData = inject(BaseDataService);
 
   public PositionCollection = new MyPositionCollection();
-  public Position: MyPosition = new MyPosition(-1, -1);
+  
+  private _position: MyPosition = new MyPosition(-1, -1);
+  public positionSignal = signal<MyPosition>(this._position);
+  
+  public get Position(): MyPosition {
+    return this._position;
+  }
+  
+  public set Position(value: MyPosition) {
+    this._position = value;
+    this.positionSignal.set(value);
+  }
 
   isPositionInSelection(pos: MyPosition): boolean {
     if (this.Position.isEqual(pos)) {

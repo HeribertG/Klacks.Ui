@@ -520,7 +520,6 @@ export class ScheduleTemplateEventsDirective {
         this.scrollGrid.horizontalScrollPosition
       ) {
         this.gridSurface.valueHScrollbar.emit(previousColumn);
-        this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
         this.gridSurface.drawSchedule.drawGridSelectedCell();
       }
     }
@@ -600,7 +599,6 @@ export class ScheduleTemplateEventsDirective {
     }
 
     this.gridSurface.valueVScrollbar.emit(nextRow);
-    this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
     this.gridSurface.drawSchedule.drawGridSelectedCell();
   }
 
@@ -624,7 +622,6 @@ export class ScheduleTemplateEventsDirective {
     }
 
     this.gridSurface.valueVScrollbar.emit(previousRow);
-    this.gridSurface.drawSchedule.drawGridSelectedHeaderCell();
     this.gridSurface.drawSchedule.drawGridSelectedCell();
   }
 }

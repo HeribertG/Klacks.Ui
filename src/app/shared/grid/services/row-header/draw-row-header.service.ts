@@ -122,9 +122,11 @@ export class BaseDrawRowHeaderService {
 
   public redraw() {
     this.redrawGrid();
+    this.drawRowHeaderSelection();
   }
   public refresh() {
     this.refreshGrid();
+    this.drawRowHeaderSelection();
   }
 
   /* #endregion Environment changes */
@@ -216,7 +218,7 @@ export class BaseDrawRowHeaderService {
       }
     }
 
-    this.drawSelection();
+    // this.drawRowHeaderSelection();
   }
 
   crateGridHeader(): void {
@@ -265,13 +267,13 @@ export class BaseDrawRowHeaderService {
   private renderGrid(): void {
     if (!this.isCanvasAvailable()) return;
 
+    const pixelRatio = DrawHelper.pixelRatio();
     const srcW = this.renderCanvas!.width;
     const srcH = this.renderCanvas!.height;
     const destX = 0;
     const destY = this.settings.cellHeaderHeight;
-    const destW = this.width;
-    const destH = this.height - this.settings.cellHeaderHeight;
 
+    // Use the full drawImage signature without scaling to prevent compression
     this.ctx!.drawImage(
       this.renderCanvas!,
       0,
@@ -280,8 +282,8 @@ export class BaseDrawRowHeaderService {
       srcH,
       destX,
       destY,
-      destW,
-      destH
+      srcW / pixelRatio,
+      srcH / pixelRatio
     );
 
     this.ctx!.drawImage(
@@ -305,9 +307,10 @@ export class BaseDrawRowHeaderService {
           const diffRow: number = position + (result.firstRow - row);
 
           const logicalWidth = this.width;
-          const logicalHeight =
-            (result.lastRow - result.firstRow + 1) * this.settings.cellHeight +
-            this.settings.increaseBorder;
+          
+          // Get the correct height using the group index directly with row
+          const neededRows: number = this.gridData.getGroupIndex(row).neededRows;
+          const logicalHeight: number = this.settings.cellHeight * neededRows;
 
           const yPosition = diffRow * this.settings.cellHeight;
 
@@ -450,6 +453,7 @@ export class BaseDrawRowHeaderService {
 
     // Render the updated canvas to screen
     this.renderGrid();
+    this.drawRowHeaderSelection();
   }
 
   /* #endregion draw Row Header */
@@ -495,35 +499,6 @@ export class BaseDrawRowHeaderService {
     }
   }
 
-  drawSelection() {
-    if (this.isCanvasAvailable()) {
-      this.ctx!.save();
-
-      this.ctx!.rect(
-        0,
-        this.settings.cellHeaderHeight,
-        this.canvas!.width,
-        this.renderCanvas!.height - this.settings.cellHeaderHeight
-      );
-
-      this.ctx!.clip();
-
-      this.ctx!.globalAlpha = 0.2;
-      this.ctx!.fillStyle = this.gridColors.focusBorderColor;
-
-      for (
-        let i = 0;
-        i < this.cellManipulation.PositionCollection.count();
-        i++
-      ) {
-        const pos = this.cellManipulation.PositionCollection.item(i);
-        // this.drawSelectedCellBackground(pos.column, pos.row);
-      }
-
-      this.ctx!.restore();
-    }
-  }
-
   /* #endregion position and selection */
 
   private get existData(): boolean {
@@ -558,9 +533,5 @@ export class BaseDrawRowHeaderService {
   }
   private visibleRow(): number {
     return Math.ceil(this.height / this.settings.cellHeight);
-  }
-
-  private UpdateVisibleCol(): number {
-    return Math.ceil(this.width / this.settings.cellWidth);
   }
 }

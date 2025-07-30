@@ -422,17 +422,6 @@ export class BaseCreateRowHeaderService {
     }
   }
 
-  private prepareFontMeasureText(
-    ctx: CanvasRenderingContext2D,
-    text: string
-  ): number {
-    ctx.save();
-    ctx.font = this.gridFonts.mainFontStringZoom;
-    const textSize = ctx.measureText(text).width;
-    ctx.restore();
-    return textSize;
-  }
-
   private prepareFontMeasureTextForHeader(
     ctx: CanvasRenderingContext2D,
     text: string

@@ -139,6 +139,14 @@ export class ScheduleScheduleRowHeaderComponent
         this.drawRowHeader.redraw();
       });
       this.effects.push(refreshEffect);
+      
+      const positionEffect = effect(() => {
+        this.drawRowHeader.cellManipulation.positionSignal();
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.drawRowHeaderSelection();
+        }
+      });
+      this.effects.push(positionEffect);
     });
   }
 }

@@ -425,30 +425,6 @@ export class BaseDrawScheduleService {
     );
   }
 
-  @CanvasAvailable('queue')
-  drawGridSelectedHeaderCell() {
-    if (this.position) {
-      if (!this.position.isEmpty()) {
-        this.canvasManager.ctx!.save();
-
-        this.canvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
-
-        this.canvasManager.ctx!.globalAlpha = 0.2;
-        const col: number =
-          (this.position.column - this.firstVisibleCol) *
-          this.settings.cellWidth;
-
-        this.canvasManager.ctx!.fillRect(
-          col,
-          0,
-          this.settings.cellWidth,
-          this.settings.cellHeaderHeight
-        );
-
-        this.canvasManager.ctx!.restore();
-      }
-    }
-  }
 
   private addCell(row: number, col: number): void {
     const ctx = this.canvasManager.renderCanvasCtx;
@@ -535,7 +511,6 @@ export class BaseDrawScheduleService {
 
     this.drawSelection();
 
-    this.drawGridSelectedHeaderCell();
     this.drawGridSelectedCell();
   }
 
