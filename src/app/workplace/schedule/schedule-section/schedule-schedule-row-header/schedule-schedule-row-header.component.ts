@@ -133,14 +133,13 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(positionEffect);
-
     });
   }
 
   private subscribeToScrollEvents(): void {
     this.scrollEventService.scroll$
       .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(({ horizontal, vertical }) => {
+      .subscribe(() => {
         if (this.drawRowHeader.isCanvasAvailable()) {
           this.drawRowHeader.moveGrid();
         }
