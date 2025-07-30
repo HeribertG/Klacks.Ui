@@ -137,8 +137,8 @@ export class BaseCreateRowHeaderService {
       0,
       width,
       height,
-      this.gridFonts.mainFontStringZoom,
-      this.gridFonts.mainFontHeightZoom,
+      this.gridFonts.headerFontStringZoom,
+      this.gridFonts.headerFontHeightZoom,
       this.gridColors.headerForeGroundColor,
       TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center
@@ -292,6 +292,8 @@ export class BaseCreateRowHeaderService {
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
+
+    // Draw the empty area with original yellow color
     this.drawInfoSpot(
       ctx,
       '',
@@ -330,8 +332,8 @@ export class BaseCreateRowHeaderService {
         rect.top,
         rect.width,
         rect.height,
-        this.gridFonts.mainFontStringZoom,
-        this.gridFonts.mainFontHeightZoom,
+        this.gridFonts.headerFontStringZoom,
+        this.gridFonts.headerFontHeightZoom,
         this.gridColors.headerForeGroundColor,
         TextAlignmentEnum.Center,
         BaselineAlignmentEnum.Center
@@ -365,10 +367,11 @@ export class BaseCreateRowHeaderService {
     const neededRows = client.neededRows;
     const height =
       this.settings.cellHeight * neededRows + this.settings.increaseBorder;
+
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
       if (ctx) {
-        this.FillHeaderBackground(ctx, width, tempCanvas.height);
+        this.FillHeaderBackground(ctx, width, height);
         this.drawBorder(
           ctx,
           width - this.settings.InfoSpotWidth - this.settings.increaseBorder,
@@ -391,26 +394,9 @@ export class BaseCreateRowHeaderService {
           ctx,
           client,
           width - this.settings.increaseBorder,
-          height - this.settings.increaseBorder * 2,
+          height,
           row
         );
-
-        // Fill remaining area of second column with same color as InfoSpots
-        const remainingAreaTop =
-          this.settings.cellHeaderHeight * 3 + this.settings.borderWidth;
-        if (remainingAreaTop < height) {
-          const remainingRect = new Rectangle(
-            width - this.settings.InfoSpotWidth,
-            remainingAreaTop,
-            width,
-            height
-          );
-          DrawHelper.fillRectangle(
-            ctx,
-            this.gridColors.backGroundColor,
-            remainingRect
-          );
-        }
 
         //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
         // this.drawIcon(ctx, client, widthWithoutInfoSpot, tempCanvas.height);

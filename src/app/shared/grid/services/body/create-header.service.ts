@@ -85,8 +85,8 @@ export class BaseCreateHeaderService {
       if (ctx) {
         DrawHelper.setAntiAliasing(ctx);
 
-        this.fillHeaderBackground(ctx);
-        this.drawBorder(ctx, this.settings.headerBorderWidth);
+        this.fillHeaderBackground(ctx, this.settings.cellWidth);
+        this.drawBorder(ctx, this.settings.headerBorderWidth, 2);
         this.drawText(ctx, this.getTitle(col));
 
         return tempCanvas;
@@ -132,31 +132,33 @@ export class BaseCreateHeaderService {
   }
 
   createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
-    ctx.canvas.width = width;
-    ctx.canvas.height = this.settings.cellHeaderHeight;
-
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
 
-    this.fillHeaderBackground(ctx);
+    this.fillHeaderBackground(ctx, width);
 
-    this.drawBorder(ctx, this.settings.headerBorderWidth);
+    this.drawBorder(ctx, this.settings.headerBorderWidth, width);
 
     this.drawTitle(
       ctx,
       this.translateService.instant('schedule.row-header.headline') +
         ' (' +
         this.gridData.indexes.toString() +
-        ')'
+        ')',
+      width
     );
   }
 
-  private drawTitle(ctx: CanvasRenderingContext2D, text: string): void {
+  private drawTitle(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    width: number
+  ): void {
     DrawHelper.drawText(
       ctx,
       text,
       0,
       0,
-      ctx.canvas.width,
+      width,
       this.settings.cellHeaderHeight,
       this.gridFonts.headerFontStringZoom,
       this.gridFonts.headerFontHeightZoom,
@@ -166,19 +168,26 @@ export class BaseCreateHeaderService {
     );
   }
 
-  private fillHeaderBackground(ctx: CanvasRenderingContext2D): void {
+  private fillHeaderBackground(
+    ctx: CanvasRenderingContext2D,
+    width: number
+  ): void {
     DrawHelper.fillRectangle(
       ctx,
       this.gridColors.controlBackGroundColor,
-      new Rectangle(0, 0, ctx.canvas.width, this.settings.cellHeaderHeight)
+      new Rectangle(0, 0, width, this.settings.cellHeaderHeight)
     );
   }
-  private drawBorder(ctx: CanvasRenderingContext2D, deep = 2): void {
+  private drawBorder(
+    ctx: CanvasRenderingContext2D,
+    deep = 2,
+    width: number
+  ): void {
     DrawHelper.drawBorder(
       ctx,
       0,
       0,
-      ctx.canvas.width,
+      width,
       this.settings.cellHeaderHeight,
       this.gridColors.controlBackGroundColor,
       deep,

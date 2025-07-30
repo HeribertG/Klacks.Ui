@@ -41,7 +41,7 @@ export class BaseDrawRowHeaderService {
 
   public rows = 0;
 
-  public pixelRatio = 1;
+  public pixelRatio = DrawHelper.pixelRatio();
 
   public startDate: Date = new Date();
 
@@ -127,13 +127,6 @@ export class BaseDrawRowHeaderService {
     this.refreshGrid();
   }
 
-  private setMetrics() {
-    if (this.isCanvasAvailable()) {
-      // const visibleRows: number = this.visibleRow() - 1;
-      // const visibleCols: number = this.UpdateVisibleCol() - 1;
-    }
-  }
-
   /* #endregion Environment changes */
 
   /* #region draw Grid */
@@ -152,9 +145,9 @@ export class BaseDrawRowHeaderService {
 
   public set width(value: number) {
     this._width = value;
-    this.setMetrics();
     this.resizeMainCanvas();
     this.resizeRenderCanvas();
+    this.resizeHeaderCanvas();
   }
   public get width(): number {
     return this._width;
@@ -162,7 +155,6 @@ export class BaseDrawRowHeaderService {
 
   public set height(value: number) {
     this._height = value;
-    this.setMetrics();
     this.resizeMainCanvas();
     this.resizeRenderCanvas();
   }
@@ -188,6 +180,19 @@ export class BaseDrawRowHeaderService {
       this.renderCanvas!.style.height = `${this.height}px`;
       this.renderCanvasCtx!.canvas.height = this.height;
       this.renderCanvasCtx!.canvas!.width = this.width;
+    }
+  }
+
+  private resizeHeaderCanvas() {
+    if (this.isCanvasAvailable() && this.headerCanvas) {
+      this.headerCtx = DrawHelper.createHiDPICanvas(
+        this.headerCanvas,
+        this.width,
+        this.settings.cellHeaderHeight,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.headerCtx);
+      this.crateGridHeader();
     }
   }
 
@@ -231,12 +236,12 @@ export class BaseDrawRowHeaderService {
       const visibleRow: number = this.visibleRow();
       const height = Math.floor(this.canvas!.clientHeight);
 
-      this.renderCanvas!.width = width;
-      this.renderCanvas!.height = height;
-
-      this.renderCanvasCtx = this.renderCanvas!.getContext('2d', {
-        willReadFrequently: true,
-      })!;
+      this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
+        this.renderCanvas!,
+        width,
+        height,
+        true
+      );
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
 
       this.renderCanvasCtx!.clearRect(0, 0, width, height);
@@ -263,9 +268,9 @@ export class BaseDrawRowHeaderService {
     const srcW = this.renderCanvas!.width;
     const srcH = this.renderCanvas!.height;
     const destX = 0;
-    const destY = this.settings.cellHeaderHeight; // Use logical height, not physical canvas height
-    const destW = srcW;
-    const destH = srcH;
+    const destY = this.settings.cellHeaderHeight;
+    const destW = this.width;
+    const destH = this.height - this.settings.cellHeaderHeight;
 
     this.ctx!.drawImage(
       this.renderCanvas!,
@@ -299,27 +304,23 @@ export class BaseDrawRowHeaderService {
         if (result) {
           const diffRow: number = position + (result.firstRow - row);
 
-          // Calculate logical dimensions for proper HiDPI scaling
           const logicalWidth = this.width;
-          // Don't apply zoom here - it's already applied in createCell()
           const logicalHeight =
-            (result.lastRow - result.firstRow + 1) *
-            this.settings.cellHeight;
-          // Use original positioning without zoom - zoom is already in the image
-          const yPosition =
-            diffRow * this.settings.cellHeight;
+            (result.lastRow - result.firstRow + 1) * this.settings.cellHeight +
+            this.settings.increaseBorder;
 
+          const yPosition = diffRow * this.settings.cellHeight;
 
           this.renderCanvasCtx!.drawImage(
             result.img,
             0,
             0,
             result.img.width,
-            result.img.height, // Source: physical HiDPI size
+            result.img.height,
             0,
             yPosition,
             logicalWidth,
-            logicalHeight // Destination: logical size
+            logicalHeight
           );
 
           return result.lastRow;
@@ -387,16 +388,28 @@ export class BaseDrawRowHeaderService {
     const tempCanvas: HTMLCanvasElement = document.createElement(
       'canvas'
     ) as HTMLCanvasElement;
-    tempCanvas.width = this.renderCanvas!.width;
-    tempCanvas.height = this.renderCanvas!.height;
-    const tempCtx = tempCanvas.getContext('2d');
+    const tempCtx = DrawHelper.createHiDPICanvas(
+      tempCanvas,
+      this.width,
+      this.height,
+      true
+    );
 
     if (tempCtx) {
-      // Copy current render canvas content to temp canvas
-      tempCtx.drawImage(this.renderCanvas!, 0, 0);
+      // Copy current render canvas content to temp canvas with correct scaling
+      tempCtx.drawImage(
+        this.renderCanvas!,
+        0,
+        0,
+        this.renderCanvas!.width,
+        this.renderCanvas!.height,
+        0,
+        0,
+        this.width,
+        this.height
+      );
     }
 
-    // Clear render canvas (don't resize it!)
     this.renderCanvasCtx!.clearRect(
       0,
       0,
@@ -404,13 +417,21 @@ export class BaseDrawRowHeaderService {
       this.renderCanvas!.height
     );
 
-    // Calculate scroll offset
     const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
 
-    // Draw shifted content back
-    this.renderCanvasCtx!.drawImage(tempCanvas, 0, scrollOffsetY);
+    // Draw shifted content back with correct scaling
+    this.renderCanvasCtx!.drawImage(
+      tempCanvas,
+      0,
+      0,
+      tempCanvas.width,
+      tempCanvas.height,
+      0,
+      scrollOffsetY,
+      this.width,
+      this.height
+    );
 
-    // Add new cells for the scrolled area
     if (verticalDiff > 0) {
       // Scrolling down - add new rows at bottom
       for (let i = 0; i < verticalDiff; i++) {
@@ -495,7 +516,7 @@ export class BaseDrawRowHeaderService {
         i < this.cellManipulation.PositionCollection.count();
         i++
       ) {
-        // const pos = this.cellManipulation.PositionCollection.item(i);
+        const pos = this.cellManipulation.PositionCollection.item(i);
         // this.drawSelectedCellBackground(pos.column, pos.row);
       }
 
