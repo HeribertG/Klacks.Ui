@@ -30,8 +30,6 @@ export class BaseCreateCellService {
   private init() {
     const width = this.settings.cellWidth + this.settings.increaseBorder;
     const height = this.settings.cellHeight + this.settings.increaseBorder;
-    
-    console.log(`SURFACE-TEMPLATE: cellWidth=${this.settings.cellWidth}, cellHeight=${this.settings.cellHeight}, increaseBorder=${this.settings.increaseBorder}, totalHeight=${height}`);
 
     Object.values(WeekDaysEnum).forEach((day) => {
       this.emptyCellList[day as WeekDaysEnum] = this.createAndConfigureCanvas(

@@ -130,29 +130,23 @@ export class BaseCreateRowHeaderService {
     width: number,
     height: number
   ): void {
-    // Measure text width using the correct font
     const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
-    
-    // Calculate font height and background dimensions
+
     const fontHeight = this.gridFonts.headerFontHeightZoom;
     const padding = 2;
-    const idealBackgroundWidth = textWidth + (padding * 2);
-    
-    // Limit background width to available space (don't overflow into InfoSpot area)
-    const maxBackgroundWidth = width - 2; // Leave 2px margin from right edge
+    const idealBackgroundWidth = textWidth + padding * 2;
+
+    const maxBackgroundWidth = width - 2;
     const backgroundWidth = Math.min(idealBackgroundWidth, maxBackgroundWidth);
-    const backgroundHeight = fontHeight + (padding * 2);
-    
-    // Calculate vertical center position for the background
+    const backgroundHeight = fontHeight + padding * 2;
+
     const backgroundY = (height - backgroundHeight) / 2;
-    
-    // Draw background rectangle behind the text to cover gender symbol if overlapping
+
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
     ctx.fillRect(0, backgroundY, backgroundWidth, backgroundHeight);
     ctx.restore();
-    
-    // Draw the text on top of the background
+
     DrawHelper.drawText(
       ctx,
       text,
@@ -316,7 +310,6 @@ export class BaseCreateRowHeaderService {
       Gradient3DBorderStyleEnum.Raised
     );
 
-    // Draw the empty area with original yellow color
     this.drawInfoSpot(
       ctx,
       '',
@@ -346,7 +339,6 @@ export class BaseCreateRowHeaderService {
       style
     );
 
-    // Draw the text if provided
     if (info && info.trim() !== '') {
       DrawHelper.drawText(
         ctx,
@@ -390,8 +382,6 @@ export class BaseCreateRowHeaderService {
     const neededRows = client.neededRows;
     const height =
       this.settings.cellHeight * neededRows + this.settings.increaseBorder;
-    
-    console.log(`ROW-HEADER: row=${row}, neededRows=${neededRows}, cellHeight=${this.settings.cellHeight}, increaseBorder=${this.settings.increaseBorder}, totalHeight=${height}`);
 
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
