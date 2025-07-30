@@ -309,7 +309,11 @@ export class BaseDrawRowHeaderService {
           const logicalWidth = this.width;
           
           // Get the correct height using the group index directly with row
-          const neededRows: number = this.gridData.getGroupIndex(row).neededRows;
+          const groupIndex = this.gridData.getGroupIndex(row);
+          if (!groupIndex) {
+            return undefined;
+          }
+          const neededRows: number = groupIndex.neededRows;
           const logicalHeight: number = this.settings.cellHeight * neededRows;
 
           const yPosition = diffRow * this.settings.cellHeight;
@@ -340,9 +344,24 @@ export class BaseDrawRowHeaderService {
     }
     const width = Math.floor(this.canvas!.clientWidth);
     const tmpPos = this.cellManipulation.Position;
+    
+    // Add bounds checking
+    if (tmpPos.row >= this.gridData.rows || tmpPos.row < 0) {
+      return;
+    }
+    
     const index: number = this.gridData.rowGroupIndex[tmpPos.row];
+    if (index === undefined || index < 0) {
+      return;
+    }
+    
     const firstRow: number = this.gridData.indexGroupRow[index];
-    let neededRows: number = this.gridData.getGroupIndex(index).neededRows;
+    const groupIndex = this.gridData.getGroupIndex(index);
+    if (!groupIndex) {
+      return;
+    }
+    
+    let neededRows: number = groupIndex.neededRows;
     if (redraw && firstRow === this.lastSelection) {
       return;
     }
@@ -378,6 +397,7 @@ export class BaseDrawRowHeaderService {
     const verticalPos = this.scroll.verticalScrollPosition;
     const verticalDiff = verticalPos - this.lastVerticalScrollPosition;
     this.lastVerticalScrollPosition = verticalPos;
+
 
     // If no delta change, just refresh normally
     if (verticalDiff === 0) {

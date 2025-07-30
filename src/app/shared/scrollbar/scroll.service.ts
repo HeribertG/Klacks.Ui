@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
+import { ScrollEventService } from './scroll-event.service';
 
 interface ScrollState {
   position: { horizontal: number; vertical: number };
@@ -9,6 +10,8 @@ interface ScrollState {
 
 @Injectable()
 export class ScrollService {
+  private scrollEventService = inject(ScrollEventService);
+
   public lockedCols = signal<boolean>(false);
   public lockedRows = signal<boolean>(false);
 
@@ -58,11 +61,16 @@ export class ScrollService {
   }
 
   set verticalScrollPosition(value: number) {
-    if (this._verticalScrollPosition === value) return;
+    if (this._verticalScrollPosition === value) {
+      return;
+    }
 
     const oldValue = this._verticalScrollPosition;
     this._verticalScrollPosition = Math.max(0, Math.min(value, this.maxRows));
     this._verticalScrollDelta += this._verticalScrollPosition - oldValue;
+    
+    // Emit via Observable service
+    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
   }
 
   get verticalScrollPosition() {
@@ -76,6 +84,9 @@ export class ScrollService {
     this._horizontalScrollPosition = Math.max(0, Math.min(value, this.maxCols));
 
     this._horizontalScrollDelta += this._horizontalScrollPosition - oldValue;
+
+    // Emit via Observable service
+    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
   }
 
   get horizontalScrollPosition() {
@@ -110,6 +121,9 @@ export class ScrollService {
 
     this._horizontalScrollDelta += deltaH;
     this._verticalScrollDelta += deltaV;
+
+    // Emit via Observable service
+    this.scrollEventService.emitScroll(this._horizontalScrollPosition, this._verticalScrollPosition);
 
     return {
       horizontalDelta: deltaH,

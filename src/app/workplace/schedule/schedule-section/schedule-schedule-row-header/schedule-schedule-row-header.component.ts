@@ -13,7 +13,8 @@ import {
   Injector,
   runInInjectionContext,
 } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { ScrollEventService } from 'src/app/shared/scrollbar/scroll-event.service';
 import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
@@ -43,6 +44,7 @@ export class ScheduleScheduleRowHeaderComponent
   public drawRowHeader = inject(BaseDrawRowHeaderService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
+  private scrollEventService = inject(ScrollEventService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -50,6 +52,7 @@ export class ScheduleScheduleRowHeaderComponent
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.readSignals();
+    this.subscribeToScrollEvents(); // Back to Observable solution
   }
 
   ngOnDestroy(): void {
@@ -66,20 +69,12 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    let vDirection = false;
-    let hDirection = false;
-
     if (changes['valueChangeHScrollbar']) {
       const prevH = changes['valueChangeHScrollbar'].previousValue;
       const currH = changes['valueChangeHScrollbar'].currentValue;
 
       if (currH !== prevH) {
         this.scroll.horizontalScrollPosition = currH;
-        this.scroll.updateScrollPosition(
-          currH,
-          this.scroll.verticalScrollPosition
-        );
-        hDirection = true;
       }
     }
 
@@ -88,16 +83,7 @@ export class ScheduleScheduleRowHeaderComponent
       const currV = changes['valueChangeVScrollbar'].currentValue;
       if (currV !== prevV) {
         this.scroll.verticalScrollPosition = currV;
-        this.scroll.updateScrollPosition(
-          this.scroll.horizontalScrollPosition,
-          currV
-        );
-        vDirection = true;
       }
-    }
-
-    if (vDirection || hDirection) {
-      this.drawRowHeader.moveGrid();
     }
   }
 
@@ -139,7 +125,7 @@ export class ScheduleScheduleRowHeaderComponent
         this.drawRowHeader.redraw();
       });
       this.effects.push(refreshEffect);
-      
+
       const positionEffect = effect(() => {
         this.drawRowHeader.cellManipulation.positionSignal();
         if (this.drawRowHeader.isCanvasAvailable()) {
@@ -147,6 +133,17 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(positionEffect);
+
     });
+  }
+
+  private subscribeToScrollEvents(): void {
+    this.scrollEventService.scroll$
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(({ horizontal, vertical }) => {
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.moveGrid();
+        }
+      });
   }
 }
