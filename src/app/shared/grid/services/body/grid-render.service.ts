@@ -86,10 +86,24 @@ export class BaseGridRenderService {
     if (!ctx || !headerCanvas) {
       return;
     }
+    const pixelRatio = DrawHelper.pixelRatio();
     const alignment =
       this.scroll.horizontalScrollPosition * this.settings.cellWidth * -1;
+    const logicalWidth = Math.round(headerCanvas.width / pixelRatio);
+    const logicalHeight = Math.round(headerCanvas.height / pixelRatio);
+    
     if (headerCanvas.width > 0 && headerCanvas.height > 0) {
-      ctx.drawImage(headerCanvas, alignment, 0);
+      ctx.drawImage(
+        headerCanvas,
+        0,
+        0,
+        headerCanvas.width,
+        headerCanvas.height,
+        alignment,
+        0,
+        logicalWidth,
+        logicalHeight
+      );
     }
   }
 
@@ -105,9 +119,21 @@ export class BaseGridRenderService {
       return;
     }
 
-    headerCanvas.height =
-      this.settings.cellHeaderHeight + this.settings.increaseBorder;
-    headerCanvas.width = columns * this.settings.cellWidth;
+    // Resize header canvas if needed
+    const expectedWidth = columns * this.settings.cellWidth;
+    const expectedHeight = this.settings.cellHeaderHeight + this.settings.increaseBorder;
+    const pixelRatio = DrawHelper.pixelRatio();
+    
+    if (headerCanvas.width !== expectedWidth * pixelRatio || 
+        headerCanvas.height !== expectedHeight * pixelRatio) {
+      this.canvasManager.headerCtx = DrawHelper.createHiDPICanvas(
+        headerCanvas,
+        expectedWidth,
+        expectedHeight,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.canvasManager.headerCtx);
+    }
 
     for (let col = 0; col < columns; col++) {
       const headerCell = this.createHeader.createHeaderCell(col);
@@ -121,6 +147,14 @@ export class BaseGridRenderService {
         );
       }
     }
+    
+    // Draw a dark bottom border line
+    this.canvasManager.headerCtx!.strokeStyle = this.gridColors.borderColor;
+    this.canvasManager.headerCtx!.lineWidth = 1;
+    this.canvasManager.headerCtx!.beginPath();
+    this.canvasManager.headerCtx!.moveTo(0, this.settings.cellHeaderHeight - 1);
+    this.canvasManager.headerCtx!.lineTo(expectedWidth, this.settings.cellHeaderHeight - 1);
+    this.canvasManager.headerCtx!.stroke();
   }
 
   private drawSingleHeaderCell(
