@@ -305,7 +305,6 @@ export class BaseDrawRowHeaderService {
     const destX = 0;
     const destY = this.settings.cellHeaderHeight;
 
-    // Use the full drawImage signature without scaling to prevent compression
     this.ctx!.drawImage(
       this.renderCanvas!,
       0,

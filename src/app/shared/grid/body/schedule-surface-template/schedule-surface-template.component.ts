@@ -230,8 +230,9 @@ export class ScheduleSurfaceTemplateComponent
     }
   }
 
-  private updateScrollbarValues(): void {
+  private updateScrollbarValues(forceUpdate = false): void {
     if (
+      !forceUpdate &&
       this.dataService.columns === this.lastColumns &&
       this.dataService.rows === this.lastRows
     ) {
@@ -331,7 +332,7 @@ export class ScheduleSurfaceTemplateComponent
             this.drawSchedule.createCanvas();
             this.drawSchedule.rebuild();
             this.drawSchedule.redraw();
-            this.updateScrollbarValues();
+            this.updateScrollbarValues(true); // Force update after zoom change
           }
         }, 0);
       });
