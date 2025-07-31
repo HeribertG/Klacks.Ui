@@ -293,8 +293,6 @@ export class BaseDrawRowHeaderService {
       );
 
       this.renderCanvasCtx.restore();
-
-      console.log('Filled rect from', startY, 'to', this.renderCanvas.height);
     }
   }
 
