@@ -264,6 +264,40 @@ export class BaseDrawRowHeaderService {
     }
   }
 
+  private drawEmptySpace(): void {
+    if (!this.renderCanvasCtx || !this.renderCanvas) return;
+
+    const pixelRatio = DrawHelper.pixelRatio();
+    const canvasLogicalHeight = this.renderCanvas.height / pixelRatio;
+    const visibleRow = canvasLogicalHeight / this.settings.cellHeight;
+
+    const diff = this.gridData.rows - this.firstVisibleRow;
+
+    let mustClearEmptySpace = false;
+
+    if (diff < visibleRow) {
+      mustClearEmptySpace = true;
+    }
+
+    if (mustClearEmptySpace) {
+      const startY = diff * this.settings.cellHeight;
+
+      this.renderCanvasCtx.save();
+
+      this.renderCanvasCtx.fillStyle = this.gridColors.backGroundContainerColor;
+      this.renderCanvasCtx.fillRect(
+        0,
+        startY,
+        this.renderCanvas.width,
+        this.renderCanvas.height - startY
+      );
+
+      this.renderCanvasCtx.restore();
+
+      console.log('Filled rect from', startY, 'to', this.renderCanvas.height);
+    }
+  }
+
   private renderGrid(): void {
     if (!this.isCanvasAvailable()) return;
 
@@ -442,7 +476,7 @@ export class BaseDrawRowHeaderService {
 
     const scrollOffsetY = -this.settings.cellHeight * verticalDiff;
 
-    // Draw shifted content back with correct scaling
+    // Draw shifted content back
     this.renderCanvasCtx!.drawImage(
       tempCanvas,
       0,
@@ -470,6 +504,8 @@ export class BaseDrawRowHeaderService {
         this.addCells(tmpRow, row);
       }
     }
+
+    this.drawEmptySpace();
 
     // Render the updated canvas to screen
     this.renderGrid();
