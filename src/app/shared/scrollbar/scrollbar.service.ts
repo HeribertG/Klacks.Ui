@@ -77,7 +77,7 @@ export class ScrollbarService {
     const invisibleWidth = width - res.thumbLength;
     res.invisibleTicks = maxLine - visibleLine;
     res.visibleTicks = visibleLine;
-    res.tickSize = Math.round(invisibleWidth / res.invisibleTicks);
+    res.tickSize = res.invisibleTicks > 0 ? invisibleWidth / res.invisibleTicks : 0;
 
     return res;
   }

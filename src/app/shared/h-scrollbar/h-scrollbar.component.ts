@@ -331,12 +331,18 @@ export class HScrollbarComponent
     tickSize: number,
     trackWidth: number
   ): number {
-    let tmpX = Math.round(value * tickSize);
-    if (tmpX + trackWidth > canvas.width) {
-      tmpX = Math.round(canvas.width - trackWidth);
+    // Calculate the maximum possible scroll value (without TICKS_OUTSIDE_RANGE)
+    const maxScrollValue = this.maxValue - this.visibleValue;
+    
+    // If we're at or beyond max scroll, place thumb at the end
+    if (value >= maxScrollValue) {
+      return Math.round(canvas.width - trackWidth);
     }
-
-    return tmpX;
+    
+    // For normal values, use proportional positioning
+    const proportion = value / maxScrollValue;
+    const availableSpace = canvas.width - trackWidth;
+    return Math.round(proportion * availableSpace);
   }
 
   /* #endregion Redraw */
