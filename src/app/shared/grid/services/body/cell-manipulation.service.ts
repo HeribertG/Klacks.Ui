@@ -28,11 +28,6 @@ export class BaseCellManipulationService {
   }
 
   isPositionInSelection(pos: MyPosition): boolean {
-    console.log(
-      'Check selection:',
-      this.Position,
-      this.PositionCollection.count()
-    );
     if (this.Position.isEqual(pos)) {
       return true;
     }

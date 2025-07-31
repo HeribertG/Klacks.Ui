@@ -229,37 +229,29 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   moveGrid(): void {
-    console.log('*** moveGrid called, scrollPos:', this.scroll.verticalScrollPosition, 'isScrolling:', this.isScrolling, 'isScrollingToFast:', this.isScrollingToFast);
-    
     if (this.isScrolling) {
       this.isScrollingToFast = true;
       return;
     }
 
     if (this.isScrollingToFast) {
-      console.log('*** Taking fast scrolling path - calling setSelection');
       this.redrawGrid();
       this.renderGrid();
       this.setSelection();
       this.isScrollingToFast = false;
     } else {
-      console.log('*** Taking normal scrolling path');
       const deltaX = this.scroll.horizontalScrollDelta;
       const deltaY = this.scroll.verticalScrollDelta;
-      console.log('*** Scroll deltas - X:', deltaX, 'Y:', deltaY, 'Current scroll position:', this.scroll.verticalScrollPosition);
       this.executeScroll(deltaX, deltaY);
     }
   }
 
   private executeScroll(directionX: number, directionY: number): void {
-    console.log('*** executeScroll called with directionX:', directionX, 'directionY:', directionY);
     this.isScrolling = true;
 
     if (this.isInRange(directionX) || this.isInRange(directionY)) {
-      console.log('*** executeScroll: taking moveCanvas path (small delta)');
       this.moveCanvas(directionX, directionY);
     } else {
-      console.log('*** executeScroll: taking drawGrid path (large delta) - adding setSelection!');
       this.gridRender.drawGrid(
         this.updateVisibleRow(),
         this.updateVisibleCol(),
@@ -287,7 +279,6 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   private moveCanvas(directionX: number, directionY: number) {
-    console.log('*** moveCanvas called with directionX:', directionX, 'directionY:', directionY, 'scrollPos:', this.scroll.verticalScrollPosition);
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
 
@@ -700,28 +691,16 @@ export class BaseDrawScheduleService {
   }
 
   private setSelection() {
-    console.log('*** setSelection called at scroll position:', this.scroll.verticalScrollPosition, {
-      hasPositionCollection: this.hasPositionCollection,
-      positionCollectionCount: this.cellManipulation.PositionCollection.count(),
-      position: this.position,
-      firstVisibleRow: this.firstVisibleRow,
-      firstVisibleCol: this.firstVisibleCol,
-      verticalScrollPosition: this.scroll.verticalScrollPosition,
-      scrollMismatch: this.firstVisibleRow !== this.scroll.verticalScrollPosition
-    });
-    
     if (
       this.hasPositionCollection &&
       this.cellManipulation.PositionCollection.count() > 1
     ) {
-      console.log('Drawing multi-selection');
       this.gridRender.drawSelection(
         this.cellManipulation.PositionCollection.getAll(),
         this.firstVisibleRow,
         this.firstVisibleCol
       );
     } else {
-      console.log('Drawing single selection for position:', this.position, 'with firstVisibleRow:', this.firstVisibleRow);
       this.gridRender.drawGridSelectedCell(
         this.position,
         this.isFocused,
