@@ -308,8 +308,8 @@ export class BaseDrawRowHeaderService {
 
           const logicalWidth = this.width;
 
-          // Get the correct height using the group index directly with row
-          const groupIndex = this.gridData.getGroupIndex(row);
+          const clientIndex = this.gridData.rowGroupIndex[row];
+          const groupIndex = this.gridData.getGroupIndex(clientIndex);
           if (!groupIndex) {
             return undefined;
           }
@@ -318,9 +318,6 @@ export class BaseDrawRowHeaderService {
             this.settings.getGroupLineHeight(neededRows);
 
           const yPosition = diffRow * this.settings.cellHeight;
-          console.log(
-            `ROW=${row}, position=${position}, diffRow=${diffRow}, yPosition=${yPosition}, firstRow=${result.firstRow}`
-          );
 
           this.renderCanvasCtx!.drawImage(
             result.img,
