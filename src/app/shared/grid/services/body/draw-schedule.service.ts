@@ -425,7 +425,6 @@ export class BaseDrawScheduleService {
     );
   }
 
-
   private addCell(row: number, col: number): void {
     const ctx = this.canvasManager.renderCanvasCtx;
     if (!ctx) return;
@@ -587,7 +586,7 @@ export class BaseDrawScheduleService {
   }
 
   destroySelection() {
-    this.cellManipulation.PositionCollection.clear();
+    // this.cellManipulation.PositionCollection.clear();
     this.renderGrid();
   }
 

@@ -52,15 +52,14 @@ export class BaseCreateRowHeaderService {
     const cell = new GridRowHeader();
     this.calculateRowProperties(cell, row);
 
-    const client = this.gridData.getGroupIndex(
-      this.gridData.rowGroupIndex[row]
-    ) as ClientWork;
+    const clientIndex = this.gridData.rowGroupIndex[row];
+    const client = this.gridData.getGroupIndex(clientIndex) as ClientWork;
 
     if (client === undefined) {
       return undefined;
     }
 
-    this.drawCell(cell, width, client, row);
+    this.drawCell(cell, width, client, clientIndex);
     return cell;
   }
 
@@ -254,7 +253,7 @@ export class BaseCreateRowHeaderService {
     client: ClientWork,
     width: number,
     height: number,
-    rowIndex: number
+    clientIndex: number
   ) {
     const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;
 
@@ -273,14 +272,14 @@ export class BaseCreateRowHeaderService {
 
     const addHoursRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth,
+      this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2,
       width,
       this.settings.cellHeaderHeight * 3 + this.settings.borderWidth
     );
 
     const emptyRect = new Rectangle(
       widthWithoutInfoSpot,
-      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth,
+      this.settings.cellHeaderHeight * 3 + this.settings.borderWidth * 3,
       width,
       height
     );
@@ -290,21 +289,21 @@ export class BaseCreateRowHeaderService {
 
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo1(rowIndex),
+      this.gridData.getInfo1(clientIndex),
       scheduledHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo2(rowIndex),
+      this.gridData.getInfo2(clientIndex),
       workedHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo3(rowIndex),
+      this.gridData.getInfo3(clientIndex),
       addHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
@@ -376,12 +375,11 @@ export class BaseCreateRowHeaderService {
     cell: GridRowHeader,
     width: number,
     client: ClientWork,
-    row: number
+    clientIndex: number
   ): void {
     const tempCanvas = document.createElement('canvas');
     const neededRows = client.neededRows;
-    const height =
-      this.settings.cellHeight * neededRows + this.settings.increaseBorder;
+    const height = this.settings.getGroupLineHeight(neededRows);
 
     if (tempCanvas) {
       const ctx = DrawHelper.createHiDPICanvas(tempCanvas, width, height, true);
@@ -411,7 +409,7 @@ export class BaseCreateRowHeaderService {
           client,
           width - this.settings.increaseBorder,
           height,
-          row
+          clientIndex
         );
 
         //const widthWithoutInfoSpot = width - this.settings.InfoSpotWidth;

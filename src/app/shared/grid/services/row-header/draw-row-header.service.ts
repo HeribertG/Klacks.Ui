@@ -314,7 +314,7 @@ export class BaseDrawRowHeaderService {
             return undefined;
           }
           const neededRows: number = groupIndex.neededRows;
-          const logicalHeight: number = this.settings.cellHeight * neededRows;
+          const groupLineHeight: number = this.settings.getGroupLineHeight(neededRows);
 
           const yPosition = diffRow * this.settings.cellHeight;
 
@@ -327,7 +327,7 @@ export class BaseDrawRowHeaderService {
             0,
             yPosition,
             logicalWidth,
-            logicalHeight
+            groupLineHeight
           );
 
           return result.lastRow;

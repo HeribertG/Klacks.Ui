@@ -17,7 +17,7 @@ export class BaseSettingsService {
   cellHeaderHeight = 30 * this._zoom;
   increaseBorder = 0.5;
   borderWidth = 1;
-  boundaryBorderWidth = 2 * this._zoom; // the boundary line within the table
+  boundaryBorderWidth = 2 * this._zoom;
   anchorWidth = 10 * this._zoom;
   rowHeaderIconWith = 20 * this._zoom;
   rowHeaderIconHeight = 20 * this._zoom;
@@ -37,7 +37,6 @@ export class BaseSettingsService {
     this.cellHeaderHeight = 30 * this._zoom;
     this.boundaryBorderWidth = 2 * this._zoom;
 
-    // to increase the visibility of the boundary line within the table
     if (this.boundaryBorderWidth < 2) {
       this.boundaryBorderWidth = 2;
     }
@@ -47,5 +46,9 @@ export class BaseSettingsService {
     this.rowHeaderIconHeight = 20 * this._zoom;
 
     this.zoomSignal.set(value);
+  }
+
+  getGroupLineHeight(neededRows: number): number {
+    return this.cellHeight * neededRows + this.increaseBorder;
   }
 }
