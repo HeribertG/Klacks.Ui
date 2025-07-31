@@ -14,20 +14,25 @@ export class BaseCellManipulationService {
   protected gridData = inject(BaseDataService);
 
   public PositionCollection = new MyPositionCollection();
-  
+
   private _position: MyPosition = new MyPosition(-1, -1);
   public positionSignal = signal<MyPosition>(this._position);
-  
+
   public get Position(): MyPosition {
     return this._position;
   }
-  
+
   public set Position(value: MyPosition) {
     this._position = value;
     this.positionSignal.set(value);
   }
 
   isPositionInSelection(pos: MyPosition): boolean {
+    console.log(
+      'Check selection:',
+      this.Position,
+      this.PositionCollection.count()
+    );
     if (this.Position.isEqual(pos)) {
       return true;
     }

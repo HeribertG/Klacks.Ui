@@ -218,7 +218,7 @@ export class BaseDrawRowHeaderService {
       }
     }
 
-    // this.drawRowHeaderSelection();
+    this.drawRowHeaderSelection(); // Now safe - drawRowHeaderSelection only calls renderGrid(), not refreshGrid()
   }
 
   crateGridHeader(): void {
@@ -307,16 +307,20 @@ export class BaseDrawRowHeaderService {
           const diffRow: number = position + (result.firstRow - row);
 
           const logicalWidth = this.width;
-          
+
           // Get the correct height using the group index directly with row
           const groupIndex = this.gridData.getGroupIndex(row);
           if (!groupIndex) {
             return undefined;
           }
           const neededRows: number = groupIndex.neededRows;
-          const groupLineHeight: number = this.settings.getGroupLineHeight(neededRows);
+          const groupLineHeight: number =
+            this.settings.getGroupLineHeight(neededRows);
 
           const yPosition = diffRow * this.settings.cellHeight;
+          console.log(
+            `ROW=${row}, position=${position}, diffRow=${diffRow}, yPosition=${yPosition}, firstRow=${result.firstRow}`
+          );
 
           this.renderCanvasCtx!.drawImage(
             result.img,
@@ -344,28 +348,28 @@ export class BaseDrawRowHeaderService {
     }
     const width = Math.floor(this.canvas!.clientWidth);
     const tmpPos = this.cellManipulation.Position;
-    
+
     // Add bounds checking
     if (tmpPos.row >= this.gridData.rows || tmpPos.row < 0) {
       return;
     }
-    
+
     const index: number = this.gridData.rowGroupIndex[tmpPos.row];
     if (index === undefined || index < 0) {
       return;
     }
-    
+
     const firstRow: number = this.gridData.indexGroupRow[index];
     const groupIndex = this.gridData.getGroupIndex(index);
     if (!groupIndex) {
       return;
     }
-    
+
     let neededRows: number = groupIndex.neededRows;
     if (redraw && firstRow === this.lastSelection) {
       return;
     }
-    this.refreshGrid();
+    this.renderGrid();
     this.lastSelection = firstRow;
     this.ctx!.save();
     let correction = 0;
@@ -397,7 +401,6 @@ export class BaseDrawRowHeaderService {
     const verticalPos = this.scroll.verticalScrollPosition;
     const verticalDiff = verticalPos - this.lastVerticalScrollPosition;
     this.lastVerticalScrollPosition = verticalPos;
-
 
     // If no delta change, just refresh normally
     if (verticalDiff === 0) {

@@ -67,7 +67,6 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   public redraw() {
-    this.destroySelection();
     this.redrawGrid();
     this.renderGrid();
     this.setSelection();
@@ -277,7 +276,6 @@ export class BaseDrawScheduleService {
   }
 
   @CanvasAvailable('queue')
-  @CanvasAvailable('queue')
   private moveCanvas(directionX: number, directionY: number) {
     const visibleRow: number = this.updateVisibleRow();
     const visibleCol: number = this.updateVisibleCol();
@@ -291,6 +289,7 @@ export class BaseDrawScheduleService {
     }
 
     this.renderGrid();
+    this.setSelection();
   }
 
   private handleHorizontalScroll(visibleRow: number, visibleCol: number): void {
@@ -586,7 +585,7 @@ export class BaseDrawScheduleService {
   }
 
   destroySelection() {
-    // this.cellManipulation.PositionCollection.clear();
+    this.cellManipulation.PositionCollection.clear();
     this.renderGrid();
   }
 
