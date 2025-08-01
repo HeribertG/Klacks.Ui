@@ -34,6 +34,7 @@ export class GridColorService {
   backGroundContainerColor = '#424949';
   toolTipBackGroundColor = '#ffffcc';
   scrollTrack = '#A9A9A9';
+  backGroundSealedColor = '#424949';
 
   private settingListDummy: ISetting[] = [];
 

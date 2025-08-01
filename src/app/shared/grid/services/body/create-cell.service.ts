@@ -18,7 +18,7 @@ export class BaseCreateCellService {
   protected gridColors = inject(GridColorService);
   protected gridFonts = inject(GridFontsService);
 
-  private emptyCellList: HTMLCanvasElement[] = new Array(10);
+  private emptyCellList: HTMLCanvasElement[] = new Array(20);
   private readonly lastLine = 5;
   private readonly margin = 2;
 
@@ -36,10 +36,33 @@ export class BaseCreateCellService {
         day as WeekDaysEnum,
         width,
         height,
+        false,
         false
       );
       this.emptyCellList[(day as WeekDaysEnum) + this.lastLine] =
-        this.createAndConfigureCanvas(day as WeekDaysEnum, width, height, true);
+        this.createAndConfigureCanvas(
+          day as WeekDaysEnum,
+          width,
+          height,
+          true,
+          false
+        );
+      this.emptyCellList[(day as WeekDaysEnum) + 10] =
+        this.createAndConfigureCanvas(
+          day as WeekDaysEnum,
+          width,
+          height,
+          false,
+          true
+        );
+      this.emptyCellList[(day as WeekDaysEnum) + 10 + this.lastLine] =
+        this.createAndConfigureCanvas(
+          day as WeekDaysEnum,
+          width,
+          height,
+          true,
+          true
+        );
     });
   }
 
@@ -47,27 +70,45 @@ export class BaseCreateCellService {
     day: WeekDaysEnum,
     width: number,
     height: number,
-    isLast: boolean
+    isLast: boolean,
+    isOverlay: boolean = false
   ): HTMLCanvasElement {
-    const backGroundColor = this.getBackgroundColorForDay(day);
+    const backGroundColor = this.getBackgroundColorForDay(day, isOverlay);
     return this.createEmptyCanvas(backGroundColor, width, height, isLast);
   }
 
-  private getBackgroundColorForDay(day: WeekDaysEnum): string {
+  private getBackgroundColorForDay(
+    day: WeekDaysEnum,
+    isOverlay: boolean = false
+  ): string {
+    let baseColor: string;
+
     switch (day) {
       case WeekDaysEnum.Workday:
-        return this.gridColors.backGroundColor;
+        baseColor = this.gridColors.backGroundColor;
+        break;
       case WeekDaysEnum.Saturday:
-        return this.gridColors.backGroundColorSaturday;
+        baseColor = this.gridColors.backGroundColorSaturday;
+        break;
       case WeekDaysEnum.Sunday:
-        return this.gridColors.backGroundColorSunday;
+        baseColor = this.gridColors.backGroundColorSunday;
+        break;
       case WeekDaysEnum.Holiday:
-        return this.gridColors.backGroundColorHolyday;
+        baseColor = this.gridColors.backGroundColorHolyday;
+        break;
       case WeekDaysEnum.OfficiallyHoliday:
-        return this.gridColors.backGroundColorOfficiallyHoliday;
+        baseColor = this.gridColors.backGroundColorOfficiallyHoliday;
+        break;
       default:
-        return this.gridColors.backGroundColor;
+        baseColor = this.gridColors.backGroundColor;
+        break;
     }
+
+    if (isOverlay) {
+      return DrawHelper.GetDarkColor(baseColor, 25);
+    }
+
+    return baseColor;
   }
 
   private createEmptyCanvas(
@@ -128,8 +169,9 @@ export class BaseCreateCellService {
 
     const gridCell: GridCell = this.gridData.getCell(row, col);
     const weekDay = this.gridData.getWeekday(col);
+    const isOverlay = this.gridData.isOverlayDay(col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const canvas = this.getCellCanvas(weekDay, lastRowFlag);
+    const canvas = this.getCellCanvas(weekDay, lastRowFlag, isOverlay);
 
     this.drawImage(ctx, canvas);
     this.drawCellTexts(ctx, gridCell);
@@ -148,11 +190,16 @@ export class BaseCreateCellService {
     return tempCanvas;
   }
 
-  getCellCanvas(weekDay: number, lastRow: number): HTMLCanvasElement {
-    let img = this.emptyCellList[weekDay + lastRow];
+  getCellCanvas(
+    weekDay: number,
+    lastRow: number,
+    isOverlay: boolean = false
+  ): HTMLCanvasElement {
+    const overlayOffset = isOverlay ? 10 : 0;
+    let img = this.emptyCellList[weekDay + lastRow + overlayOffset];
     if (img === undefined) {
       this.init();
-      img = this.emptyCellList[weekDay + lastRow];
+      img = this.emptyCellList[weekDay + lastRow + overlayOffset];
     }
     return img;
   }
