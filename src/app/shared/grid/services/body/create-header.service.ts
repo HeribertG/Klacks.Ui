@@ -5,6 +5,7 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import {
   BaselineAlignmentEnum,
+  HeaderCellTypeEnum,
   TextAlignmentEnum,
 } from 'src/app/shared/grid/enums/cell-settings.enum';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
@@ -87,12 +88,44 @@ export class BaseCreateHeaderService {
 
         this.fillHeaderBackground(ctx, this.settings.cellWidth);
         this.drawBorder(ctx, this.settings.headerBorderWidth, 2);
-        this.drawText(ctx, this.getTitle(col));
+        const color = this.chooseFontColor(col);
+        this.drawText(ctx, this.getTitle(col), color);
+        this.drawSymbol(ctx, col, this.settings.cellWidth);
 
         return tempCanvas;
       }
     }
     return undefined;
+  }
+  private chooseFontColor(column: number): string {
+    const status = this.gridData.columnStatus(column);
+    if (status === HeaderCellTypeEnum.Warning) {
+      return this.gridColors.warningColor;
+    }
+    return this.gridColors.headerForeGroundColor;
+  }
+
+  private drawSymbol(
+    ctx: CanvasRenderingContext2D,
+    column: number,
+    width: number
+  ) {
+    const status = this.gridData.columnStatus(column);
+    if (status === HeaderCellTypeEnum.Default) {
+      DrawHelper.drawText(
+        ctx,
+        '\u{1F512}',
+        0,
+        0,
+        width,
+        this.settings.cellHeaderHeight,
+        this.gridFonts.headerFontStringZoom,
+        this.gridFonts.headerFontHeightZoom,
+        this.gridColors.headerForeGroundColor,
+        TextAlignmentEnum.Right,
+        BaselineAlignmentEnum.Center
+      );
+    }
   }
 
   getTitle(column: number): string {
@@ -105,7 +138,11 @@ export class BaseCreateHeaderService {
     return '';
   }
 
-  public drawText(ctx: CanvasRenderingContext2D, text: string): void {
+  public drawText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    color: string = this.gridColors.headerForeGroundColor
+  ): void {
     DrawHelper.drawText(
       ctx,
       text,
@@ -115,7 +152,7 @@ export class BaseCreateHeaderService {
       this.settings.cellHeaderHeight,
       this.gridFonts.headerFontStringZoom,
       this.gridFonts.headerFontHeightZoom,
-      this.gridColors.headerForeGroundColor,
+      color,
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
@@ -131,22 +168,22 @@ export class BaseCreateHeaderService {
     );
   }
 
-  createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
-    ctx.fillStyle = this.gridColors.controlBackGroundColor;
+  // createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
+  //   ctx.fillStyle = this.gridColors.controlBackGroundColor;
 
-    this.fillHeaderBackground(ctx, width);
+  //   this.fillHeaderBackground(ctx, width);
 
-    this.drawBorder(ctx, this.settings.headerBorderWidth, width);
+  //   this.drawBorder(ctx, this.settings.headerBorderWidth, width);
 
-    this.drawTitle(
-      ctx,
-      this.translateService.instant('schedule.row-header.headline') +
-        ' (' +
-        this.gridData.indexes.toString() +
-        ')',
-      width
-    );
-  }
+  //   this.drawTitle(
+  //     ctx,
+  //     this.translateService.instant('schedule.row-header.headline') +
+  //       ' (' +
+  //       this.gridData.indexes.toString() +
+  //       ')',
+  //     width
+  //   );
+  // }
 
   private drawTitle(
     ctx: CanvasRenderingContext2D,

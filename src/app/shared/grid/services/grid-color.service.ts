@@ -12,6 +12,8 @@ export class GridColorService {
 
   settingList: ISetting[] = [];
 
+  warningColor = 'red';
+  successColor = 'green';
   backGroundColor = '#f2eded';
   backGroundColorSaturday = '#F5F5DC';
   backGroundColorHolyday = '#82E0AA'; // green

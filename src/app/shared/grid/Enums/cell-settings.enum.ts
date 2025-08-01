@@ -9,25 +9,42 @@ export enum ImageAlignmentEnum {
   RightCenter,
   RightBottom,
   LeftFirstTextLine,
-  RightFirstTextLine
+  RightFirstTextLine,
 }
 
 export enum ImagePlaceEnum {
   Fit,
   OverText,
-  UnderText
+  UnderText,
 }
 
-export enum TextAlignmentEnum { Left, Right, Center, Justify }
+export enum TextAlignmentEnum {
+  Left,
+  Right,
+  Center,
+  Justify,
+}
 
-export enum BaselineAlignmentEnum { Top, Bottom, Center }
+export enum BaselineAlignmentEnum {
+  Top,
+  Bottom,
+  Center,
+}
 
-export enum CellTypeEnum { Empty, Standard }
+export enum CellTypeEnum {
+  Empty,
+  Standard,
+}
 
-export enum EmptyCellBackgroundEnum { default, Saturday, Sunday, Holiday, Invalid }
+export enum EmptyCellBackgroundEnum {
+  Default,
+  Saturday,
+  Sunday,
+  Holiday,
+  Invalid,
+}
 
 export enum MenuIDEnum {
-
   emCut = -1,
 
   emCopy = -2,
@@ -103,3 +120,8 @@ export enum MenuIDEnum {
   emMonthlyUnscheduling = -3000,
 }
 
+export enum HeaderCellTypeEnum {
+  Default,
+  Warning,
+  Sealed,
+}

@@ -6,6 +6,7 @@ import { GridCell } from '../../classes/grid-cell';
 import { HolidayDate } from 'src/app/core/calendar-rule-class';
 import { WeekDaysEnum } from '../../enums/divers';
 import { HolidayCollectionService } from '../holiday-collection.service';
+import { HeaderCellTypeEnum } from '../../enums/cell-settings.enum';
 
 @Injectable()
 export abstract class BaseDataService {
@@ -32,4 +33,5 @@ export abstract class BaseDataService {
   abstract getInfo1(index: number): string;
   abstract getInfo2(index: number): string;
   abstract getInfo3(index: number): string;
+  abstract columnStatus(column: number): HeaderCellTypeEnum;
 }

@@ -8,7 +8,10 @@ import {
   getDaysInMonth,
 } from 'src/app/helpers/format-helper';
 import { GridCell } from 'src/app/shared/grid/classes/grid-cell';
-import { CellTypeEnum } from 'src/app/shared/grid/enums/cell-settings.enum';
+import {
+  CellTypeEnum,
+  HeaderCellTypeEnum,
+} from 'src/app/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
@@ -86,6 +89,10 @@ export class ScheduleDataService extends BaseDataService {
 
   public override getItemMainText(row: number, col: number): string {
     return 'Zelle ' + (row * this.columns + col).toString();
+  }
+
+  public override columnStatus(column: number): HeaderCellTypeEnum {
+    return HeaderCellTypeEnum.Default;
   }
 
   private initializeGroupIndices(): void {
