@@ -23,7 +23,12 @@
         >
         </app-schedule-surface-template>
 
-        <app-v-scrollbar class="vScrollAreaShift" #vScrollbarShift>
+        <app-v-scrollbar 
+          class="vScrollAreaShift"
+          [(value)]="vScrollbarShift.value"
+          [maxValue]="vScrollbarShift.maxValue"
+          [visibleValue]="vScrollbarShift.visibleValue"
+        >
         </app-v-scrollbar>
       </div>
     </div>

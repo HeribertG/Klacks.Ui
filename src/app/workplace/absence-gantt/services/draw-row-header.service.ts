@@ -23,7 +23,6 @@ export class DrawRowHeaderService {
 
   constructor(
     public scroll: ScrollService,
-    private zone: NgZone,
     public gridColorService: GridColorService,
     public gridFontsService: GridFontsService,
     public calendarSetting: CalendarSettingService,

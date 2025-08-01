@@ -18,7 +18,6 @@ export class RenderRowHeaderCellService {
     x: number,
     y: number
   ): void {
-    //ctx.drawImage(sourceCanvas, x, y);
     DrawImageHelper.drawCanvasLogical(ctx, sourceCanvas, x, y);
   }
 

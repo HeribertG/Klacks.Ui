@@ -79,6 +79,7 @@ export class ShiftSectionComponent
   @Input() refreshTrigger = false;
 
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
+  public vScrollbarShift = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
 
   private defaultVScrollbarSize = 17;
@@ -106,11 +107,11 @@ export class ShiftSectionComponent
 
   private updateScrollbarSizes() {
     const hostElement = document.querySelector(
-      'app-schedule-section'
+      'app-shift-section'
     ) as HTMLElement;
     if (hostElement) {
       hostElement.style.setProperty(
-        '--v-shift-scrollbar-size',
+        '--v-scrollbar-size',
         `${this.vScrollbarSize}px`
       );
     }
