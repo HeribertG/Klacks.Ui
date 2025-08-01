@@ -13,9 +13,9 @@ import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d
 import { ClientWork } from 'src/app/core/schedule-class';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
-import { GridRowHeader } from '../classes/grid-row-header';
-import { BaseDataService } from '../../../shared/grid/services/data-setting/data.service';
-import { BaseSettingsService } from '../../../shared/grid/services/data-setting/settings.service';
+import { GridRowHeader } from '../../classes/grid-row-header';
+import { BaseDataService } from '../../../../shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()

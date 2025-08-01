@@ -21,8 +21,8 @@ import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.comp
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/services/create-row-header.service';
-import { BaseDrawRowHeaderService } from 'src/app/workplace/schedule/services/draw-row-header.service';
+import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/schedule-section/services/create-row-header.service';
+import { BaseDrawRowHeaderService } from 'src/app/workplace/schedule/schedule-section/services/draw-row-header.service';
 import { BaseGridRenderService } from 'src/app/shared/grid/services/body/grid-render.service';
 import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
 import { BaseCanvasManagerService } from 'src/app/shared/grid/services/body/canvas-manager.service';
@@ -96,7 +96,7 @@ export class ScheduleSectionComponent
     if (changes['zoom'] && !changes['zoom'].firstChange) {
       this.settings.zoom = this.zoom;
     }
-    
+
     if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
       this.scheduleSurface.Refresh();
     }
@@ -170,7 +170,6 @@ export class ScheduleSectionComponent
         this.updateScrollbarSizes();
       });
       this.effects.push(hScrollbarSizeEffect);
-
     });
   }
 }

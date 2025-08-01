@@ -4,12 +4,12 @@ import { GridColorService } from 'src/app/shared/grid/services/grid-color.servic
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { ScheduleScheduleRowHeaderComponent } from '../schedule-section/schedule-schedule-row-header/schedule-schedule-row-header.component';
+import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { BaseCreateRowHeaderService } from './create-row-header.service';
-import { BaseDataService } from '../../../shared/grid/services/data-setting/data.service';
-import { BaseSettingsService } from '../../../shared/grid/services/data-setting/settings.service';
-import { BaseCreateHeaderService } from '../../../shared/grid/services/body/create-header.service';
-import { BaseCellManipulationService } from '../../../shared/grid/services/body/cell-manipulation.service';
+import { BaseDataService } from '../../../../shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
+import { BaseCreateHeaderService } from '../../../../shared/grid/services/body/create-header.service';
+import { BaseCellManipulationService } from '../../../../shared/grid/services/body/cell-manipulation.service';
 
 @Injectable()
 export class BaseDrawRowHeaderService {

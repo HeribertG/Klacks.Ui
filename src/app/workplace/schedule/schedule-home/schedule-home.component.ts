@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, OnDestroy, effect, Injector, runInInjectionContext, EffectRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  OnDestroy,
+  effect,
+  Injector,
+  runInInjectionContext,
+  EffectRef,
+} from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
@@ -8,7 +17,7 @@ import { ScrollbarService } from 'src/app/shared/scrollbar/scrollbar.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
-import { ScheduleDataService } from '../services/schedule-data.service';
+import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
@@ -32,34 +41,36 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
 })
 export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private footerService = inject(FooterService);
-  private layoutService = inject(LayoutService);  
+  private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
   private holidayCollection = inject(HolidayCollectionService);
-  private dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
+  private dataManagementCalendarSelectionService = inject(
+    DataManagementCalendarSelectionService
+  );
   private injector = inject(Injector);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
-  
+
   private effects: EffectRef[] = [];
 
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
     this.searchService.setSearchVisibility(true);
-    
+
     this.workplaceStateService.setActiveManagerByRoute('schedule');
     this.layoutService.setContainerToFullSize();
 
     this.holidayCollection.readData();
-    
+
     setTimeout(() => {
       const chips = this.dataManagementCalendarSelectionService.chips;
       if (chips && chips.length > 0) {
         this.holidayCollection.setSelection(chips);
       }
     }, 300);
-    
+
     this.setupEffects();
   }
 

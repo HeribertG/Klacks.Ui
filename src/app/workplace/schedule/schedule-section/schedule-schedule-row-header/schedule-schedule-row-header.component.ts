@@ -19,8 +19,8 @@ import { CommonModule } from '@angular/common';
 import { ResizeDirective } from 'src/app/directives/resize.directive';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
-import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/services/create-row-header.service';
-import { BaseDrawRowHeaderService } from 'src/app/workplace/schedule/services/draw-row-header.service';
+import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/schedule-section/services/create-row-header.service';
+import { BaseDrawRowHeaderService } from 'src/app/workplace/schedule/schedule-section/services/draw-row-header.service';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 
