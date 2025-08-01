@@ -13,9 +13,10 @@ import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d
 import { ClientWork } from 'src/app/core/schedule-class';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
-import { GridRowHeader } from '../../../../workplace/schedule/classes/grid-row-header';
-import { BaseDataService } from '../data-setting/data.service';
-import { BaseSettingsService } from '../data-setting/settings.service';
+import { GridRowHeader } from '../classes/grid-row-header';
+import { BaseDataService } from '../../../shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from '../../../shared/grid/services/data-setting/settings.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class BaseCreateRowHeaderService {
@@ -24,6 +25,7 @@ export class BaseCreateRowHeaderService {
   private rowIcons = inject(RowHeaderIconsService);
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
+  private translateService = inject(TranslateService);
 
   private backgroundCollection = new Map<string, HTMLCanvasElement>();
   private oldWidth = 0;
@@ -61,6 +63,35 @@ export class BaseCreateRowHeaderService {
 
     this.drawCell(cell, width, client, clientIndex);
     return cell;
+  }
+
+  createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
+    ctx.fillStyle = this.gridColors.controlBackGroundColor;
+
+    this.fillHeaderBackground(ctx, width);
+
+    this.drawBorder(ctx, this.settings.headerBorderWidth, width);
+
+    this.drawTitle(
+      ctx,
+      this.translateService.instant('schedule.row-header.headline') +
+        ' (' +
+        this.gridData.indexes.toString() +
+        ')',
+      width,
+      this.settings.cellHeaderHeight
+    );
+  }
+
+  private fillHeaderBackground(
+    ctx: CanvasRenderingContext2D,
+    width: number
+  ): void {
+    DrawHelper.fillRectangle(
+      ctx,
+      this.gridColors.controlBackGroundColor,
+      new Rectangle(0, 0, width, this.settings.cellHeaderHeight)
+    );
   }
 
   private drawIcon(

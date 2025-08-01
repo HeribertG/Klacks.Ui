@@ -163,37 +163,6 @@ export class BaseGridRenderService {
     this.canvasManager.headerCtx!.stroke();
   }
 
-  private drawSingleHeaderCell(
-    col: number,
-    headerCtx: CanvasRenderingContext2D
-  ): void {
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = DrawHelper.createHiDPICanvas(
-      tempCanvas,
-      this.settings.cellWidth,
-      this.settings.cellHeaderHeight,
-      true
-    );
-
-    if (tempCtx) {
-      DrawHelper.setAntiAliasing(tempCtx);
-
-      this.createHeader.createRowHeaderHeader(tempCtx, this.settings.cellWidth);
-
-      const title = this.createHeader.getTitle(col);
-      this.createHeader.drawText(tempCtx, title);
-
-      const x = col * this.settings.cellWidth;
-      headerCtx.drawImage(
-        tempCanvas,
-        x,
-        0,
-        this.settings.cellWidth,
-        this.settings.cellHeaderHeight
-      );
-    }
-  }
-
   public drawGridSelectedCell(
     position: MyPosition,
     isFocused: boolean,

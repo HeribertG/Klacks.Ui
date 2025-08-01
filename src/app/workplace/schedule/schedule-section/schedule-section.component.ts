@@ -21,8 +21,8 @@ import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.comp
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
-import { BaseCreateRowHeaderService } from 'src/app/shared/grid/services/row-header/create-row-header.service';
-import { BaseDrawRowHeaderService } from 'src/app/shared/grid/services/row-header/draw-row-header.service';
+import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/services/create-row-header.service';
+import { BaseDrawRowHeaderService } from 'src/app/workplace/schedule/services/draw-row-header.service';
 import { BaseGridRenderService } from 'src/app/shared/grid/services/body/grid-render.service';
 import { BaseDrawScheduleService } from 'src/app/shared/grid/services/body/draw-schedule.service';
 import { BaseCanvasManagerService } from 'src/app/shared/grid/services/body/canvas-manager.service';
