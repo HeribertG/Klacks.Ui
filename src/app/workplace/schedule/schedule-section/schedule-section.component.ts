@@ -71,6 +71,7 @@ export class ScheduleSectionComponent
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
+  @Input() hScrollbarValue = 0;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
   @Output() valueHScrollbarChange = new EventEmitter<number>();
@@ -99,6 +100,10 @@ export class ScheduleSectionComponent
 
     if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
       this.scheduleSurface.Refresh();
+    }
+
+    if (changes['hScrollbarValue']) {
+      this.hScrollbar.value = this.hScrollbarValue;
     }
   }
 
@@ -153,6 +158,15 @@ export class ScheduleSectionComponent
       const dataReadEffect = effect(() => {
         if (this.dataManagement.isRead()) {
           this.scheduleSurface.Refresh();
+
+          const dayVisibleBeforeMonth =
+            this.dataManagement.workFilter.dayVisibleBeforeMonth;
+
+          setTimeout(() => {
+            this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
+            this.hScrollbar.value = dayVisibleBeforeMonth;
+            this.valueHScrollbarChange.emit(dayVisibleBeforeMonth);
+          }, 500);
         }
       });
       this.effects.push(dataReadEffect);

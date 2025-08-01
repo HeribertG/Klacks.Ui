@@ -23,6 +23,7 @@ export class ScheduleContainerComponent {
   public hScrollbarMaxValue = 0;
   public hScrollbarValue = 0;
   public IsInfoVisible = false;
+
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
   }
