@@ -7,8 +7,8 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { BaseDataService } from 'src/app/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/shared/grid/services/data-setting/settings.service';
 import { BaseCanvasManagerService } from './canvas-manager.service';
-import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCreateCellService } from './create-cell.service';
+import { BaseCreateHeaderService } from './create-header.service';
 
 @Injectable({
   providedIn: 'root',
@@ -91,7 +91,7 @@ export class BaseGridRenderService {
       this.scroll.horizontalScrollPosition * this.settings.cellWidth * -1;
     const logicalWidth = Math.round(headerCanvas.width / pixelRatio);
     const logicalHeight = Math.round(headerCanvas.height / pixelRatio);
-    
+
     if (headerCanvas.width > 0 && headerCanvas.height > 0) {
       ctx.drawImage(
         headerCanvas,
@@ -121,11 +121,14 @@ export class BaseGridRenderService {
 
     // Resize header canvas if needed
     const expectedWidth = columns * this.settings.cellWidth;
-    const expectedHeight = this.settings.cellHeaderHeight + this.settings.increaseBorder;
+    const expectedHeight =
+      this.settings.cellHeaderHeight + this.settings.increaseBorder;
     const pixelRatio = DrawHelper.pixelRatio();
-    
-    if (headerCanvas.width !== expectedWidth * pixelRatio || 
-        headerCanvas.height !== expectedHeight * pixelRatio) {
+
+    if (
+      headerCanvas.width !== expectedWidth * pixelRatio ||
+      headerCanvas.height !== expectedHeight * pixelRatio
+    ) {
       this.canvasManager.headerCtx = DrawHelper.createHiDPICanvas(
         headerCanvas,
         expectedWidth,
@@ -147,13 +150,16 @@ export class BaseGridRenderService {
         );
       }
     }
-    
+
     // Draw a dark bottom border line
     this.canvasManager.headerCtx!.strokeStyle = this.gridColors.borderColor;
     this.canvasManager.headerCtx!.lineWidth = 1;
     this.canvasManager.headerCtx!.beginPath();
     this.canvasManager.headerCtx!.moveTo(0, this.settings.cellHeaderHeight - 1);
-    this.canvasManager.headerCtx!.lineTo(expectedWidth, this.settings.cellHeaderHeight - 1);
+    this.canvasManager.headerCtx!.lineTo(
+      expectedWidth,
+      this.settings.cellHeaderHeight - 1
+    );
     this.canvasManager.headerCtx!.stroke();
   }
 

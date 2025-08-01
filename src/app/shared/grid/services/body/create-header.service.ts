@@ -168,22 +168,22 @@ export class BaseCreateHeaderService {
     );
   }
 
-  // createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
-  //   ctx.fillStyle = this.gridColors.controlBackGroundColor;
+  createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
+    ctx.fillStyle = this.gridColors.controlBackGroundColor;
 
-  //   this.fillHeaderBackground(ctx, width);
+    this.fillHeaderBackground(ctx, width);
 
-  //   this.drawBorder(ctx, this.settings.headerBorderWidth, width);
+    this.drawBorder(ctx, this.settings.headerBorderWidth, width);
 
-  //   this.drawTitle(
-  //     ctx,
-  //     this.translateService.instant('schedule.row-header.headline') +
-  //       ' (' +
-  //       this.gridData.indexes.toString() +
-  //       ')',
-  //     width
-  //   );
-  // }
+    this.drawTitle(
+      ctx,
+      this.translateService.instant('schedule.row-header.headline') +
+        ' (' +
+        this.gridData.indexes.toString() +
+        ')',
+      width
+    );
+  }
 
   private drawTitle(
     ctx: CanvasRenderingContext2D,
