@@ -17,16 +17,12 @@ import { ShiftSectionComponent } from '../shift-section/shift-section.component'
   styleUrls: ['./schedule-container.component.scss'],
 })
 export class ScheduleContainerComponent {
-  // @Input() properties
   @Input() zoom = 1.0;
-
-  // Public properties (used in templates)
+  @Input() refreshTrigger = false;
   public horizontalSize = 205;
   public hScrollbarMaxValue = 0;
   public hScrollbarValue = 0;
   public IsInfoVisible = false;
-
-  // Public methods
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
   }

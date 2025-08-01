@@ -129,9 +129,9 @@ export class BaseCreateCellService {
     const gridCell: GridCell = this.gridData.getCell(row, col);
     const weekDay = this.gridData.getWeekday(col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const img = this.getCellImage(weekDay, lastRowFlag);
+    const canvas = this.getCellCanvas(weekDay, lastRowFlag);
 
-    this.drawImage(ctx, img);
+    this.drawImage(ctx, canvas);
     this.drawCellTexts(ctx, gridCell);
 
     return tempCanvas;
@@ -148,7 +148,7 @@ export class BaseCreateCellService {
     return tempCanvas;
   }
 
-  getCellImage(weekDay: number, lastRow: number): HTMLCanvasElement {
+  getCellCanvas(weekDay: number, lastRow: number): HTMLCanvasElement {
     let img = this.emptyCellList[weekDay + lastRow];
     if (img === undefined) {
       this.init();

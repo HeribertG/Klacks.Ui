@@ -76,6 +76,7 @@ export class ShiftSectionComponent
   @Input() hScrollbarValue!: number;
   @Input() hScrollbarMaxValue!: number;
   @Input() zoom = 1.0;
+  @Input() refreshTrigger = false;
 
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
@@ -91,6 +92,10 @@ export class ShiftSectionComponent
   ngOnChanges(changes: SimpleChanges) {
     if (changes['zoom'] && !changes['zoom'].firstChange) {
       this.settings.zoom = this.zoom;
+    }
+    
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.shiftSurface.Refresh();
     }
   }
 

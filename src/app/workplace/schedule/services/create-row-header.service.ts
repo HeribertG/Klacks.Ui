@@ -70,7 +70,7 @@ export class BaseCreateRowHeaderService {
 
     this.fillHeaderBackground(ctx, width);
 
-    this.drawBorder(ctx, this.settings.headerBorderWidth, width);
+    this.drawBorder(ctx, width, this.settings.cellHeaderHeight);
 
     this.drawTitle(
       ctx,
@@ -78,8 +78,7 @@ export class BaseCreateRowHeaderService {
         ' (' +
         this.gridData.indexes.toString() +
         ')',
-      width,
-      this.settings.cellHeaderHeight
+      width
     );
   }
 
@@ -155,6 +154,26 @@ export class BaseCreateRowHeaderService {
   }
 
   private drawTitle(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    width: number
+  ): void {
+    DrawHelper.drawText(
+      ctx,
+      text,
+      0,
+      0,
+      width,
+      this.settings.cellHeaderHeight,
+      this.gridFonts.headerFontStringZoom,
+      this.gridFonts.headerFontHeightZoom,
+      this.gridColors.headerForeGroundColor,
+      TextAlignmentEnum.Center,
+      BaselineAlignmentEnum.Center
+    );
+  }
+
+  private drawName(
     ctx: CanvasRenderingContext2D,
     text: string,
     width: number,
@@ -433,7 +452,7 @@ export class BaseCreateRowHeaderService {
         );
 
         const name = this.getName(client);
-        this.drawTitle(ctx, name, textAreaWidth, height);
+        this.drawName(ctx, name, textAreaWidth, height);
 
         this.drawInfoSpots(
           ctx,

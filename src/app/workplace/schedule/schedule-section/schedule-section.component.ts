@@ -70,6 +70,7 @@ export class ScheduleSectionComponent
 
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
+  @Input() refreshTrigger = false;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
   @Output() valueHScrollbarChange = new EventEmitter<number>();
@@ -94,6 +95,10 @@ export class ScheduleSectionComponent
   ngOnChanges(changes: SimpleChanges) {
     if (changes['zoom'] && !changes['zoom'].firstChange) {
       this.settings.zoom = this.zoom;
+    }
+    
+    if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
+      this.scheduleSurface.Refresh();
     }
   }
 
@@ -165,6 +170,7 @@ export class ScheduleSectionComponent
         this.updateScrollbarSizes();
       });
       this.effects.push(hScrollbarSizeEffect);
+
     });
   }
 }

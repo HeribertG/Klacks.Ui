@@ -24,6 +24,8 @@ export abstract class BaseDataService {
   abstract getCell(row: number, col: number): GridCell;
   abstract getWeekday(column: number): WeekDaysEnum;
   abstract weekdayName(column: number): string;
+  abstract isOverlayDay(column: number): boolean;
+  abstract isColumnSealed(column: number): boolean;
   abstract holidayInfo(column: number): HolidayDate | undefined;
   abstract isLastGroupRow(row: number): boolean;
   abstract getItemMainText(row: number, col: number): string;

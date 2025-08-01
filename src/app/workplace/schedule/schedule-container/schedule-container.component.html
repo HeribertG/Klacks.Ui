@@ -4,6 +4,7 @@
       <as-split-area [size]="70" [minSize]="10">
         <app-schedule-section
           [zoom]="zoom"
+          [refreshTrigger]="refreshTrigger"
           (horizontalSizeChange)="onHorizontalSizeChange($event)"
           (valueHScrollbarChange)="onValueHScrollbarChange($event)"
         >
@@ -13,6 +14,7 @@
       <as-split-area [size]="30" [minSize]="10">
         <app-shift-section
           [zoom]="zoom"
+          [refreshTrigger]="refreshTrigger"
           [horizontalSize]="horizontalSize"
           [hScrollbarValue]="hScrollbarValue"
           [hScrollbarMaxValue]="hScrollbarMaxValue"

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, effect, Injector, runInInjectionContext, EffectRef } from '@angular/core';
 import { ScheduleHeaderComponent } from '../schedule-header/schedule-header.component';
 import { ScheduleContainerComponent } from '../schedule-container/schedule-container.component';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
@@ -13,6 +13,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -29,23 +30,53 @@ import { WorkplaceStateService } from 'src/app/data/management/workplace-state.s
     BaseSettingsService,
   ],
 })
-export class ScheduleHomeComponent implements OnInit {
+export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private footerService = inject(FooterService);
-  private layoutService = inject(LayoutService);
+  private layoutService = inject(LayoutService);  
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
+  private holidayCollection = inject(HolidayCollectionService);
+  private dataManagementCalendarSelectionService = inject(DataManagementCalendarSelectionService);
+  private injector = inject(Injector);
 
   public currentZoom = 1.0;
+  public refreshTrigger = false;
+  
+  private effects: EffectRef[] = [];
 
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
     this.searchService.setSearchVisibility(true);
     
-    // Set active manager for schedule route to enable search functionality
     this.workplaceStateService.setActiveManagerByRoute('schedule');
-    
-    // Set full width for schedule
     this.layoutService.setContainerToFullSize();
+
+    this.holidayCollection.readData();
+    
+    setTimeout(() => {
+      const chips = this.dataManagementCalendarSelectionService.chips;
+      if (chips && chips.length > 0) {
+        this.holidayCollection.setSelection(chips);
+      }
+    }, 300);
+    
+    this.setupEffects();
+  }
+
+  ngOnDestroy(): void {
+    this.effects.forEach((effect) => effect?.destroy());
+    this.effects = [];
+  }
+
+  private setupEffects(): void {
+    runInInjectionContext(this.injector, () => {
+      const holidayEffect = effect(() => {
+        if (this.holidayCollection.isReset()) {
+          this.refreshTrigger = !this.refreshTrigger;
+        }
+      });
+      this.effects.push(holidayEffect);
+    });
   }
 
   onZoomChange(zoomValue: number) {

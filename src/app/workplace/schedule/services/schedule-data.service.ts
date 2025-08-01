@@ -66,6 +66,7 @@ export class ScheduleDataService extends BaseDataService {
   public getInfo3(index: number): string {
     return 'Info3-' + index;
   }
+
   public override initializeDateAndColumns(): void {
     const dayVisibleBeforeMonth =
       this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
@@ -74,7 +75,7 @@ export class ScheduleDataService extends BaseDataService {
     const currentYear = this.dataManagementSchedule.workFilter.currentYear;
     const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
 
-    this.startDate = new Date(currentYear, currentMonth, 1);
+    this.startDate = new Date(currentYear, currentMonth - 1, 1);
     this.startDate = addDays(this.startDate, -1 * dayVisibleBeforeMonth);
     this.columns =
       getDaysInMonth(currentYear, currentMonth) +
@@ -92,7 +93,33 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
+    if (this.isColumnSealed(column)) {
+      return HeaderCellTypeEnum.Sealed;
+    }
     return HeaderCellTypeEnum.Default;
+  }
+
+  override isOverlayDay(column: number): boolean {
+    const dayVisibleBeforeMonth =
+      this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
+    const currentYear = this.dataManagementSchedule.workFilter.currentYear;
+    const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
+
+    const daysInCurrentMonth = getDaysInMonth(currentYear, currentMonth);
+
+    if (column < dayVisibleBeforeMonth) {
+      return true;
+    }
+
+    const startOfAfterMonth = dayVisibleBeforeMonth + daysInCurrentMonth;
+    if (column >= startOfAfterMonth) {
+      return true;
+    }
+
+    return false;
+  }
+  override isColumnSealed(column: number): boolean {
+    return false;
   }
 
   private initializeGroupIndices(): void {
