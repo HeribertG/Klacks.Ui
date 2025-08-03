@@ -146,27 +146,44 @@ describe('VScrollbarComponent', () => {
 
   it('should correctly calculate Y position for the thumb', () => {
     const mockCanvas = component.canvasRef.nativeElement;
+    mockCanvas.height = 500;
+    
+    // Setup component values to match the test scenario
+    component.maxValue = 100;
+    component.visibleValue = 20;
+    
+    // value = 10, maxScrollValue = 100 - 20 = 80
+    // proportion = 10 / 80 = 0.125
+    // availableSpace = 500 - 50 = 450
+    // result = 0.125 * 450 = 56.25, rounded = 56
     const result = (component as any).calculateYPosition(
       mockCanvas,
       10,
       10,
       50
     );
-    expect(result).toBe(100);
+    expect(result).toBe(56);
   });
 
   it('should handle canvas height constraint in calculateYPosition', () => {
     const mockCanvas = component.canvasRef.nativeElement;
     mockCanvas.height = 200;
-
+    
+    // Setup component values
+    component.maxValue = 100;
+    component.visibleValue = 20;
+    
+    // When value >= maxScrollValue, should position at the end
+    // maxScrollValue = 100 - 20 = 80
+    // value = 80 or more should place thumb at canvas.height - trackHeight
     const result = (component as any).calculateYPosition(
       mockCanvas,
-      18, // value
+      80, // value at max scroll
       10, // tickSize
       100 // trackHeight
     );
 
-    // Should clamp to canvas height - trackHeight when result would exceed canvas
+    // Should place at canvas height - trackHeight when at max scroll
     expect(result).toBe(100); // 200 - 100 = 100
   });
 

@@ -24,11 +24,12 @@ export class DataManagementScheduleService implements ISpinnable {
   private dataSchedule = inject(DataScheduleService);
 
   constructor() {
-    // Selbst-Registrierung für die schedule Route
-    ManageableServiceRegistry.register(RouteName.SCHEDULE, DataManagementScheduleService);
+    ManageableServiceRegistry.register(
+      RouteName.SCHEDULE,
+      DataManagementScheduleService
+    );
   }
 
-  // ISpinnable implementation
   public showProgressSpinner = signal(false);
 
   public isRead = signal(false);
