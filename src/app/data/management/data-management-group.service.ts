@@ -37,6 +37,7 @@ import { environment } from 'src/environments/environment';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from './entity-names.enum';
+import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 
 @Injectable({
   providedIn: 'root',
@@ -50,7 +51,6 @@ export class DataManagementGroupService implements IManageable {
   private httpClient = inject(HttpClient);
 
   constructor() {
-    // Selbst-Registrierung für die relevanten Routes
     ManageableServiceRegistry.register(
       RouteName.GROUP,
       DataManagementGroupService
@@ -81,9 +81,7 @@ export class DataManagementGroupService implements IManageable {
   public sortOrder = 'desc';
   public requiredPage = 1;
   public numberOfItemsPerPage = 5;
-  public maxItems = 0;
-  public maxPages = 0;
-  public firstItem = 0;
+  public paginationDataService!: IPaginationDataService;
   public orderByGroupItem = 'name';
   public sortOrderGroupItem = 'desc';
 
@@ -180,9 +178,6 @@ export class DataManagementGroupService implements IManageable {
       .readClientList(this.currentClientFilter)
       .subscribe((x) => {
         this.listClientWrapper = x;
-        this.maxItems = x.maxItems;
-        this.firstItem = x.firstItemOnPage;
-        this.maxPages = x.maxPages;
       });
     this.showProgressSpinner.set(false);
     this.fireIsReadEvent();
@@ -240,9 +235,11 @@ export class DataManagementGroupService implements IManageable {
     this.showProgressSpinner.set(true);
     this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;
-      this.maxItems = x.maxItems;
-      this.firstItem = x.firstItemOnPage;
-      this.maxPages = x.maxPages;
+      this.paginationDataService = {
+        maxItems: x.maxItems,
+        firstItem: x.firstItemOnPage,
+        maxPages: x.maxPages,
+      };
     });
 
     if (isSecondRead) {

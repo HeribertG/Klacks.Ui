@@ -47,6 +47,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
 import { IManageable } from './imanageable';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from './entity-names.enum';
+import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 
 @Injectable({
   providedIn: 'root',
@@ -84,9 +85,7 @@ export class DataManagementClientService implements IManageable {
   public editClient: IClient | undefined;
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
   public headerCheckBoxValue = false;
-  public maxItems = 0;
-  public firstItem = 0;
-  public maxPages = 0;
+  public paginationDataService!: IPaginationDataService;
 
   public lastChangeMaxItems: number | undefined;
   public subTitleLastChanges = '';
@@ -305,9 +304,11 @@ export class DataManagementClientService implements IManageable {
 
   private updateListWrapper(x: ITruncatedClient) {
     this.listWrapper = x;
-    this.maxItems = x.maxItems;
-    this.firstItem = x.firstItemOnPage;
-    this.maxPages = x.maxPages;
+    this.paginationDataService = {
+      maxItems: x.maxItems,
+      firstItem: x.firstItemOnPage,
+      maxPages: x.maxPages,
+    };
 
     if (this.isFilter_Dirty()) {
       this.currentFilterDummy = cloneObject<Filter>(this.currentFilter);
@@ -620,7 +621,7 @@ export class DataManagementClientService implements IManageable {
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
-        }
+        },
       });
     } else {
       this.dataClientService.updateClient(this.editClient!).subscribe({
@@ -634,7 +635,7 @@ export class DataManagementClientService implements IManageable {
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
-        }
+        },
       });
     }
   }

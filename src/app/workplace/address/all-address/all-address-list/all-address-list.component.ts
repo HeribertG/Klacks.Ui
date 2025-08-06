@@ -26,9 +26,7 @@ import {
   restoreFilter,
   saveFilter,
 } from 'src/app/helpers/object-helpers';
-import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { isNumeric } from 'src/app/helpers/format-helper';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
@@ -42,6 +40,7 @@ import { NavigationService } from 'src/app/services/navigation.service';
 import { IconEyeGreyComponent } from 'src/app/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
+import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-all-address-list',
@@ -58,6 +57,7 @@ import { ResizeTableDirective } from 'src/app/directives/resize-table.directive'
     ExcelComponent,
     IconEyeGreyComponent,
     ResizeTableDirective,
+    PaginationComponent,
   ],
 })
 export class AllAddressListComponent
@@ -107,7 +107,6 @@ export class AllAddressListComponent
   public realRow = -1;
   public sortOrder = 'asc';
   public statusHeader: HeaderProperties = new HeaderProperties();
-  public visibleRow: { text: string; value: number }[] = [];
 
   // Private properties
   private effects: EffectRef[] = [];
@@ -125,7 +124,6 @@ export class AllAddressListComponent
     }
 
     this.reReadSortData();
-    this.visibleRow = visibleRow();
     this.readSignals();
   }
 
@@ -197,17 +195,10 @@ export class AllAddressListComponent
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
-    this.realRow = value;
-    this.dataManagementClientService.firstItem = 0;
     this.page = 1;
 
-    if (value !== -1) {
-      this.numberOfItemsPerPage = value;
-      this.dataManagementClientService.maxPages = 0;
-      this.dataManagementClientService.maxItems = 0;
-    }
-
     this.resizeDirective?.onRowSizeChange(value);
+    this.readPage();
   }
 
   onClickEdit(data: IClient): void {
@@ -311,8 +302,8 @@ export class AllAddressListComponent
   }
 
   onItemsPerPageChange(value: number): void {
-    this.numberOfItemsPerPage = value;
     this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
+    this.readPage();
   }
 
   onLostFocus(): void {
@@ -331,10 +322,12 @@ export class AllAddressListComponent
         this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
       }
 
-      this.firstItemOnLastPage = this.dataManagementClientService.firstItem;
+      this.firstItemOnLastPage =
+        this.dataManagementClientService.paginationDataService.firstItem;
     } else if (event === this.page - 1) {
       this.isPreviousPage = true;
-      this.firstItemOnLastPage = this.dataManagementClientService.firstItem;
+      this.firstItemOnLastPage =
+        this.dataManagementClientService.paginationDataService.firstItem;
     }
     this.page = event;
     setTimeout(() => {
@@ -393,12 +386,7 @@ export class AllAddressListComponent
   private isInit(): void {
     const tmp = restoreFilter('edit-address');
 
-    const tmpRow = this.localStorageService.get(
-      MessageLibrary.SELECTED_ROW_ORDER
-    );
-    if (tmpRow && isNumeric(tmpRow)) {
-      setTimeout(() => (this.realRow = +tmpRow), 100);
-    }
+    // Row size is now handled by PaginationComponent
 
     this.setLastChangeMetaData();
 
@@ -414,39 +402,14 @@ export class AllAddressListComponent
   }
 
   private readPage(isSecondRead = false): void {
-    if (!isSecondRead) {
-      const lastNumberOfItemsPerPage = this.numberOfItemsPerPageMap.get(
-        this.page
-      );
-      if (lastNumberOfItemsPerPage) {
-        this.dataManagementClientService.currentFilter.numberOfItemOnPreviousPage =
-          undefined;
-        this.dataManagementClientService.currentFilter.numberOfItemOnPreviousPage =
-          lastNumberOfItemsPerPage;
-      }
-    }
-
-    if (this.realRow === -1) {
-      this.setFilter();
-      this.dataManagementClientService.readPage(isSecondRead);
-    } else {
-      this.firstItemOnLastPage = 0;
-      this.isPreviousPage = undefined;
-      this.isNextPage = undefined;
-      this.setFilter();
-      this.numberOfItemsPerPage = this.realRow;
-      this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
-        this.numberOfItemsPerPage;
-      this.dataManagementClientService.readPage(true);
-    }
+    this.setFilter();
+    this.dataManagementClientService.readPage(isSecondRead);
   }
 
   private setFilter(): void {
     this.dataManagementClientService.currentFilter.orderBy = this.orderBy;
     this.dataManagementClientService.currentFilter.sortOrder = this.sortOrder;
     this.dataManagementClientService.currentFilter.requiredPage = this.page - 1;
-    this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
-      this.numberOfItemsPerPage;
     this.dataManagementClientService.currentFilter.firstItemOnLastPage =
       this.firstItemOnLastPage;
     this.dataManagementClientService.currentFilter.isPreviousPage =

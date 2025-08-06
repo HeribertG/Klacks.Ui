@@ -38,7 +38,6 @@ import {
   copyObjectValues,
   saveFilter,
 } from 'src/app/helpers/object-helpers';
-import { visibleRow } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
@@ -46,6 +45,7 @@ import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
+import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 
 @Component({
   selector: 'app-all-group-list',
@@ -62,6 +62,7 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
     TrashIconRedComponent,
     IconTreeComponent,
     ResizeTableDirective,
+    PaginationComponent,
   ],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -88,9 +89,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   isPreviousPage: boolean | undefined = undefined;
   isNextPage: boolean | undefined = undefined;
 
-  numberOfItemsPerPage = 5;
-  numberOfItemsPerPageMap = new Map();
-
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
   private tmplateArrowUndefined = '↕';
@@ -114,9 +112,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   monthList = [];
   isFirstRead = true;
 
-  visibleRow: { text: string; value: number }[] = [];
-  realRow = -1;
-
   resizeWindow: (() => void) | undefined;
 
   private ngUnsubscribe = new Subject<void>();
@@ -124,7 +119,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.dataManagementGroupService.init();
     this.reReadSortData();
-    this.visibleRow = visibleRow();
 
     this.readSignals();
   }
@@ -350,8 +344,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   /* #region   resize */
 
   onItemsPerPageChange(value: number): void {
-    this.numberOfItemsPerPage = value;
     this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = value;
+    this.readPage();
   }
 
   onRecalculateRequired(shouldRead: boolean): void {
@@ -375,39 +369,15 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.highlightRowId = undefined;
   }
 
-  private readPage(isSecondRead = false) {
-    if (!isSecondRead) {
-      const lastNumberOfItemsPerPage = this.numberOfItemsPerPageMap.get(
-        this.page
-      );
-      if (lastNumberOfItemsPerPage) {
-        this.dataManagementGroupService.currentFilter.numberOfItemOnPreviousPage =
-          undefined;
-        this.dataManagementGroupService.currentFilter.numberOfItemOnPreviousPage =
-          lastNumberOfItemsPerPage;
-      }
-    }
-    if (this.realRow === -1) {
-      this.setFilter();
-      this.dataManagementGroupService.readPage(isSecondRead);
-    } else {
-      this.firstItemOnLastPage = 0;
-      this.isPreviousPage = undefined;
-      this.isNextPage = undefined;
-      this.setFilter();
-      this.numberOfItemsPerPage = this.realRow;
-      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
-        this.numberOfItemsPerPage;
-      this.dataManagementGroupService.readPage(true);
-    }
+  private readPage(isSecondRead = false): void {
+    this.setFilter();
+    this.dataManagementGroupService.readPage(isSecondRead);
   }
 
-  private setFilter() {
+  private setFilter(): void {
     this.dataManagementGroupService.currentFilter.orderBy = this.orderBy;
     this.dataManagementGroupService.currentFilter.sortOrder = this.sortOrder;
     this.dataManagementGroupService.currentFilter.requiredPage = this.page - 1;
-    this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
-      this.numberOfItemsPerPage;
     this.dataManagementGroupService.currentFilter.firstItemOnLastPage =
       this.firstItemOnLastPage;
     this.dataManagementGroupService.currentFilter.isPreviousPage =
@@ -443,33 +413,27 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
-    this.realRow = value;
-    this.dataManagementGroupService.firstItem = 0;
     this.page = 1;
 
-    if (value !== -1) {
-      this.numberOfItemsPerPage = value;
-      this.dataManagementGroupService.maxPages = 0;
-      this.dataManagementGroupService.maxItems = 0;
-    }
-
     this.resizeDirective?.onRowSizeChange(value);
+    this.readPage();
   }
 
-  onPageChange(event: number) {
+  onPageChange(event: number): void {
     this.firstItemOnLastPage = undefined;
     this.isPreviousPage = undefined;
     this.isNextPage = undefined;
+
     if (event === this.page + 1) {
       this.isNextPage = true;
-      if (!this.numberOfItemsPerPageMap.get(this.page)) {
-        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
-      }
-      this.firstItemOnLastPage = this.dataManagementGroupService.firstItem;
+      this.firstItemOnLastPage =
+        this.dataManagementGroupService.paginationDataService.firstItem;
     } else if (event === this.page - 1) {
       this.isPreviousPage = true;
-      this.firstItemOnLastPage = this.dataManagementGroupService.firstItem;
+      this.firstItemOnLastPage =
+        this.dataManagementGroupService.paginationDataService.firstItem;
     }
+
     this.page = event;
     setTimeout(() => {
       this.readPage();

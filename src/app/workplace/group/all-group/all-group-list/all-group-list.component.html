@@ -33,8 +33,12 @@
       id="myGridTable"
       appResizeTable
       #resizeDirective="resizeTable"
-      [defaultItemsPerPage]="numberOfItemsPerPage"
-      [maxItems]="dataManagementGroupService.maxItems"
+      [defaultItemsPerPage]="
+        this.dataManagementGroupService.numberOfItemsPerPage
+      "
+      [maxItems]="
+        this.dataManagementGroupService.paginationDataService.maxItems
+      "
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (recalculateRequired)="onRecalculateRequired($event)"
@@ -184,41 +188,15 @@
     </table>
   </div>
 
-  <div class="pagination justify-content-end">
-    @if (visibleRow) {
-    <div>
-      <label for="selection" class="entry-row">{{
-        translate.instant("pagination.line")
-      }}</label>
-      <select
-        id="selection"
-        class="maxSize-selection"
-        value="realRow"
-        (change)="onChangeRowSize($event)"
-      >
-        @for (c of visibleRow; track c.value) {
-        <option [value]="c.value" [selected]="c.value === realRow">
-          {{ c.text }}
-        </option>
-        }
-      </select>
-    </div>
-    }
-
-    <label for="pagination" class="entry-info"
-      >{{ translate.instant("pagination.sum") }}
-      {{ dataManagementGroupService.maxItems }}</label
-    >
-    <ngb-pagination
-      id="pagination"
-      [collectionSize]="dataManagementGroupService.maxItems + 1"
-      (pageChange)="onPageChange($event)"
-      [(page)]="page"
-      [maxSize]="5"
-      [pageSize]="numberOfItemsPerPage"
-      [rotate]="true"
-      [ellipses]="false"
-      [boundaryLinks]="true"
-    ></ngb-pagination>
-  </div>
+  <app-pagination
+    [dataService]="dataManagementGroupService.paginationDataService"
+    [(page)]="page"
+    [numberOfItemsPerPage]="
+      dataManagementGroupService.currentFilter.numberOfItemsPerPage
+    "
+    (pageChange)="onPageChange($event)"
+    (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
+    (rowSizeChange)="onChangeRowSize($event)"
+  >
+  </app-pagination>
 </form>
