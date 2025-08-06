@@ -28,9 +28,18 @@ export class DataManagementSearchService {
     this._restoreSearch.set(value);
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
       case EntityName.CLIENT:
+        console.log('[DataManagementSearchService] globalSearch - setting search string:', {
+          value,
+          currentNumberOfItemsPerPage: this.dataManagementClient.currentFilter.numberOfItemsPerPage
+        });
         this.dataManagementClient.currentFilter.searchString = value;
         this.dataManagementClient.currentFilter.includeAddress =
           isIncludeAddress;
+        // Notify AllAddressStateService if callback is set
+        if (this.dataManagementClient.onExternalFilterChange) {
+          console.log('[DataManagementSearchService] Calling onExternalFilterChange callback');
+          this.dataManagementClient.onExternalFilterChange();
+        }
         this.dataManagementClient.readPage();
         break;
       case EntityName.ABSENCE:
@@ -62,8 +71,14 @@ export class DataManagementSearchService {
   public resetFilterWithoutSignalWrite(): void {
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
       case EntityName.CLIENT:
+        console.log('[DataManagementSearchService] resetFilterWithoutSignalWrite - clearing search string');
         this.dataManagementClient.currentFilter.searchString = '';
         this.dataManagementClient.currentFilter.includeAddress = false;
+        // Notify AllAddressStateService if callback is set
+        if (this.dataManagementClient.onExternalFilterChange) {
+          console.log('[DataManagementSearchService] Calling onExternalFilterChange callback');
+          this.dataManagementClient.onExternalFilterChange();
+        }
         this.dataManagementClient.readPage();
         break;
       case EntityName.ABSENCE:

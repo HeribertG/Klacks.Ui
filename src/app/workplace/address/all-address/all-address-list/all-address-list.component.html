@@ -55,7 +55,7 @@
       appResizeTable
       #resizeDirective="resizeTable"
       [defaultItemsPerPage]="dataManagementClientService.currentFilter.numberOfItemsPerPage"
-      [maxItems]="dataManagementClientService.paginationDataService.maxItems || 0"
+      [maxItems]="dataManagementClientService.paginationDataService?.maxItems || 0"
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (recalculateRequired)="onRecalculateRequired($event)"

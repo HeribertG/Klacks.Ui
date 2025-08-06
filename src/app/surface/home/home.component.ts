@@ -9,6 +9,7 @@ import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
 import { ApplicationInitService } from 'src/app/services/application-init.service';
+import { RouteName } from 'src/app/data/management/entity-names.enum';
 
 @Component({
   selector: 'app-home',
@@ -37,7 +38,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // Cleaning up
-    localStorage.removeItem('edit-address');
+    localStorage.removeItem(RouteName.EDIT_ADDRESS);
   }
 
   canDeactivate(): boolean {

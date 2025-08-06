@@ -74,6 +74,7 @@ export class DataManagementClientService implements IManageable {
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
   public onSaveCompleted?: () => void;
+  public onExternalFilterChange?: () => void;
   public initIsRead = signal(false);
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
@@ -85,7 +86,7 @@ export class DataManagementClientService implements IManageable {
   public editClient: IClient | undefined;
   public checkedArray: CheckBoxValue[] = new Array<CheckBoxValue>();
   public headerCheckBoxValue = false;
-  public paginationDataService!: IPaginationDataService;
+  public paginationDataService: IPaginationDataService | undefined;
 
   public lastChangeMaxItems: number | undefined;
   public subTitleLastChanges = '';

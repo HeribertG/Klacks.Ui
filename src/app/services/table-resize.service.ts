@@ -28,9 +28,11 @@ export class TableResizeService {
     maxItems?: number
   ): number {
     const availableHeight = this.calculateAvailableHeight(tableElement);
-    const averageRowHeight = this.measureAverageRowHeight(tableElement);
+    // Use fixed row height instead of measuring current rows
+    // This prevents calculation from being affected by current data amount
+    const rowHeight = this.getConsistentRowHeight(tableElement);
 
-    let optimalRows = Math.round(availableHeight / averageRowHeight);
+    let optimalRows = Math.floor(availableHeight / rowHeight);
 
     optimalRows = Math.max(optimalRows, this.MIN_ITEMS_PER_PAGE);
 
@@ -39,6 +41,17 @@ export class TableResizeService {
     }
 
     return optimalRows;
+  }
+
+  private getConsistentRowHeight(tableElement: HTMLElement): number {
+    const measuredHeight = this.measureAverageRowHeight(tableElement);
+    
+    const tbody = tableElement.querySelector('tbody');
+    if (!tbody || tbody.rows.length < 3) {
+      return this.defaultRowHeight;
+    }
+    
+    return measuredHeight;
   }
 
   private calculateAvailableHeight(tableElement: HTMLElement): number {

@@ -19,13 +19,6 @@ import {
   HeaderProperties,
 } from 'src/app/core/headerProperties';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
-import {
-  cloneObject,
-  compareComplexObjects,
-  copyObjectValues,
-  restoreFilter,
-  saveFilter,
-} from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
@@ -42,6 +35,8 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
+import { AllAddressStateService } from '../services/all-address-state.service';
+import { RouteName } from 'src/app/data/management/entity-names.enum';
 
 @Component({
   selector: 'app-all-address-list',
@@ -60,7 +55,7 @@ import { TableResizeService } from 'src/app/services/table-resize.service';
     ResizeTableDirective,
     PaginationComponent,
   ],
-  providers: [TableResizeService],
+  providers: [TableResizeService, AllAddressStateService],
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -83,6 +78,7 @@ export class AllAddressListComponent
   private modalService = inject(ModalService);
   private navigationService = inject(NavigationService);
   private tableResizeService = inject(TableResizeService);
+  private allAddressStateService = inject(AllAddressStateService);
 
   // Public properties (used in templates)
   public arrowCompany = '';
@@ -202,14 +198,12 @@ export class AllAddressListComponent
     this.page = 1;
 
     if (value === -1 && this.myAddressTable?.nativeElement) {
-      // Auto mode: calculate optimal row count using TableResizeService
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
-        this.myAddressTable.nativeElement,
-        this.dataManagementClientService.paginationDataService.maxItems
+        this.myAddressTable.nativeElement
       );
       this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
+      this.allAddressStateService.saveAutoModeItemsPerPage(optimalRows);
     } else {
-      // Fixed mode: use selected value
       this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
     }
 
@@ -218,7 +212,7 @@ export class AllAddressListComponent
   }
 
   onClickEdit(data: IClient): void {
-    saveFilter(this.dataManagementClientService.currentFilter, 'edit-address');
+    this.allAddressStateService.saveCurrentFilter();
     this.dataManagementClientService.prepareClient(data);
     this.navigationService.navigateToEditAddress(data.id);
   }
@@ -318,6 +312,10 @@ export class AllAddressListComponent
   }
 
   onItemsPerPageChange(value: number): void {
+    if (this.dataManagementClientService.currentFilter.searchString) {
+      return;
+    }
+    
     this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
     this.readPage();
   }
@@ -339,11 +337,11 @@ export class AllAddressListComponent
       }
 
       this.firstItemOnLastPage =
-        this.dataManagementClientService.paginationDataService.firstItem;
+        this.dataManagementClientService.paginationDataService?.firstItem;
     } else if (event === this.page - 1) {
       this.isPreviousPage = true;
       this.firstItemOnLastPage =
-        this.dataManagementClientService.paginationDataService.firstItem;
+        this.dataManagementClientService.paginationDataService?.firstItem;
     }
     this.page = event;
     setTimeout(() => {
@@ -400,19 +398,15 @@ export class AllAddressListComponent
   // Private methods
 
   private isInit(): void {
-    const tmp = restoreFilter('edit-address');
-
-    // Row size is now handled by PaginationComponent
-
     this.setLastChangeMetaData();
 
-    if (!tmp) {
-      this.dataManagementClientService.currentFilter.setEmpty();
-    } else {
+    const wasRestored = this.allAddressStateService.restoreFilterFromStorage();
+    
+    if (wasRestored) {
       setTimeout(() => {
-        this.restoreFilter(tmp);
         this.page =
           this.dataManagementClientService.currentFilter.requiredPage + 1;
+        this.readPage();
       }, 100);
     }
   }
@@ -423,37 +417,16 @@ export class AllAddressListComponent
   }
 
   private setFilter(): void {
-    this.dataManagementClientService.currentFilter.orderBy = this.orderBy;
-    this.dataManagementClientService.currentFilter.sortOrder = this.sortOrder;
-    this.dataManagementClientService.currentFilter.requiredPage = this.page - 1;
-    this.dataManagementClientService.currentFilter.firstItemOnLastPage =
-      this.firstItemOnLastPage;
-    this.dataManagementClientService.currentFilter.isPreviousPage =
-      this.isPreviousPage;
-    this.dataManagementClientService.currentFilter.isNextPage = this.isNextPage;
-  }
-
-  private restoreFilter(value: IFilter): void {
-    const filter = cloneObject<IFilter>(
-      this.dataManagementClientService.currentFilter
+    this.allAddressStateService.prepareFilterForRequest(
+      this.orderBy,
+      this.sortOrder,
+      this.page,
+      this.firstItemOnLastPage,
+      this.isPreviousPage,
+      this.isNextPage
     );
-    copyObjectValues(this.dataManagementClientService.currentFilter, value);
-
-    if (this.dataManagementClientService.currentFilter.searchString) {
-      this.dataManagementClientService.restoreSearch.set(
-        this.dataManagementClientService.currentFilter.searchString
-      );
-    }
-
-    if (
-      !compareComplexObjects(
-        filter,
-        this.dataManagementClientService.currentFilter
-      )
-    ) {
-      this.readPage();
-    }
   }
+
 
   private deleteClient(id: string): void {
     this.dataManagementClientService
@@ -469,6 +442,15 @@ export class AllAddressListComponent
     const readEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
         if (this.dataManagementClientService.isRead()) {
+          const storedRowOrder = this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
+          if (storedRowOrder === '-1' && this.isFirstRead && 
+              this.dataManagementClientService.currentFilter.numberOfItemsPerPage > 0 &&
+              !this.dataManagementClientService.currentFilter.searchString) {
+            this.allAddressStateService.saveAutoModeItemsPerPage(
+              this.dataManagementClientService.currentFilter.numberOfItemsPerPage
+            );
+          }
+          
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
@@ -560,19 +542,23 @@ export class AllAddressListComponent
   private setupTableResize(): void {
     if (!this.myAddressTable?.nativeElement) return;
 
-    // Subscribe to resize events only in auto mode
     this.tableResizeService.createResizeObservable(
-      this.myAddressTable.nativeElement,
-      this.dataManagementClientService.paginationDataService.maxItems
+      this.myAddressTable.nativeElement
     )
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe((optimalRows: number) => {
-      // Only update if we're in auto mode
       if (this.tableResizeService.isAutoMode()) {
         const currentRows = this.dataManagementClientService.currentFilter.numberOfItemsPerPage;
         
-        // Update only if the optimal row count has changed significantly
-        if (Math.abs(currentRows - optimalRows) >= 2) {
+        if (this.dataManagementClientService.currentFilter.searchString) {
+          return;
+        }
+        
+        if (!this.allAddressStateService.isResizeCalculationAllowed()) {
+          return;
+        }
+        
+        if (Math.abs(currentRows - optimalRows) >= 1) {
           this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
           this.page = 1;
           this.readPage();

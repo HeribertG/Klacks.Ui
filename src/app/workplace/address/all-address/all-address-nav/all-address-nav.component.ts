@@ -27,6 +27,7 @@ import {
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({
   selector: 'app-all-address-nav',
@@ -43,6 +44,7 @@ import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
     NgbTooltipModule,
     FallbackPipe,
   ],
+  providers: [AllAddressStateService],
 })
 export class AllAddressNavComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -55,6 +57,7 @@ export class AllAddressNavComponent
   private translateService = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
+  private allAddressStateService = inject(AllAddressStateService);
 
   public navClient: HTMLElement | undefined;
   public faCalendar = faCalendar;
@@ -136,23 +139,24 @@ export class AllAddressNavComponent
   onOpenChange(event: boolean) {
     this.isComboBoxOpen = event;
     if (this.isComboBoxOpen) {
-      this.dataManagementClientService.setTemporaryFilter();
+      this.allAddressStateService.setTemporaryFilterState();
     }
     if (
       !this.isComboBoxOpen &&
-      this.dataManagementClientService.isTemoraryFilter_Dirty()
+      this.allAddressStateService.isTemporaryFilterDirty()
     ) {
       setTimeout(() => {
-        this.dataManagementClientService.headerCheckBoxValue = false;
-
+        console.log('[AllAddressNavComponent] Filter changed, updating state');
+        this.allAddressStateService.clearHeaderCheckbox();
+        this.allAddressStateService.updateFilterState();
         this.dataManagementClientService.readPage();
       }, 100);
     }
   }
 
   onClickSetEmpty() {
-    this.localStorageService.remove('edit-address');
-    this.dataManagementClientService.currentFilter.setEmpty();
+    this.allAddressStateService.clearStoredFilter();
+    this.allAddressStateService.resetFilter();
     (document.getElementById('scopeFromFlag') as HTMLInputElement).checked =
       false;
     (document.getElementById('scopeUntilFlag') as HTMLInputElement).checked =
@@ -166,20 +170,13 @@ export class AllAddressNavComponent
   onClickClientType(index: number) {
     this.setEntityName(index);
 
-    if (index === -1) {
-      this.dataManagementClientService.currentFilter.clientType = -1;
-    } else {
-      this.dataManagementClientService.currentFilter.clientType = index;
-
-      // if (this.isInitFinished) {
-      //   if (this.dataManagementClientService.currentFilter.clientType !== -1) {
-      //     const key = this.dataManagementClientService.currentFilter.clientType;
-      //   }
-      // }
-
-      this.dataManagementClientService.clearCheckedArray();
-      this.dataManagementClientService.headerCheckBoxValue = false;
-    }
+    console.log('[AllAddressNavComponent] onClickClientType:', {
+      index,
+      beforeUpdateFilterState: this.dataManagementClientService.currentFilter.numberOfItemsPerPage
+    });
+    
+    this.allAddressStateService.updateClientType(index === -1 ? -1 : index);
+    this.allAddressStateService.updateFilterState();
 
     setTimeout(() => {
       this.dataManagementClientService.readPage();
@@ -204,10 +201,9 @@ export class AllAddressNavComponent
   }
 
   onClickShowDeleteEntries() {
-    setTimeout(() => {
-      this.dataManagementClientService.editClientDeleted =
-        this.dataManagementClientService.currentFilter.showDeleteEntries;
-    }, 100);
+    this.allAddressStateService.setShowDeleteEntries(
+      this.dataManagementClientService.currentFilter.showDeleteEntries
+    );
   }
 
   private readSignals(): void {

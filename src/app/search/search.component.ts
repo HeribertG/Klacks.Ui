@@ -64,6 +64,7 @@ export class SearchComponent {
 
   onKeyupSearch(event: any): void {
     if (event.srcElement && event.srcElement.value.toString() === '') {
+      console.log('[SearchComponent] Search input cleared - calling resetFilterWithoutSignalWrite');
       // When search input is cleared, reset filter and trigger search
       this.dataManagementSearch.resetFilterWithoutSignalWrite();
     }
