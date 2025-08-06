@@ -46,6 +46,7 @@ import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
+import { TableResizeService } from 'src/app/services/table-resize.service';
 
 @Component({
   selector: 'app-all-group-list',
@@ -80,6 +81,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
   private injector = inject(Injector);
+  private tableResizeService = inject(TableResizeService);
 
   private effectRef: EffectRef | null = null;
 
@@ -138,6 +140,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       if (this.resizeDirective) {
         this.resizeDirective.recalcHeight();
       }
+      this.setupTableResize();
     }, 100);
 
     setTimeout(() => (this.spinnerService.showProgressSpinner = false), 300);
@@ -415,6 +418,18 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     const value = +event.srcElement.value;
     this.page = 1;
 
+    if (value === -1 && this.myGridTable?.nativeElement) {
+      // Auto mode: calculate optimal row count using TableResizeService
+      const optimalRows = this.tableResizeService.calculateOptimalRowCount(
+        this.myGridTable.nativeElement,
+        this.dataManagementGroupService.paginationDataService?.maxItems
+      );
+      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = optimalRows;
+    } else {
+      // Fixed mode: use selected value
+      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = value;
+    }
+
     this.resizeDirective?.onRowSizeChange(value);
     this.readPage();
   }
@@ -476,6 +491,30 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       });
+    });
+  }
+
+  private setupTableResize(): void {
+    if (!this.myGridTable?.nativeElement) return;
+
+    // Subscribe to resize events only in auto mode
+    this.tableResizeService.createResizeObservable(
+      this.myGridTable.nativeElement,
+      this.dataManagementGroupService.paginationDataService?.maxItems
+    )
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe((optimalRows: number) => {
+      // Only update if we're in auto mode
+      if (this.tableResizeService.isAutoMode()) {
+        const currentRows = this.dataManagementGroupService.currentFilter.numberOfItemsPerPage;
+        
+        // Update only if the optimal row count has changed significantly
+        if (Math.abs(currentRows - optimalRows) >= 2) {
+          this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = optimalRows;
+          this.page = 1;
+          this.readPage();
+        }
+      }
     });
   }
 }

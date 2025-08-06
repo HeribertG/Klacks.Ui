@@ -41,6 +41,7 @@ import { IconEyeGreyComponent } from 'src/app/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
+import { TableResizeService } from 'src/app/services/table-resize.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -80,6 +81,7 @@ export class AllAddressListComponent
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
   private navigationService = inject(NavigationService);
+  private tableResizeService = inject(TableResizeService);
 
   // Public properties (used in templates)
   public arrowCompany = '';
@@ -138,6 +140,7 @@ export class AllAddressListComponent
       if (this.resizeDirective) {
         this.resizeDirective.recalcHeight();
       }
+      this.setupTableResize();
     }, 100);
 
     this.modalService.resultEvent
@@ -196,6 +199,18 @@ export class AllAddressListComponent
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
     this.page = 1;
+
+    if (value === -1 && this.myAddressTable?.nativeElement) {
+      // Auto mode: calculate optimal row count using TableResizeService
+      const optimalRows = this.tableResizeService.calculateOptimalRowCount(
+        this.myAddressTable.nativeElement,
+        this.dataManagementClientService.paginationDataService?.maxItems
+      );
+      this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
+    } else {
+      // Fixed mode: use selected value
+      this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
+    }
 
     this.resizeDirective?.onRowSizeChange(value);
     this.readPage();
@@ -539,5 +554,29 @@ export class AllAddressListComponent
     this.companyHeader.order = HeaderDirection.None;
     this.nameHeader.order = HeaderDirection.None;
     this.statusHeader.order = HeaderDirection.None;
+  }
+
+  private setupTableResize(): void {
+    if (!this.myAddressTable?.nativeElement) return;
+
+    // Subscribe to resize events only in auto mode
+    this.tableResizeService.createResizeObservable(
+      this.myAddressTable.nativeElement,
+      this.dataManagementClientService.paginationDataService?.maxItems
+    )
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe((optimalRows: number) => {
+      // Only update if we're in auto mode
+      if (this.tableResizeService.isAutoMode()) {
+        const currentRows = this.dataManagementClientService.currentFilter.numberOfItemsPerPage;
+        
+        // Update only if the optimal row count has changed significantly
+        if (Math.abs(currentRows - optimalRows) >= 2) {
+          this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
+          this.page = 1;
+          this.readPage();
+        }
+      }
+    });
   }
 }
