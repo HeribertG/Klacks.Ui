@@ -205,7 +205,7 @@ export class AllAddressListComponent
       // Auto mode: calculate optimal row count using TableResizeService
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
         this.myAddressTable.nativeElement,
-        this.dataManagementClientService.paginationDataService?.maxItems
+        this.dataManagementClientService.paginationDataService.maxItems
       );
       this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
     } else {
@@ -563,7 +563,7 @@ export class AllAddressListComponent
     // Subscribe to resize events only in auto mode
     this.tableResizeService.createResizeObservable(
       this.myAddressTable.nativeElement,
-      this.dataManagementClientService.paginationDataService?.maxItems
+      this.dataManagementClientService.paginationDataService.maxItems
     )
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe((optimalRows: number) => {

@@ -423,7 +423,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       // Auto mode: calculate optimal row count using TableResizeService
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
         this.myGridTable.nativeElement,
-        this.dataManagementGroupService.paginationDataService?.maxItems
+        this.dataManagementGroupService.paginationDataService.maxItems
       );
       this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = optimalRows;
     } else {
@@ -501,7 +501,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     // Subscribe to resize events only in auto mode
     this.tableResizeService.createResizeObservable(
       this.myGridTable.nativeElement,
-      this.dataManagementGroupService.paginationDataService?.maxItems
+      this.dataManagementGroupService.paginationDataService.maxItems
     )
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe((optimalRows: number) => {
