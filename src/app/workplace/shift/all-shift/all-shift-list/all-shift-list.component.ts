@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import {
   NgbPaginationModule,
@@ -15,6 +16,8 @@ import { OriginalTableComponent } from './original-table/original-table.componen
 import { Shift } from 'src/app/core/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
+import { PaginationComponent, IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
+import { TableResizeService } from 'src/app/services/table-resize.service';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -29,13 +32,17 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
     TranslateModule,
     OriginalTableComponent,
     CutTableComponent,
+    PaginationComponent,
   ],
+  providers: [TableResizeService],
 })
-export class AllShiftListComponent implements OnInit {
+export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('shiftTableContainer', { static: false }) shiftTableContainer?: ElementRef<HTMLElement>;
   public translate = inject(TranslateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
+  private tableResizeService = inject(TableResizeService);
 
   selectedRowId?: string;
 
@@ -50,10 +57,12 @@ export class AllShiftListComponent implements OnInit {
   numberOfItemsPerPageMap = new Map();
 
   hoveredRowId?: string;
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
+    this.tableResizeService.setRowHeights(90, 82);
     this.dataManagementShiftService.init();
-    this.visibleRow = visibleRow(false);
+    this.visibleRow = visibleRow(true);
     this.readPage();
   }
 
@@ -91,21 +100,104 @@ export class AllShiftListComponent implements OnInit {
     this.dataManagementShiftService.init();
   }
 
-  onPageChange(event: number) {
-    setTimeout(() => this.dataManagementShiftService.readPage(), 50);
+  onPageChange(event: number): void {
+    this.firstItemOnLastPage = undefined;
+    this.isPreviousPage = undefined;
+    this.isNextPage = undefined;
+
+    if (event === this.page + 1) {
+      this.isNextPage = true;
+      if (!this.numberOfItemsPerPageMap.get(this.page)) {
+        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
+      }
+      this.firstItemOnLastPage = this.dataManagementShiftService.firstItem;
+    } else if (event === this.page - 1) {
+      this.isPreviousPage = true;
+      this.firstItemOnLastPage = this.dataManagementShiftService.firstItem;
+    }
+    
+    this.page = event;
+    setTimeout(() => {
+      this.readPage();
+    }, 100);
   }
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
     this.realRow = value;
+
+    if (value === -1 && this.shiftTableContainer?.nativeElement) {
+      const tableElement = this.shiftTableContainer.nativeElement.querySelector('table') || this.shiftTableContainer.nativeElement;
+      const optimalRows = this.tableResizeService.calculateOptimalRowCount(
+        tableElement as HTMLElement,
+        this.dataManagementShiftService.maxItems
+      );
+      this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = optimalRows;
+      this.realRow = optimalRows;
+    } else {
+      this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = value;
+    }
+
     this.dataManagementShiftService.firstItem = 0;
     this.page = 1;
     this.readPage();
   }
 
+  onItemsPerPageChange(value: number): void {
+    this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = value;
+    this.realRow = value;
+    this.page = 1;
+    this.readPage();
+  }
+
+  get paginationDataService(): IPaginationDataService {
+    return {
+      maxItems: this.dataManagementShiftService.maxItems,
+      firstItem: this.dataManagementShiftService.firstItem,
+      maxPages: this.dataManagementShiftService.maxPages,
+    };
+  }
+
+  ngAfterViewInit(): void {
+    this.setupTableResize();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupTableResize(): void {
+    setTimeout(() => {
+      if (!this.shiftTableContainer?.nativeElement) return;
+
+      const tableElement = this.shiftTableContainer.nativeElement.querySelector('table') || this.shiftTableContainer.nativeElement;
+
+      this.tableResizeService.createResizeObservable(
+        tableElement as HTMLElement,
+        this.dataManagementShiftService.maxItems
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((optimalRows: number) => {
+        if (this.tableResizeService.isAutoMode()) {
+          const currentRows = this.dataManagementShiftService.currentFilter.numberOfItemsPerPage;
+          
+          if (Math.abs(currentRows - optimalRows) >= 1) {
+            this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = optimalRows;
+            this.realRow = optimalRows;
+            this.page = 1;
+            this.readPage();
+          }
+        }
+      });
+    }, 200);
+  }
+
   private readPage(): void {
-    this.dataManagementShiftService.currentFilter.numberOfItemsPerPage =
-      this.realRow;
+    this.dataManagementShiftService.currentFilter.requiredPage = this.page - 1;
+    this.dataManagementShiftService.currentFilter.firstItemOnLastPage = this.firstItemOnLastPage;
+    this.dataManagementShiftService.currentFilter.isPreviousPage = this.isPreviousPage;
+    this.dataManagementShiftService.currentFilter.isNextPage = this.isNextPage;
     this.dataManagementShiftService.readPage(true);
   }
 }

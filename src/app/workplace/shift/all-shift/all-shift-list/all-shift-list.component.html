@@ -12,7 +12,7 @@
     }
   </div>
   <div class="container-line"></div>
-  <div class="container-table">
+  <div class="container-table" #shiftTableContainer>
     @if (dataManagementShiftService.currentFilter.isOriginal) {
       <app-original-table
         [shifts]="dataManagementShiftService.shifts"
@@ -26,42 +26,16 @@
         (cutClicked)="onClickCut($event)"
       ></app-cut-table>
     }
-    <div class="pagination justify-content-end">
-      @if (visibleRow) {
-      <div>
-        <label for="selection" class="entry-row">{{
-          translate.instant("pagination.line")
-        }}</label>
-        <select
-          id="selection"
-          class="maxSize-selection"
-          value="realRow"
-          (change)="onChangeRowSize($event)"
-        >
-          @for (c of visibleRow; track c.value) {
-          <option [value]="c.value" [selected]="c.value === realRow">
-            {{ c.text }}
-          </option>
-          }
-        </select>
-      </div>
-      }
-
-      <label for="pagination" class="entry-info"
-        >{{ translate.instant("pagination.sum") }}
-        {{ dataManagementShiftService.maxItems }}</label
-      >
-      <ngb-pagination
-        id="pagination"
-        [collectionSize]="dataManagementShiftService.maxItems + 1"
-        (pageChange)="onPageChange($event)"
-        [(page)]="page"
-        [maxSize]="5"
-        [pageSize]="numberOfItemsPerPage"
-        [rotate]="true"
-        [ellipses]="false"
-        [boundaryLinks]="true"
-      ></ngb-pagination>
-    </div>
+    @if (paginationDataService) {
+    <app-pagination
+      [dataService]="paginationDataService"
+      [(page)]="page"
+      [numberOfItemsPerPage]="dataManagementShiftService.currentFilter.numberOfItemsPerPage"
+      (pageChange)="onPageChange($event)"
+      (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
+      (rowSizeChange)="onChangeRowSize($event)"
+    >
+    </app-pagination>
+    }
   </div>
 </form>

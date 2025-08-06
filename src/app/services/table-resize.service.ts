@@ -5,9 +5,7 @@ import { LocalStorageService } from './local-storage.service';
 import { MessageLibrary } from '../helpers/string-constants';
 import { isNumeric } from '../helpers/format-helper';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class TableResizeService {
   private localStorageService = inject(LocalStorageService);
 
@@ -46,7 +44,7 @@ export class TableResizeService {
   private calculateAvailableHeight(tableElement: HTMLElement): number {
     const windowHeight = window.innerHeight;
     const tableTop = tableElement.offsetTop;
-
+    
     return windowHeight - (tableTop + this.UI_OFFSET);
   }
 

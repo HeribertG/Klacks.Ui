@@ -60,6 +60,7 @@ import { TableResizeService } from 'src/app/services/table-resize.service';
     ResizeTableDirective,
     PaginationComponent,
   ],
+  providers: [TableResizeService],
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy

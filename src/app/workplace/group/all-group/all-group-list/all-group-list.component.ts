@@ -65,6 +65,7 @@ import { TableResizeService } from 'src/app/services/table-resize.service';
     ResizeTableDirective,
     PaginationComponent,
   ],
+  providers: [TableResizeService],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(ResizeTableDirective, { static: false })
