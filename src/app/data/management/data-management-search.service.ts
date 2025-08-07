@@ -100,4 +100,8 @@ export class DataManagementSearchService {
   public restoreSearch(): string {
     return this._restoreSearch();
   }
+
+  public setRestoreSearch(value: string): void {
+    this._restoreSearch.set(value);
+  }
 }

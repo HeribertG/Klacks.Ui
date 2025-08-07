@@ -149,7 +149,6 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       );
       this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = optimalRows;
       this.realRow = optimalRows;
-      this.allShiftStateService.saveAutoModeItemsPerPage(optimalRows);
     } else {
       this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = value;
     }
@@ -183,6 +182,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.allShiftStateService.saveCurrentFilter();
+    
     this.destroy$.next();
     this.destroy$.complete();
   }

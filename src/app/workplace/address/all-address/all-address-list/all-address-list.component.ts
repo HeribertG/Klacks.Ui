@@ -150,6 +150,8 @@ export class AllAddressListComponent
   }
 
   ngOnDestroy(): void {
+    this.allAddressStateService.saveCurrentFilter();
+
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -201,10 +203,11 @@ export class AllAddressListComponent
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
         this.myAddressTable.nativeElement
       );
-      this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
-      this.allAddressStateService.saveAutoModeItemsPerPage(optimalRows);
+      this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
+        optimalRows;
     } else {
-      this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
+      this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
+        value;
     }
 
     this.resizeDirective?.onRowSizeChange(value);
@@ -315,7 +318,7 @@ export class AllAddressListComponent
     if (this.dataManagementClientService.currentFilter.searchString) {
       return;
     }
-    
+
     this.dataManagementClientService.currentFilter.numberOfItemsPerPage = value;
     this.readPage();
   }
@@ -401,7 +404,7 @@ export class AllAddressListComponent
     this.setLastChangeMetaData();
 
     const wasRestored = this.allAddressStateService.restoreFilterFromStorage();
-    
+
     if (wasRestored) {
       setTimeout(() => {
         this.page =
@@ -427,7 +430,6 @@ export class AllAddressListComponent
     );
   }
 
-
   private deleteClient(id: string): void {
     this.dataManagementClientService
       .deleteClient(id)
@@ -442,15 +444,19 @@ export class AllAddressListComponent
     const readEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
         if (this.dataManagementClientService.isRead()) {
-          const storedRowOrder = this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
-          if (storedRowOrder === '-1' && this.isFirstRead && 
-              this.dataManagementClientService.currentFilter.numberOfItemsPerPage > 0 &&
-              !this.dataManagementClientService.currentFilter.searchString) {
-            this.allAddressStateService.saveAutoModeItemsPerPage(
-              this.dataManagementClientService.currentFilter.numberOfItemsPerPage
-            );
+          const storedRowOrder = this.localStorageService.get(
+            MessageLibrary.SELECTED_ROW_ORDER
+          );
+          if (
+            storedRowOrder === '-1' &&
+            this.isFirstRead &&
+            this.dataManagementClientService.currentFilter
+              .numberOfItemsPerPage > 0 &&
+            !this.dataManagementClientService.currentFilter.searchString
+          ) {
+            // Auto mode items per page handling removed
           }
-          
+
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
@@ -542,28 +548,29 @@ export class AllAddressListComponent
   private setupTableResize(): void {
     if (!this.myAddressTable?.nativeElement) return;
 
-    this.tableResizeService.createResizeObservable(
-      this.myAddressTable.nativeElement
-    )
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe((optimalRows: number) => {
-      if (this.tableResizeService.isAutoMode()) {
-        const currentRows = this.dataManagementClientService.currentFilter.numberOfItemsPerPage;
-        
-        if (this.dataManagementClientService.currentFilter.searchString) {
-          return;
+    this.tableResizeService
+      .createResizeObservable(this.myAddressTable.nativeElement)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((optimalRows: number) => {
+        if (this.tableResizeService.isAutoMode()) {
+          const currentRows =
+            this.dataManagementClientService.currentFilter.numberOfItemsPerPage;
+
+          if (this.dataManagementClientService.currentFilter.searchString) {
+            return;
+          }
+
+          if (!this.allAddressStateService.isResizeCalculationAllowed()) {
+            return;
+          }
+
+          if (Math.abs(currentRows - optimalRows) >= 1) {
+            this.dataManagementClientService.currentFilter.numberOfItemsPerPage =
+              optimalRows;
+            this.page = 1;
+            this.readPage();
+          }
         }
-        
-        if (!this.allAddressStateService.isResizeCalculationAllowed()) {
-          return;
-        }
-        
-        if (Math.abs(currentRows - optimalRows) >= 1) {
-          this.dataManagementClientService.currentFilter.numberOfItemsPerPage = optimalRows;
-          this.page = 1;
-          this.readPage();
-        }
-      }
-    });
+      });
   }
 }

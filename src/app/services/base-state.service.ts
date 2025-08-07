@@ -4,6 +4,7 @@ import { SearchService } from 'src/app/services/search.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
+import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import {
   cloneObject,
   compareComplexObjects,
@@ -29,6 +30,7 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
   protected workplaceStateService = inject(WorkplaceStateService);
   protected searchService = inject(SearchService);
   protected localStorageService = inject(LocalStorageService);
+  protected dataManagementSearchService = inject(DataManagementSearchService);
 
   protected lastSavedFilter: T | null = null;
 
@@ -45,6 +47,8 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
     this.dataManagementService.onExternalFilterChange = () => {
       this.onSearchFilterChanged();
     };
+
+    this.restoreFilterFromStorage();
   }
 
   saveCurrentFilter(key = this.editRouteName): void {
@@ -72,6 +76,7 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
 
     if (!storedFilter) {
       this.dataManagementService.currentFilter.setEmpty();
+      this.dataManagementSearchService.setRestoreSearch('');
       this.lastSavedFilter = null;
       return false;
     }
@@ -100,11 +105,8 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
       storedFilter
     );
 
-    if (this.dataManagementService.currentFilter.searchString) {
-      this.dataManagementService.restoreSearch.set(
-        this.dataManagementService.currentFilter.searchString
-      );
-    }
+    const searchValue = this.dataManagementService.currentFilter.searchString || '';
+    this.dataManagementSearchService.setRestoreSearch(searchValue);
 
     return !compareComplexObjects(
       originalFilter,
@@ -155,9 +157,6 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
     );
   }
 
-  saveAutoModeItemsPerPage(itemsPerPage: number): void {
-    // No longer needed - TableResizeService will always recalculate
-  }
 
   clearStoredFilter(key = this.editRouteName): void {
     localStorage.removeItem(key);

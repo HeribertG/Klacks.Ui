@@ -148,6 +148,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.allGroupStateService.saveCurrentFilter();
+    
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -412,7 +414,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       );
       this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
         optimalRows;
-      this.allGroupStateService.saveAutoModeItemsPerPage(optimalRows);
     } else {
       this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
         value;
@@ -481,9 +482,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
               0 &&
             !this.dataManagementGroupService.currentFilter.searchString
           ) {
-            this.allGroupStateService.saveAutoModeItemsPerPage(
-              this.dataManagementGroupService.currentFilter.numberOfItemsPerPage
-            );
+            // Auto mode items per page handling removed
           }
 
           if (this.isFirstRead) {

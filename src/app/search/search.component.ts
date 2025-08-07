@@ -38,10 +38,8 @@ export class SearchComponent {
   constructor() {
     effect(() => {
       const restored = this.dataManagementSearch.restoreSearch();
-      if (restored) {
-        this.searchString = restored;
-        this.cdr.detectChanges();
-      }
+      this.searchString = restored;
+      this.cdr.detectChanges();
     });
 
     effect(() => {
@@ -64,8 +62,6 @@ export class SearchComponent {
 
   onKeyupSearch(event: any): void {
     if (event.srcElement && event.srcElement.value.toString() === '') {
-      console.log('[SearchComponent] Search input cleared - calling resetFilterWithoutSignalWrite');
-      // When search input is cleared, reset filter and trigger search
       this.dataManagementSearch.resetFilterWithoutSignalWrite();
     }
   }
