@@ -70,6 +70,7 @@ export class DataManagementShiftService implements IManageable {
   public editGroup: IShift | undefined;
 
   public onSaveCompleted?: () => void;
+  public onExternalFilterChange?: () => void;
 
   public shifts: IShift[] = [];
   public editShift: Shift | undefined;
@@ -575,6 +576,28 @@ export class DataManagementShiftService implements IManageable {
   }
 
   /* #endregion   edit shift */
+
+  /* #region   temporary check is ShiftFilter dirty */
+
+  private temporaryShiftFilterDummy: ShiftFilter | undefined;
+
+  public setTemporaryShiftFilter() {
+    this.temporaryShiftFilterDummy = cloneObject<ShiftFilter>(
+      this.currentFilter
+    );
+  }
+
+  public isTemporaryShiftFilter_Dirty(): boolean {
+    const a = this.currentFilter as ShiftFilter;
+    const b = this.temporaryShiftFilterDummy as ShiftFilter;
+
+    if (!compareComplexObjects(a, b)) {
+      return true;
+    }
+    return false;
+  }
+
+  /* #endregion   temporary check is ShiftFilter dirty */
 
   goBack(): string {
     return '/workplace/shift';

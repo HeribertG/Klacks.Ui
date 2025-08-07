@@ -124,6 +124,8 @@ export interface IGroupFilter extends IBaseFilter {
   formerDateRange: boolean;
   futureDateRange: boolean;
   selectedGroup: string | undefined;
+  
+  setEmpty(): void;
 }
 
 export class GroupFilter extends BaseFilter implements IGroupFilter {

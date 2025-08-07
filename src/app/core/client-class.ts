@@ -80,6 +80,8 @@ export interface IFilter extends IBaseFilter {
   filteredStateToken: StateCountryToken[];
 
   selectedGroup: string | undefined;
+  
+  setEmpty(): void;
 }
 
 export interface ITruncatedFilter {

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MyToken } from '../core/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
@@ -8,6 +9,7 @@ import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from '../services/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
 import { DataLoadFileService } from '../data/data-load-file.service';
+import { RouteName } from '../data/management/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +42,6 @@ export class AuthService {
         if (
           tok &&
           typeof tok === 'object' &&
-          // eslint-disable-next-line no-prototype-builtins
           tok.hasOwnProperty('user not exist')
         ) {
           this.toastShowService.showInfo(MessageLibrary.AUTH_USER_NOT_EXIST!);
@@ -62,6 +63,7 @@ export class AuthService {
 
   logOut() {
     this.removeToken();
+    this.removeStateValue();
     this.dataLoadFileService.clearAllImages();
   }
 
@@ -92,7 +94,6 @@ export class AuthService {
       if (res <= 0) {
         try {
           this.refreshToken().then((x) => {
-            // eslint-disable-next-line @typescript-eslint/no-confusing-non-null-assertion
             if (x! === true) {
               this.navigationService.navigateToWorkplace();
             } else {
@@ -155,6 +156,7 @@ export class AuthService {
 
       if (!isRefresh) {
         this.localStorageService.remove(MessageLibrary.TOKEN_REFRESHTOKEN);
+        this.removeStateValue();
       }
     } catch (e: unknown) {
       console.log('removeToken error: ', e);
@@ -234,11 +236,14 @@ export class AuthService {
     }
 
     try {
-      const response = await this.httpClient
-        .post<MyToken>(`${environment.baseUrl}Accounts/RefreshToken`, {
-          refreshToken,
-        })
-        .toPromise();
+      const response = await firstValueFrom(
+        this.httpClient.post<MyToken>(
+          `${environment.baseUrl}Accounts/RefreshToken`,
+          {
+            refreshToken,
+          }
+        )
+      );
 
       if (response) {
         this.storeToken(response, true); // isRefresh = true
@@ -246,8 +251,13 @@ export class AuthService {
       }
       return false;
     } catch {
-      // console.error('Token refresh failed:', error);
       return false;
     }
+  }
+
+  private removeStateValue() {
+    this.localStorageService.remove(RouteName.EDIT_ADDRESS);
+    this.localStorageService.remove(RouteName.EDIT_GROUP);
+    this.localStorageService.remove(RouteName.EDIT_SHIFT);
   }
 }

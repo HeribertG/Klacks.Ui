@@ -1,0 +1,179 @@
+import { inject } from '@angular/core';
+import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { SearchService } from 'src/app/services/search.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { RouteName } from 'src/app/data/management/entity-names.enum';
+import {
+  cloneObject,
+  compareComplexObjects,
+  copyObjectValues,
+  restoreFilter,
+  saveFilter,
+} from 'src/app/helpers/object-helpers';
+import { IBaseFilter } from 'src/app/core/general-class';
+
+export interface IFilterWithSetEmpty extends IBaseFilter {
+  setEmpty(): void;
+}
+
+export interface IDataManagementService<T extends IFilterWithSetEmpty> {
+  currentFilter: T;
+  onExternalFilterChange?: () => void;
+  restoreSearch: { set(value: string): void };
+  headerCheckBoxValue: boolean;
+  clearCheckedArray(): void;
+}
+
+export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends IDataManagementService<T>> {
+  protected workplaceStateService = inject(WorkplaceStateService);
+  protected searchService = inject(SearchService);
+  protected localStorageService = inject(LocalStorageService);
+
+  protected lastSavedFilter: T | null = null;
+
+  constructor(
+    protected dataManagementService: S,
+    protected routeName: RouteName,
+    protected editRouteName: string
+  ) {}
+
+  initializeWorkplaceState(): void {
+    this.workplaceStateService.setActiveManagerByRoute(this.routeName);
+    this.searchService.setSearchVisibility(true);
+
+    this.dataManagementService.onExternalFilterChange = () => {
+      this.onSearchFilterChanged();
+    };
+  }
+
+  saveCurrentFilter(key = this.editRouteName): void {
+    const storedRowOrder = this.localStorageService.get(
+      MessageLibrary.SELECTED_ROW_ORDER
+    );
+    const isAutoMode = storedRowOrder === '-1';
+
+    this.lastSavedFilter = cloneObject(
+      this.dataManagementService.currentFilter
+    );
+
+    if (isAutoMode) {
+      const filterToSave = cloneObject(
+        this.dataManagementService.currentFilter
+      );
+      saveFilter(filterToSave, key);
+    } else {
+      saveFilter(this.dataManagementService.currentFilter, key);
+    }
+  }
+
+  restoreFilterFromStorage(key = this.editRouteName): boolean {
+    const storedFilter = restoreFilter(key);
+
+    if (!storedFilter) {
+      this.dataManagementService.currentFilter.setEmpty();
+      this.lastSavedFilter = null;
+      return false;
+    }
+
+    if (this.hasFilterChanged()) {
+      this.lastSavedFilter = cloneObject(
+        this.dataManagementService.currentFilter
+      );
+      return false;
+    }
+
+    const wasApplied = this.applyStoredFilter(storedFilter as T);
+    if (wasApplied) {
+      this.lastSavedFilter = cloneObject(storedFilter) as T;
+    }
+    return wasApplied;
+  }
+
+  protected applyStoredFilter(storedFilter: T): boolean {
+    const originalFilter = cloneObject<T>(
+      this.dataManagementService.currentFilter
+    );
+
+    copyObjectValues(
+      this.dataManagementService.currentFilter,
+      storedFilter
+    );
+
+    if (this.dataManagementService.currentFilter.searchString) {
+      this.dataManagementService.restoreSearch.set(
+        this.dataManagementService.currentFilter.searchString
+      );
+    }
+
+    return !compareComplexObjects(
+      originalFilter,
+      this.dataManagementService.currentFilter
+    );
+  }
+
+  prepareFilterForRequest(
+    orderBy: string,
+    sortOrder: string,
+    page: number,
+    firstItemOnLastPage?: number,
+    isPreviousPage?: boolean,
+    isNextPage?: boolean
+  ): void {
+    this.dataManagementService.currentFilter.orderBy = orderBy;
+    this.dataManagementService.currentFilter.sortOrder = sortOrder;
+    this.dataManagementService.currentFilter.requiredPage = page - 1;
+    this.dataManagementService.currentFilter.firstItemOnLastPage =
+      firstItemOnLastPage;
+    this.dataManagementService.currentFilter.isPreviousPage =
+      isPreviousPage;
+    this.dataManagementService.currentFilter.isNextPage = isNextPage;
+  }
+
+  resetFilter(): void {
+    this.dataManagementService.currentFilter.setEmpty();
+    this.clearHeaderCheckbox();
+  }
+
+  clearHeaderCheckbox(): void {
+    this.dataManagementService.headerCheckBoxValue = false;
+    this.dataManagementService.clearCheckedArray();
+  }
+
+  protected hasFilterChanged(): boolean {
+    if (!this.lastSavedFilter) {
+      return false;
+    }
+
+    const currentFilter = this.dataManagementService.currentFilter;
+    return !compareComplexObjects(this.lastSavedFilter, currentFilter);
+  }
+
+  updateFilterState(): void {
+    this.lastSavedFilter = cloneObject(
+      this.dataManagementService.currentFilter
+    );
+  }
+
+  saveAutoModeItemsPerPage(itemsPerPage: number): void {
+    // No longer needed - TableResizeService will always recalculate
+  }
+
+  clearStoredFilter(key = this.editRouteName): void {
+    localStorage.removeItem(key);
+    this.lastSavedFilter = null;
+  }
+
+  onSearchFilterChanged(): void {
+    this.clearStoredFilter();
+    this.updateFilterState();
+  }
+
+  isResizeCalculationAllowed(): boolean {
+    return !this.dataManagementService.currentFilter.searchString?.trim();
+  }
+
+  // Abstract methods that must be implemented by subclasses
+  abstract setTemporaryFilterState(): void;
+  abstract isTemporaryFilterDirty(): boolean;
+}

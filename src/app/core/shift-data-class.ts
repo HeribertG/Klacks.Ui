@@ -91,6 +91,8 @@ export interface IShiftFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   isOriginal: boolean;
   includeClientName: boolean;
+  
+  setEmpty(): void;
 }
 
 export class ShiftFilter extends BaseFilter implements IShiftFilter {

@@ -18,6 +18,9 @@ import { CutTableComponent } from './cut-table/cut-table.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { PaginationComponent, IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
+import { AllShiftStateService } from '../services/all-shift-state.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -34,7 +37,7 @@ import { TableResizeService } from 'src/app/services/table-resize.service';
     CutTableComponent,
     PaginationComponent,
   ],
-  providers: [TableResizeService],
+  providers: [TableResizeService, AllShiftStateService],
 })
 export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('shiftTableContainer', { static: false }) shiftTableContainer?: ElementRef<HTMLElement>;
@@ -43,6 +46,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
   private tableResizeService = inject(TableResizeService);
+  private allShiftStateService = inject(AllShiftStateService);
+  private localStorageService = inject(LocalStorageService);
 
   selectedRowId?: string;
 
@@ -62,8 +67,18 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.tableResizeService.setRowHeights(90, 82);
     this.dataManagementShiftService.init();
+    this.allShiftStateService.initializeWorkplaceState();
     this.visibleRow = visibleRow(true);
-    this.readPage();
+    
+    const wasRestored = this.allShiftStateService.restoreFilterFromStorage();
+    if (wasRestored) {
+      setTimeout(() => {
+        this.page = this.dataManagementShiftService.currentFilter.requiredPage + 1;
+        this.readPage();
+      }, 100);
+    } else {
+      this.readPage();
+    }
   }
 
   resizeWindow: (() => void) | undefined;
@@ -76,6 +91,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickEdit(data: Shift): void {
     if (data && data.id) {
+      this.allShiftStateService.saveCurrentFilter();
       this.dataManagementShiftService.readShift(data.id);
     }
   }
@@ -129,11 +145,11 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     if (value === -1 && this.shiftTableContainer?.nativeElement) {
       const tableElement = this.shiftTableContainer.nativeElement.querySelector('table') || this.shiftTableContainer.nativeElement;
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
-        tableElement as HTMLElement,
-        this.dataManagementShiftService.maxItems
+        tableElement as HTMLElement
       );
       this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = optimalRows;
       this.realRow = optimalRows;
+      this.allShiftStateService.saveAutoModeItemsPerPage(optimalRows);
     } else {
       this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = value;
     }
@@ -144,6 +160,10 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onItemsPerPageChange(value: number): void {
+    if (this.dataManagementShiftService.currentFilter.searchString) {
+      return;
+    }
+    
     this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = value;
     this.realRow = value;
     this.page = 1;
@@ -174,13 +194,20 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       const tableElement = this.shiftTableContainer.nativeElement.querySelector('table') || this.shiftTableContainer.nativeElement;
 
       this.tableResizeService.createResizeObservable(
-        tableElement as HTMLElement,
-        this.dataManagementShiftService.maxItems
+        tableElement as HTMLElement
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe((optimalRows: number) => {
         if (this.tableResizeService.isAutoMode()) {
           const currentRows = this.dataManagementShiftService.currentFilter.numberOfItemsPerPage;
+          
+          if (this.dataManagementShiftService.currentFilter.searchString) {
+            return;
+          }
+          
+          if (!this.allShiftStateService.isResizeCalculationAllowed()) {
+            return;
+          }
           
           if (Math.abs(currentRows - optimalRows) >= 1) {
             this.dataManagementShiftService.currentFilter.numberOfItemsPerPage = optimalRows;
@@ -194,10 +221,14 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private readPage(): void {
-    this.dataManagementShiftService.currentFilter.requiredPage = this.page - 1;
-    this.dataManagementShiftService.currentFilter.firstItemOnLastPage = this.firstItemOnLastPage;
-    this.dataManagementShiftService.currentFilter.isPreviousPage = this.isPreviousPage;
-    this.dataManagementShiftService.currentFilter.isNextPage = this.isNextPage;
+    this.allShiftStateService.prepareFilterForRequest(
+      this.dataManagementShiftService.currentFilter.orderBy,
+      this.dataManagementShiftService.currentFilter.sortOrder,
+      this.page,
+      this.firstItemOnLastPage,
+      this.isPreviousPage,
+      this.isNextPage
+    );
     this.dataManagementShiftService.readPage(true);
   }
 }

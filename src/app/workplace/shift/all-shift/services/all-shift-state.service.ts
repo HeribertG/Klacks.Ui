@@ -1,0 +1,46 @@
+import { Injectable, inject } from '@angular/core';
+import { IShiftFilter } from 'src/app/core/shift-data-class';
+import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { RouteName } from 'src/app/data/management/entity-names.enum';
+import { BaseStateService } from 'src/app/services/base-state.service';
+
+@Injectable()
+export class AllShiftStateService extends BaseStateService<
+  IShiftFilter,
+  DataManagementShiftService
+> {
+  constructor() {
+    super(
+      inject(DataManagementShiftService),
+      RouteName.SHIFT,
+      RouteName.EDIT_SHIFT
+    );
+  }
+
+  setTemporaryFilterState(): void {
+    this.dataManagementService.setTemporaryShiftFilter();
+  }
+
+  isTemporaryFilterDirty(): boolean {
+    return this.dataManagementService.isTemporaryShiftFilter_Dirty();
+  }
+
+  updateShiftDateRange(
+    activeDateRange: boolean,
+    formerDateRange: boolean,
+    futureDateRange: boolean
+  ): void {
+    this.dataManagementService.currentFilter.activeDateRange = activeDateRange;
+    this.dataManagementService.currentFilter.formerDateRange = formerDateRange;
+    this.dataManagementService.currentFilter.futureDateRange = futureDateRange;
+    this.clearHeaderCheckbox();
+  }
+
+  setShowDeleteEntries(show: boolean): void {
+    this.dataManagementService.currentFilter.showDeleteEntries = show;
+  }
+
+  setIsOriginal(isOriginal: boolean): void {
+    this.dataManagementService.currentFilter.isOriginal = isOriginal;
+  }
+}

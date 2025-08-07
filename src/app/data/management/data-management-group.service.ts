@@ -61,9 +61,9 @@ export class DataManagementGroupService implements IManageable {
     );
   }
 
-  // IManageable implementation
   public showProgressSpinner = signal(false);
   public onSaveCompleted?: () => void;
+  public onExternalFilterChange?: () => void;
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -97,6 +97,7 @@ export class DataManagementGroupService implements IManageable {
 
   private currentFilterDummy: GroupFilter | undefined;
   private editGroupDummy: IGroup | undefined;
+  private temporaryGroupFilterDummy: GroupFilter | undefined;
   private currentClientFilterDummy: Filter | undefined;
   private temporaryClientFilterDummy: Filter | undefined;
 
@@ -469,6 +470,26 @@ export class DataManagementGroupService implements IManageable {
   }
 
   /* #endregion   temporary check is Filter dirty */
+
+  /* #region   temporary check is GroupFilter dirty */
+
+  public setTemporaryGroupFilter() {
+    this.temporaryGroupFilterDummy = cloneObject<GroupFilter>(
+      this.currentFilter
+    );
+  }
+
+  public isTemporaryGroupFilter_Dirty(): boolean {
+    const a = this.currentFilter as GroupFilter;
+    const b = this.temporaryGroupFilterDummy as GroupFilter;
+
+    if (!compareComplexObjects(a, b)) {
+      return true;
+    }
+    return false;
+  }
+
+  /* #endregion   temporary check is GroupFilter dirty */
 
   /* #region   Tree Group */
 

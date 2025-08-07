@@ -32,12 +32,7 @@ import {
 } from 'src/app/core/headerProperties';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
-import {
-  cloneObject,
-  compareComplexObjects,
-  copyObjectValues,
-  saveFilter,
-} from 'src/app/helpers/object-helpers';
+
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/icons/pencil-icon-grey.component';
@@ -47,6 +42,8 @@ import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
+import { AllGroupStateService } from '../services/all-group-state.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 @Component({
   selector: 'app-all-group-list',
@@ -65,7 +62,7 @@ import { TableResizeService } from 'src/app/services/table-resize.service';
     ResizeTableDirective,
     PaginationComponent,
   ],
-  providers: [TableResizeService],
+  providers: [TableResizeService, AllGroupStateService],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(ResizeTableDirective, { static: false })
@@ -83,6 +80,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
   private injector = inject(Injector);
   private tableResizeService = inject(TableResizeService);
+  private allGroupStateService = inject(AllGroupStateService);
+  private localStorageService = inject(LocalStorageService);
 
   private effectRef: EffectRef | null = null;
 
@@ -121,6 +120,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataManagementGroupService.init();
+    this.allGroupStateService.initializeWorkplaceState();
     this.reReadSortData();
 
     this.readSignals();
@@ -348,6 +348,10 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   /* #region   resize */
 
   onItemsPerPageChange(value: number): void {
+    if (this.dataManagementGroupService.currentFilter.searchString) {
+      return;
+    }
+
     this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = value;
     this.readPage();
   }
@@ -379,38 +383,21 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setFilter(): void {
-    this.dataManagementGroupService.currentFilter.orderBy = this.orderBy;
-    this.dataManagementGroupService.currentFilter.sortOrder = this.sortOrder;
-    this.dataManagementGroupService.currentFilter.requiredPage = this.page - 1;
-    this.dataManagementGroupService.currentFilter.firstItemOnLastPage =
-      this.firstItemOnLastPage;
-    this.dataManagementGroupService.currentFilter.isPreviousPage =
-      this.isPreviousPage;
-    this.dataManagementGroupService.currentFilter.isNextPage = this.isNextPage;
+    this.allGroupStateService.prepareFilterForRequest(
+      this.orderBy,
+      this.sortOrder,
+      this.page,
+      this.firstItemOnLastPage,
+      this.isPreviousPage,
+      this.isNextPage
+    );
   }
   private restoreFilter(value: IGroupFilter) {
-    const filter = cloneObject<IGroupFilter>(
-      this.dataManagementGroupService.currentFilter
-    );
-    copyObjectValues(this.dataManagementGroupService.currentFilter, value);
-
-    if (this.dataManagementGroupService.currentFilter.searchString) {
-      this.dataManagementGroupService.restoreSearch.set(
-        this.dataManagementGroupService.currentFilter.searchString
-      );
-    }
-
-    if (
-      !compareComplexObjects(
-        filter,
-        this.dataManagementGroupService.currentFilter
-      )
-    ) {
-      this.readPage();
-    }
+    // This method is now handled by AllGroupStateService
+    // Keeping for backward compatibility if needed
   }
   onClickEdit(data: IGroup) {
-    saveFilter(this.dataManagementGroupService.currentFilter, 'edit-group');
+    this.allGroupStateService.saveCurrentFilter();
     this.dataManagementGroupService.prepareGroup(data);
     this.navigationService.navigateToEditGroup(data.id);
   }
@@ -420,15 +407,15 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.page = 1;
 
     if (value === -1 && this.myGridTable?.nativeElement) {
-      // Auto mode: calculate optimal row count using TableResizeService
       const optimalRows = this.tableResizeService.calculateOptimalRowCount(
-        this.myGridTable.nativeElement,
-        this.dataManagementGroupService.paginationDataService.maxItems
+        this.myGridTable.nativeElement
       );
-      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = optimalRows;
+      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
+        optimalRows;
+      this.allGroupStateService.saveAutoModeItemsPerPage(optimalRows);
     } else {
-      // Fixed mode: use selected value
-      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = value;
+      this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
+        value;
     }
 
     this.resizeDirective?.onRowSizeChange(value);
@@ -485,37 +472,73 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.effectRef = effect(() => {
         const isRead = this.dataManagementGroupService.isRead();
         if (isRead) {
+          const storedRowOrder =
+            this.localStorageService.get('SELECTED_ROW_ORDER');
+          if (
+            storedRowOrder === '-1' &&
+            this.isFirstRead &&
+            this.dataManagementGroupService.currentFilter.numberOfItemsPerPage >
+              0 &&
+            !this.dataManagementGroupService.currentFilter.searchString
+          ) {
+            this.allGroupStateService.saveAutoModeItemsPerPage(
+              this.dataManagementGroupService.currentFilter.numberOfItemsPerPage
+            );
+          }
+
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
             this.resizeDirective?.triggerMeasurement();
           }
         }
+
+        const initIsRead = this.dataManagementGroupService.initIsRead();
+        if (initIsRead) {
+          this.isInit();
+        }
       });
     });
+  }
+
+  private isInit(): void {
+    const wasRestored = this.allGroupStateService.restoreFilterFromStorage();
+
+    if (wasRestored) {
+      setTimeout(() => {
+        this.page =
+          this.dataManagementGroupService.currentFilter.requiredPage + 1;
+        this.readPage();
+      }, 100);
+    }
   }
 
   private setupTableResize(): void {
     if (!this.myGridTable?.nativeElement) return;
 
-    // Subscribe to resize events only in auto mode
-    this.tableResizeService.createResizeObservable(
-      this.myGridTable.nativeElement,
-      this.dataManagementGroupService.paginationDataService.maxItems
-    )
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe((optimalRows: number) => {
-      // Only update if we're in auto mode
-      if (this.tableResizeService.isAutoMode()) {
-        const currentRows = this.dataManagementGroupService.currentFilter.numberOfItemsPerPage;
-        
-        // Update only if the optimal row count has changed significantly
-        if (Math.abs(currentRows - optimalRows) >= 2) {
-          this.dataManagementGroupService.currentFilter.numberOfItemsPerPage = optimalRows;
-          this.page = 1;
-          this.readPage();
+    this.tableResizeService
+      .createResizeObservable(this.myGridTable.nativeElement)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((optimalRows: number) => {
+        if (this.tableResizeService.isAutoMode()) {
+          const currentRows =
+            this.dataManagementGroupService.currentFilter.numberOfItemsPerPage;
+
+          if (this.dataManagementGroupService.currentFilter.searchString) {
+            return;
+          }
+
+          if (!this.allGroupStateService.isResizeCalculationAllowed()) {
+            return;
+          }
+
+          if (Math.abs(currentRows - optimalRows) >= 1) {
+            this.dataManagementGroupService.currentFilter.numberOfItemsPerPage =
+              optimalRows;
+            this.page = 1;
+            this.readPage();
+          }
         }
-      }
-    });
+      });
   }
 }
