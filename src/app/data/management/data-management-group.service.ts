@@ -120,7 +120,6 @@ export class DataManagementGroupService implements IManageable {
         this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
       }
     });
-    this.currentFilter.setEmpty();
     this.readPage();
   }
 

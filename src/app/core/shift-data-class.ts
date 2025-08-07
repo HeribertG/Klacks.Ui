@@ -91,8 +91,6 @@ export interface IShiftFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   isOriginal: boolean;
   includeClientName: boolean;
-  
-  setEmpty(): void;
 }
 
 export class ShiftFilter extends BaseFilter implements IShiftFilter {
@@ -114,9 +112,4 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
 
   selectedGroup: string | undefined = undefined;
 
-  setEmpty(): void {
-    this.activeDateRange = true;
-    this.formerDateRange = false;
-    this.futureDateRange = false;
-  }
 }

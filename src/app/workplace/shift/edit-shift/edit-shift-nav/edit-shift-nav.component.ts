@@ -14,6 +14,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
+import { Filter } from 'src/app/core/client-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -105,7 +106,7 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickSetEmpty() {
     this.localStorageService.remove('edit-shift-address');
-    this.dataManagementShiftService.currentClientFilter.setEmpty();
+    this.dataManagementShiftService.currentClientFilter = new Filter();
     this.onFilterChange();
   }
 

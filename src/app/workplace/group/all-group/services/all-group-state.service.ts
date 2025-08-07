@@ -17,14 +17,6 @@ export class AllGroupStateService extends BaseStateService<
     );
   }
 
-  setTemporaryFilterState(): void {
-    this.dataManagementService.setTemporaryGroupFilter();
-  }
-
-  isTemporaryFilterDirty(): boolean {
-    return this.dataManagementService.isTemporaryGroupFilter_Dirty();
-  }
-
   updateGroupDateRange(
     activeDateRange: boolean,
     formerDateRange: boolean,
@@ -33,7 +25,6 @@ export class AllGroupStateService extends BaseStateService<
     this.dataManagementService.currentFilter.activeDateRange = activeDateRange;
     this.dataManagementService.currentFilter.formerDateRange = formerDateRange;
     this.dataManagementService.currentFilter.futureDateRange = futureDateRange;
-    this.clearHeaderCheckbox();
   }
 
   setShowDeleteEntries(show: boolean): void {

@@ -14,19 +14,13 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { IBaseFilter } from 'src/app/core/general-class';
 
-export interface IFilterWithSetEmpty extends IBaseFilter {
-  setEmpty(): void;
-}
-
-export interface IDataManagementService<T extends IFilterWithSetEmpty> {
+export interface IDataManagementService<T extends IBaseFilter> {
   currentFilter: T;
   onExternalFilterChange?: () => void;
   restoreSearch: { set(value: string): void };
-  headerCheckBoxValue: boolean;
-  clearCheckedArray(): void;
 }
 
-export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends IDataManagementService<T>> {
+export abstract class BaseStateService<T extends IBaseFilter, S extends IDataManagementService<T>> {
   protected workplaceStateService = inject(WorkplaceStateService);
   protected searchService = inject(SearchService);
   protected localStorageService = inject(LocalStorageService);
@@ -75,7 +69,6 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
     const storedFilter = restoreFilter(key);
 
     if (!storedFilter) {
-      this.dataManagementService.currentFilter.setEmpty();
       this.dataManagementSearchService.setRestoreSearch('');
       this.lastSavedFilter = null;
       return false;
@@ -133,13 +126,7 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
   }
 
   resetFilter(): void {
-    this.dataManagementService.currentFilter.setEmpty();
-    this.clearHeaderCheckbox();
-  }
-
-  clearHeaderCheckbox(): void {
-    this.dataManagementService.headerCheckBoxValue = false;
-    this.dataManagementService.clearCheckedArray();
+    // Filter reset is handled by filter object itself
   }
 
   protected hasFilterChanged(): boolean {
@@ -171,8 +158,4 @@ export abstract class BaseStateService<T extends IFilterWithSetEmpty, S extends 
   isResizeCalculationAllowed(): boolean {
     return !this.dataManagementService.currentFilter.searchString?.trim();
   }
-
-  // Abstract methods that must be implemented by subclasses
-  abstract setTemporaryFilterState(): void;
-  abstract isTemporaryFilterDirty(): boolean;
 }

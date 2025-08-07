@@ -138,16 +138,8 @@ export class AllAddressNavComponent
 
   onOpenChange(event: boolean) {
     this.isComboBoxOpen = event;
-    if (this.isComboBoxOpen) {
-      this.allAddressStateService.setTemporaryFilterState();
-    }
-    if (
-      !this.isComboBoxOpen &&
-      this.allAddressStateService.isTemporaryFilterDirty()
-    ) {
+    if (!this.isComboBoxOpen) {
       setTimeout(() => {
-        console.log('[AllAddressNavComponent] Filter changed, updating state');
-        this.allAddressStateService.clearHeaderCheckbox();
         this.allAddressStateService.updateFilterState();
         this.dataManagementClientService.readPage();
       }, 100);
@@ -170,11 +162,6 @@ export class AllAddressNavComponent
   onClickClientType(index: number) {
     this.setEntityName(index);
 
-    console.log('[AllAddressNavComponent] onClickClientType:', {
-      index,
-      beforeUpdateFilterState: this.dataManagementClientService.currentFilter.numberOfItemsPerPage
-    });
-    
     this.allAddressStateService.updateClientType(index === -1 ? -1 : index);
     this.allAddressStateService.updateFilterState();
 

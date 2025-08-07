@@ -14,21 +14,10 @@ export class AllAddressStateService extends BaseStateService<IFilter, DataManage
     );
   }
 
-  // Client-specific implementations
-
-  setTemporaryFilterState(): void {
-    this.dataManagementService.setTemporaryFilter();
-  }
-
-  isTemporaryFilterDirty(): boolean {
-    return this.dataManagementService.isTemoraryFilter_Dirty();
-  }
-
   // Address-specific methods
 
   updateClientType(clientType: number): void {
     this.dataManagementService.currentFilter.clientType = clientType;
-    this.clearHeaderCheckbox();
   }
 
   setShowDeleteEntries(show: boolean): void {

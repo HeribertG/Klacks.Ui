@@ -1,6 +1,7 @@
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Absence } from './absence-class';
 import { Client } from './client-class';
+import { IBaseFilter } from './general-class';
 
 export interface IBreak {
   id: string | undefined;
@@ -39,20 +40,23 @@ export class AbsenceTokenFilter implements IAbsenceTokenFilter {
   name = '';
   checked = true;
 }
-export interface IBreakFilter {
+export interface IBreakFilter extends IBaseFilter {
   currentYear: number;
   absences: AbsenceTokenFilter[];
-  search: string | undefined;
-  orderBy: string | undefined;
-  sortOrder: string | undefined;
   selectedGroup: string | undefined;
 }
 
 export class BreakFilter implements IBreakFilter {
   currentYear = new Date().getFullYear();
   absences: AbsenceTokenFilter[] = [];
-  search = undefined;
+  searchString = '';
   orderBy = 'name';
   sortOrder = 'asc';
+  numberOfItemsPerPage = 5;
+  requiredPage = 0;
+  numberOfItemOnPreviousPage: number | undefined = undefined;
+  firstItemOnLastPage: number | undefined = undefined;
+  isPreviousPage: boolean | undefined = undefined;
+  isNextPage: boolean | undefined = undefined;
   selectedGroup: string | undefined = undefined;
 }

@@ -14,6 +14,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
+import { Filter } from 'src/app/core/client-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
@@ -149,7 +150,7 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickSetEmpty() {
     this.localStorageService.remove('edit-address');
-    this.dataManagementGroupService.currentClientFilter.setEmpty();
+    this.dataManagementGroupService.currentClientFilter = new Filter();
     (document.getElementById('scopeFromFlag') as HTMLInputElement).checked =
       false;
     (document.getElementById('scopeUntilFlag') as HTMLInputElement).checked =

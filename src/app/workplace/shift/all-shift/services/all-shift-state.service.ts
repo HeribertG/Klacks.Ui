@@ -17,14 +17,6 @@ export class AllShiftStateService extends BaseStateService<
     );
   }
 
-  setTemporaryFilterState(): void {
-    this.dataManagementService.setTemporaryShiftFilter();
-  }
-
-  isTemporaryFilterDirty(): boolean {
-    return this.dataManagementService.isTemporaryShiftFilter_Dirty();
-  }
-
   updateShiftDateRange(
     activeDateRange: boolean,
     formerDateRange: boolean,
@@ -33,7 +25,6 @@ export class AllShiftStateService extends BaseStateService<
     this.dataManagementService.currentFilter.activeDateRange = activeDateRange;
     this.dataManagementService.currentFilter.formerDateRange = formerDateRange;
     this.dataManagementService.currentFilter.futureDateRange = futureDateRange;
-    this.clearHeaderCheckbox();
   }
 
   setShowDeleteEntries(show: boolean): void {

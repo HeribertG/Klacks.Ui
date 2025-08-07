@@ -80,8 +80,6 @@ export interface IFilter extends IBaseFilter {
   filteredStateToken: StateCountryToken[];
 
   selectedGroup: string | undefined;
-  
-  setEmpty(): void;
 }
 
 export interface ITruncatedFilter {
@@ -338,34 +336,6 @@ export class Filter extends BaseFilter implements IFilter {
     );
   }
 
-  setEmpty() {
-    this.showDeleteEntries = false;
-    this.macroFilter = '';
-    this.clientType = -1;
-
-    this.scopeFrom = undefined;
-    this.scopeUntil = undefined;
-    this.scopeFromFlag = undefined;
-    this.scopeUntilFlag = undefined;
-    this.internalScopeFrom = undefined;
-    this.internalScopeUntil = undefined;
-
-    this.male = true;
-    this.female = true;
-    this.legalEntity = true;
-    this.companyAddress = true;
-    this.invoiceAddress = true;
-    this.homeAddress = true;
-
-    this.activeMembership = true;
-    this.formerMembership = false;
-    this.futureMembership = false;
-
-    this.hasAnnotation = false;
-
-    this.selectState(true);
-    this.selectCountries(true);
-  }
 
   selectState(value: boolean) {
     this.filteredStateToken.forEach((x) => {

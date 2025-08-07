@@ -5,7 +5,6 @@ import { Subject } from 'rxjs';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { CommonModule } from '@angular/common';
-import { SharedModule } from 'src/app/shared/shared.module';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 
 @Component({
@@ -13,7 +12,7 @@ import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
   templateUrl: './schedule-shift-surface.component.html',
   styleUrls: ['./schedule-shift-surface.component.scss'],
   standalone: true,
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule],
 })
 export class ScheduleShiftSurfaceComponent {
   @Input() contextMenu: ContextMenuComponent | undefined;

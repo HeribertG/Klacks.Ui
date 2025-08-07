@@ -42,13 +42,16 @@ export class DataManagementSearchService {
         }
         this.dataManagementClient.readPage();
         break;
-      case EntityName.ABSENCE:
-        this.dataManagementBreak.breakFilter.search = value;
-        this.dataManagementBreak.readYear();
-        break;
       case EntityName.GROUP:
         this.dataManagementGroup.currentFilter.searchString = value;
         this.dataManagementGroup.readPage();
+        break;
+      case EntityName.ABSENCE:
+        this.dataManagementBreak.breakFilter.searchString = value;
+        this.dataManagementBreak.readYear();
+        if (this.dataManagementBreak.onExternalFilterChange) {
+          this.dataManagementBreak.onExternalFilterChange();
+        }
         break;
       case EntityName.SCHEDULE:
         this.dataManagementSchedule.workFilter.search = value;
@@ -81,13 +84,13 @@ export class DataManagementSearchService {
         }
         this.dataManagementClient.readPage();
         break;
-      case EntityName.ABSENCE:
-        this.dataManagementBreak.breakFilter.search = '';
-        this.dataManagementBreak.readYear();
-        break;
       case EntityName.GROUP:
         this.dataManagementGroup.currentFilter.searchString = '';
         this.dataManagementGroup.readPage();
+        break;
+      case EntityName.ABSENCE:
+        this.dataManagementBreak.breakFilter.searchString = '';
+        this.dataManagementBreak.readYear();
         break;
       case EntityName.SHIFT:
         this.dataManagementShift.currentFilter.searchString = '';

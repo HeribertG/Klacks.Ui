@@ -124,8 +124,6 @@ export interface IGroupFilter extends IBaseFilter {
   formerDateRange: boolean;
   futureDateRange: boolean;
   selectedGroup: string | undefined;
-  
-  setEmpty(): void;
 }
 
 export class GroupFilter extends BaseFilter implements IGroupFilter {
@@ -145,11 +143,6 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
 
   selectedGroup: string | undefined = undefined;
 
-  setEmpty(): void {
-    this.activeDateRange = true;
-    this.formerDateRange = false;
-    this.futureDateRange = false;
-  }
 }
 
 export interface IGroupTree {

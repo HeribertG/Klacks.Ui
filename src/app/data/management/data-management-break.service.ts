@@ -24,7 +24,11 @@ export class DataManagementBreakService {
   public isAbsenceHeaderInit = signal(false);
 
   public breakFilter: IBreakFilter = new BreakFilter();
+  public get currentFilter(): IBreakFilter { return this.breakFilter; }
   public clients: IClientBreak[] = [];
+  private _restoreSearchSignal = signal('');
+  public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
+  public onExternalFilterChange?: () => void;
   private breakFilterDummy: IBreakFilter | undefined = undefined;
 
   // only when DataManagementAbsenceGanttService has loaded its AbsenceFilter,
@@ -172,4 +176,6 @@ export class DataManagementBreakService {
     }
     return false;
   }
+
+
 }

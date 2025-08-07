@@ -40,6 +40,7 @@ export class DataManagementAbsenceService implements ISpinnable {
 
   public listWrapper: TruncatedAbsence | undefined;
   public currentFilter: AbsenceFilter = new AbsenceFilter();
+  public restoreSearch = signal('');
 
   private static readonly READ_RESET_DELAY = 100;
 

@@ -16,8 +16,7 @@ import { BreakLayerService } from '../services/break-layer.service';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { AllAbsenceStateService } from '../services/all-absence-state.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -42,22 +41,17 @@ import { WorkplaceStateService } from 'src/app/data/management/workplace-state.s
     RenderRowHeaderCellService,
     BreakLayerService,
     HolidayCollectionService,
+    AllAbsenceStateService,
   ],
 })
 export class AbsenceGanttHomeComponent implements OnInit {
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
-  private searchService = inject(SearchService);
-  private workplaceStateService = inject(WorkplaceStateService);
+  private allAbsenceStateService = inject(AllAbsenceStateService);
 
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
-    this.searchService.setSearchVisibility(true);
-    
-    // Set active manager for absence route to enable search functionality
-    this.workplaceStateService.setActiveManagerByRoute('absence');
-    
-    // Set full width for absence gantt
     this.layoutService.setContainerToFullSize();
+    this.allAbsenceStateService.initializeWorkplaceState();
   }
 }
