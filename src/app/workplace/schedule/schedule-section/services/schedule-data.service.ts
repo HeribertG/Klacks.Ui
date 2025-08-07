@@ -118,7 +118,7 @@ export class ScheduleDataService extends BaseDataService {
 
     return false;
   }
-  override isColumnSealed(column: number): boolean {
+  override isColumnSealed(_column: number): boolean {
     return false;
   }
 

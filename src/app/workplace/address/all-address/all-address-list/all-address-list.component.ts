@@ -13,7 +13,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CheckBoxValue, IClient, IFilter } from 'src/app/core/client-class';
+import { CheckBoxValue, IClient } from 'src/app/core/client-class';
 import {
   HeaderDirection,
   HeaderProperties,
@@ -36,7 +36,6 @@ import { ResizeTableDirective } from 'src/app/directives/resize-table.directive'
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
-import { RouteName } from 'src/app/data/management/entity-names.enum';
 
 @Component({
   selector: 'app-all-address-list',

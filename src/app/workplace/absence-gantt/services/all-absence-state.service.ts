@@ -3,7 +3,6 @@ import { DataManagementBreakService } from 'src/app/data/management/data-managem
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';
 import { IBreakFilter } from 'src/app/core/break-class';
-import { restoreFilter } from 'src/app/helpers/object-helpers';
 
 @Injectable()
 export class AllAbsenceStateService extends BaseStateService<
