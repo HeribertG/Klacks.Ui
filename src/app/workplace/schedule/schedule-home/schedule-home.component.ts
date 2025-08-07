@@ -23,6 +23,7 @@ import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
 import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
+import { AllScheduleStateService } from '../services/all-schedule-state.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -37,6 +38,7 @@ import { DataManagementCalendarSelectionService } from 'src/app/data/management/
     HolidayCollectionService,
     ScrollbarService,
     BaseSettingsService,
+    AllScheduleStateService,
   ],
 })
 export class ScheduleHomeComponent implements OnInit, OnDestroy {
@@ -49,6 +51,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     DataManagementCalendarSelectionService
   );
   private injector = inject(Injector);
+  private allScheduleStateService = inject(AllScheduleStateService);
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
@@ -57,11 +60,10 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
-    this.searchService.setSearchVisibility(true);
-
-    this.workplaceStateService.setActiveManagerByRoute('schedule');
     this.layoutService.setContainerToFullSize();
 
+    this.allScheduleStateService.initializeWorkplaceState();
+    
     this.holidayCollection.readData();
 
     setTimeout(() => {

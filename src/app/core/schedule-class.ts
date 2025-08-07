@@ -2,6 +2,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { IClient, Membership } from './client-class';
 import { GenderEnum } from '../helpers/enums/client-enum';
 import { IShift } from './shift-class';
+import { IBaseFilter } from './general-class';
 
 export interface IWork {
   client?: IClient;
@@ -68,14 +69,11 @@ export class ClientWork implements IClientWork {
   works: Work[] = [];
 }
 
-export interface IWorkFilter {
+export interface IWorkFilter extends IBaseFilter {
   dayVisibleBeforeMonth: number;
   dayVisibleAfterMonth: number;
   currentMonth: number;
   currentYear: number;
-  orderBy: string;
-  search: string;
-  sortOrder: string;
   works: Work[];
   selectedGroup: string | undefined;
 }
@@ -85,9 +83,15 @@ export class WorkFilter implements IWorkFilter {
   dayVisibleAfterMonth = 10;
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
+  searchString = '';
   orderBy = '';
-  search = '';
   sortOrder = '';
+  numberOfItemsPerPage = 5;
+  requiredPage = 0;
+  numberOfItemOnPreviousPage: number | undefined = undefined;
+  firstItemOnLastPage: number | undefined = undefined;
+  isPreviousPage: boolean | undefined = undefined;
+  isNextPage: boolean | undefined = undefined;
   works: Work[] = [];
   selectedGroup: string | undefined = undefined;
 }

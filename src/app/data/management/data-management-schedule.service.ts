@@ -36,7 +36,11 @@ export class DataManagementScheduleService implements ISpinnable {
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
 
   public workFilter: IWorkFilter = new WorkFilter();
+  public get currentFilter(): IWorkFilter { return this.workFilter; }
   public clients: IClientWork[] = [];
+  private _restoreSearchSignal = signal('');
+  public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
+  public onExternalFilterChange?: () => void;
 
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
