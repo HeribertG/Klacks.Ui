@@ -5,15 +5,15 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   LocaleService,
   SupportedLocales,
-} from 'src/app/services/locale.service';
+} from 'src/app/application/services/locale.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
-import { ThemeService } from 'src/app/services/theme.service';
+import { ThemeService } from 'src/app/presentation/services/theme.service';
 
 @Component({
   selector: 'app-profile-custom-setting',

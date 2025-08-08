@@ -34,8 +34,8 @@ import {
   MultiLanguage,
 } from 'src/app/domain/models/multi-language-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';

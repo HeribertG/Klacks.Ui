@@ -3,8 +3,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataManagementShiftCutService', () => {
   let service: DataManagementShiftCutService;

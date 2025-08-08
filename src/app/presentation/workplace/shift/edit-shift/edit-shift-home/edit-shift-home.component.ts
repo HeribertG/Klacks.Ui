@@ -15,14 +15,14 @@ import { EditShiftMacroComponent } from '../edit-shift-macro/edit-shift-macro.co
 import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-address.component';
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
-import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { FooterService } from 'src/app/services/footer.service';
+import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-edit-shift-home',

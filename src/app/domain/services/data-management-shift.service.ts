@@ -3,16 +3,16 @@ import {
   transformDateToNgbDateStruct,
   transformNumberToOwnTime,
   transformStringToOwnTimeStruct,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift-data-class';
 import {
   CheckBoxValue,

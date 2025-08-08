@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { DataShiftCutsService } from './data-shift-cuts.service';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataShiftCutsService', () => {
   let service: DataShiftCutsService;

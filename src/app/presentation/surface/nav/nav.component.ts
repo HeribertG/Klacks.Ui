@@ -18,7 +18,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconClientsComponent } from 'src/app/presentation/icons/icon-clients.component';
 import { IconGanttComponent } from 'src/app/presentation/icons/icon-gantt.component';
 import { IconGroupComponent } from 'src/app/presentation/icons/icon-group.component';
@@ -26,15 +26,15 @@ import { IconOrderComponent } from 'src/app/presentation/icons/icon-order.compon
 import { IconSettingComponent } from 'src/app/presentation/icons/icon-setting.component';
 import { IconTimeScheduleComponent } from 'src/app/presentation/icons/icon-time-schedule.component';
 import { IconUserComponent } from 'src/app/presentation/icons/icon-user.component';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   LocaleService,
   SupportedLocales,
-} from 'src/app/services/locale.service';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { ThemeService } from 'src/app/services/theme.service';
-import { UrlParameterService } from 'src/app/services/url-parameter.service';
+} from 'src/app/application/services/locale.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 
 type NavigationPage =

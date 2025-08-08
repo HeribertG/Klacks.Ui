@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-dashboard-home',

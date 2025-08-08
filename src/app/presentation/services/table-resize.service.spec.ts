@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { TableResizeService } from './table-resize.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from '../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 describe('TableResizeService', () => {
   let service: TableResizeService;

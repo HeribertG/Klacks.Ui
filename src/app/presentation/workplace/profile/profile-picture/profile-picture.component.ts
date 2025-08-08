@@ -14,8 +14,8 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 // Services und Utilities
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { getFileExtension } from 'src/app/helpers/format-helper';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { getFileExtension } from 'src/app/domain/helpers/format-helper';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({

@@ -33,7 +33,7 @@ import {
 import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -41,10 +41,10 @@ import {
   ModalService,
   ModalType,
 } from 'src/app/presentation/modal/modal.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
-import { TableResizeService } from 'src/app/services/table-resize.service';
+import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllGroupStateService } from '../services/all-group-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 

@@ -8,7 +8,7 @@ import { NavComponent } from '../nav/nav.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
-import { ApplicationInitService } from 'src/app/services/application-init.service';
+import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 
 @Component({
   selector: 'app-home',

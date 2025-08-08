@@ -4,7 +4,7 @@ import { inject, Injectable } from '@angular/core';
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,

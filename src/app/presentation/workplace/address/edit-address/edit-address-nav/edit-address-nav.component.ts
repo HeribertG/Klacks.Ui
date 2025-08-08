@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';

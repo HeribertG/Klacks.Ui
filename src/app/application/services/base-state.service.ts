@@ -1,15 +1,15 @@
 import { inject } from '@angular/core';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { SearchService } from 'src/app/services/search.service';
+import { SearchService } from 'src/app/application/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { SearchStateService } from 'src/app/services/search-state.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import {
   cloneObject,
   compareComplexObjects,
   copyObjectValues,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { IBaseFilter } from 'src/app/domain/models/general-class';
 import { IFilterStorage, FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 

@@ -3,7 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NavigationService } from '../../services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   selector: 'app-page-not-found',

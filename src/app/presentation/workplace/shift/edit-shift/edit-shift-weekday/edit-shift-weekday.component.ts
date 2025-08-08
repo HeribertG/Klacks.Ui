@@ -22,7 +22,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/data-managem
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 @Component({
   selector: 'app-edit-shift-weekday',

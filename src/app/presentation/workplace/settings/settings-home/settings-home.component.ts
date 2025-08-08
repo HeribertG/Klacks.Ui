@@ -12,11 +12,11 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 // Services
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 // Standalone Komponenten
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';

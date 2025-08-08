@@ -15,8 +15,8 @@ import { IMacro } from 'src/app/domain/models/macro-class';
 import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 

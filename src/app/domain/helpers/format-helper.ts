@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 import moment from 'moment';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { MessageLibrary } from './string-constants';
+import { MessageLibrary } from '../../application/helpers/string-constants';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 export function EqualDate(

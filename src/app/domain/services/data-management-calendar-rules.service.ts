@@ -10,8 +10,8 @@ import {
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+} from 'src/app/domain/helpers/object-helpers';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';

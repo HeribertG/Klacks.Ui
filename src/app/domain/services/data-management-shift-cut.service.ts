@@ -3,9 +3,9 @@ import { inject, Injectable, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';

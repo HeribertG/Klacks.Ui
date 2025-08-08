@@ -10,7 +10,7 @@ import {
 import { MenuItem } from '../context-menu-class';
 import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
-import { Timer } from 'src/app/helpers/timer';
+import { Timer } from 'src/app/presentation/helpers/timer';
 import { CommonModule } from '@angular/common';
 
 @Component({

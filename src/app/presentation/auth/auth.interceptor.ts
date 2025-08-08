@@ -8,7 +8,7 @@ import {
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
@@ -17,19 +17,19 @@ import {
   daysBetweenDates,
   getDaysInMonth,
   isLeapYear,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
 } from '../../../shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from '../../../shared/grid/enums/gradient-3d-border-style';
-import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { BreakLayerService } from './break-layer.service';
 
 /**

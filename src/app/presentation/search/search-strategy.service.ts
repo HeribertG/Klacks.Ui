@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
-import { SearchStateService } from '../../services/search-state.service';
+import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { IEntitySearchStrategy, EntitySearchOptions } from './strategies/interfaces/entity-search-strategy.interface';
 import { ClientSearchStrategy } from './strategies/client-search.strategy';
 import { GroupSearchStrategy } from './strategies/group-search.strategy';

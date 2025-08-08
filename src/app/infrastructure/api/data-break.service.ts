@@ -4,7 +4,7 @@ import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Break, IBreak, IBreakFilter } from 'src/app/domain/models/break-class';
 import { IClientBreak } from 'src/app/domain/models/client-class';
-import { dateWithLocalTimeCorrection } from 'src/app/helpers/format-helper';
+import { dateWithLocalTimeCorrection } from 'src/app/domain/helpers/format-helper';
 
 @Injectable({
   providedIn: 'root',

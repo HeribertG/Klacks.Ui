@@ -17,7 +17,7 @@ import {
   transformNgbDateStructToDate,
   isNgbDateStructOk,
   dateWithLocalTimeCorrection,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
 @Injectable({

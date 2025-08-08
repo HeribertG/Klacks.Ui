@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
-import { daysBetweenDates, isLeapYear } from 'src/app/helpers/format-helper';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IBreak } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
@@ -12,7 +12,7 @@ import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { Subject } from 'rxjs';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
-import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { RenderCalendarGridService } from './render-calendar-grid.service';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { NavIconColorService } from '../../services/nav-icon-color.service';
+import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
 
 @Component({
   selector: 'app-icon-user',

@@ -17,8 +17,8 @@ import {
   IAuthentication,
 } from 'src/app/domain/models/authentification-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
-import { generatePassword } from 'src/app/helpers/password';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { generatePassword } from 'src/app/domain/helpers/password';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({

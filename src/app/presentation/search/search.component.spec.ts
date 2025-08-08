@@ -7,7 +7,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { SearchComponent } from './search.component';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { SearchService } from 'src/app/services/search.service';
+import { SearchService } from 'src/app/application/services/search.service';
 import { signal } from '@angular/core';
 
 describe('SearchComponent', () => {

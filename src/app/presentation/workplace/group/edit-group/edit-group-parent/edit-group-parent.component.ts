@@ -17,9 +17,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { Group } from 'src/app/domain/models/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 
 @Component({
   selector: 'app-edit-group-parent',

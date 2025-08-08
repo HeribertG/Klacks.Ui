@@ -11,7 +11,7 @@ import { Observable, throwError, BehaviorSubject, from } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Injectable()
 export class TokenRefreshInterceptor implements HttpInterceptor {

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScheduleScheduleRowHeaderComponent } from '../schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { BaseCreateRowHeaderService } from './create-row-header.service';

@@ -2,8 +2,8 @@ import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { FooterService } from 'src/app/services/footer.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
 
 @Component({
   selector: 'app-savebar',

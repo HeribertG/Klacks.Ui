@@ -3,11 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { MyToken } from 'src/app/domain/models/authentification-class';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
-import { EqualDate } from '../../helpers/format-helper';
+import { EqualDate } from 'src/app/domain/helpers/format-helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { NavigationService } from '../../services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 

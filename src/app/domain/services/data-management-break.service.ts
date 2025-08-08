@@ -10,7 +10,7 @@ import { DataBreakService } from 'src/app/infrastructure/api/data-break.service'
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 
 @Injectable({
   providedIn: 'root',

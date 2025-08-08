@@ -3,7 +3,7 @@ import { GridColorService } from 'src/app/presentation/shared/grid/services/grid
 
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCanvasManagerService } from './canvas-manager.service';

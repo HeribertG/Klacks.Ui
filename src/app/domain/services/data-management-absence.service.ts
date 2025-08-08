@@ -9,7 +9,7 @@ import {
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';

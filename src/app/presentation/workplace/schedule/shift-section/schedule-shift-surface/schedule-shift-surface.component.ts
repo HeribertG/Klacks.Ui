@@ -3,7 +3,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
 import { Subject } from 'rxjs';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CommonModule } from '@angular/common';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 

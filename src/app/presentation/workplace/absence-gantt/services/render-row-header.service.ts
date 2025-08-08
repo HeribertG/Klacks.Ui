@@ -11,9 +11,9 @@ import {
   TextAlignmentEnum,
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
-import { DrawImageHelper } from 'src/app/helpers/draw-image-helper';
+import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 
 @Injectable()
 export class RenderRowHeaderService {

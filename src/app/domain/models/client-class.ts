@@ -1,4 +1,4 @@
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   BaseEntity,
@@ -7,7 +7,7 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
-import { transformDateToNgbDateStruct } from 'src/app/helpers/format-helper';
+import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
 import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';

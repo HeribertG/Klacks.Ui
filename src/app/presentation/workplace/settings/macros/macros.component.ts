@@ -12,7 +12,7 @@ import { MacroRowComponent } from './macro-row/macro-row.component';
 import { Macro } from 'src/app/domain/models/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-macros',

@@ -11,10 +11,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { visibleRow } from '../../../helpers/sharedItems';
+import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from '../../../helpers/string-constants';
-import { isNumeric } from '../../../helpers/format-helper';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { isNumeric } from 'src/app/domain/helpers/format-helper';
 
 export interface IPaginationDataService {
   maxItems: number;

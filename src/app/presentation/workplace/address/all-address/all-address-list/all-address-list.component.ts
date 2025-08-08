@@ -19,7 +19,7 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   ModalService,
@@ -32,12 +32,12 @@ import { CommonModule } from '@angular/common';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
-import { TableResizeService } from 'src/app/services/table-resize.service';
+import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({

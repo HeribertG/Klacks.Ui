@@ -3,8 +3,8 @@ import { EffectRef, Injectable, effect, inject, signal } from '@angular/core';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+} from 'src/app/domain/helpers/object-helpers';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import {

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Menu } from '../context-menu-class';
 import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
-import { Timer } from 'src/app/helpers/timer';
+import { Timer } from 'src/app/presentation/helpers/timer';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';

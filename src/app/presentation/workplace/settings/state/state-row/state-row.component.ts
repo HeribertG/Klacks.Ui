@@ -18,8 +18,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
 import { IState } from 'src/app/domain/models/client-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-state-row',

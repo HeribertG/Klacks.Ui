@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { IClientWork, IWork, IWorkFilter, Work } from 'src/app/domain/models/schedule-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
-import { dateWithLocalTimeCorrection } from 'src/app/helpers/format-helper';
+import { dateWithLocalTimeCorrection } from 'src/app/domain/helpers/format-helper';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({

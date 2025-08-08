@@ -16,10 +16,10 @@ import { AbsenceTokenFilter } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
-import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { invertColor } from 'src/app/helpers/format-helper';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { invertColor } from 'src/app/domain/helpers/format-helper';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({

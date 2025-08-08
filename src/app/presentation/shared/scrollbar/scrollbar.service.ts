@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { DrawHelper } from '../../../helpers/draw-helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from '../grid/services/grid-color.service';
 import { IImagesThumps } from '../h-scrollbar/h-scrollbar.component';
 import { SCROLLBAR_CONSTANTS } from './constants';

@@ -3,9 +3,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';
 import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 
 @Component({

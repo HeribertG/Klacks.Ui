@@ -17,8 +17,8 @@ import {
 } from '@angular/common/http';
 import { ResponseInterceptor } from './presentation/error/http-interceptor';
 import { AppErrorHandler } from './app.error-handler';
-import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
-import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
+import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
+import { NgbDateCustomParserFormatter } from './infrastructure/helpers/NgbDateParserFormatter';
 import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
 import { SessionStorageService } from './infrastructure/storage/session-storage.service';
 import {
@@ -45,8 +45,8 @@ import localeIt from '@angular/common/locales/it';
 import { SearchComponent } from './presentation/search/search.component';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
-import { LocaleService } from './services/locale.service';
-import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
+import { LocaleService } from 'src/app/application/services/locale.service';
+import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepicker-i18n.service';
 import { ToastsContainerComponent } from './presentation/toast/toast.component';
 import { GroupSelectComponent } from './presentation/group-select/group-select.component';
 import { NoAccessComponent } from './presentation/no-access/no-access.component';

@@ -6,10 +6,10 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
-import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
+import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
 import { RenderRowHeaderService } from './render-row-header.service';
-import { DrawImageHelper } from 'src/app/helpers/draw-image-helper';
+import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 
 @Injectable()
 export class DrawRowHeaderService {

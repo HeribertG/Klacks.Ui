@@ -7,7 +7,7 @@ import {
   addDays,
   EqualDate,
   getDaysInMonth,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   CellTypeEnum,

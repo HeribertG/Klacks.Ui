@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { IGroupFilter } from 'src/app/domain/models/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { BaseStateService } from 'src/app/services/base-state.service';
+import { BaseStateService } from 'src/app/application/services/base-state.service';
 
 @Injectable()
 export class AllGroupStateService extends BaseStateService<

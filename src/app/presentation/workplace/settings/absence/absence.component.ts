@@ -25,9 +25,9 @@ import {
 } from 'src/app/domain/models/headerProperties';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/data-management-absence.service';
-import { cloneObject } from 'src/app/helpers/object-helpers';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';

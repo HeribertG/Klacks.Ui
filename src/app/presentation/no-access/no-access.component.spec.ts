@@ -4,7 +4,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Component } from '@angular/core';
 
 import { NoAccessComponent } from './no-access.component';
-import { NavigationService } from '../../services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   template: '<div>Test Component</div>'

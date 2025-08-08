@@ -11,10 +11,10 @@ import { EditGroupItemComponent } from '../edit-group-item/edit-group-item.compo
 import { EditGroupMembersComponent } from '../edit-group-members/edit-group-members.component';
 import { EditGroupNavComponent } from '../edit-group-nav/edit-group-nav.component';
 import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent.component';
-import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-edit-group-home',

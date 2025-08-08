@@ -17,8 +17,8 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { GroupSelectComponent } from 'src/app/presentation/group-select/group-select.component';
 import { IconSignOutComponent } from 'src/app/presentation/icons/icon-sign-out.component';
 import { SearchComponent } from 'src/app/presentation/search/search.component';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { ThemeService } from 'src/app/services/theme.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { ThemeService } from 'src/app/presentation/services/theme.service';
 
 @Component({
   selector: 'app-header',

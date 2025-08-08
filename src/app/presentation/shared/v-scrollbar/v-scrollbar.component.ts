@@ -20,7 +20,7 @@ import {
   IMetrics,
   ScrollbarService,
 } from '../scrollbar/scrollbar.service';
-import { CheckContext } from 'src/app/services/check-context.decorator';
+import { CheckContext } from 'src/app/domain/services/check-context.decorator';
 import { SCROLLBAR_CONSTANTS } from '../scrollbar/constants';
 import {
   Subject,

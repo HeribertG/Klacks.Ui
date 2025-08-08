@@ -4,7 +4,7 @@ import { AuthGuard } from './presentation/auth/auth.guard';
 import { AdminGuard } from './presentation/auth/admin.guard';
 import { LoginComponent } from './presentation/auth/login/login.component';
 import { ErrorComponent } from './presentation/error/error.component';
-import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
+import { CanDeactivateGuard } from './application/helpers/can-deactivate.guard';
 import { HomeComponent } from './presentation/surface/home/home.component';
 import { NoAccessComponent } from './presentation/no-access/no-access.component';
 import { PageNotFoundComponent } from './presentation/page-not-found/page-not-found.component';

@@ -22,12 +22,12 @@ import {
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
-import { isNumeric } from 'src/app/helpers/format-helper';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({

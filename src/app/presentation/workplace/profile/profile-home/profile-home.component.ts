@@ -16,9 +16,9 @@ import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile
 // Services
 import { DataManagementProfileService } from 'src/app/domain/services/data-management-profile.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-profile-home',

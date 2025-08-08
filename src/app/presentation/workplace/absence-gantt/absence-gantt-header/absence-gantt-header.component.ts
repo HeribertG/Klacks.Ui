@@ -18,8 +18,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { AbsenceGanttAbsenceListComponent } from './absence-gantt-absence-list/absence-gantt-absence-list.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';

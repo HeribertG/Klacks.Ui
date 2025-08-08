@@ -1,5 +1,5 @@
 import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AfterViewInit,
@@ -17,7 +17,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component ';
 import { GearGreyComponent } from 'src/app/presentation/icons/gear-grey.component';
 import { FormsModule } from '@angular/forms';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 
 @Component({

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Injectable({
   providedIn: 'root',

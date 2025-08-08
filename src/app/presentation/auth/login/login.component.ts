@@ -1,11 +1,11 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { NavigationService } from 'src/app/services/navigation.service';
-import { AuthorizationService } from 'src/app/services/authorization.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';

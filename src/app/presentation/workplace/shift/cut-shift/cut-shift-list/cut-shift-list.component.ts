@@ -32,9 +32,9 @@ import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
   newGuid,
-} from 'src/app/helpers/format-helper';
-import { cloneObject } from 'src/app/helpers/object-helpers';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+} from 'src/app/domain/helpers/format-helper';
+import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 @Component({
   selector: 'app-cut-shift-list',

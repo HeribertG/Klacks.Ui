@@ -15,11 +15,11 @@ import { MembershipComponent } from '../membership/membership.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { AuthorizationService } from 'src/app/services/authorization.service';
-import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 
 @Component({
   selector: 'app-edit-address-home',

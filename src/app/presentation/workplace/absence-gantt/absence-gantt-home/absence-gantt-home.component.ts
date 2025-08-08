@@ -13,8 +13,8 @@ import { RowHeaderCanvasManagerService } from '../services/row-header-canvas.ser
 import { RenderRowHeaderCellService } from '../services/render-row-header-cell.service';
 import { BreakLayerService } from '../services/break-layer.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { AllAbsenceStateService } from '../services/all-absence-state.service';
 import { CalendarSettingService } from '../services/calendar-setting.service';
 

@@ -23,11 +23,11 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 // Services und Utilities
 import { DataManagementProfileService } from 'src/app/domain/services/data-management-profile.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
   checkPasswordStrength,
   PasswordCheckStrength,
-} from 'src/app/helpers/password';
+} from 'src/app/domain/helpers/password';
 
 @Component({
   selector: 'app-profile-data-edit',

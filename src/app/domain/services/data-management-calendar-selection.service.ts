@@ -8,11 +8,11 @@ import {
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Injectable({

@@ -5,7 +5,7 @@ import { NgbModal, NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Shift } from 'src/app/domain/models/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { transformDateToNgbDateStruct, transformStringToOwnTimeStruct } from 'src/app/helpers/format-helper';
+import { transformDateToNgbDateStruct, transformStringToOwnTimeStruct } from 'src/app/domain/helpers/format-helper';
 
 describe('CutShiftListComponent - Time Cut Logic', () => {
   let component: CutShiftListComponent;

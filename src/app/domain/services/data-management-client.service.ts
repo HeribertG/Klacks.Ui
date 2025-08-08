@@ -25,16 +25,16 @@ import {
   compareComplexObjects,
   cloneObject,
   createStringId,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import {
   DateToString,
   isNumeric,
   formatPhoneNumber,
   transformDateToNgbDateStruct,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
   AddressTypeEnum,
@@ -43,7 +43,7 @@ import {
 } from 'src/app/domain/enums/client-enum';
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';

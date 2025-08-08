@@ -24,14 +24,14 @@ import { Observable, catchError, map, throwError } from 'rxjs';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import {
   isNgbDateStructValid,
   transformDateToNgbDateStruct,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';

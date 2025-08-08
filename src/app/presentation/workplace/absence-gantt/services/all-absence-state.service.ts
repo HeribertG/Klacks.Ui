@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { BaseStateService } from 'src/app/services/base-state.service';
+import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IBreakFilter } from 'src/app/domain/models/break-class';
 
 @Injectable()

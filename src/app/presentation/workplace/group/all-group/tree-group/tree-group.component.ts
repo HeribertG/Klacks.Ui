@@ -28,8 +28,8 @@ import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refres
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
-import { AuthorizationService } from 'src/app/services/authorization.service';
-import { NavigationService } from 'src/app/services/navigation.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   selector: 'app-tree-group',

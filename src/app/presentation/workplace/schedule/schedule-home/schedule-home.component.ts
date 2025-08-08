@@ -18,9 +18,9 @@ import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-r
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';

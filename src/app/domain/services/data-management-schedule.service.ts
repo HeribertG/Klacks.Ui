@@ -11,7 +11,7 @@ import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.se
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
+} from 'src/app/domain/helpers/object-helpers';
 import { ISpinnable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';

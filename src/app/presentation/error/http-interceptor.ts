@@ -9,11 +9,11 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { catchError } from 'rxjs/operators';
 import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
-import { NavigationService } from '../../services/navigation.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Injectable()
 export class ResponseInterceptor implements HttpInterceptor {

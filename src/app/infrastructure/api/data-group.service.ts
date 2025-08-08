@@ -12,7 +12,7 @@ import {
   dateWithLocalTimeCorrection,
   isNgbDateStructOk,
   transformNgbDateStructToDate,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { Observable } from 'rxjs';
 
 @Injectable({

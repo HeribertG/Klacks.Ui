@@ -4,7 +4,7 @@ import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PaginationComponent, IPaginationDataService } from './pagination.component';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from '../../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { By } from '@angular/platform-browser';
 
 describe('PaginationComponent', () => {

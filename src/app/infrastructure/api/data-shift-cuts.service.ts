@@ -9,9 +9,9 @@ import {
   isOwnTimeStructOk,
   transformNgbDateStructToDate,
   transformOwnTimeToString,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import { IShift } from 'src/app/domain/models/shift-class';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 @Injectable({
   providedIn: 'root',

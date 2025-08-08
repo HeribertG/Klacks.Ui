@@ -12,7 +12,7 @@ import {
 import { Menu } from './context-menu-class';
 import { MenuComponent } from './menu/menu.component';
 import { ContextMenuService } from './context-menu.service';
-import { Timer } from 'src/app/helpers/timer';
+import { Timer } from 'src/app/presentation/helpers/timer';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientModule } from '@angular/common/http';
 import { DataManagementShiftService } from './data-management-shift.service';
-import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
+import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataManagementShiftService', () => {
   let service: DataManagementShiftService;

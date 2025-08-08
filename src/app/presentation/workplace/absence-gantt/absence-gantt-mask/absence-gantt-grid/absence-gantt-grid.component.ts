@@ -20,9 +20,9 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
-import { daysBetweenDates } from 'src/app/helpers/format-helper';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+import { daysBetweenDates } from 'src/app/domain/helpers/format-helper';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-absence-gantt-grid',

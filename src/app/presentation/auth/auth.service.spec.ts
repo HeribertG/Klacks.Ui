@@ -7,7 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from './auth.service';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
-import { MessageLibrary } from '../../helpers/string-constants';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
   provideHttpClient,
   withInterceptorsFromDi,

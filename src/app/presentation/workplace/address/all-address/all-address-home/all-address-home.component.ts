@@ -3,9 +3,9 @@ import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.compo
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { FooterService } from 'src/app/services/footer.service';
-import { LayoutService } from 'src/app/services/layout.service';
-import { SearchService } from 'src/app/services/search.service';
+import { FooterService } from 'src/app/presentation/services/footer.service';
+import { LayoutService } from 'src/app/presentation/services/layout.service';
+import { SearchService } from 'src/app/application/services/search.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({

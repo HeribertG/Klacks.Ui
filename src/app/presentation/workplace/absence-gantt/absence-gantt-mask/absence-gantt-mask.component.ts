@@ -21,13 +21,13 @@ import {
   isNgbDateStructOk,
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/helpers/format-helper';
+} from 'src/app/domain/helpers/format-helper';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/helpers/object-helpers';
-import { Language } from 'src/app/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/helpers/string-constants';
+} from 'src/app/domain/helpers/object-helpers';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-grid.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
