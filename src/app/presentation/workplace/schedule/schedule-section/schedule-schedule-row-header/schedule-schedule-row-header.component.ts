@@ -16,7 +16,7 @@ import {
 import { Subject, takeUntil } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 import { CommonModule } from '@angular/common';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 
 import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/create-row-header.service';

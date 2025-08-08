@@ -15,7 +15,7 @@ import { ContextMenuService } from './context-menu.service';
 import { Timer } from 'src/app/helpers/timer';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
+import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 
 @Component({
   selector: 'app-context-menu',

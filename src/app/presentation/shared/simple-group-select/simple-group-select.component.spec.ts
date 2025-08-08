@@ -11,7 +11,7 @@ import { Group } from 'src/app/domain/models/group-class';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
+import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 
 describe('SimpleGroupSelectComponent', () => {
   let component: SimpleGroupSelectComponent;

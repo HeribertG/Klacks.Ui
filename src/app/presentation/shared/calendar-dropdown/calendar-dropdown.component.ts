@@ -22,7 +22,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-calendar-dropdown',

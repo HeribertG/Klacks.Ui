@@ -20,7 +20,7 @@ import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { invertColor } from 'src/app/helpers/format-helper';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-absence-gantt-absence-list',

@@ -35,7 +35,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { NavigationService } from 'src/app/services/navigation.service';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
+import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
 import { AllAddressStateService } from '../services/all-address-state.service';

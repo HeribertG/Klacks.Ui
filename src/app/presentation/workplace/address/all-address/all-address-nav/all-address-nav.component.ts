@@ -26,7 +26,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({

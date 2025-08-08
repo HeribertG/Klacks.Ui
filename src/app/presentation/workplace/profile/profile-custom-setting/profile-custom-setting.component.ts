@@ -12,7 +12,7 @@ import {
   LocaleService,
   SupportedLocales,
 } from 'src/app/services/locale.service';
-import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
+import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({

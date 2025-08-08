@@ -26,7 +26,7 @@ import {
   TranslateModule,
   TranslatePipe,
 } from '@ngx-translate/core';
-import { TranslateStringConstantsService } from './translate/translate-string-constants.service';
+import { TranslateStringConstantsService } from './application/translate/translate-string-constants.service';
 import {
   CommonModule,
   CurrencyPipe,
@@ -52,7 +52,7 @@ import { GroupSelectComponent } from './presentation/group-select/group-select.c
 import { NoAccessComponent } from './presentation/no-access/no-access.component';
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
-import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
+import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);

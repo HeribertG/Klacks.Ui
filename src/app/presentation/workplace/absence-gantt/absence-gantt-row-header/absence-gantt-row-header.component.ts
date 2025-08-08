@@ -26,7 +26,7 @@ import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { NgStyle } from '@angular/common';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 
 @Component({

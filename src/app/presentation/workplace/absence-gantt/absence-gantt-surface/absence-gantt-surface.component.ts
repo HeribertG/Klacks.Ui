@@ -49,13 +49,13 @@ import {
 } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';

@@ -5,7 +5,7 @@ import { ContextMenuComponent } from './context-menu.component';
 import { ContextMenuService } from './context-menu.service';
 import { MenuComponent } from './menu/menu.component';
 import { Menu } from './context-menu-class';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
+import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 
 describe('ContextMenuComponent', () => {
   let component: ContextMenuComponent;

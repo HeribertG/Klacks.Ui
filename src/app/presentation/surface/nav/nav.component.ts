@@ -35,7 +35,7 @@ import {
 import { NavigationService } from 'src/app/services/navigation.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { TranslateStringConstantsService } from 'src/app/translate/translate-string-constants.service';
+import { TranslateStringConstantsService } from 'src/app/application/translate/translate-string-constants.service';
 
 type NavigationPage =
   | 'absence'

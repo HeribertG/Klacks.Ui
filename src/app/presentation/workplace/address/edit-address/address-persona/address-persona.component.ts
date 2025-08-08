@@ -38,7 +38,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { GearGreyComponent } from 'src/app/presentation/icons/gear-grey.component';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 

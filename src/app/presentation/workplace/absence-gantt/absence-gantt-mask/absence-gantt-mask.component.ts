@@ -30,7 +30,7 @@ import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-grid.component';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import {

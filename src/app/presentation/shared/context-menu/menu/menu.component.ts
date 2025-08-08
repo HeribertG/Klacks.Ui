@@ -13,7 +13,7 @@ import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import { Timer } from 'src/app/helpers/timer';
 import { CommonModule } from '@angular/common';
 import { MenuItemComponent } from '../menu-item/menu-item.component';
-import { ClickOutsideDirective } from 'src/app/directives/click-outside.directive';
+import { ClickOutsideDirective } from 'src/app/presentation/directives/click-outside.directive';
 
 @Component({
   selector: 'app-menu',

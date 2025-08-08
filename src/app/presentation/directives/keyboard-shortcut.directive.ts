@@ -1,9 +1,9 @@
 import { Directive, OnInit, OnDestroy, inject } from '@angular/core';
 import { fromEvent, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
-import { MessageLibrary } from '../helpers/string-constants';
+import { MessageLibrary } from '../../helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { NavigationService } from '../services/navigation.service';
+import { NavigationService } from '../../services/navigation.service';
 
 @Directive({
   selector: '[appKeyboardShortcut]',

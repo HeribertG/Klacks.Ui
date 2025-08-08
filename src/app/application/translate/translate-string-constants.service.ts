@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageLibrary } from '../helpers/string-constants';
+import { MessageLibrary } from '../../helpers/string-constants';
 
 @Injectable({
   providedIn: 'root',

@@ -30,7 +30,7 @@ import {
   throttleTime,
 } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ResizeDirective } from 'src/app/directives/resize.directive';
+import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 
 enum ArrowDirection {
   NONE = 0,

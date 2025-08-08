@@ -31,7 +31,7 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
-import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
+import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';

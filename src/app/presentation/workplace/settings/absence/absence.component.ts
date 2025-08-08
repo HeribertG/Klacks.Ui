@@ -33,7 +33,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
-import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
+import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
   selector: 'app-absence',
