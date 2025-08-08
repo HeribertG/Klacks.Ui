@@ -21,7 +21,10 @@ import {
 import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -35,7 +38,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
-import { AllAddressStateService } from '../../services/all-address-state.service';
+import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -402,7 +405,8 @@ export class AllAddressListComponent
   private async isInit(): Promise<void> {
     this.setLastChangeMetaData();
 
-    const wasRestored = await this.allAddressStateService.restoreFilterFromStorage();
+    const wasRestored =
+      await this.allAddressStateService.restoreFilterFromStorage();
 
     if (wasRestored) {
       setTimeout(() => {
@@ -470,7 +474,9 @@ export class AllAddressListComponent
       return effect(() => {
         const initIsRead = this.dataManagementClientService.initIsRead();
         if (initIsRead) {
-          this.isInit().catch(error => console.error('Failed to initialize:', error));
+          this.isInit().catch((error) =>
+            console.error('Failed to initialize:', error)
+          );
         }
       });
     });

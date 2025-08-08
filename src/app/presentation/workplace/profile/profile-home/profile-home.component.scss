@@ -1,4 +1,4 @@
-@use "../../../../assets/standard-styles/standard-home-page.scss";
+@use "../../../../../assets/standard-styles/standard-home-page.scss";
 
 ng-container {
   width: 100%;
@@ -16,7 +16,6 @@ ng-container {
   width: 100%;
 }
 
-
 .first {
   margin-left: 80px;
 }
@@ -32,7 +31,6 @@ ng-container {
   border-radius: 5px;
   background-color: var(--backgroundColorCard);
 }
-
 
 .container-profile-login {
   height: 507px;

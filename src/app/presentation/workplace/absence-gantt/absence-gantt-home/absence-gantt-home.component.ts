@@ -2,21 +2,21 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
-import { CalendarSettingService } from '../../services/calendar-setting.service';
-import { DrawCalendarGanttService } from '../../services/draw-calendar-gantt.service';
-import { GanttCanvasManagerService } from '../../services/gantt-canvas-manager.service';
-import { RenderCalendarGridService } from '../../services/render-calendar-grid.service';
-import { DrawRowHeaderService } from '../../services/draw-row-header.service';
-import { RenderRowHeaderService } from '../../services/render-row-header.service';
+import { DrawCalendarGanttService } from '../services/draw-calendar-gantt.service';
+import { GanttCanvasManagerService } from '../services/gantt-canvas-manager.service';
+import { RenderCalendarGridService } from '../services/render-calendar-grid.service';
+import { DrawRowHeaderService } from '../services/draw-row-header.service';
+import { RenderRowHeaderService } from '../services/render-row-header.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
-import { RowHeaderCanvasManagerService } from '../../services/row-header-canvas.service';
-import { RenderRowHeaderCellService } from '../../services/render-row-header-cell.service';
-import { BreakLayerService } from '../../services/break-layer.service';
+import { RowHeaderCanvasManagerService } from '../services/row-header-canvas.service';
+import { RenderRowHeaderCellService } from '../services/render-row-header-cell.service';
+import { BreakLayerService } from '../services/break-layer.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
-import { AllAbsenceStateService } from '../../services/all-absence-state.service';
+import { AllAbsenceStateService } from '../services/all-absence-state.service';
+import { CalendarSettingService } from '../services/calendar-setting.service';
 
 @Component({
   selector: 'app-absence-gantt-home',

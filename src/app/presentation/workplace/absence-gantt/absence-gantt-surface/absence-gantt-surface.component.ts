@@ -43,13 +43,16 @@ import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { MenuDataTemplate } from 'src/app/helpers/context-menu-data-template';
-import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import {
+  Menu,
+  MenuItem,
+} from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
 import { Subject, takeUntil } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
-import { DrawRowHeaderService } from '../../services/draw-row-header.service';
+import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { AbsenceCalendarDirective } from '../directives/absence-calendar.directive';
 import { ResizeDirective } from 'src/app/directives/resize.directive';

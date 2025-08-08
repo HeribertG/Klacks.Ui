@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
-import { AllAddressStateService } from '../../services/all-address-state.service';
+import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({
   selector: 'app-all-address-home',

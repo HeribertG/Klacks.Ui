@@ -1,10 +1,10 @@
-@use "../../../../assets/standard-styles/colors.scss";
-@use "../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../assets/standard-styles/standard-modal.scss";
-@use "../../../../assets/standard-styles/ayu-dark.css";
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/ayu-dark.css";
 
-@use "../../../../../../node_modules/codemirror/lib/codemirror.css";
+@use "../../../../../../../../../node_modules/codemirror/lib/codemirror.css";
 
 .first {
   margin-left: 30px;
@@ -33,7 +33,6 @@ label {
   margin-left: 20px;
   color: var(--standartRedColor);
 }
-
 
 .firstColumn {
   margin-left: 30px;
@@ -66,7 +65,6 @@ label {
   color: #b6b6c3;
   pointer-events: none;
 }
-
 
 .add-button {
   margin-left: 100px;

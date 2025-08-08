@@ -23,7 +23,7 @@ import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
-import { AllScheduleStateService } from '../../services/all-schedule-state.service';
+import { AllScheduleStateService } from '../services/all-schedule-state.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -63,7 +63,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     this.layoutService.setContainerToFullSize();
 
     this.allScheduleStateService.initializeWorkplaceState();
-    
+
     this.holidayCollection.readData();
 
     setTimeout(() => {

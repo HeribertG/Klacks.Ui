@@ -27,7 +27,7 @@ import {
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/pipes/fallback/fallback.pipe';
-import { AllAddressStateService } from '../../services/all-address-state.service';
+import { AllAddressStateService } from '../services/all-address-state.service';
 
 @Component({
   selector: 'app-all-address-nav',

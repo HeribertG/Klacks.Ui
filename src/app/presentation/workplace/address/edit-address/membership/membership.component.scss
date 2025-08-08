@@ -1,13 +1,11 @@
-@use '../../../../../assets/standard-styles/standard-card-interior.scss';
-@use '../../../../../assets/standard-styles/standard-controls.scss';
-@use '../../../../../assets/standard-styles/standard-modal.scss';
-@use "../../../../assets/standard-styles/colors";
-
-
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/colors";
 
 input {
   height: 35px;
- }
+}
 
 .default-width {
   width: 400px;
@@ -19,34 +17,27 @@ input {
 }
 
 .medium-width {
-
   width: 280px;
 }
 
 .medium-width-without-button {
-
   width: 200px;
 }
 
 select {
-
   height: 35px;
-
 }
 
 label {
   width: 400px;
-
 }
 
 .row-line {
   margin-top: 5px;
   display: inline-flex;
-
 }
 
 .row-line-add {
-
   display: inline-flex;
   padding-bottom: 20px;
 }
@@ -66,18 +57,15 @@ label {
 
 .secondColumn {
   margin-left: 30px;
-
 }
 
 .ownStyle-button {
-
   width: 180px;
   height: 40px;
   background-color: colors.$standartBlueColor;
   font-weight: 600;
   font-size: 14px;
   color: colors.$standartWhiteColor;
-
 }
 
 .own-boolean {
@@ -88,7 +76,6 @@ label {
 .container-bank-box {
   margin-top: 40px;
   display: inline-flex;
-
 }
 
 .container-bank-value {
@@ -112,6 +99,6 @@ label {
 .top-gap-negativ {
   margin-top: -25px;
 }
-.text-right{
+.text-right {
   text-align: right;
 }

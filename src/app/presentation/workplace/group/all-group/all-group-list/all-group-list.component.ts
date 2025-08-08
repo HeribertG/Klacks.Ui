@@ -37,12 +37,15 @@ import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
-import { AllGroupStateService } from '../../services/all-group-state.service';
+import { AllGroupStateService } from '../services/all-group-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({
@@ -149,7 +152,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.allGroupStateService.saveCurrentFilter();
-    
+
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 
@@ -494,14 +497,17 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const initIsRead = this.dataManagementGroupService.initIsRead();
         if (initIsRead) {
-          this.isInit().catch(error => console.error('Failed to initialize:', error));
+          this.isInit().catch((error) =>
+            console.error('Failed to initialize:', error)
+          );
         }
       });
     });
   }
 
   private async isInit(): Promise<void> {
-    const wasRestored = await this.allGroupStateService.restoreFilterFromStorage();
+    const wasRestored =
+      await this.allGroupStateService.restoreFilterFromStorage();
 
     if (wasRestored) {
       setTimeout(() => {

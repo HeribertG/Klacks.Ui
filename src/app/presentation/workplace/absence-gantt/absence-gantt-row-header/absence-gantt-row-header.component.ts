@@ -22,7 +22,7 @@ import { DataManagementBreakService } from 'src/app/domain/services/data-managem
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
-import { DrawRowHeaderService } from '../../services/draw-row-header.service';
+import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { NgStyle } from '@angular/common';
