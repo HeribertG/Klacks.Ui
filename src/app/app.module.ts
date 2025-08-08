@@ -20,7 +20,7 @@ import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
 import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
-import { BrowserStorageService } from './infrastructure/storage/browser-storage.service';
+import { SessionStorageService } from './infrastructure/storage/session-storage.service';
 import {
   TranslateLoader,
   TranslateModule,
@@ -117,7 +117,7 @@ export function localeFactory(localeService: LocaleService) {
     },
     {
       provide: FILTER_STORAGE_TOKEN,
-      useClass: BrowserStorageService,
+      useClass: SessionStorageService,
     },
     provideHttpClient(withInterceptorsFromDi()),
   ],

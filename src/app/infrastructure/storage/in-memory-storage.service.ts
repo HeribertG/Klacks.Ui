@@ -1,15 +1,6 @@
 import { Injectable } from '@angular/core';
 import { IFilterStorage } from '../../application/interfaces/filter-storage.interface';
 
-/**
- * In-memory implementation of IFilterStorage for testing and fallback scenarios.
- * This service stores filter data in memory and does not persist between page reloads.
- * 
- * Use cases:
- * - Unit testing with predictable behavior
- * - Fallback when localStorage is not available
- * - Temporary session-only storage
- */
 @Injectable()
 export class InMemoryStorageService implements IFilterStorage {
   private storage = new Map<string, string>();
@@ -110,27 +101,14 @@ export class InMemoryStorageService implements IFilterStorage {
     }
   }
 
-  /**
-   * Test utility method to disable storage (for testing error scenarios)
-   * @param available - Whether storage should be available
-   */
   setAvailable(available: boolean): void {
     this.available = available;
   }
 
-  /**
-   * Test utility method to get storage size
-   * @returns The number of stored items
-   */
   size(): number {
     return this.storage.size;
   }
 
-  /**
-   * Test utility method to check if a key exists
-   * @param key - The key to check
-   * @returns True if key exists, false otherwise
-   */
   hasKey(key: string): boolean {
     return this.storage.has(key);
   }

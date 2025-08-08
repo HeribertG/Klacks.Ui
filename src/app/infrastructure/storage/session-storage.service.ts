@@ -4,35 +4,35 @@ import { IFilterStorage } from '../../application/interfaces/filter-storage.inte
 @Injectable({
   providedIn: 'root'
 })
-export class BrowserStorageService implements IFilterStorage {
+export class SessionStorageService implements IFilterStorage {
   private readonly storageKeyPrefix = 'klacks_filter_';
 
   async saveFilter<T>(key: string, filter: T): Promise<boolean> {
     if (!(await this.isAvailable())) {
-      console.warn('localStorage is not available. Filter could not be saved.');
+      console.warn('sessionStorage is not available. Filter could not be saved.');
       return false;
     }
 
     try {
       const storageKey = this.getStorageKey(key);
       const serializedValue = JSON.stringify(filter);
-      localStorage.setItem(storageKey, serializedValue);
+      sessionStorage.setItem(storageKey, serializedValue);
       return true;
     } catch (error) {
-      console.error('Error saving filter to localStorage:', error);
+      console.error('Error saving filter to sessionStorage:', error);
       return false;
     }
   }
 
   async restoreFilter<T>(key: string): Promise<T | null> {
     if (!(await this.isAvailable())) {
-      console.warn('localStorage is not available. Filter could not be restored.');
+      console.warn('sessionStorage is not available. Filter could not be restored.');
       return null;
     }
 
     try {
       const storageKey = this.getStorageKey(key);
-      const serializedValue = localStorage.getItem(storageKey);
+      const serializedValue = sessionStorage.getItem(storageKey);
       
       if (serializedValue === null) {
         return null;
@@ -40,32 +40,32 @@ export class BrowserStorageService implements IFilterStorage {
 
       return JSON.parse(serializedValue) as T;
     } catch (error) {
-      console.error('Error restoring filter from localStorage:', error);
+      console.error('Error restoring filter from sessionStorage:', error);
       return null;
     }
   }
 
   async removeFilter(key: string): Promise<boolean> {
     if (!(await this.isAvailable())) {
-      console.warn('localStorage is not available. Filter could not be removed.');
+      console.warn('sessionStorage is not available. Filter could not be removed.');
       return false;
     }
 
     try {
       const storageKey = this.getStorageKey(key);
-      localStorage.removeItem(storageKey);
+      sessionStorage.removeItem(storageKey);
       return true;
     } catch (error) {
-      console.error('Error removing filter from localStorage:', error);
+      console.error('Error removing filter from sessionStorage:', error);
       return false;
     }
   }
 
   async isAvailable(): Promise<boolean> {
     try {
-      const testKey = '__test_storage__';
-      localStorage.setItem(testKey, testKey);
-      localStorage.removeItem(testKey);
+      const testKey = '__test_session_storage__';
+      sessionStorage.setItem(testKey, testKey);
+      sessionStorage.removeItem(testKey);
       return true;
     } catch {
       return false;
@@ -83,8 +83,8 @@ export class BrowserStorageService implements IFilterStorage {
         ? this.getStorageKey(prefix)
         : this.storageKeyPrefix;
 
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
         if (key && key.startsWith(searchPrefix)) {
           const cleanKey = key.replace(this.storageKeyPrefix, '');
           keys.push(cleanKey);
@@ -93,7 +93,7 @@ export class BrowserStorageService implements IFilterStorage {
 
       return keys;
     } catch (error) {
-      console.error('Error getting keys from localStorage:', error);
+      console.error('Error getting keys from sessionStorage:', error);
       return [];
     }
   }
@@ -108,12 +108,12 @@ export class BrowserStorageService implements IFilterStorage {
       
       for (const key of keysToRemove) {
         const storageKey = this.getStorageKey(key);
-        localStorage.removeItem(storageKey);
+        sessionStorage.removeItem(storageKey);
       }
 
       return true;
     } catch (error) {
-      console.error('Error clearing filters from localStorage:', error);
+      console.error('Error clearing filters from sessionStorage:', error);
       return false;
     }
   }
