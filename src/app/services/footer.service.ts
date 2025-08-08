@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
-import { WorkplaceStateService } from '../data/management/workplace-state.service';
+import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
 
 export interface FooterConfig {
   showFooter: boolean;

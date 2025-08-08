@@ -23,7 +23,7 @@ export class AllScheduleStateService extends BaseStateService<
     if (this.dataManagementService.currentFilter.searchString) {
       this.saveCurrentFilter();
       const searchValue = this.dataManagementService.currentFilter.searchString;
-      this.dataManagementSearchService.setRestoreSearch(searchValue);
+      this.searchStateService.setRestoreSearch(searchValue);
     }
   }
 }

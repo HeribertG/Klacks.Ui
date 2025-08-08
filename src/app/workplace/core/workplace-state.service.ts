@@ -7,9 +7,9 @@ import {
   EffectRef,
 } from '@angular/core';
 import { SpinnerService } from 'src/app/spinner/spinner.service';
-import { IManageable, ISpinnable } from './imanageable';
+import { IManageable, ISpinnable } from './interfaces/manageable.interface';
 import { ManageableServiceFactory } from './manageable-service.factory';
-import { EntityName, RouteName, isValidRouteName } from './entity-names.enum';
+import { EntityName, RouteName, isValidRouteName } from '../../data/management/entity-names.enum';
 import { environment } from 'src/environments/environment';
 
 @Injectable({

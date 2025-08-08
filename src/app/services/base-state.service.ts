@@ -1,10 +1,10 @@
 import { inject } from '@angular/core';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { SearchService } from 'src/app/services/search.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { SearchStateService } from 'src/app/services/search-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
-import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
 import {
   cloneObject,
   compareComplexObjects,
@@ -24,7 +24,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
   protected workplaceStateService = inject(WorkplaceStateService);
   protected searchService = inject(SearchService);
   protected localStorageService = inject(LocalStorageService);
-  protected dataManagementSearchService = inject(DataManagementSearchService);
+  protected searchStateService = inject(SearchStateService);
 
   protected lastSavedFilter: T | null = null;
 
@@ -69,7 +69,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
     const storedFilter = restoreFilter(key);
 
     if (!storedFilter) {
-      this.dataManagementSearchService.setRestoreSearch('');
+      this.searchStateService.clearRestoreSearch();
       this.lastSavedFilter = null;
       return false;
     }
@@ -99,7 +99,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
     );
 
     const searchValue = this.dataManagementService.currentFilter.searchString || '';
-    this.dataManagementSearchService.setRestoreSearch(searchValue);
+    this.searchStateService.setRestoreSearch(searchValue);
 
     return !compareComplexObjects(
       originalFilter,

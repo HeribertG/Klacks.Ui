@@ -11,7 +11,7 @@ import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { FooterService } from 'src/app/services/footer.service';

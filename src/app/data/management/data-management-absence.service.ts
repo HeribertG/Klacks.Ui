@@ -13,8 +13,8 @@ import {
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataAbsenceService } from '../data-absence.service';
 import { DataLoadFileService } from '../data-load-file.service';
-import { ISpinnable } from './imanageable';
-import { ManageableServiceRegistry } from './manageable-service-registry';
+import { ISpinnable } from '../../workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';
 
 @Injectable({

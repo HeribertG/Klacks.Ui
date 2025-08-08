@@ -12,8 +12,8 @@ import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { SearchStrategyService } from './search-strategy.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { EntityName } from 'src/app/data/management/entity-names.enum';
 import { SearchService } from 'src/app/services/search.service';
 
@@ -26,7 +26,7 @@ import { SearchService } from 'src/app/services/search.service';
 })
 export class SearchComponent {
   private cdr = inject(ChangeDetectorRef);
-  private dataManagementSearch = inject(DataManagementSearchService);
+  private searchStrategyService = inject(SearchStrategyService);
   private workplaceState = inject(WorkplaceStateService);
   public searchService = inject(SearchService);
 
@@ -37,7 +37,7 @@ export class SearchComponent {
 
   constructor() {
     effect(() => {
-      const restored = this.dataManagementSearch.restoreSearch();
+      const restored = this.searchStrategyService.restoreSearch();
       this.searchString = restored;
       this.cdr.detectChanges();
     });
@@ -53,7 +53,7 @@ export class SearchComponent {
   }
 
   onClickSearch(): void {
-    this.dataManagementSearch.globalSearch(
+    this.searchStrategyService.globalSearch(
       this.searchString,
       this.includeAddress,
       this.includeClient
@@ -62,7 +62,7 @@ export class SearchComponent {
 
   onKeyupSearch(event: any): void {
     if (event.srcElement && event.srcElement.value.toString() === '') {
-      this.dataManagementSearch.resetFilterWithoutSignalWrite();
+      this.searchStrategyService.resetFilterWithoutSignalWrite();
     }
   }
 
@@ -72,7 +72,7 @@ export class SearchComponent {
   }
 
   private handleFocusChange(): void {
-    this.dataManagementSearch.resetFilter();
+    this.searchStrategyService.resetFilter();
     this.searchString = '';
     this.includeAddress = false;
     this.includeClient = false;

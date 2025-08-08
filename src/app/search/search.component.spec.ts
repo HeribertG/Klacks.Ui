@@ -5,21 +5,21 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ChangeDetectorRef } from '@angular/core';
 
 import { SearchComponent } from './search.component';
-import { DataManagementSearchService } from 'src/app/data/management/data-management-search.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { SearchStrategyService } from './search-strategy.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { SearchService } from 'src/app/services/search.service';
 import { signal } from '@angular/core';
 
 describe('SearchComponent', () => {
   let component: SearchComponent;
   let fixture: ComponentFixture<SearchComponent>;
-  let dataManagementSearchService: jasmine.SpyObj<DataManagementSearchService>;
+  let searchStrategyService: jasmine.SpyObj<SearchStrategyService>;
   let workplaceStateService: jasmine.SpyObj<WorkplaceStateService>;
   let searchService: jasmine.SpyObj<SearchService>;
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
 
   beforeEach(async () => {
-    const dataManagementSearchSpy = jasmine.createSpyObj('DataManagementSearchService', [
+    const searchStrategyServiceSpy = jasmine.createSpyObj('SearchStrategyService', [
       'globalSearch', 
       'resetFilterWithoutSignalWrite', 
       'resetFilter', 
@@ -39,7 +39,7 @@ describe('SearchComponent', () => {
     searchServiceSpy.showSearch.and.returnValue(true);
     searchServiceSpy.showIncludeAddress.and.returnValue(false);
     searchServiceSpy.showIncludeClient.and.returnValue(false);
-    dataManagementSearchSpy.restoreSearch.and.returnValue('');
+    searchStrategyServiceSpy.restoreSearch.and.returnValue('');
 
     await TestBed.configureTestingModule({
       imports: [
@@ -49,7 +49,7 @@ describe('SearchComponent', () => {
         FontAwesomeModule
       ],
       providers: [
-        { provide: DataManagementSearchService, useValue: dataManagementSearchSpy },
+        { provide: SearchStrategyService, useValue: searchStrategyServiceSpy },
         { provide: WorkplaceStateService, useValue: workplaceStateSpy },
         { provide: SearchService, useValue: searchServiceSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy }
@@ -59,7 +59,7 @@ describe('SearchComponent', () => {
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
     
-    dataManagementSearchService = TestBed.inject(DataManagementSearchService) as jasmine.SpyObj<DataManagementSearchService>;
+    searchStrategyService = TestBed.inject(SearchStrategyService) as jasmine.SpyObj<SearchStrategyService>;
     workplaceStateService = TestBed.inject(WorkplaceStateService) as jasmine.SpyObj<WorkplaceStateService>;
     searchService = TestBed.inject(SearchService) as jasmine.SpyObj<SearchService>;
     cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
@@ -82,7 +82,7 @@ describe('SearchComponent', () => {
 
     component.onClickSearch();
 
-    expect(dataManagementSearchService.globalSearch).toHaveBeenCalledWith(
+    expect(searchStrategyService.globalSearch).toHaveBeenCalledWith(
       'test search', 
       true, 
       false
@@ -98,7 +98,7 @@ describe('SearchComponent', () => {
 
     component.onKeyupSearch(mockEvent);
 
-    expect(dataManagementSearchService.resetFilterWithoutSignalWrite).toHaveBeenCalled();
+    expect(searchStrategyService.resetFilterWithoutSignalWrite).toHaveBeenCalled();
   });
 
   it('should not reset filter when search input has value', () => {
@@ -110,7 +110,7 @@ describe('SearchComponent', () => {
 
     component.onKeyupSearch(mockEvent);
 
-    expect(dataManagementSearchService.resetFilterWithoutSignalWrite).not.toHaveBeenCalled();
+    expect(searchStrategyService.resetFilterWithoutSignalWrite).not.toHaveBeenCalled();
   });
 
   it('should trigger search on HostListener search event', () => {
@@ -132,7 +132,7 @@ describe('SearchComponent', () => {
 
     component['handleFocusChange']();
 
-    expect(dataManagementSearchService.resetFilter).toHaveBeenCalled();
+    expect(searchStrategyService.resetFilter).toHaveBeenCalled();
     expect(component.searchString).toBe('');
     expect(component.includeAddress).toBe(false);
     expect(component.includeClient).toBe(false);
@@ -145,10 +145,10 @@ describe('SearchComponent', () => {
     
     // First verify that restoreSearch can be called
     const restoredSearch = 'restored search';
-    dataManagementSearchService.restoreSearch.and.returnValue(restoredSearch);
+    searchStrategyService.restoreSearch.and.returnValue(restoredSearch);
     
     // Call restoreSearch manually to verify the functionality
-    const result = dataManagementSearchService.restoreSearch();
+    const result = searchStrategyService.restoreSearch();
     expect(result).toBe(restoredSearch);
     
     // Test that searchString can be set correctly
@@ -192,10 +192,9 @@ describe('SearchComponent', () => {
 
   it('should bind searchString to input value', async () => {
     searchService.showSearch.and.returnValue(true);
-    component.searchString = 'test value';
-    fixture.detectChanges();
+    searchStrategyService.restoreSearch.and.returnValue('test value');
     
-    // Wait for async operations to complete
+    fixture.detectChanges();
     await fixture.whenStable();
 
     const searchInput = fixture.nativeElement.querySelector('input[name="searchString"]') as HTMLInputElement;

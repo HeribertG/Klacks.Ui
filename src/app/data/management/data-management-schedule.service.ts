@@ -12,8 +12,8 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { ISpinnable } from './imanageable';
-import { ManageableServiceRegistry } from './manageable-service-registry';
+import { ISpinnable } from '../../workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';
 
 @Injectable({

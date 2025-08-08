@@ -25,8 +25,8 @@ import { IShift, Shift } from 'src/app/core/shift-class';
 import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
 import { DataCountryStateService } from '../data-country-state.service';
-import { IManageable } from './imanageable';
-import { ManageableServiceRegistry } from './manageable-service-registry';
+import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';
 
 @Injectable({

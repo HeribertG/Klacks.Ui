@@ -24,7 +24,7 @@ import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component'
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { GroupSelectionService } from '../data/management/group-selection.service';
-import { WorkplaceStateService } from '../data/management/workplace-state.service';
+import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
 
 interface VirtualGroup {
   id: string | null;

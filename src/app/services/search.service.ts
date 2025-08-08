@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { WorkplaceStateService } from '../data/management/workplace-state.service';
+import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
 import { EntityName } from '../data/management/entity-names.enum';
 
 export interface SearchConfig {

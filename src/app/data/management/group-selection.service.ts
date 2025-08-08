@@ -1,7 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/core/group-class';
 import { EntityName } from './entity-names.enum';
-import { WorkplaceStateService } from './workplace-state.service';
+import { WorkplaceStateService } from '../../workplace/core/workplace-state.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementScheduleService } from './data-management-schedule.service';
 
@@ -45,7 +45,7 @@ export class GroupSelectionService {
     this.selectedGroupChanged.set(true);
     setTimeout(() => this.selectedGroupChanged.set(false), 100);
 
-    switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+    switch (this.dataManagementSwitchboard.nameOfVisibleEntity() as EntityName) {
       case EntityName.ABSENCE:
         this.dataManagementBreak.breakFilter.selectedGroup =
           this.selectedGroupId;

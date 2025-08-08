@@ -58,22 +58,15 @@ export class PaginationComponent implements OnInit {
   ngOnInit(): void {
     const tmpRow = this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
     
-    console.log('[PaginationComponent] ngOnInit:', {
-      tmpRow,
-      isNumeric: tmpRow ? isNumeric(tmpRow) : false,
-      numberOfItemsPerPage: this.numberOfItemsPerPage
-    });
     
     if (tmpRow && isNumeric(tmpRow)) {
       this.realRow = +tmpRow;
       if (+tmpRow !== -1) {
         this.numberOfItemsPerPage = +tmpRow;
-        console.log('[PaginationComponent] Fixed mode - emitting:', +tmpRow);
         setTimeout(() => this.numberOfItemsPerPageChange.emit(+tmpRow), 0);
       } else {
         // Auto mode - don't emit numberOfItemsPerPageChange, let the parent manage the value
         this.realRow = -1;
-        console.log('[PaginationComponent] Auto mode - NOT emitting numberOfItemsPerPageChange, keeping parent value:', this.numberOfItemsPerPage);
         if (this.numberOfItemsPerPage === 0) {
           this.numberOfItemsPerPage = 10;
         }
@@ -85,7 +78,6 @@ export class PaginationComponent implements OnInit {
         this.numberOfItemsPerPage = 10;
       }
       // Save the default auto mode to localStorage
-      console.log('[PaginationComponent] Setting default auto mode in localStorage, NOT emitting numberOfItemsPerPageChange');
       this.localStorageService.set(MessageLibrary.SELECTED_ROW_ORDER, '-1');
     }
   }
@@ -113,11 +105,6 @@ export class PaginationComponent implements OnInit {
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
     
-    console.log('[PaginationComponent] onChangeRowSize:', {
-      value,
-      isAutoMode: value === -1,
-      willSaveToLocalStorage: value.toString()
-    });
     
     this.realRow = value;
     this.page = 1;

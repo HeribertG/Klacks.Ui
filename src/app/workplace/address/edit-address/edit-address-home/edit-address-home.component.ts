@@ -8,7 +8,7 @@ import {
   Output,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';
 import { MembershipComponent } from '../membership/membership.component';

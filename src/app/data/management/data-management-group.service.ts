@@ -34,8 +34,8 @@ import { StateCountryToken } from 'src/app/core/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IManageable } from './imanageable';
-import { ManageableServiceRegistry } from './manageable-service-registry';
+import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';
 import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 

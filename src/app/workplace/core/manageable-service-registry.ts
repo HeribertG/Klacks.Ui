@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
-import { RouteName } from './entity-names.enum';
-import { ISpinnable } from './imanageable';
+import { RouteName } from '../../data/management/entity-names.enum';
+import { ISpinnable } from './interfaces/manageable.interface';
 
 export class ManageableServiceRegistry {
   private static registry = new Map<string, Type<ISpinnable>>();

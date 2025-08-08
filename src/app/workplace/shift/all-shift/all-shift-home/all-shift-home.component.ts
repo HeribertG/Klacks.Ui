@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
-import { WorkplaceStateService } from 'src/app/data/management/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 
 @Component({
   selector: 'app-all-shift-home',
