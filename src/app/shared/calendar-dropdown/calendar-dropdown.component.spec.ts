@@ -3,7 +3,7 @@ import { CalendarDropdownComponent } from './calendar-dropdown.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { DataManagementCalendarRulesService } from 'src/app/data/management/data-management-calendar-rules.service';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 
 describe('CalendarDropdownComponent', () => {
   let component: CalendarDropdownComponent;

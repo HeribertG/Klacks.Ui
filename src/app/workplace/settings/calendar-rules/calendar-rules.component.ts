@@ -24,15 +24,15 @@ import {
   StateCountryToken,
   HolidaysListHelper,
   ICalendarRule,
-} from 'src/app/core/calendar-rule-class';
+} from 'src/app/models/calendar-rule-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/core/headerProperties';
+} from 'src/app/models/headerProperties';
 import {
   IMultiLanguage,
   MultiLanguage,
-} from 'src/app/core/multi-language-class';
+} from 'src/app/models/multi-language-class';
 import { DataManagementCalendarRulesService } from 'src/app/data/management/data-management-calendar-rules.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

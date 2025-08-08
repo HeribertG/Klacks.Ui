@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs/operators';
-import { ISetting } from '../core/settings-various-class';
+import { ISetting } from '../models/settings-various-class';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 

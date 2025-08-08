@@ -5,7 +5,7 @@ import {
   StateCountryToken,
   HolidaysListHelper,
   ICalendarRule,
-} from 'src/app/core/calendar-rule-class';
+} from 'src/app/models/calendar-rule-class';
 import { DataCalendarRuleService } from 'src/app/data/data-calendar-rule.service';
 
 @Injectable()

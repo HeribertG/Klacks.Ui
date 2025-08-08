@@ -7,7 +7,7 @@ import {
   AbsenceFilter,
   IAbsence,
   TruncatedAbsence,
-} from '../core/absence-class';
+} from '../models/absence-class';
 
 @Injectable({
   providedIn: 'root',

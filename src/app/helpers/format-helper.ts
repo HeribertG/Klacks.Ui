@@ -2,7 +2,7 @@
 import moment from 'moment';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from './string-constants';
-import { OwnTime } from '../core/schedule-class';
+import { OwnTime } from '../models/schedule-class';
 
 export function EqualDate(
   firstDate: Date | string,

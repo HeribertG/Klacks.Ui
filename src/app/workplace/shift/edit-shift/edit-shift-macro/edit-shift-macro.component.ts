@@ -11,9 +11,9 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { IMacro } from 'src/app/core/macro-class';
-import { IMultiLanguage } from 'src/app/core/multi-language-class';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { IMacro } from 'src/app/models/macro-class';
+import { IMultiLanguage } from 'src/app/models/multi-language-class';
+import { ShiftStatus } from 'src/app/models/shift-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

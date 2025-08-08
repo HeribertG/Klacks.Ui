@@ -11,20 +11,20 @@ import {
   IAuthentication,
   ChangePassword,
   ChangeRole,
-} from '../../core/authentification-class';
+} from '../../models/authentification-class';
 import { DataSettingsVariousService } from '../data-settings-various.service';
 import {
   ISetting,
   AppSetting,
   Setting,
-} from 'src/app/core/settings-various-class';
-import { ICountry, IState } from 'src/app/core/client-class';
+} from 'src/app/models/settings-various-class';
+import { ICountry, IState } from 'src/app/models/client-class';
 import { DataCountryStateService } from '../data-country-state.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { DataMacroService } from '../data-macro.service';
-import { IMacro } from 'src/app/core/macro-class';
+import { IMacro } from 'src/app/models/macro-class';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
-import { MultiLanguage } from 'src/app/core/multi-language-class';
+import { MultiLanguage } from 'src/app/models/multi-language-class';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';

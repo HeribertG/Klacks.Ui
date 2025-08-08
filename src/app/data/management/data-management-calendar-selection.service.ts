@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import {
   CalendarSelection,
   ICalendarSelection,
   SelectedCalendar,
-} from 'src/app/core/calendar-selection-class';
+} from 'src/app/models/calendar-selection-class';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataCalendarSelectionService } from '../data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';

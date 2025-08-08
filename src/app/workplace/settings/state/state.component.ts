@@ -8,8 +8,8 @@ import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { StateHeaderComponent } from './state-header/state-header.component';
 import { StateRowComponent } from './state-row/state-row.component';
 
-import { State } from 'src/app/core/client-class';
-import { MultiLanguage } from 'src/app/core/multi-language-class';
+import { State } from 'src/app/models/client-class';
+import { MultiLanguage } from 'src/app/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 

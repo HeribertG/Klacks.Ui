@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IGroupFilter } from 'src/app/core/group-class';
+import { IGroupFilter } from 'src/app/models/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';

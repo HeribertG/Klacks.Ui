@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { MyToken } from '../core/authentification-class';
+import { MyToken } from '../models/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from '../helpers/format-helper';

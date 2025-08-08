@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { IMultiLanguage } from '../../core/multi-language-class';
+import { IMultiLanguage } from '../../models/multi-language-class';
 
 @Pipe({
   name: 'fallback',

@@ -5,7 +5,7 @@ import {
   ChangePassword,
   ChangeRole,
   ResponseAuthentication,
-} from 'src/app/core/authentification-class';
+} from 'src/app/models/authentification-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs/operators';
 import { Observable } from 'rxjs';

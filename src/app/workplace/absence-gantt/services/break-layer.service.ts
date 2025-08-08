@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IBreak } from 'src/app/core/break-class';
+import { IBreak } from 'src/app/models/break-class';
 
 export interface IBreakWithLayer extends IBreak {
   layer: number;

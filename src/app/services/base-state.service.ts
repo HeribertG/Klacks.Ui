@@ -12,7 +12,7 @@ import {
   restoreFilter,
   saveFilter,
 } from 'src/app/helpers/object-helpers';
-import { IBaseFilter } from 'src/app/core/general-class';
+import { IBaseFilter } from 'src/app/models/general-class';
 
 export interface IDataManagementService<T extends IBaseFilter> {
   currentFilter: T;

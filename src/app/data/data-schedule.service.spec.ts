@@ -6,7 +6,7 @@ import {
   IWorkFilter,
   Work,
   WorkFilter,
-} from '../core/schedule-class';
+} from '../models/schedule-class';
 import { environment } from 'src/environments/environment';
 import {
   Client,
@@ -14,7 +14,7 @@ import {
   Communication,
   Annotation,
   Membership,
-} from '../core/client-class';
+} from '../models/client-class';
 import { GenderEnum } from '../helpers/enums/client-enum';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 

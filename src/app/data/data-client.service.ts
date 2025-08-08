@@ -10,7 +10,7 @@ import {
   IClientAttribute,
   ILastChangeMetaData,
   IAddress,
-} from '../core/client-class';
+} from '../models/client-class';
 
 import {
   unformatPhoneNumber,
@@ -18,7 +18,7 @@ import {
   isNgbDateStructOk,
   dateWithLocalTimeCorrection,
 } from '../helpers/format-helper';
-import { StateCountryToken } from '../core/calendar-rule-class';
+import { StateCountryToken } from '../models/calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

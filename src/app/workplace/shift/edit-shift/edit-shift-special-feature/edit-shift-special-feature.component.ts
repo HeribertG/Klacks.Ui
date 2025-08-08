@@ -16,7 +16,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { ShiftStatus } from 'src/app/models/shift-class';
 
 @Component({
   selector: 'app-edit-shift-special-feature',

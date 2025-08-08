@@ -6,7 +6,7 @@ import {
   StateCountryToken,
   ICalendarRule,
   TruncatedCalendarRule,
-} from 'src/app/core/calendar-rule-class';
+} from 'src/app/models/calendar-rule-class';
 import {
   cloneObject,
   compareComplexObjects,

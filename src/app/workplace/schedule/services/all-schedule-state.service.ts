@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';
-import { IWorkFilter } from 'src/app/core/schedule-class';
+import { IWorkFilter } from 'src/app/models/schedule-class';
 
 @Injectable()
 export class AllScheduleStateService extends BaseStateService<

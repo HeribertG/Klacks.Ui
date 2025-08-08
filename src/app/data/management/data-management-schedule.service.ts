@@ -5,7 +5,7 @@ import {
   IWorkFilter,
   Work,
   WorkFilter,
-} from 'src/app/core/schedule-class';
+} from 'src/app/models/schedule-class';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataScheduleService } from '../data-schedule.service';
 import {

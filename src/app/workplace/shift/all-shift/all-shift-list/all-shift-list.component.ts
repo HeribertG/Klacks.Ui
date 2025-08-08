@@ -13,7 +13,7 @@ import { DataManagementShiftService } from 'src/app/data/management/data-managem
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
-import { Shift } from 'src/app/core/shift-class';
+import { Shift } from 'src/app/models/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { PaginationComponent, IPaginationDataService } from 'src/app/shared/pagination/pagination.component';

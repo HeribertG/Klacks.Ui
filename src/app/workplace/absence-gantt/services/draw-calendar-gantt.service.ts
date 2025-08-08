@@ -2,7 +2,7 @@ import { Injectable, NgZone } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
 import { daysBetweenDates, isLeapYear } from 'src/app/helpers/format-helper';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { IBreak } from 'src/app/core/break-class';
+import { IBreak } from 'src/app/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../shared/grid/services/grid-color.service';

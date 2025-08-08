@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { IAssignedGroup } from '../core/assigned-group-class';
+import { IAssignedGroup } from '../models/assigned-group-class';
 
 @Injectable({
   providedIn: 'root',

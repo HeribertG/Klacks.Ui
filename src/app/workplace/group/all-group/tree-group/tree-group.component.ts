@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Group, IGroup } from 'src/app/core/group-class';
+import { Group, IGroup } from 'src/app/models/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { IconAddComponent } from 'src/app/icons/icon-add.component';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';

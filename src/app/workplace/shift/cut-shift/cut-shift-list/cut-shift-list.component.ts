@@ -23,9 +23,9 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { OwnTime } from 'src/app/core/schedule-class';
+import { OwnTime } from 'src/app/models/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
-import { IShift, Shift, ShiftStatus } from 'src/app/core/shift-class';
+import { IShift, Shift, ShiftStatus } from 'src/app/models/shift-class';
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import {
   transformStringToOwnTimeStruct,

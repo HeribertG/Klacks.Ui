@@ -10,19 +10,19 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataShiftService } from '../data-shift.service';
-import { IMacro } from 'src/app/core/macro-class';
+import { IMacro } from 'src/app/models/macro-class';
 import { DataMacroService } from '../data-macro.service';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { ITruncatedShift, ShiftFilter } from 'src/app/core/shift-data-class';
+import { ITruncatedShift, ShiftFilter } from 'src/app/models/shift-data-class';
 import {
   CheckBoxValue,
   Filter,
   IAddress,
   IClient,
   ICountry,
-} from 'src/app/core/client-class';
-import { IShift, Shift } from 'src/app/core/shift-class';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+} from 'src/app/models/client-class';
+import { IShift, Shift } from 'src/app/models/shift-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import { DataClientService } from '../data-client.service';
 import { DataCountryStateService } from '../data-country-state.service';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { IClientWork, IWork, IWorkFilter, Work } from '../core/schedule-class';
+import { IClientWork, IWork, IWorkFilter, Work } from '../models/schedule-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from '../helpers/format-helper';

@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { CalendarHeaderDayRank } from 'src/app/core/absence-class';
+import { CalendarHeaderDayRank } from 'src/app/models/absence-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../shared/grid/services/grid-color.service';
@@ -24,7 +24,7 @@ import {
 } from '../../../shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from '../../../shared/grid/enums/gradient-3d-border-style';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
-import { Break, IBreak } from 'src/app/core/break-class';
+import { Break, IBreak } from 'src/app/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import {
   cloneObject,

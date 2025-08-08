@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IFilter } from 'src/app/core/client-class';
+import { IFilter } from 'src/app/models/client-class';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';

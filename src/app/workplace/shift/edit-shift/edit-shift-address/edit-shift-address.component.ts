@@ -12,11 +12,11 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { IClient } from 'src/app/core/client-class';
+import { IClient } from 'src/app/models/client-class';
 import { DataClientService } from 'src/app/data/data-client.service';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { ShiftStatus } from 'src/app/models/shift-class';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';

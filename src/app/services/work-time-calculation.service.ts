@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OwnTime } from '../core/schedule-class';
+import { OwnTime } from '../models/schedule-class';
 import {
   isOwnTimeStructOk,
   transformOwnTimeToNumber,

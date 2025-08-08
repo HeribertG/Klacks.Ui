@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from '../data/data-load-file.service';
 import { DataSettingsVariousService } from '../data/data-settings-various.service';
 import { LocalStorageService } from './local-storage.service';
-import { AppSetting, ISetting } from '../core/settings-various-class';
+import { AppSetting, ISetting } from '../models/settings-various-class';
 import { MessageLibrary } from '../helpers/string-constants';
 
 @Injectable({

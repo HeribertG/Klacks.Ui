@@ -10,8 +10,8 @@ import {
   transformNgbDateStructToDate,
   transformOwnTimeToString,
 } from '../helpers/format-helper';
-import { ITruncatedShift, ShiftFilter } from '../core/shift-data-class';
-import { IShift } from '../core/shift-class';
+import { ITruncatedShift, ShiftFilter } from '../models/shift-data-class';
+import { IShift } from '../models/shift-class';
 import { WorkTimeCalculationService } from '../services/work-time-calculation.service';
 
 @Injectable({

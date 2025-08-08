@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';
-import { IBreakFilter } from 'src/app/core/break-class';
+import { IBreakFilter } from 'src/app/models/break-class';
 
 @Injectable()
 export class AllAbsenceStateService extends BaseStateService<

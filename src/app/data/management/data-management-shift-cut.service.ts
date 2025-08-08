@@ -7,7 +7,7 @@ import {
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { DataShiftCutsService } from '../data-shift-cuts.service';
-import { IShift, Shift, ShiftStatus } from 'src/app/core/shift-class';
+import { IShift, Shift, ShiftStatus } from 'src/app/models/shift-class';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from './entity-names.enum';

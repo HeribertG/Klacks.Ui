@@ -7,7 +7,7 @@ import {
   IClientAttribute,
   ICountry,
   ITruncatedClient,
-} from 'src/app/core/client-class';
+} from 'src/app/models/client-class';
 import {
   Group,
   GroupFilter,
@@ -16,7 +16,7 @@ import {
   IGroup,
   IGroupTree,
   ITruncatedGroup,
-} from 'src/app/core/group-class';
+} from 'src/app/models/group-class';
 import { DataClientService } from '../data-client.service';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { DataGroupService } from '../data-group.service';
@@ -30,7 +30,7 @@ import {
   transformDateToNgbDateStruct,
 } from 'src/app/helpers/format-helper';
 import { DataCountryStateService } from '../data-country-state.service';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';

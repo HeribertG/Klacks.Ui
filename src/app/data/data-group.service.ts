@@ -7,7 +7,7 @@ import {
   IGroup,
   IGroupTree,
   ITruncatedGroup,
-} from '../core/group-class';
+} from '../models/group-class';
 import {
   dateWithLocalTimeCorrection,
   isNgbDateStructOk,

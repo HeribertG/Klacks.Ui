@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { ICountry, IPostCodeCH, IState } from '../core/client-class';
+import { ICountry, IPostCodeCH, IState } from '../models/client-class';
 import { retry } from 'rxjs/operators';
 
 @Injectable({

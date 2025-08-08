@@ -30,7 +30,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { ShiftStatus } from 'src/app/models/shift-class';
 
 @Component({
   selector: 'app-edit-shift-item',

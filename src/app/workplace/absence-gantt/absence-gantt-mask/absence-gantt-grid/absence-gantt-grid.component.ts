@@ -13,12 +13,12 @@ import {
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { IAbsence } from 'src/app/core/absence-class';
-import { IBreak } from 'src/app/core/break-class';
+import { IAbsence } from 'src/app/models/absence-class';
+import { IBreak } from 'src/app/models/break-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/core/headerProperties';
+} from 'src/app/models/headerProperties';
 import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
 import { daysBetweenDates } from 'src/app/helpers/format-helper';
 import { Language } from 'src/app/helpers/sharedItems';

@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IShiftFilter } from 'src/app/core/shift-data-class';
+import { IShiftFilter } from 'src/app/models/shift-data-class';
 import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
 import { RouteName } from 'src/app/data/management/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';

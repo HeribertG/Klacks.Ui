@@ -17,7 +17,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Group, IGroup } from 'src/app/core/group-class';
+import { Group, IGroup } from 'src/app/models/group-class';
 import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { GroupSelectionService } from 'src/app/data/management/group-selection.service';

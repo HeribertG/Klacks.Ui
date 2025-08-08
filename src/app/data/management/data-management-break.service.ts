@@ -4,8 +4,8 @@ import {
   BreakFilter,
   IBreak,
   IBreakFilter,
-} from 'src/app/core/break-class';
-import { IClientBreak } from 'src/app/core/client-class';
+} from 'src/app/models/break-class';
+import { IClientBreak } from 'src/app/models/client-class';
 import { DataBreakService } from '../data-break.service';
 import {
   cloneObject,

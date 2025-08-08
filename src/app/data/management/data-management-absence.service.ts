@@ -5,7 +5,7 @@ import {
   AbsenceFilter,
   IAbsence,
   TruncatedAbsence,
-} from 'src/app/core/absence-class';
+} from 'src/app/models/absence-class';
 import {
   cloneObject,
   compareComplexObjects,

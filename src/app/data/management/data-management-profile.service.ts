@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { ChangePassword } from 'src/app/core/authentification-class';
+import { ChangePassword } from 'src/app/models/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastShowService } from 'src/app/toast/toast-show.service';

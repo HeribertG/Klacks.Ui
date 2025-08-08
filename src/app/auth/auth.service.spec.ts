@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { AuthService } from './auth.service';
-import { MyToken } from '../core/authentification-class';
+import { MyToken } from '../models/authentification-class';
 import { ToastShowService } from '../toast/toast-show.service';
 import { MessageLibrary } from '../helpers/string-constants';
 import {

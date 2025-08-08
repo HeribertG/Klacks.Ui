@@ -7,7 +7,7 @@ import {
   StateCountryToken,
   ICalendarRule,
   TruncatedCalendarRule,
-} from '../core/calendar-rule-class';
+} from '../models/calendar-rule-class';
 
 @Injectable({
   providedIn: 'root',

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
-import { Country } from 'src/app/core/client-class';
-import { MultiLanguage } from 'src/app/core/multi-language-class';
+import { Country } from 'src/app/models/client-class';
+import { MultiLanguage } from 'src/app/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 

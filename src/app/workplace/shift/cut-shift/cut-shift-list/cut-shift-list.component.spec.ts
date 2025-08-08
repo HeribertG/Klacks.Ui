@@ -3,8 +3,8 @@ import { CutShiftListComponent } from './cut-shift-list.component';
 import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
 import { NgbModal, NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Shift } from 'src/app/core/shift-class';
-import { OwnTime } from 'src/app/core/schedule-class';
+import { Shift } from 'src/app/models/shift-class';
+import { OwnTime } from 'src/app/models/schedule-class';
 import { transformDateToNgbDateStruct, transformStringToOwnTimeStruct } from 'src/app/helpers/format-helper';
 
 describe('CutShiftListComponent - Time Cut Logic', () => {

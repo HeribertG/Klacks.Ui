@@ -13,11 +13,11 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CheckBoxValue, IClient } from 'src/app/core/client-class';
+import { CheckBoxValue, IClient } from 'src/app/models/client-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/core/headerProperties';
+} from 'src/app/models/headerProperties';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/services/local-storage.service';

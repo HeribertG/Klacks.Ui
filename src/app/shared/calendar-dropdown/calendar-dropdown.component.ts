@@ -18,7 +18,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import { DataManagementCalendarRulesService } from 'src/app/data/management/data-management-calendar-rules.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

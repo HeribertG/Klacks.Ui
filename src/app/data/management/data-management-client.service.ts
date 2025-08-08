@@ -20,7 +20,7 @@ import {
   Membership,
   ExportClient,
   IPostCodeCH,
-} from '../../core/client-class';
+} from '../../models/client-class';
 import {
   compareComplexObjects,
   cloneObject,
@@ -42,7 +42,7 @@ import {
   GenderEnum,
 } from 'src/app/helpers/enums/client-enum';
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
-import { StateCountryToken } from 'src/app/core/calendar-rule-class';
+import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';

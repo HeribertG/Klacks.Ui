@@ -1,6 +1,6 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import { HolidayDate } from 'src/app/core/calendar-rule-class';
+import { HolidayDate } from 'src/app/models/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
 import {
   addDays,

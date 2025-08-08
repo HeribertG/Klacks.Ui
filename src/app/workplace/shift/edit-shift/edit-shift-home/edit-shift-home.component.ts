@@ -20,7 +20,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { ShiftStatus } from 'src/app/core/shift-class';
+import { ShiftStatus } from 'src/app/models/shift-class';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 

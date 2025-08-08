@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { DataSettingsVariousService } from './data-settings-various.service';
-import { ISetting } from '../core/settings-various-class';
+import { ISetting } from '../models/settings-various-class';
 import { environment } from 'src/environments/environment';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 

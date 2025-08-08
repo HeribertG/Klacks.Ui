@@ -6,7 +6,7 @@ import {
   ICalendarSelection,
   ISelectedCalendar,
   SelectedCalendar,
-} from '../core/calendar-selection-class';
+} from '../models/calendar-selection-class';
 import { retry } from 'rxjs';
 
 @Injectable({

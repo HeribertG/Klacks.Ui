@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataCountryStateService } from './data-country-state.service';
-import { MultiLanguage, ICountry, Country } from '../core/client-class';
+import { MultiLanguage, ICountry, Country } from '../models/client-class';
 import { environment } from 'src/environments/environment';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 

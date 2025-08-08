@@ -15,7 +15,7 @@ import {
   Authentication,
   ChangePassword,
   IAuthentication,
-} from 'src/app/core/authentification-class';
+} from 'src/app/models/authentification-class';
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { generatePassword } from 'src/app/helpers/password';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

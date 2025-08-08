@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Break, IBreak, IBreakFilter } from '../core/break-class';
-import { IClientBreak } from '../core/client-class';
+import { Break, IBreak, IBreakFilter } from '../models/break-class';
+import { IClientBreak } from '../models/client-class';
 import { dateWithLocalTimeCorrection } from '../helpers/format-helper';
 
 @Injectable({
