@@ -1,11 +1,11 @@
-@use "../../../../assets/standard-styles/standard-grid.scss";
-@use "../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../assets/standard-styles/standard-modal.scss";
-@use "../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../assets/standard-styles/colors.scss";
-@use "../../../../assets/standard-styles/menu.scss";
-@use "../../../../assets/standard-styles/datepicker.scss";
-@use "../../../../assets/standard-styles/pagination.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/menu.scss";
+@use "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/pagination.scss";
 
 .row-line {
   margin-top: 5px;
@@ -82,7 +82,6 @@ textarea {
   height: 33.5px;
   margin-bottom: 1rem;
 }
-
 
 .mask-container {
   display: flex;
