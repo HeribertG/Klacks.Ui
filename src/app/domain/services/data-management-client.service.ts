@@ -40,7 +40,7 @@ import {
   AddressTypeEnum,
   CommunicationTypeDefaultIndexEnum,
   GenderEnum,
-} from 'src/app/helpers/enums/client-enum';
+} from 'src/app/domain/enums/client-enum';
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';

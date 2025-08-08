@@ -15,7 +15,7 @@ import {
   Annotation,
   Membership,
 } from 'src/app/domain/models/client-class';
-import { GenderEnum } from 'src/app/helpers/enums/client-enum';
+import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DataScheduleService', () => {

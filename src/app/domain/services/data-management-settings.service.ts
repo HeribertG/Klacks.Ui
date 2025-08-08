@@ -20,7 +20,7 @@ import {
 } from 'src/app/domain/models/settings-various-class';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';

@@ -17,7 +17,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { Subject, takeUntil } from 'rxjs';
 import { ICountry } from 'src/app/domain/models/client-class';
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 

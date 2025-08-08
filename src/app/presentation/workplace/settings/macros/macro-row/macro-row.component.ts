@@ -15,7 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';

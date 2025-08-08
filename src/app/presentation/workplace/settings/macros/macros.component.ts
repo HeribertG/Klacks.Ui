@@ -11,7 +11,7 @@ import { MacroRowComponent } from './macro-row/macro-row.component';
 
 import { Macro } from 'src/app/domain/models/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({

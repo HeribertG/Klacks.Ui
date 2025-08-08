@@ -1,4 +1,4 @@
-import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
+import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { BaseEntity, IBaseEntity } from './general-class';
 import { MultiLanguage } from './multi-language-class';
 

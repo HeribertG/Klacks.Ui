@@ -11,7 +11,7 @@ import { transformDateToNgbDateStruct } from 'src/app/helpers/format-helper';
 import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';
-import { GenderEnum } from 'src/app/helpers/enums/client-enum';
+import { GenderEnum } from 'src/app/domain/enums/client-enum';
 
 export interface IPostCodeCH {
   id: number;
