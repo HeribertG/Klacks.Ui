@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
@@ -30,7 +30,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/helpers/format-helper';
 import { LockComponent } from 'src/app/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/icons/icon-unlock.component';
-import { ShiftStatus } from 'src/app/models/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift-class';
 
 @Component({
   selector: 'app-edit-shift-item',

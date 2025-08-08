@@ -5,7 +5,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { EditGroupItemComponent } from '../edit-group-item/edit-group-item.component';
 import { EditGroupMembersComponent } from '../edit-group-members/edit-group-members.component';

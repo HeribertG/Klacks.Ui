@@ -18,13 +18,13 @@ import {
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
-import { Absence, IAbsence } from 'src/app/models/absence-class';
+import { Absence, IAbsence } from 'src/app/domain/models/absence-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/models/headerProperties';
-import { MultiLanguage } from 'src/app/models/multi-language-class';
-import { DataManagementAbsenceService } from 'src/app/data/management/data-management-absence.service';
+} from 'src/app/domain/models/headerProperties';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { DataManagementAbsenceService } from 'src/app/domain/services/data-management-absence.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

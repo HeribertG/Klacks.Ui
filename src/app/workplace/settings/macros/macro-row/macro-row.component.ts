@@ -16,8 +16,8 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
-import { IMacro, Macro } from 'src/app/models/macro-class';
-import { MultiLanguage } from 'src/app/models/multi-language-class';
+import { IMacro, Macro } from 'src/app/domain/models/macro-class';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 
@@ -29,7 +29,7 @@ import 'codemirror/addon/fold/foldgutter';
 import 'codemirror/addon/fold/foldcode';
 import 'codemirror/addon/lint/lint';
 import 'codemirror/addon/display/autorefresh';
-import { ShiftData } from 'src/app/models/shift-data-class';
+import { ShiftData } from 'src/app/domain/models/shift-data-class';
 
 @Component({
   selector: 'app-macro-row',

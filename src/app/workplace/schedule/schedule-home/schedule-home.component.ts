@@ -22,7 +22,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
-import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 
 @Component({

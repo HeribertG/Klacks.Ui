@@ -22,7 +22,7 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services und Utilities
-import { DataManagementProfileService } from 'src/app/data/management/data-management-profile.service';
+import { DataManagementProfileService } from 'src/app/domain/services/data-management-profile.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import {
   checkPasswordStrength,

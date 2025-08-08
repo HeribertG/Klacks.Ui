@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CutShiftListComponent } from './cut-shift-list.component';
-import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
 import { NgbModal, NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Shift } from 'src/app/models/shift-class';
-import { OwnTime } from 'src/app/models/schedule-class';
+import { Shift } from 'src/app/domain/models/shift-class';
+import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { transformDateToNgbDateStruct, transformStringToOwnTimeStruct } from 'src/app/helpers/format-helper';
 
 describe('CutShiftListComponent - Time Cut Logic', () => {

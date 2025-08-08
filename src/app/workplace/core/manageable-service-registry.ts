@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { RouteName } from 'src/app/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ISpinnable } from './interfaces/manageable.interface';
 
 export class ManageableServiceRegistry {

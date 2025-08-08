@@ -4,15 +4,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of, Subject } from 'rxjs';
 
 import { CalendarSelectorComponent } from './calendar-selector.component';
-import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
-import { DataManagementCalendarRulesService } from 'src/app/data/management/data-management-calendar-rules.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
+import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
 import { ChipsComponent } from '../chips/chips.component';
-import { CalendarSelection, SelectedCalendar } from 'src/app/models/calendar-selection-class';
-import { StateCountryToken } from 'src/app/models/calendar-rule-class';
-import { MultiLanguage } from 'src/app/models/multi-language-class';
+import { CalendarSelection, SelectedCalendar } from 'src/app/domain/models/calendar-selection-class';
+import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 
 describe('CalendarSelectorComponent', () => {
   let component: CalendarSelectorComponent;

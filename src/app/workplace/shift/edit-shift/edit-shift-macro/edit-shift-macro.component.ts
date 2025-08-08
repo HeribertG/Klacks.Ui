@@ -11,10 +11,10 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { IMacro } from 'src/app/models/macro-class';
-import { IMultiLanguage } from 'src/app/models/multi-language-class';
-import { ShiftStatus } from 'src/app/models/shift-class';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { IMacro } from 'src/app/domain/models/macro-class';
+import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';

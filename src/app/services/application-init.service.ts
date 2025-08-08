@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { DataLoadFileService } from '../data/data-load-file.service';
-import { DataSettingsVariousService } from '../data/data-settings-various.service';
+import { DataLoadFileService } from '../infrastructure/api/data-load-file.service';
+import { DataSettingsVariousService } from '../infrastructure/api/data-settings-various.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { AppSetting, ISetting } from '../models/settings-various-class';
+import { AppSetting, ISetting } from 'src/app/domain/models/settings-various-class';
 import { MessageLibrary } from '../helpers/string-constants';
 
 @Injectable({

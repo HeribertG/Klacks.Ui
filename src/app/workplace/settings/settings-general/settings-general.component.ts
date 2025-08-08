@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
-import { DataLoadFileService } from 'src/app/data/data-load-file.service';
-import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

@@ -3,8 +3,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/models/headerProperties';
-import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+} from 'src/app/domain/models/headerProperties';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { IconAscComponent } from 'src/app/icons/icon-asc.component';
 import { IconDescComponent } from 'src/app/icons/icon-desc.component';
 

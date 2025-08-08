@@ -13,7 +13,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services und Utilities
-import { DataLoadFileService } from 'src/app/data/data-load-file.service';
+import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { getFileExtension } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

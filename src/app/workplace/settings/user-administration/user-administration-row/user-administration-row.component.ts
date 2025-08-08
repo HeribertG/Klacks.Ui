@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { IAuthentication } from 'src/app/models/authentification-class';
+import { IAuthentication } from 'src/app/domain/models/authentification-class';
 
 @Component({
   selector: 'app-user-administration-row',

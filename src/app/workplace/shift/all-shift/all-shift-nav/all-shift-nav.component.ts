@@ -12,7 +12,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { AuthorizationService } from 'src/app/services/authorization.service';

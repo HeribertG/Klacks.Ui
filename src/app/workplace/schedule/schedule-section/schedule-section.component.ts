@@ -18,7 +18,7 @@ import { AngularSplitModule, SplitComponent } from 'angular-split';
 import { ScheduleScheduleRowHeaderComponent } from './schedule-schedule-row-header/schedule-schedule-row-header.component';
 import { HScrollbarComponent } from 'src/app/shared/h-scrollbar/h-scrollbar.component';
 import { VScrollbarComponent } from 'src/app/shared/v-scrollbar/v-scrollbar.component';
-import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
 import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-render.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/workplace/schedule/schedule-section/services/create-row-header.service';

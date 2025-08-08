@@ -13,15 +13,15 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { CheckBoxValue, IClient } from 'src/app/models/client-class';
-import { IGroupItem } from 'src/app/models/group-class';
+import { CheckBoxValue, IClient } from 'src/app/domain/models/client-class';
+import { IGroupItem } from 'src/app/domain/models/group-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/models/headerProperties';
-import { DataClientService } from 'src/app/data/data-client.service';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { GroupSelectionService } from 'src/app/data/management/group-selection.service';
+} from 'src/app/domain/models/headerProperties';
+import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';

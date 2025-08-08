@@ -18,7 +18,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { Subject, Subscription } from 'rxjs';
-import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 
 @Component({
   selector: 'app-email-setting',

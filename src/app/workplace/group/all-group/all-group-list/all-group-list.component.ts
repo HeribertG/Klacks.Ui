@@ -24,13 +24,13 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { CheckBoxValue } from 'src/app/models/client-class';
-import { IGroup, IGroupFilter } from 'src/app/models/group-class';
+import { CheckBoxValue } from 'src/app/domain/models/client-class';
+import { IGroup, IGroupFilter } from 'src/app/domain/models/group-class';
 import {
   HeaderDirection,
   HeaderProperties,
-} from 'src/app/models/headerProperties';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+} from 'src/app/domain/models/headerProperties';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/directives/resize-table.directive';
 
 import { MessageLibrary } from 'src/app/helpers/string-constants';

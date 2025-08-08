@@ -9,8 +9,8 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
 
-import { Macro } from 'src/app/models/macro-class';
-import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+import { Macro } from 'src/app/domain/models/macro-class';
+import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 

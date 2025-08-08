@@ -10,7 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 // Services
-import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

@@ -1,5 +1,5 @@
 import { FallbackPipe } from './fallback.pipe';
-import { IMultiLanguage } from '../../models/multi-language-class';
+import { IMultiLanguage } from 'src/app/domain/models/multi-language-class';
 
 describe('FallbackPipe', () => {
   let pipe: FallbackPipe;

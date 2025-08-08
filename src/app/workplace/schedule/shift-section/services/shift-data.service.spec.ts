@@ -4,7 +4,7 @@ import { ShiftDataService } from './shift-data.service';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from 'src/app/shared/grid/services/holiday-collection.service';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
-import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
 
 describe('ShiftDataService', () => {
   let service: ShiftDataService;

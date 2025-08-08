@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
-import { DataLoadFileService } from 'src/app/data/data-load-file.service';
+import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/group-select/group-select.component';
 import { IconSignOutComponent } from 'src/app/icons/icon-sign-out.component';
 import { SearchComponent } from 'src/app/search/search.component';

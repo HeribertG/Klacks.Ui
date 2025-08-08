@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { ISetting, Setting } from 'src/app/models/settings-various-class';
-import { DataSettingsVariousService } from 'src/app/data/data-settings-various.service';
+import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { ConstantKeys } from '../constants/constants';
 

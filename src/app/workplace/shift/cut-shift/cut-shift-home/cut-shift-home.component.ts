@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { UrlParameterService } from 'src/app/services/url-parameter.service';
-import { DataManagementShiftCutService } from 'src/app/data/management/data-management-shift-cut.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';

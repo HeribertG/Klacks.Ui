@@ -10,7 +10,7 @@ import {
   TextAlignmentEnum,
 } from 'src/app/shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from 'src/app/shared/grid/enums/gradient-3d-border-style';
-import { ClientWork } from 'src/app/models/schedule-class';
+import { ClientWork } from 'src/app/domain/models/schedule-class';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { GenderEnum } from 'src/app/helpers/enums/client-enum';
 import { GridRowHeader } from '../../classes/grid-row-header';

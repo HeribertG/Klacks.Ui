@@ -17,10 +17,10 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Group, IGroup } from 'src/app/models/group-class';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+import { Group, IGroup } from 'src/app/domain/models/group-class';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
-import { GroupSelectionService } from 'src/app/data/management/group-selection.service';
+import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';

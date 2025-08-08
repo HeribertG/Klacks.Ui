@@ -2,14 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { MyToken } from '../models/authentification-class';
+import { MyToken } from 'src/app/domain/models/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
-import { DataLoadFileService } from '../data/data-load-file.service';
-import { RouteName } from 'src/app/models/entity-names.enum';
+import { DataLoadFileService } from '../infrastructure/api/data-load-file.service';
+import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

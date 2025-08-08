@@ -20,13 +20,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { Group, IGroup } from 'src/app/models/group-class';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { Group, IGroup } from 'src/app/domain/models/group-class';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/icons/trash-icon-red.component';
 import { SimpleGroupSelectComponent } from 'src/app/shared/simple-group-select/simple-group-select.component';
-import { ShiftStatus } from 'src/app/models/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift-class';
 
 @Component({
   selector: 'app-edit-shift-group',

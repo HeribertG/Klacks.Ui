@@ -2,12 +2,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ShiftType } from 'src/app/models/shift-class';
+import { ShiftType } from 'src/app/domain/models/shift-class';
 import {
   PropertyMetadata,
   ShiftData,
   Weekday,
-} from 'src/app/models/shift-data-class';
+} from 'src/app/domain/models/shift-data-class';
 
 interface PropertyItem {
   key: string;

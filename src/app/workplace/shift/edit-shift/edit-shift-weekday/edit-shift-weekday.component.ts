@@ -18,10 +18,10 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';
-import { ShiftStatus } from 'src/app/models/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { WorkTimeCalculationService } from 'src/app/services/work-time-calculation.service';
 
 @Component({

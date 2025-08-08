@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
-import { CalendarHeaderDayRank } from 'src/app/models/absence-class';
+import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from '../../../shared/grid/services/grid-color.service';
@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridSettingsService } from 'src/app/shared/grid/services/grid-settings.service';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
-import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import {
   EqualDate,
   addDays,
@@ -24,8 +24,8 @@ import {
 } from '../../../shared/grid/enums/cell-settings.enum';
 import { Gradient3DBorderStyleEnum } from '../../../shared/grid/enums/gradient-3d-border-style';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';
-import { Break, IBreak } from 'src/app/models/break-class';
-import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
+import { Break, IBreak } from 'src/app/domain/models/break-class';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
 import {
   cloneObject,
   compareComplexObjects,

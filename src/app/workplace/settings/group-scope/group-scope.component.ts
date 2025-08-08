@@ -1,12 +1,12 @@
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { GroupScopeHeaderComponent } from './group-scope-header/group-scope-header.component';
 import { GroupScopeRowComponent } from './group-scope-row/group-scope-row.component';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementGroupVisibilityService } from 'src/app/data/management/data-management-group-visibility.service';
+import { DataManagementGroupVisibilityService } from 'src/app/domain/services/data-management-group-visibility.service';
 
 @Component({
   selector: 'app-group-scope',

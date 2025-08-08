@@ -14,9 +14,9 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IAuthentication } from 'src/app/models/authentification-class';
-import { IGroupVisibility, GroupVisibility } from 'src/app/models/group-class';
-import { DataManagementGroupVisibilityService } from 'src/app/data/management/data-management-group-visibility.service';
+import { IAuthentication } from 'src/app/domain/models/authentification-class';
+import { IGroupVisibility, GroupVisibility } from 'src/app/domain/models/group-class';
+import { DataManagementGroupVisibilityService } from 'src/app/domain/services/data-management-group-visibility.service';
 
 @Component({
   selector: 'app-group-scope-row',

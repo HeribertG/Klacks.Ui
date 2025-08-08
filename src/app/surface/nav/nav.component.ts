@@ -17,7 +17,7 @@ import { Router } from '@angular/router';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { DataLoadFileService } from 'src/app/data/data-load-file.service';
+import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { IconClientsComponent } from 'src/app/icons/icon-clients.component';
 import { IconGanttComponent } from 'src/app/icons/icon-gantt.component';

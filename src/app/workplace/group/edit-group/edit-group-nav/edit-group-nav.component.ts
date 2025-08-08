@@ -14,8 +14,8 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { Filter } from 'src/app/models/client-class';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
+import { Filter } from 'src/app/domain/models/client-class';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

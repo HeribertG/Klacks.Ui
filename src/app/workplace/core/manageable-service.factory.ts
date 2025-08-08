@@ -1,7 +1,7 @@
 import { inject, Injectable, Injector } from '@angular/core';
 import { ISpinnable } from './interfaces/manageable.interface';
 import { ManageableServiceRegistry } from './manageable-service-registry';
-import { RouteName } from 'src/app/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({ providedIn: 'root' })
 export class ManageableServiceFactory {

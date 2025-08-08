@@ -11,10 +11,10 @@ import {
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { IAbsence } from 'src/app/models/absence-class';
-import { AbsenceTokenFilter } from 'src/app/models/break-class';
-import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+import { IAbsence } from 'src/app/domain/models/absence-class';
+import { AbsenceTokenFilter } from 'src/app/domain/models/break-class';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { CalendarSettingService } from 'src/app/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/helpers/draw-helper';
 import { invertColor } from 'src/app/helpers/format-helper';

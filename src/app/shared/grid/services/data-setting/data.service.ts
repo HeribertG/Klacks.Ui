@@ -3,7 +3,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ScrollService } from 'src/app/shared/scrollbar/scroll.service';
 import { GridCell } from '../../classes/grid-cell';
-import { HolidayDate } from 'src/app/models/calendar-rule-class';
+import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { WeekDaysEnum } from '../../enums/divers';
 import { HolidayCollectionService } from '../holiday-collection.service';
 import { HeaderCellTypeEnum } from '../../enums/cell-settings.enum';

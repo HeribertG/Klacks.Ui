@@ -16,7 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { Subject, takeUntil } from 'rxjs';
-import { ICountry } from 'src/app/models/client-class';
+import { ICountry } from 'src/app/domain/models/client-class';
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

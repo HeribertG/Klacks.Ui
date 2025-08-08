@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
-import { DataManagementGroupService } from '../../data/management/data-management-group.service';
-import { EntityName } from 'src/app/models/entity-names.enum';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { EntitySearchOptions } from './interfaces/entity-search-strategy.interface';
 
 @Injectable({

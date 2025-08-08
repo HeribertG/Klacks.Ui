@@ -3,7 +3,7 @@ import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/shared/grid/services/grid-fonts.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { Rectangle } from 'src/app/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CanvasAvailable } from 'src/app/services/canvasAvailable.decorator';

@@ -4,10 +4,10 @@ import { of } from 'rxjs';
 import { signal } from '@angular/core';
 
 import { SimpleGroupSelectComponent } from './simple-group-select.component';
-import { DataManagementGroupService } from 'src/app/data/management/data-management-group.service';
-import { GroupSelectionService } from 'src/app/data/management/group-selection.service';
+import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
-import { Group } from 'src/app/models/group-class';
+import { Group } from 'src/app/domain/models/group-class';
 import { IconAngleDownComponent } from 'src/app/icons/icon-angle-down.component';
 import { IconAngleUpComponent } from 'src/app/icons/icon-angle-up.component';
 import { IconAngleRightComponent } from 'src/app/icons/icon-angle-right.component';

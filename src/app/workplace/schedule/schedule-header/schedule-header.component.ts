@@ -14,7 +14,7 @@ import {
   NgbDropdownModule,
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
 import { CommonModule } from '@angular/common';
 import { CalendarSelectorComponent } from 'src/app/shared/calendar-selector/calendar-selector.component';
 import {

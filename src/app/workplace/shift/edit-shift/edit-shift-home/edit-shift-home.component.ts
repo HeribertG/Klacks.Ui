@@ -6,7 +6,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataManagementShiftService } from 'src/app/data/management/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { EditShiftItemComponent } from '../edit-shift-item/edit-shift-item.component';
@@ -20,7 +20,7 @@ import { FooterService } from 'src/app/services/footer.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { ShiftStatus } from 'src/app/models/shift-class';
+import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';
 

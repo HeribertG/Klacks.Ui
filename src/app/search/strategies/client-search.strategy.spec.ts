@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ClientSearchStrategy } from './client-search.strategy';
-import { DataManagementClientService } from '../../data/management/data-management-client.service';
-import { EntityName } from 'src/app/models/entity-names.enum';
+import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 describe('ClientSearchStrategy', () => {
   let strategy: ClientSearchStrategy;

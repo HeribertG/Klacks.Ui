@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ScheduleSearchStrategy } from './schedule-search.strategy';
-import { DataManagementScheduleService } from '../../data/management/data-management-schedule.service';
-import { EntityName } from 'src/app/models/entity-names.enum';
+import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 describe('ScheduleSearchStrategy', () => {
   let strategy: ScheduleSearchStrategy;

@@ -4,13 +4,13 @@ import { SearchService } from 'src/app/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SearchStateService } from 'src/app/services/search-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { RouteName } from 'src/app/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import {
   cloneObject,
   compareComplexObjects,
   copyObjectValues,
 } from 'src/app/helpers/object-helpers';
-import { IBaseFilter } from 'src/app/models/general-class';
+import { IBaseFilter } from 'src/app/domain/models/general-class';
 import { IFilterStorage, FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 
 export interface IDataManagementService<T extends IBaseFilter> {

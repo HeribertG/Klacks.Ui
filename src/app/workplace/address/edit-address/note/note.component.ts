@@ -1,4 +1,4 @@
-import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {

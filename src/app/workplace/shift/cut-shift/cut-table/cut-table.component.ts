@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { IShift, Shift } from 'src/app/models/shift-class';
+import { IShift, Shift } from 'src/app/domain/models/shift-class';
 
 @Component({
   selector: 'app-cut-shift-table',

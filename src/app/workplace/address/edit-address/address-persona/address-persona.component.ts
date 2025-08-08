@@ -23,8 +23,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-import { Address, ICommunication } from 'src/app/models/client-class';
-import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
+import { Address, ICommunication } from 'src/app/domain/models/client-class';
+import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
 import {
   formatPhoneNumber,
   transformDateToNgbDateStruct,

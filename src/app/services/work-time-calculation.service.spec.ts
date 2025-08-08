@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { WorkTimeCalculationService } from './work-time-calculation.service';
-import { OwnTime } from '../models/schedule-class';
+import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 describe('WorkTimeCalculationService', () => {
   let service: WorkTimeCalculationService;

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ISetting } from 'src/app/models/settings-various-class';
+import { ISetting } from 'src/app/domain/models/settings-various-class';
 
 @Component({
   selector: 'app-grid-color-row',

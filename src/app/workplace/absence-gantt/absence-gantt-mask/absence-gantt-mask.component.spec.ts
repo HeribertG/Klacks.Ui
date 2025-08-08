@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AbsenceGanttMaskComponent } from './absence-gantt-mask.component';
-import { DataManagementAbsenceGanttService } from 'src/app/data/management/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/data/management/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 
 describe('AbsenceGanttMaskComponent', () => {
   let component: AbsenceGanttMaskComponent;
