@@ -22,7 +22,6 @@ describe('FallbackPipe', () => {
       fr: 'bonjour',
       it: 'ciao',
       en: 'hello',
-      // Andere Eigenschaften, falls vorhanden
     };
     expect(pipe.transform(multiLang, 'de')).toBe('hallo');
     expect(pipe.transform(multiLang, 'fr')).toBe('bonjour');
@@ -36,7 +35,6 @@ describe('FallbackPipe', () => {
       fr: 'bonjour',
       it: undefined,
       en: 'hello',
-      // Andere Eigenschaften, falls vorhanden
     };
     expect(pipe.transform(multiLang, 'it')).toBe('hallo'); // 'de' ist die erste Nicht-Null-Sprache
   });

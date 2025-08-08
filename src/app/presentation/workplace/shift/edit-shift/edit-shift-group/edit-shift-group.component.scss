@@ -1,0 +1,82 @@
+@use "../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/menu.scss";
+@use "../../../../assets/standard-styles/datepicker.scss";
+
+.default-width {
+  width: 390px;
+}
+
+label {
+  width: 400px;
+}
+
+.row-line {
+  margin-top: 40px;
+  display: inline-flex;
+  width: calc(100% - 60px);
+  margin-right: 30px;
+
+  .filler {
+    flex-grow: 1;
+  }
+}
+
+.row-line-company {
+  margin-top: 5px;
+  display: inline-flex;
+  max-height: 82px;
+}
+
+.container-bank-box {
+  margin-top: 40px;
+  display: inline-flex;
+}
+
+.info-box {
+  margin-right: 20px;
+  padding: 12px 16px;
+  background-color: #dc3545;
+  border: 1px solid darkred;
+  border-radius: 4px;
+  color: white;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+
+  .info-icon {
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .info-text {
+    flex: 1;
+  }
+}
+
+.expand-button {
+  margin-right: 30px;
+}
+
+.endColumn {
+  margin-right: 30px;
+}
+
+::placeholder {
+  color: var(--colorPlaceholder);
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: var(--colorPlaceholder);
+}
+
+::-ms-input-placeholder {
+  color: var(--colorPlaceholder);
+}

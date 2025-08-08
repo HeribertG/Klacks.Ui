@@ -1,0 +1,46 @@
+@use "../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/menu.scss";
+
+.icon {
+  cursor: pointer;
+  margin-left: 38px;
+  margin-top: 30px;
+  width: 32px;
+  height: 32px;
+}
+
+.header-container {
+  display: flex;
+  flex-flow: row;
+}
+
+
+
+.icon-logOut {
+  cursor: pointer;
+  fill: #ccd1d1;
+  margin-top: 20px;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.version {
+  margin-left: 35px;
+  margin-top: 45px;
+  font-size: small;
+  color: var(--VersionNumberColor);
+  display: none;
+}
+
+app-search {
+  margin-left: 35px;
+  width: 200px;
+}
+
+app-group-select {
+  padding-right: 35px;
+  padding-top: 12px;
+  width: 400px;
+}

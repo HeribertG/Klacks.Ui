@@ -1,4 +1,4 @@
-import { MenuItem } from '../shared/context-menu/context-menu-class';
+import { MenuItem } from '../presentation/shared/context-menu/context-menu-class';
 import { MessageLibrary } from './string-constants';
 
 export class MenuDataTemplate {

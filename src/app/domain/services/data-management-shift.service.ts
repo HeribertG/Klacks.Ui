@@ -8,7 +8,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
@@ -25,8 +25,8 @@ import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { IManageable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({

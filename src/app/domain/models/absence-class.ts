@@ -1,4 +1,4 @@
-import { Rectangle } from 'src/app/shared/grid/classes/geometry';
+import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import {
   BaseFilter,
   BaseTruncated,

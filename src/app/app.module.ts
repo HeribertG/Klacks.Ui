@@ -15,7 +15,7 @@ import {
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';
-import { ResponseInterceptor } from './error/http-interceptor';
+import { ResponseInterceptor } from './presentation/error/http-interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
@@ -34,7 +34,7 @@ import {
 } from '@angular/common';
 
 import { FormsModule } from '@angular/forms';
-import { SpinnerModule } from './spinner/spinner.module';
+import { SpinnerModule } from './presentation/spinner/spinner.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -42,16 +42,16 @@ import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import localeIt from '@angular/common/locales/it';
-import { SearchComponent } from './search/search.component';
-import { LoginComponent } from './auth/login/login.component';
-import { ErrorComponent } from './error/error.component';
+import { SearchComponent } from './presentation/search/search.component';
+import { LoginComponent } from './presentation/auth/login/login.component';
+import { ErrorComponent } from './presentation/error/error.component';
 import { LocaleService } from './services/locale.service';
 import { CustomDatepickerI18n } from './services/custom-datepicker-i18n.service';
-import { ToastsContainerComponent } from './toast/toast.component';
-import { GroupSelectComponent } from './group-select/group-select.component';
-import { NoAccessComponent } from './no-access/no-access.component';
-import { AuthInterceptor } from './auth/auth.interceptor';
-import { TokenRefreshInterceptor } from './auth/token-refresh.interceptor';
+import { ToastsContainerComponent } from './presentation/toast/toast.component';
+import { GroupSelectComponent } from './presentation/group-select/group-select.component';
+import { NoAccessComponent } from './presentation/no-access/no-access.component';
+import { AuthInterceptor } from './presentation/auth/auth.interceptor';
+import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
 import { KeyboardShortcutDirective } from './directives/keyboard-shortcut.directive';
 
 registerLocaleData(localeDe);

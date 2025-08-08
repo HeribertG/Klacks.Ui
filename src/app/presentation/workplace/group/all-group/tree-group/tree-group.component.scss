@@ -1,0 +1,142 @@
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/standard-modal.scss";
+
+.tree-actions {
+  margin-bottom: 15px;
+  padding: 0 15px;
+}
+
+.tree-container {
+  padding: 0 30px 30px;
+}
+
+.no-tree-message {
+  padding: 20px;
+  text-align: center;
+  font-style: italic;
+  color: var(--gridColorText);
+}
+
+.tree-root {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 0;
+}
+
+.tree-node {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tree-children {
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+}
+
+.tree-node-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--gridColorLine);
+
+  &:hover {
+    background-color: var(--gridBackgroundColorRowHover) !important;
+  }
+
+  &.active {
+    background-color: var(--backgroundColorFocus) !important;
+  }
+}
+
+.tree-node-indicator {
+  display: flex;
+  align-items: center;
+  min-width: 20px;
+}
+
+.tree-toggle {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.tree-toggle-placeholder {
+  width: 20px;
+  height: 20px;
+}
+
+.tree-node-content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+.tree-node-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gridColorText);
+}
+
+.tree-node-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  color: #6c757d;
+  font-size: 0.75rem;
+  border-radius: 10px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+
+.tree-node-actions {
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  .tree-node-item:hover & {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+
+.tree-action-btn {
+  padding: 2px 6px;
+  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: 0px;
+}
+
+.ownStyle-button {
+  margin-right: 30px;
+  padding: 0px;
+  padding-top: 3px;
+  width: 50px;
+  height: 34px;
+}
+
+.ownStyle-button2 {
+  margin-right: 10px;
+  padding: 0px;
+  padding-top: 3px;
+  width: 25px;
+  height: 25px;
+}
+
+.extra-margin-right {
+  margin-right: 25px;
+}

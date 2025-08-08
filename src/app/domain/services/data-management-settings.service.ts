@@ -5,7 +5,7 @@ import {
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import {
   IAuthentication,
@@ -23,10 +23,10 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/data-country
 import { CreateEntriesEnum } from 'src/app/helpers/enums/client-enum';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
-import { GridColorService } from 'src/app/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { IManageable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({

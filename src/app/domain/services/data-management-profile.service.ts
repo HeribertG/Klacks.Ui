@@ -2,11 +2,11 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/domain/models/authentification-class';
 import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { IManageable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({

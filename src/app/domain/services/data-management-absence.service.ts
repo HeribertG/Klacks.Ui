@@ -10,11 +10,11 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { ISpinnable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { ISpinnable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({

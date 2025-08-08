@@ -5,7 +5,7 @@ import {
   ICalendarSelection,
   SelectedCalendar,
 } from 'src/app/domain/models/calendar-selection-class';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

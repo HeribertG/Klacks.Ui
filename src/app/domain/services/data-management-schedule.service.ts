@@ -6,14 +6,14 @@ import {
   Work,
   WorkFilter,
 } from 'src/app/domain/models/schedule-class';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/helpers/object-helpers';
-import { ISpinnable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { ISpinnable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({

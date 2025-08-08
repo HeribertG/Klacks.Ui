@@ -18,7 +18,7 @@ import {
   ITruncatedGroup,
 } from 'src/app/domain/models/group-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import {
@@ -34,10 +34,10 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IManageable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
+import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
 
 @Injectable({
   providedIn: 'root',

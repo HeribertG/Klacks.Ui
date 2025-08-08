@@ -35,7 +35,7 @@ import {
 } from 'src/app/helpers/format-helper';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { ToastShowService } from 'src/app/toast/toast-show.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import {
   AddressTypeEnum,
   CommunicationTypeDefaultIndexEnum,
@@ -44,10 +44,10 @@ import {
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
-import { IManageable } from 'src/app/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/workplace/core/manageable-service-registry';
+import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
+import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
 
 @Injectable({
   providedIn: 'root',

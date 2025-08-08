@@ -1,0 +1,135 @@
+@use "../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/menu.scss";
+@use "../../../../assets/standard-styles/datepicker.scss";
+
+.container-bank {
+  width: 100%;
+  height: 100%;
+}
+
+.container-bank-box {
+  width: 100%;
+
+  margin-top: 40px;
+  display: inline-flex;
+}
+
+.firstColumn {
+  margin-left: 30px;
+}
+
+.endColumn {
+  margin-right: 30px;
+}
+
+.secondColumnContainer {
+  width: 50%;
+  margin-right: 30px;
+}
+
+.titleColumContainer {
+  width: calc(25%);
+  margin-left: 30px;
+}
+
+.firstColumContainer {
+  width: calc(50% - 10px);
+}
+
+.expand-button {
+  margin-right: 30px;
+}
+
+.row-line1 {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+.row-line2 {
+  margin-top: 2px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 35px;
+  margin-bottom: 22px;
+}
+
+.row-line2 {
+  display: flex;
+  flex-direction: row;
+  margin-top: -1px;
+}
+
+.row_line3 {
+  height: 50px;
+}
+
+.row-line-inline-simple {
+  display: inline-flex;
+}
+
+.time-minute {
+  width: 41px;
+  padding-left: 5px;
+}
+
+.time-hour {
+  width: 41px;
+  padding-right: 4px;
+}
+
+.hours {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border-right: 0px colors.$standartWhiteColor;
+  text-align: right;
+}
+
+.minutes {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-left: 0px colors.$standartWhiteColor;
+  text-align: left;
+}
+
+.delimiter-time {
+  height: 18px;
+  margin-left: -2px;
+  margin-top: 7px;
+  width: 0px;
+  z-index: 2;
+}
+
+.number-with {
+  width: 80px;
+}
+
+.number-height {
+  margin-top: 20px;
+}
+
+.title-row-line1 {
+  margin-top: 30px;
+
+  margin-bottom: 55px;
+}
+
+.title-row-line2 {
+  margin-bottom: 35px;
+}
+
+.title-row-line3 {
+  margin-bottom: 30px;
+}
+
+.sporadic-scope {
+  width: 200px;
+}
+.empty-group {
+  height: 35px;
+}
