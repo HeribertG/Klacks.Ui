@@ -4,7 +4,7 @@ import { cloneObject } from 'src/app/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ToastShowService } from 'src/app/toast/toast-show.service';
 import { UserAdministrationService } from '../user-administration.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/models/entity-names.enum';

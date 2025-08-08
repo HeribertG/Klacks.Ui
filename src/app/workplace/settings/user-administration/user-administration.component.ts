@@ -19,7 +19,7 @@ import {
 import { DataManagementSettingsService } from 'src/app/data/management/data-management-settings.service';
 import { generatePassword } from 'src/app/helpers/password';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({
   selector: 'app-user-administration',

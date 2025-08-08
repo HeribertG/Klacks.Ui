@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';

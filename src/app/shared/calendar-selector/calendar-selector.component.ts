@@ -24,7 +24,7 @@ import { DataManagementCalendarRulesService } from 'src/app/data/management/data
 import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

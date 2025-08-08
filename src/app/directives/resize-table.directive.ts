@@ -10,7 +10,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { measureTableHeight } from 'src/app/helpers/tableResize';
 import { isNumeric } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';

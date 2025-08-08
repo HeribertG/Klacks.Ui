@@ -7,7 +7,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../auth.service';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 

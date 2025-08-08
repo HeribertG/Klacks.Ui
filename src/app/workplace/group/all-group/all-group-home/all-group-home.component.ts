@@ -12,7 +12,7 @@ import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
 import { EntityName } from 'src/app/models/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { FooterService } from 'src/app/services/footer.service';
 import { LayoutService } from 'src/app/services/layout.service';
 import { SearchService } from 'src/app/services/search.service';

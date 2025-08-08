@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from '../../helpers/sharedItems';
-import { LocalStorageService } from '../../services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from '../../helpers/string-constants';
 import { isNumeric } from '../../helpers/format-helper';
 

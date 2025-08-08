@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { DataManagementClientService } from 'src/app/data/management/data-management-client.service';
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import {
   NgbDatepickerModule,

@@ -6,7 +6,7 @@ import { of, Subject } from 'rxjs';
 import { CalendarSelectorComponent } from './calendar-selector.component';
 import { DataManagementCalendarSelectionService } from 'src/app/data/management/data-management-calendar-selection.service';
 import { DataManagementCalendarRulesService } from 'src/app/data/management/data-management-calendar-rules.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ModalService, ModalType } from 'src/app/modal/modal.service';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
 import { ChipsComponent } from '../chips/chips.component';

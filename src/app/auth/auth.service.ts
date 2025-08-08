@@ -6,7 +6,7 @@ import { MyToken } from '../models/authentification-class';
 import { MessageLibrary } from '../helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
 import { EqualDate } from '../helpers/format-helper';
-import { LocalStorageService } from '../services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
 import { DataLoadFileService } from '../data/data-load-file.service';
 import { RouteName } from 'src/app/models/entity-names.enum';

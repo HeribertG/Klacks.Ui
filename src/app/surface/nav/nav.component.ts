@@ -27,7 +27,7 @@ import { IconSettingComponent } from 'src/app/icons/icon-setting.component';
 import { IconTimeScheduleComponent } from 'src/app/icons/icon-time-schedule.component';
 import { IconUserComponent } from 'src/app/icons/icon-user.component';
 import { AuthorizationService } from 'src/app/services/authorization.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   LocaleService,
   SupportedLocales,

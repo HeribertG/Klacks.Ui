@@ -19,7 +19,7 @@ import { AuthorizationService } from 'src/app/services/authorization.service';
 import { PaginationComponent, IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 
 @Component({

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
 import { SearchService } from 'src/app/services/search.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SearchStateService } from 'src/app/services/search-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
 import { RouteName } from 'src/app/models/entity-names.enum';

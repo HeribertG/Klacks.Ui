@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, fromEvent, merge } from 'rxjs';
 import { map, debounceTime, startWith } from 'rxjs/operators';
-import { LocalStorageService } from './local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from '../helpers/string-constants';
 import { isNumeric } from '../helpers/format-helper';
 

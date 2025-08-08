@@ -16,7 +16,7 @@ import { SpinnerModule } from 'src/app/spinner/spinner.module';
 import { DataLoadFileService } from 'src/app/data/data-load-file.service';
 import { getFileExtension } from 'src/app/helpers/format-helper';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({
   selector: 'app-profile-picture',

@@ -43,7 +43,7 @@ import { SpinnerService } from 'src/app/spinner/spinner.service';
 import { PaginationComponent } from 'src/app/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/services/table-resize.service';
 import { AllGroupStateService } from '../services/all-group-state.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({
   selector: 'app-all-group-list',

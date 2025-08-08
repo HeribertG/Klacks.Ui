@@ -7,7 +7,7 @@ import { SpinnerModule } from 'src/app/spinner/spinner.module';
 
 import { Language } from 'src/app/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   LocaleService,
   SupportedLocales,
