@@ -19,6 +19,8 @@ import { ResponseInterceptor } from './error/http-interceptor';
 import { AppErrorHandler } from './app.error-handler';
 import { CanDeactivateGuard } from './helpers/can-deactivate.guard';
 import { NgbDateCustomParserFormatter } from './helpers/NgbDateParserFormatter';
+import { FILTER_STORAGE_TOKEN } from './application/interfaces/filter-storage.interface';
+import { BrowserStorageService } from './infrastructure/storage/browser-storage.service';
 import {
   TranslateLoader,
   TranslateModule,
@@ -112,6 +114,10 @@ export function localeFactory(localeService: LocaleService) {
       provide: LOCALE_ID,
       deps: [LocaleService],
       useFactory: localeFactory,
+    },
+    {
+      provide: FILTER_STORAGE_TOKEN,
+      useClass: BrowserStorageService,
     },
     provideHttpClient(withInterceptorsFromDi()),
   ],

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/data/management/data-management-schedule.service';
-import { RouteName } from 'src/app/data/management/entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 import { BaseStateService } from 'src/app/services/base-state.service';
 import { IWorkFilter } from 'src/app/models/schedule-class';
 
@@ -17,11 +17,11 @@ export class AllScheduleStateService extends BaseStateService<
     );
   }
   
-  override initializeWorkplaceState(): void {
-    super.initializeWorkplaceState();
+  override async initializeWorkplaceState(): Promise<void> {
+    await super.initializeWorkplaceState();
     
     if (this.dataManagementService.currentFilter.searchString) {
-      this.saveCurrentFilter();
+      await this.saveCurrentFilter();
       const searchValue = this.dataManagementService.currentFilter.searchString;
       this.searchStateService.setRestoreSearch(searchValue);
     }

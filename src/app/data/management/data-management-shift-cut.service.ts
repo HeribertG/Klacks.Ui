@@ -10,7 +10,7 @@ import { DataShiftCutsService } from '../data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/models/shift-class';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
-import { RouteName } from './entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

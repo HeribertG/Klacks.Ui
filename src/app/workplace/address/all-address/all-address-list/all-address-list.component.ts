@@ -399,10 +399,10 @@ export class AllAddressListComponent
 
   // Private methods
 
-  private isInit(): void {
+  private async isInit(): Promise<void> {
     this.setLastChangeMetaData();
 
-    const wasRestored = this.allAddressStateService.restoreFilterFromStorage();
+    const wasRestored = await this.allAddressStateService.restoreFilterFromStorage();
 
     if (wasRestored) {
       setTimeout(() => {
@@ -470,7 +470,7 @@ export class AllAddressListComponent
       return effect(() => {
         const initIsRead = this.dataManagementClientService.initIsRead();
         if (initIsRead) {
-          this.isInit();
+          this.isInit().catch(error => console.error('Failed to initialize:', error));
         }
       });
     });

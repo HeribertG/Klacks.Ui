@@ -9,7 +9,7 @@ import { EqualDate } from '../helpers/format-helper';
 import { LocalStorageService } from '../services/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
 import { DataLoadFileService } from '../data/data-load-file.service';
-import { RouteName } from '../data/management/entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

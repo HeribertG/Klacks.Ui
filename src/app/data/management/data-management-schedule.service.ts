@@ -14,7 +14,7 @@ import {
 } from 'src/app/helpers/object-helpers';
 import { ISpinnable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
-import { RouteName } from './entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ShiftSearchStrategy } from './shift-search.strategy';
 import { DataManagementShiftService } from '../../data/management/data-management-shift.service';
-import { EntityName } from '../../data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 
 describe('ShiftSearchStrategy', () => {
   let strategy: ShiftSearchStrategy;

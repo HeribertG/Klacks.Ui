@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { EntityName } from '../../data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 import {
   IEntitySearchStrategy,
   EntitySearchOptions,

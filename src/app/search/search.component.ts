@@ -14,7 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from 'src/app/workplace/core/workplace-state.service';
-import { EntityName } from 'src/app/data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 import { SearchService } from 'src/app/services/search.service';
 
 @Component({

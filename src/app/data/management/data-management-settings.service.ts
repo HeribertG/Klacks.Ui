@@ -27,7 +27,7 @@ import { GridColorService } from 'src/app/shared/grid/services/grid-color.servic
 import { MultiLanguage } from 'src/app/models/multi-language-class';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
-import { RouteName } from './entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

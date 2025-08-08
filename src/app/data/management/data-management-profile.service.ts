@@ -7,7 +7,7 @@ import { UserAdministrationService } from '../user-administration.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
-import { RouteName } from './entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

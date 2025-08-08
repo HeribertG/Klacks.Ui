@@ -6,7 +6,7 @@ import { GroupSearchStrategy } from './strategies/group-search.strategy';
 import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';
 import { ShiftSearchStrategy } from './strategies/shift-search.strategy';
 import { ScheduleSearchStrategy } from './strategies/schedule-search.strategy';
-import { EntityName } from '../data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 
 describe('SearchStrategyService', () => {
   let service: SearchStrategyService;

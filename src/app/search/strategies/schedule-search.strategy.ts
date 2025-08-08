@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
 import { DataManagementScheduleService } from '../../data/management/data-management-schedule.service';
-import { EntityName } from '../../data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 import { EntitySearchOptions } from './interfaces/entity-search-strategy.interface';
 
 @Injectable({

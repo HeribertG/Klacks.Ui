@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { GroupSearchStrategy } from './group-search.strategy';
 import { DataManagementGroupService } from '../../data/management/data-management-group.service';
-import { EntityName } from '../../data/management/entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 
 describe('GroupSearchStrategy', () => {
   let strategy: GroupSearchStrategy;

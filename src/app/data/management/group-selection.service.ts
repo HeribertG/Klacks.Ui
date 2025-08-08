@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/models/group-class';
-import { EntityName } from './entity-names.enum';
+import { EntityName } from 'src/app/models/entity-names.enum';
 import { WorkplaceStateService } from '../../workplace/core/workplace-state.service';
 import { DataManagementBreakService } from './data-management-break.service';
 import { DataManagementScheduleService } from './data-management-schedule.service';

@@ -64,13 +64,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   hoveredRowId?: string;
   private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.tableResizeService.setRowHeights(90, 82);
     this.dataManagementShiftService.init();
-    this.allShiftStateService.initializeWorkplaceState();
+    await this.allShiftStateService.initializeWorkplaceState();
     this.visibleRow = visibleRow(true);
     
-    const wasRestored = this.allShiftStateService.restoreFilterFromStorage();
+    const wasRestored = await this.allShiftStateService.restoreFilterFromStorage();
     if (wasRestored) {
       setTimeout(() => {
         this.page = this.dataManagementShiftService.currentFilter.requiredPage + 1;

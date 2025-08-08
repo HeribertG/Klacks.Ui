@@ -46,7 +46,7 @@ import { StateCountryToken } from 'src/app/models/calendar-rule-class';
 import { NavigationService } from 'src/app/services/navigation.service';
 import { IManageable } from '../../workplace/core/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from '../../workplace/core/manageable-service-registry';
-import { RouteName } from './entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 import { IPaginationDataService } from 'src/app/shared/pagination/pagination.component';
 
 @Injectable({

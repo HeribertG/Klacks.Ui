@@ -494,14 +494,14 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
         const initIsRead = this.dataManagementGroupService.initIsRead();
         if (initIsRead) {
-          this.isInit();
+          this.isInit().catch(error => console.error('Failed to initialize:', error));
         }
       });
     });
   }
 
-  private isInit(): void {
-    const wasRestored = this.allGroupStateService.restoreFilterFromStorage();
+  private async isInit(): Promise<void> {
+    const wasRestored = await this.allGroupStateService.restoreFilterFromStorage();
 
     if (wasRestored) {
       setTimeout(() => {

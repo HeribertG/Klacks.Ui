@@ -4,15 +4,14 @@ import { SearchService } from 'src/app/services/search.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { SearchStateService } from 'src/app/services/search-state.service';
 import { MessageLibrary } from 'src/app/helpers/string-constants';
-import { RouteName } from 'src/app/data/management/entity-names.enum';
+import { RouteName } from 'src/app/models/entity-names.enum';
 import {
   cloneObject,
   compareComplexObjects,
   copyObjectValues,
-  restoreFilter,
-  saveFilter,
 } from 'src/app/helpers/object-helpers';
 import { IBaseFilter } from 'src/app/models/general-class';
+import { IFilterStorage, FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 
 export interface IDataManagementService<T extends IBaseFilter> {
   currentFilter: T;
@@ -25,6 +24,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
   protected searchService = inject(SearchService);
   protected localStorageService = inject(LocalStorageService);
   protected searchStateService = inject(SearchStateService);
+  protected filterStorage = inject(FILTER_STORAGE_TOKEN);
 
   protected lastSavedFilter: T | null = null;
 
@@ -34,7 +34,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
     protected editRouteName: string
   ) {}
 
-  initializeWorkplaceState(): void {
+  async initializeWorkplaceState(): Promise<void> {
     this.workplaceStateService.setActiveManagerByRoute(this.routeName);
     this.searchService.setSearchVisibility(true);
 
@@ -42,10 +42,10 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
       this.onSearchFilterChanged();
     };
 
-    this.restoreFilterFromStorage();
+    await this.restoreFilterFromStorage();
   }
 
-  saveCurrentFilter(key = this.editRouteName): void {
+  async saveCurrentFilter(key = this.editRouteName): Promise<void> {
     const storedRowOrder = this.localStorageService.get(
       MessageLibrary.SELECTED_ROW_ORDER
     );
@@ -55,37 +55,48 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
       this.dataManagementService.currentFilter
     );
 
-    if (isAutoMode) {
-      const filterToSave = cloneObject(
-        this.dataManagementService.currentFilter
-      );
-      saveFilter(filterToSave, key);
-    } else {
-      saveFilter(this.dataManagementService.currentFilter, key);
+    try {
+      if (isAutoMode) {
+        const filterToSave = cloneObject(
+          this.dataManagementService.currentFilter
+        );
+        await this.filterStorage.saveFilter(key, filterToSave);
+      } else {
+        await this.filterStorage.saveFilter(key, this.dataManagementService.currentFilter);
+      }
+    } catch (error) {
+      console.error('Failed to save filter:', error);
     }
   }
 
-  restoreFilterFromStorage(key = this.editRouteName): boolean {
-    const storedFilter = restoreFilter(key);
+  async restoreFilterFromStorage(key = this.editRouteName): Promise<boolean> {
+    try {
+      const storedFilter = await this.filterStorage.restoreFilter<T>(key);
 
-    if (!storedFilter) {
+      if (!storedFilter) {
+        this.searchStateService.clearRestoreSearch();
+        this.lastSavedFilter = null;
+        return false;
+      }
+
+      if (this.hasFilterChanged()) {
+        this.lastSavedFilter = cloneObject(
+          this.dataManagementService.currentFilter
+        );
+        return false;
+      }
+
+      const wasApplied = this.applyStoredFilter(storedFilter);
+      if (wasApplied) {
+        this.lastSavedFilter = cloneObject(storedFilter);
+      }
+      return wasApplied;
+    } catch (error) {
+      console.error('Failed to restore filter:', error);
       this.searchStateService.clearRestoreSearch();
       this.lastSavedFilter = null;
       return false;
     }
-
-    if (this.hasFilterChanged()) {
-      this.lastSavedFilter = cloneObject(
-        this.dataManagementService.currentFilter
-      );
-      return false;
-    }
-
-    const wasApplied = this.applyStoredFilter(storedFilter as T);
-    if (wasApplied) {
-      this.lastSavedFilter = cloneObject(storedFilter) as T;
-    }
-    return wasApplied;
   }
 
   protected applyStoredFilter(storedFilter: T): boolean {
@@ -145,13 +156,20 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
   }
 
 
-  clearStoredFilter(key = this.editRouteName): void {
-    localStorage.removeItem(key);
-    this.lastSavedFilter = null;
+  async clearStoredFilter(key = this.editRouteName): Promise<void> {
+    try {
+      await this.filterStorage.removeFilter(key);
+      this.lastSavedFilter = null;
+    } catch (error) {
+      console.error('Failed to clear filter:', error);
+    }
   }
 
   onSearchFilterChanged(): void {
-    this.clearStoredFilter();
+    // Clear stored filter asynchronously without waiting
+    this.clearStoredFilter().catch(error => 
+      console.error('Failed to clear filter after search change:', error)
+    );
     this.updateFilterState();
   }
 
