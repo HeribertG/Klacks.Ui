@@ -63,7 +63,7 @@ describe('AuthService', () => {
     const loginPromise = service.logIn(mockUser.email, mockUser.password);
 
     const req = httpMock.expectOne(
-      'https://localhost:44371/api/v1/backend/Accounts/LoginUser'
+      'https://localhost:5001/api/v1/backend/Accounts/LoginUser'
     );
     expect(req.request.method).toBe('POST');
     req.flush(mockToken);
