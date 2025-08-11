@@ -30,6 +30,7 @@ import { GridColorComponent } from '../grid-color/grid-color.component';
 import { MacrosComponent } from '../macros/macros.component';
 import { UserAdministrationComponent } from '../user-administration/user-administration.component';
 import { GroupScopeComponent } from '../group-scope/group-scope.component';
+import { ContractsComponent } from '../contracts/contracts.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -53,6 +54,7 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
     MacrosComponent,
     UserAdministrationComponent,
     GroupScopeComponent,
+    ContractsComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {

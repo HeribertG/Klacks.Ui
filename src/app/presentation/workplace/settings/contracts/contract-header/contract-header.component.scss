@@ -1,0 +1,20 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  margin-left: 15px;
+}
+
+.custom-control-inline {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #666;
+  margin-right: 10px;
+  margin-bottom: 0;
+}

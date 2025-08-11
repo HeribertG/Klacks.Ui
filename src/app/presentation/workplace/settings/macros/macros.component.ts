@@ -4,7 +4,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 
 import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
@@ -25,7 +25,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
     FormsModule,
     NgbModule,
     SpinnerModule,
-    CodemirrorModule,
+    CodeEditorComponent,
     MacroHeaderComponent,
     MacroRowComponent,
   ],

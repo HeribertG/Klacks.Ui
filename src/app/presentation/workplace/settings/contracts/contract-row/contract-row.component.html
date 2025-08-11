@@ -1,0 +1,287 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #content id="content" let-modal>
+  <form #contractForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.contract.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      <!-- Contract Basic Information -->
+      <div class="row-line-modal-inline">
+        <div style="margin-left: 30px; width: 200px">
+          <label for="contractName">{{
+            translate.instant("setting.contract.name-modal")
+          }}</label>
+          <input
+            type="text"
+            style="width: 200px"
+            [(ngModel)]="currentContract.name"
+            name="name"
+            class="form-control"
+            id="contractName"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Hours Configuration -->
+      <div class="row-line-modal-inline">
+        <div style="margin-left: 30px; width: 120px">
+          <label for="guaranteedHours">{{
+            translate.instant("setting.contract.guaranteedHours-modal")
+          }}</label>
+          <input
+            type="number"
+            style="width: 120px"
+            [(ngModel)]="currentContract.guaranteedHoursPerMonth"
+            name="guaranteedHours"
+            class="form-control"
+            id="guaranteedHours"
+            min="0"
+            step="0.5"
+          />
+        </div>
+
+        <div style="margin-left: 30px; width: 120px">
+          <label for="minHours">{{
+            translate.instant("setting.contract.minHours-modal")
+          }}</label>
+          <input
+            type="number"
+            style="width: 120px"
+            [(ngModel)]="currentContract.minimumHoursPerMonth"
+            name="minHours"
+            class="form-control"
+            id="minHours"
+            min="0"
+            step="0.5"
+          />
+        </div>
+
+        <div style="margin-left: 30px; width: 120px">
+          <label for="maxHours">{{
+            translate.instant("setting.contract.maxHours-modal")
+          }}</label>
+          <input
+            type="number"
+            style="width: 120px"
+            [(ngModel)]="currentContract.maximumHoursPerMonth"
+            name="maxHours"
+            class="form-control"
+            id="maxHours"
+            min="0"
+            step="0.5"
+          />
+        </div>
+      </div>
+
+      <!-- Validity Period -->
+      <div class="row-line-modal-inline">
+        <div style="margin-left: 30px; width: 150px">
+          <label for="validFrom">{{
+            translate.instant("setting.contract.validFrom-modal")
+          }}</label>
+          <div class="input-group">
+            <input
+              class="form-control"
+              placeholder="yyyy-mm-dd"
+              name="validFrom"
+              [(ngModel)]="validFromModel"
+              ngbDatepicker
+              #validFromPicker="ngbDatepicker"
+              readonly
+            />
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary calendar"
+                type="button"
+                (click)="validFromPicker.toggle()"
+              >
+                <i class="fas fa-calendar-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-left: 30px; width: 150px">
+          <label for="validUntil">{{
+            translate.instant("setting.contract.validUntil-modal")
+          }}</label>
+          <div class="input-group">
+            <input
+              class="form-control"
+              placeholder="yyyy-mm-dd"
+              name="validUntil"
+              [(ngModel)]="validUntilModel"
+              ngbDatepicker
+              #validUntilPicker="ngbDatepicker"
+              readonly
+            />
+            <div class="input-group-append">
+              <button
+                class="btn btn-outline-secondary calendar"
+                type="button"
+                (click)="validUntilPicker.toggle()"
+              >
+                <i class="fas fa-calendar-alt"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Selection -->
+      <div class="row-line-modal-inline">
+        <div style="margin-left: 30px; width: 250px">
+          <label for="calendarSelection">{{
+            translate.instant("setting.contract.calendarSelection-modal")
+          }}</label>
+          <select
+            class="form-control"
+            style="width: 250px"
+            [(ngModel)]="selectedCalendarId"
+            name="calendarSelection"
+            id="calendarSelection"
+            (change)="onCalendarSelectionChange()"
+          >
+            <option value="">{{ translate.instant("setting.contract.noCalendar") }}</option>
+            @for (calendar of availableCalendars; track calendar.id) {
+              <option [value]="calendar.id">{{ calendar.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (validationErrors.length > 0) {
+        <div class="row-line-modal-inline">
+          <div style="margin-left: 30px; margin-top: 20px;">
+            <div class="alert alert-danger">
+              <strong>{{ translate.instant("validation.errors") }}:</strong>
+              <ul>
+                @for (error of validationErrors; track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button 
+      type="button" 
+      class="btn save-btn" 
+      (click)="onSave(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("setting.contract.save") }}
+    </button>
+  </div>
+</ng-template>
+
+<form>
+  <div class="first custom-control-inline">
+    <div class="form-group contract-name">
+      <input
+        type="text"
+        [value]="data.name"
+        name="data.name"
+        class="form-control attribute-name"
+        aria-label="name"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <div class="form-group contract-hours">
+      <input
+        type="text"
+        [value]="data.guaranteedHoursPerMonth"
+        name="data.guaranteedHours"
+        class="form-control attribute-hours"
+        aria-label="guaranteedHours"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <div class="form-group contract-hours">
+      <input
+        type="text"
+        [value]="data.minimumHoursPerMonth"
+        name="data.minHours"
+        class="form-control attribute-hours"
+        aria-label="minHours"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <div class="form-group contract-hours">
+      <input
+        type="text"
+        [value]="data.maximumHoursPerMonth"
+        name="data.maxHours"
+        class="form-control attribute-hours"
+        aria-label="maxHours"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <div class="form-group contract-date">
+      <input
+        type="text"
+        [value]="formatDate(data.validFrom)"
+        name="data.validFrom"
+        class="form-control attribute-date"
+        aria-label="validFrom"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <div class="form-group contract-date">
+      <input
+        type="text"
+        [value]="formatDate(data.validUntil)"
+        name="data.validUntil"
+        class="form-control attribute-date"
+        aria-label="validUntil"
+        (click)="open(content)"
+        readonly
+      />
+    </div>
+
+    <span class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+  </div>
+</form>

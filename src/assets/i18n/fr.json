@@ -602,5 +602,16 @@
   "SHIFT_SPORADIC_YEAR": "Annuel",
   "SHIFT_SPORADIC_QUARTER": "Trimestriel",
   "SHIFT_SPORADIC_SEMESTER": "Semestre",
-  "SHIFT_SPORADIC_CONTRACTUALTERM": "Durée du contrat"
+  "SHIFT_SPORADIC_CONTRACTUALTERM": "Durée du contrat",
+
+  "setting.contract.headline-modal": "Modifier le contrat",
+  "setting.contract.name-modal": "Nom",
+  "setting.contract.guaranteedHours-modal": "Heures garanties",
+  "setting.contract.minHours-modal": "Heures minimales",
+  "setting.contract.maxHours-modal": "Heures maximales",
+  "setting.contract.validFrom-modal": "Valide à partir de",
+  "setting.contract.validUntil-modal": "Valide jusqu'à",
+  "setting.contract.calendarSelection-modal": "Sélection du calendrier",
+  "setting.contract.noCalendar": "Aucun calendrier",
+  "setting.contract.save": "Enregistrer"
 }

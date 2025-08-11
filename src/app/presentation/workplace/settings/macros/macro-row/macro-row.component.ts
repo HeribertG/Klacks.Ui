@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { CodemirrorModule } from '@ctrl/ngx-codemirror';
+import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
@@ -21,14 +21,7 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 
-// Codemirror imports
-import 'codemirror/mode/vbscript/vbscript';
-import 'codemirror/mode/css/css';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/addon/fold/foldgutter';
-import 'codemirror/addon/fold/foldcode';
-import 'codemirror/addon/lint/lint';
-import 'codemirror/addon/display/autorefresh';
+// CodeMirror 6 is handled by the @fsegurai/ngx-codemirror component
 import { ShiftData } from 'src/app/domain/models/shift-data-class';
 
 @Component({
@@ -41,7 +34,7 @@ import { ShiftData } from 'src/app/domain/models/shift-data-class';
     FormsModule,
     TranslateModule,
     NgbModule,
-    CodemirrorModule,
+    CodeEditorComponent,
     PropertyGridComponent,
   ],
 })
@@ -73,21 +66,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   isReadStatusTemplateList = false;
   isReadSectionTemplateList = false;
 
-  codeMirrorOptions = {
-    mode: 'vbscript',
-    lineNumbers: true,
-    lineWrapping: true,
-    foldGutter: true,
-    gutters: [
-      'CodeMirror-linenumbers',
-      'CodeMirror-foldgutter',
-      'CodeMirror-lint-markers',
-    ],
-    lint: true,
-    viewportMargin: Infinity,
-    autoRefresh: true,
-    theme: 'default',
-  };
+  // CodeMirror configuration is now handled via component properties
 
   dialogRef: any;
 

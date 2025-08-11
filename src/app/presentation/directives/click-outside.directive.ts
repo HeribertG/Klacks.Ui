@@ -6,19 +6,6 @@ import {
   Output,
 } from '@angular/core';
 
-/**
- * ClickOutsideDirective
- *
- * A standalone directive that detects clicks outside of the element it is applied to.
- * This directive is used by the context menu system to close menus when the user
- * clicks outside of them. It handles both regular clicks and right-clicks (context menu events).
- *
- * Features:
- * - Detects clicks outside the host element
- * - Emits an event when an outside click is detected
- * - Handles both left and right mouse clicks
- * - Prevents event propagation when needed
- */
 @Directive({
   selector: '[appClickOutside]',
   standalone: true,

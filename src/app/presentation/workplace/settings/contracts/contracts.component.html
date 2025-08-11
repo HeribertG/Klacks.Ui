@@ -1,0 +1,31 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form>
+  <div class="container-header">
+    {{ translate.instant("setting.contract.headline") }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-contract-header></app-contract-header>
+
+  <div class="container-box">
+    @for (contract of dataManagementContractService.contracts; track contract.id || $index;
+    let i = $index) { 
+      @if (!contract.internal) {
+        <app-contract-row
+          [data]="contract"
+          (isChangingEvent)="onIsChanging($event)"
+          (isDeleteEvent)="onClickDelete(i)"
+        >
+        </app-contract-row>
+      }
+    }
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ translate.instant("setting.contract.add") }}
+    </span>
+  </div>
+</form>

@@ -4,7 +4,7 @@
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/ayu-dark.css";
 
-@use "../../../../../../../node_modules/codemirror/lib/codemirror.css";
+// CodeMirror 6 styles are included in the component
 
 .first {
   margin-left: 30px;

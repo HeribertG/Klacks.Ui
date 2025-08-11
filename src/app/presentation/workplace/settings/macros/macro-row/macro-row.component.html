@@ -95,14 +95,15 @@
         class="collapse"
         [ngStyle]="{ display: tabId === 'macro' ? 'inline' : 'none' }"
       >
-        <ngx-codemirror
+        <ngx-code-editor
           #codemirror
-          [options]="codeMirrorOptions"
           [(ngModel)]="obj"
           [autoFocus]="true"
+          [language]="'javascript'"
+          [lineWrapping]="true"
           name="codemirror"
         >
-        </ngx-codemirror>
+        </ngx-code-editor>
       </div>
       <div
         class="collapse"

@@ -11,13 +11,13 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
     if (value) {
       const dateParts = value.trim().split('.');
       if (dateParts.length === 1 && isNumeric(dateParts[0])) {
-        return { day: +dateParts[0], month: undefined, year: undefined };
+        return { day: +dateParts[0], month: 1, year: new Date().getFullYear() };
       } else if (
         dateParts.length === 2 &&
         isNumeric(dateParts[0]) &&
         isNumeric(dateParts[1])
       ) {
-        return { day: +dateParts[0], month: +dateParts[1], year: undefined };
+        return { day: +dateParts[0], month: +dateParts[1], year: new Date().getFullYear() };
       } else if (
         dateParts.length === 3 &&
         isNumeric(dateParts[0]) &&
