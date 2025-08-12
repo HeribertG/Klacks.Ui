@@ -17,6 +17,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
+import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 
 import { IContract, Contract } from 'src/app/domain/models/contract-class';
 import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
@@ -43,6 +44,7 @@ import { OwnTime } from 'src/app/domain/models/schedule-class';
     NgbModule,
     TranslateModule,
     TimeInputComponent,
+    DateInputComponent,
   ],
 })
 export class ContractRowComponent implements OnInit {

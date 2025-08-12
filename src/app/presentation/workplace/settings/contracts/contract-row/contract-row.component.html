@@ -45,8 +45,11 @@
       </div>
 
       <!-- Hours Configuration -->
-      <div class="row-line-modal-inline">
-        <div style="margin-left: 30px; width: 120px">
+      <div
+        class="row-line-modal-inline"
+        style="display: flex; justify-content: space-between; padding: 0 30px"
+      >
+        <div style="flex: 1; margin-right: 20px;">
           <app-time-input
             [label]="
               translate.instant('setting.contract.guaranteedHours-modal')
@@ -57,10 +60,11 @@
             (timeChange)="onTimeInputChange()"
             hoursId="guaranteedHours"
             [forDuration]="true"
+            labelAlign="left"
           ></app-time-input>
         </div>
 
-        <div style="margin-left: 30px; width: 120px">
+        <div style="flex: 1; margin-right: 20px;">
           <app-time-input
             [label]="translate.instant('setting.contract.minHours-modal')"
             [(ngModel)]="internalMinimumHours"
@@ -69,10 +73,11 @@
             (timeChange)="onTimeInputChange()"
             hoursId="minHours"
             [forDuration]="true"
+            labelAlign="center"
           ></app-time-input>
         </div>
 
-        <div style="margin-left: 30px; width: 120px">
+        <div style="flex: 1;">
           <app-time-input
             [label]="translate.instant('setting.contract.maxHours-modal')"
             [(ngModel)]="internalMaximumHours"
@@ -81,62 +86,31 @@
             (timeChange)="onTimeInputChange()"
             hoursId="maxHours"
             [forDuration]="true"
+            labelAlign="right"
           ></app-time-input>
         </div>
       </div>
 
       <!-- Validity Period -->
       <div class="row-line-modal-inline">
-        <div style="margin-left: 30px; width: 150px">
-          <label for="validFrom">{{
-            translate.instant("setting.contract.validFrom-modal")
-          }}</label>
-          <div class="input-group">
-            <input
-              class="form-control"
-              placeholder="yyyy-mm-dd"
-              name="validFrom"
-              [(ngModel)]="validFromModel"
-              ngbDatepicker
-              #validFromPicker="ngbDatepicker"
-              readonly
-            />
-            <div class="input-group-append">
-              <button
-                class="btn btn-outline-secondary calendar"
-                type="button"
-                (click)="validFromPicker.toggle()"
-              >
-                <i class="fas fa-calendar-alt"></i>
-              </button>
-            </div>
-          </div>
+        <div style="margin-left: 30px;">
+          <app-date-input
+            [label]="translate.instant('setting.contract.validFrom-modal')"
+            [(ngModel)]="validFromModel"
+            inputName="validFrom"
+            inputId="validFrom"
+            inputWidth="small-width"
+          ></app-date-input>
         </div>
 
-        <div style="margin-left: 30px; width: 150px">
-          <label for="validUntil">{{
-            translate.instant("setting.contract.validUntil-modal")
-          }}</label>
-          <div class="input-group">
-            <input
-              class="form-control"
-              placeholder="yyyy-mm-dd"
-              name="validUntil"
-              [(ngModel)]="validUntilModel"
-              ngbDatepicker
-              #validUntilPicker="ngbDatepicker"
-              readonly
-            />
-            <div class="input-group-append">
-              <button
-                class="btn btn-outline-secondary calendar"
-                type="button"
-                (click)="validUntilPicker.toggle()"
-              >
-                <i class="fas fa-calendar-alt"></i>
-              </button>
-            </div>
-          </div>
+        <div style="margin-left: 30px;">
+          <app-date-input
+            [label]="translate.instant('setting.contract.validUntil-modal')"
+            [(ngModel)]="validUntilModel"
+            inputName="validUntil"
+            inputId="validUntil"
+            inputWidth="small-width"
+          ></app-date-input>
         </div>
       </div>
 
@@ -202,7 +176,7 @@
 
 <form>
   <div class="first custom-control-inline">
-    <div class="form-group contract-name">
+    <div class="form-group">
       <input
         type="text"
         [value]="data.name"

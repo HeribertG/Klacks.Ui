@@ -1,4 +1,4 @@
-@use "../../../../assets/standard-styles/colors.scss";
+@use "../../../../assets/standard-styles/colors.scss" as colors;
 @use "../../../../assets/standard-styles/standard-controls.scss";
 
 .time-input-container {
@@ -8,9 +8,14 @@
   label {
     margin-bottom: 5px;
   }
+
+  .form-control {
+    &::placeholder {
+      color: var(--colorPlaceholder);
+    }
+  }
 }
 
-// Time input styles
 .row-line-inline-simple {
   display: flex;
   align-items: center;
@@ -30,22 +35,26 @@
 .hours {
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
-  border-right: 0px colors.$standartWhiteColor;
+  border-right: 0px var(--standartTextBackground);
   text-align: right;
+  padding-right: 5px;
 }
 
 .minutes {
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
-  border-left: 0px colors.$standartWhiteColor;
+  border-left: 0px var(--standartTextBackground);
   text-align: left;
+  padding-left: 5px;
 }
 
 .delimiter-time {
   height: 18px;
-  margin-left: -4px;
-  margin-top: 7px;
+  margin-left: -2px;
+  margin-top: 4px;
   width: 0px;
   z-index: 2;
   background-color: transparent;
+  font-weight: bold;
+  color: var(--standartTextColor);
 }

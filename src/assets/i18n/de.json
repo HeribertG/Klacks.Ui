@@ -621,7 +621,7 @@
   "setting.contract.save": "Speichern",
   
   "setting.contract.headline": "Verträge",
-  "setting.contract.header.name": "NAME",
+  "setting.contract.header.name": "Name",
   "setting.contract.header.guaranteedHours": "GARANTIERTE STUNDEN",
   "setting.contract.header.minHours": "MIN. STUNDEN",
   "setting.contract.header.maxHours": "MAX. STUNDEN",

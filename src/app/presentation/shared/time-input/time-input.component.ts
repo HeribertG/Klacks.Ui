@@ -38,6 +38,7 @@ export class TimeInputComponent implements ControlValueAccessor {
   @Input() minutesPlaceholder = 'mm';
   @Input() showLabel = true;
   @Input() forDuration = true;
+  @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
   @Output() timeChange = new EventEmitter<OwnTime>();
   @Output() keyUp = new EventEmitter<Event>();
 

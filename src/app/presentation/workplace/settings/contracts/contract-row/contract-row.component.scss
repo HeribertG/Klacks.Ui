@@ -7,6 +7,7 @@
 .first {
   margin-left: 30px;
   padding-right: -30px;
+  height: 40px;
 }
 
 .custom-control-inline {
@@ -16,17 +17,14 @@
 }
 
 .form-group {
-  margin-left: 30px;
   margin-bottom: 0;
   margin-right: 5px;
 }
 
 .attribute-name {
-  width: 200px;
-  height: 30px;
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  width: 250px;
+  margin-right: 10px;
+  background-color: var(--standartGreenColor) !important;
 }
 
 .attribute-hours {
@@ -46,16 +44,9 @@
 }
 
 .delete-button {
-  background: transparent;
-  border: none;
-  color: #dc3545;
-  font-size: 16px;
-  cursor: pointer;
-  margin-left: 10px;
-
-  &:hover {
-    color: #c82333;
-  }
+  margin-top: 5px;
+  margin-left: 20px;
+  color: var(--standartRedColor);
 }
 
 .contract-name,

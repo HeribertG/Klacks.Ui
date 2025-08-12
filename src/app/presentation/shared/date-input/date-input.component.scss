@@ -1,0 +1,43 @@
+@use "../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/datepicker.scss";
+
+.date-input-container {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    margin-bottom: 5px;
+  }
+}
+
+.medium-width {
+  width: 200px;
+}
+
+.small-width {
+  width: 150px;
+}
+
+.large-width {
+  width: 250px;
+}
+
+.date-input-container {
+  .form-control {
+    &::placeholder {
+      color: var(--colorPlaceholder);
+    }
+  }
+}
+
+.input-group-text {
+  &:not(.disabled):hover {
+    cursor: pointer;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}

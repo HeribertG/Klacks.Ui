@@ -1,0 +1,42 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<div
+  class="date-input-container"
+  [class]="inputWidth"
+  [style.align-items]="
+    labelAlign === 'center'
+      ? 'center'
+      : labelAlign === 'right'
+      ? 'flex-end'
+      : 'flex-start'
+  "
+>
+  @if (showLabel && label) {
+  <label [for]="inputId" [style.text-align]="labelAlign">{{ label }}</label>
+  }
+  <div class="input-group" [class]="inputWidth">
+    <input
+      class="form-control"
+      [name]="inputName || 'date'"
+      [disabled]="disabled"
+      [attr.aria-labelledby]="label"
+      [id]="inputId"
+      [(ngModel)]="value"
+      (ngModelChange)="onDateChange($event)"
+      [placeholder]="placeholder"
+      ngbDatepicker
+      #datePicker="ngbDatepicker"
+    />
+    <span
+      class="input-group-text"
+      style="width: 40px; cursor: pointer"
+      (click)="datePicker.toggle()"
+      [class.disabled]="disabled"
+    >
+      <fa-icon
+        [icon]="faCalendar"
+        [style]="{ 'font-size': '16px', color: disabled ? '#ccc' : '#464e5f' }"
+      ></fa-icon>
+    </span>
+  </div>
+</div>

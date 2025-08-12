@@ -1,6 +1,4 @@
-@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
-
 .first {
   margin-left: 30px;
   padding-right: -30px;
@@ -11,4 +9,8 @@ label {
   font-weight: 500;
   font-size: 13px;
   color: var(--colorLabel);
+}
+
+.gap {
+  margin-right: 30px;
 }

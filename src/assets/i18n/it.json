@@ -616,7 +616,7 @@
   "setting.contract.save": "Salva",
   
   "setting.contract.headline": "Contratti",
-  "setting.contract.header.name": "NOME",
+  "setting.contract.header.name": "Nome",
   "setting.contract.header.guaranteedHours": "ORE GARANTITE",
   "setting.contract.header.minHours": "ORE MIN.",
   "setting.contract.header.maxHours": "ORE MAX.",

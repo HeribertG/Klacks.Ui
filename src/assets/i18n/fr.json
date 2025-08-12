@@ -616,7 +616,7 @@
   "setting.contract.save": "Enregistrer",
   
   "setting.contract.headline": "Contrats",
-  "setting.contract.header.name": "NOM",
+  "setting.contract.header.name": "Nom",
   "setting.contract.header.guaranteedHours": "HEURES GARANTIES",
   "setting.contract.header.minHours": "HEURES MIN.",
   "setting.contract.header.maxHours": "HEURES MAX.",
