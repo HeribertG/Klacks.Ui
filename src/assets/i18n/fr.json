@@ -613,5 +613,14 @@
   "setting.contract.validUntil-modal": "Valide jusqu'à",
   "setting.contract.calendarSelection-modal": "Sélection du calendrier",
   "setting.contract.noCalendar": "Aucun calendrier",
-  "setting.contract.save": "Enregistrer"
+  "setting.contract.save": "Enregistrer",
+  
+  "setting.contract.headline": "Contrats",
+  "setting.contract.header.name": "NOM",
+  "setting.contract.header.guaranteedHours": "HEURES GARANTIES",
+  "setting.contract.header.minHours": "HEURES MIN.",
+  "setting.contract.header.maxHours": "HEURES MAX.",
+  "setting.contract.header.validFrom": "VALIDE À PARTIR DE",
+  "setting.contract.header.validUntil": "VALIDE JUSQU'À",
+  "setting.contract.add": "+ Nouveau contrat"
 }

@@ -8,49 +8,65 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
+import {
+  transformDateToNgbDateStruct,
+  transformNumberToOwnTime,
+} from '../helpers/format-helper';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementContractService {
   public toastShowService = inject(ToastShowService);
-  private localStorageService = inject(LocalStorageService);
   private dataContractService = inject(DataContractService);
+  private translate = inject(TranslateService);
 
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<Contract | undefined>(undefined);
 
-  public currentContract: IContract | undefined = this.emptyContract();
+  public editContract: IContract | undefined = this.emptyContract();
   public emptyPlaceholder = '<Kein>';
   public contracts: IContract[] = [];
 
+  private editContractDummy: IContract | undefined;
+
   constructor() {
     this.contracts.push(this.emptyContract());
+
+    this.translate.onLangChange.subscribe(() => {
+      this.updateEmptyPlaceholder();
+    });
+
+    this.updateEmptyPlaceholder();
   }
 
   setCurrentOnEmpty() {
-    this.currentContract = this.emptyContract();
+    this.editContract = this.emptyContract();
   }
 
   isCurrentContractEmptyPlaceholder(): boolean {
-    if (this.currentContract?.internal) {
-      return this.currentContract?.internal === true;
+    if (this.editContract?.internal) {
+      return this.editContract?.internal === true;
     }
     return false;
   }
 
-  private emptyContract(): IContract {
+  private emptyContract(): Contract {
     return {
       id: undefined,
       name: this.emptyPlaceholder,
       guaranteedHoursPerMonth: 0,
       maximumHoursPerMonth: 0,
       minimumHoursPerMonth: 0,
+      internalGuaranteedHours: transformNumberToOwnTime(0, true),
+      internalMinimumHours: transformNumberToOwnTime(0, true),
+      internalMaximumHours: transformNumberToOwnTime(0, true),
       validFrom: new Date(),
+      internalValidFrom: transformDateToNgbDateStruct(new Date()),
       validUntil: undefined,
+      internalValidUntil: undefined,
       calendarSelection: undefined,
       internal: true,
     };
@@ -59,18 +75,21 @@ export class DataManagementContractService {
   async readContracts() {
     try {
       const result = await lastValueFrom(this.dataContractService.getList());
-      
+
       this.contracts = [this.emptyContract()];
-      
+
       if (result && Array.isArray(result)) {
         this.contracts.push(...result);
       }
-      
+
       this.isRead.set(true);
-      
+
       return this.contracts;
     } catch (error) {
-      this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR, 'errorLoadingData');
+      this.toastShowService.showError(
+        MessageLibrary.UNKNOWN_ERROR,
+        'errorLoadingData'
+      );
       console.error('Error loading contracts:', error);
       return [];
     }
@@ -82,52 +101,67 @@ export class DataManagementContractService {
         return undefined;
       }
 
-      const result = await lastValueFrom(this.dataContractService.getContract(id));
-      
+      const result = await lastValueFrom(
+        this.dataContractService.getContract(id)
+      );
+
       if (result) {
-        this.currentContract = result;
+        this.editContract = result;
         return result;
       }
-      
+
       return undefined;
     } catch (error) {
-      this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR, 'errorLoadingData');
+      this.toastShowService.showError(
+        MessageLibrary.UNKNOWN_ERROR,
+        'errorLoadingData'
+      );
       console.error('Error loading contract:', error);
       return undefined;
     }
   }
 
   async saveContract(): Promise<boolean> {
-    if (!this.currentContract) {
+    if (!this.editContract) {
       return false;
     }
 
     try {
       const contractToSave = new Contract();
-      Object.assign(contractToSave, this.currentContract);
+      Object.assign(contractToSave, this.editContract);
 
       let result: IContract;
 
       if (!contractToSave.id || contractToSave.id === '') {
         // New contract
-        result = await lastValueFrom(this.dataContractService.addContract(contractToSave));
+        result = await lastValueFrom(
+          this.dataContractService.addContract(contractToSave)
+        );
         this.isNew.set(undefined);
       } else {
         // Update existing contract
-        result = await lastValueFrom(this.dataContractService.updateContract(contractToSave));
+        result = await lastValueFrom(
+          this.dataContractService.updateContract(contractToSave)
+        );
       }
 
       if (result) {
-        this.currentContract = result;
+        this.editContract = result;
         this.isChanged.set(false);
-        this.toastShowService.showSuccess(MessageLibrary.SUCCESS_STORAGE, 'Success');
+        this.toastShowService.showSuccess(
+          MessageLibrary.SUCCESS_STORAGE,
+          'Success'
+        );
         await this.readContracts(); // Refresh the list
         return true;
       }
 
       return false;
     } catch (error) {
-      this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR, 'errorSavingData');
+      this.toastShowService.showError(
+        MessageLibrary.UNKNOWN_ERROR,
+        'errorSavingData'
+      );
       console.error('Error saving contract:', error);
       return false;
     }
@@ -140,18 +174,24 @@ export class DataManagementContractService {
 
     try {
       await lastValueFrom(this.dataContractService.deleteContract(id));
-      
-      this.toastShowService.showSuccess('Contract deleted successfully', 'Success');
+
+      this.toastShowService.showSuccess(
+        'Contract deleted successfully',
+        'Success'
+      );
       await this.readContracts(); // Refresh the list
-      
+
       // Reset current contract if it was deleted
-      if (this.currentContract?.id === id) {
+      if (this.editContract?.id === id) {
         this.setCurrentOnEmpty();
       }
-      
+
       return true;
     } catch (error) {
-      this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR, 'errorDeletingData');
+      this.toastShowService.showError(
+        MessageLibrary.UNKNOWN_ERROR,
+        'errorDeletingData'
+      );
       console.error('Error deleting contract:', error);
       return false;
     }
@@ -169,7 +209,7 @@ export class DataManagementContractService {
     newContract.calendarSelection = undefined;
     newContract.internal = false;
 
-    this.currentContract = newContract;
+    this.editContract = newContract;
     this.isNew.set(newContract);
     this.isChanged.set(true);
 
@@ -182,20 +222,23 @@ export class DataManagementContractService {
       return;
     }
 
-    this.currentContract = cloneObject(contract);
+    this.editContract = cloneObject(contract);
     this.isChanged.set(false);
   }
 
   updateCurrentContract(updates: Partial<IContract>) {
-    if (!this.currentContract) {
+    if (!this.editContract) {
       return;
     }
 
-    const originalContract = cloneObject(this.currentContract);
-    Object.assign(this.currentContract, updates);
-    
+    const originalContract = cloneObject(this.editContract);
+    Object.assign(this.editContract, updates);
+
     // Check if data has changed
-    const hasChanged = !compareComplexObjects(originalContract, this.currentContract);
+    const hasChanged = !compareComplexObjects(
+      originalContract,
+      this.editContract
+    );
     this.isChanged.set(hasChanged);
   }
 
@@ -234,7 +277,11 @@ export class DataManagementContractService {
       errors.push('Valid from date is required');
     }
 
-    if (contract.validUntil && contract.validFrom && contract.validUntil <= contract.validFrom) {
+    if (
+      contract.validUntil &&
+      contract.validFrom &&
+      contract.validUntil <= contract.validFrom
+    ) {
       errors.push('Valid until date must be after valid from date');
     }
 
@@ -242,24 +289,24 @@ export class DataManagementContractService {
   }
 
   isContractValid(): boolean {
-    if (!this.currentContract) {
+    if (!this.editContract) {
       return false;
     }
 
-    const errors = this.validateContract(this.currentContract);
+    const errors = this.validateContract(this.editContract);
     return errors.length === 0;
   }
 
   getValidationErrors(): string[] {
-    if (!this.currentContract) {
+    if (!this.editContract) {
       return ['No contract selected'];
     }
 
-    return this.validateContract(this.currentContract);
+    return this.validateContract(this.editContract);
   }
 
   resetCurrentContract() {
-    this.currentContract = this.emptyContract();
+    this.editContract = this.emptyContract();
     this.isChanged.set(false);
     this.isNew.set(undefined);
   }
@@ -270,5 +317,9 @@ export class DataManagementContractService {
 
   isNewContract(): boolean {
     return this.isNew() !== undefined;
+  }
+
+  private updateEmptyPlaceholder(): void {
+    this.emptyPlaceholder = this.translate.instant('none');
   }
 }

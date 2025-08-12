@@ -16,6 +16,7 @@ import {
   NgbCalendar,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 import { IContract, Contract } from 'src/app/domain/models/contract-class';
 import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
@@ -25,14 +26,24 @@ import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
   isNgbDateStructOk,
+  transformNumberToOwnTime,
+  transformOwnTimeToNumber,
+  isOwnTimeStructOk,
 } from 'src/app/domain/helpers/format-helper';
+import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 @Component({
   selector: 'app-contract-row',
   templateUrl: './contract-row.component.html',
   styleUrls: ['./contract-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbModule, TranslateModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbModule,
+    TranslateModule,
+    TimeInputComponent,
+  ],
 })
 export class ContractRowComponent implements OnInit {
   @Input() data: IContract = new Contract();
@@ -50,9 +61,14 @@ export class ContractRowComponent implements OnInit {
   public currentContract: IContract = new Contract();
   public validFromModel: NgbDateStruct | null = null;
   public validUntilModel: NgbDateStruct | null = null;
-  public selectedCalendarId: string = '';
+  public selectedCalendarId = '';
   public availableCalendars: ICalendarSelection[] = [];
   public validationErrors: string[] = [];
+
+  // Internal time properties for hour:minute inputs
+  public internalGuaranteedHours: OwnTime = new OwnTime('00', '00', true);
+  public internalMinimumHours: OwnTime = new OwnTime('00', '00', true);
+  public internalMaximumHours: OwnTime = new OwnTime('00', '00', true);
 
   async ngOnInit(): Promise<void> {
     await this.loadCalendarSelections();
@@ -76,6 +92,7 @@ export class ContractRowComponent implements OnInit {
     this.currentContract = { ...this.data };
     this.setupDatePickers();
     this.setupCalendarSelection();
+    this.setupTimeInputs();
     this.validateForm();
 
     this.modalService.open(content, {
@@ -110,6 +127,22 @@ export class ContractRowComponent implements OnInit {
     this.selectedCalendarId = this.currentContract.calendarSelection?.id || '';
   }
 
+  private setupTimeInputs(): void {
+    // Convert numbers to OwnTime structures
+    this.internalGuaranteedHours = transformNumberToOwnTime(
+      this.currentContract.guaranteedHoursPerMonth,
+      true
+    );
+    this.internalMinimumHours = transformNumberToOwnTime(
+      this.currentContract.minimumHoursPerMonth,
+      true
+    );
+    this.internalMaximumHours = transformNumberToOwnTime(
+      this.currentContract.maximumHoursPerMonth,
+      true
+    );
+  }
+
   onCalendarSelectionChange(): void {
     if (this.selectedCalendarId) {
       const selectedCalendar = this.availableCalendars.find(
@@ -118,6 +151,26 @@ export class ContractRowComponent implements OnInit {
       this.currentContract.calendarSelection = selectedCalendar;
     } else {
       this.currentContract.calendarSelection = undefined;
+    }
+    this.validateForm();
+  }
+
+  onTimeInputChange(): void {
+    // Convert OwnTime back to numbers for the model
+    if (isOwnTimeStructOk(this.internalGuaranteedHours)) {
+      this.currentContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(
+        this.internalGuaranteedHours
+      );
+    }
+    if (isOwnTimeStructOk(this.internalMinimumHours)) {
+      this.currentContract.minimumHoursPerMonth = transformOwnTimeToNumber(
+        this.internalMinimumHours
+      );
+    }
+    if (isOwnTimeStructOk(this.internalMaximumHours)) {
+      this.currentContract.maximumHoursPerMonth = transformOwnTimeToNumber(
+        this.internalMaximumHours
+      );
     }
     this.validateForm();
   }

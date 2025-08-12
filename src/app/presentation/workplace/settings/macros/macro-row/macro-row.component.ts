@@ -14,14 +14,14 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
+import { StreamLanguage } from '@codemirror/language';
+import { vbScript } from '@codemirror/legacy-modes/mode/vbscript';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
-
-// CodeMirror 6 is handled by the @fsegurai/ngx-codemirror component
 import { ShiftData } from 'src/app/domain/models/shift-data-class';
 
 @Component({
@@ -67,6 +67,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   isReadSectionTemplateList = false;
 
   // CodeMirror configuration is now handled via component properties
+  vbScriptLanguage = StreamLanguage.define(vbScript);
 
   dialogRef: any;
 

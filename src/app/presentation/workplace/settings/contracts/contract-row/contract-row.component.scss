@@ -1,8 +1,12 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/datepicker.scss";
+
+// Time input styles are now in the TimeInputComponent
 
 .first {
-  margin-left: 15px;
+  margin-left: 30px;
+  padding-right: -30px;
 }
 
 .custom-control-inline {
@@ -12,12 +16,13 @@
 }
 
 .form-group {
+  margin-left: 30px;
   margin-bottom: 0;
   margin-right: 5px;
 }
 
 .attribute-name {
-  width: 150px;
+  width: 200px;
   height: 30px;
   padding: 5px 10px;
   border: 1px solid #ccc;
@@ -47,7 +52,7 @@
   font-size: 16px;
   cursor: pointer;
   margin-left: 10px;
-  
+
   &:hover {
     color: #c82333;
   }
@@ -117,7 +122,7 @@
   border-radius: 0.25rem;
   cursor: pointer;
   border: 1px solid transparent;
-  
+
   &:hover {
     background-color: #218838;
     border-color: #1e7e34;
@@ -130,7 +135,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  
+
   &:hover {
     color: #0056b3;
     text-decoration: underline;

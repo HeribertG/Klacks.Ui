@@ -161,3 +161,46 @@ button {
   height: 300px !important;
   border: 1px solid #ccc;
 }
+
+// CodeMirror 6 styles for ngx-code-editor
+::ng-deep ngx-code-editor {
+  .cm-editor {
+    background-color: white !important;
+    color: black !important;
+    font-size: 12px !important;
+    height: 300px !important;
+    border: 1px solid #ccc;
+  }
+  
+  .cm-content {
+    background-color: white !important;
+    color: black !important;
+    font-size: 12px !important;
+  }
+  
+  .cm-scroller {
+    font-family: monospace;
+    font-size: 12px !important;
+  }
+  
+  .cm-line {
+    color: black !important;
+  }
+  
+  // Hintergrund für den Gutterbereich (Zeilennummern)
+  .cm-gutters {
+    background-color: #f5f5f5 !important;
+    color: #666 !important;
+    border-right: 1px solid #ddd;
+  }
+  
+  // Aktive Zeile
+  .cm-activeLine {
+    background-color: #f0f0f0 !important;
+  }
+  
+  // Cursor
+  .cm-cursor {
+    border-left-color: black !important;
+  }
+}

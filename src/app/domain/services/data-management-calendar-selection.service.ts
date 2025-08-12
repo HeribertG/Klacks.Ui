@@ -14,6 +14,7 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,7 @@ export class DataManagementCalendarSelectionService {
   public toastShowService = inject(ToastShowService);
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
+  private translate = inject(TranslateService);
 
   public isRead = signal(false);
   public isChanged = signal(false);
@@ -37,6 +39,12 @@ export class DataManagementCalendarSelectionService {
 
   constructor() {
     this.calendarsSelections.push(this.emptyCalendarSelection());
+
+    this.translate.onLangChange.subscribe(() => {
+      this.updateEmptyPlaceholder();
+    });
+
+    this.updateEmptyPlaceholder();
   }
 
   setCurrentOnEmpty() {
@@ -141,6 +149,10 @@ export class DataManagementCalendarSelectionService {
       value.state = x.state;
       this.dataCalendarSelectionService.addSelectedCalendar(value);
     });
+  }
+
+  private updateEmptyPlaceholder(): void {
+    this.emptyPlaceholder = this.translate.instant('none');
   }
 
   private emptyCalendarSelection(): CalendarSelection {

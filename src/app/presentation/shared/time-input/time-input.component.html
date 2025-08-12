@@ -1,0 +1,34 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<div class="time-input-container">
+  @if (showLabel && label) {
+  <label [for]="hoursId">{{ label }}</label>
+  }
+  <div class="row-line-inline-simple">
+    <input
+      [(ngModel)]="value.hours"
+      [id]="hoursId"
+      [name]="hoursName || 'hours'"
+      (ngModelChange)="onHoursChange($event)"
+      (keyup)="onInputKeyUp($event)"
+      [ngModelOptions]="{ standalone: true }"
+      [disabled]="disabled"
+      class="form-control time-hour hours"
+      type="text"
+      [maxlength]="hoursMaxLength"
+      [placeholder]="hoursPlaceholder"
+    />
+    <label class="delimiter-time">:</label>
+    <input
+      [(ngModel)]="value.minutes"
+      [name]="minutesName || 'minutes'"
+      (ngModelChange)="onMinutesChange($event)"
+      (keyup)="onInputKeyUp($event)"
+      [ngModelOptions]="{ standalone: true }"
+      [disabled]="disabled"
+      class="form-control time-minute minutes"
+      type="text"
+      [maxlength]="minutesMaxLength"
+      [placeholder]="minutesPlaceholder"
+    />
+  </div>
+</div>
