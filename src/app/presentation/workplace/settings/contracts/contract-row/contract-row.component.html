@@ -26,6 +26,7 @@
       </div>
     </div>
     <div class="modal-body">
+      @if (dataManagementContractService.editContract) {
       <!-- Contract Basic Information -->
       <div class="row-line-modal-inline">
         <div style="margin-left: 30px; width: 200px">
@@ -35,7 +36,7 @@
           <input
             type="text"
             style="width: 200px"
-            [(ngModel)]="currentContract.name"
+            [(ngModel)]="dataManagementContractService.editContract.name"
             name="name"
             class="form-control"
             id="contractName"
@@ -49,12 +50,14 @@
         class="row-line-modal-inline"
         style="display: flex; justify-content: space-between; padding: 0 30px"
       >
-        <div style="flex: 1; margin-right: 20px;">
+        <div style="flex: 1; margin-right: 20px">
           <app-time-input
             [label]="
               translate.instant('setting.contract.guaranteedHours-modal')
             "
-            [(ngModel)]="internalGuaranteedHours"
+            [(value)]="
+              dataManagementContractService.editContract.internalGuaranteedHours
+            "
             hoursName="guaranteedHoursHours"
             minutesName="guaranteedHoursMinutes"
             (timeChange)="onTimeInputChange()"
@@ -64,10 +67,12 @@
           ></app-time-input>
         </div>
 
-        <div style="flex: 1; margin-right: 20px;">
+        <div style="flex: 1; margin-right: 20px">
           <app-time-input
             [label]="translate.instant('setting.contract.minHours-modal')"
-            [(ngModel)]="internalMinimumHours"
+            [(value)]="
+              dataManagementContractService.editContract.internalMinimumHours
+            "
             hoursName="minHoursHours"
             minutesName="minHoursMinutes"
             (timeChange)="onTimeInputChange()"
@@ -77,10 +82,12 @@
           ></app-time-input>
         </div>
 
-        <div style="flex: 1;">
+        <div style="flex: 1">
           <app-time-input
             [label]="translate.instant('setting.contract.maxHours-modal')"
-            [(ngModel)]="internalMaximumHours"
+            [(value)]="
+              dataManagementContractService.editContract.internalMaximumHours
+            "
             hoursName="maxHoursHours"
             minutesName="maxHoursMinutes"
             (timeChange)="onTimeInputChange()"
@@ -96,7 +103,7 @@
         <div style="margin-left: 30px;">
           <app-date-input
             [label]="translate.instant('setting.contract.validFrom-modal')"
-            [(ngModel)]="validFromModel"
+            [(value)]="dataManagementContractService.editContract.internalValidFrom"
             inputName="validFrom"
             inputId="validFrom"
             inputWidth="small-width"
@@ -106,7 +113,7 @@
         <div style="margin-left: 30px;">
           <app-date-input
             [label]="translate.instant('setting.contract.validUntil-modal')"
-            [(ngModel)]="validUntilModel"
+            [(value)]="dataManagementContractService.editContract.internalValidUntil"
             inputName="validUntil"
             inputId="validUntil"
             inputWidth="small-width"
@@ -123,15 +130,18 @@
           <select
             class="form-control"
             style="width: 250px"
-            [(ngModel)]="selectedCalendarId"
+            [ngModel]="
+              dataManagementContractService.editContract.calendarSelection?.id
+            "
+            (ngModelChange)="onCalendarSelectionChange($event)"
             name="calendarSelection"
             id="calendarSelection"
-            (change)="onCalendarSelectionChange()"
           >
             <option value="">
               {{ translate.instant("setting.contract.noCalendar") }}
             </option>
-            @for (calendar of availableCalendars; track calendar.id) {
+            @for (calendar of dataManagementContractService.availableCalendars;
+            track calendar.id) {
             <option [value]="calendar.id">{{ calendar.name }}</option>
             }
           </select>
@@ -139,20 +149,22 @@
       </div>
 
       <!-- Validation Errors -->
-      @if (validationErrors.length > 0) {
+      @if (dataManagementContractService.getValidationErrors().length > 0) {
       <div class="row-line-modal-inline">
         <div style="margin-left: 30px; margin-top: 20px">
           <div class="alert alert-danger">
             <strong>{{ translate.instant("validation.errors") }}:</strong>
             <ul>
-              @for (error of validationErrors; track error) {
+              @for (error of
+              dataManagementContractService.getValidationErrors(); track error)
+              {
               <li>{{ error }}</li>
               }
             </ul>
           </div>
         </div>
       </div>
-      }
+      } }
     </div>
   </form>
 

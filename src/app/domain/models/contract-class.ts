@@ -25,9 +25,9 @@ export class Contract implements IContract {
   guaranteedHoursPerMonth = 0;
   maximumHoursPerMonth = 0;
   minimumHoursPerMonth = 0;
-  internalGuaranteedHours: OwnTime = OwnTime.forDuration('00', '00');
-  internalMinimumHours: OwnTime = OwnTime.forDuration('00', '00');
-  internalMaximumHours: OwnTime = OwnTime.forDuration('00', '00');
+  internalGuaranteedHours: OwnTime;
+  internalMinimumHours: OwnTime;
+  internalMaximumHours: OwnTime;
 
   validFrom = new Date();
   validUntil: Date | undefined = undefined;
@@ -35,4 +35,11 @@ export class Contract implements IContract {
   internalValidUntil: NgbDateStruct | undefined = undefined;
   calendarSelection: ICalendarSelection | undefined = undefined;
   internal: boolean | undefined = undefined;
+
+  constructor() {
+    // Create separate OwnTime instances to prevent reference sharing
+    this.internalGuaranteedHours = OwnTime.forDuration('00', '00');
+    this.internalMinimumHours = OwnTime.forDuration('00', '00');
+    this.internalMaximumHours = OwnTime.forDuration('00', '00');
+  }
 }

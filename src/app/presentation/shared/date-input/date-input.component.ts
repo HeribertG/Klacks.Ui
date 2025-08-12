@@ -12,15 +12,9 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
   styleUrls: ['./date-input.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule, NgbModule, FontAwesomeModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DateInputComponent),
-      multi: true
-    }
-  ]
+  // No providers needed - using simple Input/Output binding
 })
-export class DateInputComponent implements ControlValueAccessor {
+export class DateInputComponent {
   @Input() label?: string;
   @Input() inputId?: string;
   @Input() inputName?: string;
@@ -29,42 +23,19 @@ export class DateInputComponent implements ControlValueAccessor {
   @Input() showLabel: boolean = true;
   @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
   @Input() inputWidth: string = 'medium-width';
-  @Output() dateChange = new EventEmitter<NgbDateStruct | null>();
+  @Input() value: NgbDateStruct | null | undefined = null;
+  @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
+  @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();
 
   faCalendar = faCalendar;
 
-  private _value: NgbDateStruct | null = null;
-  private onChange = (value: NgbDateStruct | null) => {};
-  private onTouched = () => {};
-
-  get value(): NgbDateStruct | null {
-    return this._value;
+  private updateValue(): void {
+    this.valueChange.emit(this.value);
+    this.dateChange.emit(this.value);
   }
 
-  set value(val: NgbDateStruct | null) {
-    this._value = val;
-    this.onChange(val);
-    this.onTouched();
-    this.dateChange.emit(val);
-  }
-
-  writeValue(value: NgbDateStruct | null): void {
-    this._value = value;
-  }
-
-  registerOnChange(fn: (value: NgbDateStruct | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
-  }
-
-  onDateChange(date: NgbDateStruct | null): void {
+  onDateChange(date: NgbDateStruct | null | undefined): void {
     this.value = date;
+    this.updateValue();
   }
 }

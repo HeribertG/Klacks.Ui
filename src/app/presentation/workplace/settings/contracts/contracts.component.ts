@@ -7,10 +7,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
-
-import { Contract } from 'src/app/domain/models/contract-class';
 import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-contracts',
@@ -35,11 +32,9 @@ export class ContractsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
-      if (!this.dataManagementContractService.isRead()) {
-        await this.dataManagementContractService.readContracts();
-      }
+      await this.dataManagementContractService.init();
     } catch (error) {
-      console.error('Error loading contracts:', error);
+      console.error('Error initializing contracts:', error);
     }
   }
 
@@ -58,12 +53,14 @@ export class ContractsComponent implements OnInit {
         try {
           if (contract.id) {
             // Existing contract - delete from backend
-            await this.dataManagementContractService.deleteContract(contract.id);
+            await this.dataManagementContractService.deleteContract(
+              contract.id
+            );
           } else {
             // New contract - just remove from array
             contracts.splice(index, 1);
           }
-          
+
           this.onIsChanging(true);
         } catch (error) {
           console.error('Error deleting contract:', error);

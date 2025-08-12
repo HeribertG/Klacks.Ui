@@ -1,33 +1,39 @@
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
-<div class="time-input-container" [style.align-items]="labelAlign === 'center' ? 'center' : labelAlign === 'right' ? 'flex-end' : 'flex-start'">
+<div
+  class="time-input-container"
+  [style.align-items]="
+    labelAlign === 'center'
+      ? 'center'
+      : labelAlign === 'right'
+      ? 'flex-end'
+      : 'flex-start'
+  "
+>
   @if (showLabel && label) {
   <label [for]="hoursId" [style.text-align]="labelAlign">{{ label }}</label>
   }
   <div class="row-line-inline-simple">
     <input
-      [(ngModel)]="value.hours"
+      [value]="value.hours"
       [id]="hoursId"
       [name]="hoursName || 'hours'"
-      (ngModelChange)="onHoursChange($event)"
+      (input)="onHoursInputChange($event)"
       (keyup)="onInputKeyUp($event)"
-      [ngModelOptions]="{ standalone: true }"
       [disabled]="disabled"
       class="form-control time-hour hours"
       type="text"
-      [maxlength]="hoursMaxLength"
+      [attr.maxlength]="hoursMaxLength"
       [placeholder]="hoursPlaceholder"
     />
     <label class="delimiter-time">:</label>
     <input
-      [(ngModel)]="value.minutes"
+      [value]="value.minutes"
       [name]="minutesName || 'minutes'"
-      (ngModelChange)="onMinutesChange($event)"
+      (input)="onMinutesInputChange($event)"
       (keyup)="onInputKeyUp($event)"
-      [ngModelOptions]="{ standalone: true }"
       [disabled]="disabled"
       class="form-control time-minute minutes"
       type="text"
-      [maxlength]="minutesMaxLength"
       [placeholder]="minutesPlaceholder"
     />
   </div>

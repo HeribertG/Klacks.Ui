@@ -174,15 +174,13 @@ export class OwnTime implements IOwnTime {
 
     if (value.length === 0) {
       value = '00';
-    } else if (value.length === 1) {
-      value = '0' + value;
     } else if (value.length >= 2) {
+      value = value.slice(-2);
       if (+value > 59) {
         value = '59';
       }
-      if (value.length === 3) {
-        value = value.substring(1);
-      }
+    } else if (value.length === 1) {
+      value = '0' + value;
     }
 
     return value;
