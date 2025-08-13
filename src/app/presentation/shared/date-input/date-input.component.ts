@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -18,11 +17,11 @@ export class DateInputComponent {
   @Input() label?: string;
   @Input() inputId?: string;
   @Input() inputName?: string;
-  @Input() disabled: boolean = false;
-  @Input() placeholder: string = 'dd.mm.yyyy';
-  @Input() showLabel: boolean = true;
+  @Input() disabled = false;
+  @Input() placeholder = 'dd.mm.yyyy';
+  @Input() showLabel = true;
   @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
-  @Input() inputWidth: string = 'medium-width';
+  @Input() inputWidth = 'medium-width';
   @Input() value: NgbDateStruct | null | undefined = null;
   @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
   @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();

@@ -13,9 +13,6 @@ module.exports = function (config) {
       require('@angular-devkit/build-angular/plugins/karma')
     ],
      files: [
-      'node_modules/codemirror/lib/codemirror.css',
-      'node_modules/codemirror/addon/fold/foldgutter.css',
-      'node_modules/codemirror/addon/lint/lint.css'
     ],
     client: {
       jasmine: {

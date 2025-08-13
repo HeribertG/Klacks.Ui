@@ -29,7 +29,7 @@
       @if (dataManagementContractService.editContract) {
       <!-- Contract Basic Information -->
       <div class="row-line-modal-inline">
-        <div style="margin-left: 30px; width: 200px">
+        <div class="contract-name-section">
           <label for="contractName">{{
             translate.instant("setting.contract.name-modal")
           }}</label>
@@ -46,11 +46,8 @@
       </div>
 
       <!-- Hours Configuration -->
-      <div
-        class="row-line-modal-inline"
-        style="display: flex; justify-content: space-between; padding: 0 30px"
-      >
-        <div style="flex: 1; margin-right: 20px">
+      <div class="row-line-modal-inline hours-config-row">
+        <div class="hours-config-item">
           <app-time-input
             [label]="
               translate.instant('setting.contract.guaranteedHours-modal')
@@ -67,7 +64,7 @@
           ></app-time-input>
         </div>
 
-        <div style="flex: 1; margin-right: 20px">
+        <div class="hours-config-item">
           <app-time-input
             [label]="translate.instant('setting.contract.minHours-modal')"
             [(value)]="
@@ -82,7 +79,7 @@
           ></app-time-input>
         </div>
 
-        <div style="flex: 1">
+        <div class="hours-config-item">
           <app-time-input
             [label]="translate.instant('setting.contract.maxHours-modal')"
             [(value)]="
@@ -100,7 +97,7 @@
 
       <!-- Validity Period -->
       <div class="row-line-modal-inline">
-        <div style="margin-left: 30px;">
+        <div class="validity-section">
           <app-date-input
             [label]="translate.instant('setting.contract.validFrom-modal')"
             [(value)]="dataManagementContractService.editContract.internalValidFrom"
@@ -110,7 +107,7 @@
           ></app-date-input>
         </div>
 
-        <div style="margin-left: 30px;">
+        <div class="validity-section">
           <app-date-input
             [label]="translate.instant('setting.contract.validUntil-modal')"
             [(value)]="dataManagementContractService.editContract.internalValidUntil"
@@ -123,7 +120,7 @@
 
       <!-- Calendar Selection -->
       <div class="row-line-modal-inline">
-        <div style="margin-left: 30px; width: 250px">
+        <div class="calendar-section">
           <label for="calendarSelection">{{
             translate.instant("setting.contract.calendarSelection-modal")
           }}</label>
@@ -151,7 +148,7 @@
       <!-- Validation Errors -->
       @if (dataManagementContractService.getValidationErrors().length > 0) {
       <div class="row-line-modal-inline">
-        <div style="margin-left: 30px; margin-top: 20px">
+        <div class="validation-errors-section">
           <div class="alert alert-danger">
             <strong>{{ translate.instant("validation.errors") }}:</strong>
             <ul>
