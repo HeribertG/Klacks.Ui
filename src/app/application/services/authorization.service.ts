@@ -28,6 +28,6 @@ export class AuthorizationService {
     return this._isAdmin$.value;
   }
   get isAuthorised(): boolean {
-    return this._isAuthorised$.value;
+    return this._isAuthorised$.value || this._isAdmin$.value;
   }
 }
