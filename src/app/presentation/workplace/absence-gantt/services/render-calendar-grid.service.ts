@@ -524,6 +524,11 @@ export class RenderCalendarGridService {
         0,
         0
       );
+
+      // Zeichne graue Rechtecke für Membership-Zeiträume
+      this.drawPreValidFromGrayRectangle(index);
+      this.drawPostValidUntilGrayRectangle(index);
+
       // Draws all breaks in rowCtx
       if (isUnselect) {
         this.drawRowBreaks(index, undefined);
@@ -900,6 +905,10 @@ export class RenderCalendarGridService {
 
     this.ganttCanvasManager.rowCtx!.restore();
 
+    // Zeichne graue Rechtecke für Membership-Zeiträume
+    this.drawPreValidFromGrayRectangle(index);
+    this.drawPostValidUntilGrayRectangle(index);
+
     this.drawRowBreaks(index, selectedBreak);
 
     if (
@@ -1085,5 +1094,125 @@ export class RenderCalendarGridService {
       baseRec.right,
       baseRec.bottom + yOffset
     );
+  }
+
+  private calcValidFromColumn(clientIndex: number): number {
+    if (
+      clientIndex < 0 ||
+      clientIndex >= this.dataManagementBreak.clients.length
+    ) {
+      return -1;
+    }
+
+    const client = this.dataManagementBreak.clients[clientIndex];
+    if (!client?.membership?.validFrom) {
+      return -1;
+    }
+
+    // Konvertiere zu Date-Objekt falls es ein String ist
+    const validFromDate =
+      client.membership.validFrom instanceof Date
+        ? client.membership.validFrom
+        : new Date(client.membership.validFrom);
+
+    // Prüfe ob das Datum gültig ist
+    if (isNaN(validFromDate.getTime())) {
+      return -1;
+    }
+
+    const column = Math.floor(daysBetweenDates(this.startDate, validFromDate));
+
+    return column >= 0 ? column : -1;
+  }
+
+  private calcValidUntilColumn(clientIndex: number): number {
+    if (
+      clientIndex < 0 ||
+      clientIndex >= this.dataManagementBreak.clients.length
+    ) {
+      return -1;
+    }
+
+    const client = this.dataManagementBreak.clients[clientIndex];
+    if (!client?.membership?.validUntil) {
+      return -1;
+    }
+
+    const validUntilDate =
+      client.membership.validUntil instanceof Date
+        ? client.membership.validUntil
+        : new Date(client.membership.validUntil);
+
+    if (isNaN(validUntilDate.getTime())) {
+      return -1;
+    }
+
+    const currentYear = this.startDate.getFullYear();
+    const endOfDay = 1;
+
+    if (validUntilDate.getFullYear() !== currentYear) {
+      return -1;
+    }
+
+    const column =
+      Math.floor(daysBetweenDates(this.startDate, validUntilDate)) + endOfDay;
+
+    const maxColumns = isLeapYear(currentYear) ? 366 : 365;
+    return column >= 0 && column < maxColumns ? column : -1;
+  }
+
+  private drawPreValidFromGrayRectangle(clientIndex: number): void {
+    const validFromColumn = this.calcValidFromColumn(clientIndex);
+
+    if (validFromColumn <= 0) {
+      return;
+    }
+
+    const grayRectangle = new Rectangle(
+      0,
+      0,
+      validFromColumn * this.calendarSetting.cellWidth,
+      this.calendarSetting.cellHeight
+    );
+
+    this.ganttCanvasManager.rowCtx!.save();
+    this.ganttCanvasManager.rowCtx!.globalAlpha = 0.5;
+    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080'; // Grau
+    this.ganttCanvasManager.rowCtx!.fillRect(
+      grayRectangle.left,
+      grayRectangle.top,
+      grayRectangle.width,
+      grayRectangle.height
+    );
+    this.ganttCanvasManager.rowCtx!.restore();
+  }
+
+  private drawPostValidUntilGrayRectangle(clientIndex: number): void {
+    const validUntilColumn = this.calcValidUntilColumn(clientIndex);
+
+    if (validUntilColumn <= 0) {
+      return;
+    }
+
+    const currentYear = this.startDate.getFullYear();
+    const maxColumns = isLeapYear(currentYear) ? 366 : 365;
+
+    const grayRectangle = new Rectangle(
+      validUntilColumn * this.calendarSetting.cellWidth,
+      0,
+      maxColumns * this.calendarSetting.cellWidth,
+      this.calendarSetting.cellHeight
+    );
+
+    this.ganttCanvasManager.rowCtx!.save();
+    this.ganttCanvasManager.rowCtx!.globalAlpha = 0.5;
+    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080'; // Grau
+    this.ganttCanvasManager.rowCtx!.fillRect(
+      grayRectangle.left,
+      grayRectangle.top,
+      grayRectangle.width,
+      grayRectangle.height
+    );
+    this.ganttCanvasManager.rowCtx!.restore();
   }
 }

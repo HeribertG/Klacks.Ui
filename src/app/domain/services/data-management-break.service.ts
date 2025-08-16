@@ -11,6 +11,8 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
+import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
+import { RouteName } from '../models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -24,16 +26,27 @@ export class DataManagementBreakService {
   public isAbsenceHeaderInit = signal(false);
 
   public breakFilter: IBreakFilter = new BreakFilter();
-  public get currentFilter(): IBreakFilter { return this.breakFilter; }
+  public get currentFilter(): IBreakFilter {
+    return this.breakFilter;
+  }
   public clients: IClientBreak[] = [];
   private _restoreSearchSignal = signal('');
-  public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
+  public restoreSearch = {
+    set: (value: string) => this._restoreSearchSignal.set(value),
+  };
   public onExternalFilterChange?: () => void;
   private breakFilterDummy: IBreakFilter | undefined = undefined;
 
   // only when DataManagementAbsenceGanttService has loaded its AbsenceFilter,
   // can be read. The AbsenceFilter is integrated in the breakFilter.
   canReadBreaks = false;
+
+  constructor() {
+    ManageableServiceRegistry.register(
+      RouteName.ABSENCE,
+      DataManagementBreakService
+    );
+  }
 
   reRead() {
     this.readYear();
@@ -176,6 +189,4 @@ export class DataManagementBreakService {
     }
     return false;
   }
-
-
 }

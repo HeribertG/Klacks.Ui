@@ -7,6 +7,8 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  Output,
+  EventEmitter,
   effect,
   inject,
   runInInjectionContext,
@@ -20,9 +22,11 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { daysBetweenDates } from 'src/app/domain/helpers/format-helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { PdfExportService } from '../../services/pdf-export.service';
 
 @Component({
   selector: 'app-absence-gantt-grid',
@@ -35,10 +39,14 @@ export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   @Input() selectedRowData: IBreak[] | undefined;
+  @Input() selectedRow = -1;
+  @Output() exportPDF = new EventEmitter<void>();
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  public dataManagementBreak = inject(DataManagementBreakService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
+  private pdfExportService = inject(PdfExportService);
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -59,7 +67,7 @@ export class AbsenceGanttGridComponent
   untilHeader: HeaderProperties = new HeaderProperties();
   absenceHeader: HeaderProperties = new HeaderProperties();
 
-  orderBy = 'name';
+  orderBy = 'absence';
   sortOrder = 'asc';
 
   private absence: IAbsence[] = [];
@@ -161,6 +169,10 @@ export class AbsenceGanttGridComponent
     this.setHeaderArrowToUndefined();
     this.setDirection(sortOrder, this.setPosition(orderBy)!);
     this.setHeaderArrowTemplate();
+    
+    if (this.selectedRowData && this.selectedRowData.length > 0) {
+      this.sortSelectedRowData(orderBy, sortOrder);
+    }
   }
 
   private setPosition(orderBy: string): HeaderProperties | undefined {
@@ -209,6 +221,46 @@ export class AbsenceGanttGridComponent
     this.absenceHeader.order = HeaderDirection.None;
   }
 
+  private sortSelectedRowData(orderBy: string, sortOrder: string) {
+    if (!sortOrder || sortOrder === '' || !this.selectedRowData) {
+      return;
+    }
+
+    const multiplier = sortOrder === 'asc' ? 1 : -1;
+
+    this.selectedRowData = [...this.selectedRowData].sort((a, b) => {
+      if (orderBy === 'from') {
+        return this.compareDates(a.from, b.from) * multiplier;
+      } else if (orderBy === 'until') {
+        return this.compareDates(a.until, b.until) * multiplier;
+      } else if (orderBy === 'absence') {
+        return this.compareAbsences(a, b) * multiplier;
+      }
+      return 0;
+    });
+  }
+
+  private compareDates(date1: Date | undefined, date2: Date | undefined): number {
+    if (!date1 && !date2) return 0;
+    if (!date1) return -1;
+    if (!date2) return 1;
+    
+    const d1 = date1 instanceof Date ? date1 : new Date(date1);
+    const d2 = date2 instanceof Date ? date2 : new Date(date2);
+    
+    return d1.getTime() - d2.getTime();
+  }
+
+  private compareAbsences(a: IBreak, b: IBreak): number {
+    const absenceA = this.absence.find(x => x.id === a.absenceId);
+    const absenceB = this.absence.find(x => x.id === b.absenceId);
+    
+    const nameA = absenceA?.name?.[this.currentLang] ?? '';
+    const nameB = absenceB?.name?.[this.currentLang] ?? '';
+    
+    return nameA.localeCompare(nameB);
+  }
+
   /* #endregion   header */
 
   private readSignals(): void {
@@ -220,5 +272,37 @@ export class AbsenceGanttGridComponent
         }
       });
     });
+  }
+
+  exportToPDF(): void {
+    if (!this.selectedRowData || this.selectedRowData.length === 0) {
+      return;
+    }
+
+    const clientName = this.getClientName();
+    
+    this.pdfExportService.exportBreaksTableToPdf(
+      this.selectedRowData,
+      clientName,
+      (breakItem) => this.onAbsenceName(breakItem),
+      (breakItem) => this.onAbsenceValue(breakItem)
+    );
+    
+    this.exportPDF.emit();
+  }
+
+  private getClientName(): string {
+    if (this.selectedRow >= 0 && this.selectedRow < this.dataManagementBreak.clients.length) {
+      const client = this.dataManagementBreak.clients[this.selectedRow];
+      const firstName = client.firstName || '';
+      const lastName = client.name || '';
+      const company = client.company || '';
+      
+      if (firstName || lastName) {
+        return `${firstName} ${lastName}`.trim();
+      }
+      return company;
+    }
+    return 'Unknown Client';
   }
 }

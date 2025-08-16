@@ -46,8 +46,8 @@
         </li>
       </ul>
       <span class="filler"></span>
-      <div [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }">
-        <div class="pdf-icon">
+      <div [ngStyle]="{ display: tabId === 'list' && selectedRowData && selectedRowData.length > 0 ? 'inline' : 'none' }">
+        <div class="pdf-icon" (click)="onExportPDF()">
           <app-icon-pdf-icon></app-icon-pdf-icon>
         </div>
       </div>
@@ -198,6 +198,8 @@
       <div class="container-mask">
         <app-absence-gantt-grid
           [selectedRowData]="selectedRowData"
+          [selectedRow]="selectedRow"
+          (exportPDF)="onPDFExported()"
         ></app-absence-gantt-grid>
       </div>
     </div>

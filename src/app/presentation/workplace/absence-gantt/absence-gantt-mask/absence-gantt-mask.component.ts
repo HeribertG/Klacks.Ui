@@ -9,8 +9,10 @@ import {
   OnInit,
   Output,
   SimpleChanges,
+  ViewChild,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
@@ -57,6 +59,7 @@ import { NgClass, NgStyle } from '@angular/common';
     FallbackPipe,
     AbsenceGanttGridComponent,
   ],
+  providers: [DatePipe],
 })
 export class AbsenceGanttMaskComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -67,6 +70,7 @@ export class AbsenceGanttMaskComponent
   @Input() selectedRow = -1;
   @Input() selectedRowBreaksMaxIndex: number | undefined;
   @Input() selectedBreakIndex = -1;
+  @ViewChild(AbsenceGanttGridComponent) gridComponent!: AbsenceGanttGridComponent;
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakService);
@@ -268,4 +272,14 @@ export class AbsenceGanttMaskComponent
   }
 
   /* #endregion db*/
+
+  onExportPDF(): void {
+    if (this.gridComponent) {
+      this.gridComponent.exportToPDF();
+    }
+  }
+
+  onPDFExported(): void {
+    console.log('PDF exported successfully');
+  }
 }
