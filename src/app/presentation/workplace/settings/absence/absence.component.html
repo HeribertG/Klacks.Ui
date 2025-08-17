@@ -328,7 +328,7 @@
         </table>
       </div>
 
-      <div class="pagination">
+      <div class="lastLine">
         <span
           class="first add-button"
           type="button"
@@ -337,13 +337,8 @@
         </span>
         <span class="filler"></span>
 
-        <label for="pagination" class="entry-info"
-          >{{ "pagination.sum" | translate }}
-          {{ dataManagementAbsenceService.maxItems }}</label
-        >
-        <ngb-pagination
-          id="pagination"
-          [collectionSize]="dataManagementAbsenceService.maxItems + 1"
+        <app-simple-pagination
+          [collectionSize]="dataManagementAbsenceService.maxItems"
           (pageChange)="onPageChange($event)"
           [(page)]="page"
           [maxSize]="5"
@@ -351,7 +346,9 @@
           [rotate]="true"
           [ellipses]="false"
           [boundaryLinks]="true"
-        ></ngb-pagination>
+          [showSummary]="true"
+          summaryLabel="pagination.sum"
+        ></app-simple-pagination>
       </div>
     </div>
   </form>

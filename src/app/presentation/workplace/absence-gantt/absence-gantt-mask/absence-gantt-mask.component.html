@@ -46,7 +46,14 @@
         </li>
       </ul>
       <span class="filler"></span>
-      <div [ngStyle]="{ display: tabId === 'list' && selectedRowData && selectedRowData.length > 0 ? 'inline' : 'none' }">
+      <div
+        [ngStyle]="{
+          display:
+            tabId === 'list' && selectedRowData && selectedRowData.length > 0
+              ? 'inline'
+              : 'none'
+        }"
+      >
         <div class="pdf-icon" (click)="onExportPDF()">
           <app-icon-pdf-icon></app-icon-pdf-icon>
         </div>
@@ -227,22 +234,18 @@
     <span class="filler"></span>
 
     @if (selectedBreak) {
-    <div class="pagination justify-content-end">
-      <label for="pagination" class="entry-info">
-        {{ "pagination.sum" | translate }} {{ selectedRowBreaksMaxIndex! + 1 }}
-      </label>
-      <ngb-pagination
-        id="pagination"
-        [collectionSize]="selectedRowBreaksMaxIndex! + 1"
-        (pageChange)="onBreakChange($event)"
-        [(page)]="page"
-        [maxSize]="5"
-        [pageSize]="1"
-        [rotate]="true"
-        [ellipses]="false"
-        [boundaryLinks]="true"
-      ></ngb-pagination>
-    </div>
+    <app-simple-pagination
+      [collectionSize]="selectedRowBreaksMaxIndex!"
+      (pageChange)="onBreakChange($event)"
+      [(page)]="page"
+      [maxSize]="5"
+      [pageSize]="1"
+      [rotate]="true"
+      [ellipses]="false"
+      [boundaryLinks]="true"
+      [showSummary]="true"
+      summaryLabel="pagination.sum"
+    ></app-simple-pagination>
     }
   </div>
 </div>

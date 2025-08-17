@@ -34,6 +34,7 @@ import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
 @Component({
   selector: 'app-absence',
@@ -52,6 +53,7 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
     PencilIconGreyComponent,
     ExcelComponent,
     FallbackPipe,
+    SimplePaginationComponent,
   ],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {

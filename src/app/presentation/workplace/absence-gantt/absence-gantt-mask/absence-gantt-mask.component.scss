@@ -78,8 +78,8 @@ textarea {
 }
 
 .btn {
-  margin-top: 30px;
   height: 33.5px;
+  margin-top: 18px;
   margin-bottom: 1rem;
 }
 
@@ -91,7 +91,8 @@ textarea {
   overflow-y: hidden;
 }
 .mask-footer {
-  align-items: flex-end;
+  align-items: center;
+  display: flex;
 }
 .mask {
   align-items: flex-start;

@@ -43,6 +43,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-dropdown/calendar-dropdown.component';
+import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
 @Component({
   selector: 'app-calendar-rules',
@@ -62,6 +63,7 @@ import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-
     ExcelComponent,
     FallbackPipe,
     CalendarDropdownComponent,
+    SimplePaginationComponent,
   ],
 })
 export class CalendarRulesComponent

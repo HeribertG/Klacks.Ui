@@ -17,6 +17,7 @@
   font-size: 13px;
   text-decoration: underline;
   color: colors.$standartGreenColor;
+  margin-top: 20px;
 }
 
 .rule-result {
@@ -101,4 +102,11 @@
 .last-right {
   margin-right: 30px;
   margin-top: -7px;
+}
+
+.lastLine {
+  padding-top: 0;
+  margin-bottom: 0;
+  display: flex;
+  align-content: center;
 }

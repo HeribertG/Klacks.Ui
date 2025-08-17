@@ -35,6 +35,7 @@ import { AbsenceGanttGridComponent } from './absence-gantt-grid/absence-gantt-gr
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 import {
   NgbDatepickerModule,
   NgbPaginationModule,
@@ -58,6 +59,7 @@ import { NgClass, NgStyle } from '@angular/common';
     PdfIconComponent,
     FallbackPipe,
     AbsenceGanttGridComponent,
+    SimplePaginationComponent,
   ],
   providers: [DatePipe],
 })

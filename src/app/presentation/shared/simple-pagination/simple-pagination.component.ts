@@ -1,0 +1,31 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-simple-pagination',
+  templateUrl: './simple-pagination.component.html',
+  styleUrls: ['./simple-pagination.component.scss'],
+  standalone: true,
+  imports: [CommonModule, FormsModule, NgbPaginationModule, TranslateModule],
+})
+export class SimplePaginationComponent {
+  @Input() collectionSize = 0;
+  @Input() page = 1;
+  @Input() pageSize = 1;
+  @Input() maxSize = 5;
+  @Input() rotate = true;
+  @Input() ellipses = false;
+  @Input() boundaryLinks = true;
+  @Input() showSummary = true;
+  @Input() summaryLabel = 'pagination.sum';
+
+  @Output() pageChange = new EventEmitter<number>();
+
+  onPageChange(event: number): void {
+    this.page = event;
+    this.pageChange.emit(event);
+  }
+}
