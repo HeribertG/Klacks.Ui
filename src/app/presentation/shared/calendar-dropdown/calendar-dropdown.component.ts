@@ -4,7 +4,6 @@ import {
   Component,
   EventEmitter,
   inject,
-  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -42,27 +41,19 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 export class CalendarDropdownComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  // @Input() properties
-  @Input() header = 'Versuch';
-
-  // @Output() properties
   @Output() changed = new EventEmitter();
   @Output() isClosing = new EventEmitter();
   @Output() isOpening = new EventEmitter();
 
-  // Public injected services
   public dataManagementCalendarRulesService = inject(
     DataManagementCalendarRulesService
   );
 
-  // Private injected services
   private translateService = inject(TranslateService);
 
-  // Public properties (used in templates)
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   public faSearch = faSearch;
 
-  // Private properties
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {

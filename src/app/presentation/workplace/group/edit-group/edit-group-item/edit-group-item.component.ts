@@ -23,6 +23,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -35,6 +36,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
     NgbDatepickerModule,
     TranslateModule,
     FontAwesomeModule,
+    DateInputComponent,
   ],
 })
 export class EditGroupItemComponent
