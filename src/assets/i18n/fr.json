@@ -98,6 +98,10 @@
   "address.edit-address.membership.header": "Inscription",
   "address.edit-address.membership.entry-date": "Date d'entrée",
   "address.edit-address.membership.until-date": "Date de sortie",
+  "address.edit-address.membership.type": "Type",
+  "address.edit-address.membership.type.employee": "Employé",
+  "address.edit-address.membership.type.externEmp": "Externe",
+  "address.edit-address.membership.type.customer": "Client",
 
   "address.edit-address.note.header": "Notes",
   "NOTE_NEW": "ajouter une nouvelle note",
@@ -149,6 +153,7 @@
   "female": "Madame",
   "male": "Monsieur",
   "legal-entity": "Personne morale",
+  "intersexuality": "Adresse Neutre",
   "selecting": "sélectionner",
   "deselecting": "désélectionner",
   "active": "Actifs",
@@ -614,7 +619,7 @@
   "setting.contract.calendarSelection-modal": "Sélection du calendrier",
   "setting.contract.noCalendar": "Aucun calendrier",
   "setting.contract.save": "Enregistrer",
-  
+
   "setting.contract.headline": "Contrats",
   "setting.contract.header.name": "Nom",
   "setting.contract.header.guaranteedHours": "HEURES GARANTIES",

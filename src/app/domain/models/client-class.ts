@@ -62,6 +62,7 @@ export interface IFilter extends IBaseFilter {
   male: boolean | undefined;
   female: boolean | undefined;
   legalEntity: boolean | undefined;
+  intersexuality: boolean | undefined;
 
   companyAddress: boolean | undefined;
   invoiceAddress: boolean | undefined;
@@ -80,6 +81,10 @@ export interface IFilter extends IBaseFilter {
   filteredStateToken: StateCountryToken[];
 
   selectedGroup: string | undefined;
+
+  employee: boolean;
+  externEmp: boolean;
+  customer: boolean;
 }
 
 export interface ITruncatedFilter {
@@ -293,6 +298,7 @@ export class Filter extends BaseFilter implements IFilter {
   male = true;
   female = true;
   legalEntity = true;
+  intersexuality = true;
 
   companyAddress = true;
   invoiceAddress = true;
@@ -310,6 +316,10 @@ export class Filter extends BaseFilter implements IFilter {
 
   selectedGroup: string | undefined = undefined;
 
+  employee = true;
+  externEmp = true;
+  customer = true;
+
   emptyPlaceholder(): boolean {
     return (
       this.clientType === -1 &&
@@ -318,6 +328,7 @@ export class Filter extends BaseFilter implements IFilter {
       this.male &&
       this.female &&
       this.legalEntity &&
+      this.intersexuality &&
       this.companyAddress &&
       this.invoiceAddress &&
       this.homeAddress &&
@@ -332,10 +343,12 @@ export class Filter extends BaseFilter implements IFilter {
       this.scopeFromFlag === undefined &&
       this.scopeUntilFlag === undefined &&
       this.internalScopeFrom === undefined &&
-      this.internalScopeUntil === undefined
+      this.internalScopeUntil === undefined &&
+      this.employee &&
+      this.externEmp &&
+      this.customer
     );
   }
-
 
   selectState(value: boolean) {
     this.filteredStateToken.forEach((x) => {

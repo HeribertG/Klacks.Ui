@@ -1,13 +1,13 @@
-export enum AtributeTypeEnum {
-  Client,
-  Membership,
-  AnnualFee,
+export enum EntityTypeEnum {
+  employee = 0,
+  externEmp = 1,
+  customer = 2,
 }
 
 export enum AddressTypeEnum {
-  customer,
-  workplace,
-  invoicingAddress,
+  customer = 0,
+  workplace = 1,
+  invoicingAddress = 2,
 }
 
 export enum CommunicationTypeDefaultIndexEnum {

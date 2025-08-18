@@ -98,6 +98,10 @@
   "address.edit-address.membership.header": "Registration",
   "address.edit-address.membership.entry-date": "Entry Date",
   "address.edit-address.membership.until-date": "Exit Date",
+  "address.edit-address.membership.type": "Type",
+  "address.edit-address.membership.type.employee": "Employee",
+  "address.edit-address.membership.type.externEmp": "External",
+  "address.edit-address.membership.type.customer": "Customer",
 
   "address.edit-address.note.header": "Notes",
   "NOTE_NEW": "add new note",
@@ -149,6 +153,7 @@
   "female": "Mrs.",
   "male": "Mr.",
   "legal-entity": "Legal Entity",
+  "intersexuality": "Neutral Address",
   "selecting": "selecting",
   "deselecting": "deselecting",
   "active": "Active",
@@ -614,7 +619,7 @@
   "setting.contract.calendarSelection-modal": "Calendar Selection",
   "setting.contract.noCalendar": "No Calendar",
   "setting.contract.save": "Save",
-  
+
   "setting.contract.headline": "Contracts",
   "setting.contract.header.name": "Name",
   "setting.contract.header.guaranteedHours": "GUARANTEED HOURS",

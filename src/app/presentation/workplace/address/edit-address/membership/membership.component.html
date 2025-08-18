@@ -9,11 +9,35 @@
 
   @if (dataManagementClientService.editClient !== undefined) {
   <div class="container-bank-box">
-    <div class="container-bank-value">
-      <div class="row-line"></div>
+    <div class="container-bank-value firstColumn">
+      <div class="row-line">
+        <div class="form-group medium-width">
+          <label for="client-type">{{
+            "address.edit-address.membership.type" | translate
+          }}</label>
+          <select
+            class="form-select"
+            name="type"
+            id="client-type"
+            [disabled]="isDisabled()"
+            [ngModel]="dataManagementClientService.editClient!.type"
+            (ngModelChange)="dataManagementClientService.editClient!.type = $event"
+          >
+            <option value="0">{{
+              "address.edit-address.membership.type.employee" | translate
+            }}</option>
+            <option value="1">{{
+              "address.edit-address.membership.type.externEmp" | translate
+            }}</option>
+            <option value="2">{{
+              "address.edit-address.membership.type.customer" | translate
+            }}</option>
+          </select>
+        </div>
+      </div>
     </div>
 
-    <div class="container-bank-value secondColumn">
+    <div class="container-bank-value">
       <div class="row-line">
         <div class="form-group medium-width">
           <label for="membership-entry-date">{{

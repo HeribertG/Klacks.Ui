@@ -24,11 +24,80 @@
       <label class="checkbox-label">
         <input
           type="checkbox"
+          [(ngModel)]="dataManagementClientService.currentFilter.intersexuality"
+          name="intersexuality"
+        />
+        {{ "intersexuality" | translate }}
+      </label>
+
+      <label class="checkbox-label">
+        <input
+          type="checkbox"
           [(ngModel)]="dataManagementClientService.currentFilter.legalEntity"
           name="legalEntity"
         />
         {{ "legal-entity" | translate }}
       </label>
+    </li>
+
+    <!-- Typ -->
+    <li class="list-group-item-action">
+      <div ngbDropdown (openChange)="onOpenChange($event)">
+        <button
+          class="btn btn-outline-primary btn-sm max-width"
+          id="dropdownForm-0"
+          ngbDropdownToggle
+          [disabled]="!isRequestPossible()"
+        >
+          {{ "address.edit-address.membership.type" | translate }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownForm-0">
+          <div class="form-group">
+            <div class="checkbox-container-default">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.employee
+                  "
+                  name="typeEmployee"
+                />
+                {{
+                  "address.edit-address.membership.type.employee" | translate
+                }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.externEmp
+                  "
+                  name="typeExternEmp"
+                />
+                {{
+                  "address.edit-address.membership.type.externEmp" | translate
+                }}
+              </label>
+
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="
+                    dataManagementClientService.currentFilter.customer
+                  "
+                  name="typeCustomer"
+                />
+                {{
+                  "address.edit-address.membership.type.customer" | translate
+                }}
+              </label>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <button ngbDropdownItem>{{ "close" | translate }}</button>
+        </div>
+      </div>
     </li>
 
     <!-- Gültigkeit -->

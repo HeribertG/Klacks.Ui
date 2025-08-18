@@ -154,6 +154,15 @@ export class AllAddressNavComponent
     (document.getElementById('scopeUntilFlag') as HTMLInputElement).checked =
       false;
 
+    this.dataManagementClientService.currentFilter.employee = true;
+    this.dataManagementClientService.currentFilter.externEmp = true;
+    this.dataManagementClientService.currentFilter.customer = true;
+
+    this.dataManagementClientService.currentFilter.female = true;
+    this.dataManagementClientService.currentFilter.male = true;
+    this.dataManagementClientService.currentFilter.intersexuality = true;
+    this.dataManagementClientService.currentFilter.legalEntity = true;
+
     this.onClickClientType(
       this.dataManagementClientService.currentFilter.clientType
     );
@@ -183,7 +192,8 @@ export class AllAddressNavComponent
     return (
       this.dataManagementClientService.currentFilter.male ||
       this.dataManagementClientService.currentFilter.female ||
-      this.dataManagementClientService.currentFilter.legalEntity
+      this.dataManagementClientService.currentFilter.legalEntity ||
+      this.dataManagementClientService.currentFilter.intersexuality
     );
   }
 
