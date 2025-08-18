@@ -632,5 +632,9 @@
   "setting.contract.header.maxHours": "MAX. STUNDEN",
   "setting.contract.header.validFrom": "GÜLTIG AB",
   "setting.contract.header.validUntil": "GÜLTIG BIS",
-  "setting.contract.add": "+ Neuer Vertrag"
+  "setting.contract.add": "+ Neuer Vertrag",
+
+  "absence-gantt.validation.membership.before-start": "Die Abwesenheit kann nicht vor dem Mitgliedschaftsbeginn ({0}) erstellt werden.",
+  "absence-gantt.validation.membership.after-end": "Die Abwesenheit kann nicht nach dem Mitgliedschaftsende ({0}) erstellt werden.",
+  "absence-gantt.validation.membership.outside-period": "Die Abwesenheit muss innerhalb der Mitgliedschaftsperiode ({0} - {1}) liegen."
 }

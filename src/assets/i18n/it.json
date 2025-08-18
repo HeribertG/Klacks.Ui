@@ -627,5 +627,9 @@
   "setting.contract.header.maxHours": "ORE MAX.",
   "setting.contract.header.validFrom": "VALIDO DA",
   "setting.contract.header.validUntil": "VALIDO FINO A",
-  "setting.contract.add": "+ Nuovo contratto"
+  "setting.contract.add": "+ Nuovo contratto",
+
+  "absence-gantt.validation.membership.before-start": "L'assenza non può essere creata prima dell'inizio dell'adesione ({0}).",
+  "absence-gantt.validation.membership.after-end": "L'assenza non può essere creata dopo la fine dell'adesione ({0}).",
+  "absence-gantt.validation.membership.outside-period": "L'assenza deve essere nel periodo di adesione ({0} - {1})."
 }

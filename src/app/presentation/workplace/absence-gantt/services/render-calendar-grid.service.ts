@@ -1177,7 +1177,8 @@ export class RenderCalendarGridService {
 
     this.ganttCanvasManager.rowCtx!.save();
     this.ganttCanvasManager.rowCtx!.globalAlpha = 0.5;
-    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080'; // Grau
+    this.ganttCanvasManager.rowCtx!.fillStyle =
+      this.gridColors.backGroundSealedColor;
     this.ganttCanvasManager.rowCtx!.fillRect(
       grayRectangle.left,
       grayRectangle.top,
@@ -1206,7 +1207,8 @@ export class RenderCalendarGridService {
 
     this.ganttCanvasManager.rowCtx!.save();
     this.ganttCanvasManager.rowCtx!.globalAlpha = 0.5;
-    this.ganttCanvasManager.rowCtx!.fillStyle = '#808080'; // Grau
+    this.ganttCanvasManager.rowCtx!.fillStyle =
+      this.gridColors.backGroundSealedColor;
     this.ganttCanvasManager.rowCtx!.fillRect(
       grayRectangle.left,
       grayRectangle.top,

@@ -232,15 +232,6 @@ export class RenderRowHeaderService {
   }
 
   private moveImage(verticalDiff: number) {
-    //   const height = this.calendarSetting.cellHeight;
-    //   const canvas = this.rowHeaderCanvasManager.renderCanvas;
-    //   if (canvas) {
-    //     this.rowHeaderCanvasManager.renderCanvasCtx?.drawImage(
-    //       canvas,
-    //       0,
-    //       verticalDiff * height
-    //     );
-    //   }
     const height = this.calendarSetting.cellHeight;
     const canvas = this.rowHeaderCanvasManager.renderCanvas;
     if (canvas && this.rowHeaderCanvasManager.renderCanvasCtx) {

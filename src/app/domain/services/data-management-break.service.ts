@@ -13,12 +13,16 @@ import {
 } from 'src/app/domain/helpers/object-helpers';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from '../models/entity-names.enum';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementBreakService {
-  public dataBreakService = inject(DataBreakService);
+  private dataBreakService = inject(DataBreakService);
+  private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
 
   public isRead = signal(false);
   public showProgressSpinner = signal(false);
@@ -115,9 +119,14 @@ export class DataManagementBreakService {
     return this.clients.length;
   }
 
-  addBreak(index: number, value: IBreak) {
+  addBreak(index: number, value: IBreak): boolean {
     if (index < this.clients.length) {
       const client = this.clients[index];
+
+      if (!this.validateBreakDatesAgainstMembership(client, value)) {
+        return false;
+      }
+
       const tmp = value as Break;
       value.clientId = client.id!;
       delete tmp.id;
@@ -128,7 +137,9 @@ export class DataManagementBreakService {
 
         this.isUpdate.set(x);
       });
+      return true;
     }
+    return false;
   }
 
   deleteBreak(index: number, value: IBreak) {
@@ -155,8 +166,13 @@ export class DataManagementBreakService {
   }
 
   async updateBreak(index: number, value: IBreak) {
+    const client = this.clients[index];
+
+    if (!this.validateBreakDatesAgainstMembership(client, value)) {
+      return;
+    }
+
     return this.dataBreakService.updateBreak(value as Break).subscribe(() => {
-      const client = this.clients[index];
       client.breaks = this.sortBreaks(client.breaks);
       this.isUpdate.set(value);
       setTimeout(() => this.isUpdate.set(undefined), 100);
@@ -178,6 +194,79 @@ export class DataManagementBreakService {
 
       return da < db ? -1 : da > db ? 1 : 0;
     });
+  }
+
+  private validateBreakDatesAgainstMembership(
+    client: IClientBreak,
+    breakItem: IBreak
+  ): boolean {
+    if (!client.membership) {
+      return true;
+    }
+
+    const membership = client.membership;
+    const breakFrom = new Date(breakItem.from!);
+    const breakUntil = new Date(breakItem.until!);
+
+    const membershipValidFrom = membership.validFrom
+      ? new Date(membership.validFrom)
+      : null;
+    const membershipValidUntil = membership.validUntil
+      ? new Date(membership.validUntil)
+      : null;
+
+    if (membershipValidFrom && breakFrom < membershipValidFrom) {
+      this.translateService
+        .get('absence-gantt.validation.membership.before-start')
+        .subscribe((message) => {
+          const formattedMessage = message.replace(
+            '{0}',
+            membershipValidFrom.toLocaleDateString()
+          );
+          this.toastShowService.showError(
+            formattedMessage,
+            'membership-validation-error'
+          );
+        });
+      return false;
+    }
+
+    if (membershipValidUntil && breakUntil > membershipValidUntil) {
+      this.translateService
+        .get('absence-gantt.validation.membership.after-end')
+        .subscribe((message) => {
+          const formattedMessage = message.replace(
+            '{0}',
+            membershipValidUntil.toLocaleDateString()
+          );
+          this.toastShowService.showError(
+            formattedMessage,
+            'membership-validation-error'
+          );
+        });
+      return false;
+    }
+
+    if (
+      membershipValidFrom &&
+      membershipValidUntil &&
+      (breakFrom < membershipValidFrom || breakUntil > membershipValidUntil)
+    ) {
+      this.translateService
+        .get('absence-gantt.validation.membership.outside-period')
+        .subscribe((message) => {
+          const formattedMessage = message
+            .replace('{0}', membershipValidFrom.toLocaleDateString())
+            .replace('{1}', membershipValidUntil.toLocaleDateString());
+          this.toastShowService.showError(
+            formattedMessage,
+            'membership-validation-error'
+          );
+        });
+      return false;
+    }
+
+    return true;
   }
 
   private isFilter_Dirty(): boolean {

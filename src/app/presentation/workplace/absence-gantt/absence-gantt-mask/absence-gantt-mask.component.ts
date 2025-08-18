@@ -261,15 +261,12 @@ export class AbsenceGanttMaskComponent
   addBreak(value: IBreak) {
     this.dataManagementBreak.readData(this.selectedRow);
     const id = this.dataManagementBreak.readClientId(this.selectedRow);
-    if (id) {
-      this.dataManagementBreak.dataBreakService
-        .addBreak(value as Break)
-        .subscribe((x) => {
-          if (this.selectedRow > -1) {
-            this.dataManagementBreak.addBreak(this.selectedRow, x);
-            this.selectedBreakIndex = this.dataManagementBreak.indexOfBreak(x);
-          }
-        });
+    if (id && this.selectedRow > -1) {
+      value.clientId = id;
+      const success = this.dataManagementBreak.addBreak(this.selectedRow, value);
+      if (success) {
+        this.selectedBreakIndex = this.dataManagementBreak.indexOfBreak(value);
+      }
     }
   }
 

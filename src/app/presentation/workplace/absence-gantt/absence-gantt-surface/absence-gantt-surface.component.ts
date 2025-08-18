@@ -915,14 +915,14 @@ export class AbsenceGanttSurfaceComponent
       newBreak.from,
       absence!.defaultLength! > 1 ? absence!.defaultLength - 1 : 0
     );
-    this.dataManagementBreak.dataBreakService
-      .addBreak(newBreak)
-      .subscribe((x) => {
-        this.dataManagementBreak.addBreak(position[1], x);
-        this.drawCalendarGantt.selectedRow = position[1];
-        this.drawCalendarGantt.selectedBreakIndex =
-          this.dataManagementBreak.indexOfBreak(x);
-      });
+    const validationPassed = this.dataManagementBreak.addBreak(position[1], newBreak);
+    if (validationPassed !== false) {
+      this.drawCalendarGantt.selectedRow = position[1];
+      this.drawCalendarGantt.selectedBreakIndex =
+        this.dataManagementBreak.indexOfBreak(newBreak);
+    } else {
+      this.drawCalendarGantt.drawRowIntern(position[1]);
+    }
   }
 
   private updateBreak() {
