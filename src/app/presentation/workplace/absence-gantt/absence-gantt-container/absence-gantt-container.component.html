@@ -93,7 +93,7 @@
           [selectedRow]="selectedRow"
           [selectedBreakIndex]="selectedBreakIndex"
           [selectedRowBreaksMaxIndex]="selectedRowBreaksMaxIndex"
-          (UpdateEvent)="onUpdate(selectedBreak!)"
+          (UpdateEvent)="onUpdate($event, selectedBreak!)"
           (selectedBreakIndexEvent)="onChangeIndex($event)"
           (ErrorMessageEvent)="onShowErrorMessage($event)"
         >

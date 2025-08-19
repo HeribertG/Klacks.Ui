@@ -113,10 +113,8 @@ export class AbsenceGanttContainerComponent {
     );
   }
 
-  onUpdate(selectedBreak: IBreak) {
-    this.dataManagementBreakService.dataBreakService.updateBreak(
-      selectedBreak as Break
-    );
+  onUpdate(index: number, selectedBreak: IBreak) {
+    this.dataManagementBreakService.updateBreak(index, selectedBreak as Break);
   }
 
   onChangeIndex(index: number): void {

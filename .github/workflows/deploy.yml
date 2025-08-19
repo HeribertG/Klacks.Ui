@@ -1,0 +1,60 @@
+# .github/workflows/deploy.yml für Klacks.Ui
+name: Deploy Klacks.Ui to Hetzner
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH Key
+      uses: webfactory/ssh-agent@v0.8.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Hetzner Server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd ~/apps
+          
+          echo "🚀 Deploying Klacks.Ui..."
+          
+          # Klacks.Ui Repository aktualisieren
+          if [ -d "Klacks.Ui" ]; then
+            echo "📦 Updating Klacks.Ui..."
+            cd Klacks.Ui && git pull origin main && cd ..
+          else
+            echo "📦 Cloning Klacks.Ui..."
+            git clone https://github.com/HeribertG/Klacks.Ui.git
+          fi
+          
+          # Nur UI neu bauen und starten
+          echo "🔨 Building Klacks.Ui..."
+          docker compose build klacks-ui --no-cache
+          docker compose up -d klacks-ui
+          
+          echo "✅ Klacks.Ui deployment completed!"
+          
+          # Status prüfen
+          docker compose ps klacks-ui
+        EOF
+
+    - name: Health Check
+      run: |
+        sleep 10
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          echo "🏥 Health Check for Klacks.Ui..."
+          
+          if curl -f -s http://localhost:3000 > /dev/null; then
+            echo "✅ Klacks.Ui is accessible"
+          else
+            echo "❌ Klacks.Ui health check failed"
+            docker compose logs klacks-ui --tail=10
+          fi
+        EOF
