@@ -406,12 +406,10 @@ export class DrawCalendarGanttService {
     if (
       this.dataManagementBreak.readData(this.renderCalendarGrid.selectedRow)
     ) {
-      return (
-        this.dataManagementBreak.readData(this.renderCalendarGrid.selectedRow)!
-          .length - 1
-      );
+      return this.dataManagementBreak.readData(this.renderCalendarGrid.selectedRow)!
+          .length;
     }
-    return -1;
+    return 0;
   }
   /* #endregion Environment changes */
 
