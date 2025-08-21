@@ -69,6 +69,7 @@ export class AbsenceGanttMaskComponent
   @Output() ErrorMessageEvent = new EventEmitter<string>();
   @Output() selectedBreakIndexEvent = new EventEmitter<number>();
   @Output() UpdateEvent = new EventEmitter();
+  @Output() breakIdSelected = new EventEmitter<string>();
   @Input() selectedRow = -1;
   @Input() selectedRowBreaksMaxIndex: number | undefined;
   @Input() selectedBreakIndex = -1;
@@ -280,5 +281,9 @@ export class AbsenceGanttMaskComponent
 
   onPDFExported(): void {
     console.log('PDF exported successfully');
+  }
+
+  onBreakSelected(breakId: string): void {
+    this.breakIdSelected.emit(breakId);
   }
 }

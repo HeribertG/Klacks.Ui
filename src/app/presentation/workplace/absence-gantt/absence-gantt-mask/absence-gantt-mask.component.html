@@ -207,6 +207,7 @@
           [selectedRowData]="selectedRowData"
           [selectedRow]="selectedRow"
           (exportPDF)="onPDFExported()"
+          (breakSelected)="onBreakSelected($event)"
         ></app-absence-gantt-grid>
       </div>
     </div>

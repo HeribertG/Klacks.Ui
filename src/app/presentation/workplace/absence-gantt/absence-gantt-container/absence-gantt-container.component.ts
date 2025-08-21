@@ -121,6 +121,10 @@ export class AbsenceGanttContainerComponent {
     this.absenceBody().onChangeIndex(index);
   }
 
+  onBreakIdSelected(breakId: string): void {
+    this.absenceBody().selectBreakById(breakId);
+  }
+
   get selectedRow(): number {
     return this.absenceBody().drawCalendarGantt.selectedRow;
   }

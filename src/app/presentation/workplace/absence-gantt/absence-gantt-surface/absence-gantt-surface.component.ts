@@ -493,6 +493,34 @@ export class AbsenceGanttSurfaceComponent
     }
   }
 
+  selectBreakById(breakId: string): void {
+    // Alle Zeilen durchsuchen
+    for (let row = 0; row < this.dataManagementBreak.rows; row++) {
+      const breaks = this.dataManagementBreak.readData(row);
+      if (breaks) {
+        const breakIndex = breaks.findIndex(b => b.id === breakId);
+        if (breakIndex !== -1) {
+          // Break gefunden - Zeile und Index setzen
+          this.drawCalendarGantt.selectedRow = row;
+          this.drawCalendarGantt.selectedBreakIndex = breakIndex;
+          this.selectedArea = SelectedArea.AbsenceBar;
+          
+          // Neuzeichnen
+          this.drawCalendarGantt.unDrawSelectionRow();
+          this.drawCalendarGantt.drawSelectionRow();
+          this.drawCalendarGantt.drawSelectedBreak();
+          
+          // Event für Index-Änderung auslösen
+          if (this.absenceMask) {
+            this.absenceMask.onBreakChange(breakIndex);
+          }
+          
+          break;
+        }
+      }
+    }
+  }
+
   private set currentCursor(cursor: CursorEnum) {
     document.body.style.cursor = cursor;
   }

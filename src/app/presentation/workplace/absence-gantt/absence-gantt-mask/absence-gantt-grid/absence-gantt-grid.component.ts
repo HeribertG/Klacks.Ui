@@ -41,6 +41,7 @@ export class AbsenceGanttGridComponent
   @Input() selectedRowData: IBreak[] | undefined;
   @Input() selectedRow = -1;
   @Output() exportPDF = new EventEmitter<void>();
+  @Output() breakSelected = new EventEmitter<string>();
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakService);
@@ -123,6 +124,9 @@ export class AbsenceGanttGridComponent
 
   onClickedRow(value: IBreak) {
     this.highlightRowId = value.id;
+    if (value.id) {
+      this.breakSelected.emit(value.id);
+    }
   }
 
   onClickHeader(orderBy: string) {
