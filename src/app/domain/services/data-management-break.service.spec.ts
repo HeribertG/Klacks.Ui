@@ -75,18 +75,34 @@ describe('DataManagementBreakService', () => {
 
       clientWithMembership = {
         id: 'client1',
+        idNumber: 1001,
         firstName: 'John',
         name: 'Doe',
+        secondName: '',
+        maidenName: '',
+        title: '',
         company: '',
+        birthdate: undefined,
+        gender: '0',
+        legalEntity: false,
+        type: 0,
         breaks: [],
         membership: membership,
       } as IClientBreak;
 
       clientWithoutMembership = {
         id: 'client2',
+        idNumber: 1002,
         firstName: 'Jane',
         name: 'Smith',
+        secondName: '',
+        maidenName: '',
+        title: '',
         company: '',
+        birthdate: undefined,
+        gender: '0',
+        legalEntity: false,
+        type: 0,
         breaks: [],
         membership: undefined,
       } as IClientBreak;
@@ -169,8 +185,9 @@ describe('DataManagementBreakService', () => {
 
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
+      // The validation logic checks for "before-start" first, so spanning breaks get that message
       expect(mockTranslateService.get).toHaveBeenCalledWith(
-        'absence-gantt.validation.membership.outside-period'
+        'absence-gantt.validation.membership.before-start'
       );
       expect(mockToastShowService.showError).toHaveBeenCalled();
     });
@@ -232,9 +249,17 @@ describe('DataManagementBreakService', () => {
 
       clientWithMembership = {
         id: 'client1',
+        idNumber: 1001,
         firstName: 'John',
         name: 'Doe',
+        secondName: '',
+        maidenName: '',
+        title: '',
         company: '',
+        birthdate: undefined,
+        gender: '0',
+        legalEntity: false,
+        type: 0,
         breaks: [],
         membership: membership,
       } as IClientBreak;
@@ -248,7 +273,7 @@ describe('DataManagementBreakService', () => {
       } as IBreak;
 
       service.clients = [clientWithMembership];
-      mockDataBreakService.updateBreak.and.returnValue(of(void 0));
+      mockDataBreakService.updateBreak.and.returnValue(of({} as IBreak));
     });
 
     it('should reject break update outside membership period', async () => {

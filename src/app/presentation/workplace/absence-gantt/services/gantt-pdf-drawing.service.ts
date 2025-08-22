@@ -2,6 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
+import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
 
 export interface GanttDrawingConfig {
   pageWidth: number;
@@ -28,6 +29,7 @@ export interface RowDrawingParams {
 @Injectable()
 export class GanttPdfDrawingService {
   private translateService = inject(TranslateService);
+  private holidaysHelper = new HolidaysListHelper();
 
   /**
    * Draws the background of a row with monthly backgrounds and day lines
@@ -194,21 +196,18 @@ export class GanttPdfDrawingService {
    * Helper function: Number of days in year
    */
   getDaysInYear(year: number): number {
-    return this.isLeapYear(year) ? 366 : 365;
+    // Use HolidaysListHelper for consistent leap year calculation
+    this.holidaysHelper.currentYear = year;
+    return this.holidaysHelper.getTotalDaysInCurrentYear();
   }
 
   /**
    * Helper function: Number of days in month
    */
   private getDaysInMonth(year: number, month: number): number {
-    return new Date(year, month + 1, 0).getDate();
-  }
-
-  /**
-   * Helper function: Check leap year
-   */
-  private isLeapYear(year: number): boolean {
-    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    // Use HolidaysListHelper for consistent month day calculation
+    // Note: HolidaysListHelper uses 1-based months (1-12), JavaScript uses 0-based (0-11)
+    return this.holidaysHelper.getDaysInMonth(month + 1, year);
   }
 
   /**

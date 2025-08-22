@@ -39,7 +39,7 @@ export class ContractsComponent implements OnInit {
   }
 
   onClickAdd(): void {
-    const contract = this.dataManagementContractService.createNewContract();
+    this.dataManagementContractService.createNewContract();
     this.onIsChanging(true);
   }
 

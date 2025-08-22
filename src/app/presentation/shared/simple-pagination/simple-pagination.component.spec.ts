@@ -1,5 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { SimplePaginationComponent } from './simple-pagination.component';
+
+// Mock TranslateLoader
+class MockTranslateLoader implements TranslateLoader {
+  getTranslation(lang: string) {
+    return of({
+      'pagination.sum': 'Total'
+    });
+  }
+}
 
 describe('SimplePaginationComponent', () => {
   let component: SimplePaginationComponent;
@@ -7,7 +18,12 @@ describe('SimplePaginationComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SimplePaginationComponent]
+      imports: [
+        SimplePaginationComponent,
+        TranslateModule.forRoot({
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
+        })
+      ]
     })
     .compileComponents();
     

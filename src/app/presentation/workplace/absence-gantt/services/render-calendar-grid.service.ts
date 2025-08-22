@@ -306,7 +306,6 @@ export class RenderCalendarGridService {
       const width =
         calculatedWidth > 0 ? calculatedWidth : this.ganttCanvasManager.width;
 
-      // Wichtig: Setze einen Clipping-Bereich, der den Header ausschließt
       this.ganttCanvasManager.ctx!.beginPath();
       this.ganttCanvasManager.ctx!.rect(
         0,
@@ -316,7 +315,6 @@ export class RenderCalendarGridService {
       );
       this.ganttCanvasManager.ctx!.clip();
 
-      // Zeichne die Auswahl
       this.ganttCanvasManager.ctx!.globalAlpha = 0.2;
       this.ganttCanvasManager.ctx!.fillStyle = this.gridColors.focusBorderColor;
       this.ganttCanvasManager.ctx!.fillRect(0, top, width, height);
@@ -525,7 +523,6 @@ export class RenderCalendarGridService {
         0
       );
 
-      // Zeichne graue Rechtecke für Membership-Zeiträume
       this.drawPreValidFromGrayRectangle(index);
       this.drawPostValidUntilGrayRectangle(index);
 
@@ -905,7 +902,6 @@ export class RenderCalendarGridService {
 
     this.ganttCanvasManager.rowCtx!.restore();
 
-    // Zeichne graue Rechtecke für Membership-Zeiträume
     this.drawPreValidFromGrayRectangle(index);
     this.drawPostValidUntilGrayRectangle(index);
 
@@ -942,7 +938,6 @@ export class RenderCalendarGridService {
       breaksWithLayers.forEach((breakWithLayer, i) => {
         let drawBreak = true;
 
-        // Überspringe selectedBreak (wird separat gezeichnet)
         if (
           selectedBreak &&
           breakWithLayer.id &&
@@ -1016,21 +1011,16 @@ export class RenderCalendarGridService {
       return;
     }
 
-    // Speichere den aktuellen Kontext-Zustand
     this.ganttCanvasManager.rowCtx!.save();
 
     if (layer === 0) {
-      // Originalbreak: volle Deckkraft
       this.ganttCanvasManager.rowCtx!.globalAlpha = 1.0;
     } else {
-      // Überdeckte Breaks: leicht transparenter
       this.ganttCanvasManager.rowCtx!.globalAlpha = 0.85;
     }
 
-    // Zeichne den Break in ursprünglicher Größe
     DrawHelper.fillRectangle(this.ganttCanvasManager.rowCtx!, color, rec);
 
-    // Zeichne einen dünnen Rahmen für bessere Sichtbarkeit bei versetzten Breaks
     if (layer > 0) {
       this.ganttCanvasManager.rowCtx!.strokeStyle = DrawHelper.GetDarkColor(
         color,
@@ -1045,7 +1035,6 @@ export class RenderCalendarGridService {
       );
     }
 
-    // Stelle den ursprünglichen Kontext-Zustand wieder her
     this.ganttCanvasManager.rowCtx!.restore();
   }
 
@@ -1071,23 +1060,17 @@ export class RenderCalendarGridService {
       return baseRec;
     }
 
-    // Versatz pro Layer: 2 Pixel nach oben oder unten
-    const layerOffset = 3; // Pixel pro Layer
+    const layerOffset = 3;
 
-    // Berechne Y-Verschiebung basierend auf Layer
-    // Gerade Layer (2, 4, 6...) nach unten, ungerade (1, 3, 5...) nach oben
     let yOffset: number;
     if (layer % 2 === 1) {
-      // Ungerade Layer: nach oben verschieben
       const upwardLayer = Math.ceil(layer / 2);
       yOffset = -upwardLayer * layerOffset;
     } else {
-      // Gerade Layer: nach unten verschieben
       const downwardLayer = layer / 2;
       yOffset = downwardLayer * layerOffset;
     }
 
-    // Behält die ursprüngliche Größe des Breaks bei
     return new Rectangle(
       baseRec.left,
       baseRec.top + yOffset,
@@ -1109,13 +1092,11 @@ export class RenderCalendarGridService {
       return -1;
     }
 
-    // Konvertiere zu Date-Objekt falls es ein String ist
     const validFromDate =
       client.membership.validFrom instanceof Date
         ? client.membership.validFrom
         : new Date(client.membership.validFrom);
 
-    // Prüfe ob das Datum gültig ist
     if (isNaN(validFromDate.getTime())) {
       return -1;
     }

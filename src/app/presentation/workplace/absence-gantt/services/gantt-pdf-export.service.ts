@@ -101,15 +101,22 @@ export class GanttPdfExportService {
     );
   }
 
-  async exportTest2DDrawing(options: GanttExportOptions = {}): Promise<void> {
-    const currentYear = this.dataManagementBreak.breakFilter.currentYear;
-    const { title = `Gantt Chart ${currentYear}` } = options;
-
-    const pdf = new jsPDF({
+  /**
+   * Creates a new jsPDF instance - extracted for testing purposes
+   */
+  private createPdfInstance(): jsPDF {
+    return new jsPDF({
       orientation: 'landscape',
       unit: 'pt',
       format: 'a3',
     });
+  }
+
+  async exportTest2DDrawing(options: GanttExportOptions = {}): Promise<void> {
+    const currentYear = this.dataManagementBreak.breakFilter.currentYear;
+    const { title = `Gantt Chart ${currentYear}` } = options;
+
+    const pdf = this.createPdfInstance();
 
     this.addPageHeader(pdf, title, 1, 1);
 

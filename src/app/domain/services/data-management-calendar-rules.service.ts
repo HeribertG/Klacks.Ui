@@ -14,7 +14,6 @@ import {
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
-import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +21,6 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 export class DataManagementCalendarRulesService {
   public dataCalendarRuleService = inject(DataCalendarRuleService);
   public toastShowService = inject(ToastShowService);
-  private dataLoadFileService = inject(DataLoadFileService);
 
   public isRead = signal(false);
 

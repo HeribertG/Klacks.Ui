@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable } from '@angular/core';
 
 import { RowHeaderIconsService } from 'src/app/presentation/shared/grid/services/row-header-icons.service';

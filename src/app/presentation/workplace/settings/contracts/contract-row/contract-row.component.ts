@@ -1,18 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Component,
-  Input,
-  Output,
-  EventEmitter,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  NgbModule,
-  NgbModal,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
@@ -34,7 +24,7 @@ import { DataManagementContractService } from 'src/app/domain/services/data-mana
     DateInputComponent,
   ],
 })
-export class ContractRowComponent implements OnInit {
+export class ContractRowComponent {
   @Input() data: IContract = new Contract();
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isDeleteEvent = new EventEmitter<void>();
@@ -42,10 +32,6 @@ export class ContractRowComponent implements OnInit {
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   public dataManagementContractService = inject(DataManagementContractService);
-
-  async ngOnInit(): Promise<void> {
-    // Calendar selections are loaded by the service
-  }
 
   open(content: any): void {
     // Set the current contract in the service
@@ -64,7 +50,10 @@ export class ContractRowComponent implements OnInit {
       if (success) {
         // Update the local data reference with the saved contract
         if (this.dataManagementContractService.editContract) {
-          Object.assign(this.data, this.dataManagementContractService.editContract);
+          Object.assign(
+            this.data,
+            this.dataManagementContractService.editContract
+          );
         }
         this.isChangingEvent.emit(true);
         modal.close();
@@ -86,12 +75,15 @@ export class ContractRowComponent implements OnInit {
   onCalendarSelectionChange(calendarId: string): void {
     if (this.dataManagementContractService.editContract) {
       if (calendarId) {
-        const selectedCalendar = this.dataManagementContractService.availableCalendars.find(
-          (cal) => cal.id === calendarId
-        );
-        this.dataManagementContractService.editContract.calendarSelection = selectedCalendar;
+        const selectedCalendar =
+          this.dataManagementContractService.availableCalendars.find(
+            (cal) => cal.id === calendarId
+          );
+        this.dataManagementContractService.editContract.calendarSelection =
+          selectedCalendar;
       } else {
-        this.dataManagementContractService.editContract.calendarSelection = undefined;
+        this.dataManagementContractService.editContract.calendarSelection =
+          undefined;
       }
     }
   }
@@ -103,5 +95,4 @@ export class ContractRowComponent implements OnInit {
   isFormValid(): boolean {
     return this.dataManagementContractService.isValid();
   }
-
 }
