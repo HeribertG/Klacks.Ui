@@ -76,8 +76,21 @@
   .chip-form-group {
     line-height: 25px;
   }
-  app-icon-pdf-icon {
-    margin-top: 10px;
+  .pdf-export-button {
+    margin-top: 5px;
     margin-right: 10px;
+    cursor: pointer;
+    display: inline-block;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+  }
+
+  .pdf-export-button:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .pdf-export-button app-icon-pdf-icon {
+    margin: 0;
   }
 }

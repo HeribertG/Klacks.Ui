@@ -6,7 +6,7 @@ import { DataManagementBreakService } from './data-management-break.service';
 import { ToastShowService } from '../../presentation/toast/toast-show.service';
 import { DataBreakService } from '../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../models/client-class';
-import { IBreak, Break } from '../models/break-class';
+import { IBreak } from '../models/break-class';
 
 describe('DataManagementBreakService', () => {
   let service: DataManagementBreakService;
@@ -16,7 +16,11 @@ describe('DataManagementBreakService', () => {
 
   beforeEach(() => {
     const toastSpy = jasmine.createSpyObj('ToastShowService', ['showError']);
-    const dataSpy = jasmine.createSpyObj('DataBreakService', ['addBreak', 'updateBreak', 'deleteBreak']);
+    const dataSpy = jasmine.createSpyObj('DataBreakService', [
+      'addBreak',
+      'updateBreak',
+      'deleteBreak',
+    ]);
     const translateSpy = jasmine.createSpyObj('TranslateService', ['get']);
 
     TestBed.configureTestingModule({
@@ -25,17 +29,25 @@ describe('DataManagementBreakService', () => {
         DataManagementBreakService,
         { provide: ToastShowService, useValue: toastSpy },
         { provide: DataBreakService, useValue: dataSpy },
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+        { provide: TranslateService, useValue: translateSpy },
+      ],
     });
 
     service = TestBed.inject(DataManagementBreakService);
-    mockToastShowService = TestBed.inject(ToastShowService) as jasmine.SpyObj<ToastShowService>;
-    mockDataBreakService = TestBed.inject(DataBreakService) as jasmine.SpyObj<DataBreakService>;
-    mockTranslateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    mockToastShowService = TestBed.inject(
+      ToastShowService
+    ) as jasmine.SpyObj<ToastShowService>;
+    mockDataBreakService = TestBed.inject(
+      DataBreakService
+    ) as jasmine.SpyObj<DataBreakService>;
+    mockTranslateService = TestBed.inject(
+      TranslateService
+    ) as jasmine.SpyObj<TranslateService>;
 
     mockTranslateService.get.and.returnValue(of('Translated message {0} {1}'));
-    mockDataBreakService.addBreak.and.returnValue(of({ id: '1', from: new Date(), until: new Date() } as IBreak));
+    mockDataBreakService.addBreak.and.returnValue(
+      of({ id: '1', from: new Date(), until: new Date() } as IBreak)
+    );
   });
 
   it('should be created', () => {
@@ -58,7 +70,7 @@ describe('DataManagementBreakService', () => {
         validUntil: new Date('2024-11-30'),
         type: 1,
         internalValidFrom: undefined,
-        internalValidUntil: undefined
+        internalValidUntil: undefined,
       };
 
       clientWithMembership = {
@@ -67,16 +79,16 @@ describe('DataManagementBreakService', () => {
         name: 'Doe',
         company: '',
         breaks: [],
-        membership: membership
+        membership: membership,
       } as IClientBreak;
 
       clientWithoutMembership = {
         id: 'client2',
         firstName: 'Jane',
-        name: 'Smith', 
+        name: 'Smith',
         company: '',
         breaks: [],
-        membership: undefined
+        membership: undefined,
       } as IClientBreak;
 
       validBreak = {
@@ -84,7 +96,7 @@ describe('DataManagementBreakService', () => {
         clientId: 'client1',
         from: new Date('2024-06-01'),
         until: new Date('2024-06-07'),
-        absenceId: 'absence1'
+        absenceId: 'absence1',
       } as IBreak;
 
       invalidBreakBefore = {
@@ -92,7 +104,7 @@ describe('DataManagementBreakService', () => {
         clientId: 'client1',
         from: new Date('2024-01-01'),
         until: new Date('2024-01-07'),
-        absenceId: 'absence1'
+        absenceId: 'absence1',
       } as IBreak;
 
       invalidBreakAfter = {
@@ -100,7 +112,7 @@ describe('DataManagementBreakService', () => {
         clientId: 'client1',
         from: new Date('2024-12-01'),
         until: new Date('2024-12-07'),
-        absenceId: 'absence1'
+        absenceId: 'absence1',
       } as IBreak;
 
       service.clients = [clientWithMembership, clientWithoutMembership];
@@ -108,7 +120,7 @@ describe('DataManagementBreakService', () => {
 
     it('should allow break creation for client without membership', () => {
       const result = service.addBreak(1, validBreak);
-      
+
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
       expect(mockToastShowService.showError).not.toHaveBeenCalled();
@@ -116,7 +128,7 @@ describe('DataManagementBreakService', () => {
 
     it('should allow valid break creation within membership period', () => {
       const result = service.addBreak(0, validBreak);
-      
+
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
       expect(mockToastShowService.showError).not.toHaveBeenCalled();
@@ -124,19 +136,23 @@ describe('DataManagementBreakService', () => {
 
     it('should reject break creation before membership start', () => {
       const result = service.addBreak(0, invalidBreakBefore);
-      
+
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
-      expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
+      expect(mockTranslateService.get).toHaveBeenCalledWith(
+        'absence-gantt.validation.membership.before-start'
+      );
       expect(mockToastShowService.showError).toHaveBeenCalled();
     });
 
     it('should reject break creation after membership end', () => {
       const result = service.addBreak(0, invalidBreakAfter);
-      
+
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
-      expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.after-end');
+      expect(mockTranslateService.get).toHaveBeenCalledWith(
+        'absence-gantt.validation.membership.after-end'
+      );
       expect(mockToastShowService.showError).toHaveBeenCalled();
     });
 
@@ -146,20 +162,22 @@ describe('DataManagementBreakService', () => {
         clientId: 'client1',
         from: new Date('2024-02-01'),
         until: new Date('2024-12-31'),
-        absenceId: 'absence1'
+        absenceId: 'absence1',
       } as IBreak;
 
       const result = service.addBreak(0, invalidBreakSpanning);
-      
+
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
-      expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.outside-period');
+      expect(mockTranslateService.get).toHaveBeenCalledWith(
+        'absence-gantt.validation.membership.outside-period'
+      );
       expect(mockToastShowService.showError).toHaveBeenCalled();
     });
 
     it('should return false for invalid client index', () => {
       const result = service.addBreak(999, validBreak);
-      
+
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
       expect(mockToastShowService.showError).not.toHaveBeenCalled();
@@ -167,8 +185,10 @@ describe('DataManagementBreakService', () => {
 
     it('should format error messages with date parameters', () => {
       service.addBreak(0, invalidBreakBefore);
-      
-      expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
+
+      expect(mockTranslateService.get).toHaveBeenCalledWith(
+        'absence-gantt.validation.membership.before-start'
+      );
       expect(mockToastShowService.showError).toHaveBeenCalledWith(
         jasmine.stringContaining('2024'),
         'membership-validation-error'
@@ -177,18 +197,18 @@ describe('DataManagementBreakService', () => {
 
     it('should validate membership with only validFrom date', () => {
       clientWithMembership.membership!.validUntil = undefined;
-      
+
       const result = service.addBreak(0, validBreak);
-      
+
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
     });
 
     it('should validate membership with only validUntil date', () => {
       clientWithMembership.membership!.validFrom = undefined as any;
-      
+
       const result = service.addBreak(0, validBreak);
-      
+
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
     });
@@ -207,7 +227,7 @@ describe('DataManagementBreakService', () => {
         validUntil: new Date('2024-11-30'),
         type: 1,
         internalValidFrom: undefined,
-        internalValidUntil: undefined
+        internalValidUntil: undefined,
       };
 
       clientWithMembership = {
@@ -216,7 +236,7 @@ describe('DataManagementBreakService', () => {
         name: 'Doe',
         company: '',
         breaks: [],
-        membership: membership
+        membership: membership,
       } as IClientBreak;
 
       invalidBreak = {
@@ -224,7 +244,7 @@ describe('DataManagementBreakService', () => {
         clientId: 'client1',
         from: new Date('2024-01-01'),
         until: new Date('2024-01-07'),
-        absenceId: 'absence1'
+        absenceId: 'absence1',
       } as IBreak;
 
       service.clients = [clientWithMembership];
@@ -233,9 +253,11 @@ describe('DataManagementBreakService', () => {
 
     it('should reject break update outside membership period', async () => {
       await service.updateBreak(0, invalidBreak);
-      
+
       expect(mockDataBreakService.updateBreak).not.toHaveBeenCalled();
-      expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
+      expect(mockTranslateService.get).toHaveBeenCalledWith(
+        'absence-gantt.validation.membership.before-start'
+      );
       expect(mockToastShowService.showError).toHaveBeenCalled();
     });
   });

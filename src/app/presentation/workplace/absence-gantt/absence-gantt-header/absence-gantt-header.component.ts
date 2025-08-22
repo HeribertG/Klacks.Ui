@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   effect,
+  output,
 } from '@angular/core';
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
@@ -45,6 +46,9 @@ import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calen
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
+
+  // Event Emitter für PDF Export
+  pdfExportRequested = output<void>();
 
   private calendarSetting = inject(CalendarSettingService);
   private holidayCollection = inject(HolidayCollectionService);
@@ -114,6 +118,10 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   onReRead() {
     this.onChangeCalendar();
+  }
+
+  onPdfExport() {
+    this.pdfExportRequested.emit();
   }
 
   get currentYearValue() {

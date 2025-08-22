@@ -631,5 +631,9 @@
 
   "absence-gantt.validation.membership.before-start": "L'assenza non può essere creata prima dell'inizio dell'adesione ({0}).",
   "absence-gantt.validation.membership.after-end": "L'assenza non può essere creata dopo la fine dell'adesione ({0}).",
-  "absence-gantt.validation.membership.outside-period": "L'assenza deve essere nel periodo di adesione ({0} - {1})."
+  "absence-gantt.validation.membership.outside-period": "L'assenza deve essere nel periodo di adesione ({0} - {1}).",
+
+  "pdf.generated": "Generato",
+  "pdf.page": "Pagina",
+  "pdf.of": "di"
 }

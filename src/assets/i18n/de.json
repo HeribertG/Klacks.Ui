@@ -636,5 +636,9 @@
 
   "absence-gantt.validation.membership.before-start": "Die Abwesenheit kann nicht vor dem Mitgliedschaftsbeginn ({0}) erstellt werden.",
   "absence-gantt.validation.membership.after-end": "Die Abwesenheit kann nicht nach dem Mitgliedschaftsende ({0}) erstellt werden.",
-  "absence-gantt.validation.membership.outside-period": "Die Abwesenheit muss innerhalb der Mitgliedschaftsperiode ({0} - {1}) liegen."
+  "absence-gantt.validation.membership.outside-period": "Die Abwesenheit muss innerhalb der Mitgliedschaftsperiode ({0} - {1}) liegen.",
+
+  "pdf.generated": "Erstellt",
+  "pdf.page": "Seite",
+  "pdf.of": "von"
 }

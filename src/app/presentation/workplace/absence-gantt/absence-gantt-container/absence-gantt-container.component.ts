@@ -20,6 +20,7 @@ import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollba
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
+import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 
 @Component({
   selector: 'app-absence-gantt-container',
@@ -54,6 +55,7 @@ export class AbsenceGanttContainerComponent {
   private workplaceStateService = inject(WorkplaceStateService);
   private toastShowService = inject(ToastShowService);
   private scrollService = inject(ScrollService);
+  private ganttPdfExportService = inject(GanttPdfExportService);
 
   public IsInfoVisible = signal(false);
   public vScrollbarSize = signal(17);
@@ -124,6 +126,19 @@ export class AbsenceGanttContainerComponent {
   onBreakIdSelected(breakId: string): void {
     this.absenceBody().selectBreakById(breakId);
   }
+
+  async onPdfExportRequested(): Promise<void> {
+    try {
+      await this.ganttPdfExportService.exportTest2DDrawing({
+        title: `Gantt Chart ${new Date().getFullYear()}`
+      });
+      
+      this.toastShowService.showSuccess('PDF erfolgreich exportiert', 'Export abgeschlossen');
+    } catch (error) {
+      this.toastShowService.showError('PDF-Export fehlgeschlagen', 'Export-Fehler');
+    }
+  }
+
 
   get selectedRow(): number {
     return this.absenceBody().drawCalendarGantt.selectedRow;

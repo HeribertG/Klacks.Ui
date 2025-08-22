@@ -1,10 +1,14 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="custom-control-inline">
   <app-absence-gantt-absence-list
     class="absence-reason"
   ></app-absence-gantt-absence-list>
   <span class="filler"></span>
 
-  <app-icon-pdf-icon></app-icon-pdf-icon>
+  <div class="pdf-export-button" (click)="onPdfExport()">
+    <app-icon-pdf-icon></app-icon-pdf-icon>
+  </div>
 
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button

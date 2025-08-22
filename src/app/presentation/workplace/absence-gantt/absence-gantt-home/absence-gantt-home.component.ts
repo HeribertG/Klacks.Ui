@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
 import { DrawCalendarGanttService } from '../services/draw-calendar-gantt.service';
@@ -17,6 +17,9 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { AllAbsenceStateService } from '../services/all-absence-state.service';
 import { CalendarSettingService } from '../services/calendar-setting.service';
+import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
+import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -42,6 +45,9 @@ import { CalendarSettingService } from '../services/calendar-setting.service';
     BreakLayerService,
     HolidayCollectionService,
     AllAbsenceStateService,
+    DataManagementAbsenceGanttService,
+    GanttPdfExportService,
+    GanttPdfDrawingService,
   ],
 })
 export class AbsenceGanttHomeComponent implements OnInit {
@@ -49,9 +55,16 @@ export class AbsenceGanttHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private allAbsenceStateService = inject(AllAbsenceStateService);
 
+  ganttContainer = viewChild.required<AbsenceGanttContainerComponent>('ganttContainer');
+
   ngOnInit(): void {
     this.footerService.setFooterVisibility(false);
     this.layoutService.setContainerToFullSize();
     this.allAbsenceStateService.initializeWorkplaceState();
+  }
+
+  async onPdfExportRequested(): Promise<void> {
+    // Delegiere an Container-Komponente
+    await this.ganttContainer().onPdfExportRequested();
   }
 }
