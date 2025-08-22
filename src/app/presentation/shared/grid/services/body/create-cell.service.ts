@@ -71,7 +71,7 @@ export class BaseCreateCellService {
     width: number,
     height: number,
     isLast: boolean,
-    isOverlay: boolean = false
+    isOverlay = false
   ): HTMLCanvasElement {
     const backGroundColor = this.getBackgroundColorForDay(day, isOverlay);
     return this.createEmptyCanvas(backGroundColor, width, height, isLast);
@@ -79,7 +79,7 @@ export class BaseCreateCellService {
 
   private getBackgroundColorForDay(
     day: WeekDaysEnum,
-    isOverlay: boolean = false
+    isOverlay = false
   ): string {
     let baseColor: string;
 
@@ -193,7 +193,7 @@ export class BaseCreateCellService {
   getCellCanvas(
     weekDay: number,
     lastRow: number,
-    isOverlay: boolean = false
+    isOverlay = false
   ): HTMLCanvasElement {
     const overlayOffset = isOverlay ? 10 : 0;
     let img = this.emptyCellList[weekDay + lastRow + overlayOffset];

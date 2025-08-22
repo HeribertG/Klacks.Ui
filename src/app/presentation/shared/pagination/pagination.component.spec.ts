@@ -1,8 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { PaginationComponent, IPaginationDataService } from './pagination.component';
+import {
+  PaginationComponent,
+  IPaginationDataService,
+} from './pagination.component';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { By } from '@angular/platform-browser';
@@ -15,13 +19,16 @@ describe('PaginationComponent', () => {
   let mockDataService: IPaginationDataService;
 
   beforeEach(async () => {
-    const localStorageSpy = jasmine.createSpyObj('LocalStorageService', ['get', 'set']);
+    const localStorageSpy = jasmine.createSpyObj('LocalStorageService', [
+      'get',
+      'set',
+    ]);
     const translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
 
     mockDataService = {
       maxItems: 50,
       firstItem: 0,
-      maxPages: 5
+      maxPages: 5,
     };
 
     await TestBed.configureTestingModule({
@@ -29,21 +36,25 @@ describe('PaginationComponent', () => {
         FormsModule,
         NgbPaginationModule,
         TranslateModule.forRoot(),
-        PaginationComponent
+        PaginationComponent,
       ],
       providers: [
         { provide: LocalStorageService, useValue: localStorageSpy },
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+        { provide: TranslateService, useValue: translateSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PaginationComponent);
     component = fixture.componentInstance;
-    mockLocalStorageService = TestBed.inject(LocalStorageService) as jasmine.SpyObj<LocalStorageService>;
-    mockTranslateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-    
+    mockLocalStorageService = TestBed.inject(
+      LocalStorageService
+    ) as jasmine.SpyObj<LocalStorageService>;
+    mockTranslateService = TestBed.inject(
+      TranslateService
+    ) as jasmine.SpyObj<TranslateService>;
+
     mockTranslateService.instant.and.returnValue('Translated Text');
-    
+
     // Set required input
     component.dataService = mockDataService;
   });
@@ -74,10 +85,12 @@ describe('PaginationComponent', () => {
   describe('ngOnInit', () => {
     it('should load saved row size from localStorage', () => {
       mockLocalStorageService.get.and.returnValue('10');
-      
+
       component.ngOnInit();
-      
-      expect(mockLocalStorageService.get).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER);
+
+      expect(mockLocalStorageService.get).toHaveBeenCalledWith(
+        MessageLibrary.SELECTED_ROW_ORDER
+      );
       expect(component.realRow).toBe(10);
       expect(component.numberOfItemsPerPage).toBe(10);
     });
@@ -85,9 +98,9 @@ describe('PaginationComponent', () => {
     it('should handle auto mode (-1) from localStorage', () => {
       mockLocalStorageService.get.and.returnValue('-1');
       component.numberOfItemsPerPage = 0; // Set to 0 to trigger default logic
-      
+
       component.ngOnInit();
-      
+
       expect(component.realRow).toBe(-1);
       expect(component.numberOfItemsPerPage).toBe(10); // default for auto mode
     });
@@ -95,9 +108,9 @@ describe('PaginationComponent', () => {
     it('should set default when no saved value exists', () => {
       mockLocalStorageService.get.and.returnValue(null);
       component.numberOfItemsPerPage = 0; // Set to 0 to trigger default logic
-      
+
       component.ngOnInit();
-      
+
       expect(component.realRow).toBe(-1);
       expect(component.numberOfItemsPerPage).toBe(10);
     });
@@ -105,20 +118,20 @@ describe('PaginationComponent', () => {
     it('should set default when numberOfItemsPerPage is 0', () => {
       mockLocalStorageService.get.and.returnValue('15');
       component.numberOfItemsPerPage = 0;
-      
+
       component.ngOnInit();
-      
+
       expect(component.numberOfItemsPerPage).toBe(15);
     });
 
     it('should emit numberOfItemsPerPageChange for fixed values', (done) => {
       mockLocalStorageService.get.and.returnValue('8');
-      
-      component.numberOfItemsPerPageChange.subscribe(value => {
+
+      component.numberOfItemsPerPageChange.subscribe((value) => {
         expect(value).toBe(8);
         done();
       });
-      
+
       component.ngOnInit();
     });
   });
@@ -132,7 +145,7 @@ describe('PaginationComponent', () => {
 
     it('should handle next page navigation', () => {
       component.onPageChange(3);
-      
+
       expect(component.page).toBe(3);
       expect(component.isNextPage).toBe(true);
       expect(component.isPreviousPage).toBeUndefined();
@@ -141,7 +154,7 @@ describe('PaginationComponent', () => {
 
     it('should handle previous page navigation', () => {
       component.onPageChange(1);
-      
+
       expect(component.page).toBe(1);
       expect(component.isPreviousPage).toBe(true);
       expect(component.isNextPage).toBeUndefined();
@@ -150,7 +163,7 @@ describe('PaginationComponent', () => {
 
     it('should handle random page navigation', () => {
       component.onPageChange(4);
-      
+
       expect(component.page).toBe(4);
       expect(component.isPreviousPage).toBeUndefined();
       expect(component.isNextPage).toBeUndefined();
@@ -158,17 +171,17 @@ describe('PaginationComponent', () => {
 
     it('should emit pageChange event', () => {
       spyOn(component.pageChange, 'emit');
-      
+
       component.onPageChange(3);
-      
+
       expect(component.pageChange.emit).toHaveBeenCalledWith(3);
     });
 
     it('should store items per page for current page', () => {
       component.numberOfItemsPerPageMap.clear();
-      
+
       component.onPageChange(3); // next page
-      
+
       expect(component.numberOfItemsPerPageMap.get(2)).toBe(10);
     });
   });
@@ -178,7 +191,7 @@ describe('PaginationComponent', () => {
 
     beforeEach(() => {
       mockEvent = {
-        srcElement: { value: '15' }
+        srcElement: { value: '15' },
       };
     });
 
@@ -186,14 +199,19 @@ describe('PaginationComponent', () => {
       spyOn(component.numberOfItemsPerPageChange, 'emit');
       spyOn(component.rowSizeChange, 'emit');
       spyOn(component.pageChange, 'emit');
-      
+
       component.onChangeRowSize(mockEvent);
-      
+
       expect(component.realRow).toBe(15);
       expect(component.page).toBe(1);
       expect(component.numberOfItemsPerPage).toBe(15);
-      expect(mockLocalStorageService.set).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER, '15');
-      expect(component.numberOfItemsPerPageChange.emit).toHaveBeenCalledWith(15);
+      expect(mockLocalStorageService.set).toHaveBeenCalledWith(
+        MessageLibrary.SELECTED_ROW_ORDER,
+        '15'
+      );
+      expect(component.numberOfItemsPerPageChange.emit).toHaveBeenCalledWith(
+        15
+      );
       expect(component.pageChange.emit).toHaveBeenCalledWith(1);
       expect(component.rowSizeChange.emit).toHaveBeenCalledWith(mockEvent);
     });
@@ -202,12 +220,15 @@ describe('PaginationComponent', () => {
       mockEvent.srcElement.value = '-1';
       spyOn(component.rowSizeChange, 'emit');
       spyOn(component.pageChange, 'emit');
-      
+
       component.onChangeRowSize(mockEvent);
-      
+
       expect(component.realRow).toBe(-1);
       expect(component.page).toBe(1);
-      expect(mockLocalStorageService.set).toHaveBeenCalledWith(MessageLibrary.SELECTED_ROW_ORDER, '-1');
+      expect(mockLocalStorageService.set).toHaveBeenCalledWith(
+        MessageLibrary.SELECTED_ROW_ORDER,
+        '-1'
+      );
       expect(component.rowSizeChange.emit).toHaveBeenCalledWith(mockEvent);
       expect(component.pageChange.emit).toHaveBeenCalledWith(1);
     });
@@ -215,9 +236,9 @@ describe('PaginationComponent', () => {
     it('should not emit numberOfItemsPerPageChange for auto mode', () => {
       mockEvent.srcElement.value = '-1';
       spyOn(component.numberOfItemsPerPageChange, 'emit');
-      
+
       component.onChangeRowSize(mockEvent);
-      
+
       expect(component.numberOfItemsPerPageChange.emit).not.toHaveBeenCalled();
     });
   });
@@ -230,16 +251,20 @@ describe('PaginationComponent', () => {
     it('should render row selector when showRowSelector is true', () => {
       component.showRowSelector = true;
       fixture.detectChanges();
-      
-      const select = fixture.debugElement.query(By.css('select.maxSize-selection'));
+
+      const select = fixture.debugElement.query(
+        By.css('select.maxSize-selection')
+      );
       expect(select).toBeTruthy();
     });
 
     it('should not render row selector when showRowSelector is false', () => {
       component.showRowSelector = false;
       fixture.detectChanges();
-      
-      const select = fixture.debugElement.query(By.css('select.maxSize-selection'));
+
+      const select = fixture.debugElement.query(
+        By.css('select.maxSize-selection')
+      );
       expect(select).toBeFalsy();
     });
 
@@ -261,8 +286,10 @@ describe('PaginationComponent', () => {
     it('should bind pagination properties correctly', () => {
       const pagination = fixture.debugElement.query(By.css('ngb-pagination'));
       const paginationComponent = pagination.componentInstance;
-      
-      expect(paginationComponent.collectionSize).toBe(component.dataService.maxItems);
+
+      expect(paginationComponent.collectionSize).toBe(
+        component.dataService.maxItems
+      );
       expect(paginationComponent.pageSize).toBe(component.numberOfItemsPerPage);
       expect(paginationComponent.maxSize).toBe(component.maxSize);
       expect(paginationComponent.rotate).toBe(component.rotate);
@@ -278,23 +305,25 @@ describe('PaginationComponent', () => {
 
     it('should call onPageChange when pagination page changes', () => {
       spyOn(component, 'onPageChange');
-      
+
       const pagination = fixture.debugElement.query(By.css('ngb-pagination'));
       pagination.triggerEventHandler('pageChange', 3);
-      
+
       expect(component.onPageChange).toHaveBeenCalledWith(3);
     });
 
     it('should call onChangeRowSize when select changes', () => {
       spyOn(component, 'onChangeRowSize');
-      
-      const select = fixture.debugElement.query(By.css('select.maxSize-selection'));
+
+      const select = fixture.debugElement.query(
+        By.css('select.maxSize-selection')
+      );
       const selectElement = select.nativeElement as HTMLSelectElement;
       selectElement.value = '20';
-      
+
       const mockEvent = { srcElement: selectElement, target: selectElement };
       select.triggerEventHandler('change', mockEvent);
-      
+
       expect(component.onChangeRowSize).toHaveBeenCalledWith(mockEvent);
     });
   });
@@ -302,7 +331,7 @@ describe('PaginationComponent', () => {
   describe('data service integration', () => {
     it('should handle undefined data service gracefully', () => {
       component.dataService = undefined as any;
-      
+
       // This should throw because template tries to access dataService.maxItems
       expect(() => fixture.detectChanges()).toThrow();
     });
@@ -310,7 +339,7 @@ describe('PaginationComponent', () => {
     it('should update when data service values change', () => {
       component.dataService.maxItems = 100;
       fixture.detectChanges();
-      
+
       const itemInfo = fixture.debugElement.query(By.css('.entry-info'));
       expect(itemInfo.nativeElement.textContent).toContain('100');
     });
@@ -320,25 +349,25 @@ describe('PaginationComponent', () => {
     it('should handle invalid localStorage values', () => {
       mockLocalStorageService.get.and.returnValue('invalid');
       component.numberOfItemsPerPage = 0; // Set to 0 to trigger default logic
-      
+
       component.ngOnInit();
-      
+
       expect(component.realRow).toBe(-1);
       expect(component.numberOfItemsPerPage).toBe(10);
     });
 
     it('should handle undefined event in onChangeRowSize', () => {
       const mockEvent = { srcElement: null };
-      
+
       expect(() => component.onChangeRowSize(mockEvent)).toThrow();
     });
 
     it('should handle string numbers in onChangeRowSize', () => {
       const mockEvent = { srcElement: { value: '5' } };
       spyOn(component.numberOfItemsPerPageChange, 'emit');
-      
+
       component.onChangeRowSize(mockEvent);
-      
+
       expect(component.numberOfItemsPerPage).toBe(5);
       expect(component.numberOfItemsPerPageChange.emit).toHaveBeenCalledWith(5);
     });
@@ -347,9 +376,9 @@ describe('PaginationComponent', () => {
       component.firstItemOnLastPage = 10;
       component.isPreviousPage = true;
       component.isNextPage = true;
-      
+
       component.onPageChange(1);
-      
+
       expect(component.firstItemOnLastPage).toBeUndefined();
       expect(component.isPreviousPage).toBeUndefined();
       expect(component.isNextPage).toBeUndefined();
@@ -381,7 +410,7 @@ describe('PaginationComponent', () => {
       spyOn(component.pageChange, 'emit');
       spyOn(component.numberOfItemsPerPageChange, 'emit');
       spyOn(component.rowSizeChange, 'emit');
-      
+
       expect(component.pageChange.emit).toBeDefined();
       expect(component.numberOfItemsPerPageChange.emit).toBeDefined();
       expect(component.rowSizeChange.emit).toBeDefined();

@@ -83,11 +83,10 @@
     display: inline-block;
     padding: 5px;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
   }
 
   .pdf-export-button:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba($color: #1e90ff, $alpha: 0.2);
   }
 
   .pdf-export-button app-icon-pdf-icon {

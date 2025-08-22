@@ -11,7 +11,7 @@ import {
   copyObjectValues,
 } from 'src/app/domain/helpers/object-helpers';
 import { IBaseFilter } from 'src/app/domain/models/general-class';
-import { IFilterStorage, FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
+import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 
 export interface IDataManagementService<T extends IBaseFilter> {
   currentFilter: T;
@@ -19,7 +19,10 @@ export interface IDataManagementService<T extends IBaseFilter> {
   restoreSearch: { set(value: string): void };
 }
 
-export abstract class BaseStateService<T extends IBaseFilter, S extends IDataManagementService<T>> {
+export abstract class BaseStateService<
+  T extends IBaseFilter,
+  S extends IDataManagementService<T>
+> {
   protected workplaceStateService = inject(WorkplaceStateService);
   protected searchService = inject(SearchService);
   protected localStorageService = inject(LocalStorageService);
@@ -62,7 +65,10 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
         );
         await this.filterStorage.saveFilter(key, filterToSave);
       } else {
-        await this.filterStorage.saveFilter(key, this.dataManagementService.currentFilter);
+        await this.filterStorage.saveFilter(
+          key,
+          this.dataManagementService.currentFilter
+        );
       }
     } catch (error) {
       console.error('Failed to save filter:', error);
@@ -104,12 +110,10 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
       this.dataManagementService.currentFilter
     );
 
-    copyObjectValues(
-      this.dataManagementService.currentFilter,
-      storedFilter
-    );
+    copyObjectValues(this.dataManagementService.currentFilter, storedFilter);
 
-    const searchValue = this.dataManagementService.currentFilter.searchString || '';
+    const searchValue =
+      this.dataManagementService.currentFilter.searchString || '';
     this.searchStateService.setRestoreSearch(searchValue);
 
     return !compareComplexObjects(
@@ -131,8 +135,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
     this.dataManagementService.currentFilter.requiredPage = page - 1;
     this.dataManagementService.currentFilter.firstItemOnLastPage =
       firstItemOnLastPage;
-    this.dataManagementService.currentFilter.isPreviousPage =
-      isPreviousPage;
+    this.dataManagementService.currentFilter.isPreviousPage = isPreviousPage;
     this.dataManagementService.currentFilter.isNextPage = isNextPage;
   }
 
@@ -155,7 +158,6 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
     );
   }
 
-
   async clearStoredFilter(key = this.editRouteName): Promise<void> {
     try {
       await this.filterStorage.removeFilter(key);
@@ -167,7 +169,7 @@ export abstract class BaseStateService<T extends IBaseFilter, S extends IDataMan
 
   onSearchFilterChanged(): void {
     // Clear stored filter asynchronously without waiting
-    this.clearStoredFilter().catch(error => 
+    this.clearStoredFilter().catch((error) =>
       console.error('Failed to clear filter after search change:', error)
     );
     this.updateFilterState();

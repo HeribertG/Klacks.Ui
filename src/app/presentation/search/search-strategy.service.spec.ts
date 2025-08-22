@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from '../workplace/core/workplace-state.service';

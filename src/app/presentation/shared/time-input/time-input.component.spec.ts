@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TimeInputComponent } from './time-input.component';
@@ -9,7 +10,7 @@ describe('TimeInputComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TimeInputComponent, FormsModule]
+      imports: [TimeInputComponent, FormsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TimeInputComponent);
@@ -54,7 +55,7 @@ describe('TimeInputComponent', () => {
     component.value = OwnTime.forDuration('05', '15');
 
     const mockEvent = {
-      target: { value: '12' }
+      target: { value: '12' },
     } as any;
 
     spyOn(component.valueChange, 'emit');
@@ -73,7 +74,7 @@ describe('TimeInputComponent', () => {
     component.value = OwnTime.forTime('05', '15');
 
     const mockEvent = {
-      target: { value: '12' }
+      target: { value: '12' },
     } as any;
 
     spyOn(component.valueChange, 'emit');
@@ -92,7 +93,7 @@ describe('TimeInputComponent', () => {
     component.value = OwnTime.forDuration('10', '20');
 
     const mockEvent = {
-      target: { value: '45' }
+      target: { value: '45' },
     } as any;
 
     spyOn(component.valueChange, 'emit');
@@ -111,7 +112,7 @@ describe('TimeInputComponent', () => {
     component.value = OwnTime.forTime('10', '20');
 
     const mockEvent = {
-      target: { value: '45' }
+      target: { value: '45' },
     } as any;
 
     spyOn(component.valueChange, 'emit');
@@ -187,11 +188,11 @@ describe('TimeInputComponent', () => {
 
   it('should handle invalid input gracefully', () => {
     const mockEvent = {
-      target: { value: 'invalid' }
+      target: { value: 'invalid' },
     } as any;
 
     spyOn(component.valueChange, 'emit');
-    
+
     expect(() => {
       component.onHoursInputChange(mockEvent);
     }).not.toThrow();
@@ -207,7 +208,7 @@ describe('TimeInputComponent', () => {
 
     it('should limit hours to 23 for time mode', () => {
       const mockEvent = {
-        target: { value: '25' }
+        target: { value: '25' },
       } as any;
 
       component.onHoursInputChange(mockEvent);
@@ -217,8 +218,8 @@ describe('TimeInputComponent', () => {
 
     it('should accept hours 0-23 for time mode', () => {
       const validHours = ['0', '5', '12', '23'];
-      
-      validHours.forEach(hour => {
+
+      validHours.forEach((hour) => {
         const mockEvent = { target: { value: hour } } as any;
         component.onHoursInputChange(mockEvent);
         expect(component.value.hours).toBe(hour.padStart(2, '0'));
@@ -229,10 +230,10 @@ describe('TimeInputComponent', () => {
       const invalidHours = [
         { input: '24', expected: '23' },
         { input: '50', expected: '23' },
-        { input: '100', expected: '23' }  // slice(-2) = '00', aber time mode limit auf 23
+        { input: '100', expected: '23' }, // slice(-2) = '00', aber time mode limit auf 23
       ];
-      
-      invalidHours.forEach(testCase => {
+
+      invalidHours.forEach((testCase) => {
         component.value = OwnTime.forTime('00', '00'); // Reset
         const mockEvent = { target: { value: testCase.input } } as any;
         component.onHoursInputChange(mockEvent);
@@ -249,7 +250,7 @@ describe('TimeInputComponent', () => {
 
     it('should allow hours above 23 for duration mode', () => {
       const mockEvent = {
-        target: { value: '150' }
+        target: { value: '150' },
       } as any;
 
       component.onHoursInputChange(mockEvent);
@@ -259,7 +260,7 @@ describe('TimeInputComponent', () => {
 
     it('should allow up to 999 hours for duration mode', () => {
       const mockEvent = {
-        target: { value: '999' }
+        target: { value: '999' },
       } as any;
 
       component.onHoursInputChange(mockEvent);
@@ -269,7 +270,7 @@ describe('TimeInputComponent', () => {
 
     it('should limit hours to 999 for duration mode', () => {
       const mockEvent = {
-        target: { value: '1000' }
+        target: { value: '1000' },
       } as any;
 
       component.onHoursInputChange(mockEvent);
@@ -281,7 +282,7 @@ describe('TimeInputComponent', () => {
   describe('Minutes validation', () => {
     it('should limit minutes to 59', () => {
       const mockEvent = {
-        target: { value: '60' }
+        target: { value: '60' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);
@@ -293,10 +294,10 @@ describe('TimeInputComponent', () => {
       const testCases = [
         { input: '60', expected: '59' },
         { input: '99', expected: '59' },
-        { input: '100', expected: '00' }  // slice(-2) = '00', dann check > 59
+        { input: '100', expected: '00' }, // slice(-2) = '00', dann check > 59
       ];
-      
-      testCases.forEach(testCase => {
+
+      testCases.forEach((testCase) => {
         const mockEvent = { target: { value: testCase.input } } as any;
         component.onMinutesInputChange(mockEvent);
         expect(component.value.minutes).toBe(testCase.expected);
@@ -305,7 +306,7 @@ describe('TimeInputComponent', () => {
 
     it('should pad single digit minutes with zero', () => {
       const mockEvent = {
-        target: { value: '5' }
+        target: { value: '5' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);
@@ -315,8 +316,8 @@ describe('TimeInputComponent', () => {
 
     it('should accept valid minutes 00-59', () => {
       const validMinutes = ['00', '15', '30', '45', '59'];
-      
-      validMinutes.forEach(minute => {
+
+      validMinutes.forEach((minute) => {
         const mockEvent = { target: { value: minute } } as any;
         component.onMinutesInputChange(mockEvent);
         expect(component.value.minutes).toBe(minute);
@@ -326,7 +327,7 @@ describe('TimeInputComponent', () => {
     it('should handle multiple digit input correctly', () => {
       // Test slice(-2) functionality
       const mockEvent = {
-        target: { value: '159' }
+        target: { value: '159' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);
@@ -336,7 +337,7 @@ describe('TimeInputComponent', () => {
 
     it('should handle input "059" as "59"', () => {
       const mockEvent = {
-        target: { value: '059' }
+        target: { value: '059' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);
@@ -349,7 +350,7 @@ describe('TimeInputComponent', () => {
     it('should handle non-numeric input by removing it', () => {
       component.value = OwnTime.forDuration('00', '00'); // Reset
       const mockEvent = {
-        target: { value: 'abc123def' }
+        target: { value: 'abc123def' },
       } as any;
 
       component.onHoursInputChange(mockEvent);
@@ -359,7 +360,7 @@ describe('TimeInputComponent', () => {
 
     it('should handle empty input', () => {
       const mockEvent = {
-        target: { value: '' }
+        target: { value: '' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);
@@ -369,7 +370,7 @@ describe('TimeInputComponent', () => {
 
     it('should handle leading zeros correctly', () => {
       const mockEvent = {
-        target: { value: '005' }
+        target: { value: '005' },
       } as any;
 
       component.onMinutesInputChange(mockEvent);

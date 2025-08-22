@@ -1,11 +1,24 @@
 // This file can be replaced during build by using the `fileReplacements` array.
-// `ng build` replaces `environment.ts` with `environment.prod.ts`.
+// `ng build` replaces `environment.ts` with specific environment files.
 // The list of file replacements can be found in `angular.json`.
+//
+// Default environment configuration (fallback)
+// For specific environments, use:
+// - environment.dev.ts for development
+// - environment.prod.ts for production
 
 export const environment = {
   production: false,
   _baseUrl: 'https://localhost:44371/api/v1/backend/',
   baseUrl: 'https://localhost:5001/api/v1/backend/',
+  
+  // Default settings
+  enableDebugMode: false,
+  logLevel: 'info',
+  apiTimeout: 15000, // 15 seconds
+  enableMockData: false,
+  enableConsoleLogging: false,
+  enableAngularDevTools: false
 };
 
 /*

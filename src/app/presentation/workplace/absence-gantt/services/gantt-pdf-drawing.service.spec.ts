@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { jsPDF } from 'jspdf';
-import { GanttPdfDrawingService, GanttDrawingConfig } from './gantt-pdf-drawing.service';
+import {
+  GanttPdfDrawingService,
+  GanttDrawingConfig,
+} from './gantt-pdf-drawing.service';
 import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
 
 describe('GanttPdfDrawingService', () => {
@@ -17,15 +21,20 @@ describe('GanttPdfDrawingService', () => {
     TestBed.configureTestingModule({
       providers: [
         GanttPdfDrawingService,
-        { provide: TranslateService, useValue: translateSpy }
-      ]
+        { provide: TranslateService, useValue: translateSpy },
+      ],
     });
 
     service = TestBed.inject(GanttPdfDrawingService);
-    mockTranslateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
-    
+    mockTranslateService = TestBed.inject(
+      TranslateService
+    ) as jasmine.SpyObj<TranslateService>;
+
     // Create spy on the actual holidaysHelper instance
-    mockHolidaysHelper = jasmine.createSpyObj('HolidaysListHelper', ['getTotalDaysInCurrentYear', 'getDaysInMonth']);
+    mockHolidaysHelper = jasmine.createSpyObj('HolidaysListHelper', [
+      'getTotalDaysInCurrentYear',
+      'getDaysInMonth',
+    ]);
     mockHolidaysHelper.getTotalDaysInCurrentYear.and.returnValue(365);
     mockHolidaysHelper.getDaysInMonth.and.returnValue(31); // Default to 31 days
     (service as any).holidaysHelper = mockHolidaysHelper;
@@ -41,7 +50,7 @@ describe('GanttPdfDrawingService', () => {
       'setFontSize',
       'text',
       'getTextWidth',
-      'setFont'
+      'setFont',
     ]);
     mockPdf.getTextWidth.and.returnValue(50);
   });
@@ -53,7 +62,7 @@ describe('GanttPdfDrawingService', () => {
   describe('createDefaultConfig', () => {
     it('should create default configuration with current year', () => {
       const config = service.createDefaultConfig();
-      
+
       expect(config.pageWidth).toBe(1190.55);
       expect(config.pageHeight).toBe(841.89);
       expect(config.rowHeaderWidth).toBeCloseTo(142.866); // 12% of pageWidth
@@ -72,7 +81,7 @@ describe('GanttPdfDrawingService', () => {
     it('should return 365 for non-leap year', () => {
       mockHolidaysHelper.getTotalDaysInCurrentYear.and.returnValue(365);
       mockHolidaysHelper.currentYear = 2023;
-      
+
       expect(service.getDaysInYear(2023)).toBe(365);
       expect(mockHolidaysHelper.currentYear).toBe(2023);
       expect(mockHolidaysHelper.getTotalDaysInCurrentYear).toHaveBeenCalled();
@@ -81,12 +90,12 @@ describe('GanttPdfDrawingService', () => {
     it('should return 366 for leap year', () => {
       mockHolidaysHelper.getTotalDaysInCurrentYear.and.returnValue(366);
       mockHolidaysHelper.currentYear = 2024;
-      
+
       expect(service.getDaysInYear(2024)).toBe(366);
       expect(mockHolidaysHelper.currentYear).toBe(2024);
       expect(mockHolidaysHelper.getTotalDaysInCurrentYear).toHaveBeenCalled();
     });
-    
+
     it('should use HolidaysListHelper for calculation', () => {
       mockHolidaysHelper.getTotalDaysInCurrentYear.and.returnValue(366);
       const days = service.getDaysInYear(2024);
@@ -109,7 +118,7 @@ describe('GanttPdfDrawingService', () => {
         weekendColor: '#fffbcc',
         dayLineColor: '#e0e0e0',
         monthBorderColor: '#888888',
-        lineWidth: 0.5
+        lineWidth: 0.5,
       };
 
       expect(service.getActualRowHeaderWidth(config)).toBe(120);
@@ -130,7 +139,7 @@ describe('GanttPdfDrawingService', () => {
         weekendColor: '#fffbcc',
         dayLineColor: '#e0e0e0',
         monthBorderColor: '#888888',
-        lineWidth: 0.5
+        lineWidth: 0.5,
       };
 
       // 83% of 1000 = 830, minus 2 * 0.5 = 829
@@ -141,12 +150,18 @@ describe('GanttPdfDrawingService', () => {
   describe('drawRowHeader', () => {
     it('should draw row header with correct styling', () => {
       const config = service.createDefaultConfig();
-      
+
       service.drawRowHeader(mockPdf, 10, 20, config, 30, 'Test Client');
 
       // Check background
       expect(mockPdf.setFillColor).toHaveBeenCalled();
-      expect(mockPdf.rect).toHaveBeenCalledWith(10, 20, jasmine.any(Number), 30, 'F');
+      expect(mockPdf.rect).toHaveBeenCalledWith(
+        10,
+        20,
+        jasmine.any(Number),
+        30,
+        'F'
+      );
 
       // Check border
       expect(mockPdf.setDrawColor).toHaveBeenCalled();
@@ -155,13 +170,27 @@ describe('GanttPdfDrawingService', () => {
       // Check text
       expect(mockPdf.setTextColor).toHaveBeenCalled();
       expect(mockPdf.setFontSize).toHaveBeenCalledWith(10);
-      expect(mockPdf.text).toHaveBeenCalledWith('Test Client', 15, jasmine.any(Number));
+      expect(mockPdf.text).toHaveBeenCalledWith(
+        'Test Client',
+        15,
+        jasmine.any(Number)
+      );
     });
 
     it('should draw top border when requested', () => {
       const config = service.createDefaultConfig();
-      
-      service.drawRowHeader(mockPdf, 10, 20, config, 30, 'Test', '#f5f5f5', '#000000', true);
+
+      service.drawRowHeader(
+        mockPdf,
+        10,
+        20,
+        config,
+        30,
+        'Test',
+        '#f5f5f5',
+        '#000000',
+        true
+      );
 
       // Should draw 4 lines including top
       const lineCalls = mockPdf.line.calls.all();
@@ -172,16 +201,16 @@ describe('GanttPdfDrawingService', () => {
   describe('drawMonthHeaders', () => {
     it('should draw month headers with translated names', () => {
       const config = service.createDefaultConfig();
-      
+
       service.drawMonthHeaders(mockPdf, 0, 0, config, 20);
 
       // Should translate all 12 months
       expect(mockTranslateService.instant).toHaveBeenCalledTimes(12);
-      
+
       // Should draw backgrounds and borders for each month
       const rectCalls = mockPdf.rect.calls.all();
       expect(rectCalls.length).toBeGreaterThan(0);
-      
+
       // Should draw month names
       const textCalls = mockPdf.text.calls.all();
       expect(textCalls.length).toBe(12);
@@ -191,7 +220,7 @@ describe('GanttPdfDrawingService', () => {
   describe('drawRowSeparatorLine', () => {
     it('should draw horizontal line across full width', () => {
       const config = service.createDefaultConfig();
-      
+
       service.drawRowSeparatorLine(mockPdf, 10, 50, config);
 
       expect(mockPdf.setDrawColor).toHaveBeenCalled();
@@ -206,14 +235,14 @@ describe('GanttPdfDrawingService', () => {
       const breakData = {
         from: new Date(config.year, 2, 15).toISOString(), // March 15
         until: new Date(config.year, 2, 20).toISOString(), // March 20
-        absence: { color: '#ff0000' }
+        absence: { color: '#ff0000' },
       };
 
       service.drawBreakBar(mockPdf, 0, 0, config, breakData, 30);
 
       // Should set break color
       expect(mockPdf.setFillColor).toHaveBeenCalled();
-      
+
       // Should draw bar
       const rectCalls = mockPdf.rect.calls.all();
       expect(rectCalls.length).toBeGreaterThan(0);
@@ -224,7 +253,7 @@ describe('GanttPdfDrawingService', () => {
       const breakData = {
         from: new Date(config.year - 1, 2, 15).toISOString(),
         until: new Date(config.year - 1, 2, 20).toISOString(),
-        absence: { color: '#ff0000' }
+        absence: { color: '#ff0000' },
       };
 
       service.drawBreakBar(mockPdf, 0, 0, config, breakData, 30);
@@ -237,7 +266,7 @@ describe('GanttPdfDrawingService', () => {
       const config = service.createDefaultConfig();
       const breakData = {
         from: new Date(config.year, 2, 15).toISOString(),
-        until: new Date(config.year, 2, 20).toISOString()
+        until: new Date(config.year, 2, 20).toISOString(),
       };
 
       service.drawBreakBar(mockPdf, 0, 0, config, breakData, 30);
@@ -253,13 +282,13 @@ describe('GanttPdfDrawingService', () => {
         {
           from: new Date(config.year, 2, 15).toISOString(),
           until: new Date(config.year, 2, 20).toISOString(),
-          absence: { color: '#ff0000' }
+          absence: { color: '#ff0000' },
         },
         {
           from: new Date(config.year, 5, 1).toISOString(),
           until: new Date(config.year, 5, 10).toISOString(),
-          absence: { color: '#00ff00' }
-        }
+          absence: { color: '#00ff00' },
+        },
       ];
 
       spyOn(service, 'drawBreakBar');
@@ -270,7 +299,7 @@ describe('GanttPdfDrawingService', () => {
 
     it('should handle empty breaks array', () => {
       const config = service.createDefaultConfig();
-      
+
       spyOn(service, 'drawBreakBar');
       service.drawRowBreaks(mockPdf, 0, 0, config, [], 30);
 
@@ -282,7 +311,7 @@ describe('GanttPdfDrawingService', () => {
     it('should draw legend items with colors and names', () => {
       const selectedTypes = [
         { id: '1', name: 'Vacation', color: '#ff0000' },
-        { id: '2', name: 'Sick Leave', color: '#00ff00' }
+        { id: '2', name: 'Sick Leave', color: '#00ff00' },
       ];
 
       service.drawLegend(mockPdf, 0, 0, 200, 50, selectedTypes);
@@ -290,18 +319,28 @@ describe('GanttPdfDrawingService', () => {
       // Should draw color boxes
       expect(mockPdf.setFillColor).toHaveBeenCalled();
       expect(mockPdf.setFillColor.calls.count()).toBeGreaterThanOrEqual(2);
-      
+
       // Should draw text labels
-      expect(mockPdf.text).toHaveBeenCalledWith('Vacation', jasmine.any(Number), jasmine.any(Number));
-      expect(mockPdf.text).toHaveBeenCalledWith('Sick Leave', jasmine.any(Number), jasmine.any(Number));
+      expect(mockPdf.text).toHaveBeenCalledWith(
+        'Vacation',
+        jasmine.any(Number),
+        jasmine.any(Number)
+      );
+      expect(mockPdf.text).toHaveBeenCalledWith(
+        'Sick Leave',
+        jasmine.any(Number),
+        jasmine.any(Number)
+      );
     });
 
     it('should handle line wrapping for many items', () => {
-      const selectedTypes = Array(10).fill(null).map((_, i) => ({
-        id: String(i),
-        name: `Very Long Absence Type Name ${i}`,
-        color: '#ff0000'
-      }));
+      const selectedTypes = Array(10)
+        .fill(null)
+        .map((_, i) => ({
+          id: String(i),
+          name: `Very Long Absence Type Name ${i}`,
+          color: '#ff0000',
+        }));
 
       service.drawLegend(mockPdf, 0, 0, 200, 100, selectedTypes);
 
@@ -314,30 +353,50 @@ describe('GanttPdfDrawingService', () => {
   describe('drawCompleteRow', () => {
     it('should draw all row components', () => {
       const config = service.createDefaultConfig();
-      const breaks = [{
-        from: new Date(config.year, 2, 15).toISOString(),
-        until: new Date(config.year, 2, 20).toISOString(),
-        absence: { color: '#ff0000' }
-      }];
+      const breaks = [
+        {
+          from: new Date(config.year, 2, 15).toISOString(),
+          until: new Date(config.year, 2, 20).toISOString(),
+          absence: { color: '#ff0000' },
+        },
+      ];
 
       spyOn(service, 'drawRowHeader');
       spyOn(service, 'drawRowBackground');
       spyOn(service, 'drawRowBreaks');
       spyOn(service, 'drawRowSeparatorLine');
 
-      service.drawCompleteRow(mockPdf, 0, 0, config, 'Test Client', false, 20, true, false, breaks);
+      service.drawCompleteRow(
+        mockPdf,
+        0,
+        0,
+        config,
+        'Test Client',
+        false,
+        20,
+        true,
+        false,
+        breaks
+      );
 
       expect(service.drawRowHeader).toHaveBeenCalled();
       expect(service.drawRowBackground).toHaveBeenCalled();
-      expect(service.drawRowBreaks).toHaveBeenCalledWith(mockPdf, 0, 0, config, breaks, config.rowHeight);
+      expect(service.drawRowBreaks).toHaveBeenCalledWith(
+        mockPdf,
+        0,
+        0,
+        config,
+        breaks,
+        config.rowHeight
+      );
       expect(service.drawRowSeparatorLine).toHaveBeenCalled();
     });
 
     it('should include month headers when requested', () => {
       const config = service.createDefaultConfig();
-      
+
       spyOn(service, 'drawMonthHeaders');
-      
+
       service.drawCompleteRow(mockPdf, 0, 0, config, 'Test', true);
 
       expect(service.drawMonthHeaders).toHaveBeenCalled();

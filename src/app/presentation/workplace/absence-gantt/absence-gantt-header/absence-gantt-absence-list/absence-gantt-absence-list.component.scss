@@ -14,13 +14,10 @@
   font: normal 14px Roboto;
 }
 
-.absence-reason-container:focus {
-  background-color: Aqua;
-}
-
 .name-line {
   display: flex;
   flex-flow: row;
+  height: fit-content;
   margin-right: 15px;
   background-color: var(--backgroundColorWorkplace);
 }

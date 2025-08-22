@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
+/* eslint-disable no-prototype-builtins */
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';

@@ -63,7 +63,7 @@ export class DataManagementProfileService implements IManageable {
             this.onSaveCompleted();
           }
         },
-        error: (error) => {
+        error: () => {
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }

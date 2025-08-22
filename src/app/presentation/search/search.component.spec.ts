@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,19 +20,26 @@ describe('SearchComponent', () => {
   let cdr: jasmine.SpyObj<ChangeDetectorRef>;
 
   beforeEach(async () => {
-    const searchStrategyServiceSpy = jasmine.createSpyObj('SearchStrategyService', [
-      'globalSearch', 
-      'resetFilterWithoutSignalWrite', 
-      'resetFilter', 
-      'restoreSearch'
-    ]);
-    const workplaceStateSpy = jasmine.createSpyObj('WorkplaceStateService', [], {
-      isFocusChanged: signal(false)
-    });
+    const searchStrategyServiceSpy = jasmine.createSpyObj(
+      'SearchStrategyService',
+      [
+        'globalSearch',
+        'resetFilterWithoutSignalWrite',
+        'resetFilter',
+        'restoreSearch',
+      ]
+    );
+    const workplaceStateSpy = jasmine.createSpyObj(
+      'WorkplaceStateService',
+      [],
+      {
+        isFocusChanged: signal(false),
+      }
+    );
     const searchServiceSpy = jasmine.createSpyObj('SearchService', [
-      'showSearch', 
-      'showIncludeAddress', 
-      'showIncludeClient'
+      'showSearch',
+      'showIncludeAddress',
+      'showIncludeClient',
     ]);
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
 
@@ -46,23 +54,31 @@ describe('SearchComponent', () => {
         SearchComponent,
         FormsModule,
         TranslateModule.forRoot(),
-        FontAwesomeModule
+        FontAwesomeModule,
       ],
       providers: [
         { provide: SearchStrategyService, useValue: searchStrategyServiceSpy },
         { provide: WorkplaceStateService, useValue: workplaceStateSpy },
         { provide: SearchService, useValue: searchServiceSpy },
-        { provide: ChangeDetectorRef, useValue: cdrSpy }
-      ]
+        { provide: ChangeDetectorRef, useValue: cdrSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
-    
-    searchStrategyService = TestBed.inject(SearchStrategyService) as jasmine.SpyObj<SearchStrategyService>;
-    workplaceStateService = TestBed.inject(WorkplaceStateService) as jasmine.SpyObj<WorkplaceStateService>;
-    searchService = TestBed.inject(SearchService) as jasmine.SpyObj<SearchService>;
-    cdr = TestBed.inject(ChangeDetectorRef) as jasmine.SpyObj<ChangeDetectorRef>;
+
+    searchStrategyService = TestBed.inject(
+      SearchStrategyService
+    ) as jasmine.SpyObj<SearchStrategyService>;
+    workplaceStateService = TestBed.inject(
+      WorkplaceStateService
+    ) as jasmine.SpyObj<WorkplaceStateService>;
+    searchService = TestBed.inject(
+      SearchService
+    ) as jasmine.SpyObj<SearchService>;
+    cdr = TestBed.inject(
+      ChangeDetectorRef
+    ) as jasmine.SpyObj<ChangeDetectorRef>;
   });
 
   it('should create', () => {
@@ -83,8 +99,8 @@ describe('SearchComponent', () => {
     component.onClickSearch();
 
     expect(searchStrategyService.globalSearch).toHaveBeenCalledWith(
-      'test search', 
-      true, 
+      'test search',
+      true,
       false
     );
   });
@@ -92,25 +108,29 @@ describe('SearchComponent', () => {
   it('should reset filter when search input is cleared', () => {
     const mockEvent = {
       srcElement: {
-        value: ''
-      }
+        value: '',
+      },
     };
 
     component.onKeyupSearch(mockEvent);
 
-    expect(searchStrategyService.resetFilterWithoutSignalWrite).toHaveBeenCalled();
+    expect(
+      searchStrategyService.resetFilterWithoutSignalWrite
+    ).toHaveBeenCalled();
   });
 
   it('should not reset filter when search input has value', () => {
     const mockEvent = {
       srcElement: {
-        value: 'some text'
-      }
+        value: 'some text',
+      },
     };
 
     component.onKeyupSearch(mockEvent);
 
-    expect(searchStrategyService.resetFilterWithoutSignalWrite).not.toHaveBeenCalled();
+    expect(
+      searchStrategyService.resetFilterWithoutSignalWrite
+    ).not.toHaveBeenCalled();
   });
 
   it('should trigger search on HostListener search event', () => {
@@ -142,15 +162,15 @@ describe('SearchComponent', () => {
   it('should restore search string when restoreSearch returns value', () => {
     // The effect runs in the constructor, so restoreSearch should have been called during component creation
     // Since the effect may be async, let's ensure it gets called by triggering the effect manually
-    
+
     // First verify that restoreSearch can be called
     const restoredSearch = 'restored search';
     searchStrategyService.restoreSearch.and.returnValue(restoredSearch);
-    
+
     // Call restoreSearch manually to verify the functionality
     const result = searchStrategyService.restoreSearch();
     expect(result).toBe(restoredSearch);
-    
+
     // Test that searchString can be set correctly
     component.searchString = restoredSearch;
     expect(component.searchString).toBe(restoredSearch);
@@ -160,7 +180,9 @@ describe('SearchComponent', () => {
     searchService.showSearch.and.returnValue(true);
     fixture.detectChanges();
 
-    const searchInput = fixture.nativeElement.querySelector('input[name="searchString"]');
+    const searchInput = fixture.nativeElement.querySelector(
+      'input[name="searchString"]'
+    );
     expect(searchInput).toBeTruthy();
   });
 
@@ -168,7 +190,8 @@ describe('SearchComponent', () => {
     searchService.showSearch.and.returnValue(false);
     fixture.detectChanges();
 
-    const searchContainer = fixture.nativeElement.querySelector('.container-search');
+    const searchContainer =
+      fixture.nativeElement.querySelector('.container-search');
     expect(searchContainer).toBeFalsy();
   });
 
@@ -177,7 +200,9 @@ describe('SearchComponent', () => {
     searchService.showIncludeAddress.and.returnValue(true);
     fixture.detectChanges();
 
-    const addressCheckbox = fixture.nativeElement.querySelector('input[name="includeAddress"]');
+    const addressCheckbox = fixture.nativeElement.querySelector(
+      'input[name="includeAddress"]'
+    );
     expect(addressCheckbox).toBeTruthy();
   });
 
@@ -186,18 +211,22 @@ describe('SearchComponent', () => {
     searchService.showIncludeClient.and.returnValue(true);
     fixture.detectChanges();
 
-    const clientCheckbox = fixture.nativeElement.querySelector('input[name="includeClient"]');
+    const clientCheckbox = fixture.nativeElement.querySelector(
+      'input[name="includeClient"]'
+    );
     expect(clientCheckbox).toBeTruthy();
   });
 
   it('should bind searchString to input value', async () => {
     searchService.showSearch.and.returnValue(true);
     searchStrategyService.restoreSearch.and.returnValue('test value');
-    
+
     fixture.detectChanges();
     await fixture.whenStable();
 
-    const searchInput = fixture.nativeElement.querySelector('input[name="searchString"]') as HTMLInputElement;
+    const searchInput = fixture.nativeElement.querySelector(
+      'input[name="searchString"]'
+    ) as HTMLInputElement;
     expect(searchInput.value).toBe('test value');
   });
 });

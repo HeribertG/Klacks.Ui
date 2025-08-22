@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateService, TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { SimplePaginationComponent } from './simple-pagination.component';
 
@@ -7,7 +8,7 @@ import { SimplePaginationComponent } from './simple-pagination.component';
 class MockTranslateLoader implements TranslateLoader {
   getTranslation(lang: string) {
     return of({
-      'pagination.sum': 'Total'
+      'pagination.sum': 'Total',
     });
   }
 }
@@ -21,12 +22,11 @@ describe('SimplePaginationComponent', () => {
       imports: [
         SimplePaginationComponent,
         TranslateModule.forRoot({
-          loader: { provide: TranslateLoader, useClass: MockTranslateLoader }
-        })
-      ]
-    })
-    .compileComponents();
-    
+          loader: { provide: TranslateLoader, useClass: MockTranslateLoader },
+        }),
+      ],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(SimplePaginationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

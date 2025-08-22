@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -10,22 +11,24 @@ describe('DeletewindowComponent', () => {
   let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', ['get']);
+    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
+      'get',
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [
         DeletewindowComponent,
         TranslateModule.forRoot(),
-        AttentionGreyComponent
+        AttentionGreyComponent,
       ],
-      providers: [
-        { provide: TranslateService, useValue: translateServiceSpy }
-      ]
+      providers: [{ provide: TranslateService, useValue: translateServiceSpy }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DeletewindowComponent);
     component = fixture.componentInstance;
-    translateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    translateService = TestBed.inject(
+      TranslateService
+    ) as jasmine.SpyObj<TranslateService>;
   });
 
   it('should create', () => {
@@ -50,7 +53,8 @@ describe('DeletewindowComponent', () => {
   });
 
   it('should accept custom message input', () => {
-    const customMessage = 'Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?';
+    const customMessage =
+      'Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?';
     component.message = customMessage;
     fixture.detectChanges();
 
@@ -60,17 +64,19 @@ describe('DeletewindowComponent', () => {
 
   it('should display attention icon', () => {
     fixture.detectChanges();
-    
-    const attentionIcon = fixture.nativeElement.querySelector('app-icon-attention-icon-grey');
+
+    const attentionIcon = fixture.nativeElement.querySelector(
+      'app-icon-attention-icon-grey'
+    );
     expect(attentionIcon).toBeTruthy();
   });
 
   it('should have proper CSS classes', () => {
     fixture.detectChanges();
-    
+
     const headerElement = fixture.nativeElement.querySelector('.modal-header');
     const bodyElement = fixture.nativeElement.querySelector('.modal-body');
-    
+
     expect(headerElement).toBeTruthy();
     expect(headerElement.classList.contains('color-red')).toBe(true);
     expect(bodyElement).toBeTruthy();
@@ -80,13 +86,17 @@ describe('DeletewindowComponent', () => {
   it('should render template correctly with inputs', () => {
     const testTitle = 'Test Delete Title';
     const testMessage = 'Test delete message';
-    
+
     component.title = testTitle;
     component.message = testMessage;
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    expect(compiled.querySelector('#modal-title').textContent).toContain(testTitle);
-    expect(compiled.querySelector('.modal-body').textContent).toContain(testMessage);
+    expect(compiled.querySelector('#modal-title').textContent).toContain(
+      testTitle
+    );
+    expect(compiled.querySelector('.modal-body').textContent).toContain(
+      testMessage
+    );
   });
 });
