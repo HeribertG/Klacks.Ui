@@ -129,16 +129,11 @@ export class AbsenceGanttContainerComponent {
 
   async onPdfExportRequested(): Promise<void> {
     try {
-      await this.ganttPdfExportService.exportTest2DDrawing({
-        title: `Gantt Chart ${new Date().getFullYear()}`
-      });
-      
-      this.toastShowService.showSuccess('PDF erfolgreich exportiert', 'Export abgeschlossen');
+      await this.ganttPdfExportService.exportTest2DDrawing();
     } catch (error) {
-      this.toastShowService.showError('PDF-Export fehlgeschlagen', 'Export-Fehler');
+      this.toastShowService.showError('PDF export failed', error?.toString());
     }
   }
-
 
   get selectedRow(): number {
     return this.absenceBody().drawCalendarGantt.selectedRow;

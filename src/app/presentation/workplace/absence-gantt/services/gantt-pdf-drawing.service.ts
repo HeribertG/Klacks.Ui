@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
@@ -29,15 +30,13 @@ export class GanttPdfDrawingService {
   private translateService = inject(TranslateService);
 
   /**
-   * Zeichnet den Background einer Row mit Monats-Hintergrunden und Tages-Linien
-   * @param params - Drawing-Parameter mit Position und Konfiguration
+   * Draws the background of a row with monthly backgrounds and day lines
+   * @param params - Drawing parameters with position and configuration
    */
   drawRowBackground(params: RowDrawingParams): void {
     const { x, y, pdf, config } = params;
 
     const actualRowHeaderWidth = config.pageWidth * 0.12;
-
-    const sideMargin = config.pageWidth * 0.05;
 
     const availableCalendarWidth =
       config.pageWidth * 0.83 - config.lineWidth * 2;
@@ -162,24 +161,24 @@ export class GanttPdfDrawingService {
   ): void {
     const width = config.pageWidth * 0.12;
 
-    // Header-Hintergrund
+    // Header background
     pdf.setFillColor(backgroundColor);
     pdf.rect(x, y, width, height, 'F');
 
-    // Header-Border - einzelne Linien zeichnen um Doppellinien zu vermeiden
+    // Header border - draw individual lines to avoid double lines
     pdf.setDrawColor(config.monthBorderColor);
     pdf.setLineWidth(1);
 
-    // Linke Linie
+    // Left line
     pdf.line(x, y, x, y + height);
 
-    // Rechte Linie
+    // Right line
     pdf.line(x + width, y, x + width, y + height);
 
-    // Untere Linie
+    // Bottom line
     pdf.line(x, y + height, x + width, y + height);
 
-    // Obere Linie nur wenn explizit gewünscht
+    // Top line only if explicitly requested
     if (drawTopBorder) {
       pdf.line(x, y, x + width, y);
     }
@@ -187,33 +186,33 @@ export class GanttPdfDrawingService {
     // Text
     pdf.setTextColor(textColor);
     pdf.setFontSize(10);
-    const textY = y + height / 2 + 3; // Vertikal zentrieren
+    const textY = y + height / 2 + 3; // Center vertically
     pdf.text(text, x + 5, textY);
   }
 
   /**
-   * Hilfsfunktion: Anzahl Tage im Jahr
+   * Helper function: Number of days in year
    */
   getDaysInYear(year: number): number {
     return this.isLeapYear(year) ? 366 : 365;
   }
 
   /**
-   * Hilfsfunktion: Anzahl Tage im Monat
+   * Helper function: Number of days in month
    */
   private getDaysInMonth(year: number, month: number): number {
     return new Date(year, month + 1, 0).getDate();
   }
 
   /**
-   * Hilfsfunktion: Schaltjahr prüfen
+   * Helper function: Check leap year
    */
   private isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
   }
 
   /**
-   * Erstellt Standard-Konfiguration
+   * Creates default configuration
    */
   createDefaultConfig(): GanttDrawingConfig {
     const pageWidth = 1190.55; // A3 landscape
@@ -221,15 +220,15 @@ export class GanttPdfDrawingService {
     return {
       pageWidth: pageWidth,
       pageHeight: 841.89, // A3 landscape
-      rowHeaderWidth: pageWidth * 0.12, // 12% der Seitenbreite (~143px für A3)
-      rowHeight: 25, // Höhe einer Row
+      rowHeaderWidth: pageWidth * 0.12, // 12% of page width (~143px for A3)
+      rowHeight: 25, // Height of a row
       year: new Date().getFullYear(),
       startDate: new Date(new Date().getFullYear(), 0, 1),
-      evenMonthColor: '#f9f9f9', // Heller für gerade Monate
-      oddMonthColor: '#ffffff', // Weiß für ungerade Monate
-      weekendColor: '#fffbcc', // Hellgelb für Wochenenden
-      dayLineColor: '#e0e0e0', // Hellgrau für Tageslinien
-      monthBorderColor: '#888888', // Dunkelgrau für Monatsgrenzen
+      evenMonthColor: '#f9f9f9', // Lighter for even months
+      oddMonthColor: '#ffffff', // White for odd months
+      weekendColor: '#fffbcc', // Light yellow for weekends
+      dayLineColor: '#e0e0e0', // Light gray for day lines
+      monthBorderColor: '#888888', // Dark gray for month borders
       lineWidth: 0.5,
     };
   }
@@ -260,7 +259,7 @@ export class GanttPdfDrawingService {
 
     const calendarStartX = x + actualRowHeaderWidth + config.lineWidth * 2;
 
-    // Monatsnamen (dynamisch lokalisiert via i18n)
+    // Month names (dynamically localized via i18n)
     const monthKeys = [
       'Januar',
       'Februar',
@@ -279,7 +278,7 @@ export class GanttPdfDrawingService {
       this.translateService.instant(key)
     );
 
-    // Durchlaufe alle Monate (nur Monats-Hintergrund, keine Wochenenden)
+    // Iterate through all months (only month background, no weekends)
     let currentX = calendarStartX;
 
     for (let month = 0; month < 12; month++) {
@@ -291,23 +290,23 @@ export class GanttPdfDrawingService {
         ? config.evenMonthColor
         : config.oddMonthColor;
 
-      // Zeichne Header-Hintergrund
+      // Draw header background
       pdf.setFillColor(backgroundColor);
       pdf.rect(currentX, y, monthWidth, headerHeight, 'F');
 
-      // Zeichne Header-Border
+      // Draw header border
       pdf.setDrawColor(config.monthBorderColor);
       pdf.setLineWidth(1);
       pdf.rect(currentX, y, monthWidth, headerHeight, 'S');
 
-      // Zeichne Monatsname
+      // Draw month name
       pdf.setTextColor('#000000');
       pdf.setFontSize(9);
 
-      // Zentriere Text in der Monatsspalte
+      // Center text in month column
       const textWidth = pdf.getTextWidth(monthNames[month]);
       const textX = currentX + (monthWidth - textWidth) / 2;
-      const textY = y + headerHeight / 2 + 3; // Vertikal zentrieren
+      const textY = y + headerHeight / 2 + 3; // Center vertically
 
       pdf.text(monthNames[month], textX, textY);
 
@@ -316,7 +315,7 @@ export class GanttPdfDrawingService {
   }
 
   /**
-   * Zeichnet eine horizontale Linie zwischen Rows (über die gesamte Breite)
+   * Draws a horizontal line between rows (across the full width)
    */
   drawRowSeparatorLine(
     pdf: jsPDF,
@@ -335,7 +334,7 @@ export class GanttPdfDrawingService {
   }
 
   /**
-   * Zeichnet einen einzelnen Break als farbigen Balken im Kalender
+   * Draws a single break as a colored bar in the calendar
    */
   drawBreakBar(
     pdf: jsPDF,
@@ -346,31 +345,31 @@ export class GanttPdfDrawingService {
     rowHeight: number
   ): void {
     if (!breakData.from || !breakData.until) {
-      return; // Keine gültigen Daten
+      return; // No valid data
     }
 
-    // Kalender-Startposition (nach Row-Header + Abstand)
+    // Calendar start position (after row header + spacing)
     const actualRowHeaderWidth = config.pageWidth * 0.12;
     const calendarStartX = x + actualRowHeaderWidth + config.lineWidth * 2;
     const availableCalendarWidth = this.getCalendarWidth(config);
 
-    // Berechne Tage im Jahr und Tag-Breite
+    // Calculate days in year and day width
     const daysInYear = this.getDaysInYear(config.year);
     const dayWidth = availableCalendarWidth / daysInYear;
 
-    // Start- und End-Daten des Breaks
+    // Start and end dates of the break
     const breakStart = new Date(breakData.from);
     const breakEnd = new Date(breakData.until);
 
-    // Prüfe ob Break im aktuellen Jahr liegt
+    // Check if break is in current year
     if (
       breakStart.getFullYear() !== config.year &&
       breakEnd.getFullYear() !== config.year
     ) {
-      return; // Break ist nicht in diesem Jahr
+      return; // Break is not in this year
     }
 
-    // Berechne Tag-des-Jahres für Start und Ende
+    // Calculate day of year for start and end
     const yearStart = new Date(config.year, 0, 1);
     const dayOfYearStart = Math.max(
       0,
@@ -385,31 +384,31 @@ export class GanttPdfDrawingService {
       )
     );
 
-    // Berechne Position und Breite des Break-Balkens
+    // Calculate position and width of break bar
     const barStartX = calendarStartX + dayOfYearStart * dayWidth;
     const barWidth = (dayOfYearEnd - dayOfYearStart + 1) * dayWidth;
 
-    // Bestimme Farbe des Breaks
-    let breakColor = '#ff6b6b'; // Default rot falls keine Absence-Farbe vorhanden
+    // Determine break color
+    let breakColor = '#ff6b6b'; // Default red if no absence color available
     if (breakData.absence && breakData.absence.color) {
       breakColor = breakData.absence.color;
     }
 
-    // Zeichne Break-Balken (etwas kleiner als die volle Row-Höhe für Ästhetik)
-    const barHeight = rowHeight * 0.7; // 70% der Row-Höhe
-    const barY = y + (rowHeight - barHeight) / 2; // Vertikal zentrieren
+    // Draw break bar (slightly smaller than full row height for aesthetics)
+    const barHeight = rowHeight * 0.7; // 70% of row height
+    const barY = y + (rowHeight - barHeight) / 2; // Center vertically
 
     pdf.setFillColor(breakColor);
     pdf.rect(barStartX, barY, barWidth, barHeight, 'F');
 
-    // Optional: Rahmen um den Break-Balken
+    // Optional: Border around break bar
     pdf.setDrawColor('#333333');
     pdf.setLineWidth(0.5);
     pdf.rect(barStartX, barY, barWidth, barHeight, 'S');
   }
 
   /**
-   * Zeichnet alle Breaks für eine Row
+   * Draws all breaks for a row
    */
   drawRowBreaks(
     pdf: jsPDF,
@@ -423,14 +422,14 @@ export class GanttPdfDrawingService {
       return;
     }
 
-    // Zeichne jeden Break
+    // Draw each break
     breaks.forEach((breakData) => {
       this.drawBreakBar(pdf, x, y, config, breakData, rowHeight);
     });
   }
 
   /**
-   * Zeichnet eine Legende mit den selektierten Absence-Types
+   * Draws a legend with the selected absence types
    */
   drawLegend(
     pdf: jsPDF,
@@ -444,26 +443,26 @@ export class GanttPdfDrawingService {
       return;
     }
 
-    // Kein Rahmen mehr um die Legende
+    // No border around the legend anymore
 
-    // Startposition für Legende-Items - intelligentes Layout
+    // Start position for legend items - intelligent layout
     let currentX = x + 5;
-    let currentY = y + 15; // Etwas Abstand vom oberen Rand
+    let currentY = y + 15; // Some distance from top edge
     const colorBoxSize = 8;
-    const lineHeight = 15; // Höhe einer Zeile
-    const itemSpacing = 20; // Abstand zwischen Items
+    const lineHeight = 15; // Height of a line
+    const itemSpacing = 20; // Spacing between items
 
     selectedAbsenceTypes.forEach((absenceType, index) => {
-      // Berechne benötigte Breite für dieses Item
+      // Calculate required width for this item
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(8);
       const displayName = absenceType.name || `Type ${index + 1}`;
       const textWidth = pdf.getTextWidth(displayName);
       const itemWidth = colorBoxSize + textWidth + itemSpacing;
 
-      // Prüfe ob Zeilenumbruch nötig (falls Item nicht in aktuelle Zeile passt)
+      // Check if line break needed (if item doesn't fit in current line)
       if (currentX + itemWidth > x + width - 5 && index > 0) {
-        currentX = x + 5; // Neue Zeile beginnen
+        currentX = x + 5; // Start new line
         currentY += lineHeight;
       }
 
@@ -499,10 +498,10 @@ export class GanttPdfDrawingService {
     y: number,
     config: GanttDrawingConfig,
     personName: string,
-    includeMonthHeaders: boolean = false,
-    monthHeaderHeight: number = 20,
-    drawBottomSeparator: boolean = true,
-    isFirstRowAfterHeaders: boolean = false,
+    includeMonthHeaders = false,
+    monthHeaderHeight = 20,
+    drawBottomSeparator = true,
+    isFirstRowAfterHeaders = false,
     breaks: any[] = []
   ): void {
     const rowHeight = config.rowHeight;

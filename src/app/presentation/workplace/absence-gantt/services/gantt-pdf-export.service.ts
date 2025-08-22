@@ -4,12 +4,6 @@ import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
-import { CalendarSettingService } from './calendar-setting.service';
-import { DrawCalendarGanttService } from './draw-calendar-gantt.service';
-import { DrawRowHeaderService } from './draw-row-header.service';
-import { RenderCalendarGridService } from './render-calendar-grid.service';
-import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
-import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 
 export interface GanttExportOptions {
@@ -26,12 +20,6 @@ export class GanttPdfExportService {
   private translateService = inject(TranslateService);
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
-  private calendarSetting = inject(CalendarSettingService);
-  private drawCalendarGantt = inject(DrawCalendarGanttService);
-  private drawRowHeader = inject(DrawRowHeaderService);
-  private renderCalendarGrid = inject(RenderCalendarGridService);
-  private ganttCanvasManager = inject(GanttCanvasManagerService);
-  private rowHeaderCanvasManager = inject(RowHeaderCanvasManagerService);
   private ganttPdfDrawingService = inject(GanttPdfDrawingService);
 
   // A3 landscape dimensions in points (1 point = 1/72 inch)
@@ -47,13 +35,6 @@ export class GanttPdfExportService {
     right: 20,
     bottom: 30,
   };
-
-  private readonly ROW_HEADER_WIDTH = 200;
-  private readonly GANTT_SECTION_WIDTH =
-    this.A3_LANDSCAPE.width -
-    this.MARGINS.left -
-    this.MARGINS.right -
-    this.ROW_HEADER_WIDTH;
 
   /**
    * Collects all selected absence types with localized names and colors.
@@ -93,78 +74,6 @@ export class GanttPdfExportService {
     }
   }
 
-  // AUSKOMMENTIERT: Canvas-basierter Export mit Pagination
-  // async exportGanttToPdf(
-  //   rowHeaderCanvas: HTMLCanvasElement,
-  //   ganttCanvas: HTMLCanvasElement,
-  //   options: GanttExportOptions = {}
-  // ): Promise<void> {
-  //   const {
-  //     title = 'Gantt Chart Export',
-  //     includeAllRows = true,
-  //     startRow = 0,
-  //     endRow = this.dataManagementBreak.rows - 1,
-  //     pageOrientation = 'landscape',
-  //     pageFormat = 'a3',
-  //   } = options;
-
-  //   const pdf = new jsPDF({
-  //     orientation: pageOrientation,
-  //     unit: 'pt',
-  //     format: pageFormat.toLowerCase(),
-  //   });
-
-  //   const availableHeight =
-  //     this.A3_LANDSCAPE.height - this.MARGINS.top - this.MARGINS.bottom - 60; // 60 for title and date
-  //   const rowHeight = this.calendarSetting.cellHeight;
-  //   const rowsPerPage = Math.floor(availableHeight / rowHeight);
-
-  //   const totalRows = includeAllRows
-  //     ? this.dataManagementBreak.rows
-  //     : endRow - startRow + 1;
-  //   const totalPages = Math.ceil(totalRows / rowsPerPage);
-
-  //   let currentRow = includeAllRows ? 0 : startRow;
-
-  //   for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-  //     if (pageIndex > 0) {
-  //       pdf.addPage();
-  //     }
-
-  //     // Add title and date
-  //     this.addPageHeader(pdf, title, pageIndex + 1, totalPages);
-
-  //     // Calculate rows for this page
-  //     const rowsOnThisPage = Math.min(
-  //       rowsPerPage,
-  //       totalRows - pageIndex * rowsPerPage
-  //     );
-  //     const startRowForPage = currentRow;
-  //     const endRowForPage = currentRow + rowsOnThisPage - 1;
-
-  //     // Capture and add row headers
-  //     await this.addRowHeadersToPage(
-  //       pdf,
-  //       rowHeaderCanvas,
-  //       startRowForPage,
-  //       endRowForPage
-  //     );
-
-  //     // Capture and add gantt section
-  //     await this.addGanttSectionToPage(
-  //       pdf,
-  //       ganttCanvas,
-  //       startRowForPage,
-  //       endRowForPage
-  //     );
-
-  //     currentRow += rowsOnThisPage;
-  //   }
-
-  //   const fileName = `gantt-chart-${new Date().getTime()}.pdf`;
-  //   pdf.save(fileName);
-  // }
-
   private addPageHeader(
     pdf: jsPDF,
     title: string,
@@ -192,268 +101,9 @@ export class GanttPdfExportService {
     );
   }
 
-  private async addRowHeadersToPage(
-    pdf: jsPDF,
-    rowHeaderCanvas: HTMLCanvasElement,
-    startRow: number,
-    endRow: number
-  ): Promise<void> {
-    const rowHeight = this.calendarSetting.cellHeight;
-    const totalHeight = (endRow - startRow + 1) * rowHeight;
-
-    // Create a temporary canvas for the row headers section
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d')!;
-
-    tempCanvas.width = this.ROW_HEADER_WIDTH * window.devicePixelRatio;
-    tempCanvas.height = totalHeight * window.devicePixelRatio;
-    tempCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    // Copy the relevant section from the row header canvas
-    const sourceY = startRow * rowHeight;
-    tempCtx.drawImage(
-      rowHeaderCanvas,
-      0,
-      sourceY,
-      this.ROW_HEADER_WIDTH,
-      totalHeight,
-      0,
-      0,
-      this.ROW_HEADER_WIDTH,
-      totalHeight
-    );
-
-    const imageData = tempCanvas.toDataURL('image/png');
-    pdf.addImage(
-      imageData,
-      'PNG',
-      this.MARGINS.left,
-      this.MARGINS.top + 40,
-      this.ROW_HEADER_WIDTH,
-      totalHeight
-    );
-  }
-
-  private async addGanttSectionToPage(
-    pdf: jsPDF,
-    ganttCanvas: HTMLCanvasElement,
-    startRow: number,
-    endRow: number
-  ): Promise<void> {
-    const rowHeight = this.calendarSetting.cellHeight;
-    const totalHeight = (endRow - startRow + 1) * rowHeight;
-
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d')!;
-
-    tempCanvas.width = this.GANTT_SECTION_WIDTH * window.devicePixelRatio;
-    tempCanvas.height = totalHeight * window.devicePixelRatio;
-    tempCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    const sourceY = startRow * rowHeight;
-    tempCtx.drawImage(
-      ganttCanvas,
-      0,
-      sourceY,
-      this.GANTT_SECTION_WIDTH,
-      totalHeight,
-      0,
-      0,
-      this.GANTT_SECTION_WIDTH,
-      totalHeight
-    );
-
-    const imageData = tempCanvas.toDataURL('image/png');
-    pdf.addImage(
-      imageData,
-      'PNG',
-      this.MARGINS.left + this.ROW_HEADER_WIDTH,
-      this.MARGINS.top + 40,
-      this.GANTT_SECTION_WIDTH,
-      totalHeight
-    );
-  }
-
-  // AUSKOMMENTIERT: Export mit temporären Canvas für vollständige Ansicht
-  // Method to export complete gantt with all visible columns
-  // async exportFullGanttToPdf(
-  //   rowHeaderCanvas: HTMLCanvasElement,
-  //   ganttCanvas: HTMLCanvasElement,
-  //   options: GanttExportOptions = {}
-  // ): Promise<void> {
-  //   const fullRowHeaderCanvas = await this.createFullRowHeaderCanvas();
-  //   const fullGanttCanvas = await this.createFullGanttCanvas();
-
-  //   await this.exportGanttToPdf(fullRowHeaderCanvas, fullGanttCanvas, {
-  //     ...options,
-  //     includeAllRows: true,
-  //   });
-  // }
-
-  private async createFullRowHeaderCanvas(): Promise<HTMLCanvasElement> {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
-
-    const totalRows = this.dataManagementBreak.rows;
-    const rowHeight = this.calendarSetting.cellHeight;
-
-    canvas.width = this.ROW_HEADER_WIDTH * window.devicePixelRatio;
-    canvas.height = totalRows * rowHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, this.ROW_HEADER_WIDTH, totalRows * rowHeight);
-
-    const originalCanvas = this.rowHeaderCanvasManager.canvas;
-    const originalContext = this.rowHeaderCanvasManager.ctx;
-
-    this.rowHeaderCanvasManager.canvas = canvas;
-    this.rowHeaderCanvasManager.ctx = ctx;
-
-    try {
-      this.drawRowHeader.renderRowHeader();
-    } finally {
-      this.rowHeaderCanvasManager.canvas = originalCanvas;
-      this.rowHeaderCanvasManager.ctx = originalContext;
-    }
-
-    return canvas;
-  }
-
-  private async createFullGanttCanvas(): Promise<HTMLCanvasElement> {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
-
-    const totalRows = this.dataManagementBreak.rows;
-    const rowHeight = this.calendarSetting.cellHeight;
-    const totalCols = this.drawCalendarGantt.columns;
-    const colWidth = this.calendarSetting.cellWidth;
-
-    canvas.width = totalCols * colWidth * window.devicePixelRatio;
-    canvas.height = totalRows * rowHeight * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    // Set canvas size and clear
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, totalCols * colWidth, totalRows * rowHeight);
-
-    // Temporarily store current canvas manager canvas reference
-    const originalCanvas = this.ganttCanvasManager.canvas;
-    const originalContext = this.ganttCanvasManager.ctx;
-
-    // Set our temporary canvas as the active canvas
-    this.ganttCanvasManager.canvas = canvas;
-    this.ganttCanvasManager.ctx = ctx;
-
-    try {
-      this.renderCalendarGrid.renderRuler();
-      this.renderCalendarGrid.renderCalendar();
-    } finally {
-      this.ganttCanvasManager.canvas = originalCanvas;
-      this.ganttCanvasManager.ctx = originalContext;
-    }
-
-    return canvas;
-  }
-
-  // AUSKOMMENTIERT: Export der aktuellen Canvas-Ansicht (ohne Pagination)
-  // async exportCurrentViewToPdf(
-  //   rowHeaderCanvas: HTMLCanvasElement,
-  //   ganttCanvas: HTMLCanvasElement,
-  //   options: GanttExportOptions = {}
-  // ): Promise<void> {
-  //   const { title = 'Gantt Chart Export' } = options;
-
-  //   const pdf = new jsPDF({
-  //     orientation: 'landscape',
-  //     unit: 'pt',
-  //     format: 'a3',
-  //   });
-
-  //   // Add title and date
-  //   this.addPageHeader(pdf, title, 1, 1);
-
-  //   // Calculate sizes to fit both canvases on the page
-  //   const availableWidth =
-  //     this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
-  //   const availableHeight =
-  //     this.A3_LANDSCAPE.height - this.MARGINS.top - this.MARGINS.bottom - 60;
-
-  //   // Check if canvases have content
-  //   if (rowHeaderCanvas.width === 0 || rowHeaderCanvas.height === 0) {
-  //     console.warn('Row header canvas has zero dimensions');
-  //   }
-  //   if (ganttCanvas.width === 0 || ganttCanvas.height === 0) {
-  //     console.warn('Gantt canvas has zero dimensions');
-  //   }
-
-  //   // Row header section
-  //   try {
-  //     const rowHeaderImageData = rowHeaderCanvas.toDataURL('image/png');
-  //     console.log('Row header image data length:', rowHeaderImageData.length);
-
-  //     const rowHeaderAspect = rowHeaderCanvas.height / rowHeaderCanvas.width;
-  //     const rowHeaderWidth = Math.min(
-  //       this.ROW_HEADER_WIDTH,
-  //       availableWidth * 0.3
-  //     );
-  //     const rowHeaderHeight = Math.min(
-  //       rowHeaderWidth * rowHeaderAspect,
-  //       availableHeight
-  //     );
-
-  //     console.log('Adding row header image:', {
-  //       width: rowHeaderWidth,
-  //       height: rowHeaderHeight,
-  //       x: this.MARGINS.left,
-  //       y: this.MARGINS.top + 40,
-  //     });
-
-  //     pdf.addImage(
-  //       rowHeaderImageData,
-  //       'PNG',
-  //       this.MARGINS.left,
-  //       this.MARGINS.top + 40,
-  //       rowHeaderWidth,
-  //       rowHeaderHeight
-  //     );
-  //   } catch (error) {
-  //     console.error('Error adding row header image:', error);
-  //   }
-
-  //   try {
-  //     const ganttImageData = ganttCanvas.toDataURL('image/png');
-  //     console.log('Gantt image data length:', ganttImageData.length);
-
-  //     const ganttAspect = ganttCanvas.height / ganttCanvas.width;
-  //     const ganttWidth = availableWidth - this.ROW_HEADER_WIDTH - 10;
-  //     const ganttHeight = Math.min(ganttWidth * ganttAspect, availableHeight);
-
-  //     console.log('Adding gantt image:', {
-  //       width: ganttWidth,
-  //       height: ganttHeight,
-  //       x: this.MARGINS.left + this.ROW_HEADER_WIDTH + 10,
-  //       y: this.MARGINS.top + 40,
-  //     });
-
-  //     pdf.addImage(
-  //       ganttImageData,
-  //       'PNG',
-  //       this.MARGINS.left + this.ROW_HEADER_WIDTH + 10,
-  //       this.MARGINS.top + 40,
-  //       ganttWidth,
-  //       ganttHeight
-  //     );
-  //   } catch (error) {
-  //     console.error('Error adding gantt image:', error);
-  //   }
-
-  //   const fileName = `gantt-chart-${new Date().getTime()}.pdf`;
-  //   pdf.save(fileName);
-  // }
-
   async exportTest2DDrawing(options: GanttExportOptions = {}): Promise<void> {
-    const { title = 'Gantt Chart - Real Client Data' } = options;
+    const currentYear = this.dataManagementBreak.breakFilter.currentYear;
+    const { title = `Gantt Chart ${currentYear}` } = options;
 
     const pdf = new jsPDF({
       orientation: 'landscape',
@@ -465,26 +115,30 @@ export class GanttPdfExportService {
 
     const config = this.ganttPdfDrawingService.createDefaultConfig();
 
-    let currentY = this.MARGINS.top + 60; // Nach Header
-    const rowHeight = 30; // Etwas höher für bessere Sichtbarkeit
-    const monthHeaderHeight = 25; // Höhe für Monats-Header
+    // Use the current year from the BreakFilter
+    config.year = this.dataManagementBreak.breakFilter.currentYear;
+    config.startDate = new Date(config.year, 0, 1);
+
+    let currentY = this.MARGINS.top + 60; // After header
+    const rowHeight = 30; // Slightly higher for better visibility
+    const monthHeaderHeight = 25; // Height for month headers
     config.rowHeight = rowHeight;
 
-    // Sammle selektierte Absence Types für Legende
+    // Collect selected absence types for legend
     const selectedAbsenceTypes = this.getSelectedAbsenceTypes();
 
-    // Zeichne Legende OBERHALB der Monats-Header (falls Absence Types selektiert sind)
+    // Draw legend ABOVE the month headers (if absence types are selected)
     if (selectedAbsenceTypes.length > 0) {
       const availableWidth =
         this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
 
-      // Dynamische Legendenhöhe basierend auf Anzahl und Länge der Items
+      // Dynamic legend height based on number and length of items
       const estimatedItemWidth = selectedAbsenceTypes.reduce((total, type) => {
-        return total + type.name.length * 5 + 30; // Ungefähr 5pt pro Zeichen + Box + Spacing
+        return total + type.name.length * 5 + 30; // Approximately 5pt per character + box + spacing
       }, 0);
 
       const needsMultipleLines = estimatedItemWidth > availableWidth;
-      const legendHeight = needsMultipleLines ? 45 : 25; // Mehr Höhe falls mehrere Zeilen nötig
+      const legendHeight = needsMultipleLines ? 45 : 25; // More height if multiple lines needed
 
       const legendX = this.MARGINS.left;
       const legendY = currentY;
@@ -493,7 +147,7 @@ export class GanttPdfExportService {
         pdf,
         legendX,
         legendY,
-        availableWidth, // Gesamte verfügbare Seitenbreite
+        availableWidth,
         legendHeight,
         selectedAbsenceTypes
       );
@@ -509,7 +163,7 @@ export class GanttPdfExportService {
       monthHeaderHeight
     );
 
-    // Zeichne Trennlinie unter den Month Headers
+    // Draw separator line under month headers
     this.ganttPdfDrawingService.drawRowSeparatorLine(
       pdf,
       this.MARGINS.left,
@@ -517,24 +171,24 @@ export class GanttPdfExportService {
       config
     );
 
-    currentY += monthHeaderHeight + 2; // Etwas Abstand nach Headers
+    currentY += monthHeaderHeight + 2; // Some spacing after headers
 
-    // Verwende reale Client-Daten
+    // Use real client data
     const totalClients = this.dataManagementBreak.rows;
 
-    // Berechne wieviele Rows auf eine Seite passen
+    // Calculate how many rows fit on one page
     const availableHeight =
       this.A3_LANDSCAPE.height - this.MARGINS.bottom - currentY;
-    const maxRowsPerPage = Math.floor(availableHeight / rowHeight) - 1; // -1 für Sicherheit
+    const maxRowsPerPage = Math.floor(availableHeight / rowHeight) - 1; // -1 for safety
 
     for (let clientIndex = 0; clientIndex < totalClients; clientIndex++) {
-      // Hole Client-Name und Break-Daten
+      // Get client name and break data
       const clientName = this.dataManagementBreak.readClientName(clientIndex);
       const clientBreaks = this.dataManagementBreak.readData(clientIndex) || [];
 
-      // Prüfe ob neue Seite benötigt wird
+      // Check if new page is needed
       if (clientIndex > 0 && clientIndex % maxRowsPerPage === 0) {
-        // Neue Seite
+        // New page
         pdf.addPage();
         this.addPageHeader(
           pdf,
@@ -543,15 +197,15 @@ export class GanttPdfExportService {
           Math.ceil(totalClients / maxRowsPerPage)
         );
 
-        // Reset Y-Position und zeichne Headers wieder
+        // Reset Y position and draw headers again
         currentY = this.MARGINS.top + 60;
 
-        // Zeichne Legende auch auf neuen Seiten (OBERHALB der Month Headers)
+        // Draw legend (ABOVE the month headers)
         if (selectedAbsenceTypes.length > 0) {
           const availableWidth =
             this.A3_LANDSCAPE.width - this.MARGINS.left - this.MARGINS.right;
 
-          // Gleiche dynamische Höhenberechnung wie auf der ersten Seite
+          // Same dynamic height calculation as on first page
           const estimatedItemWidth = selectedAbsenceTypes.reduce(
             (total, type) => {
               return total + type.name.length * 5 + 30;
@@ -593,105 +247,56 @@ export class GanttPdfExportService {
 
       const isLastRow = clientIndex === totalClients - 1;
       const isLastRowOnPage = (clientIndex + 1) % maxRowsPerPage === 0;
-      const isFirstRowAfterHeaders = clientIndex % maxRowsPerPage === 0; // Erste Row auf jeder Seite
+      const isFirstRowAfterHeaders = clientIndex % maxRowsPerPage === 0; // First row on each page
 
-      // Zeichne komplette Row mit realen Client-Namen und Break-Daten
+      // Draw complete row with real client names and break data
       this.ganttPdfDrawingService.drawCompleteRow(
         pdf,
         this.MARGINS.left,
         currentY,
         config,
-        clientName || `Client ${clientIndex + 1}`, // Fallback falls Name leer
-        false, // Keine Monats-Header pro Row
-        20, // monthHeaderHeight (unused here)
-        !isLastRow && !isLastRowOnPage, // Keine Trennlinie nach der letzten Row oder letzter Row auf Seite
-        isFirstRowAfterHeaders, // Erste Row nach Headers hat keinen oberen Rahmen
-        clientBreaks // Echte Break-Daten für diesen Client
+        clientName || `Client ${clientIndex + 1}`, // Fallback if name is empty
+        false, // No month headers per row
+        20,
+        !isLastRow && !isLastRowOnPage, // No separator after last row or last row on page
+        isFirstRowAfterHeaders, // First row after headers has no top border
+        clientBreaks // Real break data for this client
       );
 
       currentY += rowHeight;
 
-      // Reset Y für neue Seite
+      // Reset Y for new page
       if (isLastRowOnPage && !isLastRow) {
         currentY = this.MARGINS.top + 60;
       }
     }
 
-    // Zusätzliche Info (nur auf der letzten Seite)
+    // Additional info (only on the last page)
     if (totalClients > 0) {
       pdf.setFontSize(10);
       pdf.text(
-        `Insgesamt ${totalClients} Clients exportiert`,
+        `Total ${totalClients} clients exported`,
         this.MARGINS.left,
         currentY + 20
       );
       pdf.text(
-        `Jahr: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(
+        `Year: ${config.year} (${this.ganttPdfDrawingService.getDaysInYear(
           config.year
-        )} Tage)`,
+        )} days)`,
         this.MARGINS.left,
         currentY + 65
       );
     } else {
       pdf.setFontSize(12);
+      pdf.text('No client data available', this.MARGINS.left, currentY + 20);
       pdf.text(
-        'Keine Client-Daten verfügbar',
-        this.MARGINS.left,
-        currentY + 20
-      );
-      pdf.text(
-        'Bitte stellen Sie sicher, dass Daten geladen sind',
+        'Please ensure that data has been loaded',
         this.MARGINS.left,
         currentY + 40
       );
     }
 
     const fileName = `gantt-real-data-${new Date().getTime()}.pdf`;
-    pdf.save(fileName);
-  }
-
-  // Alternative method using html2canvas if available
-  async exportViewWithHtml2Canvas(
-    options: GanttExportOptions = {}
-  ): Promise<void> {
-    const { title = 'Gantt Chart Export' } = options;
-
-    // Try to capture the entire gantt area
-    const ganttContainer = document.querySelector(
-      '.container-box'
-    ) as HTMLElement;
-    const rowHeaderContainer = document.querySelector(
-      '#box-calendar-row-header'
-    ) as HTMLElement;
-
-    if (!ganttContainer || !rowHeaderContainer) {
-      console.error('Could not find gantt containers');
-      return;
-    }
-
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'pt',
-      format: 'a3',
-    });
-
-    // Add title and date
-    this.addPageHeader(pdf, title, 1, 1);
-
-    // For now, just add a placeholder
-    pdf.setFontSize(12);
-    pdf.text(
-      'Gantt chart content would be captured here',
-      this.MARGINS.left,
-      this.MARGINS.top + 80
-    );
-    pdf.text(
-      'Canvas dimensions and data logged to console',
-      this.MARGINS.left,
-      this.MARGINS.top + 100
-    );
-
-    const fileName = `gantt-chart-${new Date().getTime()}.pdf`;
     pdf.save(fileName);
   }
 }
