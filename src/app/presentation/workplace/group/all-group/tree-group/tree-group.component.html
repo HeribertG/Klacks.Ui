@@ -72,7 +72,7 @@
   <div class="container-line"></div>
 
   @if (dataManagementGroupService.showTree()) {
-  <!-- Baumansicht -->
+  <!-- tree view -->
   <div class="tree-container">
     @if (hierarchicalTree && hierarchicalTree.length > 0) {
     <ul class="tree-root">
@@ -133,10 +133,12 @@
           [title]="node.description || ''"
         >
           <span class="tree-node-name">{{ node.name }}</span>
-          <span class="tree-node-badge">{{ node.clientsCount }}</span>
+          <span class="tree-node-badge"
+            >{{ getTotalClientsCount(node) }} | {{ node.clientsCount }}</span
+          >
         </div>
 
-        <!-- Aktionen für den Knoten -->
+        <!-- Actions for the node -->
         @if (authorizationService.isAuthorised) {
         <div class="tree-node-actions">
           <button class="tree-action-btn" (click)="editNode(node)">
@@ -158,7 +160,7 @@
         }
       </div>
 
-      <!-- Kinder des Knotens -->
+      <!-- Children of the node-->
       @if (hasChildren(node) && isNodeExpanded(node)) {
       <div class="tree-children">
         <ul>

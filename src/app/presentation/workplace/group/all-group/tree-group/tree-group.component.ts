@@ -209,6 +209,18 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  getTotalClientsCount(node: Group): number {
+    let total = node.clientsCount || 0;
+
+    if (node.children && node.children.length > 0) {
+      for (const child of node.children) {
+        total += this.getTotalClientsCount(child);
+      }
+    }
+
+    return total;
+  }
+
   private collapseAllNodes(): void {
     if (this.hierarchicalTree && this.hierarchicalTree.length > 0) {
       this.dataManagementGroupService.collapseAllNodes();
