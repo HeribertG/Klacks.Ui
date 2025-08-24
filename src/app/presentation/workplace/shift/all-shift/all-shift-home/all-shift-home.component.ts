@@ -25,13 +25,12 @@ export class AllShiftHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
-  
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.footerService.setFooterVisibility(false);
     this.searchService.setSearchVisibility(true);
-    
+
     // Set active manager for shift route to enable search functionality
     this.workplaceStateService.setActiveManagerByRoute('shift');
   }
