@@ -125,6 +125,7 @@ export class AbsenceGanttContainerComponent {
 
   onBreakIdSelected(breakId: string): void {
     this.absenceBody().selectBreakById(breakId);
+    this.absenceBody().showSelectedBreak();
   }
 
   async onPdfExportRequested(): Promise<void> {

@@ -498,23 +498,23 @@ export class AbsenceGanttSurfaceComponent
     for (let row = 0; row < this.dataManagementBreak.rows; row++) {
       const breaks = this.dataManagementBreak.readData(row);
       if (breaks) {
-        const breakIndex = breaks.findIndex(b => b.id === breakId);
+        const breakIndex = breaks.findIndex((b) => b.id === breakId);
         if (breakIndex !== -1) {
           // Break gefunden - Zeile und Index setzen
           this.drawCalendarGantt.selectedRow = row;
           this.drawCalendarGantt.selectedBreakIndex = breakIndex;
           this.selectedArea = SelectedArea.AbsenceBar;
-          
+
           // Neuzeichnen
           this.drawCalendarGantt.unDrawSelectionRow();
           this.drawCalendarGantt.drawSelectionRow();
           this.drawCalendarGantt.drawSelectedBreak();
-          
+
           // Event für Index-Änderung auslösen
           if (this.absenceMask) {
             this.absenceMask.onBreakChange(breakIndex);
           }
-          
+
           break;
         }
       }
@@ -792,10 +792,10 @@ export class AbsenceGanttSurfaceComponent
   onChangeIndex(index: number): void {
     this.drawCalendarGantt.selectedBreakIndex = index - 1;
     this.drawCalendarGantt.drawSelectedBreak();
-    this.showBreak();
+    this.showSelectedBreak();
   }
 
-  showBreak() {
+  showSelectedBreak() {
     const tmpBreak = this.dataManagementBreak.readData(
       this.drawCalendarGantt.selectedRow
     )![this.drawCalendarGantt.selectedBreakIndex];
@@ -826,7 +826,7 @@ export class AbsenceGanttSurfaceComponent
     this.drawCalendarGantt.unDrawSelectionRow();
     this.drawCalendarGantt.drawSelectionRow();
     this.drawCalendarGantt.drawSelectedBreak();
-    this.showBreak();
+    this.showSelectedBreak();
   }
   /* #endregion   show Entry */
 
@@ -943,7 +943,10 @@ export class AbsenceGanttSurfaceComponent
       newBreak.from,
       absence!.defaultLength! > 1 ? absence!.defaultLength - 1 : 0
     );
-    const validationPassed = this.dataManagementBreak.addBreak(position[1], newBreak);
+    const validationPassed = this.dataManagementBreak.addBreak(
+      position[1],
+      newBreak
+    );
     if (validationPassed !== false) {
       this.drawCalendarGantt.selectedRow = position[1];
       this.drawCalendarGantt.selectedBreakIndex =

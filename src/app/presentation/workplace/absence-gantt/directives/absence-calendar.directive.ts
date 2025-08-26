@@ -311,14 +311,14 @@ export class AbsenceCalendarDirective {
         this.gridBody.drawCalendarGantt.selectedBreakIndex > 0
       ) {
         this.gridBody.drawCalendarGantt.selectedBreakIndex--;
-        this.gridBody.showBreak();
+        this.gridBody.showSelectedBreak();
       } else if (
         this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
         this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
       ) {
         this.gridBody.drawCalendarGantt.selectedBreakIndex =
           this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex;
-        this.gridBody.showBreak();
+        this.gridBody.showSelectedBreak();
       }
 
       this.stopEvent(event);
@@ -339,13 +339,13 @@ export class AbsenceCalendarDirective {
           this.gridBody.drawCalendarGantt.selectedBreakIndex
       ) {
         this.gridBody.drawCalendarGantt.selectedBreakIndex++;
-        this.gridBody.showBreak();
+        this.gridBody.showSelectedBreak();
       } else if (
         this.gridBody.drawCalendarGantt.selectedBreakIndex === -1 &&
         this.gridBody.drawCalendarGantt.selectedRowBreaksMaxIndex > -1
       ) {
         this.gridBody.drawCalendarGantt.selectedBreakIndex = 0;
-        this.gridBody.showBreak();
+        this.gridBody.showSelectedBreak();
       }
 
       // if (this.gridBody.isShift) {
