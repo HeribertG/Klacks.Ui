@@ -294,6 +294,11 @@ export class GridColorService {
   }
 
   isSetting_Dirty(): boolean {
+    // If dummy list is empty, data hasn't been loaded yet - not dirty
+    if (this.settingListDummy.length === 0) {
+      return false;
+    }
+    
     let result = false;
     this.settingList.forEach((x) => {
       const dummy = this.settingListDummy.find((y) => y.type === x.type);

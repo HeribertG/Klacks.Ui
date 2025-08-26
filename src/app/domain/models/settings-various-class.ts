@@ -20,8 +20,6 @@ export class AppSetting {
   public static APP_ADDRESS_PHONE = 'APP_ADDRESS_PHONE';
   public static APP_ADDRESS_MAIL = 'APP_ADDRESS_MAIL';
   public static APP_ACCOUNTING_START = 'APP_ACCOUNTING_START';
-  public static readonly APP_ABACUS_CLIENT_NUMBER = 'APP_ABACUS_CLIENT_NUMBER';
-  public static readonly APP_ABACUS_BUSINESS_AREA = 'APP_ABACUS_BUSINESS_AREA';
 
   public static APP_AUTHENTICATION_TYPE = 'authenticationType';
   public static APP_ENABLE_SSL = 'enabledSSL';

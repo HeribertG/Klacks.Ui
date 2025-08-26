@@ -11,6 +11,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 // Services
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
+import { SettingsManageableWrapperService } from 'src/app/domain/services/settings-manageable-wrapper.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -63,6 +64,7 @@ export class SettingsHomeComponent implements OnInit {
 
   private workplaceStateService = inject(WorkplaceStateService);
   private dataManagementSettingsService = inject(DataManagementSettingsService);
+  private settingsManageableWrapperService = inject(SettingsManageableWrapperService);
   private localStorageService = inject(LocalStorageService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);

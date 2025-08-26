@@ -26,8 +26,6 @@ import { IMacro } from 'src/app/domain/models/macro-class';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -41,12 +39,6 @@ export class DataManagementSettingsService implements IManageable {
   public gridColorService = inject(GridColorService);
 
   constructor() {
-    // Selbst-Registrierung für die settings Route
-    ManageableServiceRegistry.register(
-      RouteName.SETTINGS,
-      DataManagementSettingsService
-    );
-
     effect(() => {
       const isReset = this.gridColorService.isReset();
       if (isReset) {
@@ -104,9 +96,6 @@ export class DataManagementSettingsService implements IManageable {
   public outgoingserverPassword = '';
   public mailPriority = '';
 
-  public appMandantNumber = '';
-  public appBusinessArea = '';
-
   public appNameDummy = '';
   public appAddressNameDummy = '';
   public appSupplementAddressDummy = '';
@@ -129,9 +118,6 @@ export class DataManagementSettingsService implements IManageable {
   public outgoingserverUsernameDummy = '';
   public outgoingserverPasswordDummy = '';
   public mailPriorityDummy = '';
-
-  public appMandantNumberDummy = '';
-  public appBusinessAreaDummy = '';
 
   public bankDetailCount = 0;
   public isBankDetailRowFocusIndex = -1;
@@ -326,9 +312,6 @@ export class DataManagementSettingsService implements IManageable {
     this.outgoingserverUsernameDummy = '';
     this.outgoingserverPasswordDummy = '';
     this.mailPriorityDummy = '';
-
-    this.appMandantNumber = '';
-    this.appBusinessArea = '';
   }
 
   private setSetting(value: ISetting) {
@@ -368,11 +351,6 @@ export class DataManagementSettingsService implements IManageable {
       case AppSetting.APP_ACCOUNTING_START:
         this.appAddressAccountingStart = +value.value;
         this.appAddressAccountingStartDummy = +value.value;
-        break;
-
-      case AppSetting.APP_ABACUS_CLIENT_NUMBER:
-        this.appMandantNumber = value.value;
-        this.appMandantNumberDummy = value.value;
         break;
 
       case AppSetting.APP_AUTHENTICATION_TYPE:
@@ -471,16 +449,6 @@ export class DataManagementSettingsService implements IManageable {
       this.appAddressAccountingStartDummy.toString(),
       AppSetting.APP_ACCOUNTING_START
     );
-    this.saveSetting_sub(
-      this.appMandantNumber,
-      this.appMandantNumberDummy,
-      AppSetting.APP_ABACUS_CLIENT_NUMBER
-    );
-    this.saveSetting_sub(
-      this.appBusinessArea,
-      this.appBusinessAreaDummy,
-      AppSetting.APP_ABACUS_BUSINESS_AREA
-    );
 
     this.saveSetting_sub(
       this.outgoingServer,
@@ -524,16 +492,7 @@ export class DataManagementSettingsService implements IManageable {
     );
 
     this.saveSetting_sub(this.mark, this.markDummy, AppSetting.APP_MARK);
-    this.saveSetting_sub(
-      this.outgoingserverUsername,
-      this.outgoingserverUsernameDummy,
-      AppSetting.APP_OUTGOING_SERVER_USERNAME
-    );
-    this.saveSetting_sub(
-      this.outgoingserverPassword,
-      this.outgoingserverPasswordDummy,
-      AppSetting.APP_OUTGOING_SERVER_PASSWORD
-    );
+    // outgoingserverUsername and outgoingserverPassword intentionally excluded from save
 
     this.saveSetting_sub(this.mark, this.markDummy, AppSetting.APP_MARK);
   }
@@ -589,12 +548,6 @@ export class DataManagementSettingsService implements IManageable {
     ) {
       return true;
     }
-    if (this.appMandantNumber !== this.appMandantNumberDummy) {
-      return true;
-    }
-    if (this.appBusinessArea !== this.appBusinessAreaDummy) {
-      return true;
-    }
 
     if (this.outgoingServer !== this.outgoingServerDummy) {
       return true;
@@ -620,23 +573,12 @@ export class DataManagementSettingsService implements IManageable {
     if (this.dispositionNotification !== this.dispositionNotificationDummy) {
       return true;
     }
-
     if (this.mark !== this.markDummy) {
       return true;
     }
-
-    if (this.outgoingserverUsername !== this.outgoingserverUsernameDummy) {
-      return true;
-    }
-
-    if (this.outgoingserverPassword !== this.outgoingserverPasswordDummy) {
-      return true;
-    }
-
     if (this.mailPriority !== this.mailPriorityDummy) {
       return true;
     }
-
     return false;
   }
 
@@ -945,25 +887,21 @@ export class DataManagementSettingsService implements IManageable {
     if (this.isCountryList_Dirty()) {
       return true;
     }
-
+    if (this.isStateList_Dirty()) {
+      return true;
+    }
     if (this.isMacroList_Dirty()) {
       return true;
     }
-
-    if (this.isMacroList_Dirty()) {
-      return true;
-    }
-
     if (this.gridColorService.isSetting_Dirty()) {
       return true;
     }
-
     return false;
   }
 
   save() {
     let hasOperations = false;
-    
+
     if (this.isSetting_Dirty()) {
       this.saveSetting();
       hasOperations = true;
@@ -972,7 +910,10 @@ export class DataManagementSettingsService implements IManageable {
       this.saveCountryList();
       hasOperations = true;
     }
-
+    if (this.isStateList_Dirty()) {
+      this.saveStatesList();
+      hasOperations = true;
+    }
     if (this.isMacroList_Dirty()) {
       this.saveMacroList();
       hasOperations = true;
@@ -981,7 +922,7 @@ export class DataManagementSettingsService implements IManageable {
       this.gridColorService.save();
       hasOperations = true;
     }
-    
+
     // If no operations were needed, call onSaveCompleted immediately
     if (!hasOperations && this.onSaveCompleted) {
       this.onSaveCompleted();

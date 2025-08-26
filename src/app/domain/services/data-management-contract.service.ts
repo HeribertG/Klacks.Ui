@@ -24,8 +24,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../models/schedule-class';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -40,10 +38,6 @@ export class DataManagementContractService implements IManageable {
   );
 
   constructor() {
-    ManageableServiceRegistry.register(
-      RouteName.SETTINGS,
-      DataManagementContractService
-    );
   }
 
   public showProgressSpinner = signal(false);
