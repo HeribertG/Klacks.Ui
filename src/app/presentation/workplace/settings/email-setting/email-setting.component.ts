@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   EffectRef,
@@ -120,7 +121,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
     // Validate email address format
     const username = this.dataManagementSettingsService.outgoingserverUsername;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!emailRegex.test(username)) {
       this.isTestingEmail = false;
       this.toastShowService.showError(
@@ -137,46 +138,38 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
       authType: this.dataManagementSettingsService.authenticationType,
       username: username,
       password: this.dataManagementSettingsService.outgoingserverPassword,
-      replyTo: this.dataManagementSettingsService.replyTo
+      replyTo: this.dataManagementSettingsService.replyTo,
     };
 
-    // Call the backend to test email configuration
-    console.log('Testing email configuration with:', {
-      server: emailConfig.server,
-      port: emailConfig.port,
-      enableSSL: emailConfig.enableSSL,
-      authType: emailConfig.authType,
-      username: emailConfig.username,
-      password: emailConfig.password ? '***' : 'NO PASSWORD'
-    });
-    this.dataSettingsVariousService.testEmailConfiguration(emailConfig).subscribe({
-      next: (result: EmailTestResult) => {
-        console.log('Email test result:', result);
-        this.isTestingEmail = false;
-        
-        if (result.success) {
-          this.toastShowService.showSuccess(
-            result.message,
-            'Email Test Successful'
-          );
-        } else {
+    this.dataSettingsVariousService
+      .testEmailConfiguration(emailConfig)
+      .subscribe({
+        next: (result: EmailTestResult) => {
+          this.isTestingEmail = false;
+
+          if (result.success) {
+            this.toastShowService.showSuccess(
+              result.message,
+              'Email Test Successful'
+            );
+          } else {
+            this.toastShowService.showError(
+              result.message,
+              'EMAIL_TEST_ERROR',
+              result.errorDetails || ''
+            );
+          }
+        },
+        error: (error: any) => {
+          console.error('Email test error:', error);
+          this.isTestingEmail = false;
+
           this.toastShowService.showError(
-            result.message,
+            'An error occurred while testing the email configuration.',
             'EMAIL_TEST_ERROR',
-            result.errorDetails || ''
+            error.message || ''
           );
-        }
-      },
-      error: (error: any) => {
-        console.error('Email test error:', error);
-        this.isTestingEmail = false;
-        
-        this.toastShowService.showError(
-          'An error occurred while testing the email configuration.',
-          'EMAIL_TEST_ERROR',
-          error.message || ''
-        );
-      }
-    });
+        },
+      });
   }
 }
