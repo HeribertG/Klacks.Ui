@@ -20,7 +20,6 @@ export class SettingsManageableWrapperService implements IManageable {
   public onSaveCompleted?: () => void;
 
   constructor() {
-    // Register this wrapper service for the settings route
     ManageableServiceRegistry.register(
       RouteName.SETTINGS,
       SettingsManageableWrapperService
@@ -28,7 +27,6 @@ export class SettingsManageableWrapperService implements IManageable {
   }
 
   areObjectsDirty(): boolean {
-    // Check if either service has dirty objects
     return (
       this.dataManagementSettingsService.areObjectsDirty() ||
       this.dataManagementContractService.areObjectsDirty()
@@ -36,10 +34,8 @@ export class SettingsManageableWrapperService implements IManageable {
   }
 
   save(): void {
-    // Track if all saves are completed
     let pendingSaves = 0;
-    
-    // Save settings if dirty
+
     if (this.dataManagementSettingsService.areObjectsDirty()) {
       pendingSaves++;
       this.dataManagementSettingsService.onSaveCompleted = () => {
@@ -48,8 +44,7 @@ export class SettingsManageableWrapperService implements IManageable {
       };
       this.dataManagementSettingsService.save();
     }
-    
-    // Save contracts if dirty
+
     if (this.dataManagementContractService.areObjectsDirty()) {
       pendingSaves++;
       this.dataManagementContractService.onSaveCompleted = () => {
@@ -58,8 +53,7 @@ export class SettingsManageableWrapperService implements IManageable {
       };
       this.dataManagementContractService.save();
     }
-    
-    // If nothing to save, call onSaveCompleted immediately
+
     if (pendingSaves === 0 && this.onSaveCompleted) {
       this.onSaveCompleted();
     }
@@ -77,7 +71,6 @@ export class SettingsManageableWrapperService implements IManageable {
   }
 
   goBack(): string {
-    // Both services return the same path
     return this.dataManagementSettingsService.goBack();
   }
 }

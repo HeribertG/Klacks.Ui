@@ -42,7 +42,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
       >
         {{ 'reset' | translate }}
       </span>
-      } @if (workplaceStateService.isDirty) {
+      } @if (footerService.footerConfig().showSaveButtons) {
       <button
         type="button"
         class="btn save-btn"
@@ -53,6 +53,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
       >
         {{ 'store' | translate }}
       </button>
+      } @if (footerService.footerConfig().showSaveAndCloseButton) {
       <button
         type="button"
         class="btn save-btn"

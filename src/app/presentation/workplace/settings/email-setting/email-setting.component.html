@@ -5,53 +5,55 @@
 
   <div class="container-line"></div>
 
-  <form #emailSettingsForm="ngForm">
+  <form #emailSettingsForm="ngForm" *ngIf="isDataLoaded">
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-name">Outgoing Server</label>
+        <label for="outgoingServer">Outgoing Server</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.outgoingServer"
           aria-label="outgoingServer"
           name="outgoingServer"
+          id="outgoingServer"
         />
       </div>
 
       <div class="form-group secondColumn">
-        <label for="setting-owner-address-tel">Outgoing Server Port</label>
+        <label for="outgoingServerPort">Outgoing Server Port</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.outgoingServerPort"
           aria-label="outgoingServerPort"
           name="outgoingServerPort"
+          id="outgoingServerPort"
         />
       </div>
     </div>
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-supplement"
-          >Outgoing Server Timeout</label
-        >
+        <label for="outgoingServerTimeout">Outgoing Server Timeout</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.outgoingServerTimeout"
           aria-label="outgoingServerTimeout"
           name="outgoingServerTimeout"
+          id="outgoingServerTimeout"
         />
       </div>
 
       <div class="form-group secondColumn">
-        <label for="setting-owner-addressl-email">Enabled SSL</label>
+        <label for="enabledSSL">Enabled SSL</label>
         <select
           type="email"
           class="form-select"
           [(ngModel)]="dataManagementSettingsService.enabledSSL"
           aria-label="enabledSSL"
           name="enabledSSL"
+          id="enabledSSL"
         >
           <option
             value="true"
@@ -71,13 +73,14 @@
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-street">Authentication Type</label>
+        <label for="authenticationType">Authentication Type</label>
         <select
           type="text"
           class="form-select"
           [(ngModel)]="dataManagementSettingsService.authenticationType"
           aria-label="authenticationType"
           name="authenticationType"
+          id="authenticationType"
         >
           <option
             value="<None>"
@@ -153,95 +156,98 @@
 
     <div class="row-line-singel">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-city">Read Receipt</label>
+        <label for="readReceipt">Read Receipt</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.readReceipt"
           aria-label="readReceipt"
           name="readReceipt"
+          id="readReceipt"
         />
       </div>
     </div>
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-city"
-          >Reply To / Sender Address</label
-        >
+        <label for="replyTo">Reply To / Sender Address</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.replyTo"
           aria-label="replyTo"
           name="replyTo"
+          id="replyTo"
         />
       </div>
     </div>
 
     <div class="row-line-single">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-city">Mark</label>
+        <label for="mark">Mark</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.mark"
           aria-label="mark"
           name="mark"
+          id="mark"
         />
       </div>
     </div>
 
     <div class="row-line">
       <div class="form-group firstColumn">
-        <label for="setting-owner-address-city">Username</label>
+        <label for="outgoingServerAuthUser">SMTP Authentication User</label>
         <input
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.outgoingserverUsername"
-          aria-label="outgoingserverUsername"
-          name="outgoingserverUsername"
+          aria-label="outgoingServerAuthUser"
+          name="outgoingServerAuthUser"
+          id="outgoingServerAuthUser"
+          autocomplete="new-password"
+          role="textbox"
         />
       </div>
 
       <div class="form-group secondColumn">
-        <label class="mylabel" for="Password">Password</label>
-        <div class="input-group">
+        <label for="outgoingServerAuthKey">SMTP Authentication Key</label>
+        <div class="password-field-container">
           <input
             [type]="showPassword ? 'text' : 'password'"
-            autocomplete
+            class="form-control"
             [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
-            name="password"
-            id="Password"
-            class="form-control input-password"
+            name="outgoingServerAuthKey"
+            id="outgoingServerAuthKey"
+            aria-label="outgoingServerAuthKey"
+            autocomplete="new-password"
           />
-
-          <span
-            class="input-group-text password-button"
+          <fa-icon 
+            [icon]="showPassword ? faEyeSlash : faEye"
+            class="password-toggle-icon"
             (click)="showPassword = !showPassword"
-          >
-            <i
-              name="eye-btn"
-              [ngClass]="
-                !showPassword
-                  ? 'password-icon fa fa-eye-slash'
-                  : 'password-icon fa fa-eye'
-              "
-            ></i>
-          </span>
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          ></fa-icon>
         </div>
       </div>
-
-      <!-- <div class="form-group secondColumn">
-        <label for="setting-owner-address-city">Password</label>
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
-          aria-label="outgoingserverPassword"
-          name="outgoingserverPassword"
-        />
-      </div> -->
+    </div>
+    
+    <div class="test-email-section">
+      <div class="test-button-container">
+        <button 
+          type="button"
+          class="btn btn-primary test-email-button"
+          (click)="testEmailConfiguration()"
+          [disabled]="isTestingEmail"
+        >
+          <span *ngIf="!isTestingEmail">Send Test Email</span>
+          <span *ngIf="isTestingEmail">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Sending...
+          </span>
+        </button>
+      </div>
     </div>
   </form>
 </div>

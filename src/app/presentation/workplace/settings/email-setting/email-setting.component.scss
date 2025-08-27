@@ -9,8 +9,29 @@
   padding-right: 40px;
 }
 
-.input-group {
+.password-field-container {
+  position: relative;
   width: 420px;
+
+  input {
+    width: 420px;
+    height: 32px;
+    padding-right: 40px;
+  }
+
+  .password-toggle-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--standartTextColor);
+    opacity: 0.7;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
 }
 
 input {
@@ -18,9 +39,44 @@ input {
   height: 32px;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px var(--standartTextBackground) inset !important;
+  -webkit-text-fill-color: var(--standartTextColor) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 select {
   width: 420px;
   height: 32px;
+}
+
+.test-email-section {
+  margin-top: 15px;
+  position: relative;
+
+  .test-button-container {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 40px;
+  }
+
+  .test-email-button {
+    background-color: var(--standartGreenColor);
+    border-color: var(--standartGreenColor);
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: var(--splitButtonGreenColor);
+      border-color: var(--splitButtonGreenColor);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
 }
 
 .row-line {

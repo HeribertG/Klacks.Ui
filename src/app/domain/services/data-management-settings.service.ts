@@ -286,8 +286,6 @@ export class DataManagementSettingsService implements IManageable {
     this.replyTo = '';
     this.dispositionNotification = '';
     this.mark = '';
-    this.outgoingserverUsername = '';
-    this.outgoingserverPassword = '';
     this.mailPriority = '';
 
     this.appNameDummy = '';
@@ -309,8 +307,8 @@ export class DataManagementSettingsService implements IManageable {
     this.replyToDummy = '';
     this.dispositionNotificationDummy = '';
     this.markDummy = '';
-    this.outgoingserverUsernameDummy = '';
-    this.outgoingserverPasswordDummy = '';
+    this.outgoingserverUsernameDummy = this.outgoingserverUsername;
+    this.outgoingserverPasswordDummy = this.outgoingserverPassword;
     this.mailPriorityDummy = '';
   }
 
@@ -397,12 +395,16 @@ export class DataManagementSettingsService implements IManageable {
         break;
 
       case AppSetting.APP_OUTGOING_SERVER_USERNAME:
-        this.outgoingserverUsername = value.value;
+        if (!this.outgoingserverUsername) {
+          this.outgoingserverUsername = value.value;
+        }
         this.outgoingserverUsernameDummy = value.value;
         break;
 
       case AppSetting.APP_OUTGOING_SERVER_PASSWORD:
-        this.outgoingserverPassword = value.value;
+        if (!this.outgoingserverPassword) {
+          this.outgoingserverPassword = value.value;
+        }
         this.outgoingserverPasswordDummy = value.value;
         break;
     }
@@ -492,9 +494,16 @@ export class DataManagementSettingsService implements IManageable {
     );
 
     this.saveSetting_sub(this.mark, this.markDummy, AppSetting.APP_MARK);
-    // outgoingserverUsername and outgoingserverPassword intentionally excluded from save
-
-    this.saveSetting_sub(this.mark, this.markDummy, AppSetting.APP_MARK);
+    this.saveSetting_sub(
+      this.outgoingserverUsername,
+      this.outgoingserverUsernameDummy,
+      AppSetting.APP_OUTGOING_SERVER_USERNAME
+    );
+    this.saveSetting_sub(
+      this.outgoingserverPassword,
+      this.outgoingserverPasswordDummy,
+      AppSetting.APP_OUTGOING_SERVER_PASSWORD
+    );
   }
 
   private saveSetting_sub(value: string, dummy: string, type: string) {
@@ -574,6 +583,12 @@ export class DataManagementSettingsService implements IManageable {
       return true;
     }
     if (this.mark !== this.markDummy) {
+      return true;
+    }
+    if (this.outgoingserverUsername !== this.outgoingserverUsernameDummy) {
+      return true;
+    }
+    if (this.outgoingserverPassword !== this.outgoingserverPasswordDummy) {
       return true;
     }
     if (this.mailPriority !== this.mailPriorityDummy) {

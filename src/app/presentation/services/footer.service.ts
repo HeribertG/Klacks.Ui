@@ -1,10 +1,12 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
+import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 export interface FooterConfig {
   showFooter: boolean;
   showGoBackButton: boolean;
   showSaveButtons: boolean;
+  showSaveAndCloseButton: boolean;
   showResetButton: boolean;
 }
 
@@ -26,8 +28,17 @@ export class FooterService {
     showFooter: this._showFooter(),
     showGoBackButton: this.showGoBackButton(),
     showSaveButtons: this.isDirty(),
+    showSaveAndCloseButton:
+      this.isDirty() && this.shouldShowSaveAndCloseButton(),
     showResetButton: this.isDirty() && !this.isDisabled(),
   }));
+
+  private shouldShowSaveAndCloseButton(): boolean {
+    const entityName = this.workplaceState.nameOfVisibleEntity();
+    return (
+      entityName !== EntityName.SETTINGS && entityName !== EntityName.PROFILE
+    );
+  }
 
   constructor() {
     effect(() => {

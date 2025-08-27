@@ -10,7 +10,6 @@ import {
   effect,
   inject,
   runInInjectionContext,
-  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -19,6 +18,11 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, Subscription } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
+import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
+import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-email-setting',
@@ -31,10 +35,13 @@ import { DataManagementSettingsService } from 'src/app/domain/services/data-mana
     TranslateModule,
     NgbModule,
     SpinnerModule,
+    FontAwesomeModule,
   ],
 })
-export class EmailSettingComponent implements OnInit, OnDestroy, AfterViewInit {
+export class EmailSettingComponent implements OnInit, OnDestroy {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private toastShowService = inject(ToastShowService);
   private injector = inject(Injector);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -42,6 +49,12 @@ export class EmailSettingComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ruleName = '';
   showPassword = false;
+  public faEye = faEye;
+  public faEyeSlash = faEyeSlash;
+
+  public isDataLoaded = false;
+  public isTestingEmail = false;
+  public testResult: EmailTestResult | null = null;
 
   private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
@@ -51,12 +64,14 @@ export class EmailSettingComponent implements OnInit, OnDestroy, AfterViewInit {
     this.readSignals();
   }
 
-  ngAfterViewInit(): void {
-    if (this.emailSettingsForm?.valueChanges) {
+  private setupFormSubscription(): void {
+    if (this.emailSettingsForm?.valueChanges && !this.formSubscription) {
+      this.emailSettingsForm.form.markAsPristine();
+
       this.formSubscription = this.emailSettingsForm.valueChanges.subscribe(
         () => {
           if (this.emailSettingsForm?.dirty) {
-            setTimeout(() => this.isChangingEvent.emit(true), 100);
+            this.isChangingEvent.emit(true);
           }
         }
       );
@@ -83,11 +98,85 @@ export class EmailSettingComponent implements OnInit, OnDestroy, AfterViewInit {
     const resetEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
         const isReset = this.dataManagementSettingsService.isReset();
-        if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
+        if (isReset && !this.isDataLoaded) {
+          this.isDataLoaded = true;
+
+          setTimeout(() => {
+            if (this.emailSettingsForm) {
+              this.setupFormSubscription();
+            }
+            this.isChangingEvent.emit(false);
+          }, 100);
         }
       });
     });
     this.effects.push(resetEffect);
+  }
+
+  public testEmailConfiguration(): void {
+    this.isTestingEmail = true;
+    this.testResult = null;
+
+    // Validate email address format
+    const username = this.dataManagementSettingsService.outgoingserverUsername;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!emailRegex.test(username)) {
+      this.isTestingEmail = false;
+      this.toastShowService.showError(
+        'Please enter a valid email address in the Username field.',
+        'EMAIL_VALIDATION_ERROR'
+      );
+      return;
+    }
+
+    const emailConfig = {
+      server: this.dataManagementSettingsService.outgoingServer,
+      port: this.dataManagementSettingsService.outgoingServerPort,
+      enableSSL: this.dataManagementSettingsService.enabledSSL,
+      authType: this.dataManagementSettingsService.authenticationType,
+      username: username,
+      password: this.dataManagementSettingsService.outgoingserverPassword,
+      replyTo: this.dataManagementSettingsService.replyTo
+    };
+
+    // Call the backend to test email configuration
+    console.log('Testing email configuration with:', {
+      server: emailConfig.server,
+      port: emailConfig.port,
+      enableSSL: emailConfig.enableSSL,
+      authType: emailConfig.authType,
+      username: emailConfig.username,
+      password: emailConfig.password ? '***' : 'NO PASSWORD'
+    });
+    this.dataSettingsVariousService.testEmailConfiguration(emailConfig).subscribe({
+      next: (result: EmailTestResult) => {
+        console.log('Email test result:', result);
+        this.isTestingEmail = false;
+        
+        if (result.success) {
+          this.toastShowService.showSuccess(
+            result.message,
+            'Email Test Successful'
+          );
+        } else {
+          this.toastShowService.showError(
+            result.message,
+            'EMAIL_TEST_ERROR',
+            result.errorDetails || ''
+          );
+        }
+      },
+      error: (error: any) => {
+        console.error('Email test error:', error);
+        this.isTestingEmail = false;
+        
+        this.toastShowService.showError(
+          'An error occurred while testing the email configuration.',
+          'EMAIL_TEST_ERROR',
+          error.message || ''
+        );
+      }
+    });
   }
 }

@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs/operators';
 import { ISetting } from 'src/app/domain/models/settings-various-class';
+import { EmailTestRequest, EmailTestResult } from 'src/app/domain/models/email-test.interface';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 
@@ -33,5 +34,21 @@ export class DataSettingsVariousService {
     return this.httpClient
       .get<ISetting[]>(`${environment.baseUrl}Settings/GetSettingsList`)
       .pipe();
+  }
+
+  testEmailConfiguration(config: any): Observable<EmailTestResult> {
+    const emailTestRequest: EmailTestRequest = {
+      server: config.server?.trim() || '',
+      port: config.port?.trim() || '',
+      username: config.username?.trim() || '',
+      password: config.password || '', // Don't trim password
+      enableSSL: config.enableSSL === 'true',
+      authenticationType: config.authType?.trim() || '',
+      timeout: 45000 // 45 seconds timeout for email test
+    };
+
+    return this.httpClient
+      .post<EmailTestResult>(`${environment.baseUrl}Settings/TestEmailConfiguration`, emailTestRequest)
+      .pipe(retry(1));
   }
 }

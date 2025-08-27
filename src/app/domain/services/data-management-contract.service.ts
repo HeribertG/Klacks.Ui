@@ -23,12 +23,11 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../models/schedule-class';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementContractService implements IManageable {
+export class DataManagementContractService {
   public toastShowService = inject(ToastShowService);
   private dataContractService = inject(DataContractService);
   private translate = inject(TranslateService);
@@ -37,8 +36,7 @@ export class DataManagementContractService implements IManageable {
     DataManagementCalendarSelectionService
   );
 
-  constructor() {
-  }
+  constructor() {}
 
   public showProgressSpinner = signal(false);
   public onSaveCompleted?: () => void;
@@ -51,9 +49,11 @@ export class DataManagementContractService implements IManageable {
   public contracts: IContract[] = [];
   public editContract: IContract | undefined;
 
-  // Separate property accessors to prevent ngModel binding conflicts
   get guaranteedHoursForBinding(): OwnTime {
-    return this.editContract?.internalGuaranteedHours || OwnTime.forDuration('00', '00');
+    return (
+      this.editContract?.internalGuaranteedHours ||
+      OwnTime.forDuration('00', '00')
+    );
   }
 
   set guaranteedHoursForBinding(value: OwnTime) {
@@ -63,7 +63,9 @@ export class DataManagementContractService implements IManageable {
   }
 
   get minimumHoursForBinding(): OwnTime {
-    return this.editContract?.internalMinimumHours || OwnTime.forDuration('00', '00');
+    return (
+      this.editContract?.internalMinimumHours || OwnTime.forDuration('00', '00')
+    );
   }
 
   set minimumHoursForBinding(value: OwnTime) {
@@ -73,7 +75,9 @@ export class DataManagementContractService implements IManageable {
   }
 
   get maximumHoursForBinding(): OwnTime {
-    return this.editContract?.internalMaximumHours || OwnTime.forDuration('00', '00');
+    return (
+      this.editContract?.internalMaximumHours || OwnTime.forDuration('00', '00')
+    );
   }
 
   set maximumHoursForBinding(value: OwnTime) {
@@ -341,7 +345,7 @@ export class DataManagementContractService implements IManageable {
       console.log('  guaranteedHoursPerMonth:', value.guaranteedHoursPerMonth);
       console.log('  minimumHoursPerMonth:', value.minimumHoursPerMonth);
       console.log('  maximumHoursPerMonth:', value.maximumHoursPerMonth);
-      
+
       value.internalGuaranteedHours = transformNumberToOwnTime(
         value.guaranteedHoursPerMonth,
         true
@@ -354,14 +358,16 @@ export class DataManagementContractService implements IManageable {
         value.maximumHoursPerMonth,
         true
       );
-      
+
       console.log('setTimeStruct - After transformation:');
       console.log('  internalGuaranteedHours:', value.internalGuaranteedHours);
       console.log('  internalMinimumHours:', value.internalMinimumHours);
       console.log('  internalMaximumHours:', value.internalMaximumHours);
-      console.log('  Are they different objects?', 
+      console.log(
+        '  Are they different objects?',
         value.internalGuaranteedHours !== value.internalMinimumHours,
-        value.internalMinimumHours !== value.internalMaximumHours);
+        value.internalMinimumHours !== value.internalMaximumHours
+      );
     }
   }
 
@@ -531,7 +537,6 @@ export class DataManagementContractService implements IManageable {
       return;
     }
 
-    // Clone the contract to avoid reference issues
     const contractCopy = cloneObject<IContract>(contract);
     this.prepareContract(contractCopy);
   }
@@ -628,10 +633,6 @@ export class DataManagementContractService implements IManageable {
 
   isNewContract(): boolean {
     return !this.editContract?.id;
-  }
-
-  goBack(): string {
-    return '/workplace/settings';
   }
 
   /* #endregion   Utility methods */
