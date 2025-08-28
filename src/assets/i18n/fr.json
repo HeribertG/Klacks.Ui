@@ -344,6 +344,7 @@
   "login.user": "Email",
   "login.password": "Mot de passe",
   "login.summit": "Se connecter",
+  "login.forgot-password": "Mot de passe oublié ?",
 
   "ABSENCE": "Calendrier d'absences",
   "ALL_SCHEDULE": "Tous les plannings",
@@ -635,5 +636,25 @@
 
   "pdf.generated": "Généré",
   "pdf.page": "Page",
-  "pdf.of": "de"
+  "pdf.of": "de",
+
+  "PASSWORD_RESET_EMAIL_SENT": "E-mail de réinitialisation du mot de passe envoyé",
+  "PASSWORD_RESET_EMAIL_ERROR": "Erreur lors de l'envoi de l'e-mail de réinitialisation",
+  "USER_CREATION_ERROR": "Erreur lors de la création de l'utilisateur",
+  "EMAIL_WARNING": "Utilisateur créé, mais l'e-mail n'a pas pu être envoyé",
+  "USER_EXISTS": "L'utilisateur n'a pas pu être créé. L'utilisateur existe peut-être déjà.",
+  "USER_EXISTS_RESET": "L'utilisateur existe peut-être déjà. Tentative d'envoi d'un e-mail de réinitialisation...",
+  "PASSWORD_RESET_EXISTING": "E-mail de réinitialisation envoyé à l'utilisateur existant",
+  "USER_CREATE_AND_RESET_FAILED": "Création d'utilisateur et réinitialisation du mot de passe échouées",
+  "USER_CREATION_FALLBACK": "Création d'utilisateur échouée. Tentative d'e-mail de réinitialisation...",
+  "PASSWORD_RESET_FALLBACK_SUCCESS": "E-mail de réinitialisation envoyé. L'utilisateur peut s'inscrire avec.",
+  "USER_CREATION_COMPLETE_FAILURE": "Création d'utilisateur et réinitialisation échouées. Contactez l'administrateur.",
+  "USERNAME_MIN_LENGTH": "Le nom d'utilisateur doit contenir au moins 3 caractères.",
+  "INVALID_EMAIL": "Adresse e-mail invalide.",
+  "PASSWORD_REQUIREMENTS": "Le mot de passe ne répond pas aux exigences.",
+  "INVALID_USER_DATA": "Données utilisateur invalides. Veuillez vérifier tous les champs.",
+  "USERNAME_MIN_3_CHARS": "Le nom d'utilisateur doit contenir au moins 3 caractères",
+  "USERNAME_PLACEHOLDER": "Au moins 3 caractères",
+  "FIRSTNAME_REQUIRED": "Le prénom est requis",
+  "LASTNAME_REQUIRED": "Le nom de famille est requis"
 }

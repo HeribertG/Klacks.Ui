@@ -5,21 +5,15 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-
-// Unterkomponenten
 import { UserAdministrationHeaderComponent } from './user-administration-header/user-administration-header.component';
 import { UserAdministrationRowComponent } from './user-administration-row/user-administration-row.component';
-
-// Services und Modelle
 import {
   Authentication,
-  ChangePassword,
   IAuthentication,
 } from 'src/app/domain/models/authentification-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { generatePassword } from 'src/app/domain/helpers/password';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Component({
   selector: 'app-user-administration',
@@ -41,7 +35,6 @@ export class UserAdministrationComponent {
 
   private ngbModal = inject(NgbModal);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
-  private localStorageService = inject(LocalStorageService);
   public translate = inject(TranslateService);
 
   newUser: IAuthentication | undefined;
@@ -53,13 +46,14 @@ export class UserAdministrationComponent {
     if (this.newUser) {
       const isValid = Boolean(
         this.newUser.firstName &&
-          this.newUser.firstName !== '' &&
+          this.newUser.firstName.trim().length >= 2 &&
           this.newUser.lastName &&
-          this.newUser.lastName !== '' &&
+          this.newUser.lastName.trim().length >= 2 &&
           this.newUser.userName &&
-          this.newUser.userName !== '' &&
+          this.newUser.userName.trim().length >= 3 &&
           this.newUser.email &&
-          this.newUser.email !== ''
+          this.newUser.email.trim().length >= 5 &&
+          this.newUser.email.includes('@')
       );
 
       this.disabled = !isValid;
@@ -85,18 +79,7 @@ export class UserAdministrationComponent {
     this.newUser = new Authentication();
     this.ngbModal.open(content, { size: 'sm', centered: true }).result.then(
       () => {
-        const changePassword = new ChangePassword();
-        changePassword.message = MessageLibrary.CHANGEPASSWORD_MAILTEXT;
-        changePassword.title = MessageLibrary.CHANGEPASSWORD_TITLE;
-        changePassword.email = this.currentEmail;
-        changePassword.appName = this.dataManagementSettingsService.appName;
-        changePassword.password = generatePassword();
-
-        const token = this.localStorageService.get(MessageLibrary.TOKEN);
-        if (token) {
-          changePassword.token = token;
-          this.dataManagementSettingsService.sentPassword(changePassword);
-        }
+        this.dataManagementSettingsService.requestPasswordReset(this.currentEmail);
       },
       () => {
         this.currentEmail = '';
@@ -109,6 +92,7 @@ export class UserAdministrationComponent {
     this.newUser.message = MessageLibrary.REGISTERUSER_MAILTEXT;
     this.newUser.title = MessageLibrary.REGISTERUSER_TITLE;
     this.newUser.appName = this.dataManagementSettingsService.appName;
+    this.newUser.sendEmail = true;
     this.disabled = true;
 
     this.ngbModal.open(content, { size: 'md', centered: true }).result.then(

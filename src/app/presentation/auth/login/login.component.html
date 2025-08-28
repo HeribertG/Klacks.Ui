@@ -42,18 +42,15 @@
             (click)="showPassword = !showPassword"
           >
             <fa-icon
-              [icon]="showPassword ? faEye : faEyeSlash"
+              [icon]="!showPassword ? faEye : faEyeSlash"
               class="password-icon"
             ></fa-icon>
           </span>
         </div>
       </div>
 
-      <div class="d-flex justify-content-around">
-        <!-- <div class="right">
-  
-            <a href="">Passwort vergessen?</a>
-          </div> -->
+      <div class="right">
+        <a href="">{{ "login.forgot-password" | translate }}</a>
       </div>
 
       <div class="center">

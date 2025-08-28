@@ -344,6 +344,7 @@
   "login.user": "Email",
   "login.password": "Password",
   "login.summit": "Sign In",
+  "login.forgot-password": "Forgot your password?",
 
   "ABSENCE": "Absence Calendar",
   "ALL_SCHEDULE": "All Schedules",
@@ -635,5 +636,25 @@
 
   "pdf.generated": "Generated",
   "pdf.page": "Page",
-  "pdf.of": "of"
+  "pdf.of": "of",
+
+  "PASSWORD_RESET_EMAIL_SENT": "Password reset email has been sent",
+  "PASSWORD_RESET_EMAIL_ERROR": "Error sending password reset email",
+  "USER_CREATION_ERROR": "Error creating user",
+  "EMAIL_WARNING": "User created, but email could not be sent",
+  "USER_EXISTS": "User could not be created. User may already exist.",
+  "USER_EXISTS_RESET": "User may already exist. Trying to send password reset email...",
+  "PASSWORD_RESET_EXISTING": "Password reset email sent to existing user",
+  "USER_CREATE_AND_RESET_FAILED": "User creation and password reset failed",
+  "USER_CREATION_FALLBACK": "User creation failed. Trying password reset email for new users...",
+  "PASSWORD_RESET_FALLBACK_SUCCESS": "Password reset email sent. User can register with it.",
+  "USER_CREATION_COMPLETE_FAILURE": "User creation and password reset failed. Please contact administrator.",
+  "USERNAME_MIN_LENGTH": "Username must be at least 3 characters long.",
+  "INVALID_EMAIL": "Invalid email address.",
+  "PASSWORD_REQUIREMENTS": "Password does not meet requirements.",
+  "INVALID_USER_DATA": "Invalid user data. Please check all fields.",
+  "USERNAME_MIN_3_CHARS": "Username must be at least 3 characters long",
+  "USERNAME_PLACEHOLDER": "At least 3 characters",
+  "FIRSTNAME_REQUIRED": "First name is required",
+  "LASTNAME_REQUIRED": "Last name is required"
 }

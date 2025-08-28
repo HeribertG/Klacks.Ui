@@ -57,13 +57,19 @@ export class MessageLibrary {
   public static REGISTER_SEND_PASSWORD =
     'Das Passwort wurde erfolgreich zurückgesetzt und an die Mailadresse versendet';
   public static REGISTER_SEND_PASSWORD_ERROR = 'Error';
+  public static PASSWORD_RESET_EMAIL_SENT =
+    'E-Mail zum Zurücksetzen des Passworts wurde versendet';
+  public static PASSWORD_RESET_EMAIL_ERROR =
+    'Fehler beim Versenden der E-Mail zum Zurücksetzen des Passworts';
+  public static USER_CREATION_ERROR = 'Fehler beim Erstellen des Benutzers';
+  public static INVALID_USER_DATA = 'Ungültige Benutzerdaten. Bitte prüfen Sie alle Felder.';
   public static REGISTER_CHANGE_PASSWORD_HEADER =
     'Die Account Daten wurden in der Zwischenablage gespeichert';
 
   public static DELETE_ENTRY = 'Wollen Sie diesen Datensatz wirklich löschen?';
   public static DEACTIVE_ADDRESS = 'Wollen Sie diese Adresse deaktivieren?';
   public static REACTIVE_ADDRESS = 'Wollen Sie diese Adresse reaktivieren?';
-  public static readonly DEACTIVE_ADDRESS_TITLE = 'Deaktivieren';
+  public static DEACTIVE_ADDRESS_TITLE = 'Deaktivieren';
   public static REACTIVE_ADDRESS_TITLE = 'Reaktivieren';
 
   public static PASSWORD_STRENGTH_SHORT = 'zu kurz';

@@ -61,7 +61,12 @@
               class="form-control default-width"
               (change)="onChange()"
               id="user-userName"
+              minlength="3"
+              [placeholder]="translate.instant('USERNAME_PLACEHOLDER')"
             />
+            @if (newUser && newUser.userName && newUser.userName.length > 0 && newUser.userName.length < 3) {
+              <small class="text-danger">{{ translate.instant('USERNAME_MIN_3_CHARS') }}</small>
+            }
           </div>
         </div>
       </div>
@@ -109,12 +114,12 @@
 <ng-template #msg id="msg" let-modal>
   <div class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
-      {{ translate.instant("setting.user-admin.new") }}
+      {{ translate.instant("setting.user-admin.password-reset") }}
     </div>
   </div>
   <div class="modal-body">
     <p>
-      {{ translate.instant("setting.user-admin.modal-question") }}<br /><b>{{
+      {{ translate.instant("setting.user-admin.password-reset-question") }}<br /><b>{{
         currentEmail
       }}</b
       ><br />

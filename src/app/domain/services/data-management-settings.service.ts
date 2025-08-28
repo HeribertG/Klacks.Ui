@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-dupe-else-if */
 import { EffectRef, Injectable, effect, inject, signal } from '@angular/core';
 import {
@@ -69,8 +70,6 @@ export class DataManagementSettingsService implements IManageable {
   public macroList: IMacro[] = [];
   public macroListDummy: IMacro[] = [];
   public macroListCount = 0;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public originalMacroTypeList: any[] = [];
 
   public appName = '';
@@ -159,17 +158,48 @@ export class DataManagementSettingsService implements IManageable {
   }
 
   addAccount(value: IAuthentication) {
-    this.userAdministrationService.addAccount(value).subscribe((x) => {
-      if (!x.mailSuccess) {
-        this.toastShowService.showError(
-          MessageLibrary.UNKNOWN_ERROR,
-          'SENDEMAIL'
-        );
-        console.error(MessageLibrary.UNKNOWN_ERROR, x.modelState);
-      }
-      this.toastShowService.showInfo(MessageLibrary.REGISTER, 'REGISTER');
+    this.userAdministrationService.addAccount(value).subscribe({
+      next: (x) => {
+        if (x && x.id) {
+          this.toastShowService.showInfo('', 'REGISTER');
+          this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_SENT');
+        } else if (x && !x.mailSuccess) {
+          this.toastShowService.showInfo('', 'EMAIL_WARNING');
+        }
 
-      this.readAccountsList();
+        this.readAccountsList();
+      },
+      error: (error) => {
+        console.error('User creation error:', error);
+
+        if (error.status === 500) {
+          this.toastShowService.showInfo('', 'USER_CREATION_FALLBACK');
+
+          this.userAdministrationService
+            .requestPasswordReset(value.email!)
+            .subscribe({
+              next: () => {
+                this.toastShowService.showInfo(
+                  '',
+                  'PASSWORD_RESET_FALLBACK_SUCCESS'
+                );
+              },
+              error: (resetError) => {
+                console.error('Password reset fallback failed:', resetError);
+                this.toastShowService.showError(
+                  '',
+                  'USER_CREATION_COMPLETE_FAILURE'
+                );
+              },
+            });
+        } else if (error.status === 400) {
+          const errorKey = this.mapValidationErrorToI18nKey(error.error);
+          this.toastShowService.showError('', errorKey);
+        } else {
+          this.toastShowService.showError('', 'USER_CREATION_ERROR');
+        }
+        this.readAccountsList();
+      },
     });
   }
 
@@ -219,16 +249,21 @@ export class DataManagementSettingsService implements IManageable {
   sentPassword(value: ChangePassword) {
     this.userAdministrationService.ChangePassword(value).subscribe((x) => {
       if (x.success === true) {
-        this.toastShowService.showInfo(
-          MessageLibrary.REGISTER_SEND_PASSWORD,
-          'REGISTER_SEND_PASSWORD'
-        );
+        this.toastShowService.showInfo('', 'REGISTER_SEND_PASSWORD');
       } else {
-        this.toastShowService.showInfo(
-          MessageLibrary.REGISTER_SEND_PASSWORD_ERROR,
-          'REGISTER_SEND_PASSWORD_ERROR'
-        );
+        this.toastShowService.showInfo('', 'REGISTER_SEND_PASSWORD_ERROR');
       }
+    });
+  }
+
+  requestPasswordReset(email: string) {
+    this.userAdministrationService.requestPasswordReset(email).subscribe({
+      next: () => {
+        this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_SENT');
+      },
+      error: () => {
+        this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_ERROR');
+      },
     });
   }
 
@@ -981,5 +1016,74 @@ export class DataManagementSettingsService implements IManageable {
 
   goBack(): string {
     return '';
+  }
+
+  /**
+   * Maps server validation errors to appropriate i18n keys
+   * @param errorMessage The error message from the server
+   * @returns The appropriate i18n key for the error
+   */
+  private mapValidationErrorToI18nKey(errorMessage: string | any): string {
+    // Default error key
+    let errorKey = 'INVALID_USER_DATA';
+
+    // Handle string error messages
+    if (typeof errorMessage === 'string') {
+      const lowerError = errorMessage.toLowerCase();
+
+      if (
+        lowerError.includes('benutzername') ||
+        lowerError.includes('username')
+      ) {
+        if (
+          lowerError.includes('mindestens') ||
+          lowerError.includes('at least')
+        ) {
+          errorKey = 'USERNAME_MIN_LENGTH';
+        }
+      } else if (
+        lowerError.includes('e-mail') ||
+        lowerError.includes('email')
+      ) {
+        errorKey = 'INVALID_EMAIL';
+      } else if (
+        lowerError.includes('passwort') ||
+        lowerError.includes('password')
+      ) {
+        errorKey = 'PASSWORD_REQUIREMENTS';
+      } else if (
+        lowerError.includes('vorname') ||
+        lowerError.includes('first name')
+      ) {
+        errorKey = 'FIRSTNAME_REQUIRED';
+      } else if (
+        lowerError.includes('nachname') ||
+        lowerError.includes('last name')
+      ) {
+        errorKey = 'LASTNAME_REQUIRED';
+      }
+    }
+
+    // Handle structured error objects (e.g., validation errors from FluentValidation)
+    else if (errorMessage && typeof errorMessage === 'object') {
+      // Check if it's a validation error object with specific field errors
+      if (errorMessage.errors) {
+        const errors = errorMessage.errors;
+
+        if (errors.UserName) {
+          errorKey = 'USERNAME_MIN_LENGTH';
+        } else if (errors.Email) {
+          errorKey = 'INVALID_EMAIL';
+        } else if (errors.Password) {
+          errorKey = 'PASSWORD_REQUIREMENTS';
+        } else if (errors.FirstName) {
+          errorKey = 'FIRSTNAME_REQUIRED';
+        } else if (errors.LastName) {
+          errorKey = 'LASTNAME_REQUIRED';
+        }
+      }
+    }
+
+    return errorKey;
   }
 }

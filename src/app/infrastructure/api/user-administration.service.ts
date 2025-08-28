@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
@@ -74,6 +75,14 @@ export class UserAdministrationService {
         `${environment.baseUrl}Accounts/ChangePassword`,
         value
       )
+      .pipe();
+  }
+
+  requestPasswordReset(email: string): Observable<any> {
+    return this.httpClient
+      .post<any>(`${environment.baseUrl}Accounts/RequestPasswordReset`, {
+        email,
+      })
       .pipe();
   }
 

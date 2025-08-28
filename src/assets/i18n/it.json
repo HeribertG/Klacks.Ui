@@ -344,6 +344,7 @@
   "login.user": "Email",
   "login.password": "Password",
   "login.summit": "Accedi",
+  "login.forgot-password": "Hai dimenticato la password?",
 
   "ABSENCE": "Calendario assenze",
   "ALL_SCHEDULE": "Tutte le pianificazioni",
@@ -635,5 +636,25 @@
 
   "pdf.generated": "Generato",
   "pdf.page": "Pagina",
-  "pdf.of": "di"
+  "pdf.of": "di",
+
+  "PASSWORD_RESET_EMAIL_SENT": "Email di reimpostazione password inviata",
+  "PASSWORD_RESET_EMAIL_ERROR": "Errore nell'invio dell'email di reimpostazione",
+  "USER_CREATION_ERROR": "Errore nella creazione dell'utente",
+  "EMAIL_WARNING": "Utente creato, ma l'email non è stata inviata",
+  "USER_EXISTS": "L'utente non è stato creato. L'utente potrebbe già esistere.",
+  "USER_EXISTS_RESET": "L'utente potrebbe già esistere. Tentativo di invio email di reimpostazione...",
+  "PASSWORD_RESET_EXISTING": "Email di reimpostazione inviata all'utente esistente",
+  "USER_CREATE_AND_RESET_FAILED": "Creazione utente e reimpostazione password fallite",
+  "USER_CREATION_FALLBACK": "Creazione utente fallita. Tentativo di email di reimpostazione...",
+  "PASSWORD_RESET_FALLBACK_SUCCESS": "Email di reimpostazione inviata. L'utente può registrarsi con essa.",
+  "USER_CREATION_COMPLETE_FAILURE": "Creazione utente e reimpostazione fallite. Contattare l'amministratore.",
+  "USERNAME_MIN_LENGTH": "Il nome utente deve essere di almeno 3 caratteri.",
+  "INVALID_EMAIL": "Indirizzo email non valido.",
+  "PASSWORD_REQUIREMENTS": "La password non soddisfa i requisiti.",
+  "INVALID_USER_DATA": "Dati utente non validi. Controllare tutti i campi.",
+  "USERNAME_MIN_3_CHARS": "Il nome utente deve essere di almeno 3 caratteri",
+  "USERNAME_PLACEHOLDER": "Almeno 3 caratteri",
+  "FIRSTNAME_REQUIRED": "Il nome è richiesto",
+  "LASTNAME_REQUIRED": "Il cognome è richiesto"
 }
