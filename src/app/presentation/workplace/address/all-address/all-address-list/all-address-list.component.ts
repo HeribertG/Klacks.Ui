@@ -145,10 +145,11 @@ export class AllAddressListComponent
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
-        if (x === ModalType.Delete && this.modalService.componentContext === 'all-address-list') {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'all-address-list'
+        ) {
           this.deleteClient(this.modalService.Filing);
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
@@ -168,8 +169,6 @@ export class AllAddressListComponent
     });
     this.effects = [];
   }
-
-  // Public methods
 
   onAddAddress(): void {
     this.dataManagementClientService.createClient();
@@ -367,10 +366,9 @@ export class AllAddressListComponent
   }
 
   open(data: IClient): void {
-    // Clear modal state and set context to prevent contamination
     this.modalService.Filing = '';
     this.modalService.componentContext = 'all-address-list';
-    
+
     this.modalService.Filing = data.id!;
     this.modalService.deleteMessage = this.message;
     this.modalService.setDefault(ModalType.Delete);
@@ -402,13 +400,10 @@ export class AllAddressListComponent
   }
 
   setLastChangeMetaData(): void {
-    // Sub-Headline Beschriftung
     this.dataManagementClientService.getLastChangeMetaData(
       this.translate.currentLang
     );
   }
-
-  // Private methods
 
   private async isInit(): Promise<void> {
     this.setLastChangeMetaData();
@@ -458,15 +453,6 @@ export class AllAddressListComponent
           const storedRowOrder = this.localStorageService.get(
             MessageLibrary.SELECTED_ROW_ORDER
           );
-          if (
-            storedRowOrder === '-1' &&
-            this.isFirstRead &&
-            this.dataManagementClientService.currentFilter
-              .numberOfItemsPerPage > 0 &&
-            !this.dataManagementClientService.currentFilter.searchString
-          ) {
-            // Auto mode items per page handling removed
-          }
 
           if (this.isFirstRead) {
             this.isFirstRead = false;

@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ViewChild, inject, OnDestroy, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  ViewChild,
+  inject,
+  OnDestroy,
+  AfterViewInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,7 +20,10 @@ import {
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { generatePassword } from 'src/app/domain/helpers/password';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -45,7 +54,7 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   disabled = true;
   currentEmail = '';
   message = MessageLibrary.DELETE_ENTRY;
-  pendingDeleteIndex: number = -1;
+  pendingDeleteIndex = -1;
 
   onChange(): void {
     if (this.newUser) {
@@ -73,15 +82,20 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
     const user = this.dataManagementSettingsService.accountsList[index];
     if (user?.id) {
       this.pendingDeleteIndex = index;
-      
-      // Clear modal state and set context to prevent contamination
+
       this.modalService.Filing = '';
       this.modalService.componentContext = 'user-administration';
-      
-      const userName = `${user.firstName} ${user.lastName}`.trim() || user.email;
-      this.modalService.deleteMessageTitle = this.translate.instant('DELETE_USER_TITLE');
-      this.modalService.deleteMessage = this.translate.instant('DELETE_USER_CONFIRMATION', { userName });
-      this.modalService.deleteMessageOkButton = this.translate.instant('DELETE');
+
+      const userName =
+        `${user.firstName} ${user.lastName}`.trim() || user.email;
+      this.modalService.deleteMessageTitle =
+        this.translate.instant('DELETE_USER_TITLE');
+      this.modalService.deleteMessage = this.translate.instant(
+        'DELETE_USER_CONFIRMATION',
+        { userName }
+      );
+      this.modalService.deleteMessageOkButton =
+        this.translate.instant('DELETE');
       this.modalService.Filing = user.id.toString();
       this.modalService.openModel(ModalType.Delete);
     }
@@ -95,7 +109,9 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
     this.newUser = new Authentication();
     this.ngbModal.open(content, { size: 'sm', centered: true }).result.then(
       () => {
-        this.dataManagementSettingsService.requestPasswordReset(this.currentEmail);
+        this.dataManagementSettingsService.requestPasswordReset(
+          this.currentEmail
+        );
       },
       () => {
         this.currentEmail = '';
@@ -126,15 +142,20 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
-        if (x === ModalType.Delete && this.modalService.componentContext === 'user-administration' && this.pendingDeleteIndex >= 0) {
-          const user = this.dataManagementSettingsService.accountsList[this.pendingDeleteIndex];
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'user-administration' &&
+          this.pendingDeleteIndex >= 0
+        ) {
+          const user =
+            this.dataManagementSettingsService.accountsList[
+              this.pendingDeleteIndex
+            ];
           if (user?.id) {
             console.log('UserAdmin: Deleting user with ID:', user.id);
             this.dataManagementSettingsService.deleteAccount(user.id);
           }
           this.pendingDeleteIndex = -1;
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }

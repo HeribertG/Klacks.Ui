@@ -31,9 +31,8 @@ export class ModalService {
   messageTitleDefault = '';
   messageOkButton = '';
   messageOkButtonDefault = '';
-  Filing = ''; // wird als Ablage benutzt, zB. als Id für Delete
-  componentContext = ''; // Tracks which component is using the modal
-
+  Filing = '';
+  componentContext = '';
   private onConfirmCallback: (() => void) | null = null;
 
   constructor() {}
@@ -46,14 +45,11 @@ export class ModalService {
     cancelText: string;
     onConfirm: () => void;
   }) {
-    // Eigenschaften basierend auf Optionen setzen
     this.deleteMessageTitle = options.title;
     this.deleteMessage = options.message;
     this.deleteMessageOkButton = options.confirmText;
-    // Callback für später speichern
     this.onConfirmCallback = options.onConfirm;
 
-    // Das Modal öffnen
     this.openModel(options.type);
   }
 
@@ -64,7 +60,6 @@ export class ModalService {
   result(kind: ModalType) {
     this.resultEvent.next(kind);
 
-    // Callback aufrufen, wenn es sich um eine Bestätigung handelt
     if (kind === ModalType.Confirmation && this.onConfirmCallback) {
       this.onConfirmCallback();
       this.onConfirmCallback = null;
@@ -92,7 +87,6 @@ export class ModalService {
         break;
       }
       case ModalType.Confirmation: {
-        // Setze Standardwerte für das Bestätigungsmodal
         this.deleteMessageTitle = this.deleteMessageTitleDefault;
         this.deleteMessageOkButton = this.deleteMessageOkButtonDefault;
         break;

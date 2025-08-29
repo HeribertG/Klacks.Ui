@@ -1,4 +1,13 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  AfterViewInit,
+  Component,
+  inject,
+  OnInit,
+  ViewChild,
+  TemplateRef,
+} from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -10,6 +19,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 @Component({
   selector: 'app-login',
@@ -22,17 +34,23 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     TranslateModule,
     RouterModule,
     FontAwesomeModule,
+    NgbModule,
   ],
 })
 export class LoginComponent implements OnInit, AfterViewInit {
-  // Private injected services
+  @ViewChild('forgotPasswordModal', { read: TemplateRef })
+  forgotPasswordModal!: TemplateRef<any>;
+  @ViewChild('loginForm', { static: false }) loginForm!: NgForm;
+
   private auth = inject(AuthService);
   private authorizationService = inject(AuthorizationService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
   private translateService = inject(TranslateService);
+  private modalService = inject(NgbModal);
+  private userAdministrationService = inject(UserAdministrationService);
+  private toastService = inject(ToastShowService);
 
-  // Public properties (used in templates)
   public currentLang = MessageLibrary.CURRENT_LANG;
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
@@ -41,6 +59,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
   public showPassword = false;
   public token = '';
   public username = '';
+
+  public resetEmail = '';
+  public resetEmailSent = false;
+  public resetEmailError = false;
+  public resetEmailSending = false;
 
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
@@ -60,6 +83,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
   }
 
   async onSave(): Promise<void> {
+    if (!this.loginForm.form.valid) {
+      this.toastService.showError('', 'FORM_VALIDATION_ERRORS');
+      return;
+    }
+
     this.isClicked = true;
 
     if (await this.auth.logIn(this.username, this.password)) {
@@ -69,5 +97,49 @@ export class LoginComponent implements OnInit, AfterViewInit {
       this.isClicked = false;
     }
     this.authorizationService.refresh();
+  }
+
+  onForgotPassword(): void {
+    this.resetEmail = this.username || '';
+    this.resetEmailSent = false;
+    this.resetEmailError = false;
+    this.resetEmailSending = false;
+
+    this.modalService.open(this.forgotPasswordModal, {
+      size: 'md',
+      centered: true,
+      backdrop: 'static',
+      keyboard: false,
+    });
+  }
+
+  sendResetEmail(): void {
+    if (!this.resetEmail || this.resetEmailSending) {
+      return;
+    }
+
+    this.resetEmailSending = true;
+    this.resetEmailSent = false;
+    this.resetEmailError = false;
+
+    this.userAdministrationService
+      .requestPasswordReset(this.resetEmail)
+      .subscribe({
+        next: () => {
+          this.resetEmailSending = false;
+          this.resetEmailSent = true;
+          this.toastService.showInfo('', 'RESET_EMAIL_SENT_SUCCESS');
+
+          setTimeout(() => {
+            this.modalService.dismissAll();
+            this.resetEmail = '';
+          }, 3000);
+        },
+        error: () => {
+          this.resetEmailSending = false;
+          this.resetEmailError = true;
+          this.toastService.showInfo('', 'RESET_EMAIL_ERROR');
+        },
+      });
   }
 }

@@ -156,10 +156,8 @@ export class AddressPersonaComponent
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
         if (x === ModalType.Delete && this.modalService.componentContext === 'address-persona') {
           this.onDeleteCurrentAddress();
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
@@ -474,7 +472,6 @@ export class AddressPersonaComponent
   }
 
   openDeleteAddress() {
-    // Clear modal state and set context to prevent contamination
     this.modalService.Filing = '';
     this.modalService.componentContext = 'address-persona';
     

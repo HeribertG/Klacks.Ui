@@ -28,7 +28,10 @@ import { DataManagementAbsenceService } from 'src/app/domain/services/data-manag
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -57,18 +60,14 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
   ],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
-  // @ViewChild properties
   @ViewChild(NgForm, { static: false }) absenceForm: NgForm | undefined;
 
-  // Public injected services
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
 
-  // Private injected services
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
   private translate = inject(TranslateService);
 
-  // Public properties (used in templates)
   public arrowDescription = '';
   public arrowName = '';
   public currentAbsence = new Absence();
@@ -87,12 +86,10 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   public page = 1;
   public sortOrder = 'asc';
 
-  // Private properties
   private ngUnsubscribe = new Subject<void>();
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
 
-  // Lifecycle hooks
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
     this.reReadSortData();
@@ -109,10 +106,11 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
-        if (x === ModalType.Delete && this.modalService.componentContext === 'absence') {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'absence'
+        ) {
           this.deleteAbsence(this.modalService.Filing);
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
@@ -123,8 +121,6 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-
-  // Public methods
 
   createNewAbsence(content: any): void {
     this.currentAbsence = new Absence();
@@ -220,10 +216,9 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openDeleteAbsence(data: IAbsence): void {
     if (data.id) {
-      // Clear modal state and set context to prevent contamination
       this.modalService.Filing = '';
       this.modalService.componentContext = 'absence';
-      
+
       this.modalService.Filing = data.id;
       this.modalService.deleteMessage = this.message;
       this.modalService.setDefault(ModalType.Delete);
@@ -258,7 +253,6 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       );
   }
 
-  // Private methods
   private deleteAbsence(id: string): void {
     this.dataManagementAbsenceService.deleteAbsence(id, this.currentLang);
   }
@@ -337,5 +331,4 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.setHeaderArrowTemplate();
   }
-
 }

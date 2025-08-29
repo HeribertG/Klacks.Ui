@@ -1,5 +1,70 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<ng-template #forgotPasswordModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ "FORGOT_PASSWORD_TITLE" | translate }}</h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    ></button>
+  </div>
+  <div class="modal-body">
+    <p>{{ "FORGOT_PASSWORD_INSTRUCTION" | translate }}</p>
+    <div class="form-group">
+      <label for="resetEmail">{{ "EMAIL_ADDRESS" | translate }}</label>
+      <input
+        type="email"
+        class="form-control"
+        id="resetEmail"
+        [(ngModel)]="resetEmail"
+        name="resetEmail"
+        [placeholder]="'EMAIL_PLACEHOLDER' | translate"
+        required
+        email
+      />
+    </div>
+    @if (resetEmailSent) {
+    <div class="alert alert-success mt-3" role="alert">
+      {{ "RESET_EMAIL_SENT_SUCCESS" | translate }}
+    </div>
+    } @if (resetEmailError) {
+    <div class="alert alert-danger mt-3" role="alert">
+      {{ "RESET_EMAIL_ERROR" | translate }}
+    </div>
+    }
+  </div>
+  <div class="modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary normal-btn"
+      (click)="modal.dismiss()"
+    >
+      {{ "CANCEL" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="sendResetEmail()"
+      [disabled]="!resetEmail || resetEmailSending"
+    >
+      @if (resetEmailSending) {
+      <span
+        class="spinner-border spinner-border-sm me-2"
+        role="status"
+        aria-hidden="true"
+      ></span>
+      }
+      {{
+        resetEmailSending
+          ? ("SENDING" | translate)
+          : ("SEND_RESET_EMAIL" | translate)
+      }}
+    </button>
+  </div>
+</ng-template>
+
 <div class="background">
   @if (!isClicked) {
   <div class="container first border-right border-bottom">
@@ -50,7 +115,9 @@
       </div>
 
       <div class="right">
-        <a href="">{{ "login.forgot-password" | translate }}</a>
+        <a href="javascript:void(0)" (click)="onForgotPassword()">{{
+          "login.forgot-password" | translate
+        }}</a>
       </div>
 
       <div class="center">
@@ -59,18 +126,11 @@
           color="info"
           block="true"
           class="btn btn-primary center"
-          [disabled]="!loginForm.form.valid"
           id="login-summit"
-          [attr.aria-describedby]="!loginForm.form.valid ? 'form-errors' : null"
         >
           {{ "login.summit" | translate }}
         </button>
       </div>
-      @if (!loginForm.form.valid) {
-      <div id="form-errors" role="alert" aria-live="polite" class="sr-only">
-        Form has validation errors. Please check your input.
-      </div>
-      }
       <p></p>
       <p></p>
     </form>

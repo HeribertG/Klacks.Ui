@@ -135,10 +135,11 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
-        if (x === ModalType.Delete && this.modalService.componentContext === 'all-group-list') {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'all-group-list'
+        ) {
           this.deleteGroup(this.modalService.Filing);
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
@@ -401,10 +402,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isNextPage
     );
   }
-  private restoreFilter(value: IGroupFilter) {
-    // This method is now handled by AllGroupStateService
-    // Keeping for backward compatibility if needed
-  }
+
   onClickEdit(data: IGroup) {
     this.allGroupStateService.saveCurrentFilter();
     this.dataManagementGroupService.prepareGroup(data);
@@ -455,20 +453,15 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.highlightRowId = value.id;
   }
 
-  /* #region   MsgBox */
-
   open(data: IGroup) {
-    // Clear modal state and set context to prevent contamination
     this.modalService.Filing = '';
     this.modalService.componentContext = 'all-group-list';
-    
+
     this.modalService.Filing = data.id!;
     this.modalService.deleteMessage = this.message;
     this.modalService.setDefault(ModalType.Delete);
     this.modalService.openModel(ModalType.Delete);
   }
-
-  /* #endregion   MsgBox */
 
   private deleteGroup(id: string) {
     this.dataManagementGroupService
@@ -486,15 +479,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
         if (isRead) {
           const storedRowOrder =
             this.localStorageService.get('SELECTED_ROW_ORDER');
-          if (
-            storedRowOrder === '-1' &&
-            this.isFirstRead &&
-            this.dataManagementGroupService.currentFilter.numberOfItemsPerPage >
-              0 &&
-            !this.dataManagementGroupService.currentFilter.searchString
-          ) {
-            // Auto mode items per page handling removed
-          }
 
           if (this.isFirstRead) {
             this.isFirstRead = false;

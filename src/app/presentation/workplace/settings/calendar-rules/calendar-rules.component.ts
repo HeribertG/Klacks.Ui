@@ -36,7 +36,10 @@ import {
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -158,14 +161,14 @@ export class CalendarRulesComponent
           });
       });
 
-    // Subscribe to modal results
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        // Only handle delete events from this component context
-        if (x === ModalType.Delete && this.modalService.componentContext === 'calendar-rules') {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'calendar-rules'
+        ) {
           this.deleteRule(this.modalService.Filing);
-          // Clear context after use
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
         }
@@ -177,26 +180,19 @@ export class CalendarRulesComponent
     this.ngUnsubscribe.complete();
   }
 
-  /**
-   * Read page data with current filter settings
-   */
   private readPage(): void {
     const filter = this.dataManagementCalendarRulesService.currentFilter;
 
-    // Set pagination parameters
     filter.firstItemOnLastPage = this.firstItemOnLastPage;
     filter.isPreviousPage = this.isPreviousPage;
     filter.isNextPage = this.isNextPage;
 
-    // Set sorting parameters
     filter.orderBy = this.orderBy;
     filter.sortOrder = this.sortOrder;
 
-    // Set page parameters
     filter.requiredPage = this.page - 1;
     filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
 
-    // Read data for the current language
     this.dataManagementCalendarRulesService.readPage(this.currentLang);
   }
 
@@ -204,9 +200,6 @@ export class CalendarRulesComponent
     this.dataManagementCalendarRulesService.readPage(this.currentLang);
   }
 
-  /**
-   * Handle page change events from pagination control
-   */
   onPageChange(event: number): void {
     this.firstItemOnLastPage = undefined;
     this.isPreviousPage = undefined;
@@ -293,10 +286,9 @@ export class CalendarRulesComponent
 
   openDeleteRule(data: ICalendarRule): void {
     if (data.id) {
-      // Clear modal state and set context to prevent contamination
       this.modalService.Filing = '';
       this.modalService.componentContext = 'calendar-rules';
-      
+
       this.modalService.Filing = data.id;
       this.modalService.deleteMessage = this.message;
       this.modalService.setDefault(ModalType.Delete);
@@ -320,7 +312,6 @@ export class CalendarRulesComponent
     this.holidaysListHelper.clear();
     this.currentRule = data;
 
-    // Finde den passenden State/Country Token
     const token =
       this.dataManagementCalendarRulesService.filteredRulesToken.find(
         (x) =>
@@ -352,24 +343,21 @@ export class CalendarRulesComponent
         windowClass: 'custom-class',
         ariaLabelledBy: 'modal-edit',
       })
-      .result.then(
-        () => {
-          if (this.currentRule.id) {
-            this.dataManagementCalendarRulesService.updateCalendarRule(
-              this.currentRule,
-              this.currentLang
-            );
-          } else {
-            this.dataManagementCalendarRulesService.addCalendarRule(
-              this.currentRule,
-              this.currentLang
-            );
-          }
+      .result.then(() => {
+        if (this.currentRule.id) {
+          this.dataManagementCalendarRulesService.updateCalendarRule(
+            this.currentRule,
+            this.currentLang
+          );
+        } else {
+          this.dataManagementCalendarRulesService.addCalendarRule(
+            this.currentRule,
+            this.currentLang
+          );
+        }
 
-          this.readPage();
-        },
-        () => {} // Dismiss handler (leere Funktion)
-      );
+        this.readPage();
+      });
   }
 
   private initMultiLanguage(): void {

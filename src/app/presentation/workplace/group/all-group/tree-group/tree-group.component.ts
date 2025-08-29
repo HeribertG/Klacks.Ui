@@ -27,7 +27,10 @@ import { IconGridComponent } from 'src/app/presentation/icons/icon-grid.componen
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
@@ -73,7 +76,6 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // Add delay to ensure that all data is loaded
     setTimeout(() => {
       if (this.hierarchicalTree) {
         this.debugTreeStructure(this.hierarchicalTree);
@@ -170,10 +172,9 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deleteNode(node: Group): void {
-    // Clear modal state and set context to prevent contamination
     this.modalService.Filing = '';
     this.modalService.componentContext = 'tree-group';
-    
+
     this.modalService.deleteMessageTitle = this.translate.instant(
       'group.tree.delete-confirmation.title'
     );
@@ -188,10 +189,11 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalService.openModel(ModalType.Delete);
 
     const subscription = this.modalService.resultEvent.subscribe((type) => {
-      // Only handle delete events from this component context
-      if (type === ModalType.Delete && this.modalService.componentContext === 'tree-group') {
+      if (
+        type === ModalType.Delete &&
+        this.modalService.componentContext === 'tree-group'
+      ) {
         this.dataManagementGroupService.deleteGroup(node.id!).subscribe();
-        // Clear context after use
         this.modalService.componentContext = '';
         this.modalService.Filing = '';
       }
