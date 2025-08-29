@@ -145,8 +145,12 @@ export class AllAddressListComponent
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        if (x === ModalType.Delete) {
+        // Only handle delete events from this component context
+        if (x === ModalType.Delete && this.modalService.componentContext === 'all-address-list') {
           this.deleteClient(this.modalService.Filing);
+          // Clear context after use
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
         }
       });
   }
@@ -363,6 +367,10 @@ export class AllAddressListComponent
   }
 
   open(data: IClient): void {
+    // Clear modal state and set context to prevent contamination
+    this.modalService.Filing = '';
+    this.modalService.componentContext = 'all-address-list';
+    
     this.modalService.Filing = data.id!;
     this.modalService.deleteMessage = this.message;
     this.modalService.setDefault(ModalType.Delete);

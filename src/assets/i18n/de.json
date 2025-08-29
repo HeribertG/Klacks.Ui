@@ -257,6 +257,8 @@
   "setting.absence.modal.add": "Eingabe übernehmen",
 
   "DELETE_ENTRY": "Wollen Sie diesen Datensatz wirklich löschen?",
+  "DELETE_USER_TITLE": "Benutzer löschen",
+  "DELETE_USER_CONFIRMATION": "Möchten Sie den Benutzer '{{userName}}' wirklich löschen?",
 
   "setting.calendar-rule.title": "Feiertagsregeln",
 

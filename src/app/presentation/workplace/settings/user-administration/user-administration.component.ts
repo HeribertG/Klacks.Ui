@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, ViewChild, inject } from '@angular/core';
+import { Component, ViewChild, inject, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,8 @@ import {
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { generatePassword } from 'src/app/domain/helpers/password';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-user-administration',
@@ -30,17 +32,20 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
     UserAdministrationRowComponent,
   ],
 })
-export class UserAdministrationComponent {
+export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;
 
   private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public translate = inject(TranslateService);
+  private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
   disabled = true;
   currentEmail = '';
   message = MessageLibrary.DELETE_ENTRY;
+  pendingDeleteIndex: number = -1;
 
   onChange(): void {
     if (this.newUser) {
@@ -67,7 +72,18 @@ export class UserAdministrationComponent {
   onDelete(index: number): void {
     const user = this.dataManagementSettingsService.accountsList[index];
     if (user?.id) {
-      this.dataManagementSettingsService.deleteAccount(user.id);
+      this.pendingDeleteIndex = index;
+      
+      // Clear modal state and set context to prevent contamination
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'user-administration';
+      
+      const userName = `${user.firstName} ${user.lastName}`.trim() || user.email;
+      this.modalService.deleteMessageTitle = this.translate.instant('DELETE_USER_TITLE');
+      this.modalService.deleteMessage = this.translate.instant('DELETE_USER_CONFIRMATION', { userName });
+      this.modalService.deleteMessageOkButton = this.translate.instant('DELETE');
+      this.modalService.Filing = user.id.toString();
+      this.modalService.openModel(ModalType.Delete);
     }
   }
 
@@ -104,5 +120,29 @@ export class UserAdministrationComponent {
       },
       () => {}
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((x: ModalType) => {
+        // Only handle delete events from this component context
+        if (x === ModalType.Delete && this.modalService.componentContext === 'user-administration' && this.pendingDeleteIndex >= 0) {
+          const user = this.dataManagementSettingsService.accountsList[this.pendingDeleteIndex];
+          if (user?.id) {
+            console.log('UserAdmin: Deleting user with ID:', user.id);
+            this.dataManagementSettingsService.deleteAccount(user.id);
+          }
+          this.pendingDeleteIndex = -1;
+          // Clear context after use
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 }

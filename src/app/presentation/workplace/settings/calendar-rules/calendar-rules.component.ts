@@ -162,8 +162,12 @@ export class CalendarRulesComponent
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        if (x === ModalType.Delete) {
+        // Only handle delete events from this component context
+        if (x === ModalType.Delete && this.modalService.componentContext === 'calendar-rules') {
           this.deleteRule(this.modalService.Filing);
+          // Clear context after use
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
         }
       });
   }
@@ -289,6 +293,10 @@ export class CalendarRulesComponent
 
   openDeleteRule(data: ICalendarRule): void {
     if (data.id) {
+      // Clear modal state and set context to prevent contamination
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'calendar-rules';
+      
       this.modalService.Filing = data.id;
       this.modalService.deleteMessage = this.message;
       this.modalService.setDefault(ModalType.Delete);

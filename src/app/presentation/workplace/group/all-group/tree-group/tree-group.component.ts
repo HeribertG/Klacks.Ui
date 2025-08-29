@@ -170,6 +170,10 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   deleteNode(node: Group): void {
+    // Clear modal state and set context to prevent contamination
+    this.modalService.Filing = '';
+    this.modalService.componentContext = 'tree-group';
+    
     this.modalService.deleteMessageTitle = this.translate.instant(
       'group.tree.delete-confirmation.title'
     );
@@ -184,8 +188,12 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalService.openModel(ModalType.Delete);
 
     const subscription = this.modalService.resultEvent.subscribe((type) => {
-      if (type === ModalType.Delete) {
+      // Only handle delete events from this component context
+      if (type === ModalType.Delete && this.modalService.componentContext === 'tree-group') {
         this.dataManagementGroupService.deleteGroup(node.id!).subscribe();
+        // Clear context after use
+        this.modalService.componentContext = '';
+        this.modalService.Filing = '';
       }
       subscription.unsubscribe();
     });

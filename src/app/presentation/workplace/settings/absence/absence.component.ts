@@ -109,8 +109,12 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        if (x === ModalType.Delete) {
+        // Only handle delete events from this component context
+        if (x === ModalType.Delete && this.modalService.componentContext === 'absence') {
           this.deleteAbsence(this.modalService.Filing);
+          // Clear context after use
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
         }
       });
   }
@@ -216,6 +220,10 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   openDeleteAbsence(data: IAbsence): void {
     if (data.id) {
+      // Clear modal state and set context to prevent contamination
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'absence';
+      
       this.modalService.Filing = data.id;
       this.modalService.deleteMessage = this.message;
       this.modalService.setDefault(ModalType.Delete);

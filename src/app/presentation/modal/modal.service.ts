@@ -32,6 +32,7 @@ export class ModalService {
   messageOkButton = '';
   messageOkButtonDefault = '';
   Filing = ''; // wird als Ablage benutzt, zB. als Id für Delete
+  componentContext = ''; // Tracks which component is using the modal
 
   private onConfirmCallback: (() => void) | null = null;
 
