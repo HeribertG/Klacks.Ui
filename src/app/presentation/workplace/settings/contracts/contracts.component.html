@@ -10,16 +10,16 @@
   <app-contract-header></app-contract-header>
 
   <div class="container-box">
-    @for (contract of dataManagementContractService.contracts; track contract.id || $index;
-    let i = $index) { 
-      @if (!contract.internal) {
-        <app-contract-row
-          [data]="contract"
-          (isChangingEvent)="onIsChanging($event)"
-          (isDeleteEvent)="onClickDelete(i)"
-        >
-        </app-contract-row>
-      }
+    @for (contract of dataManagementContractService.contracts; track contract.id
+    || $index; let i = $index) {
+
+    <app-contract-row
+      [data]="contract"
+      (editEvent)="onClickEdit($event)"
+      (isDeleteEvent)="onClickDelete(i)"
+    >
+    </app-contract-row>
+
     }
   </div>
 
@@ -29,3 +29,174 @@
     </span>
   </div>
 </form>
+
+<!-- Contract Modal -->
+<ng-template #contractModal let-modal>
+  <form #contractForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.contract.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      @if (editingContract) {
+      <!-- Contract Basic Information -->
+      <div class="row-line-modal-inline">
+        <div class="contract-name-section">
+          <label for="contractName">{{
+            translate.instant("setting.contract.name-modal")
+          }}</label>
+          <input
+            type="text"
+            style="width: 200px"
+            [(ngModel)]="editingContract.name"
+            name="name"
+            class="form-control"
+            id="contractName"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Hours Configuration -->
+      <div class="row-line-modal-inline hours-config-row">
+        <div class="hours-config-item">
+          <app-time-input
+            [label]="
+              translate.instant('setting.contract.guaranteedHours-modal')
+            "
+            [(value)]="editingContract.internalGuaranteedHours!"
+            hoursName="guaranteedHoursHours"
+            minutesName="guaranteedHoursMinutes"
+            hoursId="guaranteedHours"
+            [forDuration]="true"
+            labelAlign="left"
+          ></app-time-input>
+        </div>
+
+        <div class="hours-config-item">
+          <app-time-input
+            [label]="translate.instant('setting.contract.minHours-modal')"
+            [(value)]="editingContract.internalMinimumHours!"
+            hoursName="minHoursHours"
+            minutesName="minHoursMinutes"
+            hoursId="minHours"
+            [forDuration]="true"
+            labelAlign="center"
+          ></app-time-input>
+        </div>
+
+        <div class="hours-config-item">
+          <app-time-input
+            [label]="translate.instant('setting.contract.maxHours-modal')"
+            [(value)]="editingContract.internalMaximumHours!"
+            hoursName="maxHoursHours"
+            minutesName="maxHoursMinutes"
+            hoursId="maxHours"
+            [forDuration]="true"
+            labelAlign="right"
+          ></app-time-input>
+        </div>
+      </div>
+
+      <!-- Validity Period -->
+      <div class="row-line-modal-inline">
+        <div class="validity-section">
+          <app-date-input
+            [label]="translate.instant('setting.contract.validFrom-modal')"
+            [(value)]="editingContract.internalValidFrom"
+            inputName="validFrom"
+            inputId="validFrom"
+            inputWidth="small-width"
+          ></app-date-input>
+        </div>
+
+        <div class="validity-section">
+          <app-date-input
+            [label]="translate.instant('setting.contract.validUntil-modal')"
+            [(value)]="editingContract.internalValidUntil"
+            inputName="validUntil"
+            inputId="validUntil"
+            inputWidth="small-width"
+          ></app-date-input>
+        </div>
+      </div>
+
+      <!-- Calendar Selection -->
+      <div class="row-line-modal-inline">
+        <div class="calendar-section">
+          <label for="calendarSelection">{{
+            translate.instant("setting.contract.calendarSelection-modal")
+          }}</label>
+          <select
+            class="form-control"
+            style="width: 250px"
+            [ngModel]="editingContract.calendarSelection?.id"
+            (ngModelChange)="onCalendarSelectionChange($event)"
+            name="calendarSelection"
+            id="calendarSelection"
+          >
+            <option value="">
+              {{ translate.instant("setting.contract.noCalendar") }}
+            </option>
+            @for (calendar of dataManagementContractService.availableCalendars;
+            track calendar.id) {
+            <option [value]="calendar.id">{{ calendar.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("setting.contract.save") }}
+    </button>
+  </div>
+</ng-template>

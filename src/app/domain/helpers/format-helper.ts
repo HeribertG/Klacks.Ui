@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-prototype-builtins */
 import moment from 'moment';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -102,7 +103,6 @@ export function addMonths(date: Date, value: number): Date {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isNumeric(value: any): boolean {
   return !isNaN(parseFloat(value)) && isFinite(value);
 }
@@ -443,7 +443,7 @@ export function transformStringToOwnTimeStruct(
     let minutes = 0;
     const split = value.split(':');
     if (split.length < 2) return new OwnTime('00', '00', isDuration);
-    
+
     if (isNumeric(split[0])) {
       hours = parseInt(split[0], 10);
       if (!isDuration && hours > 23) {

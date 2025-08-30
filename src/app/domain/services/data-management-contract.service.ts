@@ -131,7 +131,7 @@ export class DataManagementContractService {
     try {
       const result = await lastValueFrom(this.dataContractService.getList());
 
-      this.contracts = [this.emptyContract()];
+      this.contracts = [];
 
       if (result && Array.isArray(result)) {
         this.contracts.push(...result);
@@ -152,11 +152,6 @@ export class DataManagementContractService {
   }
 
   async readContract(id: string): Promise<void> {
-    if (!id || id === '') {
-      this.createContract();
-      return;
-    }
-
     this.showProgressSpinner.set(true);
 
     try {
@@ -166,8 +161,6 @@ export class DataManagementContractService {
 
       if (result) {
         this.prepareContract(result);
-      } else {
-        this.createContract();
       }
     } catch (error) {
       this.toastShowService.showError(
@@ -175,18 +168,12 @@ export class DataManagementContractService {
         'errorLoadingData'
       );
       console.error('Error loading contract:', error);
-      this.createContract();
     } finally {
       this.showProgressSpinner.set(false);
     }
   }
 
-  createNewContract(): Contract {
-    this.createContract();
-    return this.editContract as Contract;
-  }
-
-  private createContract() {
+  public createContract(): Contract {
     this.showProgressSpinner.set(true);
 
     const newContract = new Contract();
@@ -197,7 +184,6 @@ export class DataManagementContractService {
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;
-    newContract.internal = false;
 
     this.prepareContract(newContract);
 
@@ -206,6 +192,8 @@ export class DataManagementContractService {
     }, 300);
 
     this.showProgressSpinner.set(false);
+
+    return newContract;
   }
 
   private prepareContract(value: IContract, withoutUpdateDummy = false) {
@@ -229,6 +217,73 @@ export class DataManagementContractService {
     }, 200);
   }
 
+  public prepareContractForEdit(contract: IContract): void {
+    this.setDateStruct(contract);
+    this.setTimeStruct(contract);
+  }
+
+  public updateContractFromUIValues(contract: IContract): void {
+    if (
+      contract.internalValidFrom &&
+      isNgbDateStructOk(contract.internalValidFrom)
+    ) {
+      const validFromDate = transformNgbDateStructToDate(
+        contract.internalValidFrom
+      );
+      if (validFromDate) {
+        contract.validFrom = validFromDate;
+      }
+    }
+
+    if (
+      contract.internalValidUntil &&
+      isNgbDateStructOk(contract.internalValidUntil)
+    ) {
+      const validUntilDate = transformNgbDateStructToDate(
+        contract.internalValidUntil
+      );
+      if (validUntilDate) {
+        contract.validUntil = validUntilDate;
+      }
+    } else {
+      contract.validUntil = undefined;
+    }
+
+    // Update hours from struct
+    if (
+      contract.internalGuaranteedHours &&
+      isOwnTimeStructOk(contract.internalGuaranteedHours)
+    ) {
+      contract.guaranteedHoursPerMonth = transformOwnTimeToNumber(
+        contract.internalGuaranteedHours
+      );
+    }
+
+    if (
+      contract.internalMinimumHours &&
+      isOwnTimeStructOk(contract.internalMinimumHours)
+    ) {
+      contract.minimumHoursPerMonth = transformOwnTimeToNumber(
+        contract.internalMinimumHours
+      );
+    }
+
+    if (
+      contract.internalMaximumHours &&
+      isOwnTimeStructOk(contract.internalMaximumHours)
+    ) {
+      contract.maximumHoursPerMonth = transformOwnTimeToNumber(
+        contract.internalMaximumHours
+      );
+    }
+  }
+
+  // Save an existing contract object
+  public async saveExistingContract(contract: IContract): Promise<boolean> {
+    this.editContract = contract;
+    return await this.saveEditContract();
+  }
+
   async saveContract(): Promise<boolean> {
     return this.saveEditContract();
   }
@@ -241,10 +296,6 @@ export class DataManagementContractService {
     this.showProgressSpinner.set(true);
 
     try {
-      this.updateDatesFromStruct();
-
-      this.updateHoursFromStruct();
-
       const action = this.editContract.id
         ? this.dataContractService.updateContract(this.editContract)
         : this.dataContractService.addContract(this.editContract);
@@ -271,8 +322,6 @@ export class DataManagementContractService {
     } catch (error: any) {
       if (this.editContract?.id) {
         await this.readContract(this.editContract.id);
-      } else {
-        this.createContract();
       }
 
       this.toastShowService.showError(
@@ -307,10 +356,6 @@ export class DataManagementContractService {
 
       await this.readContracts();
 
-      if (this.editContract?.id === id) {
-        this.createContract();
-      }
-
       return true;
     } catch (error) {
       this.toastShowService.showError(
@@ -341,11 +386,6 @@ export class DataManagementContractService {
 
   private setTimeStruct(value: IContract) {
     if (value) {
-      console.log('setTimeStruct - Before transformation:');
-      console.log('  guaranteedHoursPerMonth:', value.guaranteedHoursPerMonth);
-      console.log('  minimumHoursPerMonth:', value.minimumHoursPerMonth);
-      console.log('  maximumHoursPerMonth:', value.maximumHoursPerMonth);
-
       value.internalGuaranteedHours = transformNumberToOwnTime(
         value.guaranteedHoursPerMonth,
         true
@@ -358,98 +398,7 @@ export class DataManagementContractService {
         value.maximumHoursPerMonth,
         true
       );
-
-      console.log('setTimeStruct - After transformation:');
-      console.log('  internalGuaranteedHours:', value.internalGuaranteedHours);
-      console.log('  internalMinimumHours:', value.internalMinimumHours);
-      console.log('  internalMaximumHours:', value.internalMaximumHours);
-      console.log(
-        '  Are they different objects?',
-        value.internalGuaranteedHours !== value.internalMinimumHours,
-        value.internalMinimumHours !== value.internalMaximumHours
-      );
     }
-  }
-
-  private updateDatesFromStruct() {
-    if (!this.editContract) return;
-
-    if (
-      this.editContract.internalValidFrom &&
-      isNgbDateStructOk(this.editContract.internalValidFrom)
-    ) {
-      const validFromDate = transformNgbDateStructToDate(
-        this.editContract.internalValidFrom
-      );
-      if (validFromDate) {
-        this.editContract.validFrom = validFromDate;
-      }
-    }
-
-    if (
-      this.editContract.internalValidUntil &&
-      isNgbDateStructOk(this.editContract.internalValidUntil)
-    ) {
-      const validUntilDate = transformNgbDateStructToDate(
-        this.editContract.internalValidUntil
-      );
-      if (validUntilDate) {
-        this.editContract.validUntil = validUntilDate;
-      }
-    } else {
-      this.editContract.validUntil = undefined;
-    }
-  }
-
-  private updateHoursFromStruct() {
-    if (!this.editContract) return;
-
-    if (
-      this.editContract.internalGuaranteedHours &&
-      isOwnTimeStructOk(this.editContract.internalGuaranteedHours)
-    ) {
-      this.editContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(
-        this.editContract.internalGuaranteedHours
-      );
-    }
-
-    if (
-      this.editContract.internalMinimumHours &&
-      isOwnTimeStructOk(this.editContract.internalMinimumHours)
-    ) {
-      this.editContract.minimumHoursPerMonth = transformOwnTimeToNumber(
-        this.editContract.internalMinimumHours
-      );
-    }
-
-    if (
-      this.editContract.internalMaximumHours &&
-      isOwnTimeStructOk(this.editContract.internalMaximumHours)
-    ) {
-      this.editContract.maximumHoursPerMonth = transformOwnTimeToNumber(
-        this.editContract.internalMaximumHours
-      );
-    }
-  }
-
-  private emptyContract(): Contract {
-    const contract = new Contract();
-    contract.id = undefined;
-    contract.name = this.emptyPlaceholder;
-    contract.guaranteedHoursPerMonth = 0;
-    contract.maximumHoursPerMonth = 0;
-    contract.minimumHoursPerMonth = 0;
-
-    contract.internalGuaranteedHours = OwnTime.forDuration('00', '00');
-    contract.internalMinimumHours = OwnTime.forDuration('00', '00');
-    contract.internalMaximumHours = OwnTime.forDuration('00', '00');
-    contract.validFrom = new Date();
-    contract.internalValidFrom = transformDateToNgbDateStruct(new Date());
-    contract.validUntil = undefined;
-    contract.internalValidUntil = undefined;
-    contract.calendarSelection = undefined;
-    contract.internal = true;
-    return contract;
   }
 
   private updateEmptyPlaceholder(): void {
@@ -523,13 +472,6 @@ export class DataManagementContractService {
   /* #endregion   Data state management */
 
   /* #region   Utility methods */
-
-  isCurrentContractEmptyPlaceholder(): boolean {
-    if (this.editContract?.internal) {
-      return this.editContract?.internal === true;
-    }
-    return false;
-  }
 
   setCurrentContract(contract: IContract) {
     if (!contract) {

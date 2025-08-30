@@ -66,35 +66,38 @@ export class DataManagementCalendarSelectionService {
     });
     this.dataCalendarSelectionService
       .addCalendarSelection(value)
-      .subscribe((x: CalendarSelection | undefined) => {
+      .subscribe(async (x: CalendarSelection | undefined) => {
         if (x) {
-          this.readData();
+          await this.readData();
           this.isNew.set(x);
         }
       });
   }
 
-  readData() {
+  async readData(): Promise<void> {
     this.isRead.set(false);
-    this.dataCalendarSelectionService
-      .getList()
-      .subscribe((x: CalendarSelection[] | undefined) => {
-        this.calendarsSelections = [
-          this.emptyCalendarSelection(),
-          ...(x || []),
-        ];
-        const savedId = this.localStorageService.get(
-          MessageLibrary.CALENDAR_SELECTION_TYPE +
-            '-' +
-            MessageLibrary.CALENDAR_SELECTION_ID
-        ) as string | null;
-        if (savedId) {
-          this.currentCalendarSelection =
-            this.calendarsSelections.find((c) => c.id === savedId) ||
-            this.emptyCalendarSelection();
-        }
-        this.isRead.set(true);
-      });
+    
+    try {
+      const x = await lastValueFrom(this.dataCalendarSelectionService.getList());
+      this.calendarsSelections = [
+        this.emptyCalendarSelection(),
+        ...(x || []),
+      ];
+      const savedId = this.localStorageService.get(
+        MessageLibrary.CALENDAR_SELECTION_TYPE +
+          '-' +
+          MessageLibrary.CALENDAR_SELECTION_ID
+      ) as string | null;
+      if (savedId) {
+        this.currentCalendarSelection =
+          this.calendarsSelections.find((c) => c.id === savedId) ||
+          this.emptyCalendarSelection();
+      }
+      this.isRead.set(true);
+    } catch (error) {
+      console.error('Error loading calendar selections:', error);
+      this.isRead.set(true);
+    }
   }
 
   getCalendarSelection(id: string) {
@@ -123,8 +126,8 @@ export class DataManagementCalendarSelectionService {
           this.currentCalendarSelection
         )
       )
-        .then(() => {
-          this.readData();
+        .then(async () => {
+          await this.readData();
         })
         .catch(() => {
           this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);

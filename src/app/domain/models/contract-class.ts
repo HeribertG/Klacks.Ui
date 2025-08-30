@@ -16,7 +16,7 @@ export interface IContract {
   internalValidFrom: NgbDateStruct | undefined;
   internalValidUntil: NgbDateStruct | undefined;
   calendarSelection: ICalendarSelection | undefined;
-  internal: boolean | undefined;
+  calendarSelectionId: string | undefined;
 }
 
 export class Contract implements IContract {
@@ -34,10 +34,9 @@ export class Contract implements IContract {
   internalValidFrom: NgbDateStruct | undefined = undefined;
   internalValidUntil: NgbDateStruct | undefined = undefined;
   calendarSelection: ICalendarSelection | undefined = undefined;
-  internal: boolean | undefined = undefined;
+  calendarSelectionId: string | undefined = undefined;
 
   constructor() {
-    // Create separate OwnTime instances to prevent reference sharing
     this.internalGuaranteedHours = OwnTime.forDuration('00', '00');
     this.internalMinimumHours = OwnTime.forDuration('00', '00');
     this.internalMaximumHours = OwnTime.forDuration('00', '00');
