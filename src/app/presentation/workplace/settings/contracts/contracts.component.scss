@@ -1,5 +1,8 @@
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
 
 .add-button {
   margin-left: 165px;
@@ -37,7 +40,6 @@
   margin-right: 10px;
 }
 
-// Modal styles
 .modal-header {
   padding: 1rem;
   border-bottom: 1px solid #dee2e6;
@@ -73,6 +75,8 @@
   align-items: end;
   margin-bottom: 15px;
   gap: 10px;
+  justify-content: space-between;
+  margin-right: 30px;
 
   label {
     display: block;
@@ -83,39 +87,38 @@
 }
 
 .save-btn {
-  background-color: #28a745;
-  border-color: #28a745;
-  color: #fff;
-  padding: 0.375rem 0.75rem;
-  margin-bottom: 0;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  border: 1px solid transparent;
-
-  &:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-  }
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+}
+.save-btn-ok {
+  width: 50px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
 }
 
 .link-button {
-  color: #007bff;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-
-  &:hover {
-    color: #0056b3;
-    text-decoration: underline;
-  }
+  font-size: 13px;
+  text-decoration: underline;
 }
 
 .red-font {
-  color: #dc3545;
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.red-font-disabled {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: #b6b6c3;
+  pointer-events: none;
 }
 
 .filler {
@@ -141,11 +144,11 @@
   border-color: #f5c6cb;
 }
 
-// Contract Hours Configuration
 .hours-config-row {
   display: flex;
   justify-content: space-between;
-  padding: 0 30px;
+  margin-left: 30px;
+  margin-right: 30px;
 }
 
 .hours-config-item {
@@ -156,25 +159,27 @@
   }
 }
 
-// Contract Basic Information
 .contract-name-section {
   margin-left: 30px;
-  width: 200px;
+  width: 250px;
 }
 
-// Validity Period
+.contract-hours-section {
+  margin-left: 300px;
+}
+
 .validity-section {
   margin-left: 30px;
 }
 
-// Calendar Selection
 .calendar-section {
   margin-left: 30px;
   width: 250px;
 }
 
-// Validation Errors
 .validation-errors-section {
   margin-left: 30px;
+  margin-right: 30px;
+  width: max-content;
   margin-top: 20px;
 }

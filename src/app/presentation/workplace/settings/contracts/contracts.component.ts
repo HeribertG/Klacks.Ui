@@ -156,8 +156,10 @@ export class ContractsComponent implements OnInit {
             (cal) => cal.id === calendarId
           );
         this.editingContract.calendarSelection = selectedCalendar;
+        this.editingContract.calendarSelectionId = calendarId;
       } else {
         this.editingContract.calendarSelection = undefined;
+        this.editingContract.calendarSelectionId = undefined;
       }
     }
   }

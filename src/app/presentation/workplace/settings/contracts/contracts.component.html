@@ -1,34 +1,5 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="container-header">
-    {{ translate.instant("setting.contract.headline") }}
-  </div>
-
-  <div class="container-line"></div>
-
-  <app-contract-header></app-contract-header>
-
-  <div class="container-box">
-    @for (contract of dataManagementContractService.contracts; track contract.id
-    || $index; let i = $index) {
-
-    <app-contract-row
-      [data]="contract"
-      (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="onClickDelete(i)"
-    >
-    </app-contract-row>
-
-    }
-  </div>
-
-  <div class="row">
-    <span class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("setting.contract.add") }}
-    </span>
-  </div>
-</form>
 
 <!-- Contract Modal -->
 <ng-template #contractModal let-modal>
@@ -58,7 +29,6 @@
     </div>
     <div class="modal-body">
       @if (editingContract) {
-      <!-- Contract Basic Information -->
       <div class="row-line-modal-inline">
         <div class="contract-name-section">
           <label for="contractName">{{
@@ -66,7 +36,6 @@
           }}</label>
           <input
             type="text"
-            style="width: 200px"
             [(ngModel)]="editingContract.name"
             name="name"
             class="form-control"
@@ -149,7 +118,10 @@
           <select
             class="form-control"
             style="width: 250px"
-            [ngModel]="editingContract.calendarSelection?.id"
+            [ngModel]="
+              editingContract.calendarSelectionId ||
+              editingContract.calendarSelection?.id
+            "
             (ngModelChange)="onCalendarSelectionChange($event)"
             name="calendarSelection"
             id="calendarSelection"
@@ -200,3 +172,33 @@
     </button>
   </div>
 </ng-template>
+
+<form>
+  <div class="container-header">
+    {{ translate.instant("setting.contract.headline") }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-contract-header></app-contract-header>
+
+  <div class="container-box">
+    @for (contract of dataManagementContractService.contracts; track contract.id
+    || $index; let i = $index) {
+
+    <app-contract-row
+      [data]="contract"
+      (editEvent)="onClickEdit($event)"
+      (isDeleteEvent)="onClickDelete(i)"
+    >
+    </app-contract-row>
+
+    }
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ translate.instant("setting.contract.add") }}
+    </span>
+  </div>
+</form>

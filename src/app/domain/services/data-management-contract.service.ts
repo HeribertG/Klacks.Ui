@@ -31,7 +31,6 @@ export class DataManagementContractService {
   public toastShowService = inject(ToastShowService);
   private dataContractService = inject(DataContractService);
   private translate = inject(TranslateService);
-  private navigationService = inject(NavigationService);
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
@@ -220,6 +219,12 @@ export class DataManagementContractService {
   public prepareContractForEdit(contract: IContract): void {
     this.setDateStruct(contract);
     this.setTimeStruct(contract);
+
+    if (contract.calendarSelectionId && !contract.calendarSelection) {
+      contract.calendarSelection = this.availableCalendars.find(
+        (cal) => cal.id === contract.calendarSelectionId
+      );
+    }
   }
 
   public updateContractFromUIValues(contract: IContract): void {
@@ -278,7 +283,6 @@ export class DataManagementContractService {
     }
   }
 
-  // Save an existing contract object
   public async saveExistingContract(contract: IContract): Promise<boolean> {
     this.editContract = contract;
     return await this.saveEditContract();
@@ -288,7 +292,7 @@ export class DataManagementContractService {
     return this.saveEditContract();
   }
 
-  async saveEditContract(withoutUpdateDummy = false): Promise<boolean> {
+  private async saveEditContract(withoutUpdateDummy = false): Promise<boolean> {
     if (!this.editContract) {
       return false;
     }
@@ -310,11 +314,6 @@ export class DataManagementContractService {
           this.onSaveCompleted();
         }
 
-        this.toastShowService.showSuccess(
-          MessageLibrary.SUCCESS_STORAGE,
-          'Success'
-        );
-
         return true;
       }
 
@@ -323,11 +322,6 @@ export class DataManagementContractService {
       if (this.editContract?.id) {
         await this.readContract(this.editContract.id);
       }
-
-      this.toastShowService.showError(
-        MessageLibrary.UNKNOWN_ERROR,
-        'ContractError'
-      );
 
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
@@ -348,11 +342,6 @@ export class DataManagementContractService {
 
     try {
       await lastValueFrom(this.dataContractService.deleteContract(id));
-
-      this.toastShowService.showSuccess(
-        'Contract deleted successfully',
-        'Success'
-      );
 
       await this.readContracts();
 
