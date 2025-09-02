@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <div class="container-dashboard">
   <div class="container-header">Email-Settings</div>
 
@@ -223,7 +221,7 @@
             aria-label="outgoingServerAuthKey"
             autocomplete="new-password"
           />
-          <fa-icon 
+          <fa-icon
             [icon]="showPassword ? faEyeSlash : faEye"
             class="password-toggle-icon"
             (click)="showPassword = !showPassword"
@@ -232,10 +230,10 @@
         </div>
       </div>
     </div>
-    
+
     <div class="test-email-section">
       <div class="test-button-container">
-        <button 
+        <button
           type="button"
           class="btn btn-primary test-email-button"
           (click)="testEmailConfiguration()"
@@ -243,7 +241,11 @@
         >
           <span *ngIf="!isTestingEmail">Send Test Email</span>
           <span *ngIf="isTestingEmail">
-            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
             Sending...
           </span>
         </button>

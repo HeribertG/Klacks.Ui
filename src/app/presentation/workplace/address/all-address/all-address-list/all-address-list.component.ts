@@ -450,9 +450,7 @@ export class AllAddressListComponent
     const readEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
         if (this.dataManagementClientService.isRead()) {
-          const storedRowOrder = this.localStorageService.get(
-            MessageLibrary.SELECTED_ROW_ORDER
-          );
+          this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
 
           if (this.isFirstRead) {
             this.isFirstRead = false;

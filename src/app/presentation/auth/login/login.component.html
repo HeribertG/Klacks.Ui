@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <ng-template #forgotPasswordModal let-modal>
   <div class="modal-header">
-    <h4 class="modal-title">{{ "FORGOT_PASSWORD_TITLE" | translate }}</h4>
+    <h4 class="modal-title">{{ "auth.forgot-password.title" | translate }}</h4>
     <button
       type="button"
       class="btn-close"
@@ -11,27 +11,27 @@
     ></button>
   </div>
   <div class="modal-body">
-    <p>{{ "FORGOT_PASSWORD_INSTRUCTION" | translate }}</p>
+    <p>{{ "auth.forgot-password.instruction" | translate }}</p>
     <div class="form-group">
-      <label for="resetEmail">{{ "EMAIL_ADDRESS" | translate }}</label>
+      <label for="resetEmail">{{ "auth.forgot-password.email-address" | translate }}</label>
       <input
         type="email"
         class="form-control"
         id="resetEmail"
         [(ngModel)]="resetEmail"
         name="resetEmail"
-        [placeholder]="'EMAIL_PLACEHOLDER' | translate"
+        [placeholder]="'auth.forgot-password.email-placeholder' | translate"
         required
         email
       />
     </div>
     @if (resetEmailSent) {
     <div class="alert alert-success mt-3" role="alert">
-      {{ "RESET_EMAIL_SENT_SUCCESS" | translate }}
+      {{ "auth.forgot-password.success" | translate }}
     </div>
     } @if (resetEmailError) {
     <div class="alert alert-danger mt-3" role="alert">
-      {{ "RESET_EMAIL_ERROR" | translate }}
+      {{ "auth.forgot-password.error" | translate }}
     </div>
     }
   </div>
@@ -41,7 +41,7 @@
       class="btn btn-secondary normal-btn"
       (click)="modal.dismiss()"
     >
-      {{ "CANCEL" | translate }}
+      {{ "common.cancel" | translate }}
     </button>
     <button
       type="button"
@@ -58,8 +58,8 @@
       }
       {{
         resetEmailSending
-          ? ("SENDING" | translate)
-          : ("SEND_RESET_EMAIL" | translate)
+          ? ("auth.forgot-password.sending" | translate)
+          : ("auth.forgot-password.send-button" | translate)
       }}
     </button>
   </div>

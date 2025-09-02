@@ -17,11 +17,10 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
 import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
-import { IContract, Contract } from 'src/app/domain/models/contract-class';
+import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 @Component({
   selector: 'app-contracts',

@@ -102,10 +102,10 @@ export class MessageLibrary {
   public static NEW_ADDRESS = 'Neue Adresse erstellen';
   public static VALID_FROM = 'Gültig ab:';
 
-  public static ABSENCE = 'Absenzen Kalender';
-  public static ALL_SCHEDULE = 'Alle Planungen';
-  public static ALL_EMPLOYEE = 'Alle Mitarbeiter';
-  public static STATISTIC = 'Statistiken';
+  public static ABSENCE = 'ABSENCE';
+  public static ALL_SCHEDULE = 'ALL_SCHEDULE';
+  public static ALL_EMPLOYEE = 'ALL_EMPLOYEE';
+  public static STATISTIC = 'STATISTIC';
   public static ALL_GROUP = 'Alle Gruppen';
   public static ALL_SHIFT = 'Alle Dienste';
 
@@ -122,18 +122,14 @@ export class MessageLibrary {
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';
 
-  public static REGISTERUSER_MAILTEXT =
-    '<h2><strong>Ihr Passwort f&uuml;r unsere Applikation&nbsp;{appName}.</strong></h2><p>{password}</p><p>Bitte benutzen sie dieses automatisch generierte Passwort nur einmal.</p><p>Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p>&nbsp;</p><p>Freundliche Gr&uuml;sse</p><p>Ihre Administration</p>';
-  public static CHANGEPASSWORD_MAILTEXT =
-    '<h2><strong>Ihr Passwort wurde ge&auml;ndert.</strong></h2><p> {model.Password}</p><p> Bitte benutzen sie dieses automatisch generierte Passwort nur einmal.</p><p> Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p> &nbsp;</p><p> Freundliche Gr&uuml;sse </p><p> Ihre Administration</p>';
-  public static 'REGISTERUSER_TITLE' = 'Neuregistrierung';
-  public static CHANGEPASSWORD_TITLE = 'Passwortänderung';
-  public static CHANGEPASSWORDUSER_MAILTEXT =
-    '<h2><strong>Ihr Passwort wurde ge&auml;ndert.</strong></h2>p>Sie k&ouml;nnen jederzeit ihr Passwort unter Profile um&auml;ndern.</p><p> &nbsp;</p><p> Freundliche Gr&uuml;sse </p><p> Ihre Administration</p>"';
+  public static REGISTERUSER_MAILTEXT = 'REGISTERUSER_MAILTEXT';
+  public static CHANGEPASSWORD_MAILTEXT = 'CHANGEPASSWORD_MAILTEXT';
+  public static REGISTERUSER_TITLE = 'REGISTERUSER_TITLE';
+  public static CHANGEPASSWORD_TITLE = 'CHANGEPASSWORD_TITLE';
+  public static CHANGEPASSWORDUSER_MAILTEXT = 'CHANGEPASSWORDUSER_MAILTEXT';
 
-  public static CLIENT_DOUBLETS =
-    'Die ausgewählte Person ist in der Liste schon vorhanden';
-  public static ERROR_TOASTTITLE = 'Fehler';
+  public static CLIENT_DOUBLETS = 'CLIENT_DOUBLETTE';
+  public static ERROR_TOASTTITLE = 'ERROR_TOASTTITLE';
 
   // =================== API ERROR CONSTANTS ===================
   // Absence Errors

@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, Subscription } from 'rxjs';
@@ -43,6 +43,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
   private injector = inject(Injector);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -125,8 +126,8 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
     if (!emailRegex.test(username)) {
       this.isTestingEmail = false;
       this.toastShowService.showError(
-        'Please enter a valid email address in the Username field.',
-        'EMAIL_VALIDATION_ERROR'
+        this.translateService.instant('settings.email-setting.toast.invalid-address'),
+        this.translateService.instant('settings.email-setting.toast.validation-error')
       );
       return;
     }
@@ -150,12 +151,12 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
           if (result.success) {
             this.toastShowService.showSuccess(
               result.message,
-              'Email Test Successful'
+              this.translateService.instant('settings.email-setting.toast.test-successful')
             );
           } else {
             this.toastShowService.showError(
               result.message,
-              'EMAIL_TEST_ERROR',
+              this.translateService.instant('settings.email-setting.toast.test-error'),
               result.errorDetails || ''
             );
           }
@@ -165,8 +166,8 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
           this.isTestingEmail = false;
 
           this.toastShowService.showError(
-            'An error occurred while testing the email configuration.',
-            'EMAIL_TEST_ERROR',
+            this.translateService.instant('settings.email-setting.toast.unexpected-error'),
+            this.translateService.instant('settings.email-setting.toast.test-error'),
             error.message || ''
           );
         },

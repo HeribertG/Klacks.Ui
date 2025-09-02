@@ -84,7 +84,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
   async onSave(): Promise<void> {
     if (!this.loginForm.form.valid) {
-      this.toastService.showError('', 'FORM_VALIDATION_ERRORS');
+      this.toastService.showError('', 'common.form-validation-errors');
       return;
     }
 
@@ -128,7 +128,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         next: () => {
           this.resetEmailSending = false;
           this.resetEmailSent = true;
-          this.toastService.showInfo('', 'RESET_EMAIL_SENT_SUCCESS');
+          this.toastService.showInfo('', 'auth.forgot-password.success');
 
           setTimeout(() => {
             this.modalService.dismissAll();
@@ -138,7 +138,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
         error: () => {
           this.resetEmailSending = false;
           this.resetEmailError = true;
-          this.toastService.showInfo('', 'RESET_EMAIL_ERROR');
+          this.toastService.showInfo('', 'auth.forgot-password.error');
         },
       });
   }
