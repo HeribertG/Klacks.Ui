@@ -31,6 +31,8 @@ jobs:
           if [ -d "Klacks.Ui" ]; then
             echo "📦 Updating Klacks.Ui..."
             cd Klacks.Ui
+            # Configure git pull strategy
+            git config pull.rebase false
             # Get current branch name
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
             echo "Current branch: $CURRENT_BRANCH"
