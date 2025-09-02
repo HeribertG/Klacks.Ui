@@ -13,48 +13,75 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup SSH Key
-      uses: webfactory/ssh-agent@v0.8.0
+    - name: Deploy to server
+      uses: appleboy/ssh-action@master
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy to Hetzner Server
-      run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          cd ~/apps
-          
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SSH_PORT || 22 }}
+        script: |
+          set -e
           echo "🚀 Deploying Klacks.Ui..."
           
-          # Klacks.Ui Repository aktualisieren
+          # Navigate to correct directory
+          cd /root/apps
+          
+          # Update Klacks.Ui Repository
           if [ -d "Klacks.Ui" ]; then
             echo "📦 Updating Klacks.Ui..."
-            cd Klacks.Ui && git pull origin main && cd ..
+            cd Klacks.Ui
+            # Get current branch name
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "Current branch: $CURRENT_BRANCH"
+            git fetch origin
+            git pull origin $CURRENT_BRANCH
+            cd ..
           else
             echo "📦 Cloning Klacks.Ui..."
             git clone https://github.com/HeribertG/Klacks.Ui.git
           fi
           
-          # Nur UI neu bauen und starten
+          # Check Docker Compose version
+          if command -v docker-compose &> /dev/null; then
+            COMPOSE_CMD="docker-compose"
+          else
+            COMPOSE_CMD="docker compose"
+          fi
+          echo "Using: $COMPOSE_CMD"
+          
+          # Rebuild and restart only UI service
           echo "🔨 Building Klacks.Ui..."
-          docker compose build klacks-ui --no-cache
-          docker compose up -d klacks-ui
+          $COMPOSE_CMD build klacks-ui --no-cache
+          
+          echo "🔄 Restarting Klacks.Ui..."
+          $COMPOSE_CMD up -d klacks-ui
           
           echo "✅ Klacks.Ui deployment completed!"
           
-          # Status prüfen
-          docker compose ps klacks-ui
-        EOF
-
-    - name: Health Check
-      run: |
-        sleep 10
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          # Status check
+          echo "📊 Service status:"
+          $COMPOSE_CMD ps klacks-ui
+          
+          # Health Check
+          sleep 10
           echo "🏥 Health Check for Klacks.Ui..."
           
-          if curl -f -s http://localhost:3000 > /dev/null; then
-            echo "✅ Klacks.Ui is accessible"
+          # Check if service is running
+          if $COMPOSE_CMD ps klacks-ui | grep -q "Up"; then
+            echo "✅ Container is running"
+          else
+            echo "❌ Container is not running"
+            $COMPOSE_CMD logs klacks-ui --tail=20
+            exit 1
+          fi
+          
+          # Check HTTP response
+          if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|301\|302"; then
+            echo "✅ Klacks.Ui is accessible on port 3000"
           else
             echo "❌ Klacks.Ui health check failed"
-            docker compose logs klacks-ui --tail=10
+            echo "Container logs:"
+            $COMPOSE_CMD logs klacks-ui --tail=20
+            exit 1
           fi
-        EOF
