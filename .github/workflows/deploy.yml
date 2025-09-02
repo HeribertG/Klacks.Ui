@@ -3,7 +3,15 @@ name: Deploy Klacks.Ui to Hetzner
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
+    paths:
+      - '**'
+      - '!README.md'
+      - '!docs/**'
+
+concurrency:
+  group: deploy-klacks-ui-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -31,13 +39,12 @@ jobs:
           if [ -d "Klacks.Ui" ]; then
             echo "📦 Updating Klacks.Ui..."
             cd Klacks.Ui
-            # Configure git pull strategy
-            git config pull.rebase false
             # Get current branch name
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
             echo "Current branch: $CURRENT_BRANCH"
+            # Force pull - überschreibt lokale Änderungen
             git fetch origin
-            git pull origin $CURRENT_BRANCH
+            git reset --hard origin/$CURRENT_BRANCH
             cd ..
           else
             echo "📦 Cloning Klacks.Ui..."
