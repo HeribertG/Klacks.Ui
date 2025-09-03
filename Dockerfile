@@ -14,8 +14,8 @@ RUN npm run build
 FROM nginx:alpine
 COPY --from=build /app/dist/klacks.ui /usr/share/nginx/html
 
-# Copy nginx configuration if exists, otherwise use default
-COPY nginx.conf /etc/nginx/nginx.conf 2>/dev/null || echo "Using default nginx config"
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
