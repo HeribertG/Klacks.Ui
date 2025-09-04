@@ -239,14 +239,14 @@
           (click)="testEmailConfiguration()"
           [disabled]="isTestingEmail"
         >
-          <span *ngIf="!isTestingEmail">Send Test Email</span>
+          <span *ngIf="!isTestingEmail">{{ 'settings.email-setting.button.send-test-email' | translate }}</span>
           <span *ngIf="isTestingEmail">
             <span
               class="spinner-border spinner-border-sm me-2"
               role="status"
               aria-hidden="true"
             ></span>
-            Sending...
+            {{ 'settings.email-setting.button.sending' | translate }}
           </span>
         </button>
       </div>

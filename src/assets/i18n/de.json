@@ -554,6 +554,8 @@
   "setting.user-admin.row.no": "Nein",
   "setting.user-admin.row.send": "Passwort zurücksetzen",
   "setting.user-admin.row.yes": "Ja",
+  "settings.email-setting.button.send-test-email": "Test-E-Mail senden",
+  "settings.email-setting.button.sending": "Sende...",
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABK.",
   "list.all-list.all-shift-list.table.Fry": "FR",

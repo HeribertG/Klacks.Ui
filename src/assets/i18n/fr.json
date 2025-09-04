@@ -568,6 +568,8 @@
   "setting.user-admin.row.no": "Non",
   "setting.user-admin.row.send": "Envoyer les informations d'accès",
   "setting.user-admin.row.yes": "Oui",
+  "settings.email-setting.button.send-test-email": "Envoyer e-mail de test",
+  "settings.email-setting.button.sending": "Envoi...",
 
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABR.",

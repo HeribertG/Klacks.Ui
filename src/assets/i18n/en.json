@@ -568,6 +568,8 @@
   "setting.user-admin.row.no": "No",
   "setting.user-admin.row.send": "Send Access Credentials",
   "setting.user-admin.row.yes": "Yes",
+  "settings.email-setting.button.send-test-email": "Send Test Email",
+  "settings.email-setting.button.sending": "Sending...",
 
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",

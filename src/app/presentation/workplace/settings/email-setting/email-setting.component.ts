@@ -126,8 +126,8 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
     if (!emailRegex.test(username)) {
       this.isTestingEmail = false;
       this.toastShowService.showError(
-        this.translateService.instant('settings.email-setting.toast.invalid-address'),
-        this.translateService.instant('settings.email-setting.toast.validation-error')
+        this.translateService.instant('EMAIL_TEST_INVALID_ADDRESS'),
+        this.translateService.instant('EMAIL_VALIDATION_ERROR')
       );
       return;
     }
@@ -151,12 +151,12 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
           if (result.success) {
             this.toastShowService.showSuccess(
               result.message,
-              this.translateService.instant('settings.email-setting.toast.test-successful')
+              this.translateService.instant('EMAIL_TEST_SUCCESSFUL')
             );
           } else {
             this.toastShowService.showError(
               result.message,
-              this.translateService.instant('settings.email-setting.toast.test-error'),
+              this.translateService.instant('EMAIL_TEST_ERROR'),
               result.errorDetails || ''
             );
           }
@@ -166,8 +166,8 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
           this.isTestingEmail = false;
 
           this.toastShowService.showError(
-            this.translateService.instant('settings.email-setting.toast.unexpected-error'),
-            this.translateService.instant('settings.email-setting.toast.test-error'),
+            this.translateService.instant('EMAIL_TEST_UNEXPECTED_ERROR'),
+            this.translateService.instant('EMAIL_TEST_ERROR'),
             error.message || ''
           );
         },
