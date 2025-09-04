@@ -8,6 +8,7 @@ import {
   isNgbDateStructOk,
   isOwnTimeStructOk,
   transformOwnTimeToNumber,
+  dateWithLocalTimeCorrection,
 } from 'src/app/domain/helpers/format-helper';
 
 @Injectable({
@@ -61,7 +62,7 @@ export class DataContractService {
         value.internalValidFrom
       );
       if (validFromDate) {
-        value.validFrom = validFromDate;
+        value.validFrom = dateWithLocalTimeCorrection(validFromDate) as Date;
       }
     }
 
@@ -73,7 +74,7 @@ export class DataContractService {
         value.internalValidUntil
       );
       if (validUntilDate) {
-        value.validUntil = validUntilDate;
+        value.validUntil = dateWithLocalTimeCorrection(validUntilDate);
       }
     } else {
       value.validUntil = undefined;
