@@ -53,6 +53,7 @@ import { NoAccessComponent } from './presentation/no-access/no-access.component'
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
+import { AsideComponent } from './presentation/aside/aside.component';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -93,6 +94,7 @@ export function localeFactory(localeService: LocaleService) {
     ErrorComponent,
     ToastsContainerComponent,
     KeyboardShortcutDirective,
+    AsideComponent,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

@@ -556,6 +556,7 @@
   "setting.user-admin.header.visa": "Idoneo per il Visto",
   "setting.user-admin.headline": "Amministrazione Utenti",
   "setting.user-admin.modal-email": "Email",
+  "aside.header.title": "Assistente",
   "setting.user-admin.modal-firstname": "Nome",
   "setting.user-admin.modal-name": "Cognome",
   "setting.user-admin.modal-question": "Vuoi davvero modificare le credenziali di accesso?",

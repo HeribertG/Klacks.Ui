@@ -1,18 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, Output, inject } from '@angular/core';
-
-// Angular und Bibliotheksmodule
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
-// Anwendungsmodule
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-
-// Services und Utilities
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { getFileExtension } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

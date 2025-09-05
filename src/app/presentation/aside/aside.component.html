@@ -1,0 +1,14 @@
+<div class="aside-panel">
+  <div class="aside-header">
+    <h3>{{ "aside.header.title" | translate }}</h3>
+    <div class="header-buttons">
+      <button class="delete-btn" (click)="clearChat()">
+        <app-icon-trash-red></app-icon-trash-red>
+      </button>
+      <button class="close-btn" (click)="close()">×</button>
+    </div>
+  </div>
+  <div class="aside-content">
+    <app-llm-chat></app-llm-chat>
+  </div>
+</div>

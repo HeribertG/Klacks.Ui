@@ -570,6 +570,18 @@
   "setting.user-admin.row.yes": "Yes",
   "settings.email-setting.button.send-test-email": "Send Test Email",
   "settings.email-setting.button.sending": "Sending...",
+  "aside.header.title": "Assistant",
+  "settings.llm-models.title": "LLM Models Configuration",
+  "settings.llm-models.description": "Configure and manage available Large Language Models for the assistant",
+  "settings.llm-models.usage-stats": "Usage Statistics (Last 30 Days)",
+  "settings.llm-models.total-cost-30d": "Total Cost",
+  "settings.llm-models.available-models": "Available Models",
+  "settings.llm-models.input-tokens": "Input",
+  "settings.llm-models.output-tokens": "Output", 
+  "settings.llm-models.max-tokens": "Max Tokens",
+  "settings.llm-models.set-as-default": "Set as Default",
+  "settings.llm-models.default-model": "Default Model",
+  "settings.llm-models.loading": "Loading models...",
 
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",

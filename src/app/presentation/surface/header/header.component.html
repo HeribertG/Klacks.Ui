@@ -29,6 +29,13 @@
 
   <app-group-select></app-group-select>
 
+  <button 
+    class="assistant-btn"
+    (click)="onToggleAssistant()"
+    title="KI-Assistent öffnen">
+    <fa-icon [icon]="faRobot"></fa-icon>
+  </button>
+
   <app-icon-sign-out
     class="icon-logOut"
     (click)="onClickLogOut()"

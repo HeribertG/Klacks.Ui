@@ -1,0 +1,90 @@
+<div class="llm-models-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ 'settings.llm-models.title' | translate }}</h2>
+      <p class="card-description">{{ 'settings.llm-models.description' | translate }}</p>
+    </div>
+
+    <div class="card-content" *ngIf="!isLoading">
+      <!-- Usage Statistics -->
+      <div class="usage-stats">
+        <h3>{{ 'settings.llm-models.usage-stats' | translate }}</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">{{ 'settings.llm-models.total-cost-30d' | translate }}</span>
+            <span class="stat-value cost">€{{ getUsageStats().totalCost.toFixed(4) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Configuration -->
+      <div class="models-section">
+        <h3>{{ 'settings.llm-models.available-models' | translate }}</h3>
+        
+        <div class="models-grid">
+          @for (model of models; track model.id) {
+            <div class="model-card" [class.enabled]="model.isEnabled" [class.default]="model.isDefault">
+              <div class="model-header">
+                <div class="model-title">
+                  <h4>{{ model.name }}</h4>
+                  <span class="provider-badge" [ngClass]="getProviderClass(model.provider)">
+                    {{ model.provider }}
+                  </span>
+                </div>
+                
+                <div class="model-controls">
+                  <label class="toggle-switch">
+                    <input 
+                      type="checkbox" 
+                      [checked]="model.isEnabled"
+                      (change)="toggleModel(model)"
+                    />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="model-content">
+                <p class="model-description">{{ model.description }}</p>
+                
+                <div class="model-pricing">
+                  <div class="price-item">
+                    <span class="price-label">{{ 'settings.llm-models.input-tokens' | translate }}:</span>
+                    <span class="price-value">{{ formatCost(model.costPerInputToken) }}</span>
+                  </div>
+                  <div class="price-item">
+                    <span class="price-label">{{ 'settings.llm-models.output-tokens' | translate }}:</span>
+                    <span class="price-value">{{ formatCost(model.costPerOutputToken) }}</span>
+                  </div>
+                </div>
+
+                <div class="model-specs">
+                  <span class="spec-item">
+                    {{ 'settings.llm-models.max-tokens' | translate }}: {{ model.maxTokens.toLocaleString() }}
+                  </span>
+                </div>
+
+                <div class="model-actions" *ngIf="model.isEnabled">
+                  <button 
+                    class="btn-default"
+                    [class.active]="model.isDefault"
+                    [disabled]="model.isDefault"
+                    (click)="setAsDefault(model)"
+                  >
+                    <span *ngIf="!model.isDefault">{{ 'settings.llm-models.set-as-default' | translate }}</span>
+                    <span *ngIf="model.isDefault">{{ 'settings.llm-models.default-model' | translate }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>{{ 'settings.llm-models.loading' | translate }}</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,170 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Chat Container - Integrated -->
+<div class="chat-container-integrated">
+  <!-- Model Selection Header -->
+  <div class="model-selection-header">
+    <div class="model-dropdown" (click)="toggleModelDropdown()">
+      <div class="current-model">
+        <span class="model-name">{{
+          getCurrentModelInfo()?.name || "Select Model"
+        }}</span>
+        <span class="model-cost" *ngIf="getCurrentModelInfo()">
+          {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
+        </span>
+        <fa-icon
+          [icon]="faChevronDown"
+          [class.rotated]="showModelDropdown"
+        ></fa-icon>
+      </div>
+
+      @if (showModelDropdown) {
+      <div class="dropdown-menu">
+        @for (model of availableModels; track model.id) {
+        <div
+          class="dropdown-item"
+          [class.selected]="model.id === currentModel"
+          (click)="selectModel(model.id); $event.stopPropagation()"
+        >
+          <div class="model-info">
+            <div class="model-name">{{ model.name }}</div>
+            <div class="model-description">{{ model.description }}</div>
+            <div class="model-pricing">
+              <span class="input-cost"
+                >In: {{ formatCost(model.costPerInputToken) }}</span
+              >
+              <span class="output-cost"
+                >Out: {{ formatCost(model.costPerOutputToken) }}</span
+              >
+            </div>
+          </div>
+          <div class="provider-badge">{{ model.provider }}</div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+  </div>
+  <!-- Messages Area -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages">
+      @for (message of messages; track message.id) {
+      <div class="message-wrapper" [class]="message.sender">
+        <div class="message-avatar">
+          <fa-icon
+            [icon]="message.sender === 'user' ? faUser : faRobot"
+          ></fa-icon>
+        </div>
+        <div class="message-content">
+          <div class="message-bubble" [class]="message.sender">
+            <div
+              class="message-text"
+              [innerHTML]="formatMessage(message.content)"
+            ></div>
+            <div class="message-time">
+              {{ message.timestamp | date : "short" }}
+            </div>
+          </div>
+
+          <!-- Action buttons for assistant messages -->
+          @if (message.sender === 'assistant' && message.navigateTo) {
+          <button
+            class="action-btn navigate-btn"
+            (click)="onNavigateClick(message.navigateTo!)"
+          >
+            📍 Öffnen
+          </button>
+          }
+
+          <!-- Suggestions -->
+          @if (message.suggestions && message.suggestions.length > 0) {
+          <div class="suggestions">
+            @for (suggestion of message.suggestions; track $index) {
+            <button
+              class="suggestion-btn"
+              (click)="onSuggestionClick(suggestion)"
+            >
+              {{ suggestion }}
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <!-- Processing indicator -->
+      @if (isProcessing) {
+      <div class="message-wrapper assistant">
+        <div class="message-avatar">
+          <fa-icon [icon]="faRobot"></fa-icon>
+        </div>
+        <div class="message-content">
+          <div class="message-bubble assistant">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+
+  <!-- Input Area -->
+  <div class="input-container">
+    <!-- Voice input indicator -->
+    @if (isListening) {
+    <div class="voice-indicator">🎤 Sprechen Sie jetzt...</div>
+    }
+    
+    @if (speechService.isSupported$.value === false) {
+    <div class="speech-not-supported">
+      ⚠️ Spracherkennung in diesem Browser nicht verfügbar. Verwenden Sie die Texteingabe unten.
+    </div>
+    }
+
+    <div class="input-wrapper">
+      <!-- Voice button -->
+      <button
+        class="btn-voice"
+        [class.listening]="isListening"
+        [class.disabled]="!speechService.isSupported$.value"
+        [disabled]="isProcessing || !speechService.isSupported$.value"
+        (click)="isListening ? stopVoiceInput() : startVoiceInput()"
+        title="{{
+          !speechService.isSupported$.value ? 'Spracherkennung nicht verfügbar - Aktivieren Sie Windows Spracherkennung' :
+          isListening ? 'Aufnahme stoppen' : 'Spracherkennung starten'
+        }}"
+      >
+        <fa-icon
+          [icon]="isListening ? faMicrophone : faMicrophoneSlash"
+        ></fa-icon>
+      </button>
+
+      <!-- Text input -->
+      <textarea
+        class="input-field"
+        [(ngModel)]="inputText"
+        (keydown)="onInputKeyPress($event)"
+        [disabled]="isProcessing || isListening"
+        placeholder="Schreiben Sie hier oder nutzen Sie das Mikrofon..."
+        rows="1"
+        #textInput
+      >
+      </textarea>
+
+      <!-- Send button -->
+      <button
+        class="btn-send"
+        [disabled]="!inputText.trim() || isProcessing || isListening"
+        (click)="sendMessage()"
+        title="Nachricht senden"
+      >
+        <fa-icon [icon]="faPaperPlane"></fa-icon>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,325 @@
+@use "../../../../../assets/standard-styles/colors" as colors;
+
+.llm-models-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--backgroundColorCard);
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorHeaderWorkplace);
+
+  h2 {
+    margin: 0 0 8px 0;
+    color: var(--colorHeadline);
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .card-description {
+    margin: 0;
+    color: var(--colorSubHeadline);
+    font-size: 14px;
+  }
+}
+
+.card-content {
+  padding: 32px;
+}
+
+// Usage Statistics
+.usage-stats {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: var(--backgroundColorFocus);
+  border-radius: 8px;
+
+  h3 {
+    margin: 0 0 16px 0;
+    color: var(--colorHeadline);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--backgroundColorCard);
+    border-radius: 6px;
+    border: 1px solid var(--cardBorderColor);
+
+    .stat-label {
+      color: var(--colorLabel);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      font-size: 14px;
+
+      &.cost {
+        color: colors.$standartGreenColor;
+      }
+    }
+  }
+}
+
+// Models Section
+.models-section {
+  h3 {
+    margin: 0 0 24px 0;
+    color: var(--colorHeadline);
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+}
+
+.model-card {
+  border: 2px solid var(--cardBorderColor);
+  border-radius: 12px;
+  padding: 20px;
+  background: var(--backgroundColorCard);
+  transition: all 0.3s ease;
+  opacity: 0.6;
+
+  &.enabled {
+    opacity: 1;
+    border-color: colors.$standartGreenColor;
+  }
+
+  &.default {
+    border-color: colors.$standartBlueColor;
+    box-shadow: 0 0 0 2px rgba(colors.$standartBlueColor, 0.1);
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.model-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+
+  .model-title {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    h4 {
+      margin: 0;
+      color: var(--colorHeadline);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .provider-badge {
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      width: fit-content;
+
+      &.provider-openai {
+        background: #10a37f;
+        color: white;
+      }
+
+      &.provider-anthropic {
+        background: #d97757;
+        color: white;
+      }
+
+      &.provider-google {
+        background: #4285f4;
+        color: white;
+      }
+
+      &.provider-azure {
+        background: #0078d4;
+        color: white;
+      }
+    }
+  }
+}
+
+// Toggle Switch
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: colors.$CurrentGreyColor;
+    transition: .4s;
+    border-radius: 24px;
+
+    &:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+  }
+
+  input:checked + .slider {
+    background-color: colors.$standartGreenColor;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+}
+
+.model-content {
+  .model-description {
+    margin: 0 0 16px 0;
+    color: var(--colorLabel);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .model-pricing {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+
+    .price-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--backgroundColorFocus);
+      border-radius: 6px;
+
+      .price-label {
+        color: var(--colorSubHeadline);
+        font-size: 12px;
+      }
+
+      .price-value {
+        color: colors.$standartGreenColor;
+        font-weight: 600;
+        font-size: 12px;
+      }
+    }
+  }
+
+  .model-specs {
+    margin-bottom: 16px;
+    padding: 8px 12px;
+    background: var(--backgroundColorFocus);
+    border-radius: 6px;
+
+    .spec-item {
+      color: var(--colorLabel);
+      font-size: 12px;
+    }
+  }
+
+  .model-actions {
+    .btn-default {
+      width: 100%;
+      padding: 8px 16px;
+      border: 1px solid colors.$standartBlueColor;
+      background: transparent;
+      color: colors.$standartBlueColor;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: colors.$standartBlueColor;
+        color: white;
+      }
+
+      &.active {
+        background: colors.$standartBlueColor;
+        color: white;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// Loading
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--cardBorderColor);
+    border-top: 3px solid colors.$standartGreenColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--colorSubHeadline);
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

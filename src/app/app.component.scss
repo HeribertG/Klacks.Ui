@@ -1,0 +1,42 @@
+@use "./../assets/standard-styles/colors.scss" as colors;
+
+$aside-width: 450px;
+
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#appRoot {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.main-content {
+  width: 100%;
+  height: 100%;
+  transition: margin-right 0.3s ease;
+  
+  &.aside-open {
+    margin-right: 450px;
+  }
+}
+
+app-aside {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: $aside-width;
+  height: 100vh;
+  z-index: 1000;
+}
+
+app-toasts {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}

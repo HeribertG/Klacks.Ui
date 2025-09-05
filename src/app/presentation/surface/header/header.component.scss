@@ -44,3 +44,26 @@ app-group-select {
   padding-top: 12px;
   width: 400px;
 }
+
+.assistant-btn {
+  background: linear-gradient(135deg, colors.$standartGreenColor, colors.$splitButtonGreenColor);
+  border: none;
+  border-radius: 8px;
+  color: colors.$standartWhiteColor;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 15px;
+  margin-top: 20px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  height: fit-content;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(27, 197, 189, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

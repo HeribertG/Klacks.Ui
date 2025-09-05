@@ -556,6 +556,7 @@
   "setting.user-admin.header.visa": "Éligible au visa",
   "setting.user-admin.headline": "Gestion des utilisateurs",
   "setting.user-admin.modal-email": "Email",
+  "aside.header.title": "Assistant",
   "setting.user-admin.modal-firstname": "Prénom",
   "setting.user-admin.modal-name": "Nom",
   "setting.user-admin.modal-question": "Voulez-vous vraiment modifier les informations d'accès ?",

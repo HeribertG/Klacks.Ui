@@ -6,7 +6,7 @@
 $header_height: 65px;
 $footer_height: var(--footer_height);
 $main-footer_height: 0px;
-$aside_width: 0px;
+$aside_width: var(--aside-width, 0px);
 $nav_width: 100px;
 
 app-header {
@@ -30,10 +30,12 @@ app-main {
   height: calc(
     100vh - (#{$header_height} + #{$main-footer_height} + #{$footer_height})
   );
+  width: calc(100% - #{$nav_width} - #{$aside_width});
   background-color: var(--backgroundColorWorkplace);
   box-sizing: border-box;
   overflow-x: auto;
   overflow-y: auto;
+  transition: width 0.3s ease;
 }
 
 .footer {
@@ -90,8 +92,10 @@ app-aside {
   order: 4;
   width: $aside_width;
   flex: 0 1 $aside_width;
-
+  height: calc(100vh - (#{$header_height} + #{$main-footer_height}));
   background-color: var(--backgroundColorHeaderNav);
+  transition: width 0.3s ease;
+  overflow: hidden;
 }
 
 app-footer {

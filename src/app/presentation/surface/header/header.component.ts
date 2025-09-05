@@ -19,6 +19,9 @@ import { IconSignOutComponent } from 'src/app/presentation/icons/icon-sign-out.c
 import { SearchComponent } from 'src/app/presentation/search/search.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
+import { AsideService } from '../../aside/aside.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faRobot } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-header',
@@ -30,6 +33,7 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
     SearchComponent,
     GroupSelectComponent,
     IconSignOutComponent,
+    FontAwesomeModule,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
@@ -39,6 +43,7 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   private injector = inject(Injector);
   private navigationService = inject(NavigationService);
   private themeService = inject(ThemeService);
+  private asideService = inject(AsideService);
 
   public authorised = signal<boolean>(false);
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
@@ -68,6 +73,9 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   private currentTheme = signal<string>('light');
   private effectRefs: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
+
+  // Font Awesome icons
+  faRobot = faRobot;
 
   public imageName = computed(() => {
     const theme = this.currentTheme();
@@ -126,6 +134,11 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.navigationService.navigateToRoot().then(() => {
       this.authorised.set(false);
     });
+  }
+
+  onToggleAssistant(): void {
+    console.log('Assistant button clicked - toggling aside');
+    this.asideService.toggle();
   }
 
   updateSearchString(searchValue: string): void {
