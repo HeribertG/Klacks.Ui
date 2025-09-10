@@ -32,7 +32,7 @@ export class LLMService {
   private readonly apiUrl = `${environment.baseUrl.replace(
     '/backend/',
     ''
-  )}/llm`;
+  )}/assistant`;
 
   // Service state
   private conversationHistory = new Map<string, any[]>();

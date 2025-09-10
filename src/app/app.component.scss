@@ -25,14 +25,7 @@ $aside-width: 450px;
   }
 }
 
-app-aside {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: $aside-width;
-  height: 100vh;
-  z-index: 1000;
-}
+/* Aside is now integrated in home component layout */
 
 app-toasts {
   position: fixed;
