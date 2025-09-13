@@ -16,8 +16,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { LLMService } from './services/llm.service';
-import { LLMModel } from './models/llm-model.interface';
+import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
+import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
 
@@ -40,7 +40,7 @@ export interface ChatMessage {
 })
 export class LLMChatComponent implements OnInit, OnDestroy {
   // Services
-  private llmService = inject(LLMService);
+  private llmService = inject(DataManagementLLMService);
   speechService = inject(SpeechRecognitionService); // Make public for template access
   private translateService = inject(TranslateService);
   private router = inject(Router);
@@ -63,7 +63,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   conversationId = '';
 
   // Model selection
-  availableModels: LLMModel[] = [];
+  availableModels: ILLMModel[] = [];
   currentModel = '';
   showModelDropdown = false;
 
@@ -108,7 +108,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
       });
 
     this.llmService
-      .getCurrentModel()
+      .getCurrentModelId()
       .pipe(takeUntil(this.destroy$))
       .subscribe((modelId) => {
         this.currentModel = modelId;
@@ -138,28 +138,27 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     this.isProcessing = true;
 
     try {
-      const response = await this.llmService.sendMessage({
-        message: messageText,
-        conversationId: this.conversationId,
-        modelId: this.currentModel,
-      });
+      const response = await this.llmService.sendMessage(
+        messageText,
+        this.conversationId
+      ).toPromise();
 
       const assistantMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
-        content: response.message,
+        content: response?.message || '',
         timestamp: new Date(),
-        suggestions: response.suggestions,
-        navigateTo: response.navigateTo,
-        actionPerformed: response.actionPerformed,
+        suggestions: response?.suggestions,
+        navigateTo: response?.navigateTo,
+        actionPerformed: response?.actionPerformed,
       };
 
       this.messages.push(assistantMessage);
 
       // Auto-navigate if specified
-      if (response.navigateTo && response.actionPerformed) {
+      if (response?.navigateTo && response?.actionPerformed) {
         setTimeout(() => {
-          this.router.navigate([response.navigateTo]);
+          this.router.navigate([response.navigateTo!]);
         }, 2000);
       }
     } catch (error) {
@@ -257,7 +256,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     this.showModelDropdown = false;
   }
 
-  getCurrentModelInfo(): LLMModel | undefined {
+  getCurrentModelInfo(): ILLMModel | undefined {
     return this.llmService.getModelInfo(this.currentModel);
   }
 

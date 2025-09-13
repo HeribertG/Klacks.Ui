@@ -557,6 +557,7 @@
   "setting.user-admin.headline": "Amministrazione Utenti",
   "setting.user-admin.modal-email": "Email",
   "aside.header.title": "Assistente",
+  "aside.llm.error.communication": "Errore di comunicazione con l'assistente IA",
   "setting.user-admin.modal-firstname": "Nome",
   "setting.user-admin.modal-name": "Cognome",
   "setting.user-admin.modal-question": "Vuoi davvero modificare le credenziali di accesso?",

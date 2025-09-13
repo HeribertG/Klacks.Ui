@@ -7,7 +7,7 @@
     <div class="model-dropdown" (click)="toggleModelDropdown()">
       <div class="current-model">
         <span class="model-name">{{
-          getCurrentModelInfo()?.name || "Select Model"
+          getCurrentModelInfo()?.displayName || "Select Model"
         }}</span>
         <span class="model-cost" *ngIf="getCurrentModelInfo()">
           {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
@@ -20,14 +20,14 @@
 
       @if (showModelDropdown) {
       <div class="dropdown-menu">
-        @for (model of availableModels; track model.id) {
+        @for (model of availableModels; track model.modelId) {
         <div
           class="dropdown-item"
-          [class.selected]="model.id === currentModel"
-          (click)="selectModel(model.id); $event.stopPropagation()"
+          [class.selected]="model.modelId === currentModel"
+          (click)="selectModel(model.modelId); $event.stopPropagation()"
         >
           <div class="model-info">
-            <div class="model-name">{{ model.name }}</div>
+            <div class="model-name">{{ model.displayName }}</div>
             <div class="model-description">{{ model.description }}</div>
             <div class="model-pricing">
               <span class="input-cost"
@@ -38,7 +38,7 @@
               >
             </div>
           </div>
-          <div class="provider-badge">{{ model.provider }}</div>
+          <div class="provider-badge">{{ model.providerId }}</div>
         </div>
         }
       </div>

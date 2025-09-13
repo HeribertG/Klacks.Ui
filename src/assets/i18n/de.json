@@ -557,6 +557,7 @@
   "settings.email-setting.button.send-test-email": "Test-E-Mail senden",
   "settings.email-setting.button.sending": "Sende...",
   "aside.header.title": "Assistent",
+  "aside.llm.error.communication": "Fehler beim Kommunizieren mit dem KI-Assistenten",
   "settings.llm-models.title": "LLM Modelle Konfiguration",
   "settings.llm-models.description": "Konfiguration und Verwaltung verfügbarer Large Language Models für den Assistenten",
   "settings.llm-models.usage-stats": "Nutzungsstatistiken (Letzte 30 Tage)",

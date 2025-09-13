@@ -571,6 +571,7 @@
   "settings.email-setting.button.send-test-email": "Send Test Email",
   "settings.email-setting.button.sending": "Sending...",
   "aside.header.title": "Assistant",
+  "aside.llm.error.communication": "Error communicating with the AI assistant",
   "settings.llm-models.title": "LLM Models Configuration",
   "settings.llm-models.description": "Configure and manage available Large Language Models for the assistant",
   "settings.llm-models.usage-stats": "Usage Statistics (Last 30 Days)",
