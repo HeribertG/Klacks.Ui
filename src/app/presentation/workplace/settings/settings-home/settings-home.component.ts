@@ -32,6 +32,7 @@ import { MacrosComponent } from '../macros/macros.component';
 import { UserAdministrationComponent } from '../user-administration/user-administration.component';
 import { GroupScopeComponent } from '../group-scope/group-scope.component';
 import { ContractsComponent } from '../contracts/contracts.component';
+import { LLMModelsComponent } from '../llm-models/llm-models.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -56,6 +57,7 @@ import { ContractsComponent } from '../contracts/contracts.component';
     UserAdministrationComponent,
     GroupScopeComponent,
     ContractsComponent,
+    LLMModelsComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {

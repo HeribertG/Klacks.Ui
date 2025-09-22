@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -45,12 +46,12 @@ export interface ILLMUsage {
   totalInputTokens: number;
   totalOutputTokens: number;
   conversationCount: number;
-  modelBreakdown: Array<{
+  modelBreakdown: {
     modelId: string;
     displayName: string;
     totalCost: number;
     usageCount: number;
-  }>;
+  }[];
 }
 
 export interface ILLMFunction {
@@ -62,10 +63,10 @@ export interface ILLMFunction {
 
 export interface ILLMHelp {
   description: string;
-  examples: Array<{
+  examples: {
     title: string;
     prompts: string[];
-  }>;
+  }[];
   availableFunctions: string[];
   tips: string[];
 }
@@ -75,43 +76,77 @@ export interface ILLMHelp {
 })
 export class DataLLMService {
   private httpClient = inject(HttpClient);
-  private readonly baseUrl = `${environment.baseUrl}v1/assistant`;
+  private readonly baseUrl =
+    environment.baseAssistantUrl || `${environment.baseUrl}assistant/`;
 
   chat(request: ILLMChatRequest): Observable<ILLMChatResponse> {
     return this.httpClient
-      .post<ILLMChatResponse>(`${this.baseUrl}/chat`, request)
+      .post<ILLMChatResponse>(`${this.baseUrl}chat`, request)
       .pipe(retry(3));
   }
 
   getModels(): Observable<ILLMModel[]> {
     return this.httpClient
-      .get<ILLMModel[]>(`${this.baseUrl}/models`)
+      .get<ILLMModel[]>(`${this.baseUrl}models`)
       .pipe(retry(3));
   }
 
-  updateModel(modelId: string, updates: Partial<ILLMModel>): Observable<ILLMModel> {
+  updateModel(
+    modelId: string,
+    updates: Partial<ILLMModel>
+  ): Observable<ILLMModel> {
     return this.httpClient
-      .put<ILLMModel>(`${this.baseUrl}/models/${modelId}`, updates)
+      .put<ILLMModel>(`${this.baseUrl}models/${modelId}`, updates)
       .pipe(retry(3));
   }
 
-  getUsage(days: number = 30): Observable<ILLMUsage> {
+  enableModel(modelId: string): Observable<any> {
     return this.httpClient
-      .get<ILLMUsage>(`${this.baseUrl}/usage`, {
-        params: { days: days.toString() }
+      .post(`${this.baseUrl}models/${modelId}/enable`, {})
+      .pipe(retry(3));
+  }
+
+  disableModel(modelId: string): Observable<any> {
+    return this.httpClient
+      .post(`${this.baseUrl}models/${modelId}/disable`, {})
+      .pipe(retry(3));
+  }
+
+  setDefaultModel(modelId: string): Observable<any> {
+    return this.httpClient
+      .post(`${this.baseUrl}models/${modelId}/set-default`, {})
+      .pipe(retry(3));
+  }
+
+  getUsage(days = 30): Observable<ILLMUsage> {
+    return this.httpClient
+      .get<ILLMUsage>(`${this.baseUrl}usage`, {
+        params: { days: days.toString() },
       })
       .pipe(retry(3));
   }
 
   getFunctions(): Observable<ILLMFunction[]> {
     return this.httpClient
-      .get<ILLMFunction[]>(`${this.baseUrl}/chat/functions`)
+      .get<ILLMFunction[]>(`${this.baseUrl}chat/functions`)
       .pipe(retry(3));
   }
 
   getHelp(): Observable<ILLMHelp> {
     return this.httpClient
-      .get<ILLMHelp>(`${this.baseUrl}/chat/help`)
+      .get<ILLMHelp>(`${this.baseUrl}chat/help`)
+      .pipe(retry(3));
+  }
+
+  createModel(model: ILLMModel): Observable<ILLMModel> {
+    return this.httpClient
+      .post<ILLMModel>(`${this.baseUrl}models`, model)
+      .pipe(retry(3));
+  }
+
+  deleteModel(modelId: string): Observable<any> {
+    return this.httpClient
+      .delete(`${this.baseUrl}models/${modelId}`)
       .pipe(retry(3));
   }
 }

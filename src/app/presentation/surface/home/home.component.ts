@@ -9,9 +9,7 @@ import { NavComponent } from '../nav/nav.component';
 import { FooterComponent } from '../footer/footer.component';
 import { MainComponent } from '../main/main.component';
 import { SavebarComponent } from '../savebar/savebar.component';
-import { AsideComponent } from 'src/app/presentation/aside/aside.component';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
-import { AsideService } from 'src/app/presentation/aside/aside.service';
 
 @Component({
   selector: 'app-home',
@@ -28,26 +26,13 @@ import { AsideService } from 'src/app/presentation/aside/aside.service';
     MainComponent,
     SavebarComponent,
     FooterComponent,
-    AsideComponent,
   ],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private applicationInitService = inject(ApplicationInitService);
-  private asideService = inject(AsideService);
   private destroy$ = new Subject<void>();
-  
-  asideVisible = false;
 
-  constructor() {
-    this.asideService.isVisible
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => {
-        console.log('HomeComponent: aside visibility:', visible);
-        this.asideVisible = visible;
-        // Set CSS variable for the aside width
-        document.documentElement.style.setProperty('--aside-width', visible ? '450px' : '0px');
-      });
-  }
+  constructor() {}
 
   ngOnInit(): void {
     // Initialize application resources after successful login

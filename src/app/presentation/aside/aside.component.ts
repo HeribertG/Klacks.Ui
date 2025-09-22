@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, OnDestroy, inject, ElementRef, Renderer2 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AsideService } from './aside.service';
 import { LLMChatComponent } from './llm-chat/llm-chat.component';
@@ -15,6 +15,8 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class AsideComponent implements OnDestroy {
   private asideService = inject(AsideService);
+  private elementRef = inject(ElementRef);
+  private renderer = inject(Renderer2);
   private destroy$ = new Subject<void>();
   isVisible = false;
 
@@ -24,6 +26,13 @@ export class AsideComponent implements OnDestroy {
       .subscribe(visible => {
         console.log('AsideComponent: visibility changed to:', visible);
         this.isVisible = visible;
+        
+        // Add/remove visible class for CSS transition
+        if (visible) {
+          this.renderer.addClass(this.elementRef.nativeElement, 'visible');
+        } else {
+          this.renderer.removeClass(this.elementRef.nativeElement, 'visible');
+        }
       });
   }
 

@@ -1,90 +1,249 @@
-<div class="llm-models-container">
-  <div class="card">
-    <div class="card-header">
-      <h2>{{ 'settings.llm-models.title' | translate }}</h2>
-      <p class="card-description">{{ 'settings.llm-models.description' | translate }}</p>
-    </div>
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
-    <div class="card-content" *ngIf="!isLoading">
-      <!-- Usage Statistics -->
-      <div class="usage-stats">
-        <h3>{{ 'settings.llm-models.usage-stats' | translate }}</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-label">{{ 'settings.llm-models.total-cost-30d' | translate }}</span>
-            <span class="stat-value cost">€{{ getUsageStats().totalCost.toFixed(4) }}</span>
+<!-- LLM Model Modal -->
+<ng-template #llmModal let-modal>
+  <form #llmForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("settings.llm-models.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      @if (editingModel) {
+      <!-- Model ID and Display Name -->
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="modelId">{{
+            translate.instant("settings.llm-models.model-id")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingModel.modelId"
+            name="modelId"
+            class="form-control"
+            id="modelId"
+            required
+          />
+        </div>
+        <div class="model-field">
+          <label for="displayName">{{
+            translate.instant("settings.llm-models.display-name")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingModel.displayName"
+            name="displayName"
+            class="form-control"
+            id="displayName"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Provider and Description -->
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="provider">{{
+            translate.instant("settings.llm-models.provider")
+          }}</label>
+          <select
+            class="form-control"
+            [(ngModel)]="editingModel.providerId"
+            name="provider"
+            id="provider"
+            required
+          >
+            @for (provider of availableProviders; track provider) {
+            <option [value]="provider">{{ provider }}</option>
+            }
+          </select>
+        </div>
+        <div class="model-field-wide">
+          <label for="description">{{
+            translate.instant("settings.llm-models.description")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingModel.description"
+            name="description"
+            class="form-control"
+            id="description"
+          />
+        </div>
+      </div>
+
+      <!-- Technical Specifications -->
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="contextWindow">{{
+            translate.instant("settings.llm-models.context-window")
+          }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingModel.contextWindow"
+            name="contextWindow"
+            class="form-control"
+            id="contextWindow"
+            required
+            min="1"
+          />
+        </div>
+        <div class="model-field">
+          <label for="maxTokens">{{
+            translate.instant("settings.llm-models.max-tokens")
+          }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingModel.maxOutputTokens"
+            name="maxTokens"
+            class="form-control"
+            id="maxTokens"
+            required
+            min="1"
+          />
+        </div>
+      </div>
+
+      <!-- Cost Configuration -->
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="inputCost">{{
+            translate.instant("settings.llm-models.input-cost")
+          }} (€/1K)</label>
+          <input
+            type="number"
+            [(ngModel)]="editingModel.costPerInputToken"
+            name="inputCost"
+            class="form-control"
+            id="inputCost"
+            required
+            min="0"
+            step="0.0001"
+          />
+        </div>
+        <div class="model-field">
+          <label for="outputCost">{{
+            translate.instant("settings.llm-models.output-cost")
+          }} (€/1K)</label>
+          <input
+            type="number"
+            [(ngModel)]="editingModel.costPerOutputToken"
+            name="outputCost"
+            class="form-control"
+            id="outputCost"
+            required
+            min="0"
+            step="0.0001"
+          />
+        </div>
+      </div>
+
+      <!-- Status Flags -->
+      <div class="row-line-modal-inline">
+        <div class="checkbox-field">
+          <input
+            type="checkbox"
+            [(ngModel)]="editingModel.isEnabled"
+            name="isEnabled"
+            id="isEnabled"
+          />
+          <label for="isEnabled">{{
+            translate.instant("settings.llm-models.enabled")
+          }}</label>
+        </div>
+        <div class="checkbox-field">
+          <input
+            type="checkbox"
+            [(ngModel)]="editingModel.isDefault"
+            name="isDefault"
+            id="isDefault"
+          />
+          <label for="isDefault">{{
+            translate.instant("settings.llm-models.default")
+          }}</label>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
           </div>
         </div>
       </div>
-
-      <!-- Model Configuration -->
-      <div class="models-section">
-        <h3>{{ 'settings.llm-models.available-models' | translate }}</h3>
-        
-        <div class="models-grid">
-          @for (model of models; track model.id) {
-            <div class="model-card" [class.enabled]="model.isEnabled" [class.default]="model.isDefault">
-              <div class="model-header">
-                <div class="model-title">
-                  <h4>{{ model.name }}</h4>
-                  <span class="provider-badge" [ngClass]="getProviderClass(model.provider)">
-                    {{ model.provider }}
-                  </span>
-                </div>
-                
-                <div class="model-controls">
-                  <label class="toggle-switch">
-                    <input 
-                      type="checkbox" 
-                      [checked]="model.isEnabled"
-                      (change)="toggleModel(model)"
-                    />
-                    <span class="slider"></span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="model-content">
-                <p class="model-description">{{ model.description }}</p>
-                
-                <div class="model-pricing">
-                  <div class="price-item">
-                    <span class="price-label">{{ 'settings.llm-models.input-tokens' | translate }}:</span>
-                    <span class="price-value">{{ formatCost(model.costPerInputToken) }}</span>
-                  </div>
-                  <div class="price-item">
-                    <span class="price-label">{{ 'settings.llm-models.output-tokens' | translate }}:</span>
-                    <span class="price-value">{{ formatCost(model.costPerOutputToken) }}</span>
-                  </div>
-                </div>
-
-                <div class="model-specs">
-                  <span class="spec-item">
-                    {{ 'settings.llm-models.max-tokens' | translate }}: {{ model.maxTokens.toLocaleString() }}
-                  </span>
-                </div>
-
-                <div class="model-actions" *ngIf="model.isEnabled">
-                  <button 
-                    class="btn-default"
-                    [class.active]="model.isDefault"
-                    [disabled]="model.isDefault"
-                    (click)="setAsDefault(model)"
-                  >
-                    <span *ngIf="!model.isDefault">{{ 'settings.llm-models.set-as-default' | translate }}</span>
-                    <span *ngIf="model.isDefault">{{ 'settings.llm-models.default-model' | translate }}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
+      } }
     </div>
+  </form>
 
-    <div class="loading-container" *ngIf="isLoading">
-      <div class="spinner"></div>
-      <p>{{ 'settings.llm-models.loading' | translate }}</p>
-    </div>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("settings.llm-models.save") }}
+    </button>
   </div>
-</div>
+</ng-template>
+
+<form>
+  <div class="container-header">
+    {{ translate.instant("settings.llm-models.title") }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-llm-models-header></app-llm-models-header>
+
+  <div class="container-box">
+    @for (model of models; track model.modelId || $index; let i = $index) {
+
+    <app-llm-models-row
+      [data]="model"
+      (editEvent)="onClickEdit($event)"
+      (isDeleteEvent)="onClickDelete(i)"
+    >
+    </app-llm-models-row>
+
+    }
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ translate.instant("settings.llm-models.add") }}
+    </span>
+  </div>
+</form>

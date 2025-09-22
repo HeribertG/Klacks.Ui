@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -67,6 +67,14 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   currentModel = '';
   showModelDropdown = false;
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.model-dropdown')) {
+      this.showModelDropdown = false;
+    }
+  }
+
   ngOnInit(): void {
     this.conversationId = this.generateConversationId();
 
@@ -98,19 +106,22 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
 
-    // Initialize model selection
+    // Initialize model selection - only show enabled models
     this.llmService
       .getAvailableModels()
       .pipe(takeUntil(this.destroy$))
       .subscribe((models) => {
         console.log('LLMChatComponent - received models:', models);
-        this.availableModels = models;
+        // Only show enabled models in the dropdown
+        this.availableModels = models.filter(model => model.isEnabled);
+        console.log('LLMChatComponent - filtered enabled models:', this.availableModels);
       });
 
     this.llmService
       .getCurrentModelId()
       .pipe(takeUntil(this.destroy$))
       .subscribe((modelId) => {
+        console.log('LLMChatComponent - current model changed to:', modelId);
         this.currentModel = modelId;
       });
   }
@@ -161,16 +172,26 @@ export class LLMChatComponent implements OnInit, OnDestroy {
           this.router.navigate([response.navigateTo!]);
         }, 2000);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('LLM Chat Error:', error);
+      
+      // Check for specific error messages from backend
+      let errorContent = '';
+      if (error?.error?.message) {
+        errorContent = error.error.message;
+      } else if (error?.message) {
+        errorContent = error.message;
+      } else {
+        errorContent = this.translateService.instant('llm-chat.error.generic');
+      }
+      
       const errorMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
-        content:
-          '❌ Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.',
+        content: '❌ ' + errorContent,
         timestamp: new Date(),
       };
       this.messages.push(errorMessage);
-      console.error('LLM Chat Error:', error);
     } finally {
       this.isProcessing = false;
     }
@@ -252,7 +273,9 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   }
 
   selectModel(modelId: string): void {
+    console.log('Selecting model:', modelId);
     this.llmService.setCurrentModel(modelId);
+    this.currentModel = modelId; // Update local state immediately
     this.showModelDropdown = false;
   }
 

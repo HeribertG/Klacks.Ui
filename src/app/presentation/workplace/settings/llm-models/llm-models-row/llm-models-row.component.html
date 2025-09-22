@@ -1,0 +1,19 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form>
+  <div class="first custom-control-inline">
+    <div class="form-group">
+      <input
+        type="text"
+        [value]="getModelDisplayText()"
+        name="modelDisplay"
+        class="form-control attribute-name"
+        aria-label="model display"
+        (click)="onClickEdit()"
+        readonly
+      />
+    </div>
+
+    <span class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+  </div>
+</form>

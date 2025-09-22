@@ -1,0 +1,20 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-left: 20px;
+}
+
+.custom-control-inline {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+label {
+  color: var(--colorWorkplaceHeadline);
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 0;
+  margin-right: 15px;
+}

@@ -1,24 +1,48 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, TemplateRef, ViewChild, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { LLMService } from 'src/app/presentation/aside/llm-chat/services/llm.service';
-import { LLMModel } from 'src/app/presentation/aside/llm-chat/models/llm-model.interface';
+import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
+import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
+import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
+import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 @Component({
   selector: 'app-llm-models',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    TranslateModule, 
+    NgbModule,
+    SpinnerModule,
+    LLMModelsHeaderComponent, 
+    LLMModelsRowComponent
+  ],
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss']
 })
 export class LLMModelsComponent implements OnInit, OnDestroy {
-  private llmService = inject(LLMService);
+  @Output() isChangingEvent = new EventEmitter<boolean>();
+  @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
+  
+  private llmService = inject(DataManagementLLMService);
+  private toastService = inject(ToastShowService);
+  private modalService = inject(NgbModal);
+  public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
-  models: LLMModel[] = [];
+  models: ILLMModel[] = [];
   isLoading = false;
+  editingModel: ILLMModel | null = null;
+  private originalModel: ILLMModel | null = null;
+
+  // Available providers for dropdown
+  availableProviders = ['openai', 'anthropic', 'google', 'azure', 'local'];
 
   ngOnInit(): void {
     this.loadModels();
@@ -40,29 +64,144 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error loading LLM models:', error);
+        this.toastService.showError('settings.llm-models.error.load-models');
         this.isLoading = false;
       }
     });
   }
 
-  toggleModel(model: LLMModel): void {
-    // Toggle the model's enabled state
-    model.isEnabled = !model.isEnabled;
-    
-    // TODO: Send update to backend
-    console.log(`Model ${model.name} ${model.isEnabled ? 'enabled' : 'disabled'}`);
+  onClickAdd(): void {
+    // Create new model with default values
+    this.editingModel = {
+      modelId: '',
+      providerId: 'openai',
+      displayName: '',
+      description: '',
+      contextWindow: 4096,
+      maxOutputTokens: 4096,
+      costPerInputToken: 0.001,
+      costPerOutputToken: 0.002,
+      isEnabled: true,
+      isDefault: false,
+      capabilities: ['chat']
+    };
+
+    this.originalModel = null;
+
+    setTimeout(() => {
+      this.modalService.open(this.llmModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
   }
 
-  setAsDefault(model: LLMModel): void {
-    // Set all models to not default
-    this.models.forEach(m => m.isDefault = false);
+  onClickEdit(model: ILLMModel): void {
+    // Clone the model for editing
+    this.editingModel = { ...model };
+    this.originalModel = model;
+
+    this.modalService.open(this.llmModal, {
+      ariaLabelledBy: 'modal-title',
+      size: 'lg',
+    });
+  }
+
+  async onClickDelete(index: number): Promise<void> {
+    if (index >= 0 && index < this.models.length) {
+      const model = this.models[index];
+      
+      if (model) {
+        const confirmDelete = confirm(
+          this.translate.instant('settings.llm-models.confirm-delete', { name: model.displayName })
+        );
+        
+        if (confirmDelete) {
+          try {
+            await this.llmService.deleteModel(model.modelId).toPromise();
+            
+            // Remove from local array
+            this.models.splice(index, 1);
+            this.onIsChanging(true);
+            this.toastService.showSuccess('settings.llm-models.success.delete', 'Success');
+          } catch (error) {
+            console.error('Error deleting model:', error);
+            this.toastService.showError('settings.llm-models.error.delete');
+          }
+        }
+      }
+    }
+  }
+
+  onIsChanging(value: boolean): void {
+    this.isChangingEvent.emit(value);
+  }
+
+  async onSave(modal: any): Promise<void> {
+    if (!this.editingModel || !this.isFormValid()) {
+      return;
+    }
+
+    try {
+      if (this.originalModel) {
+        // Update existing model
+        Object.assign(this.originalModel, this.editingModel);
+        await this.llmService.updateModel(this.originalModel).toPromise();
+        this.toastService.showSuccess('settings.llm-models.success.update', 'Success');
+      } else {
+        // Create new model
+        const createdModel = await this.llmService.createModel(this.editingModel).toPromise();
+        this.models.push(createdModel || this.editingModel);
+        this.toastService.showSuccess('settings.llm-models.success.create', 'Success');
+      }
+
+      this.onIsChanging(true);
+      modal.close();
+    } catch (error) {
+      console.error('Error saving model:', error);
+      this.toastService.showError('settings.llm-models.error.save');
+      
+      // Reload models on error
+      this.loadModels();
+    }
+  }
+
+  isFormValid(): boolean {
+    if (!this.editingModel) return false;
     
-    // Set selected model as default
-    model.isDefault = true;
-    model.isEnabled = true; // Default model must be enabled
+    return !!(
+      this.editingModel.modelId &&
+      this.editingModel.displayName &&
+      this.editingModel.providerId &&
+      this.editingModel.contextWindow > 0 &&
+      this.editingModel.maxOutputTokens > 0 &&
+      this.editingModel.costPerInputToken >= 0 &&
+      this.editingModel.costPerOutputToken >= 0
+    );
+  }
+
+  getValidationErrors(): string[] {
+    const errors: string[] = [];
     
-    // TODO: Send update to backend
-    console.log(`Model ${model.name} set as default`);
+    if (!this.editingModel) return errors;
+    
+    if (!this.editingModel.modelId) {
+      errors.push(this.translate.instant('settings.llm-models.validation.model-id-required'));
+    }
+    if (!this.editingModel.displayName) {
+      errors.push(this.translate.instant('settings.llm-models.validation.display-name-required'));
+    }
+    if (!this.editingModel.providerId) {
+      errors.push(this.translate.instant('settings.llm-models.validation.provider-required'));
+    }
+    if (this.editingModel.contextWindow <= 0) {
+      errors.push(this.translate.instant('settings.llm-models.validation.context-window-positive'));
+    }
+    if (this.editingModel.maxOutputTokens <= 0) {
+      errors.push(this.translate.instant('settings.llm-models.validation.max-tokens-positive'));
+    }
+    
+    return errors;
   }
 
   formatCost(cost: number): string {
@@ -71,9 +210,5 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   getProviderClass(provider: string): string {
     return `provider-${provider.toLowerCase()}`;
-  }
-
-  getUsageStats(): { totalCost: number; modelUsage: { [key: string]: number } } {
-    return this.llmService.getUsageStatistics(30);
   }
 }

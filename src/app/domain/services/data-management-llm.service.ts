@@ -55,12 +55,24 @@ export class DataManagementLLMService {
       .getModels()
       .pipe(
         tap((models) => {
+          console.log('DataManagementLLMService - received models from backend:', models);
           if (models && models.length > 0) {
             this.availableModels$.next(models);
-            const defaultModel = models.find((m) => m.isDefault) || models[0];
+            
+            // Find enabled models first
+            const enabledModels = models.filter(m => m.isEnabled);
+            console.log('DataManagementLLMService - enabled models:', enabledModels);
+            
+            // Try to find default enabled model, otherwise take first enabled
+            const defaultModel = enabledModels.find((m) => m.isDefault) || enabledModels[0];
             if (defaultModel) {
+              console.log('DataManagementLLMService - setting default model:', defaultModel.modelId);
               this.selectedModelId$.next(defaultModel.modelId);
+            } else {
+              console.warn('DataManagementLLMService - no enabled models available');
             }
+          } else {
+            console.warn('DataManagementLLMService - no models received from backend');
           }
         }),
         catchError((error) => {
@@ -88,10 +100,17 @@ export class DataManagementLLMService {
       timestamp: new Date(),
     });
 
+    // Ensure we have a valid model ID
+    const modelId = this.selectedModelId$.value;
+    if (!modelId) {
+      console.error('No model selected');
+      return throwError(() => new Error('Bitte wählen Sie zuerst ein Modell aus.'));
+    }
+
     const request: ILLMChatRequest = {
       message,
       conversationId: convId,
-      modelId: this.selectedModelId$.value,
+      modelId: modelId,
       context: {
         conversationHistory: conversation.messages.slice(-10), // Last 10 messages
         language: this.currentLanguage$.value,
@@ -144,12 +163,57 @@ export class DataManagementLLMService {
     const models = this.availableModels$.value;
     const model = models.find((m) => m.modelId === modelId && m.isEnabled);
     if (model) {
+      console.log('DataManagementLLMService - setting current model to:', modelId);
       this.selectedModelId$.next(modelId);
+    } else {
+      console.warn('DataManagementLLMService - model not found or not enabled:', modelId);
     }
   }
 
   getModelInfo(modelId: string): ILLMModel | undefined {
     return this.availableModels$.value.find((m) => m.modelId === modelId);
+  }
+
+  enableModel(modelId: string): Observable<any> {
+    return this.dataLLMService.enableModel(modelId).pipe(
+      tap(() => {
+        // Reload models after update
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not enable model:', error);
+        this.toastShowService.showError('aside.llm.error.enable_model');
+        throw error;
+      })
+    );
+  }
+
+  disableModel(modelId: string): Observable<any> {
+    return this.dataLLMService.disableModel(modelId).pipe(
+      tap(() => {
+        // Reload models after update
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not disable model:', error);
+        this.toastShowService.showError('aside.llm.error.disable_model');
+        throw error;
+      })
+    );
+  }
+
+  setDefaultModel(modelId: string): Observable<any> {
+    return this.dataLLMService.setDefaultModel(modelId).pipe(
+      tap(() => {
+        // Reload models after update
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not set default model:', error);
+        this.toastShowService.showError('aside.llm.error.set_default_model');
+        throw error;
+      })
+    );
   }
 
   setLanguage(language: string): void {
@@ -250,6 +314,48 @@ export class DataManagementLLMService {
       catchError((error) => {
         console.error('Could not fetch functions:', error);
         return of([]);
+      })
+    );
+  }
+
+  createModel(model: ILLMModel): Observable<ILLMModel> {
+    return this.dataLLMService.createModel(model).pipe(
+      tap(() => {
+        // Reload models after creation
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not create model:', error);
+        this.toastShowService.showError('settings.llm-models.error.save');
+        throw error;
+      })
+    );
+  }
+
+  deleteModel(modelId: string): Observable<any> {
+    return this.dataLLMService.deleteModel(modelId).pipe(
+      tap(() => {
+        // Reload models after deletion
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not delete model:', error);
+        this.toastShowService.showError('settings.llm-models.error.delete');
+        throw error;
+      })
+    );
+  }
+
+  updateModel(model: ILLMModel): Observable<ILLMModel> {
+    return this.dataLLMService.updateModel(model.modelId, model).pipe(
+      tap(() => {
+        // Reload models after update
+        this.initializeModels();
+      }),
+      catchError((error) => {
+        console.error('Could not update model:', error);
+        this.toastShowService.showError('settings.llm-models.error.save');
+        throw error;
       })
     );
   }

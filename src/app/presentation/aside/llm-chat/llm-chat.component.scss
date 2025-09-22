@@ -1,5 +1,5 @@
 // Import Klacks standard colors
-@use '../../../../assets/standard-styles/colors' as colors;
+@use "../../../../assets/standard-styles/colors" as colors;
 
 // Integrated Chat Container
 .chat-container-integrated {
@@ -8,6 +8,7 @@
   background: var(--backgroundColorCard);
   display: flex;
   flex-direction: column;
+  overflow: hidden; // Prevent container overflow
 }
 
 // Model Selection Header
@@ -160,7 +161,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: linear-gradient(135deg, colors.$standartGreenColor, colors.$splitButtonGreenColor);
+  background: linear-gradient(
+    135deg,
+    colors.$standartGreenColor,
+    colors.$splitButtonGreenColor
+  );
   color: colors.$standartWhiteColor;
   border-bottom: 1px solid var(--cardBorderColor);
 
@@ -204,20 +209,28 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   background: var(--backgroundColorWorkplace);
-  
+  min-height: 0;
+  max-height: calc(100vh - 280px);
+  height: 0;
+
   &::-webkit-scrollbar {
     width: 6px;
   }
-  
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   &::-webkit-scrollbar-thumb {
     background: #dee2e6;
     border-radius: 3px;
+
+    &:hover {
+      background: #adb5bd;
+    }
   }
 }
 
@@ -231,20 +244,20 @@
 .message-wrapper {
   display: flex;
   gap: 12px;
-  
+
   &.user {
     flex-direction: row-reverse;
-    
+
     .message-content {
       align-items: flex-end;
     }
-    
+
     .message-bubble {
       background: colors.$standartGreenColor;
       color: colors.$standartWhiteColor;
     }
   }
-  
+
   &.assistant {
     .message-bubble {
       background: var(--backgroundColorCard);
@@ -264,12 +277,12 @@
   justify-content: center;
   font-size: 14px;
   flex-shrink: 0;
-  
+
   .message-wrapper.user & {
     background: colors.$standartGreenColor;
     color: colors.$standartWhiteColor;
   }
-  
+
   .message-wrapper.assistant & {
     background: var(--iconStandartColor);
     color: colors.$standartWhiteColor;
@@ -288,12 +301,12 @@
   padding: 12px 16px;
   border-radius: 18px;
   word-wrap: break-word;
-  
+
   .message-text {
     line-height: 1.4;
     white-space: pre-wrap;
   }
-  
+
   .message-time {
     font-size: 11px;
     opacity: 0.7;
@@ -306,23 +319,37 @@
   display: flex;
   gap: 4px;
   padding: 8px 0;
-  
+
   span {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: #6c757d;
     animation: typing 1.4s infinite ease-in-out;
-    
-    &:nth-child(1) { animation-delay: 0s; }
-    &:nth-child(2) { animation-delay: 0.2s; }
-    &:nth-child(3) { animation-delay: 0.4s; }
+
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
   }
 }
 
 @keyframes typing {
-  0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
-  30% { opacity: 1; transform: scale(1); }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // Action Buttons
@@ -335,14 +362,14 @@
   font-size: 12px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  
+
   &:hover {
     background: colors.$splitButtonGreenColor;
   }
-  
+
   &.navigate-btn {
     background: colors.$standartBlueColor;
-    
+
     &:hover {
       background: colors.$splitButtonBlueColor;
     }
@@ -366,7 +393,7 @@
   font-size: 11px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: colors.$standartGreenColor;
     color: colors.$standartWhiteColor;
@@ -379,6 +406,8 @@
   padding: 16px;
   background: var(--backgroundColorCard);
   border-top: 1px solid var(--cardBorderColor);
+  flex-shrink: 0; // Prevent container from shrinking
+  min-height: 80px; // Ensure minimum height
 }
 
 .voice-indicator {
@@ -404,8 +433,13 @@
 }
 
 @keyframes pulse-voice {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .input-wrapper {
@@ -428,17 +462,17 @@
   border-radius: 6px;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  
+
   &:hover {
     background: #e9ecef;
     color: #495057;
   }
-  
+
   &.listening {
     color: #dc3545;
     animation: pulse-red 1s infinite;
   }
-  
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -446,8 +480,13 @@
 }
 
 @keyframes pulse-red {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .input-field {
@@ -459,12 +498,12 @@
   font-size: 14px;
   line-height: 1.4;
   max-height: 80px;
-  min-height: 20px;
-  
+  min-height: 40px;
+
   &::placeholder {
     color: #6c757d;
   }
-  
+
   &:disabled {
     opacity: 0.5;
   }
@@ -480,11 +519,11 @@
   font-size: 14px;
   transition: background-color 0.2s ease;
   flex-shrink: 0;
-  
+
   &:hover:not(:disabled) {
     background: colors.$splitButtonGreenColor;
   }
-  
+
   &:disabled {
     background: var(--backgroundColorMenuDisabled);
     cursor: not-allowed;
@@ -498,7 +537,7 @@
     right: 12px;
     height: 70vh;
   }
-  
+
   .chat-toggle-btn {
     right: 12px;
     bottom: 12px;

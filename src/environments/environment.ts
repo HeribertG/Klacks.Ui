@@ -9,8 +9,9 @@
 
 export const environment = {
   production: false,
-  _baseUrl: 'https://localhost:44371/api/',
-  baseUrl: 'https://localhost:5001/api/',
+  _baseUrl: 'https://localhost:44371/api/v1/backend/',
+  baseUrl: 'https://localhost:5001/api/v1/backend/',
+  baseAssistantUrl: 'https://localhost:5001/api/v1/backend/assistant/',
   
   // Default settings
   enableDebugMode: false,

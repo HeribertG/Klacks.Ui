@@ -7,7 +7,7 @@
     <div class="model-dropdown" (click)="toggleModelDropdown()">
       <div class="current-model">
         <span class="model-name">{{
-          getCurrentModelInfo()?.displayName || "Select Model"
+          getCurrentModelInfo()?.displayName || ("llm-chat.select-model" | translate)
         }}</span>
         <span class="model-cost" *ngIf="getCurrentModelInfo()">
           {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
@@ -19,7 +19,7 @@
       </div>
 
       @if (showModelDropdown) {
-      <div class="dropdown-menu">
+      <div class="dropdown-menu" (click)="$event.stopPropagation()">
         @for (model of availableModels; track model.modelId) {
         <div
           class="dropdown-item"
@@ -72,7 +72,7 @@
             class="action-btn navigate-btn"
             (click)="onNavigateClick(message.navigateTo!)"
           >
-            📍 Öffnen
+            📍 {{ "llm-chat.open" | translate }}
           </button>
           }
 
@@ -117,12 +117,12 @@
   <div class="input-container">
     <!-- Voice input indicator -->
     @if (isListening) {
-    <div class="voice-indicator">🎤 Sprechen Sie jetzt...</div>
+    <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
     }
     
     @if (speechService.isSupported$.value === false) {
     <div class="speech-not-supported">
-      ⚠️ Spracherkennung in diesem Browser nicht verfügbar. Verwenden Sie die Texteingabe unten.
+      ⚠️ {{ "llm-chat.speech-not-supported" | translate }}
     </div>
     }
 
@@ -135,8 +135,8 @@
         [disabled]="isProcessing || !speechService.isSupported$.value"
         (click)="isListening ? stopVoiceInput() : startVoiceInput()"
         title="{{
-          !speechService.isSupported$.value ? 'Spracherkennung nicht verfügbar - Aktivieren Sie Windows Spracherkennung' :
-          isListening ? 'Aufnahme stoppen' : 'Spracherkennung starten'
+          !speechService.isSupported$.value ? ('llm-chat.speech-not-available' | translate) :
+          isListening ? ('llm-chat.stop-recording' | translate) : ('llm-chat.start-speech' | translate)
         }}"
       >
         <fa-icon
@@ -150,7 +150,7 @@
         [(ngModel)]="inputText"
         (keydown)="onInputKeyPress($event)"
         [disabled]="isProcessing || isListening"
-        placeholder="Schreiben Sie hier oder nutzen Sie das Mikrofon..."
+        placeholder="{{ 'llm-chat.placeholder' | translate }}"
         rows="1"
         #textInput
       >
@@ -161,7 +161,7 @@
         class="btn-send"
         [disabled]="!inputText.trim() || isProcessing || isListening"
         (click)="sendMessage()"
-        title="Nachricht senden"
+        title="{{ 'llm-chat.send-message' | translate }}"
       >
         <fa-icon [icon]="faPaperPlane"></fa-icon>
       </button>
