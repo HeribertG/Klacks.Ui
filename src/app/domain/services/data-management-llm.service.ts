@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
@@ -33,24 +32,23 @@ export class DataManagementLLMService {
   private dataLLMService = inject(DataLLMService);
   private toastShowService = inject(ToastShowService);
 
-  // State management
   private conversations = new Map<string, IConversation>();
   private availableModels$ = new BehaviorSubject<ILLMModel[]>([]);
   private selectedModelId$ = new BehaviorSubject<string>('');
   private isLoading$ = new BehaviorSubject<boolean>(false);
   private currentLanguage$ = new BehaviorSubject<string>('German');
 
-  // Signals for UI state
   public showProgressSpinner = signal(false);
   public isConnected = signal(true);
 
-
   constructor() {
+  }
+
+  public initializeLLMModels(): void {
     this.initializeModels();
   }
 
   private initializeModels(): void {
-    // Try to load models from backend
     this.dataLLMService
       .getModels()
       .pipe(
@@ -220,12 +218,22 @@ export class DataManagementLLMService {
     this.currentLanguage$.next(language);
   }
 
-  getCurrentLanguage(): Observable<string> {
-    return this.currentLanguage$.asObservable();
+  clearAllConversations(): void {
+    this.conversations.clear();
+    console.log('All conversations cleared');
   }
 
   clearConversation(conversationId: string): void {
     this.conversations.delete(conversationId);
+    console.log(`Conversation ${conversationId} cleared`);
+  }
+
+  getConversationIds(): string[] {
+    return Array.from(this.conversations.keys());
+  }
+
+  getCurrentLanguage(): Observable<string> {
+    return this.currentLanguage$.asObservable();
   }
 
   getConversation(conversationId: string): IConversation | undefined {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, inject, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnDestroy, inject, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AsideService } from './aside.service';
 import { LLMChatComponent } from './llm-chat/llm-chat.component';
@@ -14,6 +14,8 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [CommonModule, LLMChatComponent, TrashIconRedComponent, TranslateModule],
 })
 export class AsideComponent implements OnDestroy {
+  @ViewChild(LLMChatComponent) llmChatComponent!: LLMChatComponent;
+  
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
   private renderer = inject(Renderer2);
@@ -46,7 +48,14 @@ export class AsideComponent implements OnDestroy {
   }
 
   clearChat(): void {
-    // TODO: Implement chat clearing functionality
-    console.log('Clear chat clicked');
+    // Use setTimeout to ensure ViewChild is initialized
+    setTimeout(() => {
+      if (this.llmChatComponent) {
+        this.llmChatComponent.clearChat();
+        console.log('Chat cleared');
+      } else {
+        console.error('LLMChatComponent not found - ViewChild not initialized');
+      }
+    }, 0);
   }
 }

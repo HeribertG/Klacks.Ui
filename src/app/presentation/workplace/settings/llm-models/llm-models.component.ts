@@ -40,6 +40,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   isLoading = false;
   editingModel: ILLMModel | null = null;
   private originalModel: ILLMModel | null = null;
+  
+  // Provider API Key management
+  providerApiKey = '';
+  isNewModel = false;
 
   // Available providers for dropdown
   availableProviders = ['openai', 'anthropic', 'google', 'azure', 'local'];
@@ -72,6 +76,8 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   onClickAdd(): void {
     // Create new model with default values
+    this.isNewModel = true;
+    this.providerApiKey = '';
     this.editingModel = {
       modelId: '',
       providerId: 'openai',
@@ -98,8 +104,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   onClickEdit(model: ILLMModel): void {
     // Clone the model for editing
+    this.isNewModel = false;
     this.editingModel = { ...model };
     this.originalModel = model;
+    this.providerApiKey = ''; // Don't pre-fill for security
 
     this.modalService.open(this.llmModal, {
       ariaLabelledBy: 'modal-title',
@@ -143,6 +151,11 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     }
 
     try {
+      // Add API key to model if provided
+      if (this.providerApiKey.trim()) {
+        this.editingModel.providerApiKey = this.providerApiKey;
+      }
+
       if (this.originalModel) {
         // Update existing model
         Object.assign(this.originalModel, this.editingModel);
@@ -200,6 +213,9 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     if (this.editingModel.maxOutputTokens <= 0) {
       errors.push(this.translate.instant('settings.llm-models.validation.max-tokens-positive'));
     }
+    if (this.isNewModel && this.isProviderApiKeyEditable() && !this.providerApiKey.trim()) {
+      errors.push(this.translate.instant('settings.llm-models.validation.api-key-required'));
+    }
     
     return errors;
   }
@@ -210,5 +226,20 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   getProviderClass(provider: string): string {
     return `provider-${provider.toLowerCase()}`;
+  }
+
+  isProviderApiKeyEditable(): boolean {
+    // Show API key field for new models or when editing OpenAI/Anthropic/Google models
+    if (!this.editingModel) return false;
+    
+    const needsApiKey = ['openai', 'anthropic', 'google'].includes(this.editingModel.providerId);
+    
+    // Always show for new models that need API key
+    if (this.isNewModel && needsApiKey) {
+      return true;
+    }
+    
+    // Show for existing models only if user starts typing an API key
+    return needsApiKey && this.providerApiKey.length > 0;
   }
 }

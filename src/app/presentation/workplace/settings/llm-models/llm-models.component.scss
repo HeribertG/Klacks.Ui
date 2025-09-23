@@ -87,10 +87,32 @@
   flex: 1;
   min-width: 200px;
   margin-left: 30px;
+  
+  &.full-width {
+    flex: 0 0 100%;
+    width: 100%;
+    margin-left: 30px;
+    margin-right: 30px;
+  }
 
   input,
   select {
     width: 100%;
+  }
+  
+  label {
+    .required-marker {
+      color: colors.$standartRedColor;
+      margin-left: 2px;
+    }
+  }
+  
+  .info-text {
+    display: block;
+    font-size: 11px;
+    color: colors.$CurrentGreyColor;
+    margin-top: 4px;
+    font-style: italic;
   }
 }
 

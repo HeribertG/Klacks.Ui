@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -39,6 +38,8 @@ export interface ILLMModel {
   isEnabled: boolean;
   isDefault: boolean;
   capabilities: string[];
+  // Temporary field for API key during creation/update
+  providerApiKey?: string;
 }
 
 export interface ILLMUsage {

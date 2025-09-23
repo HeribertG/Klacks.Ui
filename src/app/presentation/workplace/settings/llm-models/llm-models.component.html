@@ -157,6 +157,29 @@
         </div>
       </div>
 
+      <!-- Provider API Key (only for new models or when editing provider settings) -->
+      @if (isProviderApiKeyEditable()) {
+      <div class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="apiKey">{{
+            translate.instant("settings.llm-models.api-key")
+          }} <span class="required-marker">*</span></label>
+          <input
+            type="password"
+            [(ngModel)]="providerApiKey"
+            name="apiKey"
+            class="form-control"
+            id="apiKey"
+            placeholder="sk-..."
+            [required]="isNewModel"
+          />
+          <small class="info-text">{{
+            translate.instant("settings.llm-models.api-key-info")
+          }}</small>
+        </div>
+      </div>
+      }
+
       <!-- Status Flags -->
       <div class="row-line-modal-inline">
         <div class="checkbox-field">

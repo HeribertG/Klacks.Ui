@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-import { Component, OnInit, OnDestroy, inject, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -38,15 +36,17 @@ export interface ChatMessage {
   templateUrl: './llm-chat.component.html',
   styleUrls: ['./llm-chat.component.scss'],
 })
-export class LLMChatComponent implements OnInit, OnDestroy {
-  // Services
+export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  
   private llmService = inject(DataManagementLLMService);
-  speechService = inject(SpeechRecognitionService); // Make public for template access
+  speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
+  
+  private shouldScrollToBottom = true;
 
-  // Icons
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
   faPaperPlane = faPaperPlane;
@@ -55,14 +55,12 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   faTimes = faTimes;
   faChevronDown = faChevronDown;
 
-  // Component state
   messages: ChatMessage[] = [];
   inputText = '';
   isListening = false;
   isProcessing = false;
   conversationId = '';
 
-  // Model selection
   availableModels: ILLMModel[] = [];
   currentModel = '';
   showModelDropdown = false;
@@ -78,7 +76,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.conversationId = this.generateConversationId();
 
-    // Speech recognition setup
     this.speechService.isSupported$
       .pipe(takeUntil(this.destroy$))
       .subscribe((isSupported) => {
@@ -87,7 +84,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
         }
       });
 
-    // Set speech recognition language based on current app language
     this.translateService.onLangChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
@@ -95,24 +91,20 @@ export class LLMChatComponent implements OnInit, OnDestroy {
         this.updateSpeechLanguage(event.lang);
         this.updateWelcomeMessage(event.lang);
         
-        // Immediately update speech recognition language
         const speechLang = this.getSpeechLanguageCode(event.lang);
         this.speechService.updateLanguage(speechLang);
       });
 
-    // Set initial language and add welcome message
     const currentLang =
       this.translateService.currentLang || this.translateService.defaultLang;
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
 
-    // Initialize model selection - only show enabled models
     this.llmService
       .getAvailableModels()
       .pipe(takeUntil(this.destroy$))
       .subscribe((models) => {
         console.log('LLMChatComponent - received models:', models);
-        // Only show enabled models in the dropdown
         this.availableModels = models.filter(model => model.isEnabled);
         console.log('LLMChatComponent - filtered enabled models:', this.availableModels);
       });
@@ -131,6 +123,22 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  ngAfterViewChecked(): void {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+    }
+  }
+
+  private scrollToBottom(): void {
+    try {
+      if (this.messagesContainer) {
+        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+      }
+    } catch(err) {
+      console.error('Error scrolling to bottom:', err);
+    }
+  }
+
   async sendMessage(): Promise<void> {
     if (!this.inputText.trim() || this.isProcessing) {
       return;
@@ -147,6 +155,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     const messageText = this.inputText;
     this.inputText = '';
     this.isProcessing = true;
+    this.shouldScrollToBottom = true;
 
     try {
       const response = await this.llmService.sendMessage(
@@ -165,8 +174,8 @@ export class LLMChatComponent implements OnInit, OnDestroy {
       };
 
       this.messages.push(assistantMessage);
+      this.shouldScrollToBottom = true;
 
-      // Auto-navigate if specified
       if (response?.navigateTo && response?.actionPerformed) {
         setTimeout(() => {
           this.router.navigate([response.navigateTo!]);
@@ -175,7 +184,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('LLM Chat Error:', error);
       
-      // Check for specific error messages from backend
       let errorContent = '';
       if (error?.error?.message) {
         errorContent = error.error.message;
@@ -192,6 +200,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
         timestamp: new Date(),
       };
       this.messages.push(errorMessage);
+      this.shouldScrollToBottom = true;
     } finally {
       this.isProcessing = false;
     }
@@ -207,7 +216,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // First check microphone permissions
     try {
       console.log('Checking microphone permissions...');
       const hasPermission = await this.speechService.requestPermissions();
@@ -223,7 +231,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Use a supported language based on current app language
     const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
     const speechLang = this.getSpeechLanguageCode(currentLang);
     
@@ -232,7 +239,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     console.log('Starting speech recognition...');
     this.isListening = true;
     this.speechService
-      .startListening(speechLang) // Pass language directly to startListening
+      .startListening(speechLang)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (text: string) => {
@@ -246,7 +253,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
         },
       });
       
-    // Also subscribe to error messages
     this.speechService.errors.pipe(takeUntil(this.destroy$)).subscribe(error => {
       console.error('Speech service error:', error);
       alert('Speech Error: ' + error + '\n\nBrowser-Sprache: ' + (navigator.language || 'unknown') + '\nVerfügbare Sprachen: ' + (navigator.languages ? navigator.languages.join(', ') : 'unknown'));
@@ -267,7 +273,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
     this.router.navigate([navigateTo]);
   }
 
-  // Model selection methods
   toggleModelDropdown(): void {
     this.showModelDropdown = !this.showModelDropdown;
   }
@@ -275,7 +280,7 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   selectModel(modelId: string): void {
     console.log('Selecting model:', modelId);
     this.llmService.setCurrentModel(modelId);
-    this.currentModel = modelId; // Update local state immediately
+    this.currentModel = modelId;
     this.showModelDropdown = false;
   }
 
@@ -285,14 +290,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
 
   formatCost(cost: number): string {
     return `€${cost.toFixed(4)}/1K tokens`;
-  }
-
-  clearChat(): void {
-    this.messages = [];
-    this.conversationId = this.generateConversationId();
-    const currentLang =
-      this.translateService.currentLang || this.translateService.defaultLang;
-    this.addWelcomeMessage(currentLang);
   }
 
   onInputKeyPress(event: KeyboardEvent): void {
@@ -374,11 +371,9 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   }
 
   private updateWelcomeMessage(langCode: string): void {
-    // Remove old welcome message if it exists
     if (this.messages.length > 0 && this.messages[0].sender === 'assistant') {
       this.messages.splice(0, 1);
     }
-    // Add new welcome message in correct language
     this.addWelcomeMessage(langCode);
   }
 
@@ -391,7 +386,6 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   }
 
   formatMessage(content: string): string {
-    // Convert line breaks to <br> tags and preserve formatting
     return content
       .replace(/\n/g, '<br>')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -400,17 +394,14 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   }
 
   private updateSpeechLanguage(langCode: string): void {
-    // Use the same mapping as getSpeechLanguageCode
     const speechLang = this.getSpeechLanguageCode(langCode);
     this.speechService.setLanguage(speechLang);
     console.log(`Speech recognition language set to: ${speechLang}`);
 
-    // Also update LLM language
     this.updateLLMLanguage(langCode);
   }
 
   private updateLLMLanguage(langCode: string): void {
-    // Map language codes to full language names for LLM
     const llmLanguageMapping: { [key: string]: string } = {
       en: 'English',
       de: 'German',
@@ -424,15 +415,26 @@ export class LLMChatComponent implements OnInit, OnDestroy {
   }
 
   private getSpeechLanguageCode(langCode: string): string {
-    // Map Angular language codes to Speech Recognition language codes
-    // Prioritize de-CH (Deutsch Schweiz) for German
     const languageMapping: { [key: string]: string } = {
       en: 'en-US',
-      de: 'de-CH', // Use Deutsch Schweiz as primary
+      de: 'de-CH',
       fr: 'fr',
       it: 'it',
     };
 
     return languageMapping[langCode] || 'de-CH';
+  }
+
+  clearChat(): void {
+    this.messages = [];
+    
+    this.llmService.clearConversation(this.conversationId);
+    
+    this.conversationId = this.generateConversationId();
+    
+    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    this.addWelcomeMessage(currentLang);
+    
+    this.shouldScrollToBottom = true;
   }
 }

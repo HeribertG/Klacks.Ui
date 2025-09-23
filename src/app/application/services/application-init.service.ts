@@ -5,6 +5,7 @@ import { DataSettingsVariousService } from '../../infrastructure/api/data-settin
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings-various-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,10 +15,14 @@ export class ApplicationInitService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
+  private llmService = inject(DataManagementLLMService);
 
   public initialize(): void {
     // This is now called after login from HomeComponent
     this.loadIconsAndTitle();
+    
+    // Initialize LLM models after successful authentication
+    this.llmService.initializeLLMModels();
   }
 
   public initializeBasics(): void {
