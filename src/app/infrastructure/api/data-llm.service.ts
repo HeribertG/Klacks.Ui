@@ -27,12 +27,14 @@ export interface ILLMChatResponse {
 }
 
 export interface ILLMModel {
+  id?: string;
   modelId: string;
+  apiModelId?: string;
   providerId: string;
-  displayName: string;
+  modelName: string;
   description?: string;
   contextWindow: number;
-  maxOutputTokens: number;
+  maxTokens: number;
   costPerInputToken: number;
   costPerOutputToken: number;
   isEnabled: boolean;
@@ -40,6 +42,10 @@ export interface ILLMModel {
   capabilities: string[];
   // Temporary field for API key during creation/update
   providerApiKey?: string;
+  
+  // Frontend-only display fields (not sent to backend)
+  displayName?: string;
+  maxOutputTokens?: number;
 }
 
 export interface ILLMUsage {
@@ -93,11 +99,11 @@ export class DataLLMService {
   }
 
   updateModel(
-    modelId: string,
+    id: string,
     updates: Partial<ILLMModel>
   ): Observable<ILLMModel> {
     return this.httpClient
-      .put<ILLMModel>(`${this.baseUrl}models/${modelId}`, updates)
+      .put<ILLMModel>(`${this.baseUrl}models/${id}`, updates)
       .pipe(retry(3));
   }
 

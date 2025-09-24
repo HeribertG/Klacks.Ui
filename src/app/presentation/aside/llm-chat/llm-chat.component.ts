@@ -12,7 +12,7 @@ import {
   faTimes,
   faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
@@ -158,10 +158,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.shouldScrollToBottom = true;
 
     try {
-      const response = await this.llmService.sendMessage(
-        messageText,
-        this.conversationId
-      ).toPromise();
+      const response = await firstValueFrom(
+        this.llmService.sendMessage(messageText, this.conversationId)
+      );
 
       const assistantMessage: ChatMessage = {
         id: this.generateMessageId(),

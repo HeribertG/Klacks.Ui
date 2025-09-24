@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ICountry, IPostCodeCH, IState } from 'src/app/domain/models/client-class';
 import { retry } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -73,8 +74,9 @@ export class DataCountryStateService {
   }
 
   SearchCity(zip: string): Promise<IPostCodeCH[] | undefined> {
-    return this.httpClient
-      .get<IPostCodeCH[] | undefined>(`${environment.baseUrl}PostcodeCh/` + zip)
-      .toPromise();
+    return firstValueFrom(
+      this.httpClient
+        .get<IPostCodeCH[] | undefined>(`${environment.baseUrl}PostcodeCh/` + zip)
+    );
   }
 }

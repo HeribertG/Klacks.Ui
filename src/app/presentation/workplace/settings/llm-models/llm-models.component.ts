@@ -1,8 +1,18 @@
-import { Component, OnInit, OnDestroy, inject, TemplateRef, ViewChild, EventEmitter, Output } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  TemplateRef,
+  ViewChild,
+  EventEmitter,
+  Output,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
@@ -15,21 +25,21 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
   selector: 'app-llm-models',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    TranslateModule, 
+    CommonModule,
+    FormsModule,
+    TranslateModule,
     NgbModule,
     SpinnerModule,
-    LLMModelsHeaderComponent, 
-    LLMModelsRowComponent
+    LLMModelsHeaderComponent,
+    LLMModelsRowComponent,
   ],
   templateUrl: './llm-models.component.html',
-  styleUrls: ['./llm-models.component.scss']
+  styleUrls: ['./llm-models.component.scss'],
 })
 export class LLMModelsComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
-  
+
   private llmService = inject(DataManagementLLMService);
   private toastService = inject(ToastShowService);
   private modalService = inject(NgbModal);
@@ -40,12 +50,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   isLoading = false;
   editingModel: ILLMModel | null = null;
   private originalModel: ILLMModel | null = null;
-  
-  // Provider API Key management
+
   providerApiKey = '';
   isNewModel = false;
 
-  // Available providers for dropdown
   availableProviders = ['openai', 'anthropic', 'google', 'azure', 'local'];
 
   ngOnInit(): void {
@@ -59,37 +67,38 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   private loadModels(): void {
     this.isLoading = true;
-    this.llmService.getAvailableModels().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (models) => {
-        this.models = models;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading LLM models:', error);
-        this.toastService.showError('settings.llm-models.error.load-models');
-        this.isLoading = false;
-      }
-    });
+    this.llmService
+      .getAvailableModels()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (models) => {
+          this.models = models;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading LLM models:', error);
+          this.toastService.showError('settings.llm-models.error.load-models');
+          this.isLoading = false;
+        },
+      });
   }
 
   onClickAdd(): void {
-    // Create new model with default values
     this.isNewModel = true;
     this.providerApiKey = '';
     this.editingModel = {
       modelId: '',
+      apiModelId: '',
       providerId: 'openai',
-      displayName: '',
+      modelName: '',
       description: '',
       contextWindow: 4096,
-      maxOutputTokens: 4096,
+      maxTokens: 4096,
       costPerInputToken: 0.001,
       costPerOutputToken: 0.002,
       isEnabled: true,
       isDefault: false,
-      capabilities: ['chat']
+      capabilities: ['chat'],
     };
 
     this.originalModel = null;
@@ -118,20 +127,24 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   async onClickDelete(index: number): Promise<void> {
     if (index >= 0 && index < this.models.length) {
       const model = this.models[index];
-      
+
       if (model) {
         const confirmDelete = confirm(
-          this.translate.instant('settings.llm-models.confirm-delete', { name: model.displayName })
+          this.translate.instant('settings.llm-models.confirm-delete', {
+            name: model.displayName,
+          })
         );
-        
+
         if (confirmDelete) {
           try {
-            await this.llmService.deleteModel(model.modelId).toPromise();
-            
-            // Remove from local array
+            await firstValueFrom(this.llmService.deleteModel(model.modelId));
+
             this.models.splice(index, 1);
             this.onIsChanging(true);
-            this.toastService.showSuccess('settings.llm-models.success.delete', 'Success');
+            this.toastService.showSuccess(
+              'settings.llm-models.success.delete',
+              'Success'
+            );
           } catch (error) {
             console.error('Error deleting model:', error);
             this.toastService.showError('settings.llm-models.error.delete');
@@ -151,21 +164,26 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     }
 
     try {
-      // Add API key to model if provided
       if (this.providerApiKey.trim()) {
         this.editingModel.providerApiKey = this.providerApiKey;
       }
 
       if (this.originalModel) {
-        // Update existing model
-        Object.assign(this.originalModel, this.editingModel);
-        await this.llmService.updateModel(this.originalModel).toPromise();
-        this.toastService.showSuccess('settings.llm-models.success.update', 'Success');
+        const updatedModel = { ...this.originalModel, ...this.editingModel };
+        await firstValueFrom(this.llmService.updateModel(updatedModel));
+        this.toastService.showSuccess(
+          'settings.llm-models.success.update',
+          'Success'
+        );
       } else {
-        // Create new model
-        const createdModel = await this.llmService.createModel(this.editingModel).toPromise();
+        const createdModel = await firstValueFrom(
+          this.llmService.createModel(this.editingModel)
+        );
         this.models.push(createdModel || this.editingModel);
-        this.toastService.showSuccess('settings.llm-models.success.create', 'Success');
+        this.toastService.showSuccess(
+          'settings.llm-models.success.create',
+          'Success'
+        );
       }
 
       this.onIsChanging(true);
@@ -173,21 +191,20 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error saving model:', error);
       this.toastService.showError('settings.llm-models.error.save');
-      
-      // Reload models on error
+
       this.loadModels();
     }
   }
 
   isFormValid(): boolean {
     if (!this.editingModel) return false;
-    
+
     return !!(
       this.editingModel.modelId &&
-      this.editingModel.displayName &&
+      this.editingModel.modelName &&
       this.editingModel.providerId &&
       this.editingModel.contextWindow > 0 &&
-      this.editingModel.maxOutputTokens > 0 &&
+      this.editingModel.maxTokens > 0 &&
       this.editingModel.costPerInputToken >= 0 &&
       this.editingModel.costPerOutputToken >= 0
     );
@@ -195,28 +212,56 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   getValidationErrors(): string[] {
     const errors: string[] = [];
-    
+
     if (!this.editingModel) return errors;
-    
+
     if (!this.editingModel.modelId) {
-      errors.push(this.translate.instant('settings.llm-models.validation.model-id-required'));
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.model-id-required'
+        )
+      );
     }
     if (!this.editingModel.displayName) {
-      errors.push(this.translate.instant('settings.llm-models.validation.display-name-required'));
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.display-name-required'
+        )
+      );
     }
     if (!this.editingModel.providerId) {
-      errors.push(this.translate.instant('settings.llm-models.validation.provider-required'));
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.provider-required'
+        )
+      );
     }
     if (this.editingModel.contextWindow <= 0) {
-      errors.push(this.translate.instant('settings.llm-models.validation.context-window-positive'));
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.context-window-positive'
+        )
+      );
     }
-    if (this.editingModel.maxOutputTokens <= 0) {
-      errors.push(this.translate.instant('settings.llm-models.validation.max-tokens-positive'));
+    if (this.editingModel.maxTokens <= 0) {
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.max-tokens-positive'
+        )
+      );
     }
-    if (this.isNewModel && this.isProviderApiKeyEditable() && !this.providerApiKey.trim()) {
-      errors.push(this.translate.instant('settings.llm-models.validation.api-key-required'));
+    if (
+      this.isNewModel &&
+      this.isProviderApiKeyEditable() &&
+      !this.providerApiKey.trim()
+    ) {
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.api-key-required'
+        )
+      );
     }
-    
+
     return errors;
   }
 
@@ -229,17 +274,16 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   }
 
   isProviderApiKeyEditable(): boolean {
-    // Show API key field for new models or when editing OpenAI/Anthropic/Google models
     if (!this.editingModel) return false;
-    
-    const needsApiKey = ['openai', 'anthropic', 'google'].includes(this.editingModel.providerId);
-    
-    // Always show for new models that need API key
+
+    const needsApiKey = ['openai', 'anthropic', 'google'].includes(
+      this.editingModel.providerId
+    );
+
     if (this.isNewModel && needsApiKey) {
       return true;
     }
-    
-    // Show for existing models only if user starts typing an API key
+
     return needsApiKey && this.providerApiKey.length > 0;
   }
 }

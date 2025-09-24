@@ -45,15 +45,15 @@
           />
         </div>
         <div class="model-field">
-          <label for="displayName">{{
+          <label for="modelName">{{
             translate.instant("settings.llm-models.display-name")
           }}</label>
           <input
             type="text"
-            [(ngModel)]="editingModel.displayName"
-            name="displayName"
+            [(ngModel)]="editingModel.modelName"
+            name="modelName"
             class="form-control"
-            id="displayName"
+            id="modelName"
             required
           />
         </div>
@@ -113,7 +113,7 @@
           }}</label>
           <input
             type="number"
-            [(ngModel)]="editingModel.maxOutputTokens"
+            [(ngModel)]="editingModel.maxTokens"
             name="maxTokens"
             class="form-control"
             id="maxTokens"

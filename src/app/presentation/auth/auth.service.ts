@@ -29,10 +29,9 @@ export class AuthService {
       password,
     };
 
-    return await this.httpClient
-      .post<MyToken>(`${environment.baseUrl}Accounts/LoginUser`, user)
-      .toPromise()
-      .then((tok) => {
+    return await firstValueFrom(
+      this.httpClient.post<MyToken>(`${environment.baseUrl}Accounts/LoginUser`, user)
+    ).then((tok) => {
         if (!tok) {
           this.toastShowService.showError(
             MessageLibrary.AUTH_USER_ERROR + MessageLibrary.RESPONSE_ERROR,

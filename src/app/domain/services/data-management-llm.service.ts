@@ -355,7 +355,10 @@ export class DataManagementLLMService {
   }
 
   updateModel(model: ILLMModel): Observable<ILLMModel> {
-    return this.dataLLMService.updateModel(model.modelId, model).pipe(
+    if (!model.id) {
+      return throwError(() => new Error('Model ID is required for update'));
+    }
+    return this.dataLLMService.updateModel(model.id, model).pipe(
       tap(() => {
         // Reload models after update
         this.initializeModels();
