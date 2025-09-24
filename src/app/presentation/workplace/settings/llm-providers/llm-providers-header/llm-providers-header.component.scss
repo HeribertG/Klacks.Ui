@@ -1,53 +1,20 @@
-.header-row {
-  display: flex;
-  background-color: var(--colorWorkplaceHeaderBg);
-  border-radius: 6px 6px 0 0;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--colorWorkplaceBorder);
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-left: 30px;
 }
 
-.header-cell {
+.custom-control-inline {
+  padding-top: 6px;
+  padding-bottom: 6px;
   display: flex;
   align-items: center;
-  font-weight: 600;
-  font-size: 0.9em;
+}
+
+label {
   color: var(--colorWorkplaceHeadline);
-}
-
-.header-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.provider-info {
-  flex: 3;
-  min-width: 180px;
-}
-
-.status {
-  flex: 1.5;
-  min-width: 120px;
-}
-
-.api-key {
-  flex: 1.5;
-  min-width: 100px;
-}
-
-.base-url {
-  flex: 2.5;
-  min-width: 200px;
-}
-
-.priority {
-  flex: 1;
-  min-width: 80px;
-  justify-content: center;
-}
-
-.actions {
-  flex: 1.5;
-  min-width: 120px;
-  justify-content: center;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 0;
+  margin-right: 15px;
 }

@@ -26,7 +26,6 @@
     </div>
     <div class="modal-body">
       @if (editingProvider) {
-      <!-- Provider Info (Read-only) -->
       <div class="row-line-modal-inline">
         <div class="provider-field">
           <label for="providerId">{{
@@ -56,7 +55,6 @@
         </div>
       </div>
 
-      <!-- API Configuration -->
       <div class="row-line-modal-inline">
         <div class="provider-field full-width">
           <label for="baseUrl">{{
@@ -104,12 +102,12 @@
         </div>
       </div>
 
-      <!-- API Key -->
       <div class="row-line-modal-inline">
         <div class="provider-field full-width">
-          <label for="apiKey">{{
-            translate.instant("settings.llm-providers.api-key")
-          }} <span class="required-marker">*</span></label>
+          <label for="apiKey"
+            >{{ translate.instant("settings.llm-providers.api-key") }}
+            <span class="required-marker">*</span></label
+          >
           <input
             type="password"
             [(ngModel)]="providerApiKey"
@@ -125,17 +123,28 @@
         </div>
       </div>
 
-      <!-- Current Status -->
       <div class="row-line-modal-inline">
         <div class="status-info">
-          <div class="status-badge" [ngClass]="getStatusClass(editingProvider.isEnabled, editingProvider.hasApiKey)">
+          <div
+            class="status-badge"
+            [ngClass]="
+              getStatusClass(
+                editingProvider.isEnabled,
+                editingProvider.hasApiKey
+              )
+            "
+          >
             <span class="status-indicator"></span>
-            {{ getStatusText(editingProvider.isEnabled, editingProvider.hasApiKey) }}
+            {{
+              getStatusText(
+                editingProvider.isEnabled,
+                editingProvider.hasApiKey
+              )
+            }}
           </div>
         </div>
       </div>
 
-      <!-- Validation Errors -->
       @if (getValidationErrors().length > 0) {
       <div class="row-line-modal-inline">
         <div class="validation-errors-section">
@@ -181,15 +190,14 @@
   <app-llm-providers-header></app-llm-providers-header>
 
   <div class="container-box">
-    @for (provider of providers; track provider.providerId || $index; let i = $index) {
-
+    @for (provider of providers; track provider.providerId || $index; let i =
+    $index) {
     <app-llm-providers-row
       [data]="provider"
+      (isChangingEvent)="onIsChanging($event)"
       (editEvent)="onClickEdit($event)"
-      (toggleEnableEvent)="onClickToggleEnable(i)"
     >
     </app-llm-providers-row>
-
     }
   </div>
 </form>

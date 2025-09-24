@@ -9,7 +9,7 @@ import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './llm-models-row.component.html',
-  styleUrls: ['./llm-models-row.component.scss']
+  styleUrls: ['./llm-models-row.component.scss'],
 })
 export class LLMModelsRowComponent {
   @Input() data!: ILLMModel;
@@ -27,16 +27,14 @@ export class LLMModelsRowComponent {
   }
 
   getModelDisplayText(): string {
-    // Format: "Name Version (Provider)"
-    // Extract version from modelId if available
     const modelId = this.data.modelId || '';
     const displayName = this.data.displayName || modelId;
     const provider = this.data.providerId?.toUpperCase() || '';
-    
+
     // Try to extract version from modelId (e.g., "gpt-3.5-turbo" -> "3.5")
     const versionMatch = modelId.match(/(\d+\.?\d*)/);
     const version = versionMatch ? versionMatch[1] : '';
-    
+
     if (version) {
       return `${displayName} ${version} (${provider})`;
     } else {

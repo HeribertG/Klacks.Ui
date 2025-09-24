@@ -1,246 +1,38 @@
-.provider-row {
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+
+.first {
+  margin-left: 30px;
+  padding-right: -30px;
+  height: 40px;
+}
+
+.custom-control-inline {
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid var(--colorLine);
-  transition: background-color 0.2s ease;
+  margin-bottom: 10px;
 }
 
-.provider-row:hover {
-  background-color: var(--gridBackgroundColorRowHover);
+.form-group {
+  margin-bottom: 0;
+  margin-right: 10px;
 }
 
-.provider-row:last-child {
-  border-bottom: none;
-  border-radius: 0 0 6px 6px;
-}
-
-.row-cell {
-  display: flex;
-  align-items: center;
-}
-
-.provider-info {
-  flex: 3;
-  min-width: 180px;
-}
-
-.provider-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.provider-name {
-  font-weight: 600;
-  color: var(--colorHeadline);
-  font-size: 0.95em;
-}
-
-.provider-id {
-  font-size: 0.8em;
-  color: var(--colorSubHeadline);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-}
-
-.status {
-  flex: 1.5;
-  min-width: 120px;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 0.8em;
-  font-weight: 500;
-}
-
-.status-indicator {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.status-enabled {
-  background-color: var(--backgroundColorContributionTypeName);
-  color: var(--standartGreenColor);
-  border: 1px solid var(--lightBorderColorFindCustomerList);
-}
-
-.status-enabled .status-indicator {
-  background-color: var(--standartGreenColor);
-}
-
-.status-disabled {
-  background-color: var(--backgroundColorContributionTypeVat);
-  color: var(--standartTextColor);
-  border: 1px solid var(--colorPlaceholder);
-}
-
-.status-disabled .status-indicator {
-  background-color: var(--CurrentGreyColor);
-}
-
-.status-no-key {
-  background-color: var(--gridBackgroundColorInfo);
-  color: var(--standartRedColor);
-  border: 1px solid var(--standartRedColor);
-}
-
-.status-no-key .status-indicator {
-  background-color: var(--standartRedColor);
-}
-
-.api-key {
-  flex: 1.5;
-  min-width: 100px;
-}
-
-.api-key-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.key-icon {
-  font-size: 0.9em;
-}
-
-.key-icon.configured {
-  color: var(--standartGreenColor);
-}
-
-.key-icon.missing {
-  color: var(--standartRedColor);
-}
-
-.key-text {
-  font-size: 0.85em;
-  font-weight: 500;
-  color: var(--standartTextColor);
-}
-
-.base-url {
-  flex: 2.5;
-  min-width: 200px;
-}
-
-.url-text {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.8em;
-  color: var(--colorSubHeadline);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.priority {
-  flex: 1;
-  min-width: 80px;
-  justify-content: center;
-}
-
-.priority-number {
-  background-color: var(--iconSelectedColor);
-  color: var(--standartTextBackground);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8em;
-  font-weight: 600;
-}
-
-.actions {
-  flex: 1.5;
-  min-width: 120px;
-  justify-content: center;
-  gap: 8px;
-}
-
-.action-btn {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 4px;
+.attribute-name {
+  width: 250px;
+  margin-right: 10px;
+  background-color: var(--standartGreenColor) !important;
   cursor: pointer;
-  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
-.edit-btn {
-  background-color: var(--standartBlueColor);
-  color: var(--standartTextBackground);
-}
-
-.edit-btn:hover {
-  background-color: var(--splitButtonBlueColor);
-}
-
-.toggle-btn {
-  background-color: var(--CurrentGreyColor);
-  color: var(--standartTextBackground);
-}
-
-.toggle-btn.enabled {
-  background-color: var(--standartGreenColor);
-}
-
-.toggle-btn:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.toggle-btn:disabled {
-  background-color: var(--backgroundColorMenuDisabled);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-// Provider-specific row styling using existing color scheme
-.provider-openai {
-  border-left: 4px solid var(--standartGreenColor);
-}
-
-.provider-anthropic {
-  border-left: 4px solid var(--standartRedColor);
-}
-
-.provider-google {
-  border-left: 4px solid var(--standartBlueColor);
-}
-
-.provider-azure {
-  border-left: 4px solid var(--splitButtonBlueColor);
-}
-
-.provider-mistral {
-  border-left: 4px solid var(--standartRedLiteColor);
-}
-
-.provider-cohere {
-  border-left: 4px solid var(--iconSelectedColor);
-}
-
-.provider-deepseek {
-  border-left: 4px solid var(--SpinnerColor);
-}
-
-.provider-qwen {
-  border-left: 4px solid var(--gridBackgroundColorInfo);
-}
-
-.provider-baidu {
-  border-left: 4px solid var(--splitButtonBlueColor);
-}
-
-.provider-zhipu {
-  border-left: 4px solid var(--standartRedLiteColor);
+.delete-button {
+  margin-top: 5px;
+  margin-left: 20px;
+  color: var(--standartRedColor);
 }

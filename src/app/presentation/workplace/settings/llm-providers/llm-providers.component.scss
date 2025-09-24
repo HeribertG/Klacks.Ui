@@ -1,3 +1,10 @@
+@use "sass:color";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+@use "../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+
 .provider-field {
   flex: 1;
   margin-right: 15px;
@@ -105,15 +112,3 @@
 .alert li {
   margin-bottom: 4px;
 }
-
-// Provider-specific styling
-.provider-openai { background-color: rgba(16, 163, 127, 0.1); }
-.provider-anthropic { background-color: rgba(204, 85, 51, 0.1); }
-.provider-google { background-color: rgba(66, 133, 244, 0.1); }
-.provider-azure { background-color: rgba(0, 120, 212, 0.1); }
-.provider-mistral { background-color: rgba(255, 94, 77, 0.1); }
-.provider-cohere { background-color: rgba(57, 192, 237, 0.1); }
-.provider-deepseek { background-color: rgba(138, 43, 226, 0.1); }
-.provider-qwen { background-color: rgba(255, 165, 0, 0.1); }
-.provider-baidu { background-color: rgba(45, 136, 255, 0.1); }
-.provider-zhipu { background-color: rgba(255, 20, 147, 0.1); }

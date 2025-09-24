@@ -1,11 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-
-// Services
 import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
 import { SettingsManageableWrapperService } from 'src/app/domain/services/settings-manageable-wrapper.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
@@ -79,19 +79,15 @@ export class SettingsHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-
-    // Hide search for settings pages
     this.searchService.setSearchVisibility(false);
 
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
-    // Use new registry approach
     this.workplaceStateService.setActiveManagerByRoute('settings');
     this.footerService.setFooterVisibility(true);
     this.dataManagementSettingsService.readData();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any): void {
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();
@@ -100,6 +96,5 @@ export class SettingsHomeComponent implements OnInit {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isfocused(value: string): void {}
 }
