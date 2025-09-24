@@ -69,12 +69,10 @@ export class AllAddressListComponent
     | ElementRef
     | undefined;
 
-  // Public injected services
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
 
-  // Private injected services
   private injector = inject(Injector);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
@@ -82,7 +80,6 @@ export class AllAddressListComponent
   private tableResizeService = inject(TableResizeService);
   private allAddressStateService = inject(AllAddressStateService);
 
-  // Public properties (used in templates)
   public arrowCompany = '';
   public arrowFirstName = '';
   public arrowName = '';

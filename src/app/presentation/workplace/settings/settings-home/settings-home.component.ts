@@ -1,8 +1,4 @@
-import {
-  Component,
-  inject,
-  OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -18,8 +14,6 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
-
-// Standalone Komponenten
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
 import { OwnerAddressComponent } from '../owner-address/owner-address.component';
 import { CountriesComponent } from '../countries/countries.component';
@@ -33,6 +27,7 @@ import { UserAdministrationComponent } from '../user-administration/user-adminis
 import { GroupScopeComponent } from '../group-scope/group-scope.component';
 import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
+import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -58,15 +53,17 @@ import { LLMModelsComponent } from '../llm-models/llm-models.component';
     GroupScopeComponent,
     ContractsComponent,
     LLMModelsComponent,
+    LLMProvidersComponent,
   ],
 })
 export class SettingsHomeComponent implements OnInit {
-
   public translate = inject(TranslateService);
 
   private workplaceStateService = inject(WorkplaceStateService);
   private dataManagementSettingsService = inject(DataManagementSettingsService);
-  private settingsManageableWrapperService = inject(SettingsManageableWrapperService);
+  private settingsManageableWrapperService = inject(
+    SettingsManageableWrapperService
+  );
   private localStorageService = inject(LocalStorageService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
@@ -96,7 +93,6 @@ export class SettingsHomeComponent implements OnInit {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onIsChanging(event: any): void {
-
     if (event === true) {
       this.workplaceStateService.areObjectsDirty();
     } else {

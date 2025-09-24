@@ -1,0 +1,195 @@
+<!-- LLM Provider Modal -->
+<ng-template #providerModal let-modal>
+  <form #providerForm="ngForm">
+    <div class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("settings.llm-providers.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div class="modal-body">
+      @if (editingProvider) {
+      <!-- Provider Info (Read-only) -->
+      <div class="row-line-modal-inline">
+        <div class="provider-field">
+          <label for="providerId">{{
+            translate.instant("settings.llm-providers.provider-id")
+          }}</label>
+          <input
+            type="text"
+            [value]="editingProvider.providerId"
+            name="providerId"
+            class="form-control"
+            id="providerId"
+            readonly
+          />
+        </div>
+        <div class="provider-field">
+          <label for="providerName">{{
+            translate.instant("settings.llm-providers.provider-name")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingProvider.providerName"
+            name="providerName"
+            class="form-control"
+            id="providerName"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- API Configuration -->
+      <div class="row-line-modal-inline">
+        <div class="provider-field full-width">
+          <label for="baseUrl">{{
+            translate.instant("settings.llm-providers.base-url")
+          }}</label>
+          <input
+            type="url"
+            [(ngModel)]="editingProvider.baseUrl"
+            name="baseUrl"
+            class="form-control"
+            id="baseUrl"
+            placeholder="https://api.example.com/v1/"
+            required
+          />
+        </div>
+      </div>
+
+      <div class="row-line-modal-inline">
+        <div class="provider-field">
+          <label for="apiVersion">{{
+            translate.instant("settings.llm-providers.api-version")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingProvider.apiVersion"
+            name="apiVersion"
+            class="form-control"
+            id="apiVersion"
+            placeholder="v1, 2023-06-01, etc."
+          />
+        </div>
+        <div class="provider-field">
+          <label for="priority">{{
+            translate.instant("settings.llm-providers.priority")
+          }}</label>
+          <input
+            type="number"
+            [(ngModel)]="editingProvider.priority"
+            name="priority"
+            class="form-control"
+            id="priority"
+            min="1"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- API Key -->
+      <div class="row-line-modal-inline">
+        <div class="provider-field full-width">
+          <label for="apiKey">{{
+            translate.instant("settings.llm-providers.api-key")
+          }} <span class="required-marker">*</span></label>
+          <input
+            type="password"
+            [(ngModel)]="providerApiKey"
+            name="apiKey"
+            class="form-control"
+            id="apiKey"
+            placeholder="sk-..."
+            required
+          />
+          <small class="info-text">{{
+            translate.instant("settings.llm-providers.api-key-info")
+          }}</small>
+        </div>
+      </div>
+
+      <!-- Current Status -->
+      <div class="row-line-modal-inline">
+        <div class="status-info">
+          <div class="status-badge" [ngClass]="getStatusClass(editingProvider.isEnabled, editingProvider.hasApiKey)">
+            <span class="status-indicator"></span>
+            {{ getStatusText(editingProvider.isEnabled, editingProvider.hasApiKey) }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSave(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("settings.llm-providers.save") }}
+    </button>
+  </div>
+</ng-template>
+
+<form>
+  <div class="container-header">
+    {{ translate.instant("settings.llm-providers.title") }}
+  </div>
+
+  <div class="container-line"></div>
+
+  <app-llm-providers-header></app-llm-providers-header>
+
+  <div class="container-box">
+    @for (provider of providers; track provider.providerId || $index; let i = $index) {
+
+    <app-llm-providers-row
+      [data]="provider"
+      (editEvent)="onClickEdit($event)"
+      (toggleEnableEvent)="onClickToggleEnable(i)"
+    >
+    </app-llm-providers-row>
+
+    }
+  </div>
+</form>

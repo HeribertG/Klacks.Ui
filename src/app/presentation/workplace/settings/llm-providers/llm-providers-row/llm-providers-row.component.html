@@ -1,0 +1,59 @@
+<div class="provider-row" [ngClass]="getProviderClass()">
+  <div class="row-cell provider-info">
+    <div class="provider-details">
+      <div class="provider-name">{{ data.providerName }}</div>
+      <div class="provider-id">{{ data.providerId }}</div>
+    </div>
+  </div>
+
+  <div class="row-cell status">
+    <div class="status-badge" [ngClass]="getStatusClass()">
+      <span class="status-indicator"></span>
+      {{ getStatusText() }}
+    </div>
+  </div>
+
+  <div class="row-cell api-key">
+    <div class="api-key-status">
+      @if (data.hasApiKey) {
+        <fa-icon [icon]="faKey" class="key-icon configured"></fa-icon>
+        <span class="key-text">{{ getApiKeyStatus() }}</span>
+      } @else {
+        <fa-icon [icon]="faExclamationTriangle" class="key-icon missing"></fa-icon>
+        <span class="key-text">{{ getApiKeyStatus() }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="row-cell base-url">
+    <span class="url-text" [title]="data.baseUrl">{{ formatBaseUrl(data.baseUrl) }}</span>
+  </div>
+
+  <div class="row-cell priority">
+    <span class="priority-number">{{ data.priority }}</span>
+  </div>
+
+  <div class="row-cell actions">
+    <button
+      type="button"
+      class="btn btn-sm action-btn edit-btn"
+      (click)="onEdit()"
+      [title]="translate.instant('settings.llm-providers.actions.edit')"
+    >
+      <fa-icon [icon]="faEdit"></fa-icon>
+    </button>
+
+    <button
+      type="button"
+      class="btn btn-sm action-btn toggle-btn"
+      [ngClass]="{ 'enabled': data.isEnabled }"
+      (click)="onToggleEnable()"
+      [disabled]="!data.hasApiKey && !data.isEnabled"
+      [title]="data.isEnabled 
+        ? translate.instant('settings.llm-providers.actions.disable') 
+        : translate.instant('settings.llm-providers.actions.enable')"
+    >
+      <fa-icon [icon]="data.isEnabled ? faToggleOn : faToggleOff"></fa-icon>
+    </button>
+  </div>
+</div>

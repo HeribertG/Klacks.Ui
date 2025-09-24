@@ -27,10 +27,12 @@ export class DataManagementAbsenceService implements ISpinnable {
 
   constructor() {
     // Selbst-Registrierung für die absence Route
-    ManageableServiceRegistry.register(RouteName.ABSENCE, DataManagementAbsenceService);
+    ManageableServiceRegistry.register(
+      RouteName.ABSENCE,
+      DataManagementAbsenceService
+    );
   }
 
-  // ISpinnable implementation
   public showProgressSpinner = signal(false);
 
   public isRead = signal(false);
