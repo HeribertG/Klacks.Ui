@@ -19,6 +19,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
 import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/data-management-llm-provider.service';
+import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
 import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
 
@@ -46,6 +47,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
   private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
   private providerService = inject(DataManagementLLMProviderService);
+  private llmService = inject(DataManagementLLMService);
   private destroy$ = new Subject<void>();
 
   providers: ILLMProvider[] = [];
@@ -202,6 +204,11 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
         modal.close();
       }
     }
+  }
+
+  canDeleteProvider(provider: ILLMProvider): boolean {
+    const defaultModel = this.llmService.getDefaultModel();
+    return !defaultModel || defaultModel.providerId !== provider.providerId;
   }
 
   private async confirmDelete(): Promise<void> {

@@ -13,6 +13,7 @@ import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.servi
 })
 export class LLMProvidersRowComponent {
   @Input() data!: ILLMProvider;
+  @Input() canDelete = true;
   @Output() editEvent = new EventEmitter<ILLMProvider>();
   @Output() deleteEvent = new EventEmitter<ILLMProvider>();
   @Output() isChangingEvent = new EventEmitter<boolean>();
@@ -24,7 +25,9 @@ export class LLMProvidersRowComponent {
   }
 
   onDelete(): void {
-    this.deleteEvent.emit(this.data);
+    if (this.canDelete) {
+      this.deleteEvent.emit(this.data);
+    }
   }
 
   getProviderDisplayText(): string {

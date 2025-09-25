@@ -1,9 +1,10 @@
+@use "sass:color";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../assets/standard-styles/pagination.scss";
-@use "../../../../../assets/standard-styles/colors";
+@use "../../../../../assets/standard-styles/colors" as colors;
 
 .first {
   padding-top: 10px;
@@ -17,6 +18,11 @@
   text-decoration: underline;
   color: colors.$standartGreenColor;
   margin-top: 20px;
+  cursor: pointer;
+
+  &:hover {
+    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
 }
 
 .rule-result {

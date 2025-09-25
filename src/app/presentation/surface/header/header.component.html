@@ -13,11 +13,12 @@
   </div>
   } @if (hasLogoImage()) {
   <div (click)="onClickDashboard()" class="icon">
-    <img 
-      [src]="logoImage()" 
-      [width]="logoDisplayDimensions().width" 
-      [height]="logoDisplayDimensions().height" 
-      alt="Logo" />
+    <img
+      [src]="logoImage()"
+      [width]="logoDisplayDimensions().width"
+      [height]="logoDisplayDimensions().height"
+      alt="Logo"
+    />
   </div>
   }
 
@@ -29,12 +30,10 @@
 
   <app-group-select></app-group-select>
 
-  <button 
+  <app-icon-ai
     class="assistant-btn"
     (click)="onToggleAssistant()"
-    title="KI-Assistent öffnen">
-    <fa-icon [icon]="faRobot"></fa-icon>
-  </button>
+  ></app-icon-ai>
 
   <app-icon-sign-out
     class="icon-logOut"

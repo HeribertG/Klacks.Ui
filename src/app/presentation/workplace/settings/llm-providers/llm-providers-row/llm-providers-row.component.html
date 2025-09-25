@@ -14,6 +14,12 @@
       />
     </div>
 
-    <span class="delete-button" type="button" (click)="onDelete()">✕</span>
+    <span 
+      class="delete-button" 
+      type="button" 
+      (click)="onDelete()"
+      [class.disabled]="!canDelete"
+      [title]="!canDelete ? (translate.instant('settings.llm-providers.cannot-delete-default-provider') || 'Provider of default model cannot be deleted') : ''"
+    >✕</span>
   </div>
 </form>

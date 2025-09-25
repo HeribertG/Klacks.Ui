@@ -35,4 +35,10 @@
   margin-top: 5px;
   margin-left: 20px;
   color: var(--standartRedColor);
+  cursor: pointer;
+
+  &.disabled {
+    color: var(--colorLabel);
+    cursor: not-allowed;
+  }
 }

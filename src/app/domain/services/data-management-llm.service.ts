@@ -93,7 +93,7 @@ export class DataManagementLLMService {
         }),
         catchError((error) => {
           console.error('Could not load models from backend:', error);
-          this.toastShowService.showError('aside.llm.error.load_models');
+          this.toastShowService.showError('settings.llm-models.error.load');
           // Set empty array if backend fails
           this.availableModels$.next([]);
           return of([]);
@@ -156,7 +156,7 @@ export class DataManagementLLMService {
       catchError((error) => {
         this.showProgressSpinner.set(false);
         this.isLoading$.next(false);
-        this.toastShowService.showError('aside.llm.error.communication');
+        this.toastShowService.showError('settings.llm-models.error.communication');
         console.error('LLM chat error:', error);
         return throwError(() => error);
       })
@@ -199,7 +199,7 @@ export class DataManagementLLMService {
       }),
       catchError((error) => {
         console.error('Could not enable model:', error);
-        this.toastShowService.showError('aside.llm.error.enable_model');
+        this.toastShowService.showError('settings.llm-models.error.enable');
         throw error;
       })
     );
@@ -212,7 +212,7 @@ export class DataManagementLLMService {
       }),
       catchError((error) => {
         console.error('Could not disable model:', error);
-        this.toastShowService.showError('aside.llm.error.disable_model');
+        this.toastShowService.showError('settings.llm-models.error.disable');
         throw error;
       })
     );
@@ -225,7 +225,7 @@ export class DataManagementLLMService {
       }),
       catchError((error) => {
         console.error('Could not set default model:', error);
-        this.toastShowService.showError('aside.llm.error.set_default_model');
+        this.toastShowService.showError('settings.llm-models.error.set-default');
         throw error;
       })
     );
@@ -280,6 +280,10 @@ export class DataManagementLLMService {
 
   isLoading(): Observable<boolean> {
     return this.isLoading$.asObservable();
+  }
+
+  getDefaultModel(): ILLMModel | undefined {
+    return this.availableModels$.value.find(m => m.isDefault);
   }
 
   private getOrCreateConversation(conversationId: string): IConversation {

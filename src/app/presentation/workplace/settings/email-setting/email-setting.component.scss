@@ -2,6 +2,7 @@
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/toggle-switch.scss";
 @use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 .first {
   padding-top: 10px;
@@ -64,13 +65,13 @@ select {
   }
 
   .test-email-button {
-    background-color: var(--standartGreenColor);
-    border-color: var(--standartGreenColor);
+    background-color: colors.$standartGreenColor;
+    border-color: colors.$standartGreenColor;
     color: white;
 
     &:hover:not(:disabled) {
-      background-color: var(--splitButtonGreenColor);
-      border-color: var(--splitButtonGreenColor);
+      background-color: colors.$splitButtonGreenColor;
+      border-color: colors.$splitButtonGreenColor;
     }
 
     &:disabled {

@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- LLM Provider Modal -->
 <ng-template #providerModal let-modal>
   <form #providerForm="ngForm">
@@ -194,11 +196,18 @@
     $index) {
     <app-llm-providers-row
       [data]="provider"
+      [canDelete]="canDeleteProvider(provider)"
       (isChangingEvent)="onIsChanging($event)"
       (editEvent)="onClickEdit($event)"
       (deleteEvent)="onClickDelete($event)"
     >
     </app-llm-providers-row>
     }
+  </div>
+
+  <div class="row">
+    <span class="add-button" type="button" (click)="onClickAdd()"
+      >{{ translate.instant("settings.llm-providers.add") }}
+    </span>
   </div>
 </form>

@@ -23,7 +23,9 @@ export class LLMModelsRowComponent {
   }
 
   onClickDelete(): void {
-    this.isDeleteEvent.emit();
+    if (!this.data.isDefault) {
+      this.isDeleteEvent.emit();
+    }
   }
 
   getModelDisplayText(): string {

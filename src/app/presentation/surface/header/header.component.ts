@@ -1,4 +1,3 @@
- 
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -22,6 +21,7 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
+import { IconAiComponent } from '../../icons/icon-ai.component';
 
 @Component({
   selector: 'app-header',
@@ -34,6 +34,7 @@ import { faRobot } from '@fortawesome/free-solid-svg-icons';
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
+    IconAiComponent,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
@@ -48,21 +49,23 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   public authorised = signal<boolean>(false);
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public hasLogoImage = computed(() => !!this.logoImage());
-  public logoDimensions = computed(() => this.dataLoadFileService.logoImageDimensions$());
-  
+  public logoDimensions = computed(() =>
+    this.dataLoadFileService.logoImageDimensions$()
+  );
+
   // Calculated proportional dimensions for the logo
   public logoDisplayDimensions = computed(() => {
     const dimensions = this.logoDimensions();
     if (!dimensions) {
       return { width: 32, height: 32 }; // fallback
     }
-    
+
     return this.dataLoadFileService.calculateProportionalDimensions(
       dimensions.width,
       dimensions.height,
       32, // max width
       32, // max height
-      40  // absolute max
+      40 // absolute max
     );
   });
   public registerDropdown: HTMLDivElement | undefined;
