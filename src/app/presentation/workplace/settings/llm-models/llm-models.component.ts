@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   OnInit,
@@ -20,6 +19,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
 
 @Component({
   selector: 'app-llm-models',
@@ -112,11 +112,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   }
 
   onClickEdit(model: ILLMModel): void {
-    // Clone the model for editing
     this.isNewModel = false;
     this.editingModel = { ...model };
     this.originalModel = model;
-    this.providerApiKey = ''; // Don't pre-fill for security
+    this.providerApiKey = '';
 
     this.modalService.open(this.llmModal, {
       ariaLabelledBy: 'modal-title',
@@ -129,27 +128,43 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
       const model = this.models[index];
 
       if (model) {
-        const confirmDelete = confirm(
-          this.translate.instant('settings.llm-models.confirm-delete', {
-            name: model.displayName,
-          })
+        const modalRef = this.modalService.open(DeletewindowComponent, {
+          size: 'md',
+          backdrop: 'static'
+        });
+
+        modalRef.componentInstance.title = this.translate.instant('settings.llm-models.delete.title');
+        modalRef.componentInstance.message = this.translate.instant(
+          'settings.llm-models.confirm-delete',
+          { name: model.displayName || model.modelName }
         );
 
-        if (confirmDelete) {
-          try {
-            await firstValueFrom(this.llmService.deleteModel(model.modelId));
+        modalRef.result.then(
+          async (result) => {
+            if (result === 'delete') {
+              try {
+                if (!model.id) {
+                  this.toastService.showError('settings.llm-models.error.missing-id');
+                  console.error('Model is missing ID field:', model);
+                  return;
+                }
+                await firstValueFrom(this.llmService.deleteModel(model.id));
 
-            this.models.splice(index, 1);
-            this.onIsChanging(true);
-            this.toastService.showSuccess(
-              'settings.llm-models.success.delete',
-              'Success'
-            );
-          } catch (error) {
-            console.error('Error deleting model:', error);
-            this.toastService.showError('settings.llm-models.error.delete');
+                this.models.splice(index, 1);
+                this.onIsChanging(true);
+                this.toastService.showSuccess(
+                  'settings.llm-models.success.delete',
+                  'Success'
+                );
+              } catch (error) {
+                console.error('Error deleting model:', error);
+                this.toastService.showError('settings.llm-models.error.delete');
+              }
+            }
+          },
+          () => {
           }
-        }
+        );
       }
     }
   }

@@ -151,9 +151,9 @@ export class DataLLMService {
       .pipe(retry(3));
   }
 
-  deleteModel(modelId: string): Observable<any> {
+  deleteModel(id: string): Observable<any> {
     return this.httpClient
-      .delete(`${this.baseUrl}models/${modelId}`)
+      .delete(`${this.baseUrl}models/${id}`)
       .pipe(retry(3));
   }
 }

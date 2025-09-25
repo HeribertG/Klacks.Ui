@@ -130,7 +130,7 @@
             [ngClass]="
               getStatusClass(
                 editingProvider.isEnabled,
-                editingProvider.hasApiKey
+                hasApiKey(editingProvider)
               )
             "
           >
@@ -138,7 +138,7 @@
             {{
               getStatusText(
                 editingProvider.isEnabled,
-                editingProvider.hasApiKey
+                hasApiKey(editingProvider)
               )
             }}
           </div>
@@ -196,6 +196,7 @@
       [data]="provider"
       (isChangingEvent)="onIsChanging($event)"
       (editEvent)="onClickEdit($event)"
+      (deleteEvent)="onClickDelete($event)"
     >
     </app-llm-providers-row>
     }

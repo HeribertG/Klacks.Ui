@@ -12,24 +12,15 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
 import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.component';
-
-export interface ILLMProvider {
-  id?: string;
-  providerId: string;
-  providerName: string;
-  isEnabled: boolean;
-  hasApiKey: boolean;
-  baseUrl?: string;
-  apiVersion?: string;
-  priority: number;
-  apiKey?: string;
-}
+import { DataManagementLLMProviderService } from 'src/app/domain/services/data-management-llm-provider.service';
+import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
 
 @Component({
   selector: 'app-llm-providers',
@@ -54,18 +45,29 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
   private toastService = inject(ToastShowService);
   private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
+  private providerService = inject(DataManagementLLMProviderService);
   private destroy$ = new Subject<void>();
 
   providers: ILLMProvider[] = [];
-  isLoading = false;
+  isLoading = this.providerService.isLoading;
   editingProvider: ILLMProvider | null = null;
   private originalProvider: ILLMProvider | null = null;
 
   providerApiKey = '';
   isNewProvider = false;
+  providerToDelete: ILLMProvider | null = null;
 
   ngOnInit(): void {
     this.loadProviders();
+    this.setupProviderSubscription();
+  }
+
+  private setupProviderSubscription(): void {
+    this.providerService.providers$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(providers => {
+        this.providers = providers;
+      });
   }
 
   ngOnDestroy(): void {
@@ -73,34 +75,28 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadProviders(): void {
-    this.isLoading = true;
-    // TODO: Implement API call to get providers
-    // This would be similar to DataManagementLLMService.getAvailableModels()
-    // but for providers: GET /api/v1/backend/assistant/providers
+  private async loadProviders(): Promise<void> {
+    await this.providerService.loadProviders();
+  }
 
-    // Mock data for now
-    this.providers = [
-      {
-        id: '1',
-        providerId: 'openai',
-        providerName: 'OpenAI',
-        isEnabled: true,
-        hasApiKey: true,
-        baseUrl: 'https://api.openai.com/v1/',
-        priority: 1,
-      },
-      {
-        id: '2',
-        providerId: 'anthropic',
-        providerName: 'Anthropic',
-        isEnabled: false,
-        hasApiKey: false,
-        baseUrl: 'https://api.anthropic.com/v1/',
-        priority: 2,
-      },
-    ];
-    this.isLoading = false;
+  onClickAdd(): void {
+    this.isNewProvider = true;
+    this.editingProvider = {
+      id: '',
+      providerId: '',
+      providerName: '',
+      isEnabled: true,
+      priority: 10,
+      baseUrl: '',
+      apiVersion: ''
+    };
+    this.originalProvider = null;
+    this.providerApiKey = '';
+
+    this.modalService.open(this.providerModal, {
+      ariaLabelledBy: 'modal-title',
+      size: 'lg',
+    });
   }
 
   onClickEdit(provider: ILLMProvider): void {
@@ -115,42 +111,44 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     });
   }
 
+  onClickDelete(provider: ILLMProvider): void {
+    this.providerToDelete = provider;
+    
+    const modalRef = this.modalService.open(DeletewindowComponent, {
+      size: 'md',
+      backdrop: 'static'
+    });
+
+    modalRef.componentInstance.title = this.translate.instant('settings.llm-providers.delete.title');
+    modalRef.componentInstance.message = this.translate.instant(
+      'settings.llm-providers.delete.message',
+      { providerName: provider.providerName }
+    );
+
+    modalRef.result.then(
+      (result) => {
+        if (result === 'delete' && this.providerToDelete?.id) {
+          this.confirmDelete();
+        }
+      },
+      () => {
+        this.providerToDelete = null;
+      }
+    );
+  }
+
   async onClickToggleEnable(index: number): Promise<void> {
     if (index >= 0 && index < this.providers.length) {
       const provider = this.providers[index];
 
-      if (provider) {
-        try {
-          if (provider.isEnabled) {
-            // Disable provider
-            // await this.providerService.disableProvider(provider.id).toPromise();
-            provider.isEnabled = false;
-            this.toastService.showSuccess(
-              'settings.llm-providers.success.disable',
-              'Success'
-            );
-          } else {
-            // Check if provider has API key before enabling
-            if (!provider.hasApiKey) {
-              this.toastService.showError(
-                'settings.llm-providers.error.no-api-key'
-              );
-              return;
-            }
-
-            // Enable provider
-            // await this.providerService.enableProvider(provider.id).toPromise();
-            provider.isEnabled = true;
-            this.toastService.showSuccess(
-              'settings.llm-providers.success.enable',
-              'Success'
-            );
-          }
-
+      if (provider && provider.id) {
+        const success = await this.providerService.toggleProviderStatus(
+          provider.id, 
+          !provider.isEnabled
+        );
+        
+        if (success) {
           this.onIsChanging(true);
-        } catch (error) {
-          console.error('Error toggling provider status:', error);
-          this.toastService.showError('settings.llm-providers.error.toggle');
         }
       }
     }
@@ -165,48 +163,73 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    try {
-      if (this.providerApiKey.trim()) {
-        // Update API key
-        // await this.providerService.setApiKey(this.editingProvider.id, this.providerApiKey).toPromise();
+    if (this.isNewProvider) {
+      const createRequest: ICreateProviderRequest = {
+        providerId: this.editingProvider.providerId,
+        providerName: this.editingProvider.providerName,
+        apiKey: this.providerApiKey.trim() || undefined,
+        baseUrl: this.editingProvider.baseUrl,
+        apiVersion: this.editingProvider.apiVersion,
+        isEnabled: this.editingProvider.isEnabled,
+        priority: this.editingProvider.priority
+      };
 
-        const updatedProvider = {
-          ...this.originalProvider!,
-          ...this.editingProvider,
-        };
-        updatedProvider.hasApiKey = true;
-        updatedProvider.apiKey = this.providerApiKey;
-
-        // Update local state
-        const index = this.providers.findIndex(
-          (p) => p.id === updatedProvider.id
-        );
-        if (index >= 0) {
-          this.providers[index] = updatedProvider;
-        }
-
-        this.toastService.showSuccess(
-          'settings.llm-providers.success.update',
-          'Success'
-        );
+      const newProvider = await this.providerService.createProvider(createRequest);
+      if (newProvider) {
+        this.onIsChanging(true);
+        modal.close();
+      }
+    } else {
+      if (!this.editingProvider.id) {
+        return;
       }
 
-      this.onIsChanging(true);
-      modal.close();
-    } catch (error) {
-      console.error('Error saving provider:', error);
-      this.toastService.showError('settings.llm-providers.error.save');
+      const updateRequest = {
+        apiKey: this.providerApiKey.trim() || undefined,
+        baseUrl: this.editingProvider.baseUrl,
+        apiVersion: this.editingProvider.apiVersion,
+        isEnabled: this.editingProvider.isEnabled,
+        priority: this.editingProvider.priority
+      };
+
+      const updatedProvider = await this.providerService.updateProvider(
+        this.editingProvider.id,
+        updateRequest
+      );
+
+      if (updatedProvider) {
+        this.onIsChanging(true);
+        modal.close();
+      }
     }
+  }
+
+  private async confirmDelete(): Promise<void> {
+    if (!this.providerToDelete?.id) {
+      return;
+    }
+
+    const success = await this.providerService.deleteProvider(this.providerToDelete.id);
+    if (success) {
+      this.onIsChanging(true);
+    }
+    this.providerToDelete = null;
   }
 
   isFormValid(): boolean {
     if (!this.editingProvider) return false;
 
-    return !!(
+    const baseValidation = !!(
       this.editingProvider.providerName &&
       this.editingProvider.baseUrl &&
       this.providerApiKey.trim()
     );
+
+    if (this.isNewProvider) {
+      return baseValidation && !!this.editingProvider.providerId;
+    }
+
+    return baseValidation;
   }
 
   getValidationErrors(): string[] {
@@ -214,6 +237,13 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
 
     if (!this.editingProvider) return errors;
 
+    if (this.isNewProvider && !this.editingProvider.providerId) {
+      errors.push(
+        this.translate.instant(
+          'settings.llm-providers.validation.provider-id-required'
+        )
+      );
+    }
     if (!this.editingProvider.providerName) {
       errors.push(
         this.translate.instant(
@@ -255,5 +285,9 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     return isEnabled
       ? this.translate.instant('settings.llm-providers.status.enabled')
       : this.translate.instant('settings.llm-providers.status.disabled');
+  }
+
+  hasApiKey(provider: ILLMProvider): boolean {
+    return !!(provider.apiKey && provider.apiKey.trim());
   }
 }

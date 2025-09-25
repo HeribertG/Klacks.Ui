@@ -355,8 +355,8 @@ export class DataManagementLLMService {
     );
   }
 
-  deleteModel(modelId: string): Observable<any> {
-    return this.dataLLMService.deleteModel(modelId).pipe(
+  deleteModel(id: string): Observable<any> {
+    return this.dataLLMService.deleteModel(id).pipe(
       tap(() => {
         this.initializeModels();
       }),
