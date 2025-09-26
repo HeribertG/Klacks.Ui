@@ -21,7 +21,7 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faRobot } from '@fortawesome/free-solid-svg-icons';
-import { IconAiComponent } from '../../icons/icon-ai.component';
+import { IconChatComponent } from '../../icons/icon-chat.component';
 
 @Component({
   selector: 'app-header',
@@ -34,7 +34,7 @@ import { IconAiComponent } from '../../icons/icon-ai.component';
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
-    IconAiComponent,
+    IconChatComponent,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {

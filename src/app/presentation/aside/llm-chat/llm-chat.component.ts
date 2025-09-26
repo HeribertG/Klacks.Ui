@@ -1,4 +1,13 @@
-import { Component, OnInit, OnDestroy, inject, HostListener, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  HostListener,
+  ViewChild,
+  ElementRef,
+  AfterViewChecked,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -7,7 +16,6 @@ import {
   faMicrophone,
   faMicrophoneSlash,
   faPaperPlane,
-  faRobot,
   faUser,
   faTimes,
   faChevronDown,
@@ -18,6 +26,8 @@ import { DataManagementLLMService } from 'src/app/domain/services/data-managemen
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
+import { IconChatComponent } from '../../icons/icon-chat.component';
+import { IconUserComponent } from '../../icons/icon-user.component';
 
 export interface ChatMessage {
   id: string;
@@ -32,25 +42,31 @@ export interface ChatMessage {
 @Component({
   selector: 'app-llm-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule, TranslateModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    FontAwesomeModule,
+    TranslateModule,
+    IconChatComponent,
+    IconUserComponent,
+  ],
   templateUrl: './llm-chat.component.html',
   styleUrls: ['./llm-chat.component.scss'],
 })
 export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
-  
+
   private llmService = inject(DataManagementLLMService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
-  
+
   private shouldScrollToBottom = true;
 
   faMicrophone = faMicrophone;
   faMicrophoneSlash = faMicrophoneSlash;
   faPaperPlane = faPaperPlane;
-  faRobot = faRobot;
   faUser = faUser;
   faTimes = faTimes;
   faChevronDown = faChevronDown;
@@ -90,7 +106,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         console.log('Language changed to:', event.lang);
         this.updateSpeechLanguage(event.lang);
         this.updateWelcomeMessage(event.lang);
-        
+
         const speechLang = this.getSpeechLanguageCode(event.lang);
         this.speechService.updateLanguage(speechLang);
       });
@@ -105,8 +121,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(takeUntil(this.destroy$))
       .subscribe((models) => {
         console.log('LLMChatComponent - received models:', models);
-        this.availableModels = models.filter(model => model.isEnabled);
-        console.log('LLMChatComponent - filtered enabled models:', this.availableModels);
+        this.availableModels = models.filter((model) => model.isEnabled);
+        console.log(
+          'LLMChatComponent - filtered enabled models:',
+          this.availableModels
+        );
       });
 
     this.llmService
@@ -132,9 +151,10 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private scrollToBottom(): void {
     try {
       if (this.messagesContainer) {
-        this.messagesContainer.nativeElement.scrollTop = this.messagesContainer.nativeElement.scrollHeight;
+        this.messagesContainer.nativeElement.scrollTop =
+          this.messagesContainer.nativeElement.scrollHeight;
       }
-    } catch(err) {
+    } catch (err) {
       console.error('Error scrolling to bottom:', err);
     }
   }
@@ -182,7 +202,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     } catch (error: any) {
       console.error('LLM Chat Error:', error);
-      
+
       let errorContent = '';
       if (error?.error?.message) {
         errorContent = error.error.message;
@@ -191,7 +211,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       } else {
         errorContent = this.translateService.instant('llm-chat.error.generic');
       }
-      
+
       const errorMessage: ChatMessage = {
         id: this.generateMessageId(),
         sender: 'assistant',
@@ -208,8 +228,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   async startVoiceInput(): Promise<void> {
     console.log('startVoiceInput called');
     console.log('isListening:', this.isListening);
-    console.log('speechService.isSupported:', this.speechService.isSupported$.value);
-    
+    console.log(
+      'speechService.isSupported:',
+      this.speechService.isSupported$.value
+    );
+
     if (this.isListening || !this.speechService.isSupported$.value) {
       console.log('Speech recognition not started - conditions not met');
       return;
@@ -219,21 +242,31 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       console.log('Checking microphone permissions...');
       const hasPermission = await this.speechService.requestPermissions();
       console.log('Microphone permission result:', hasPermission);
-      
+
       if (!hasPermission) {
-        alert('Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.');
+        alert(
+          'Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.'
+        );
         return;
       }
     } catch (error) {
       console.error('Error checking microphone permissions:', error);
-      alert('Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.');
+      alert(
+        'Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.'
+      );
       return;
     }
 
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+    const currentLang =
+      this.translateService.currentLang || this.translateService.defaultLang;
     const speechLang = this.getSpeechLanguageCode(currentLang);
-    
-    console.log('App language:', currentLang, 'Using speech language:', speechLang);
+
+    console.log(
+      'App language:',
+      currentLang,
+      'Using speech language:',
+      speechLang
+    );
 
     console.log('Starting speech recognition...');
     this.isListening = true;
@@ -251,11 +284,20 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.isListening = false;
         },
       });
-      
-    this.speechService.errors.pipe(takeUntil(this.destroy$)).subscribe(error => {
-      console.error('Speech service error:', error);
-      alert('Speech Error: ' + error + '\n\nBrowser-Sprache: ' + (navigator.language || 'unknown') + '\nVerfügbare Sprachen: ' + (navigator.languages ? navigator.languages.join(', ') : 'unknown'));
-    });
+
+    this.speechService.errors
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((error) => {
+        console.error('Speech service error:', error);
+        alert(
+          'Speech Error: ' +
+            error +
+            '\n\nBrowser-Sprache: ' +
+            (navigator.language || 'unknown') +
+            '\nVerfügbare Sprachen: ' +
+            (navigator.languages ? navigator.languages.join(', ') : 'unknown')
+        );
+      });
   }
 
   stopVoiceInput(): void {
@@ -426,14 +468,15 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   clearChat(): void {
     this.messages = [];
-    
+
     this.llmService.clearConversation(this.conversationId);
-    
+
     this.conversationId = this.generateConversationId();
-    
-    const currentLang = this.translateService.currentLang || this.translateService.defaultLang;
+
+    const currentLang =
+      this.translateService.currentLang || this.translateService.defaultLang;
     this.addWelcomeMessage(currentLang);
-    
+
     this.shouldScrollToBottom = true;
   }
 }

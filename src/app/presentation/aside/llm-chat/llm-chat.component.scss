@@ -1,21 +1,18 @@
-// Import Klacks standard colors
 @use "../../../../assets/standard-styles/colors" as colors;
 
-// Integrated Chat Container
 .chat-container-integrated {
   width: 100%;
   height: 100%;
   background: var(--backgroundColorCard);
   display: flex;
   flex-direction: column;
-  overflow: hidden; // Prevent container overflow
+  overflow: hidden;
 }
 
-// Model Selection Header
 .model-selection-header {
   padding: 12px 16px;
-  border-bottom: 1px solid colors.$CurrentGreyColor;
-  background: colors.$objectSurfaceBackgroundColor;
+  border-bottom: 1px solid var(--cardBorderColor);
+  background: var(--backgroundColorHeaderNav);
 }
 
 .model-dropdown {
@@ -27,7 +24,7 @@
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: colors.$standartWhiteColor;
+    background: var(--backgroundColorCard);
     border: 1px solid colors.$CurrentGreyColor;
     border-radius: 6px;
     transition: all 0.2s ease;
@@ -65,7 +62,7 @@
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    background: colors.$standartWhiteColor;
+    background: var(--backgroundColorCard);
     border: 1px solid colors.$CurrentGreyColor;
     border-radius: 6px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -73,9 +70,9 @@
     max-height: 300px;
     overflow-y: auto;
     animation: fadeInDown 0.2s ease;
-    display: block !important; // Override Bootstrap 5 CSS
-    visibility: visible !important; // Override Bootstrap 5 CSS
-    opacity: 1 !important; // Override Bootstrap 5 CSS
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 
     .dropdown-item {
       display: flex;
@@ -143,7 +140,6 @@
   }
 }
 
-// Animation for dropdown
 @keyframes fadeInDown {
   0% {
     opacity: 0;
@@ -155,7 +151,6 @@
   }
 }
 
-// Chat Header
 .chat-header {
   display: flex;
   justify-content: space-between;
@@ -205,7 +200,6 @@
   }
 }
 
-// Messages Container
 .messages-container {
   flex: 1;
   overflow-y: auto;
@@ -241,7 +235,6 @@
   gap: 16px;
 }
 
-// Message Wrapper
 .message-wrapper {
   display: flex;
   gap: 12px;
@@ -268,7 +261,6 @@
   }
 }
 
-// Message Avatar
 .message-avatar {
   width: 32px;
   height: 32px;
@@ -285,12 +277,10 @@
   }
 
   .message-wrapper.assistant & {
-    background: var(--iconStandartColor);
-    color: colors.$standartWhiteColor;
+    background: var(--backgroundColorCard);
   }
 }
 
-// Message Content
 .message-content {
   display: flex;
   flex-direction: column;
@@ -322,7 +312,6 @@
   }
 }
 
-// Typing Indicator
 .typing-indicator {
   display: flex;
   gap: 4px;
@@ -360,7 +349,6 @@
   }
 }
 
-// Action Buttons
 .action-btn {
   background: colors.$standartGreenColor;
   color: colors.$standartWhiteColor;
@@ -384,7 +372,6 @@
   }
 }
 
-// Suggestions
 .suggestions {
   display: flex;
   flex-wrap: wrap;
@@ -417,13 +404,12 @@
   }
 }
 
-// Input Container
 .input-container {
   padding: 16px;
   background: var(--backgroundColorCard);
   border-top: 1px solid var(--cardBorderColor);
-  flex-shrink: 0; // Prevent container from shrinking
-  min-height: 80px; // Ensure minimum height
+  flex-shrink: 0;
+  min-height: 80px;
 }
 
 .voice-indicator {
@@ -562,7 +548,6 @@
   }
 }
 
-// Responsive Design
 @media (max-width: 480px) {
   .chat-container {
     width: calc(100vw - 24px);
