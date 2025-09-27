@@ -57,45 +57,29 @@ export class DataManagementLLMService {
       .getModels()
       .pipe(
         tap((models) => {
-          console.log(
-            'DataManagementLLMService - received models from backend:',
-            models
-          );
           if (models && models.length > 0) {
             this.availableModels$.next(models);
 
             // Find enabled models first
             const enabledModels = models.filter((m) => m.isEnabled);
-            console.log(
-              'DataManagementLLMService - enabled models:',
-              enabledModels
-            );
 
             // Try to find default enabled model, otherwise take first enabled
             const defaultModel =
               enabledModels.find((m) => m.isDefault) || enabledModels[0];
             if (defaultModel) {
-              console.log(
-                'DataManagementLLMService - setting default model:',
-                defaultModel.modelId
-              );
               this.selectedModelId$.next(defaultModel.modelId);
             } else {
-              console.warn(
-                'DataManagementLLMService - no enabled models available'
-              );
+              this.selectedModelId$.next('');
             }
           } else {
-            console.warn(
-              'DataManagementLLMService - no models received from backend'
-            );
+            this.selectedModelId$.next('');
           }
         }),
         catchError((error) => {
-          console.error('Could not load models from backend:', error);
           this.toastShowService.showError('settings.llm-models.error.load');
           // Set empty array if backend fails
           this.availableModels$.next([]);
+          this.selectedModelId$.next('');
           return of([]);
         })
       )
@@ -117,7 +101,6 @@ export class DataManagementLLMService {
 
     const modelId = this.selectedModelId$.value;
     if (!modelId) {
-      console.error('No model selected');
       return throwError(() => new Error('Please select a model first.'));
     }
 
@@ -157,7 +140,6 @@ export class DataManagementLLMService {
         this.showProgressSpinner.set(false);
         this.isLoading$.next(false);
         this.toastShowService.showError('settings.llm-models.error.communication');
-        console.error('LLM chat error:', error);
         return throwError(() => error);
       })
     );
@@ -175,16 +157,7 @@ export class DataManagementLLMService {
     const models = this.availableModels$.value;
     const model = models.find((m) => m.modelId === modelId && m.isEnabled);
     if (model) {
-      console.log(
-        'DataManagementLLMService - setting current model to:',
-        modelId
-      );
       this.selectedModelId$.next(modelId);
-    } else {
-      console.warn(
-        'DataManagementLLMService - model not found or not enabled:',
-        modelId
-      );
     }
   }
 
@@ -198,7 +171,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not enable model:', error);
         this.toastShowService.showError('settings.llm-models.error.enable');
         throw error;
       })
@@ -211,7 +183,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not disable model:', error);
         this.toastShowService.showError('settings.llm-models.error.disable');
         throw error;
       })
@@ -224,7 +195,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not set default model:', error);
         this.toastShowService.showError('settings.llm-models.error.set-default');
         throw error;
       })
@@ -237,12 +207,10 @@ export class DataManagementLLMService {
 
   clearAllConversations(): void {
     this.conversations.clear();
-    console.log('All conversations cleared');
   }
 
   clearConversation(conversationId: string): void {
     this.conversations.delete(conversationId);
-    console.log(`Conversation ${conversationId} cleared`);
   }
 
   getConversationIds(): string[] {
@@ -266,7 +234,6 @@ export class DataManagementLLMService {
   getUsageStatistics(days = 30): Observable<ILLMUsage> {
     return this.dataLLMService.getUsage(days).pipe(
       catchError((error) => {
-        console.error('Could not fetch usage statistics:', error);
         return of({
           totalCost: 0,
           totalInputTokens: 0,
@@ -322,7 +289,6 @@ export class DataManagementLLMService {
         permissions: decoded.permissions || [],
       };
     } catch (error) {
-      console.warn('Could not extract user context from token:', error);
       return null;
     }
   }
@@ -330,7 +296,6 @@ export class DataManagementLLMService {
   getHelp(): Observable<any> {
     return this.dataLLMService.getHelp().pipe(
       catchError((error) => {
-        console.error('Could not fetch help:', error);
         return of({
           description: 'AI assistant',
           examples: [],
@@ -344,7 +309,6 @@ export class DataManagementLLMService {
   getFunctions(): Observable<any[]> {
     return this.dataLLMService.getFunctions().pipe(
       catchError((error) => {
-        console.error('Could not fetch functions:', error);
         return of([]);
       })
     );
@@ -356,7 +320,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not create model:', error);
         this.toastShowService.showError('settings.llm-models.error.save');
         throw error;
       })
@@ -369,7 +332,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not delete model:', error);
         this.toastShowService.showError('settings.llm-models.error.delete');
         throw error;
       })
@@ -385,7 +347,6 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        console.error('Could not update model:', error);
         this.toastShowService.showError('settings.llm-models.error.save');
         throw error;
       })

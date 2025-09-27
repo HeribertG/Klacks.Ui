@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarDropdownComponent } from './calendar-dropdown.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
+import { of } from 'rxjs';
 
 describe('CalendarDropdownComponent', () => {
   let component: CalendarDropdownComponent;
@@ -33,8 +33,12 @@ describe('CalendarDropdownComponent', () => {
           useValue: mockDataManagementCalendarRulesService,
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+    
+    // Mock the TranslateService after TestBed is configured
+    const translateService = TestBed.inject(TranslateService);
+    spyOn(translateService, 'instant').and.returnValue('Translated Text');
+    spyOn(translateService, 'get').and.returnValue(of('Translated Text'));
   });
 
   beforeEach(() => {

@@ -17,7 +17,9 @@ describe('AbsenceGanttMaskComponent', () => {
     // Mock services or dependencies
     const translateServiceMock = {
       onLangChange: of({}),
-      currentLang: 'en',
+      currentLang: 'de',
+      instant: jasmine.createSpy('instant').and.returnValue('Translated Text'),
+      get: jasmine.createSpy('get').and.returnValue(of('Translated Text'))
     };
     const dataManagementAbsenceGanttServiceMock = {
       absenceList: [], // Mock necessary properties

@@ -96,14 +96,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(takeUntil(this.destroy$))
       .subscribe((isSupported) => {
         if (!isSupported) {
-          console.warn('Speech recognition not supported in this browser');
+          // Speech recognition not supported
         }
       });
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((event) => {
-        console.log('Language changed to:', event.lang);
         this.updateSpeechLanguage(event.lang);
         this.updateWelcomeMessage(event.lang);
 
@@ -120,19 +119,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .getAvailableModels()
       .pipe(takeUntil(this.destroy$))
       .subscribe((models) => {
-        console.log('LLMChatComponent - received models:', models);
         this.availableModels = models.filter((model) => model.isEnabled);
-        console.log(
-          'LLMChatComponent - filtered enabled models:',
-          this.availableModels
-        );
       });
 
     this.llmService
       .getCurrentModelId()
       .pipe(takeUntil(this.destroy$))
       .subscribe((modelId) => {
-        console.log('LLMChatComponent - current model changed to:', modelId);
         this.currentModel = modelId;
       });
   }
@@ -155,7 +148,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.messagesContainer.nativeElement.scrollHeight;
       }
     } catch (err) {
-      console.error('Error scrolling to bottom:', err);
+      // Error scrolling to bottom
     }
   }
 
@@ -201,7 +194,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }, 2000);
       }
     } catch (error: any) {
-      console.error('LLM Chat Error:', error);
 
       let errorContent = '';
       if (error?.error?.message) {
@@ -226,22 +218,13 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async startVoiceInput(): Promise<void> {
-    console.log('startVoiceInput called');
-    console.log('isListening:', this.isListening);
-    console.log(
-      'speechService.isSupported:',
-      this.speechService.isSupported$.value
-    );
 
     if (this.isListening || !this.speechService.isSupported$.value) {
-      console.log('Speech recognition not started - conditions not met');
       return;
     }
 
     try {
-      console.log('Checking microphone permissions...');
       const hasPermission = await this.speechService.requestPermissions();
-      console.log('Microphone permission result:', hasPermission);
 
       if (!hasPermission) {
         alert(
@@ -250,7 +233,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         return;
       }
     } catch (error) {
-      console.error('Error checking microphone permissions:', error);
       alert(
         'Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.'
       );
@@ -261,26 +243,16 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.translateService.currentLang || this.translateService.defaultLang;
     const speechLang = this.getSpeechLanguageCode(currentLang);
 
-    console.log(
-      'App language:',
-      currentLang,
-      'Using speech language:',
-      speechLang
-    );
-
-    console.log('Starting speech recognition...');
     this.isListening = true;
     this.speechService
       .startListening(speechLang)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (text: string) => {
-          console.log('Speech recognition result:', text);
           this.inputText = text;
           this.isListening = false;
         },
         error: (error) => {
-          console.error('Speech recognition error:', error);
           this.isListening = false;
         },
       });
@@ -288,7 +260,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.speechService.errors
       .pipe(takeUntil(this.destroy$))
       .subscribe((error) => {
-        console.error('Speech service error:', error);
         alert(
           'Speech Error: ' +
             error +
@@ -319,7 +290,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   selectModel(modelId: string): void {
-    console.log('Selecting model:', modelId);
     this.llmService.setCurrentModel(modelId);
     this.currentModel = modelId;
     this.showModelDropdown = false;
@@ -437,7 +407,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private updateSpeechLanguage(langCode: string): void {
     const speechLang = this.getSpeechLanguageCode(langCode);
     this.speechService.setLanguage(speechLang);
-    console.log(`Speech recognition language set to: ${speechLang}`);
 
     this.updateLLMLanguage(langCode);
   }
@@ -452,7 +421,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     const llmLanguage = llmLanguageMapping[langCode] || 'German';
     this.llmService.setLanguage(llmLanguage);
-    console.log(`LLM language set to: ${llmLanguage}`);
   }
 
   private getSpeechLanguageCode(langCode: string): string {

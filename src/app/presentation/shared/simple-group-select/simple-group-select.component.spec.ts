@@ -62,6 +62,8 @@ describe('SimpleGroupSelectComponent', () => {
       }
     );
 
+    const translateServiceSpy = jasmine.createSpyObj('TranslateService', ['instant']);
+
     await TestBed.configureTestingModule({
       imports: [
         SimpleGroupSelectComponent,
@@ -75,6 +77,7 @@ describe('SimpleGroupSelectComponent', () => {
         { provide: DataManagementGroupService, useValue: groupServiceSpy },
         { provide: GroupSelectionService, useValue: groupSelectionSpy },
         { provide: WorkplaceStateService, useValue: workplaceStateSpy },
+        { provide: TranslateService, useValue: translateServiceSpy },
       ],
     }).compileComponents();
 
@@ -95,7 +98,7 @@ describe('SimpleGroupSelectComponent', () => {
     ) as jasmine.SpyObj<TranslateService>;
 
     // Setup default translation responses
-    spyOn(translateService, 'instant').and.returnValue('Translated Text');
+    translateService.instant.and.returnValue('Translated Text');
   });
 
   it('should create', () => {

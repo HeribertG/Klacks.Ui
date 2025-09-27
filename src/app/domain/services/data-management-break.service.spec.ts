@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
@@ -25,8 +26,10 @@ describe('DataManagementBreakService', () => {
     const translateSpy = jasmine.createSpyObj('TranslateService', ['get']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientModule, TranslateModule.forRoot()],
+      imports: [TranslateModule.forRoot()],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         DataManagementBreakService,
         { provide: ToastShowService, useValue: toastSpy },
         { provide: DataBreakService, useValue: dataSpy },

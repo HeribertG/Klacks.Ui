@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -18,8 +19,9 @@ describe('DataManagementShiftCutService', () => {
     mockDataShiftCutsService = jasmine.createSpyObj('DataShiftCutsService', ['getCutShiftList', 'addCuts', 'updateCuts']);
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ToastShowService, useValue: mockToastService },
         { provide: NavigationService, useValue: mockNavigationService },
         { provide: DataShiftCutsService, useValue: mockDataShiftCutsService },

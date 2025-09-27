@@ -26,7 +26,6 @@ export class AsideComponent implements OnDestroy {
     this.asideService.isVisible
       .pipe(takeUntil(this.destroy$))
       .subscribe(visible => {
-        console.log('AsideComponent: visibility changed to:', visible);
         this.isVisible = visible;
         
         // Add/remove visible class for CSS transition
@@ -52,9 +51,7 @@ export class AsideComponent implements OnDestroy {
     setTimeout(() => {
       if (this.llmChatComponent) {
         this.llmChatComponent.clearChat();
-        console.log('Chat cleared');
       } else {
-        console.error('LLMChatComponent not found - ViewChild not initialized');
       }
     }, 0);
   }

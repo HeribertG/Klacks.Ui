@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule } from '@angular/common';
 
 import { DeletewindowComponent } from './deletewindow.component';
 import { AttentionGreyComponent } from 'src/app/presentation/icons/attention-icon-grey.component';
@@ -8,27 +10,31 @@ import { AttentionGreyComponent } from 'src/app/presentation/icons/attention-ico
 describe('DeletewindowComponent', () => {
   let component: DeletewindowComponent;
   let fixture: ComponentFixture<DeletewindowComponent>;
-  let translateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'get',
+    const ngbActiveModalSpy = jasmine.createSpyObj('NgbActiveModal', [
+      'close',
+      'dismiss'
     ]);
 
     await TestBed.configureTestingModule({
       imports: [
         DeletewindowComponent,
         TranslateModule.forRoot(),
-        AttentionGreyComponent,
       ],
-      providers: [{ provide: TranslateService, useValue: translateServiceSpy }],
-    }).compileComponents();
+      providers: [
+        { provide: NgbActiveModal, useValue: ngbActiveModalSpy }
+      ],
+    })
+    .overrideComponent(DeletewindowComponent, {
+      set: {
+        imports: [CommonModule, TranslateModule, AttentionGreyComponent]
+      }
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(DeletewindowComponent);
     component = fixture.componentInstance;
-    translateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
   });
 
   it('should create', () => {

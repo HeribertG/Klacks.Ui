@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing'; // HttpClientTestingModule importieren
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataShiftService } from './data-shift.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
@@ -8,8 +9,11 @@ describe('DataShiftService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule], // HttpClientTestingModule hinzufügen
-      providers: [WorkTimeCalculationService] // WorkTimeCalculationService hinzufügen
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        WorkTimeCalculationService
+      ]
     });
     service = TestBed.inject(DataShiftService);
   });
