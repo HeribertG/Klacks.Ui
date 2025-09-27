@@ -72,8 +72,10 @@
             id="provider"
             required
           >
-            @for (provider of availableProviders; track provider) {
-            <option [value]="provider">{{ provider }}</option>
+            @for (provider of availableProviders; track provider.providerId) {
+            <option [value]="provider.providerId">
+              {{ provider.providerName }}
+            </option>
             }
           </select>
         </div>
@@ -87,6 +89,23 @@
             name="description"
             class="form-control"
             id="description"
+          />
+        </div>
+      </div>
+
+      <!-- API Model ID -->
+      <div class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="apiModelId">{{
+            translate.instant("settings.llm-models.api-model-id")
+          }}</label>
+          <input
+            type="text"
+            [(ngModel)]="editingModel.apiModelId"
+            name="apiModelId"
+            class="form-control"
+            id="apiModelId"
+            required
           />
         </div>
       </div>
@@ -126,9 +145,12 @@
       <!-- Cost Configuration -->
       <div class="row-line-modal-inline">
         <div class="model-field">
-          <label for="inputCost">{{
-            translate.instant("settings.llm-models.input-cost")
-          }} (€/1K)</label>
+          <label for="inputCost"
+            >{{
+              translate.instant("settings.llm-models.input-cost")
+            }}
+            (€/1K)</label
+          >
           <input
             type="number"
             [(ngModel)]="editingModel.costPerInputToken"
@@ -141,9 +163,12 @@
           />
         </div>
         <div class="model-field">
-          <label for="outputCost">{{
-            translate.instant("settings.llm-models.output-cost")
-          }} (€/1K)</label>
+          <label for="outputCost"
+            >{{
+              translate.instant("settings.llm-models.output-cost")
+            }}
+            (€/1K)</label
+          >
           <input
             type="number"
             [(ngModel)]="editingModel.costPerOutputToken"
@@ -161,9 +186,10 @@
       @if (isProviderApiKeyEditable()) {
       <div class="row-line-modal-inline">
         <div class="model-field full-width">
-          <label for="apiKey">{{
-            translate.instant("settings.llm-models.api-key")
-          }} <span class="required-marker">*</span></label>
+          <label for="apiKey"
+            >{{ translate.instant("settings.llm-models.api-key") }}
+            <span class="required-marker">*</span></label
+          >
           <input
             type="password"
             [(ngModel)]="providerApiKey"

@@ -15,6 +15,8 @@ import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
+import { DataManagementLLMProviderService } from 'src/app/domain/services/data-management-llm-provider.service';
+import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
@@ -41,12 +43,14 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
 
   private llmService = inject(DataManagementLLMService);
+  private providerService = inject(DataManagementLLMProviderService);
   private toastService = inject(ToastShowService);
   private modalService = inject(NgbModal);
   public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
   models: ILLMModel[] = [];
+  availableProviders: ILLMProvider[] = [];
   isLoading = false;
   editingModel: ILLMModel | null = null;
   private originalModel: ILLMModel | null = null;
@@ -54,10 +58,9 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
   providerApiKey = '';
   isNewModel = false;
 
-  availableProviders = ['openai', 'anthropic', 'google', 'azure', 'local'];
-
   ngOnInit(): void {
     this.loadModels();
+    this.loadProviders();
   }
 
   ngOnDestroy(): void {
@@ -79,6 +82,27 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
           console.error('Error loading LLM models:', error);
           this.toastService.showError('settings.llm-models.error.load-models');
           this.isLoading = false;
+        },
+      });
+  }
+
+  private loadProviders(): void {
+    this.providerService
+      .getProviders()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (providers) => {
+          this.availableProviders = providers.filter(p => p.isEnabled);
+        },
+        error: (error) => {
+          console.error('Error loading providers:', error);
+          // Fallback zu hardcoded Provider-Liste
+          this.availableProviders = [
+            { providerId: 'openai', providerName: 'OpenAI', isEnabled: true } as ILLMProvider,
+            { providerId: 'anthropic', providerName: 'Anthropic', isEnabled: true } as ILLMProvider,
+            { providerId: 'google', providerName: 'Google', isEnabled: true } as ILLMProvider,
+            { providerId: 'deepseek', providerName: 'DeepSeek', isEnabled: true } as ILLMProvider,
+          ];
         },
       });
   }
@@ -217,6 +241,7 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     return !!(
       this.editingModel.modelId &&
       this.editingModel.modelName &&
+      this.editingModel.apiModelId &&
       this.editingModel.providerId &&
       this.editingModel.contextWindow > 0 &&
       this.editingModel.maxTokens > 0 &&
@@ -237,10 +262,17 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
         )
       );
     }
-    if (!this.editingModel.displayName) {
+    if (!this.editingModel.modelName) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.display-name-required'
+        )
+      );
+    }
+    if (!this.editingModel.apiModelId) {
+      errors.push(
+        this.translate.instant(
+          'settings.llm-models.validation.api-model-id-required'
         )
       );
     }

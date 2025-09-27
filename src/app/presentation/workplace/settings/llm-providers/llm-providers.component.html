@@ -106,8 +106,8 @@
 
       <div class="row-line-modal-inline">
         <div class="provider-field full-width">
-          <label for="apiKey"
-            >{{ translate.instant("settings.llm-providers.api-key") }}
+          <label for="apiKey">
+            {{ translate.instant("settings.llm-providers.api-key") }}
             <span class="required-marker">*</span></label
           >
           <input
@@ -126,24 +126,15 @@
       </div>
 
       <div class="row-line-modal-inline">
-        <div class="status-info">
-          <div
-            class="status-badge"
-            [ngClass]="
-              getStatusClass(
-                editingProvider.isEnabled,
-                hasApiKey(editingProvider)
-              )
-            "
+        <div class="checkbox-container">
+          <input
+            type="checkbox"
+            id="isEnabledCheckbox"
+            [(ngModel)]="editingProvider.isEnabled"
+          />
+          <label for="isEnabledCheckbox">
+            {{ translate.instant("settings.llm-providers.is-enabled") }}</label
           >
-            <span class="status-indicator"></span>
-            {{
-              getStatusText(
-                editingProvider.isEnabled,
-                hasApiKey(editingProvider)
-              )
-            }}
-          </div>
         </div>
       </div>
 

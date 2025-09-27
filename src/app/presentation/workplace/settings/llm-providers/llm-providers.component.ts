@@ -105,7 +105,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
     this.originalProvider = provider;
-    this.providerApiKey = '';
+    this.providerApiKey = provider.apiKey || '';
 
     this.modalService.open(this.providerModal, {
       ariaLabelledBy: 'modal-title',
@@ -179,6 +179,8 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
       const newProvider = await this.providerService.createProvider(createRequest);
       if (newProvider) {
         this.onIsChanging(true);
+        // Models neu laden da neuer Provider erstellt wurde
+        this.llmService.reloadModels();
         modal.close();
       }
     } else {
@@ -201,6 +203,8 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
 
       if (updatedProvider) {
         this.onIsChanging(true);
+        // Models neu laden da Provider geändert wurde
+        this.llmService.reloadModels();
         modal.close();
       }
     }

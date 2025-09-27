@@ -286,6 +286,10 @@ export class DataManagementLLMService {
     return this.availableModels$.value.find(m => m.isDefault);
   }
 
+  reloadModels(): void {
+    this.initializeModels();
+  }
+
   private getOrCreateConversation(conversationId: string): IConversation {
     if (!this.conversations.has(conversationId)) {
       this.conversations.set(conversationId, {

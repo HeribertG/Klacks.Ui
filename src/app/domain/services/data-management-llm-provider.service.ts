@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
@@ -129,5 +129,9 @@ export class DataManagementLLMProviderService {
 
   getCurrentProviders(): ILLMProvider[] {
     return this.providersSubject.value;
+  }
+
+  getProviders(): Observable<ILLMProvider[]> {
+    return this.providers$;
   }
 }
