@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -42,7 +43,7 @@ export interface ILLMModel {
   capabilities: string[];
   // Temporary field for API key during creation/update
   providerApiKey?: string;
-  
+
   // Frontend-only display fields (not sent to backend)
   displayName?: string;
   maxOutputTokens?: number;
@@ -98,10 +99,7 @@ export class DataLLMService {
       .pipe(retry(3));
   }
 
-  updateModel(
-    id: string,
-    updates: Partial<ILLMModel>
-  ): Observable<ILLMModel> {
+  updateModel(id: string, updates: Partial<ILLMModel>): Observable<ILLMModel> {
     return this.httpClient
       .put<ILLMModel>(`${this.baseUrl}models/${id}`, updates)
       .pipe(retry(3));
@@ -152,8 +150,6 @@ export class DataLLMService {
   }
 
   deleteModel(id: string): Observable<any> {
-    return this.httpClient
-      .delete(`${this.baseUrl}models/${id}`)
-      .pipe(retry(3));
+    return this.httpClient.delete(`${this.baseUrl}models/${id}`).pipe(retry(3));
   }
 }

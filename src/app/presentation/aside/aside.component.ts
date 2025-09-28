@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, inject, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  inject,
+  ElementRef,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AsideService } from './aside.service';
 import { LLMChatComponent } from './llm-chat/llm-chat.component';
@@ -11,11 +18,16 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './aside.component.html',
   styleUrls: ['./aside.component.scss'],
   standalone: true,
-  imports: [CommonModule, LLMChatComponent, TrashIconRedComponent, TranslateModule],
+  imports: [
+    CommonModule,
+    LLMChatComponent,
+    TrashIconRedComponent,
+    TranslateModule,
+  ],
 })
 export class AsideComponent implements OnDestroy {
   @ViewChild(LLMChatComponent) llmChatComponent!: LLMChatComponent;
-  
+
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
   private renderer = inject(Renderer2);
@@ -25,10 +37,9 @@ export class AsideComponent implements OnDestroy {
   constructor() {
     this.asideService.isVisible
       .pipe(takeUntil(this.destroy$))
-      .subscribe(visible => {
+      .subscribe((visible) => {
         this.isVisible = visible;
-        
-        // Add/remove visible class for CSS transition
+
         if (visible) {
           this.renderer.addClass(this.elementRef.nativeElement, 'visible');
         } else {
@@ -47,11 +58,9 @@ export class AsideComponent implements OnDestroy {
   }
 
   clearChat(): void {
-    // Use setTimeout to ensure ViewChild is initialized
     setTimeout(() => {
       if (this.llmChatComponent) {
         this.llmChatComponent.clearChat();
-      } else {
       }
     }, 0);
   }

@@ -746,5 +746,15 @@
   "llm-chat.start-speech": "Démarrer la reconnaissance vocale",
   "llm-chat.placeholder": "Écrivez ici ou utilisez le microphone...",
   "llm-chat.send-message": "Envoyer le message",
-  "llm-chat.error.generic": "Désolé, une erreur s'est produite. Veuillez réessayer."
+  "llm-chat.error.generic": "Désolé, une erreur s'est produite. Veuillez réessayer.",
+  "llm-chat.error.microphone-permission": "Autorisation de microphone requise! Veuillez autoriser l'accès au microphone dans les paramètres de votre navigateur.",
+  "llm-chat.error.microphone-access": "Erreur d'accès au microphone. Vérifiez les paramètres de votre navigateur.",
+  "llm-chat.error.speech-error": "Erreur de reconnaissance vocale: ",
+  "llm-chat.error.browser-language": "Langue du navigateur: ",
+  "llm-chat.error.available-languages": "Langues disponibles: ",
+  "llm-chat.welcome.content": "👋 Bonjour! Je suis votre Assistant. Je peux vous aider à:\n\n• Créer des employés\n• Chercher des personnes\n• Gérer des contrats\n\nVous pouvez me parler ou taper. Essayez: \"Créer employé Max Muster\"",
+  "llm-chat.welcome.suggestion-1": "Créer un nouvel employé",
+  "llm-chat.welcome.suggestion-2": "Chercher des personnes de Zurich",
+  "llm-chat.welcome.suggestion-3": "Montrez-moi l'aide",
+  "llm-chat.welcome.suggestion-4": "Que pouvez-vous faire?"
 }

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   OnInit,
@@ -28,6 +31,7 @@ import { SpeechRecognitionService } from './services/speech-recognition.service'
 import { Router } from '@angular/router';
 import { IconChatComponent } from '../../icons/icon-chat.component';
 import { IconUserComponent } from '../../icons/icon-user.component';
+import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
 export interface ChatMessage {
   id: string;
@@ -59,6 +63,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private llmService = inject(DataManagementLLMService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
+  private languageMappingService = inject(LanguageMappingService);
   private router = inject(Router);
   private destroy$ = new Subject<void>();
 
@@ -91,14 +96,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit(): void {
     this.conversationId = this.generateConversationId();
-
-    this.speechService.isSupported$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((isSupported) => {
-        if (!isSupported) {
-          // Speech recognition not supported
-        }
-      });
 
     this.translateService.onLangChange
       .pipe(takeUntil(this.destroy$))
@@ -142,13 +139,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private scrollToBottom(): void {
-    try {
-      if (this.messagesContainer) {
-        this.messagesContainer.nativeElement.scrollTop =
-          this.messagesContainer.nativeElement.scrollHeight;
-      }
-    } catch (err) {
-      // Error scrolling to bottom
+    if (this.messagesContainer?.nativeElement) {
+      this.messagesContainer.nativeElement.scrollTop =
+        this.messagesContainer.nativeElement.scrollHeight;
     }
   }
 
@@ -194,7 +187,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }, 2000);
       }
     } catch (error: any) {
-
       let errorContent = '';
       if (error?.error?.message) {
         errorContent = error.error.message;
@@ -218,7 +210,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async startVoiceInput(): Promise<void> {
-
     if (this.isListening || !this.speechService.isSupported$.value) {
       return;
     }
@@ -228,14 +219,12 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
       if (!hasPermission) {
         alert(
-          'Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.'
+          this.translateService.instant('llm-chat.error.microphone-permission')
         );
         return;
       }
-    } catch (error) {
-      alert(
-        'Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.'
-      );
+    } catch {
+      alert(this.translateService.instant('llm-chat.error.microphone-access'));
       return;
     }
 
@@ -252,7 +241,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
           this.inputText = text;
           this.isListening = false;
         },
-        error: (error) => {
+        error: () => {
           this.isListening = false;
         },
       });
@@ -261,11 +250,15 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       .pipe(takeUntil(this.destroy$))
       .subscribe((error) => {
         alert(
-          'Speech Error: ' +
+          this.translateService.instant('llm-chat.error.speech-error') +
             error +
-            '\n\nBrowser-Sprache: ' +
+            '\n\n' +
+            this.translateService.instant('llm-chat.error.browser-language') +
             (navigator.language || 'unknown') +
-            '\nVerfügbare Sprachen: ' +
+            '\n' +
+            this.translateService.instant(
+              'llm-chat.error.available-languages'
+            ) +
             (navigator.languages ? navigator.languages.join(', ') : 'unknown')
         );
       });
@@ -311,72 +304,17 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private addWelcomeMessage(langCode: string): void {
-    const welcomeMessages: { [key: string]: any } = {
-      de: {
-        content:
-          '👋 Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\n' +
-          '• Mitarbeiter zu erstellen\n' +
-          '• Nach Personen zu suchen\n' +
-          '• Verträge zu verwalten\n\n' +
-          'Sie können mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"',
-        suggestions: [
-          'Erstelle einen neuen Mitarbeiter',
-          'Suche nach Personen aus Zürich',
-          'Zeige mir die Hilfe',
-          'Was kannst du alles?',
-        ],
-      },
-      en: {
-        content:
-          '👋 Hello! I am your Assistant. I can help you:\n\n' +
-          '• Create employees\n' +
-          '• Search for people\n' +
-          '• Manage contracts\n\n' +
-          'You can speak to me or type. Try: "Create employee Max Muster"',
-        suggestions: [
-          'Create a new employee',
-          'Search for people from Zurich',
-          'Show me the help',
-          'What can you do?',
-        ],
-      },
-      fr: {
-        content:
-          '👋 Bonjour! Je suis votre Assistant. Je peux vous aider à:\n\n' +
-          '• Créer des employés\n' +
-          '• Chercher des personnes\n' +
-          '• Gérer des contrats\n\n' +
-          'Vous pouvez me parler ou taper. Essayez: "Créer employé Max Muster"',
-        suggestions: [
-          'Créer un nouvel employé',
-          'Chercher des personnes de Zurich',
-          "Montrez-moi l'aide",
-          'Que pouvez-vous faire?',
-        ],
-      },
-      it: {
-        content:
-          '👋 Ciao! Sono il vostro Assistente. Posso aiutarvi a:\n\n' +
-          '• Creare dipendenti\n' +
-          '• Cercare persone\n' +
-          '• Gestire contratti\n\n' +
-          'Potete parlarmi o digitare. Provate: "Crea dipendente Max Muster"',
-        suggestions: [
-          'Crea un nuovo dipendente',
-          'Cerca persone da Zurigo',
-          "Mostrami l'aiuto",
-          'Cosa puoi fare?',
-        ],
-      },
-    };
-
-    const welcomeData = welcomeMessages[langCode] || welcomeMessages['de'];
     const welcomeMessage: ChatMessage = {
       id: this.generateMessageId(),
       sender: 'assistant',
-      content: welcomeData.content,
+      content: this.translateService.instant('llm-chat.welcome.content'),
       timestamp: new Date(),
-      suggestions: welcomeData.suggestions,
+      suggestions: [
+        this.translateService.instant('llm-chat.welcome.suggestion-1'),
+        this.translateService.instant('llm-chat.welcome.suggestion-2'),
+        this.translateService.instant('llm-chat.welcome.suggestion-3'),
+        this.translateService.instant('llm-chat.welcome.suggestion-4'),
+      ],
     };
     this.messages.push(welcomeMessage);
   }
@@ -412,26 +350,11 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private updateLLMLanguage(langCode: string): void {
-    const llmLanguageMapping: { [key: string]: string } = {
-      en: 'English',
-      de: 'German',
-      fr: 'French',
-      it: 'Italian',
-    };
-
-    const llmLanguage = llmLanguageMapping[langCode] || 'German';
-    this.llmService.setLanguage(llmLanguage);
+    this.llmService.setLanguage(langCode);
   }
 
   private getSpeechLanguageCode(langCode: string): string {
-    const languageMapping: { [key: string]: string } = {
-      en: 'en-US',
-      de: 'de-CH',
-      fr: 'fr',
-      it: 'it',
-    };
-
-    return languageMapping[langCode] || 'de-CH';
+    return this.languageMappingService.getSpeechLocale(langCode);
   }
 
   clearChat(): void {

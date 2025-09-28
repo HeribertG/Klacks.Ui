@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
-import { BehaviorSubject } from 'rxjs';
 
-import { SpeechRecognitionService, SpeechRecognitionResult } from './speech-recognition.service';
+import { SpeechRecognitionService } from './speech-recognition.service';
 
 // Mock SpeechRecognition API
 class MockSpeechRecognition {
@@ -9,7 +10,7 @@ class MockSpeechRecognition {
   interimResults = false;
   maxAlternatives = 1;
   lang = 'en-US';
-  
+
   onstart: ((event: any) => void) | null = null;
   onend: ((event: any) => void) | null = null;
   onresult: ((event: any) => void) | null = null;
@@ -48,30 +49,35 @@ xdescribe('SpeechRecognitionService', () => {
   beforeEach(() => {
     // Mock the SpeechRecognition API
     mockRecognition = new MockSpeechRecognition();
-    
-    (window as any).SpeechRecognition = function() { return new MockSpeechRecognition(); };
-    (window as any).webkitSpeechRecognition = function() { return new MockSpeechRecognition(); };
-    
+
+    (window as any).SpeechRecognition = function () {
+      return new MockSpeechRecognition();
+    };
+    (window as any).webkitSpeechRecognition = function () {
+      return new MockSpeechRecognition();
+    };
+
     // Mock secure context
     Object.defineProperty(window, 'isSecureContext', {
       value: true,
-      writable: true
+      writable: true,
     });
 
     // Mock navigator
     Object.defineProperty(navigator, 'language', {
       value: 'de-DE',
-      writable: true
+      writable: true,
     });
 
     Object.defineProperty(navigator, 'languages', {
       value: ['de-DE', 'de', 'en-US'],
-      writable: true
+      writable: true,
     });
 
     Object.defineProperty(navigator, 'userAgent', {
-      value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      writable: true
+      value:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      writable: true,
     });
 
     // Mock MediaDevices
@@ -79,17 +85,17 @@ xdescribe('SpeechRecognitionService', () => {
       value: {
         getUserMedia: jasmine.createSpy('getUserMedia').and.returnValue(
           Promise.resolve({
-            getTracks: () => [{ stop: jasmine.createSpy('stop') }]
+            getTracks: () => [{ stop: jasmine.createSpy('stop') }],
           })
-        )
+        ),
       },
-      writable: true
+      writable: true,
     });
 
     TestBed.configureTestingModule({
-      providers: [SpeechRecognitionService]
+      providers: [SpeechRecognitionService],
     });
-    
+
     service = TestBed.inject(SpeechRecognitionService);
   });
 
@@ -105,7 +111,7 @@ xdescribe('SpeechRecognitionService', () => {
 
   describe('browser support detection', () => {
     it('should detect speech recognition support', (done) => {
-      service.isSupported$.subscribe(isSupported => {
+      service.isSupported$.subscribe((isSupported) => {
         expect(isSupported).toBe(true);
         done();
       });
@@ -117,8 +123,8 @@ xdescribe('SpeechRecognitionService', () => {
       (window as any).webkitSpeechRecognition = undefined;
 
       const serviceWithoutSupport = new SpeechRecognitionService();
-      
-      serviceWithoutSupport.isSupported$.subscribe(isSupported => {
+
+      serviceWithoutSupport.isSupported$.subscribe((isSupported) => {
         expect(isSupported).toBe(false);
       });
     });
@@ -126,12 +132,12 @@ xdescribe('SpeechRecognitionService', () => {
     it('should detect insecure context', () => {
       Object.defineProperty(window, 'isSecureContext', {
         value: false,
-        writable: true
+        writable: true,
       });
 
       const serviceInsecure = new SpeechRecognitionService();
-      
-      serviceInsecure.isSupported$.subscribe(isSupported => {
+
+      serviceInsecure.isSupported$.subscribe((isSupported) => {
         expect(isSupported).toBe(false);
       });
     });
@@ -142,32 +148,34 @@ xdescribe('SpeechRecognitionService', () => {
       // Mock successful speech recognition result
       const mockResults = {
         resultIndex: 0,
-        results: [
-          [{ transcript: 'Hello world', confidence: 0.9 }]
-        ]
+        results: [[{ transcript: 'Hello world', confidence: 0.9 }]],
       };
 
-      const recognitionStartSpy = spyOn(mockRecognition, 'start').and.callFake(() => {
-        setTimeout(() => {
-          if (mockRecognition.onstart) {
-            mockRecognition.onstart({});
-          }
+      const recognitionStartSpy = spyOn(mockRecognition, 'start').and.callFake(
+        () => {
           setTimeout(() => {
-            if (mockRecognition.onresult) {
-              mockRecognition.onresult({
-                ...mockResults,
-                results: [{
-                  0: { transcript: 'Hello world' },
-                  isFinal: true,
-                  length: 1
-                }]
-              });
+            if (mockRecognition.onstart) {
+              mockRecognition.onstart({});
             }
-          }, 50);
-        }, 10);
-      });
+            setTimeout(() => {
+              if (mockRecognition.onresult) {
+                mockRecognition.onresult({
+                  ...mockResults,
+                  results: [
+                    {
+                      0: { transcript: 'Hello world' },
+                      isFinal: true,
+                      length: 1,
+                    },
+                  ],
+                });
+              }
+            }, 50);
+          }, 10);
+        }
+      );
 
-      service.startListening('de-DE').subscribe(result => {
+      service.startListening('de-DE').subscribe((result) => {
         expect(result).toBe('Hello world');
         expect(recognitionStartSpy).toHaveBeenCalled();
         done();
@@ -203,13 +211,13 @@ xdescribe('SpeechRecognitionService', () => {
         setTimeout(() => {
           if (mockRecognition.onerror) {
             mockRecognition.onerror({
-              error: 'no-speech'
+              error: 'no-speech',
             });
           }
         }, 10);
       });
 
-      service.errors.subscribe(error => {
+      service.errors.subscribe((error) => {
         expect(error).toContain('Keine Sprache erkannt');
         done();
       });
@@ -222,13 +230,13 @@ xdescribe('SpeechRecognitionService', () => {
         setTimeout(() => {
           if (mockRecognition.onerror) {
             mockRecognition.onerror({
-              error: 'not-allowed'
+              error: 'not-allowed',
             });
           }
         }, 10);
       });
 
-      service.errors.subscribe(error => {
+      service.errors.subscribe((error) => {
         expect(error).toContain('Mikrofonzugriff verweigert');
         done();
       });
@@ -265,7 +273,7 @@ xdescribe('SpeechRecognitionService', () => {
 
     it('should provide supported languages list', () => {
       const languages = service.getSupportedLanguages();
-      
+
       expect(languages).toContain({ code: 'de-DE', name: 'Deutsch' });
       expect(languages).toContain({ code: 'en-US', name: 'English' });
       expect(languages).toContain({ code: 'fr-FR', name: 'Français' });
@@ -276,8 +284,10 @@ xdescribe('SpeechRecognitionService', () => {
   describe('microphone permissions', () => {
     it('should request and receive microphone permissions', async () => {
       const result = await service.requestPermissions();
-      
-      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
+
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
+        audio: true,
+      });
       expect(result).toBe(true);
     });
 
@@ -287,7 +297,7 @@ xdescribe('SpeechRecognitionService', () => {
       );
 
       const result = await service.requestPermissions();
-      
+
       expect(result).toBe(false);
     });
   });
@@ -295,24 +305,26 @@ xdescribe('SpeechRecognitionService', () => {
   describe('browser-specific handling', () => {
     it('should handle Edge browser specifically', () => {
       Object.defineProperty(navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
-        writable: true
+        value:
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59',
+        writable: true,
       });
 
       const edgeService = new SpeechRecognitionService();
-      
+
       // Should initialize without errors
       expect(edgeService).toBeTruthy();
     });
 
     it('should handle Safari browser', () => {
       Object.defineProperty(navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
-        writable: true
+        value:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+        writable: true,
       });
 
       const safariService = new SpeechRecognitionService();
-      
+
       // Should initialize without errors
       expect(safariService).toBeTruthy();
     });
@@ -324,13 +336,13 @@ xdescribe('SpeechRecognitionService', () => {
         setTimeout(() => {
           if (mockRecognition.onerror) {
             mockRecognition.onerror({
-              error: 'language-not-supported'
+              error: 'language-not-supported',
             });
           }
         }, 10);
       });
 
-      service.errors.subscribe(error => {
+      service.errors.subscribe((error) => {
         expect(error).toContain('Sprache wird nicht unterstützt');
         done();
       });
@@ -343,13 +355,13 @@ xdescribe('SpeechRecognitionService', () => {
         setTimeout(() => {
           if (mockRecognition.onerror) {
             mockRecognition.onerror({
-              error: 'network'
+              error: 'network',
             });
           }
         }, 10);
       });
 
-      service.errors.subscribe(error => {
+      service.errors.subscribe((error) => {
         expect(error).toContain('Netzwerkfehler');
         done();
       });
@@ -366,7 +378,7 @@ xdescribe('SpeechRecognitionService', () => {
         }, 10);
       });
 
-      service.errors.subscribe(error => {
+      service.errors.subscribe((error) => {
         expect(error).toContain('Sprache nicht erkannt');
         done();
       });
@@ -377,9 +389,9 @@ xdescribe('SpeechRecognitionService', () => {
 
   describe('listening state management', () => {
     it('should track listening state', (done) => {
-      let states: boolean[] = [];
+      const states: boolean[] = [];
 
-      service.isListening.subscribe(state => {
+      service.isListening.subscribe((state) => {
         states.push(state);
       });
 
@@ -387,9 +399,9 @@ xdescribe('SpeechRecognitionService', () => {
 
       setTimeout(() => {
         service.stopListening();
-        
+
         setTimeout(() => {
-          expect(states).toContain(true);  // Started listening
+          expect(states).toContain(true); // Started listening
           expect(states).toContain(false); // Stopped listening
           done();
         }, 100);

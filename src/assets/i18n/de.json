@@ -739,5 +739,15 @@
   "llm-chat.start-speech": "Spracherkennung starten",
   "llm-chat.placeholder": "Schreiben Sie hier oder nutzen Sie das Mikrofon...",
   "llm-chat.send-message": "Nachricht senden",
-  "llm-chat.error.generic": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+  "llm-chat.error.generic": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+  "llm-chat.error.microphone-permission": "Mikrofon-Berechtigung erforderlich! Bitte erlauben Sie den Zugriff auf das Mikrofon in den Browser-Einstellungen.",
+  "llm-chat.error.microphone-access": "Fehler beim Zugriff auf das Mikrofon. Überprüfen Sie Ihre Browser-Einstellungen.",
+  "llm-chat.error.speech-error": "Speech Error: ",
+  "llm-chat.error.browser-language": "Browser-Sprache: ",
+  "llm-chat.error.available-languages": "Verfügbare Sprachen: ",
+  "llm-chat.welcome.content": "👋 Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\n• Mitarbeiter zu erstellen\n• Nach Personen zu suchen\n• Verträge zu verwalten\n\nSie können mit mir sprechen oder tippen. Versuchen Sie: \"Erstelle Mitarbeiter Max Muster\"",
+  "llm-chat.welcome.suggestion-1": "Erstelle einen neuen Mitarbeiter",
+  "llm-chat.welcome.suggestion-2": "Suche nach Personen aus Zürich",
+  "llm-chat.welcome.suggestion-3": "Zeige mir die Hilfe",
+  "llm-chat.welcome.suggestion-4": "Was kannst du alles?"
 }

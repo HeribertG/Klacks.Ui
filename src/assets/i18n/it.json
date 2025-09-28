@@ -746,5 +746,15 @@
   "llm-chat.start-speech": "Avvia riconoscimento vocale",
   "llm-chat.placeholder": "Scrivi qui o usa il microfono...",
   "llm-chat.send-message": "Invia messaggio",
-  "llm-chat.error.generic": "Spiacenti, si è verificato un errore. Riprova."
+  "llm-chat.error.generic": "Spiacenti, si è verificato un errore. Riprova.",
+  "llm-chat.error.microphone-permission": "Autorizzazione microfono richiesta! Consenti l'accesso al microfono nelle impostazioni del browser.",
+  "llm-chat.error.microphone-access": "Errore di accesso al microfono. Controlla le impostazioni del browser.",
+  "llm-chat.error.speech-error": "Errore di riconoscimento vocale: ",
+  "llm-chat.error.browser-language": "Lingua del browser: ",
+  "llm-chat.error.available-languages": "Lingue disponibili: ",
+  "llm-chat.welcome.content": "👋 Ciao! Sono il vostro Assistente. Posso aiutarvi a:\n\n• Creare dipendenti\n• Cercare persone\n• Gestire contratti\n\nPotete parlarmi o digitare. Provate: \"Crea dipendente Max Muster\"",
+  "llm-chat.welcome.suggestion-1": "Crea un nuovo dipendente",
+  "llm-chat.welcome.suggestion-2": "Cerca persone da Zurigo",
+  "llm-chat.welcome.suggestion-3": "Mostrami l'aiuto",
+  "llm-chat.welcome.suggestion-4": "Cosa puoi fare?"
 }

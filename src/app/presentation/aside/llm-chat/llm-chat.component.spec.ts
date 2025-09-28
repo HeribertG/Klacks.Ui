@@ -1,13 +1,20 @@
-import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  ComponentFixture,
+  TestBed,
+  fakeAsync,
+  tick,
+} from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService, TranslatePipe } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, of, throwError } from 'rxjs';
 import { Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { LLMChatComponent, ChatMessage } from './llm-chat.component';
+import { LLMChatComponent } from './llm-chat.component';
 import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
@@ -40,7 +47,7 @@ describe('LLMChatComponent', () => {
       maxTokens: 8000,
       contextWindow: 32000,
       providerId: 'openai',
-      capabilities: ['text', 'function-calling']
+      capabilities: ['text', 'function-calling'],
     },
     {
       id: '2',
@@ -53,8 +60,8 @@ describe('LLMChatComponent', () => {
       maxTokens: 4000,
       contextWindow: 16000,
       providerId: 'openai',
-      capabilities: ['text']
-    }
+      capabilities: ['text'],
+    },
   ];
 
   beforeEach(async () => {
@@ -65,19 +72,23 @@ describe('LLMChatComponent', () => {
       'setCurrentModel',
       'getModelInfo',
       'setLanguage',
-      'clearConversation'
+      'clearConversation',
     ]);
 
-    const speechServiceSpy = jasmine.createSpyObj('SpeechRecognitionService', [
-      'startListening',
-      'stopListening',
-      'requestPermissions',
-      'updateLanguage',
-      'setLanguage'
-    ], {
-      isSupported$: new BehaviorSubject(true),
-      errors: new BehaviorSubject('')
-    });
+    const speechServiceSpy = jasmine.createSpyObj(
+      'SpeechRecognitionService',
+      [
+        'startListening',
+        'stopListening',
+        'requestPermissions',
+        'updateLanguage',
+        'setLanguage',
+      ],
+      {
+        isSupported$: new BehaviorSubject(true),
+        errors: new BehaviorSubject(''),
+      }
+    );
 
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -86,28 +97,45 @@ describe('LLMChatComponent', () => {
         LLMChatComponent,
         FontAwesomeModule,
         FormsModule,
-        TranslateModule.forRoot()
+        TranslateModule.forRoot(),
       ],
       providers: [
         { provide: DataManagementLLMService, useValue: llmServiceSpy },
         { provide: SpeechRecognitionService, useValue: speechServiceSpy },
-        { provide: Router, useValue: routerSpy }
-      ]
+        { provide: Router, useValue: routerSpy },
+      ],
     })
-    .overrideComponent(LLMChatComponent, {
-      set: {
-        imports: [CommonModule, FontAwesomeModule, FormsModule, MockTranslatePipe, IconChatComponent]
-      }
-    })
-    .compileComponents();
+      .overrideComponent(LLMChatComponent, {
+        set: {
+          imports: [
+            CommonModule,
+            FontAwesomeModule,
+            FormsModule,
+            MockTranslatePipe,
+            IconChatComponent,
+          ],
+        },
+      })
+      .compileComponents();
 
-    mockLlmService = TestBed.inject(DataManagementLLMService) as jasmine.SpyObj<DataManagementLLMService>;
-    mockSpeechService = TestBed.inject(SpeechRecognitionService) as jasmine.SpyObj<SpeechRecognitionService>;
+    mockLlmService = TestBed.inject(
+      DataManagementLLMService
+    ) as jasmine.SpyObj<DataManagementLLMService>;
+    mockSpeechService = TestBed.inject(
+      SpeechRecognitionService
+    ) as jasmine.SpyObj<SpeechRecognitionService>;
     mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
-    
-    // TranslateService kommt von TranslateModule.forRoot(), also holen wir die echte Instanz
+
     const translateService = TestBed.inject(TranslateService);
-    spyOn(translateService, 'instant').and.returnValue('Error message');
+    spyOn(translateService, 'instant').and.callFake((key: string) => {
+      if (key === 'llm-chat.welcome.content') {
+        return '👋 Hallo! Ich bin Ihr Assistent. Ich kann Ihnen helfen:\n\n• Mitarbeiter zu erstellen\n• Nach Personen zu suchen\n• Verträge zu verwalten\n\nSie können mit mir sprechen oder tippen. Versuchen Sie: "Erstelle Mitarbeiter Max Muster"';
+      }
+      if (key.startsWith('llm-chat.welcome.suggestion-')) {
+        return 'Test suggestion';
+      }
+      return 'Error message';
+    });
     mockTranslateService = translateService as any;
 
     mockLlmService.getAvailableModels.and.returnValue(of(mockModels));
@@ -140,7 +168,7 @@ describe('LLMChatComponent', () => {
 
     // Assert
     expect(mockLlmService.getAvailableModels).toHaveBeenCalled();
-    expect(component.availableModels.length).toBe(1); // Only enabled models
+    expect(component.availableModels.length).toBe(1);
     expect(component.availableModels[0].modelId).toBe('gpt-4');
   });
 
@@ -177,7 +205,7 @@ describe('LLMChatComponent', () => {
         conversationId: component.conversationId,
         suggestions: ['How can I help?'],
         navigateTo: undefined,
-        actionPerformed: false
+        actionPerformed: false,
       };
       mockLlmService.sendMessage.and.returnValue(of(mockResponse));
 
@@ -185,7 +213,10 @@ describe('LLMChatComponent', () => {
       await component.sendMessage();
 
       // Assert
-      expect(mockLlmService.sendMessage).toHaveBeenCalledWith('Hello', component.conversationId);
+      expect(mockLlmService.sendMessage).toHaveBeenCalledWith(
+        'Hello',
+        component.conversationId
+      );
       expect(component.messages.length).toBe(3); // Welcome + User + Assistant
       expect(component.messages[1].content).toBe('Hello');
       expect(component.messages[1].sender).toBe('user');
@@ -217,7 +248,7 @@ describe('LLMChatComponent', () => {
         message: 'Navigating to clients',
         conversationId: component.conversationId,
         navigateTo: '/clients',
-        actionPerformed: true
+        actionPerformed: true,
       };
       mockLlmService.sendMessage.and.returnValue(of(mockResponse));
 
@@ -238,7 +269,9 @@ describe('LLMChatComponent', () => {
     it('should call speech service methods when starting voice input', async () => {
       // Arrange
       component.isListening = false;
-      mockSpeechService.requestPermissions.and.returnValue(Promise.resolve(true));
+      mockSpeechService.requestPermissions.and.returnValue(
+        Promise.resolve(true)
+      );
       mockSpeechService.startListening.and.returnValue(of('Hello from voice'));
 
       // Act
@@ -252,7 +285,9 @@ describe('LLMChatComponent', () => {
 
     it('should not start voice input when permission denied', async () => {
       // Arrange
-      mockSpeechService.requestPermissions.and.returnValue(Promise.resolve(false));
+      mockSpeechService.requestPermissions.and.returnValue(
+        Promise.resolve(false)
+      );
       spyOn(window, 'alert');
 
       // Act
@@ -365,7 +400,9 @@ describe('LLMChatComponent', () => {
       const result = component.formatMessage(content);
 
       // Assert
-      expect(result).toBe('Hello<br><strong>bold</strong> and <em>italic</em> and <code>code</code>');
+      expect(result).toBe(
+        'Hello<br><strong>bold</strong> and <em>italic</em> and <code>code</code>'
+      );
     });
 
     it('should handle Enter key press', () => {
@@ -385,7 +422,10 @@ describe('LLMChatComponent', () => {
     it('should not handle Enter key press with Shift', () => {
       // Arrange
       spyOn(component, 'sendMessage');
-      const event = new KeyboardEvent('keypress', { key: 'Enter', shiftKey: true });
+      const event = new KeyboardEvent('keypress', {
+        key: 'Enter',
+        shiftKey: true,
+      });
       spyOn(event, 'preventDefault');
 
       // Act
@@ -406,7 +446,7 @@ describe('LLMChatComponent', () => {
       // Arrange
       component.messages = [
         { id: '1', sender: 'user', content: 'Hello', timestamp: new Date() },
-        { id: '2', sender: 'assistant', content: 'Hi', timestamp: new Date() }
+        { id: '2', sender: 'assistant', content: 'Hi', timestamp: new Date() },
       ];
       const oldConversationId = component.conversationId;
 
@@ -414,7 +454,9 @@ describe('LLMChatComponent', () => {
       component.clearChat();
 
       // Assert
-      expect(mockLlmService.clearConversation).toHaveBeenCalledWith(oldConversationId);
+      expect(mockLlmService.clearConversation).toHaveBeenCalledWith(
+        oldConversationId
+      );
       expect(component.conversationId).not.toBe(oldConversationId);
       expect(component.messages.length).toBe(1); // Only welcome message
       expect(component.messages[0].sender).toBe('assistant');

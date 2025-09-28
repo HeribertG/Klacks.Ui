@@ -1,7 +1,15 @@
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
 
-import { DataLLMProviderService, ILLMProvider, ICreateProviderRequest, IUpdateProviderRequest } from './data-llm-provider.service';
+import {
+  DataLLMProviderService,
+  ILLMProvider,
+  ICreateProviderRequest,
+  IUpdateProviderRequest,
+} from './data-llm-provider.service';
 import { environment } from 'src/environments/environment';
 
 describe('DataLLMProviderService', () => {
@@ -17,13 +25,13 @@ describe('DataLLMProviderService', () => {
     apiKey: 'test-key',
     baseUrl: 'https://test.com',
     apiVersion: '1.0',
-    priority: 1
+    priority: 1,
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [DataLLMProviderService]
+      providers: [DataLLMProviderService],
     });
     service = TestBed.inject(DataLLMProviderService);
     httpMock = TestBed.inject(HttpTestingController);
@@ -50,19 +58,19 @@ describe('DataLLMProviderService', () => {
           apiKey: 'sk-***',
           baseUrl: 'https://api.openai.com/v1',
           apiVersion: '2023-07-01',
-          priority: 1
+          priority: 1,
         },
         {
           id: '2',
           providerId: 'anthropic',
           providerName: 'Anthropic',
           isEnabled: false,
-          priority: 2
-        }
+          priority: 2,
+        },
       ];
 
       // Act
-      service.getProviders().subscribe(providers => {
+      service.getProviders().subscribe((providers) => {
         // Assert
         expect(providers).toEqual(expectedProviders);
         expect(providers.length).toBe(2);
@@ -82,11 +90,12 @@ describe('DataLLMProviderService', () => {
           // Assert
           expect(error).toBeDefined();
           done();
-        }
+        },
       });
 
       // Assert
-      for (let i = 0; i < 4; i++) { // Initial request + 3 retries
+      for (let i = 0; i < 4; i++) {
+        // Initial request + 3 retries
         const req = httpMock.expectOne(apiUrl);
         req.error(new ProgressEvent('error'));
       }
@@ -104,11 +113,11 @@ describe('DataLLMProviderService', () => {
         isEnabled: true,
         apiKey: 'sk-***',
         baseUrl: 'https://api.openai.com/v1',
-        priority: 1
+        priority: 1,
       };
 
       // Act
-      service.getProvider(providerId).subscribe(provider => {
+      service.getProvider(providerId).subscribe((provider) => {
         // Assert
         expect(provider).toEqual(expectedProvider);
         expect(provider.providerId).toBe('openai');
@@ -131,15 +140,15 @@ describe('DataLLMProviderService', () => {
         baseUrl: 'https://generativelanguage.googleapis.com/v1',
         apiVersion: 'v1',
         isEnabled: true,
-        priority: 3
+        priority: 3,
       };
       const expectedResponse: ILLMProvider = {
         id: '3',
-        ...createRequest
+        ...createRequest,
       };
 
       // Act
-      service.createProvider(createRequest).subscribe(provider => {
+      service.createProvider(createRequest).subscribe((provider) => {
         // Assert
         expect(provider).toEqual(expectedResponse);
         expect(provider.id).toBe('3');
@@ -162,7 +171,7 @@ describe('DataLLMProviderService', () => {
         apiKey: 'new-api-key',
         baseUrl: 'https://new-api.openai.com/v1',
         isEnabled: false,
-        priority: 5
+        priority: 5,
       };
       const expectedResponse: ILLMProvider = {
         id: '1',
@@ -171,16 +180,18 @@ describe('DataLLMProviderService', () => {
         apiKey: 'new-api-key',
         baseUrl: 'https://new-api.openai.com/v1',
         isEnabled: false,
-        priority: 5
+        priority: 5,
       };
 
       // Act
-      service.updateProvider(providerId, updateRequest).subscribe(provider => {
-        // Assert
-        expect(provider).toEqual(expectedResponse);
-        expect(provider.apiKey).toBe('new-api-key');
-        expect(provider.isEnabled).toBe(false);
-      });
+      service
+        .updateProvider(providerId, updateRequest)
+        .subscribe((provider) => {
+          // Assert
+          expect(provider).toEqual(expectedResponse);
+          expect(provider.apiKey).toBe('new-api-key');
+          expect(provider.isEnabled).toBe(false);
+        });
 
       // Assert
       const req = httpMock.expectOne(`${apiUrl}/${providerId}`);
@@ -196,7 +207,7 @@ describe('DataLLMProviderService', () => {
       const providerId = '1';
 
       // Act
-      service.deleteProvider(providerId).subscribe(response => {
+      service.deleteProvider(providerId).subscribe((response) => {
         // Assert
         expect(response).toBeNull(); // Void response returns null
       });
@@ -225,7 +236,7 @@ describe('DataLLMProviderService', () => {
         providerId: 'test',
         providerName: 'Test',
         isEnabled: true,
-        priority: 1
+        priority: 1,
       };
 
       // Act

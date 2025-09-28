@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   OnInit,
@@ -92,16 +93,32 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (providers) => {
-          this.availableProviders = providers.filter(p => p.isEnabled);
+          this.availableProviders = providers.filter((p) => p.isEnabled);
         },
         error: (error) => {
           console.error('Error loading providers:', error);
           // Fallback zu hardcoded Provider-Liste
           this.availableProviders = [
-            { providerId: 'openai', providerName: 'OpenAI', isEnabled: true } as ILLMProvider,
-            { providerId: 'anthropic', providerName: 'Anthropic', isEnabled: true } as ILLMProvider,
-            { providerId: 'google', providerName: 'Google', isEnabled: true } as ILLMProvider,
-            { providerId: 'deepseek', providerName: 'DeepSeek', isEnabled: true } as ILLMProvider,
+            {
+              providerId: 'openai',
+              providerName: 'OpenAI',
+              isEnabled: true,
+            } as ILLMProvider,
+            {
+              providerId: 'anthropic',
+              providerName: 'Anthropic',
+              isEnabled: true,
+            } as ILLMProvider,
+            {
+              providerId: 'google',
+              providerName: 'Google',
+              isEnabled: true,
+            } as ILLMProvider,
+            {
+              providerId: 'deepseek',
+              providerName: 'DeepSeek',
+              isEnabled: true,
+            } as ILLMProvider,
           ];
         },
       });
@@ -154,10 +171,12 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
       if (model) {
         const modalRef = this.modalService.open(DeletewindowComponent, {
           size: 'md',
-          backdrop: 'static'
+          backdrop: 'static',
         });
 
-        modalRef.componentInstance.title = this.translate.instant('settings.llm-models.delete.title');
+        modalRef.componentInstance.title = this.translate.instant(
+          'settings.llm-models.delete.title'
+        );
         modalRef.componentInstance.message = this.translate.instant(
           'settings.llm-models.confirm-delete',
           { name: model.displayName || model.modelName }
@@ -168,7 +187,9 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
             if (result === 'delete') {
               try {
                 if (!model.id) {
-                  this.toastService.showError('settings.llm-models.error.missing-id');
+                  this.toastService.showError(
+                    'settings.llm-models.error.missing-id'
+                  );
                   console.error('Model is missing ID field:', model);
                   return;
                 }
@@ -186,8 +207,7 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
               }
             }
           },
-          () => {
-          }
+          () => {}
         );
       }
     }

@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
-import { DataManagementLLMService, IConversation } from './data-management-llm.service';
-import { DataLLMService, ILLMModel, ILLMChatResponse, ILLMUsage } from 'src/app/infrastructure/api/data-llm.service';
+import { DataManagementLLMService } from './data-management-llm.service';
+import {
+  DataLLMService,
+  ILLMModel,
+  ILLMChatResponse,
+  ILLMUsage,
+} from 'src/app/infrastructure/api/data-llm.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 
 describe('DataManagementLLMService', () => {
@@ -24,7 +30,7 @@ describe('DataManagementLLMService', () => {
       costPerOutputToken: 0.03,
       isEnabled: true,
       isDefault: true,
-      capabilities: ['text', 'function-calling']
+      capabilities: ['text', 'function-calling'],
     },
     {
       id: '2',
@@ -37,8 +43,8 @@ describe('DataManagementLLMService', () => {
       costPerOutputToken: 0.024,
       isEnabled: false,
       isDefault: false,
-      capabilities: ['text']
-    }
+      capabilities: ['text'],
+    },
   ];
 
   beforeEach(() => {
@@ -53,21 +59,22 @@ describe('DataManagementLLMService', () => {
       'getFunctions',
       'createModel',
       'deleteModel',
-      'updateModel'
+      'updateModel',
     ]);
 
     const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
       'showError',
-      'showSuccess'
+      'showSuccess',
     ]);
 
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-      'get'
-    ], {
-      currentLang: 'de'
-    });
-    
+    const translateServiceSpy = jasmine.createSpyObj(
+      'TranslateService',
+      ['instant', 'get'],
+      {
+        currentLang: 'de',
+      }
+    );
+
     translateServiceSpy.get.and.returnValue(of('Translated text'));
 
     TestBed.configureTestingModule({
@@ -75,21 +82,29 @@ describe('DataManagementLLMService', () => {
         DataManagementLLMService,
         { provide: DataLLMService, useValue: dataLLMServiceSpy },
         { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: TranslateService, useValue: translateServiceSpy }
-      ]
+        { provide: TranslateService, useValue: translateServiceSpy },
+      ],
     });
 
     service = TestBed.inject(DataManagementLLMService);
-    mockDataLLMService = TestBed.inject(DataLLMService) as jasmine.SpyObj<DataLLMService>;
-    mockToastService = TestBed.inject(ToastShowService) as jasmine.SpyObj<ToastShowService>;
-    mockTranslateService = TestBed.inject(TranslateService) as jasmine.SpyObj<TranslateService>;
+    mockDataLLMService = TestBed.inject(
+      DataLLMService
+    ) as jasmine.SpyObj<DataLLMService>;
+    mockToastService = TestBed.inject(
+      ToastShowService
+    ) as jasmine.SpyObj<ToastShowService>;
+    mockTranslateService = TestBed.inject(
+      TranslateService
+    ) as jasmine.SpyObj<TranslateService>;
 
     mockDataLLMService.getModels.and.returnValue(of(mockModels));
     // Default mock for chat method to prevent undefined.pipe() errors
-    mockDataLLMService.chat.and.returnValue(of({
-      message: 'Default response',
-      conversationId: 'default-conv'
-    }));
+    mockDataLLMService.chat.and.returnValue(
+      of({
+        message: 'Default response',
+        conversationId: 'default-conv',
+      })
+    );
   });
 
   it('should be created', () => {
@@ -103,8 +118,8 @@ describe('DataManagementLLMService', () => {
 
       // Assert
       expect(mockDataLLMService.getModels).toHaveBeenCalled();
-      
-      service.getAvailableModels().subscribe(models => {
+
+      service.getAvailableModels().subscribe((models) => {
         expect(models).toEqual(mockModels);
       });
     });
@@ -114,22 +129,26 @@ describe('DataManagementLLMService', () => {
       service.initializeLLMModels();
 
       // Assert
-      service.getCurrentModelId().subscribe(modelId => {
+      service.getCurrentModelId().subscribe((modelId) => {
         expect(modelId).toBe('gpt-4'); // Default enabled model
       });
     });
 
     it('should handle model loading error', () => {
       // Arrange
-      mockDataLLMService.getModels.and.returnValue(throwError(() => new Error('API Error')));
+      mockDataLLMService.getModels.and.returnValue(
+        throwError(() => new Error('API Error'))
+      );
 
       // Act
       service.initializeLLMModels();
 
       // Assert
-      expect(mockToastService.showError).toHaveBeenCalledWith('settings.llm-models.error.load');
-      
-      service.getAvailableModels().subscribe(models => {
+      expect(mockToastService.showError).toHaveBeenCalledWith(
+        'settings.llm-models.error.load'
+      );
+
+      service.getAvailableModels().subscribe((models) => {
         expect(models).toEqual([]);
       });
     });
@@ -150,22 +169,22 @@ describe('DataManagementLLMService', () => {
           inputTokens: 10,
           outputTokens: 15,
           totalTokens: 25,
-          cost: 0.001
-        }
+          cost: 0.001,
+        },
       };
       mockDataLLMService.chat.and.returnValue(of(mockResponse));
 
       // Act
-      service.sendMessage('Hello', 'conv-123').subscribe(response => {
+      service.sendMessage('Hello', 'conv-123').subscribe((response) => {
         // Assert
         expect(response).toEqual(mockResponse);
         expect(mockDataLLMService.chat).toHaveBeenCalled();
-        
+
         const conversation = service.getConversation('conv-123');
         expect(conversation).toBeTruthy();
         expect(conversation!.messages.length).toBe(2); // User + Assistant
         expect(conversation!.totalCost).toBe(0.001);
-        
+
         done();
       });
     });
@@ -186,7 +205,7 @@ describe('DataManagementLLMService', () => {
             // Assert
             expect(error.message).toContain('Please select a model first');
             done();
-          }
+          },
         });
       }, 50);
     });
@@ -195,7 +214,9 @@ describe('DataManagementLLMService', () => {
       // Arrange
       service.initializeLLMModels(); // Ensure models are loaded
       setTimeout(() => {
-        mockDataLLMService.chat.and.returnValue(throwError(() => new Error('Chat failed')));
+        mockDataLLMService.chat.and.returnValue(
+          throwError(() => new Error('Chat failed'))
+        );
 
         // Act
         service.sendMessage('Hello').subscribe({
@@ -204,10 +225,12 @@ describe('DataManagementLLMService', () => {
           },
           error: (error) => {
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith('settings.llm-models.error.communication');
+            expect(mockToastService.showError).toHaveBeenCalledWith(
+              'settings.llm-models.error.communication'
+            );
             expect(service.showProgressSpinner()).toBe(false);
             done();
-          }
+          },
         });
       }, 50);
     });
@@ -223,7 +246,7 @@ describe('DataManagementLLMService', () => {
       service.setCurrentModel('gpt-4');
 
       // Assert
-      service.getCurrentModelId().subscribe(modelId => {
+      service.getCurrentModelId().subscribe((modelId) => {
         expect(modelId).toBe('gpt-4');
       });
     });
@@ -233,7 +256,7 @@ describe('DataManagementLLMService', () => {
       service.setCurrentModel('claude-3'); // Disabled model
 
       // Assert
-      service.getCurrentModelId().subscribe(modelId => {
+      service.getCurrentModelId().subscribe((modelId) => {
         expect(modelId).toBe('gpt-4'); // Should remain previous selection
       });
     });
@@ -287,7 +310,9 @@ describe('DataManagementLLMService', () => {
       // Act
       service.setDefaultModel('claude-3').subscribe(() => {
         // Assert
-        expect(mockDataLLMService.setDefaultModel).toHaveBeenCalledWith('claude-3');
+        expect(mockDataLLMService.setDefaultModel).toHaveBeenCalledWith(
+          'claude-3'
+        );
         expect(mockDataLLMService.getModels).toHaveBeenCalled(); // Reinitialize
         done();
       });
@@ -305,12 +330,12 @@ describe('DataManagementLLMService', () => {
         costPerOutputToken: 0.02,
         isEnabled: true,
         isDefault: false,
-        capabilities: ['text']
+        capabilities: ['text'],
       };
       mockDataLLMService.createModel.and.returnValue(of(newModel));
 
       // Act
-      service.createModel(newModel).subscribe(result => {
+      service.createModel(newModel).subscribe((result) => {
         // Assert
         expect(mockDataLLMService.createModel).toHaveBeenCalledWith(newModel);
         expect(result).toEqual(newModel);
@@ -337,9 +362,12 @@ describe('DataManagementLLMService', () => {
       mockDataLLMService.updateModel.and.returnValue(of(updatedModel));
 
       // Act
-      service.updateModel(updatedModel).subscribe(result => {
+      service.updateModel(updatedModel).subscribe((result) => {
         // Assert
-        expect(mockDataLLMService.updateModel).toHaveBeenCalledWith('1', updatedModel);
+        expect(mockDataLLMService.updateModel).toHaveBeenCalledWith(
+          '1',
+          updatedModel
+        );
         expect(result).toEqual(updatedModel);
         done();
       });
@@ -356,7 +384,7 @@ describe('DataManagementLLMService', () => {
           // Assert
           expect(error.message).toContain('Model ID is required for update');
           done();
-        }
+        },
       });
     });
   });
@@ -396,7 +424,7 @@ describe('DataManagementLLMService', () => {
       // Arrange
       const mockResponse: ILLMChatResponse = {
         message: 'Response',
-        conversationId: 'conv-123'
+        conversationId: 'conv-123',
       };
       mockDataLLMService.chat.and.returnValue(of(mockResponse));
 
@@ -414,7 +442,7 @@ describe('DataManagementLLMService', () => {
       // Arrange
       const mockResponse: ILLMChatResponse = {
         message: 'Response',
-        conversationId: 'conv-123'
+        conversationId: 'conv-123',
       };
       mockDataLLMService.chat.and.returnValue(of(mockResponse));
 
@@ -432,10 +460,10 @@ describe('DataManagementLLMService', () => {
                   expect(conversations[0].id).toBe('conv-2');
                   done();
                 }, 50);
-              }
+              },
             });
           }, 50);
-        }
+        },
       });
     });
   });
@@ -444,16 +472,16 @@ describe('DataManagementLLMService', () => {
     it('should get usage statistics', (done) => {
       // Arrange
       const mockUsage: ILLMUsage = {
-        totalCost: 15.50,
+        totalCost: 15.5,
         totalInputTokens: 10000,
         totalOutputTokens: 8000,
         conversationCount: 50,
-        modelBreakdown: []
+        modelBreakdown: [],
       };
       mockDataLLMService.getUsage.and.returnValue(of(mockUsage));
 
       // Act
-      service.getUsageStatistics(7).subscribe(usage => {
+      service.getUsageStatistics(7).subscribe((usage) => {
         // Assert
         expect(mockDataLLMService.getUsage).toHaveBeenCalledWith(7);
         expect(usage).toEqual(mockUsage);
@@ -463,10 +491,12 @@ describe('DataManagementLLMService', () => {
 
     it('should handle usage statistics error', (done) => {
       // Arrange
-      mockDataLLMService.getUsage.and.returnValue(throwError(() => new Error('Failed')));
+      mockDataLLMService.getUsage.and.returnValue(
+        throwError(() => new Error('Failed'))
+      );
 
       // Act
-      service.getUsageStatistics().subscribe(usage => {
+      service.getUsageStatistics().subscribe((usage) => {
         // Assert
         expect(usage.totalCost).toBe(0);
         expect(usage.modelBreakdown).toEqual([]);
@@ -481,7 +511,7 @@ describe('DataManagementLLMService', () => {
       service.setLanguage('en');
 
       // Assert
-      service.getCurrentLanguage().subscribe(lang => {
+      service.getCurrentLanguage().subscribe((lang) => {
         expect(lang).toBe('en');
       });
     });
@@ -492,12 +522,12 @@ describe('DataManagementLLMService', () => {
         description: 'AI Assistant',
         examples: [],
         availableFunctions: [],
-        tips: []
+        tips: [],
       };
       mockDataLLMService.getHelp.and.returnValue(of(mockHelp));
 
       // Act
-      service.getHelp().subscribe(help => {
+      service.getHelp().subscribe((help) => {
         // Assert
         expect(help).toEqual(mockHelp);
         done();
@@ -507,17 +537,17 @@ describe('DataManagementLLMService', () => {
     it('should get functions', (done) => {
       // Arrange
       const mockFunctions = [
-        { 
-          name: 'search', 
+        {
+          name: 'search',
           description: 'Search function',
           parameters: { type: 'object', properties: {} },
-          isAvailable: true
-        }
+          isAvailable: true,
+        },
       ];
       mockDataLLMService.getFunctions.and.returnValue(of(mockFunctions));
 
       // Act
-      service.getFunctions().subscribe(functions => {
+      service.getFunctions().subscribe((functions) => {
         // Assert
         expect(functions).toEqual(mockFunctions);
         done();
@@ -531,12 +561,12 @@ describe('DataManagementLLMService', () => {
       service.initializeLLMModels();
       const mockResponse: ILLMChatResponse = {
         message: 'Response',
-        conversationId: 'conv-123'
+        conversationId: 'conv-123',
       };
-      
-      let loadingStates: boolean[] = [];
-      
-      service.isLoading().subscribe(loading => {
+
+      const loadingStates: boolean[] = [];
+
+      service.isLoading().subscribe((loading) => {
         loadingStates.push(loading);
       });
 
@@ -545,7 +575,7 @@ describe('DataManagementLLMService', () => {
       // Act
       service.sendMessage('Hello').subscribe(() => {
         // Assert
-        expect(loadingStates).toContain(true);  // Started loading
+        expect(loadingStates).toContain(true); // Started loading
         expect(loadingStates).toContain(false); // Finished loading
         done();
       });

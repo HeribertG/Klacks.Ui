@@ -75,7 +75,7 @@ export class DataManagementLLMService {
             this.selectedModelId$.next('');
           }
         }),
-        catchError((error) => {
+        catchError(() => {
           this.toastShowService.showError('settings.llm-models.error.load');
           // Set empty array if backend fails
           this.availableModels$.next([]);
@@ -139,7 +139,9 @@ export class DataManagementLLMService {
       catchError((error) => {
         this.showProgressSpinner.set(false);
         this.isLoading$.next(false);
-        this.toastShowService.showError('settings.llm-models.error.communication');
+        this.toastShowService.showError(
+          'settings.llm-models.error.communication'
+        );
         return throwError(() => error);
       })
     );
@@ -195,7 +197,9 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.set-default');
+        this.toastShowService.showError(
+          'settings.llm-models.error.set-default'
+        );
         throw error;
       })
     );
@@ -233,7 +237,7 @@ export class DataManagementLLMService {
 
   getUsageStatistics(days = 30): Observable<ILLMUsage> {
     return this.dataLLMService.getUsage(days).pipe(
-      catchError((error) => {
+      catchError(() => {
         return of({
           totalCost: 0,
           totalInputTokens: 0,
@@ -250,7 +254,7 @@ export class DataManagementLLMService {
   }
 
   getDefaultModel(): ILLMModel | undefined {
-    return this.availableModels$.value.find(m => m.isDefault);
+    return this.availableModels$.value.find((m) => m.isDefault);
   }
 
   reloadModels(): void {
@@ -288,14 +292,14 @@ export class DataManagementLLMService {
         roles: decoded.roles || [],
         permissions: decoded.permissions || [],
       };
-    } catch (error) {
+    } catch {
       return null;
     }
   }
 
   getHelp(): Observable<any> {
     return this.dataLLMService.getHelp().pipe(
-      catchError((error) => {
+      catchError(() => {
         return of({
           description: 'AI assistant',
           examples: [],
@@ -308,7 +312,7 @@ export class DataManagementLLMService {
 
   getFunctions(): Observable<any[]> {
     return this.dataLLMService.getFunctions().pipe(
-      catchError((error) => {
+      catchError(() => {
         return of([]);
       })
     );
