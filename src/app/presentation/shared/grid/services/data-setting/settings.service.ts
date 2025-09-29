@@ -1,9 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { ClipboardModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 @Injectable()
 export class BaseSettingsService {
+  private gridFonts = inject(GridFontsService);
+
   public zoomSignal = signal<number>(1);
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;
@@ -22,8 +24,6 @@ export class BaseSettingsService {
   rowHeaderIconWith = 20 * this._zoom;
   rowHeaderIconHeight = 20 * this._zoom;
   hasHeader = true;
-
-  constructor(private gridFonts: GridFontsService) {}
 
   get zoom(): number {
     return this._zoom;

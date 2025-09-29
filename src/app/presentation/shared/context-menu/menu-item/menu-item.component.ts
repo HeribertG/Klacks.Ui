@@ -1,12 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  forwardRef,
-  Input,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject } from '@angular/core';
 import { MenuItem } from '../context-menu-class';
 import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
@@ -21,17 +13,15 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule, forwardRef(() => MenuComponent)],
 })
 export class MenuItemComponent {
+  private elementRef = inject(ElementRef);
+  private contextMenuService = inject(ContextMenuService);
+
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;
   @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
   @Input() menuItem: MenuItem | undefined;
   @Output() hasClicked = new EventEmitter<string>();
 
   private myTimer = new Timer();
-
-  constructor(
-    private elementRef: ElementRef,
-    private contextMenuService: ContextMenuService
-  ) {}
 
   onClick(): void {
     if (this.menuItem?.disabled) {

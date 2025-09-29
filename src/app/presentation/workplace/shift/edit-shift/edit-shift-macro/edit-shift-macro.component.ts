@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnDestroy, OnInit, Output, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -36,6 +28,9 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 export class EditShiftMacroComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  dataManagementShiftService = inject(DataManagementShiftService);
+  private translateService = inject(TranslateService);
+
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('macroShiftForm', { static: false }) macroShiftForm:
@@ -47,11 +42,6 @@ export class EditShiftMacroComponent
   private macro: IMacro | undefined;
   macroDescription = '';
   objectForUnsubscribe: Subscription | undefined;
-
-  constructor(
-    public dataManagementShiftService: DataManagementShiftService,
-    private translateService: TranslateService
-  ) {}
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;

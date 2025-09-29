@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
@@ -6,7 +6,8 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   providedIn: 'root',
 })
 export class TranslateStringConstantsService {
-  constructor(private translateService: TranslateService) {}
+  private translateService = inject(TranslateService);
+
 
   public translate() {
     this.translateService.get('UPDATE_NOT_DONE').subscribe((x: string) => {

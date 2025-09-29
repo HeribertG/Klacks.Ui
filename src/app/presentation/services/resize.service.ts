@@ -7,7 +7,7 @@ import { Observable, Subject } from 'rxjs';
 export class ResizeService {
   private resizeSubject: Subject<void> = new Subject<void>();
 
-  constructor(private ngZone: NgZone) {}
+  private ngZone: NgZone = inject(NgZone);
 
   observe(element: HTMLElement): Observable<void> {
     return new Observable((observer) => {

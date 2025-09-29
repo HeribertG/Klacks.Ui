@@ -1,12 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { ModalService, ModalType } from '../modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -47,11 +40,11 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
   private translateService: TranslateService;
 
-  constructor(
-    modalService: ModalService,
-    ngbModal: NgbModal,
-    translateService: TranslateService
-  ) {
+  constructor() {
+    const modalService = inject(ModalService);
+    const ngbModal = inject(NgbModal);
+    const translateService = inject(TranslateService);
+
     this.modalService = modalService;
     this.ngbModal = ngbModal;
     this.translateService = translateService;

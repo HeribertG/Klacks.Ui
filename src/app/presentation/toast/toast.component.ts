@@ -1,4 +1,4 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component, TemplateRef, inject } from '@angular/core';
 import { ToastService } from './toast.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -42,7 +42,8 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
   imports: [CommonModule, FormsModule, NgbToastModule],
 })
 export class ToastsContainerComponent {
-  constructor(public toastService: ToastService) {}
+  toastService = inject(ToastService);
+
 
   calculateRows(text: string): number {
     if (!text || text.length === 0) {

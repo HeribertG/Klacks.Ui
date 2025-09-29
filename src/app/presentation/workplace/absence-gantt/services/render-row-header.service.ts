@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CalendarSettingService } from './calendar-setting.service';
@@ -17,20 +17,18 @@ import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper'
 
 @Injectable()
 export class RenderRowHeaderService {
+  private rowHeaderCanvasManager = inject(RowHeaderCanvasManagerService);
+  private calendarSetting = inject(CalendarSettingService);
+  private scroll = inject(ScrollService);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+  dataManagementBreak = inject(DataManagementBreakService);
+  private renderRowHeaderCell = inject(RenderRowHeaderCellService);
+
   public recFilterIcon!: Rectangle;
   public filterImage: HTMLImageElement | undefined;
 
   public readonly iconSize = 16;
-
-  constructor(
-    private rowHeaderCanvasManager: RowHeaderCanvasManagerService,
-    private calendarSetting: CalendarSettingService,
-    private scroll: ScrollService,
-    private gridColors: GridColorService,
-    private gridFonts: GridFontsService,
-    public dataManagementBreak: DataManagementBreakService,
-    private renderRowHeaderCell: RenderRowHeaderCellService
-  ) {}
 
   public createRuler(): void {
     this.ShapeHeaderCanvasSurface();

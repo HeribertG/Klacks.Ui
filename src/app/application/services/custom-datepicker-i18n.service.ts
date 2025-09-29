@@ -1,12 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { NgbDatepickerI18n, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { LocaleService } from './locale.service';
 
 type SupportedLocales = 'en' | 'de' | 'fr' | 'it';
 
-const I18N_VALUES: {
-  [key in SupportedLocales]: { weekdays: string[]; months: string[] };
-} = {
+const I18N_VALUES: Record<SupportedLocales, { weekdays: string[]; months: string[] }> = {
   en: {
     weekdays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     months: [
@@ -79,9 +77,8 @@ const I18N_VALUES: {
 
 @Injectable()
 export class CustomDatepickerI18n extends NgbDatepickerI18n {
-  constructor(private localeService: LocaleService) {
-    super();
-  }
+  private localeService = inject(LocaleService);
+
 
   getWeekdayShortName(weekday: number): string {
     const locale = this.localeService.getLocale() as SupportedLocales;

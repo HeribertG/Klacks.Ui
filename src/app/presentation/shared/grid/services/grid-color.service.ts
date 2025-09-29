@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import {
   ISetting,
   Setting,
@@ -11,6 +11,8 @@ import { ConstantKeys } from '../constants/constants';
   providedIn: 'root',
 })
 export class GridColorService {
+  private dataSettingsVariousService = inject(DataSettingsVariousService);
+
   public isReset = signal(false);
 
   settingList: ISetting[] = [];
@@ -42,8 +44,6 @@ export class GridColorService {
   private settingListDummy: ISetting[] = [];
 
   private settingsCount = 0;
-
-  constructor(private dataSettingsVariousService: DataSettingsVariousService) {}
 
   areObjectsDirty(): boolean {
     if (this.isSetting_Dirty()) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
@@ -13,6 +13,15 @@ import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper'
 
 @Injectable()
 export class DrawRowHeaderService {
+  scroll = inject(ScrollService);
+  gridColorService = inject(GridColorService);
+  gridFontsService = inject(GridFontsService);
+  calendarSetting = inject(CalendarSettingService);
+  dataManagementBreak = inject(DataManagementBreakService);
+  rowHeaderCanvasManager = inject(RowHeaderCanvasManagerService);
+  private drawRowHeaderCell = inject(RenderRowHeaderCellService);
+  private renderRowHeaderService = inject(RenderRowHeaderService);
+
   public readonly iconSize = 24;
 
   public isBusy = false;
@@ -20,17 +29,6 @@ export class DrawRowHeaderService {
   public isCtrl = false;
 
   private _selectedRow = -1;
-
-  constructor(
-    public scroll: ScrollService,
-    public gridColorService: GridColorService,
-    public gridFontsService: GridFontsService,
-    public calendarSetting: CalendarSettingService,
-    public dataManagementBreak: DataManagementBreakService,
-    public rowHeaderCanvasManager: RowHeaderCanvasManagerService,
-    private drawRowHeaderCell: RenderRowHeaderCellService,
-    private renderRowHeaderService: RenderRowHeaderService
-  ) {}
 
   public set filterImage(image: HTMLImageElement | undefined) {
     this.renderRowHeaderService.filterImage = image;

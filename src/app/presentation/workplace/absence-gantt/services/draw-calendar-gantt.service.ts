@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { Injectable, NgZone, inject } from '@angular/core';
 import { Rectangle } from '../../../shared/grid/classes/geometry';
 import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -17,6 +17,16 @@ import { RenderCalendarGridService } from './render-calendar-grid.service';
 
 @Injectable()
 export class DrawCalendarGanttService {
+  ganttCanvasManager = inject(GanttCanvasManagerService);
+  private renderCalendarGrid = inject(RenderCalendarGridService);
+  private gridColors = inject(GridColorService);
+  private holidayCollection = inject(HolidayCollectionService);
+  private calendarSetting = inject(CalendarSettingService);
+  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
+  private scroll = inject(ScrollService);
+  private zone = inject(NgZone);
+
   public vScrollbarRefreshEvent = new Subject<boolean>();
   public hScrollbarRefreshEvent = new Subject<boolean>();
 
@@ -26,18 +36,6 @@ export class DrawCalendarGanttService {
   private _columns = 365;
   private _isFocused = false;
   private _dragRow = -1;
-
-  constructor(
-    public ganttCanvasManager: GanttCanvasManagerService,
-    private renderCalendarGrid: RenderCalendarGridService,
-    private gridColors: GridColorService,
-    private holidayCollection: HolidayCollectionService,
-    private calendarSetting: CalendarSettingService,
-    private dataManagementBreak: DataManagementBreakService,
-    private dataManagementAbsence: DataManagementAbsenceGanttService,
-    private scroll: ScrollService,
-    private zone: NgZone
-  ) {}
 
   /* #region  render */
 

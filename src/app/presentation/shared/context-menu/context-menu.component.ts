@@ -1,14 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Component,
-  EventEmitter,
-  Input,
-  OnDestroy,
-  OnInit,
-  Output,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation, inject } from '@angular/core';
 import { Menu } from './context-menu-class';
 import { MenuComponent } from './menu/menu.component';
 import { ContextMenuService } from './context-menu.service';
@@ -26,13 +17,13 @@ import { ClickOutsideDirective } from 'src/app/presentation/directives/click-out
   imports: [CommonModule, MenuComponent, ClickOutsideDirective],
 })
 export class ContextMenuComponent implements OnInit, OnDestroy {
+  private contextMenuService = inject(ContextMenuService);
+
   @ViewChild('main', { static: false }) main!: MenuComponent;
   @Input() menuData: Menu = new Menu();
   @Output() hasClicked = new EventEmitter<string[]>();
   private myTimer = new Timer();
   private ngUnsubscribe = new Subject<void>();
-
-  constructor(private contextMenuService: ContextMenuService) {}
 
   rightPanelStyle: any = {};
 

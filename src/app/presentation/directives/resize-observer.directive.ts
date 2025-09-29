@@ -26,7 +26,9 @@ const ro = new ResizeObserver((entries) => {
 export class ResizeObserverDirective implements OnDestroy {
   @Output() resizeElement = new EventEmitter<DOMRectReadOnly>();
 
-  constructor(private el: ElementRef) {
+  private el: ElementRef = inject(ElementRef);
+
+  constructor() {
     const target = this.el.nativeElement;
     entriesMap.set(target, this);
     ro.observe(target);

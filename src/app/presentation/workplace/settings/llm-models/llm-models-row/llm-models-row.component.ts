@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,11 +12,11 @@ import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
   styleUrls: ['./llm-models-row.component.scss'],
 })
 export class LLMModelsRowComponent {
+  translate = inject(TranslateService);
+
   @Input() data!: ILLMModel;
   @Output() editEvent = new EventEmitter<ILLMModel>();
   @Output() isDeleteEvent = new EventEmitter<void>();
-
-  constructor(public translate: TranslateService) {}
 
   onClickEdit(): void {
     this.editEvent.emit(this.data);

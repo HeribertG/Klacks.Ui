@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -10,5 +10,5 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   styleUrls: ['./llm-models-header.component.scss']
 })
 export class LLMModelsHeaderComponent {
-  constructor(public translate: TranslateService) {}
+  translate = inject(TranslateService);
 }

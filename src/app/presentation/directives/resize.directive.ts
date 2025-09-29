@@ -1,21 +1,14 @@
-import {
-  Directive,
-  ElementRef,
-  Output,
-  EventEmitter,
-  OnDestroy,
-  AfterViewInit,
-} from '@angular/core';
+import { Directive, ElementRef, Output, EventEmitter, OnDestroy, AfterViewInit, inject } from '@angular/core';
 
 @Directive({
   selector: '[appResize]',
   standalone: true,
 })
 export class ResizeDirective implements AfterViewInit, OnDestroy {
+  private elementRef = inject(ElementRef);
+
   @Output() resizeElement = new EventEmitter<ResizeObserverEntry[]>();
   private appResizeObserver!: ResizeObserver;
-
-  constructor(private elementRef: ElementRef) {}
 
   ngAfterViewInit() {
     this.appResizeObserver = new ResizeObserver((entries) => {

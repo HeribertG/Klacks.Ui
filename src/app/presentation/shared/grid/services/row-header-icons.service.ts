@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridColorService } from './grid-color.service';
 
@@ -6,7 +6,8 @@ import { GridColorService } from './grid-color.service';
   providedIn: 'root',
 })
 export class RowHeaderIconsService {
-  constructor(private gridColors: GridColorService) {}
+  private gridColors = inject(GridColorService);
+
 
   private _width = 20;
   private _height = 20;

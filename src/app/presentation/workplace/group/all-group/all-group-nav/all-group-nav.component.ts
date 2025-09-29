@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  AfterViewInit,
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,6 +16,9 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
 })
 export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
+  dataManagementGroupService = inject(DataManagementGroupService);
+  private translateService = inject(TranslateService);
+
   @ViewChild('navGroupForm', { static: false }) navGroupForm:
     | NgForm
     | undefined;
@@ -31,10 +28,6 @@ export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private ngUnsubscribe = new Subject<void>();
 
   isComboBoxOpen = false;
-  constructor(
-    public dataManagementGroupService: DataManagementGroupService,
-    private translateService: TranslateService
-  ) {}
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
   }

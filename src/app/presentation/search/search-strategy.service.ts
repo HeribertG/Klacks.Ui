@@ -17,13 +17,13 @@ export class SearchStrategyService {
   private searchStateService = inject(SearchStateService);
   private strategies = new Map<EntityName, IEntitySearchStrategy>();
 
-  constructor(
-    clientStrategy: ClientSearchStrategy,
-    groupStrategy: GroupSearchStrategy,
-    absenceStrategy: AbsenceSearchStrategy,
-    scheduleStrategy: ScheduleSearchStrategy,
-    shiftStrategy: ShiftSearchStrategy
-  ) {
+  constructor() {
+    const clientStrategy = inject(ClientSearchStrategy);
+    const groupStrategy = inject(GroupSearchStrategy);
+    const absenceStrategy = inject(AbsenceSearchStrategy);
+    const scheduleStrategy = inject(ScheduleSearchStrategy);
+    const shiftStrategy = inject(ShiftSearchStrategy);
+
     this.initializeStrategies([
       clientStrategy,
       groupStrategy, 

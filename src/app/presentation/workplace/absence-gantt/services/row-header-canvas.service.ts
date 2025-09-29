@@ -1,9 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CalendarSettingService } from './calendar-setting.service';
 
 @Injectable()
 export class RowHeaderCanvasManagerService {
+  private calendarSetting = inject(CalendarSettingService);
+
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;
   public renderCanvasCtx: CanvasRenderingContext2D | undefined;
@@ -14,8 +16,6 @@ export class RowHeaderCanvasManagerService {
   private _width = 10;
   private _height = 10;
   public pixelRatio = 1;
-
-  constructor(private calendarSetting: CalendarSettingService) {}
 
   public createCanvas(): void {
     this.createMainCanvas();

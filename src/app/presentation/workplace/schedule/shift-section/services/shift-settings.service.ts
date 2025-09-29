@@ -9,6 +9,6 @@ export class ShiftSettingsService extends BaseSettingsService {
   override cellHeaderHeight = 0;
 
   constructor() {
-    super(inject(GridFontsService));
+    super();
   }
 }

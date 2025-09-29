@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SpinnerService } from '../spinner.service';
 import { CommonModule } from '@angular/common';
 import { SpinnerComponent } from '../spinner.component';
@@ -11,6 +11,7 @@ import { SpinnerComponent } from '../spinner.component';
   imports: [CommonModule, SpinnerComponent],
 })
 export class SpinnerWrapperComponent {
+  spinnerService = inject(SpinnerService);
+
   isInit = false;
-  constructor(public spinnerService: SpinnerService) {}
 }
