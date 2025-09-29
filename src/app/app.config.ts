@@ -1,9 +1,6 @@
-import { LOCALE_ID, NgModule } from '@angular/core';
-import { BrowserModule, Title } from '@angular/platform-browser';
-
+import { ApplicationConfig, importProvidersFrom, LOCALE_ID } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-
 import {
   NgbDateParserFormatter,
   NgbDatepickerI18n,
@@ -32,28 +29,19 @@ import {
   CurrencyPipe,
   registerLocaleData,
 } from '@angular/common';
-
 import { FormsModule } from '@angular/forms';
 import { SpinnerModule } from './presentation/spinner/spinner.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-
 import localeDe from '@angular/common/locales/de';
 import localeFr from '@angular/common/locales/fr';
 import localeEn from '@angular/common/locales/en';
 import localeIt from '@angular/common/locales/it';
-import { SearchComponent } from './presentation/search/search.component';
-import { LoginComponent } from './presentation/auth/login/login.component';
-import { ErrorComponent } from './presentation/error/error.component';
 import { LocaleService } from 'src/app/application/services/locale.service';
 import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepicker-i18n.service';
-import { ToastsContainerComponent } from './presentation/toast/toast.component';
-import { GroupSelectComponent } from './presentation/group-select/group-select.component';
-import { NoAccessComponent } from './presentation/no-access/no-access.component';
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
-import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
-import { AsideComponent } from './presentation/aside/aside.component';
+import { Title } from '@angular/platform-browser';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -68,35 +56,10 @@ export function localeFactory(localeService: LocaleService) {
   return localeService.getLocale();
 }
 
-@NgModule({
-  declarations: [AppComponent],
-  bootstrap: [AppComponent],
-  imports: [
-    LoginComponent,
-    SearchComponent,
-    NgbModule,
-    FormsModule,
-    BrowserModule,
-    AppRoutingModule,
-    SpinnerModule,
-    FormsModule,
-    CommonModule,
-    FontAwesomeModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
-    GroupSelectComponent,
-    NoAccessComponent,
-    ErrorComponent,
-    ToastsContainerComponent,
-    KeyboardShortcutDirective,
-    AsideComponent,
-  ],
+export const appConfig: ApplicationConfig = {
   providers: [
+    provideRouter([]),
+    provideHttpClient(withInterceptorsFromDi()),
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     {
@@ -121,7 +84,20 @@ export function localeFactory(localeService: LocaleService) {
       provide: FILTER_STORAGE_TOKEN,
       useClass: SessionStorageService,
     },
-    provideHttpClient(withInterceptorsFromDi()),
-  ],
-})
-export class AppModule {}
+    importProvidersFrom(
+      NgbModule,
+      FormsModule,
+      CommonModule,
+      FontAwesomeModule,
+      SpinnerModule,
+      TranslateModule.forRoot({
+        loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient],
+        },
+      }),
+      AppRoutingModule
+    )
+  ]
+};
