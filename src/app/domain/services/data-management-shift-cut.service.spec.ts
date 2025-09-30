@@ -35,11 +35,12 @@ describe('DataManagementShiftCutService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should implement IManageable interface', () => {
+  it('should implement the necessary interfaces', () => {
     expect(service.save).toBeDefined();
     expect(service.resetData).toBeDefined();
     expect(service.goBack).toBeDefined();
     expect(service.areObjectsDirty).toBeDefined();
+    expect(service.showProgressSpinner).toBeDefined();
   });
 
   describe('goBack', () => {

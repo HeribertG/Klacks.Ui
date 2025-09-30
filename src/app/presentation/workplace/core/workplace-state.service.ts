@@ -7,10 +7,22 @@ import {
   EffectRef,
 } from '@angular/core';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
-import { IManageable, ISpinnable } from './interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable } from './interfaces/common.interfaces';
 import { ManageableServiceFactory } from './manageable-service.factory';
 import { EntityName, RouteName, isValidRouteName } from 'src/app/domain/models/entity-names.enum';
 import { environment } from 'src/environments/environment';
+
+function isSaveable(manager: any): manager is ISaveable {
+  return manager && typeof manager.areObjectsDirty === 'function' && typeof manager.save === 'function';
+}
+
+function isResettable(manager: any): manager is IResettable {
+  return manager && typeof manager.resetData === 'function' && manager.isReset !== undefined;
+}
+
+function isNavigable(manager: any): manager is INavigable {
+  return manager && typeof manager.goBack === 'function';
+}
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +31,7 @@ export class WorkplaceStateService {
   private spinnerService = inject(SpinnerService);
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
-  public activeManager = signal<ISpinnable | null>(null);
+  public activeManager = signal<ILoadable | null>(null);
   private activeRoute = signal<RouteName | string>('');
 
   private static readonly ROUTE_ENTITY_MAP: Record<RouteName, EntityName> = {
@@ -144,8 +156,8 @@ export class WorkplaceStateService {
 
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('areObjectsDirty' in manager) {
-        isDirty = (manager as IManageable).areObjectsDirty();
+      if (isSaveable(manager)) {
+        isDirty = manager.areObjectsDirty();
       } else {
         isDirty = false;
       }
@@ -164,18 +176,17 @@ export class WorkplaceStateService {
   onClickSave(): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('save' in manager) {
-        const manageableManager = manager as IManageable;
-        manageableManager.onSaveCompleted = () => {
+      if (isSaveable(manager)) {
+        manager.onSaveCompleted = () => {
           this._isDisabled.set(false);
           this._isSavedOrReset.set(true);
         };
         this._isDisabled.set(true);
-        manageableManager.save();
+        manager.save();
       } else {
         if (!environment.production) {
           console.warn(
-            'Active manager does not implement IManageable (no save functionality)'
+            'Active manager does not implement ISaveable (no save functionality)'
           );
         }
       }
@@ -189,13 +200,13 @@ export class WorkplaceStateService {
   reset(): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('resetData' in manager) {
-        (manager as IManageable).resetData();
+      if (isResettable(manager)) {
+        manager.resetData();
         this._isSavedOrReset.set(true);
       } else {
         if (!environment.production) {
           console.warn(
-            'Active manager does not implement IManageable (no reset functionality)'
+            'Active manager does not implement IResettable (no reset functionality)'
           );
         }
       }
@@ -209,8 +220,8 @@ export class WorkplaceStateService {
   goBack(): string {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
-      if ('goBack' in manager) {
-        return (manager as IManageable).goBack();
+      if (isNavigable(manager)) {
+        return manager.goBack();
       }
     }
     return '';

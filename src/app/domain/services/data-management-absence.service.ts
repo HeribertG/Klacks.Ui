@@ -13,14 +13,14 @@ import {
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { ISpinnable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementAbsenceService implements ISpinnable {
+export class DataManagementAbsenceService implements ILoadable {
   public dataAbsenceService = inject(DataAbsenceService);
   public toastShowService = inject(ToastShowService);
   private dataLoadFileService = inject(DataLoadFileService);

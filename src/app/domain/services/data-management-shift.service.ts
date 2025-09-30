@@ -25,14 +25,14 @@ import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementShiftService implements IManageable {
+export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable {
   public toastShowService = inject(ToastShowService);
   private navigationService = inject(NavigationService);
   private dataShiftService = inject(DataShiftService);

@@ -44,7 +44,7 @@ import {
 import { EMPTY, Observable, catchError, forkJoin, tap } from 'rxjs';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
@@ -52,7 +52,7 @@ import { IPaginationDataService } from 'src/app/presentation/shared/pagination/p
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementClientService implements IManageable {
+export class DataManagementClientService implements ISaveable, IResettable, ILoadable {
   public dataClientService = inject(DataClientService);
   public toastShowService = inject(ToastShowService);
   public dataSettingsVariousService = inject(DataSettingsVariousService);

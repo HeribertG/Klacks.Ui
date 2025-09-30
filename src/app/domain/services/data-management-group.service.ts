@@ -34,7 +34,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
@@ -42,7 +42,7 @@ import { IPaginationDataService } from 'src/app/presentation/shared/pagination/p
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementGroupService implements IManageable {
+export class DataManagementGroupService implements ISaveable, IResettable, ILoadable, INavigable {
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
   public toastShowService = inject(ToastShowService);

@@ -12,14 +12,14 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ISpinnable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementScheduleService implements ISpinnable {
+export class DataManagementScheduleService implements ILoadable {
   public toastShowService = inject(ToastShowService);
   private dataSchedule = inject(DataScheduleService);
 

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { DataManagementSettingsService } from './data-management-settings.service';
@@ -12,12 +12,13 @@ import { DataManagementContractService } from './data-management-contract.servic
 @Injectable({
   providedIn: 'root',
 })
-export class SettingsManageableWrapperService implements IManageable {
+export class SettingsManageableWrapperService implements ISaveable, IResettable, ILoadable, INavigable {
   private dataManagementSettingsService = inject(DataManagementSettingsService);
   private dataManagementContractService = inject(DataManagementContractService);
 
   public showProgressSpinner = signal(false);
   public onSaveCompleted?: () => void;
+  public isReset = signal(false);
 
   constructor() {
     ManageableServiceRegistry.register(

@@ -1,18 +1,18 @@
 import { Type } from '@angular/core';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { ISpinnable } from './interfaces/manageable.interface';
+import { ILoadable } from './interfaces/common.interfaces';
 
 export class ManageableServiceRegistry {
-  private static registry = new Map<string, Type<ISpinnable>>();
+  private static registry = new Map<string, Type<ILoadable>>();
 
   static register(
     routeId: RouteName | string,
-    serviceToken: Type<ISpinnable>
+    serviceToken: Type<ILoadable>
   ): void {
     this.registry.set(routeId, serviceToken);
   }
 
-  static get(routeId: RouteName | string): Type<ISpinnable> | undefined {
+  static get(routeId: RouteName | string): Type<ILoadable> | undefined {
     return this.registry.get(routeId);
   }
 

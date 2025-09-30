@@ -1,5 +1,5 @@
 import { inject, Injectable, Injector } from '@angular/core';
-import { ISpinnable } from './interfaces/manageable.interface';
+import { ILoadable } from './interfaces/common.interfaces';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -7,7 +7,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 export class ManageableServiceFactory {
   private injector = inject(Injector);
 
-  getService(routeId: RouteName | string): ISpinnable | null {
+  getService(routeId: RouteName | string): ILoadable | null {
     const serviceToken = ManageableServiceRegistry.get(routeId);
 
     if (serviceToken) {

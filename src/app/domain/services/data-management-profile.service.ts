@@ -5,14 +5,14 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { IManageable } from 'src/app/presentation/workplace/core/interfaces/manageable.interface';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementProfileService implements IManageable {
+export class DataManagementProfileService implements ISaveable, IResettable, ILoadable, INavigable {
   public userAdministrationService = inject(UserAdministrationService);
   public toastShowService = inject(ToastShowService);
   private localStorageService = inject(LocalStorageService);
