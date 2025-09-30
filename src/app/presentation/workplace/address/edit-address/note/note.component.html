@@ -9,14 +9,14 @@
 
     @if (!isDisabled()) {
     <div>
-      @if (dataManagementClientService.editClientDeleted === false) {
+      @if (dataManagementClientService.editClientDeleted() === false) {
       <app-button-new
         placement="top"
         (click)="newAnnotation()"
         ngbTooltip="{{ note_new }}"
       >
       </app-button-new>
-      } @if (dataManagementClientService.editClientDeleted === false) {
+      } @if (dataManagementClientService.editClientDeleted() === false) {
       <div
         class="btn dropdown-toggle ownStyle-button"
         role="button"
@@ -32,8 +32,8 @@
         aria-labelledby="dropdownMenuDel"
       >
         <li>
-          @if (dataManagementClientService.editClient !== undefined &&
-          dataManagementClientService.currentAnnotationIndex > -1) {
+          @if (dataManagementClientService.editClient() !== undefined &&
+          dataManagementClientService.currentAnnotationIndex() > -1) {
           <a class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
             <div class="custom-control-inline" style="height: 25px">
               <app-icon-trash-red></app-icon-trash-red>
@@ -45,8 +45,8 @@
           }
         </li>
         <li>
-          @if (dataManagementClientService.editClient !== undefined &&
-          dataManagementClientService.currentAnnotationIndex === -1) {
+          @if (dataManagementClientService.editClient() !== undefined &&
+          dataManagementClientService.currentAnnotationIndex() === -1) {
           <a class="dropdown-item disabled">
             <div class="custom-control-inline" style="height: 25px">
               <app-icon-trash-light-red></app-icon-trash-light-red>
@@ -71,17 +71,17 @@
   </div>
   <div class="container-line"></div>
   <div [ngStyle]="{ display: visibleTable }">
-    @if (dataManagementClientService.editClient?.annotations) {
+    @if (dataManagementClientService.editClient()?.annotations) {
     <div class="container-main">
-      @for (annotation of dataManagementClientService.editClient?.annotations ||
+      @for (annotation of dataManagementClientService.editClient()?.annotations ||
       []; track annotation; let i = $index) {
       <div class="row-line">
         <button
           [ngClass]="{
             'container-box':
-              dataManagementClientService.currentAnnotationIndex !== i,
+              dataManagementClientService.currentAnnotationIndex() !== i,
             'container-box-focus':
-              dataManagementClientService.currentAnnotationIndex === i
+              dataManagementClientService.currentAnnotationIndex() === i
           }"
           (click)="onFocus(i)"
         >

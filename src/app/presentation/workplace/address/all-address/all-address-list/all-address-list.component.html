@@ -12,7 +12,7 @@
         {{ "new-address" | translate }}
       </button>
     </div>
-    } @if (!(dataManagementClientService.headerCheckBoxValue ||
+    } @if (!(dataManagementClientService.headerCheckBoxValue() ||
     checkBoxIndeterminate)) {
     <div>
       <button
@@ -23,7 +23,7 @@
         <app-excel-icon></app-excel-icon>
       </button>
     </div>
-    } @if (dataManagementClientService.headerCheckBoxValue ||
+    } @if (dataManagementClientService.headerCheckBoxValue() ||
     checkBoxIndeterminate) {
     <div>
       <div
@@ -41,7 +41,7 @@
   </div>
 
   <div class="container-subline">
-    {{ dataManagementClientService.subTitleLastChangesAllAddress }}
+    {{ dataManagementClientService.subTitleLastChangesAllAddress() }}
   </div>
 
   <div class="container-line"></div>
@@ -55,7 +55,7 @@
       appResizeTable
       #resizeDirective="resizeTable"
       [defaultItemsPerPage]="dataManagementClientService.currentFilter.numberOfItemsPerPage"
-      [maxItems]="dataManagementClientService.paginationDataService?.maxItems || 0"
+      [maxItems]="dataManagementClientService.paginationDataService()?.maxItems || 0"
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (recalculateRequired)="onRecalculateRequired($event)"
@@ -65,7 +65,7 @@
           <th class="table-header" style="width: 40px; max-width: 40px">
             <input
               type="checkbox"
-              [(ngModel)]="dataManagementClientService.headerCheckBoxValue"
+              [(ngModel)]="headerCheckBoxValue"
               (change)="onChangeHeaderCheckBox()"
               [indeterminate]="checkBoxIndeterminate"
               name="headerCheckBoxValue"
@@ -150,7 +150,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (data of dataManagementClientService.listWrapper?.clients; track
+        @for (data of dataManagementClientService.listWrapper()?.clients; track
         data.id; let i = $index) {
         <tr
           class="table-row"
@@ -228,9 +228,9 @@
     </table>
   </div>
 
-  @if (dataManagementClientService.paginationDataService) {
+  @if (dataManagementClientService.paginationDataService()) {
   <app-pagination
-    [dataService]="dataManagementClientService.paginationDataService"
+    [dataService]="dataManagementClientService.paginationDataService()!"
     [(page)]="page"
     [numberOfItemsPerPage]="
       dataManagementClientService.currentFilter.numberOfItemsPerPage

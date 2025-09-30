@@ -7,7 +7,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';

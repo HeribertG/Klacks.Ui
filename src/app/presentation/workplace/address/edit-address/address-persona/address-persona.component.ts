@@ -24,7 +24,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { Address, ICommunication } from 'src/app/domain/models/client-class';
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import {
   formatPhoneNumber,
   transformDateToNgbDateStruct,
@@ -117,15 +117,15 @@ export class AddressPersonaComponent
       if (this.clientForm!.dirty === true) {
         setTimeout(() => this.isChangingEvent.emit(true), 100);
 
-        if (!this.dataManagementClientService.editClient!.id) {
+        if (!this.dataManagementClientService.editClient()?.id) {
           setTimeout(() => this.dataManagementClientService.findClients(), 100);
         }
       }
     });
 
     if (
-      this.dataManagementClientService.editClient &&
-      this.dataManagementClientService.editClient.legalEntity
+      this.dataManagementClientService.editClient() &&
+      this.dataManagementClientService.editClient()?.legalEntity
     ) {
       const ele = document.getElementById(
         'profile-company'
@@ -181,7 +181,7 @@ export class AddressPersonaComponent
 
   isDisabled(): boolean {
     return (
-      this.dataManagementClientService.editClientDeleted ||
+      this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
   }
@@ -191,15 +191,15 @@ export class AddressPersonaComponent
   }
 
   private setEnvironmentVariable() {
-    if (this.dataManagementClientService.editClient?.maidenName) {
+    if (this.dataManagementClientService.editClient()?.maidenName) {
       this.addNameLine2 = true;
     }
 
-    if (this.dataManagementClientService.editClient?.secondName) {
+    if (this.dataManagementClientService.editClient()?.secondName) {
       this.addFirstNameLine2 = true;
     }
 
-    if (this.dataManagementClientService.editClient?.secondName) {
+    if (this.dataManagementClientService.editClient()?.secondName) {
       this.addFirstNameLine2 = true;
     }
 
@@ -207,18 +207,18 @@ export class AddressPersonaComponent
   }
 
   assemblyAddress(index: number) {
-    if (this.dataManagementClientService.editClient?.addresses[index].street2) {
+    if (this.dataManagementClientService.editClient()?.addresses[index].street2) {
       if (
-        this.dataManagementClientService.editClient.addresses[index].street2 !==
+        this.dataManagementClientService.editClient()!.addresses[index].street2 !==
         ''
       ) {
         this.addStreetLine2 = true;
       }
     }
 
-    if (this.dataManagementClientService.editClient?.addresses[index].street3) {
+    if (this.dataManagementClientService.editClient()?.addresses[index].street3) {
       if (
-        this.dataManagementClientService.editClient.addresses[index].street3 !==
+        this.dataManagementClientService.editClient()!.addresses[index].street3 !==
         ''
       ) {
         this.addStreetLine3 = true;
@@ -231,9 +231,9 @@ export class AddressPersonaComponent
 
     if (value) {
       const tmp =
-        this.dataManagementClientService.communicationPhoneList[index];
+        this.dataManagementClientService.communicationPhoneList()[index];
       let data =
-        this.dataManagementClientService.editClient!.communications.find(
+        this.dataManagementClientService.editClient()!.communications.find(
           (x) => x.internalId === tmp.internalId
         );
 
@@ -243,7 +243,7 @@ export class AddressPersonaComponent
         data.index = index;
         data.type = 0;
         data.isPhone = true;
-        this.dataManagementClientService.editClient!.communications.push(data);
+        this.dataManagementClientService.editClient()!.communications.push(data);
       }
 
       data.type = +value;
@@ -256,9 +256,9 @@ export class AddressPersonaComponent
     const value = event.currentTarget.value;
     if (value) {
       const tmp =
-        this.dataManagementClientService.communicationPhoneList[index];
+        this.dataManagementClientService.communicationPhoneList()[index];
       let data =
-        this.dataManagementClientService.editClient!.communications.find(
+        this.dataManagementClientService.editClient()!.communications.find(
           (x) => x.internalId === tmp.internalId
         );
 
@@ -268,7 +268,7 @@ export class AddressPersonaComponent
         data.index = index;
         data.type = 0;
         data.isPhone = true;
-        this.dataManagementClientService.editClient!.communications.push(data);
+        this.dataManagementClientService.editClient()!.communications.push(data);
       }
 
       data.prefix = value;
@@ -287,9 +287,9 @@ export class AddressPersonaComponent
       this.isPhoneValueSeals = false;
 
       const tmp =
-        this.dataManagementClientService.communicationPhoneList[index];
+        this.dataManagementClientService.communicationPhoneList()[index];
       let data =
-        this.dataManagementClientService.editClient!.communications.find(
+        this.dataManagementClientService.editClient()!.communications.find(
           (x) => x.internalId === tmp.internalId
         );
 
@@ -298,7 +298,7 @@ export class AddressPersonaComponent
         data.internalId = createStringId();
         data.index = index;
         data.isPhone = true;
-        this.dataManagementClientService.editClient!.communications.push(data);
+        this.dataManagementClientService.editClient()!.communications.push(data);
       }
 
       data.value = value;
@@ -317,9 +317,9 @@ export class AddressPersonaComponent
     const value = event.currentTarget.value;
     if (value) {
       const tmp =
-        this.dataManagementClientService.communicationEmailList[index];
+        this.dataManagementClientService.communicationEmailList()[index];
       let data =
-        this.dataManagementClientService.editClient!.communications.find(
+        this.dataManagementClientService.editClient()!.communications.find(
           (x) => x.internalId === tmp.internalId
         );
 
@@ -328,7 +328,7 @@ export class AddressPersonaComponent
         data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
-        this.dataManagementClientService.editClient!.communications.push(data);
+        this.dataManagementClientService.editClient()!.communications.push(data);
       }
 
       data.value = value;
@@ -342,9 +342,9 @@ export class AddressPersonaComponent
 
     if (value) {
       const tmp =
-        this.dataManagementClientService.communicationEmailList[index];
+        this.dataManagementClientService.communicationEmailList()[index];
       let data =
-        this.dataManagementClientService.editClient!.communications.find(
+        this.dataManagementClientService.editClient()!.communications.find(
           (x) => x.internalId === tmp.internalId
         );
 
@@ -353,7 +353,7 @@ export class AddressPersonaComponent
         data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
-        this.dataManagementClientService.editClient!.communications.push(data);
+        this.dataManagementClientService.editClient()!.communications.push(data);
       }
 
       data.type = +value;
@@ -399,14 +399,14 @@ export class AddressPersonaComponent
 
   openAddressType(content: any) {
     const tmpDate = new Date(
-      this.dataManagementClientService.editClient!.addresses[
-        this.dataManagementClientService.currentAddressIndex
+      this.dataManagementClientService.editClient()!.addresses[
+        this.dataManagementClientService.currentAddressIndex()
       ].validFrom
     );
-    this.editClientType = +this.dataManagementClientService.editClient!.type;
+    this.editClientType = +this.dataManagementClientService.editClient()!.type;
     this.addressType =
-      +this.dataManagementClientService.editClient!.addresses[
-        this.dataManagementClientService.currentAddressIndex
+      +this.dataManagementClientService.editClient()!.addresses[
+        this.dataManagementClientService.currentAddressIndex()
       ].type;
 
     this.addressValidFrom = transformDateToNgbDateStruct(tmpDate);
@@ -419,19 +419,19 @@ export class AddressPersonaComponent
       })
       .result.then(
         () => {
-          this.dataManagementClientService.editClient!.addresses[
-            this.dataManagementClientService.currentAddressIndex
+          this.dataManagementClientService.editClient()!.addresses[
+            this.dataManagementClientService.currentAddressIndex()
           ].validFrom = transformNgbDateStructToDate(this.addressValidFrom)!;
 
           const clientType = +this.editClientType;
 
-          this.dataManagementClientService.editClient!.type = clientType;
-          this.dataManagementClientService.editClient!.addresses[
-            this.dataManagementClientService.currentAddressIndex
+          this.dataManagementClientService.editClient()!.type = clientType;
+          this.dataManagementClientService.editClient()!.addresses[
+            this.dataManagementClientService.currentAddressIndex()
           ].type = +this.addressType;
 
           this.dataManagementClientService.prepareClient(
-            this.dataManagementClientService.editClient!,
+            this.dataManagementClientService.editClient()!,
             true
           );
 
@@ -443,8 +443,8 @@ export class AddressPersonaComponent
 
   openNewAddress(content: any) {
     this.newAddressType =
-      +this.dataManagementClientService.editClient!.addresses[
-        this.dataManagementClientService.currentAddressIndex
+      +this.dataManagementClientService.editClient()!.addresses[
+        this.dataManagementClientService.currentAddressIndex()
       ].type;
     this.newAddressValidFrom = transformDateToNgbDateStruct(new Date())!;
 
@@ -461,9 +461,9 @@ export class AddressPersonaComponent
           c.type = this.newAddressType;
           c.validFrom = transformNgbDateStructToDate(this.newAddressValidFrom)!;
 
-          this.dataManagementClientService.editClient!.addresses.push(c);
-          this.dataManagementClientService.currentAddressIndex =
-            this.dataManagementClientService.editClient!.addresses.length - 1;
+          this.dataManagementClientService.editClient()!.addresses.push(c);
+          this.dataManagementClientService.clientEditService.currentAddressIndex.set(
+            this.dataManagementClientService.editClient()!.addresses.length - 1);
 
           this.isChangingEvent.emit(true);
         },
@@ -502,7 +502,7 @@ export class AddressPersonaComponent
   }
 
   onChangingAddress(event: any) {
-    const address = this.dataManagementClientService.editClient!.addresses.find(
+    const address = this.dataManagementClientService.editClient()!.addresses.find(
       (x) => x.id === event.toString()
     );
 
@@ -512,10 +512,10 @@ export class AddressPersonaComponent
     }
   }
   choseCorrectState(): string {
-    if (this.dataManagementClientService.editClient) {
+    if (this.dataManagementClientService.editClient()) {
       const country =
-        this.dataManagementClientService.editClient!.addresses[
-          this.dataManagementClientService.currentAddressIndex
+        this.dataManagementClientService.editClient()!.addresses[
+          this.dataManagementClientService.currentAddressIndex()
         ].country;
 
       return 'address.all-address.all-address-persona.choose-' + country;

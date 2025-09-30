@@ -18,7 +18,7 @@ import {
   HeaderDirection,
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
@@ -106,6 +106,8 @@ export class AllAddressListComponent
   public sortOrder = 'asc';
   public statusHeader: HeaderProperties = new HeaderProperties();
 
+  public headerCheckBoxValue = false;
+
   // Private properties
   private effects: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
@@ -175,7 +177,7 @@ export class AllAddressListComponent
     try {
       const isChecked = value.currentTarget.checked;
       const tmpClient =
-        this.dataManagementClientService.listWrapper!.clients[i];
+        this.dataManagementClientService.listWrapper()!.clients[i];
       const tmpCheckBoxValue =
         this.dataManagementClientService.findCheckBoxValue(tmpClient.id!);
 
@@ -194,6 +196,7 @@ export class AllAddressListComponent
   }
 
   onChangeHeaderCheckBox(): void {
+    this.dataManagementClientService.clientListService.headerCheckBoxValue.set(this.headerCheckBoxValue);
     this.dataManagementClientService.clearCheckedArray();
   }
 
@@ -224,7 +227,7 @@ export class AllAddressListComponent
 
   onClickExportExcel(index: number): void {
     if (
-      this.dataManagementClientService.headerCheckBoxValue ||
+      this.dataManagementClientService.headerCheckBoxValue() ||
       this.checkBoxIndeterminate
     ) {
       this.dataManagementClientService.exportExcel(index);
@@ -241,8 +244,6 @@ export class AllAddressListComponent
         sortOrder = 'asc';
       } else if (this.firstNameHeader.order === HeaderDirection.Up) {
         sortOrder = 'desc';
-      } else {
-        sortOrder = '';
       }
     } else if (orderBy === 'idNumber') {
       this.numberHeader.DirectionSwitch();
@@ -251,8 +252,6 @@ export class AllAddressListComponent
         sortOrder = 'asc';
       } else if (this.numberHeader.order === HeaderDirection.Up) {
         sortOrder = 'desc';
-      } else {
-        sortOrder = '';
       }
     } else if (orderBy === 'company') {
       this.companyHeader.DirectionSwitch();
@@ -261,8 +260,6 @@ export class AllAddressListComponent
         sortOrder = 'asc';
       } else if (this.companyHeader.order === HeaderDirection.Up) {
         sortOrder = 'desc';
-      } else {
-        sortOrder = '';
       }
     } else if (orderBy === 'name') {
       this.nameHeader.DirectionSwitch();
@@ -271,8 +268,6 @@ export class AllAddressListComponent
         sortOrder = 'asc';
       } else if (this.nameHeader.order === HeaderDirection.Up) {
         sortOrder = 'desc';
-      } else {
-        sortOrder = '';
       }
     } else if (orderBy === 'status') {
       this.statusHeader.DirectionSwitch();
@@ -281,8 +276,6 @@ export class AllAddressListComponent
         sortOrder = 'asc';
       } else if (this.statusHeader.order === HeaderDirection.Up) {
         sortOrder = 'desc';
-      } else {
-        sortOrder = '';
       }
     }
 
@@ -342,11 +335,11 @@ export class AllAddressListComponent
       }
 
       this.firstItemOnLastPage =
-        this.dataManagementClientService.paginationDataService?.firstItem;
+        this.dataManagementClientService.paginationDataService()?.firstItem;
     } else if (event === this.page - 1) {
       this.isPreviousPage = true;
       this.firstItemOnLastPage =
-        this.dataManagementClientService.paginationDataService?.firstItem;
+        this.dataManagementClientService.paginationDataService()?.firstItem;
     }
     this.page = event;
     setTimeout(() => {
@@ -375,11 +368,11 @@ export class AllAddressListComponent
   checkBoxValue(i: number): boolean {
     try {
       const tmpClient =
-        this.dataManagementClientService.listWrapper!.clients[i];
+        this.dataManagementClientService.listWrapper()!.clients[i];
       const tmpCheckBoxValue =
         this.dataManagementClientService.findCheckBoxValue(tmpClient.id!);
 
-      if (this.dataManagementClientService.headerCheckBoxValue === true) {
+      if (this.dataManagementClientService.headerCheckBoxValue() === true) {
         if (tmpCheckBoxValue) {
           return tmpCheckBoxValue.checked;
         }

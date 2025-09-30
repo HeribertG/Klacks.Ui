@@ -3,17 +3,17 @@
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <form #navClientForm="ngForm">
   <ul class="list-group">
-    @if (dataManagementClientService.editClient) { @if
+    @if (dataManagementClientService.editClient()) { @if
     (dataManagementClientService &&
-    dataManagementClientService.editClient.hasScopeAddress) {
+    dataManagementClientService.editClient()!.hasScopeAddress) {
     <li class="list-group-item-action">
       <div class="form-group">
         <label>{{
           "address.edit-address.nav.active-addresses" | translate
         }}</label>
 
-        @if (!dataManagementClientService.editClientDeleted) { @for (c of
-        dataManagementClientService.editClient.addresses; track c.id; let i =
+        @if (!dataManagementClientService.editClientDeleted()) { @for (c of
+        dataManagementClientService.editClient()!.addresses; track c.id; let i =
         $index) { @if (c.isScoped) {
         <div>
           <button
@@ -21,9 +21,9 @@
             class="btn btn-sm max-width"
             [ngClass]="{
               'btn-primary':
-                i === dataManagementClientService.currentAddressIndex,
+                i === dataManagementClientService.currentAddressIndex(),
               'btn-outline-primary':
-                i !== dataManagementClientService.currentAddressIndex
+                i !== dataManagementClientService.currentAddressIndex()
             }"
             (click)="onClickAddressArray(i)"
             [value]="c.id"
@@ -39,19 +39,19 @@
       </div>
     </li>
     } @if (dataManagementClientService &&
-    dataManagementClientService.editClient.hasFutureAddress) {
+    dataManagementClientService.editClient()!.hasFutureAddress) {
     <li class="list-group-item-action">
       <div class="form-group">
         <label>{{ "ADDRESS_FUTURE" | translate }}</label>
 
-        @if (!dataManagementClientService.editClientDeleted) { @for (c of
-        dataManagementClientService.editClient.addresses; track c.id; let i =
+        @if (!dataManagementClientService.editClientDeleted()) { @for (c of
+        dataManagementClientService.editClient()!.addresses; track c.id; let i =
         $index) { @if (c.isFuture) {
         <div>
           <button
             class="btn btn-sm btn-outline-info max-width"
             [ngClass]="{
-              'btn-info': i === dataManagementClientService.currentAddressIndex
+              'btn-info': i === dataManagementClientService.currentAddressIndex()
             }"
             (click)="onClickAddressArray(i)"
             [value]="c.id"
@@ -67,15 +67,15 @@
       </div>
     </li>
     } @if (dataManagementClientService &&
-    dataManagementClientService.editClient.hasPastAddress) {
+    dataManagementClientService.editClient()!.hasPastAddress) {
     <li class="list-group-item-action">
       <div class="form-group">
         <label>{{
           "address.edit-address.nav.past-addresses" | translate
         }}</label>
 
-        @if (!dataManagementClientService.editClientDeleted) { @for (c of
-        dataManagementClientService.editClient.addresses; track c.id; let i =
+        @if (!dataManagementClientService.editClientDeleted()) { @for (c of
+        dataManagementClientService.editClient()!.addresses; track c.id; let i =
         $index) { @if (c.isDeleted === false && c.isScoped === false &&
         c.isFuture === false) {
         <div>
@@ -83,7 +83,7 @@
             class="btn btn-sm btn-outline-warning max-width"
             [ngClass]="{
               'btn-warning':
-                i === dataManagementClientService.currentAddressIndex
+                i === dataManagementClientService.currentAddressIndex()
             }"
             (click)="onClickAddressArray(i)"
             [value]="c.id"
@@ -99,16 +99,16 @@
       </div>
     </li>
     } @if (dataManagementClientService &&
-    dataManagementClientService.findClient.length > 0) {
+    dataManagementClientService.findClient().length > 0) {
     <li class="list-group-item-action">
       <div class="form-group">
         <label
           >{{ "address.edit-address.nav.find-addresses" | translate }} ({{
-            dataManagementClientService.findClient.length
+            dataManagementClientService.findClient().length
           }})</label
         >
         <ul class="findUl">
-          @for (c of dataManagementClientService.sortedFindClient; track c.id;
+          @for (c of dataManagementClientService.sortedFindClient(); track c.id;
           let i = $index) {
           <li
             type="button"
@@ -120,7 +120,7 @@
           }
         </ul>
       </div>
-      @if (dataManagementClientService.findClientCount >
+      @if (dataManagementClientService.findClientCount() >
       dataManagementClientService.findClientMaxVisiblePage) {
       <div class="form-group onwPaginationContainer">
         <div
@@ -131,8 +131,8 @@
           <i class="fas fa-angle-left"></i>
         </div>
         <div class="onwPaginationblock">
-          {{ dataManagementClientService.findClientPage }} /
-          {{ dataManagementClientService.findClientMaxPages }}
+          {{ dataManagementClientService.findClientPage() }} /
+          {{ dataManagementClientService.findClientMaxPages() }}
         </div>
         <div
           type="button"

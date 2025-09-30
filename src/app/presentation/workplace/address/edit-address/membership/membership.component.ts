@@ -10,7 +10,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
@@ -62,7 +62,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
 
   isDisabled(): boolean {
     return (
-      this.dataManagementClientService.editClientDeleted ||
+      this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
   }

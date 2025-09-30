@@ -1,4 +1,4 @@
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
@@ -51,9 +51,9 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
-    if (this.dataManagementClientService.editClient?.annotations) {
+    if (this.dataManagementClientService.editClient()?.annotations) {
       this.expandedNotes = new Array(
-        this.dataManagementClientService.editClient.annotations.length
+        this.dataManagementClientService.editClient()!.annotations.length
       ).fill(false);
     } else {
       this.expandedNotes = [];
@@ -70,7 +70,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   isDisabled(): boolean {
     return (
-      this.dataManagementClientService.editClientDeleted ||
+      this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
   }
@@ -103,8 +103,12 @@ export class NoteComponent implements OnInit, AfterViewInit {
   onChange(index: number, event: Event) {
     const target = event.target as HTMLTextAreaElement;
     if (target) {
-      this.dataManagementClientService.editClient!.annotations[index].note =
-        target.value;
+      this.dataManagementClientService.editClient.update(client => {
+        if (client) {
+          client.annotations[index].note = target.value;
+        }
+        return client;
+      });
       this.isChangingEvent.emit(true);
     }
   }
@@ -116,7 +120,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   onDeleteCurrentAnnotation() {
     const currentIndex =
-      this.dataManagementClientService.currentAnnotationIndex;
+      this.dataManagementClientService.currentAnnotationIndex();
     this.dataManagementClientService.removeCurrentAnnotation();
     if (currentIndex > -1 && currentIndex < this.expandedNotes.length) {
       this.expandedNotes.splice(currentIndex, 1);
@@ -129,7 +133,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.dataManagementClientService.currentAnnotationIndex = index;
+    this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(index);
   }
 
   onClickVisibleTable() {

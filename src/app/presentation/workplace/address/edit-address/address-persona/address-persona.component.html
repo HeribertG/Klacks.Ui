@@ -65,7 +65,7 @@
             <option
               [value]="c.type"
               [selected]="
-                dataManagementClientService.editClient!.type === c.type
+                dataManagementClientService.editClient()?.type === c.type
               "
             >
               {{ c.name }}
@@ -182,10 +182,10 @@
   <div class="container-header header-container">
     <div>
       {{ "address.edit-address.address-persona.id-number" | translate }}
-      {{ dataManagementClientService.editClient?.typeAbbreviation }}
-      {{ dataManagementClientService.editClient?.idNumber }}
+      {{ dataManagementClientService.editClient()?.typeAbbreviation }}
+      {{ dataManagementClientService.editClient()?.idNumber }}
       <div class="container-subline-borderless">
-        {{ dataManagementClientService.editClientLastMutation }}
+        {{ dataManagementClientService.editClientLastMutation() }}
       </div>
     </div>
 
@@ -209,7 +209,7 @@
 
       <ul class="dropdown-menu dropdown-menu-lg-end">
         <li>
-          @if (dataManagementClientService.editClientDeleted === false) {
+          @if (dataManagementClientService.editClientDeleted() === false) {
           <a class="dropdown-item" (click)="openAddressType(addressTypeModal)">
             <div class="custom-control-inline" style="height: 25px">
               <i class="far fa-address-book"></i>
@@ -224,7 +224,7 @@
         </li>
 
         <li>
-          @if (dataManagementClientService.editClient !== undefined) {
+          @if (dataManagementClientService.editClient() !== undefined) {
           <a class="dropdown-item" (click)="openDeleteAddress()">
             <div class="custom-control-inline" style="height: 25px">
               <i
@@ -253,10 +253,10 @@
 
   <div class="container-line"></div>
 
-  @if (dataManagementClientService.editClient !== undefined) {
+  @if (dataManagementClientService.editClient() !== undefined) {
   <div class="container-bank-box">
     <div class="firstColumContainer">
-      @if (dataManagementClientService.editClient.legalEntity &&
+      @if (dataManagementClientService.editClient()?.legalEntity &&
       dataManagementClientService.isCurrentAddressMainAddress()) {
       <div class="row-line-company">
         <div class="form-group firstColumn">
@@ -269,7 +269,7 @@
               class="form-control default-width"
               autocomplete="off"
               [disabled]="isDisabled()"
-              [(ngModel)]="dataManagementClientService.editClient.company"
+              [(ngModel)]="dataManagementClientService.editClient()!.company"
               id="company"
               name="company"
               maxlength="50"
@@ -286,11 +286,11 @@
             }}</label>
             <select
               class="form-select"
-              [ngModel]="dataManagementClientService.editClient.gender"
+              [ngModel]="dataManagementClientService.editClient()?.gender"
               id="gender"
               [disabled]="isDisabled()"
               (ngModelChange)="
-                dataManagementClientService.editClient.gender = $event
+                dataManagementClientService.editClient()!.gender = $event
               "
               name="client.gender"
             >
@@ -306,7 +306,7 @@
                     | translate
                 }}
               </option>
-              @if (dataManagementClientService.editClient.legalEntity === true)
+              @if (dataManagementClientService.editClient()?.legalEntity === true)
               {
               <option value="3">
                 {{ "address.edit-address.address-persona.unknown" | translate }}
@@ -318,14 +318,14 @@
         <label class="checkbox-label legal-entity">
           <input
             type="checkbox"
-            [(ngModel)]="dataManagementClientService.editClient.legalEntity"
+            [(ngModel)]="dataManagementClientService.editClient()!.legalEntity"
             name="legalEntity"
             [disabled]="isDisabled()"
           />
           {{ "address.edit-address.address-persona.legal-entity" | translate }}
         </label>
       </div>
-      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      } @if (dataManagementClientService.editClient()?.gender !== 3 &&
       dataManagementClientService.isCurrentAddressMainAddress() === true) {
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -338,13 +338,13 @@
             id="title"
             autocomplete="off"
             [disabled]="isDisabled()"
-            [(ngModel)]="dataManagementClientService.editClient.title"
+            [(ngModel)]="dataManagementClientService.editClient()!.title"
             name="title"
             maxlength="15"
           />
         </div>
       </div>
-      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      } @if (dataManagementClientService.editClient()?.gender !== 3 &&
       dataManagementClientService.isCurrentAddressMainAddress() === true) {
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -357,7 +357,7 @@
               class="form-control default-width"
               autocomplete="off"
               [disabled]="isDisabled()"
-              [(ngModel)]="dataManagementClientService.editClient.firstName"
+              [(ngModel)]="dataManagementClientService.editClient()!.firstName"
               id="firstname"
               name="FirstName"
               maxlength="50"
@@ -374,7 +374,7 @@
         </div>
       </div>
       } @if (addFirstNameLine2 === true &&
-      +dataManagementClientService.editClient.gender !== 3 &&
+      +dataManagementClientService.editClient()!.gender !== 3 &&
       dataManagementClientService.isCurrentAddressMainAddress()) {
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -386,7 +386,7 @@
               type="text"
               class="form-control default-width"
               [disabled]="isDisabled()"
-              [(ngModel)]="dataManagementClientService.editClient.secondName"
+              [(ngModel)]="dataManagementClientService.editClient()!.secondName"
               id="secondName"
               name="SecondName"
               maxlength="50"
@@ -402,7 +402,7 @@
           </div>
         </div>
       </div>
-      } @if (+dataManagementClientService.editClient.gender !== 3 &&
+      } @if (+dataManagementClientService.editClient()!.gender !== 3 &&
       dataManagementClientService.isCurrentAddressMainAddress()) {
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -414,7 +414,7 @@
               type="text"
               class="form-control default-width"
               [disabled]="isDisabled()"
-              [(ngModel)]="dataManagementClientService.editClient.name"
+              [(ngModel)]="dataManagementClientService.editClient()!.name"
               name="Name"
               id="profile-name"
               required
@@ -428,7 +428,7 @@
           </div>
         </div>
       </div>
-      } @if (addNameLine2 && +dataManagementClientService.editClient.gender !==
+      } @if (addNameLine2 && +dataManagementClientService.editClient()!.gender !==
       3 && dataManagementClientService.isCurrentAddressMainAddress()) {
       <div class="row-line">
         <div class="form-group firstColumn">
@@ -440,7 +440,7 @@
               type="text"
               class="form-control default-width"
               [disabled]="isDisabled()"
-              [(ngModel)]="dataManagementClientService.editClient.maidenName"
+              [(ngModel)]="dataManagementClientService.editClient()!.maidenName"
               id="maidenName"
               name="MaidenName"
               maxlength="50"
@@ -470,8 +470,8 @@
               id="addressLine1"
               [disabled]="isDisabled()"
               [(ngModel)]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].addressLine1
               "
               name="addressLine1"
@@ -493,8 +493,8 @@
               id="addressLine2"
               [disabled]="isDisabled()"
               [(ngModel)]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].addressLine2
               "
               name="addressLine2"
@@ -516,8 +516,8 @@
               id="street"
               [disabled]="isDisabled()"
               [(ngModel)]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].street
               "
               name="street"
@@ -547,8 +547,8 @@
               id="street2"
               [disabled]="isDisabled()"
               [(ngModel)]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].street2
               "
               name="street2"
@@ -584,8 +584,8 @@
               id="street3"
               [disabled]="isDisabled()"
               [(ngModel)]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].street3
               "
               name="street3"
@@ -615,8 +615,8 @@
             id="zip"
             [disabled]="isDisabled()"
             [(ngModel)]="
-              dataManagementClientService.editClient.addresses[
-                dataManagementClientService.currentAddressIndex
+              dataManagementClientService.editClient()!.addresses[
+                dataManagementClientService.currentAddressIndex()
               ].zip
             "
             name="zip"
@@ -632,15 +632,15 @@
             id="city"
             [disabled]="isDisabled()"
             [(ngModel)]="
-              dataManagementClientService.editClient.addresses[
-                dataManagementClientService.currentAddressIndex
+              dataManagementClientService.editClient()!.addresses[
+                dataManagementClientService.currentAddressIndex()
               ].city
             "
             name="city"
             list="dynamicPlace"
           />
           <datalist id="dynamicPlace">
-            @for (item of dataManagementClientService.lastCountries; track item)
+            @for (item of dataManagementClientService.lastCountries(); track item)
             {
             <option [ngValue]="item">
               {{ item.city }}
@@ -656,32 +656,32 @@
             for="state"
             class="zip"
             [hidden]="
-              !dataManagementClientService.stateList ||
-              dataManagementClientService.stateList.length === 0
+              !dataManagementClientService.stateList() ||
+              dataManagementClientService.stateList().length === 0
             "
             >{{ choseCorrectState() | translate }}</label
           >
           <select
             class="form-select zip"
             [hidden]="
-              !dataManagementClientService.stateList ||
-              dataManagementClientService.stateList.length === 0
+              !dataManagementClientService.stateList() ||
+              dataManagementClientService.stateList().length === 0
             "
             id="state"
             [disabled]="isDisabled()"
             [(ngModel)]="
-              dataManagementClientService.editClient.addresses[
-                dataManagementClientService.currentAddressIndex
+              dataManagementClientService.editClient()!.addresses[
+                dataManagementClientService.currentAddressIndex()
               ].state
             "
             name="state"
           >
-            @for (c of dataManagementClientService.stateList; track c.state) {
+            @for (c of dataManagementClientService.stateList(); track c.state) {
             <option
               [value]="c.state"
               [selected]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].state === c.state
               "
               data-toggle="tooltip"
@@ -702,8 +702,8 @@
             id="country"
             [disabled]="isDisabled()"
             [(ngModel)]="
-              dataManagementClientService.editClient.addresses[
-                dataManagementClientService.currentAddressIndex
+              dataManagementClientService.editClient()!.addresses[
+                dataManagementClientService.currentAddressIndex()
               ].country
             "
             name="country"
@@ -714,8 +714,8 @@
             <option
               [value]="c.abbreviation"
               [selected]="
-                dataManagementClientService.editClient.addresses[
-                  dataManagementClientService.currentAddressIndex
+                dataManagementClientService.editClient()!.addresses[
+                  dataManagementClientService.currentAddressIndex()
                 ].country === c.abbreviation
               "
             >
@@ -733,7 +733,7 @@
     </div>
 
     <div class="secondColumnContainer">
-      @for (phoneData of dataManagementClientService.communicationPhoneList;
+      @for (phoneData of dataManagementClientService.communicationPhoneList();
       track phoneData; let ii = $index) {
       <div class="row-line">
         <div class="form-group">
@@ -754,7 +754,7 @@
               [disabled]="isDisabled()"
               (change)="onChangePhonePrefix(ii, $event)"
             >
-              @for (c of dataManagementClientService.communicationPrefixList;
+              @for (c of dataManagementClientService.communicationPrefixList();
               track c.prefix) {
               <option
                 [value]="c.prefix"
@@ -786,7 +786,7 @@
               (change)="onChangePhoneType(ii, $event)"
               [disabled]="isDisabled()"
             >
-              @for (c of dataManagementClientService.communicationTypePhoneList;
+              @for (c of dataManagementClientService.communicationTypePhoneList();
               track c.type) {
               <option [value]="c.type" [selected]="phoneData.type === c.type">
                 {{ c.name }}
@@ -794,7 +794,7 @@
               }
             </select>
             @if (ii ===
-            dataManagementClientService.communicationPhoneList.length - 1 &&
+            dataManagementClientService.communicationPhoneList().length - 1 &&
             !isDisabled()) {
             <span class="add-button" type="button" (click)="onClickAddPhone()"
               >+</span
@@ -810,7 +810,7 @@
           </div>
         </div>
       </div>
-      } @for (emailData of dataManagementClientService.communicationEmailList;
+      } @for (emailData of dataManagementClientService.communicationEmailList();
       track emailData; let i = $index) {
       <div class="row-line">
         <div class="form-group">
@@ -838,14 +838,14 @@
               [disabled]="isDisabled()"
               (change)="onChangeEmailType(i, $event)"
             >
-              @for (c of dataManagementClientService.communicationTypeEmailList;
+              @for (c of dataManagementClientService.communicationTypeEmailList();
               track c.type) {
               <option [value]="c.type" [selected]="emailData.type === c.type">
                 {{ c.name }}
               </option>
               }
             </select>
-            @if (i === dataManagementClientService.communicationEmailList.length
+            @if (i === dataManagementClientService.communicationEmailList().length
             - 1 && !isDisabled()) {
             <span class="add-button" type="button" (click)="onClickAddEmail()"
               >+</span
@@ -861,7 +861,7 @@
           </div>
         </div>
       </div>
-      } @if (dataManagementClientService.editClient.gender !== 3 &&
+      } @if (dataManagementClientService.editClient()?.gender !== 3 &&
       dataManagementClientService.isCurrentAddressMainAddress() === true) {
       <div class="row-line">
         <div class="form-group">
@@ -876,10 +876,10 @@
               id="profile-birthday"
               [disabled]="isDisabled()"
               [ngModel]="
-                dataManagementClientService.editClient.internalBirthdate
+                dataManagementClientService.editClient()?.internalBirthdate
               "
               (ngModelChange)="
-                dataManagementClientService.editClient.internalBirthdate =
+                dataManagementClientService.editClient()!.internalBirthdate =
                   $event
               "
               ngbDatepicker

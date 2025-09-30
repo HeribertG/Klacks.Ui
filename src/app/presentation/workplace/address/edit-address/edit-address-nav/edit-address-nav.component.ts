@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client-class';
-import { DataManagementClientService } from 'src/app/domain/services/data-management-client.service';
+import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
@@ -35,11 +35,11 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
     if (this.dataManagementClientService === undefined) {
       return '';
     }
-    if (this.dataManagementClientService.editClient === undefined) {
+    if (this.dataManagementClientService.editClient() === undefined) {
       return '';
     }
     const type =
-      +this.dataManagementClientService.editClient.addresses[index].type;
+      +this.dataManagementClientService.editClient()!.addresses[index].type;
 
     let name = '';
     switch (type) {
@@ -57,9 +57,9 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
     }
 
     if (
-      this.dataManagementClientService.editClient.addresses[index].id ===
+      this.dataManagementClientService.editClient()!.addresses[index].id ===
         null ||
-      this.dataManagementClientService.editClient.addresses[index].id === ''
+      this.dataManagementClientService.editClient()!.addresses[index].id === ''
     ) {
       name = name + ' (neu)';
     }
@@ -67,21 +67,21 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
   }
 
   onClickAddressArray(index: number) {
-    this.dataManagementClientService.currentAddressIndex = index;
+    this.dataManagementClientService.clientEditService.currentAddressIndex.set(index);
   }
 
   onClickPaginationButton(changeValue: number) {
     if (changeValue < 0) {
-      if (this.dataManagementClientService.findClientPage > 1) {
-        this.dataManagementClientService.findClientPage += changeValue;
+      if (this.dataManagementClientService.findClientPage() > 1) {
+        this.dataManagementClientService.clientSearchService.findClientPage.update(page => page + changeValue);
         this.dataManagementClientService.readActualSortedClientPage();
       }
     } else if (changeValue > 0) {
       if (
-        this.dataManagementClientService.findClientPage <
-        this.dataManagementClientService.findClientMaxPages
+        this.dataManagementClientService.findClientPage() <
+        this.dataManagementClientService.findClientMaxPages()
       ) {
-        this.dataManagementClientService.findClientPage += changeValue;
+        this.dataManagementClientService.clientSearchService.findClientPage.update(page => page + changeValue);
         this.dataManagementClientService.readActualSortedClientPage();
       }
     }
@@ -96,9 +96,6 @@ export class EditAddressNavComponent implements OnInit, AfterViewInit {
   }
 
   isRestPossible(): boolean {
-    if (this.dataManagementClientService.backupFindClient) {
-      return true;
-    }
-    return false;
+    return this.dataManagementClientService.clientSearchService.isResetPossible();
   }
 }

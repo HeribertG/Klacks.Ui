@@ -14,7 +14,7 @@
     <app-membership
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"
-      (click)="dataManagementClientService.currentAnnotationIndex = -1"
+      (click)="dataManagementClientService.clientEditService.currentAnnotationIndex.set(-1)"
     >
     </app-membership>
   </div>
