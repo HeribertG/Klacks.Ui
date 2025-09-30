@@ -19,6 +19,7 @@ export interface ILLMChatResponse {
   navigateTo?: string;
   actionPerformed?: boolean;
   functionCalls?: any[];
+  functionResults?: any[];
   usage?: {
     inputTokens: number;
     outputTokens: number;

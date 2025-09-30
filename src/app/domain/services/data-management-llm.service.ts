@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, tap, switchMap, map } from 'rxjs/operators';
 import {
   DataLLMService,
   ILLMChatRequest,
@@ -11,6 +11,9 @@ import {
 } from 'src/app/infrastructure/api/data-llm.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
+import { LLMSystemContextService } from './llm-system-context.service';
+import { LLMFunctionExecutionService } from './llm-function-execution.service';
+import { ILLMFunctionCall } from '../models/llm-function-definitions.interface';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';
@@ -34,6 +37,8 @@ export class DataManagementLLMService {
   private dataLLMService = inject(DataLLMService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
+  private systemContextService = inject(LLMSystemContextService);
+  private functionExecutionService = inject(LLMFunctionExecutionService);
 
   private conversations = new Map<string, IConversation>();
   private availableModels$ = new BehaviorSubject<ILLMModel[]>([]);
@@ -93,6 +98,16 @@ export class DataManagementLLMService {
     const convId = conversationId || this.generateConversationId();
     const conversation = this.getOrCreateConversation(convId);
 
+    // Add system context on first message
+    if (conversation.messages.length === 0) {
+      const systemMessage = this.systemContextService.formatSystemMessage();
+      conversation.messages.push({
+        role: 'system',
+        content: systemMessage,
+        timestamp: new Date(),
+      });
+    }
+
     conversation.messages.push({
       role: 'user',
       content: message,
@@ -112,6 +127,8 @@ export class DataManagementLLMService {
         conversationHistory: conversation.messages.slice(-10),
         language: this.currentLanguage$.value,
         userContext: this.getUserContext(),
+        availableTools: this.systemContextService.getToolsForLLM(),
+        systemContext: this.systemContextService.getSystemContext(),
       },
     };
 
@@ -119,7 +136,7 @@ export class DataManagementLLMService {
     this.isLoading$.next(true);
 
     return this.dataLLMService.chat(request).pipe(
-      tap((response) => {
+      switchMap((response) => {
         conversation.messages.push({
           role: 'assistant',
           content: response.message,
@@ -133,6 +150,22 @@ export class DataManagementLLMService {
             (conversation.totalCost || 0) + response.usage.cost;
         }
 
+        // Execute function calls if present
+        if (response.functionCalls && response.functionCalls.length > 0) {
+          return this.executeFunctionCalls(response.functionCalls).pipe(
+            map((functionResults) => {
+              // Add function results to response
+              return {
+                ...response,
+                functionResults,
+              };
+            })
+          );
+        }
+
+        return of(response);
+      }),
+      tap(() => {
         this.showProgressSpinner.set(false);
         this.isLoading$.next(false);
       }),
@@ -353,6 +386,21 @@ export class DataManagementLLMService {
       catchError((error) => {
         this.toastShowService.showError('settings.llm-models.error.save');
         throw error;
+      })
+    );
+  }
+
+  private executeFunctionCalls(
+    functionCalls: ILLMFunctionCall[]
+  ): Observable<any> {
+    return this.functionExecutionService.executeFunctions(functionCalls).pipe(
+      tap((results) => {
+        // Log function execution results
+        console.log('Function execution results:', results);
+      }),
+      catchError(() => {
+        this.toastShowService.showError('Function execution failed');
+        return of([]);
       })
     );
   }
