@@ -308,9 +308,13 @@ export class AddressPersonaComponent
   }
 
   onKeyupPhoneNumber(pos: number, event: any) {
-    event.srcElement.value = formatPhoneNumber(event.srcElement.value);
+    const formatted = formatPhoneNumber(event.srcElement.value);
+    event.srcElement.value = formatted;
 
-    this.onChangePhoneValue(pos, event);
+    const phoneList = this.dataManagementClientService.communicationPhoneList();
+    if (phoneList[pos]) {
+      phoneList[pos].value = formatted;
+    }
   }
 
   onChangeEmailValue(index: number, event: any) {
@@ -430,10 +434,7 @@ export class AddressPersonaComponent
             this.dataManagementClientService.currentAddressIndex()
           ].type = +this.addressType;
 
-          this.dataManagementClientService.prepareClient(
-            this.dataManagementClientService.editClient()!,
-            true
-          );
+          this.dataManagementClientService.refreshClientState();
 
           this.isChangingEvent.emit(true);
         },

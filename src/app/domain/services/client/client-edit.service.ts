@@ -37,7 +37,7 @@ export class ClientEditService {
   public currentAnnotationIndex = signal(-1);
   public clientAddressListWithoutQueryFilter = signal<IAddress[]>([]);
 
-  public prepareClient(value: IClient, withoutUpdateDummy = false) {
+  private prepareClient(value: IClient, withoutUpdateDummy = false) {
     if (value == null) {
       return;
     }
@@ -62,6 +62,18 @@ export class ClientEditService {
     this.showProgressSpinner.set(false);
   }
 
+  public refreshClientState() {
+    if (this.editClient() == null) {
+      return;
+    }
+
+    const { editClient, currentAddressIndex } = this.addressService.setAddress(this.editClient()!, -1);
+    this.editClient.set(editClient);
+    this.currentAddressIndex.set(currentAddressIndex);
+
+    this.communicationService.setCommunication(this.editClient()!);
+  }
+
   private createUrl(): string {
     return '/workplace/edit-address/' + this.editClient()!.id;
   }
@@ -71,6 +83,7 @@ export class ClientEditService {
       this.showProgressSpinner.set(true);
       this.dataClientService.getClient(id).subscribe((x) => {
         this.prepareClient(x);
+        this.navigationService.navigateToEditAddress(id);
       });
     }
   }
@@ -114,6 +127,9 @@ export class ClientEditService {
 
   public addAnnotation() {
     this.editClient.update(client => {
+      if (!client!.annotations) {
+        client!.annotations = [];
+      }
       client!.annotations.push(new Annotation());
       return client;
     });
@@ -121,7 +137,9 @@ export class ClientEditService {
 
   public removeCurrentAnnotation() {
     this.editClient.update(client => {
-      client!.annotations.splice(this.currentAnnotationIndex(), 1);
+      if (client!.annotations) {
+        client!.annotations.splice(this.currentAnnotationIndex(), 1);
+      }
       return client;
     });
   }

@@ -221,8 +221,7 @@ export class AllAddressListComponent
 
   onClickEdit(data: IClient): void {
     this.allAddressStateService.saveCurrentFilter();
-    this.dataManagementClientService.prepareClient(data);
-    this.navigationService.navigateToEditAddress(data.id);
+    this.dataManagementClientService.readClient(data.id!);
   }
 
   onClickExportExcel(index: number): void {

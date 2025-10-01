@@ -211,7 +211,7 @@ export class Communication implements ICommunication {
   isPhone = false;
   isEmail = false;
   index = 0;
-  internalId = undefined;
+  internalId: string | undefined = undefined;
 }
 
 export class Annotation extends BaseEntity implements IAnnotation {

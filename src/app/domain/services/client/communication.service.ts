@@ -15,6 +15,10 @@ export class CommunicationService {
   private clientConfigService = inject(ClientConfigService);
 
   public setCommunication(editClient: IClient) {
+    if (!editClient.communications) {
+      editClient.communications = [];
+    }
+
     let count = 0;
     editClient.communications.forEach((x) => {
       x.internalId = createStringId();
@@ -46,8 +50,11 @@ export class CommunicationService {
       }
 
       c.prefix = this.clientConfigService.isSwissPrefixId();
-
       c.isPhone = true;
+      c.internalId = createStringId();
+      c.index = count++;
+
+      editClient.communications.push(c);
       communicationPhoneList.push(c);
     }
     if (communicationEmailList.length === 0) {
@@ -64,7 +71,10 @@ export class CommunicationService {
         }
       }
       c.isEmail = true;
+      c.internalId = createStringId();
+      c.index = count++;
 
+      editClient.communications.push(c);
       communicationEmailList.push(c);
     }
     return { communicationPhoneList, communicationEmailList };
@@ -82,14 +92,16 @@ export class CommunicationService {
 
     c.prefix = this.clientConfigService.isSwissPrefixId();
     c.isPhone = true;
+    c.internalId = createStringId();
+    c.index = editClient.communications.length;
 
-    editClient.communications.push(c);
+    editClient.communications = [...editClient.communications, c];
 
     return editClient;
   }
 
   public delPhone(editClient: IClient, index: number): IClient {
-    editClient.communications.splice(index, 1);
+    editClient.communications = editClient.communications.filter((_, i) => i !== index);
     return editClient;
   }
 
@@ -107,14 +119,16 @@ export class CommunicationService {
       }
     }
     c.isEmail = true;
+    c.internalId = createStringId();
+    c.index = editClient.communications.length;
 
-    editClient.communications.push(c);
+    editClient.communications = [...editClient.communications, c];
 
     return editClient;
   }
 
   public delEmail(editClient: IClient, index: number): IClient {
-    editClient.communications.splice(index, 1);
+    editClient.communications = editClient.communications.filter((_, i) => i !== index);
     return editClient;
   }
 

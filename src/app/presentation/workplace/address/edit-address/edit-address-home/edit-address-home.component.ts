@@ -62,7 +62,7 @@ export class EditAddressHomeComponent implements OnInit {
 
     this.footerService.setFooterVisibility(true);
 
-    if (this.dataManagementClientService.editClient === undefined) {
+    if (this.dataManagementClientService.editClient() === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(
         '/workplace/edit-address'
       );

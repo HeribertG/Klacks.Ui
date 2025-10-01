@@ -748,11 +748,10 @@
           <div class="custom-control-inline">
             <select
               class="form-select gap-prefix"
-              [value]="phoneData.prefix"
-              name="phonePrefix"
+              [(ngModel)]="phoneData.prefix"
+              name="phonePrefix-{{ii}}"
               aria-label="Vorwahl"
               [disabled]="isDisabled()"
-              (change)="onChangePhonePrefix(ii, $event)"
             >
               @for (c of dataManagementClientService.communicationPrefixList();
               track c.prefix) {
@@ -770,20 +769,18 @@
             <input
               type="text"
               class="form-control medium-width-tel"
-              [value]="phoneData.value"
-              name="phoneValue"
+              [(ngModel)]="phoneData.value"
+              name="phoneValue-{{ii}}"
               aria-label="Telefon"
               [disabled]="isDisabled()"
-              (change)="onChangePhoneValue(ii, $event)"
               (keyup)="onKeyupPhoneNumber(ii, $event)"
             />
 
             <select
               class="form-select gap"
-              [value]="phoneData.type"
-              name="phoneType"
+              [(ngModel)]="phoneData.type"
+              name="phoneType-{{ii}}"
               aria-label="phoneType"
-              (change)="onChangePhoneType(ii, $event)"
               [disabled]="isDisabled()"
             >
               @for (c of dataManagementClientService.communicationTypePhoneList();
@@ -822,21 +819,18 @@
               id="mail"
               type="email"
               class="form-control medium-width"
-              [value]="emailData.value"
+              [(ngModel)]="emailData.value"
               aria-label="E-Mail"
               [disabled]="isDisabled()"
-              (change)="onChangeEmailValue(i, $event)"
-              name="emailValue"
-              (keyup)="onChangeEmailValue(i, $event)"
+              name="emailValue-{{i}}"
             />
 
             <select
               class="form-select gap"
-              [value]="emailData.type"
-              name="emailType"
+              [(ngModel)]="emailData.type"
+              name="emailType-{{i}}"
               aria-label="E-Mail Typ"
               [disabled]="isDisabled()"
-              (change)="onChangeEmailType(i, $event)"
             >
               @for (c of dataManagementClientService.communicationTypeEmailList();
               track c.type) {

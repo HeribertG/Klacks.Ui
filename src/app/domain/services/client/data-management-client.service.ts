@@ -145,8 +145,7 @@ export class DataManagementClientService
 
   public createClient = () => this.clientEditService.createClient();
   public readClient = (id: string) => this.clientEditService.readClient(id);
-  public prepareClient = (value: IClient, withoutUpdateDummy = false) =>
-    this.clientEditService.prepareClient(value, withoutUpdateDummy);
+  public refreshClientState = () => this.clientEditService.refreshClientState();
   public addAnnotation = () => this.clientEditService.addAnnotation();
   public removeCurrentAnnotation = () =>
     this.clientEditService.removeCurrentAnnotation();
@@ -167,30 +166,30 @@ export class DataManagementClientService
 
   public addPhone = () => {
     if (this.editClient()) {
-      this.clientEditService.editClient.set(
-        this.communicationService.addPhone(this.editClient()!)
-      );
+      this.communicationService.addPhone(this.editClient()!);
+      this.communicationService.setCommunication(this.editClient()!);
+      this.clientEditService.editClient.update(client => ({...client!}));
     }
   };
   public delPhone = (index: number) => {
     if (this.editClient()) {
-      this.clientEditService.editClient.set(
-        this.communicationService.delPhone(this.editClient()!, index)
-      );
+      this.communicationService.delPhone(this.editClient()!, index);
+      this.communicationService.setCommunication(this.editClient()!);
+      this.clientEditService.editClient.update(client => ({...client!}));
     }
   };
   public addEmail = () => {
     if (this.editClient()) {
-      this.clientEditService.editClient.set(
-        this.communicationService.addEmail(this.editClient()!)
-      );
+      this.communicationService.addEmail(this.editClient()!);
+      this.communicationService.setCommunication(this.editClient()!);
+      this.clientEditService.editClient.update(client => ({...client!}));
     }
   };
   public delEmail = (index: number) => {
     if (this.editClient()) {
-      this.clientEditService.editClient.set(
-        this.communicationService.delEmail(this.editClient()!, index)
-      );
+      this.communicationService.delEmail(this.editClient()!, index);
+      this.communicationService.setCommunication(this.editClient()!);
+      this.clientEditService.editClient.update(client => ({...client!}));
     }
   };
 

@@ -62,17 +62,15 @@ export class AddressService {
         let leftCharacters = address.zip.substring(0, 2);
         leftCharacters = leftCharacters.replace('-', ' ');
 
-        // Assuming countries are available from ClientConfigService
-        // This part needs to be adapted based on where countries are stored.
-        /*
-        const find = this.currentFilter.countries!.findIndex(
-          (x) => x.abbreviation === leftCharacters.toUpperCase().trim()
+        const countryAbbreviation = leftCharacters.toUpperCase().trim();
+        const foundCountry = countries.find(
+          (x) => x.country === countryAbbreviation
         );
 
-        if (find !== -1) {
-          address.country = leftCharacters.toUpperCase().trim();
+        if (foundCountry) {
+          address.country = countryAbbreviation;
         }
-        */
+
         stateList = this.filterState(address, countries);
         resolve({ address, lastCountries, stateList });
       }
@@ -87,6 +85,10 @@ export class AddressService {
   }
 
   public setAddress(editClient: IClient, currentAddressIndex: number): { editClient: IClient; currentAddressIndex: number } {
+    if (!editClient.addresses) {
+      editClient.addresses = [];
+    }
+
     if (editClient.addresses.length === 0) {
       const c = new Address();
       c.validFrom = new Date();
