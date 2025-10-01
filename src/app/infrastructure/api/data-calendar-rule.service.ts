@@ -17,13 +17,13 @@ export class DataCalendarRuleService {
 
   readCalendarRule(id: string) {
     return this.httpClient
-      .get<ICalendarRule>(`${environment.baseUrl}Settings/CalendarRule/` + id)
+      .get<ICalendarRule>(`${environment.baseUrl}CalendarRules/CalendarRule/` + id)
       .pipe(retry(3));
   }
 
   updateCalendarRule(value: ICalendarRule) {
     return this.httpClient
-      .put<ICalendarRule>(`${environment.baseUrl}Settings/CalendarRule/`, value)
+      .put<ICalendarRule>(`${environment.baseUrl}CalendarRules/CalendarRule/`, value)
       .pipe(retry(3));
   }
 
@@ -31,7 +31,7 @@ export class DataCalendarRuleService {
     delete value.id;
     return this.httpClient
       .post<ICalendarRule>(
-        `${environment.baseUrl}Settings/CalendarRule/`,
+        `${environment.baseUrl}CalendarRules/CalendarRule/`,
         value
       )
       .pipe(retry(3));
@@ -40,7 +40,7 @@ export class DataCalendarRuleService {
   readCalendarRuleList() {
     return this.httpClient
       .get<ICalendarRule[]>(
-        `${environment.baseUrl}Settings/GetCalendarRuleList`
+        `${environment.baseUrl}CalendarRules/GetCalendarRuleList`
       )
       .pipe(retry(3));
   }
@@ -48,7 +48,7 @@ export class DataCalendarRuleService {
   readRuleTokenList(value: boolean) {
     return this.httpClient
       .get<StateCountryToken[]>(
-        `${environment.baseUrl}Settings/GetRuleTokenList?isSelected=` + value
+        `${environment.baseUrl}CalendarRules/GetRuleTokenList?isSelected=` + value
       )
       .pipe(retry(3));
   }
@@ -56,7 +56,7 @@ export class DataCalendarRuleService {
   readTruncatedCalendarRule(filter: CalendarRulesFilter) {
     return this.httpClient
       .post<TruncatedCalendarRule>(
-        `${environment.baseUrl}Settings/GetSimpleCalendarRuleList`,
+        `${environment.baseUrl}CalendarRules/GetSimpleCalendarRuleList`,
         filter
       )
       .pipe();
@@ -65,7 +65,7 @@ export class DataCalendarRuleService {
   deleteCalendarRule(id: string) {
     return this.httpClient
       .delete<ICalendarRule>(
-        `${environment.baseUrl}Settings/CalendarRule/` + id
+        `${environment.baseUrl}CalendarRules/CalendarRule/` + id
       )
       .pipe(retry(3));
   }

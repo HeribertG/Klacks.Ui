@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Injectable,
   effect,
@@ -7,17 +8,34 @@ import {
   EffectRef,
 } from '@angular/core';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
-import { ILoadable, IResettable, ISaveable, INavigable } from './interfaces/common.interfaces';
+import {
+  ILoadable,
+  IResettable,
+  ISaveable,
+  INavigable,
+} from './interfaces/common.interfaces';
 import { ManageableServiceFactory } from './manageable-service.factory';
-import { EntityName, RouteName, isValidRouteName } from 'src/app/domain/models/entity-names.enum';
+import {
+  EntityName,
+  RouteName,
+  isValidRouteName,
+} from 'src/app/domain/models/entity-names.enum';
 import { environment } from 'src/environments/environment';
 
 function isSaveable(manager: any): manager is ISaveable {
-  return manager && typeof manager.areObjectsDirty === 'function' && typeof manager.save === 'function';
+  return (
+    manager &&
+    typeof manager.areObjectsDirty === 'function' &&
+    typeof manager.save === 'function'
+  );
 }
 
 function isResettable(manager: any): manager is IResettable {
-  return manager && typeof manager.resetData === 'function' && manager.isReset !== undefined;
+  return (
+    manager &&
+    typeof manager.resetData === 'function' &&
+    manager.isReset !== undefined
+  );
 }
 
 function isNavigable(manager: any): manager is INavigable {

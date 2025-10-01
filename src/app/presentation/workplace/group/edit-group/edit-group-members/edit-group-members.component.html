@@ -169,16 +169,16 @@
               </td>
 
               <td class="table-cell">
-                {{ data.client!.idNumber }}
+                {{ data.client?.idNumber ?? '' }}
               </td>
               <td class="table-cell">
-                {{ data.client!.company }}
+                {{ data.client?.company ?? '' }}
               </td>
               <td class="table-cell">
-                {{ data.client!.firstName }}
+                {{ data.client?.firstName ?? '' }}
               </td>
               <td class="table-cell">
-                {{ data.client!.name }}
+                {{ data.client?.name ?? '' }}
               </td>
 
               <td class="table-cell cell-right">

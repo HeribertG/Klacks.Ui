@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import {
   ILLMFunctionDefinition,
   ILLMFunctionCall,
-  ILLMFunctionResult,
   ILLMToolDefinition,
 } from '../models/llm-function-definitions.interface';
 

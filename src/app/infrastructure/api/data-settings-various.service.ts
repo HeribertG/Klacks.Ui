@@ -18,25 +18,25 @@ export class DataSettingsVariousService {
 
   readSetting(value: string): Observable<ISetting> {
     return this.httpClient
-      .get<ISetting>(`${environment.baseUrl}Settings/GetSetting/` + value)
+      .get<ISetting>(`${environment.baseUrl}GeneralSettings/GetSetting/` + value)
       .pipe(retry(3));
   }
 
   updateSetting(value: ISetting): Observable<ISetting> {
     return this.httpClient
-      .put<ISetting>(`${environment.baseUrl}Settings/PutSetting/`, value)
+      .put<ISetting>(`${environment.baseUrl}GeneralSettings/PutSetting/`, value)
       .pipe(retry(3));
   }
 
   addSetting(value: ISetting): Observable<ISetting> {
     return this.httpClient
-      .post<ISetting>(`${environment.baseUrl}Settings/AddSetting/`, value)
+      .post<ISetting>(`${environment.baseUrl}GeneralSettings/AddSetting/`, value)
       .pipe(retry(3));
   }
 
   readSettingList(): Observable<ISetting[]> {
     return this.httpClient
-      .get<ISetting[]>(`${environment.baseUrl}Settings/GetSettingsList`)
+      .get<ISetting[]>(`${environment.baseUrl}GeneralSettings/GetSettingsList`)
       .pipe();
   }
 
@@ -53,7 +53,7 @@ export class DataSettingsVariousService {
 
     return this.httpClient
       .post<EmailTestResult>(
-        `${environment.baseUrl}Settings/TestEmailConfiguration`,
+        `${environment.baseUrl}GeneralSettings/TestEmailConfiguration`,
         emailTestRequest
       )
       .pipe(retry(1));

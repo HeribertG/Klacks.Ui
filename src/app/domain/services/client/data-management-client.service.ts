@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import {
@@ -168,28 +169,28 @@ export class DataManagementClientService
     if (this.editClient()) {
       this.communicationService.addPhone(this.editClient()!);
       this.communicationService.setCommunication(this.editClient()!);
-      this.clientEditService.editClient.update(client => ({...client!}));
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };
   public delPhone = (index: number) => {
     if (this.editClient()) {
       this.communicationService.delPhone(this.editClient()!, index);
       this.communicationService.setCommunication(this.editClient()!);
-      this.clientEditService.editClient.update(client => ({...client!}));
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };
   public addEmail = () => {
     if (this.editClient()) {
       this.communicationService.addEmail(this.editClient()!);
       this.communicationService.setCommunication(this.editClient()!);
-      this.clientEditService.editClient.update(client => ({...client!}));
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };
   public delEmail = (index: number) => {
     if (this.editClient()) {
       this.communicationService.delEmail(this.editClient()!, index);
       this.communicationService.setCommunication(this.editClient()!);
-      this.clientEditService.editClient.update(client => ({...client!}));
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };
 

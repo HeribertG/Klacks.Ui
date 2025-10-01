@@ -7,11 +7,11 @@
   </div>
   {{ message }}
 </div>
-<div class="modal-footer">
-  <button type="button" class="btn btn-secondary" (click)="activeModal.dismiss()">
+<div class="modal-footer" *ngIf="activeModal">
+  <button type="button" class="btn btn-secondary" (click)="activeModal!.dismiss()">
     {{ 'cancel' | translate }}
   </button>
-  <button type="button" class="btn btn-danger" (click)="activeModal.close('delete')">
+  <button type="button" class="btn btn-danger" (click)="activeModal!.close('delete')">
     {{ 'delete' | translate }}
   </button>
 </div>

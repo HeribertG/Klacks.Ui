@@ -82,8 +82,7 @@ export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           case ModalType.Delete:
           case ModalType.Confirmation: {
-            // Füge Confirmation hinzu
-            this.open(this.contentDelete, x); // x verwenden statt ModalType.Delete
+            this.open(this.contentDelete, x);
             break;
           }
           case ModalType.Message: {

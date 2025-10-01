@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { IClient } from 'src/app/domain/models/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
@@ -74,25 +75,41 @@ export class ClientSearchService {
   }
 
   public readActualSortedClientPage() {
-    const currPage = this.findClientPage() - 1 < 0 ? 0 : this.findClientPage() - 1;
+    const currPage =
+      this.findClientPage() - 1 < 0 ? 0 : this.findClientPage() - 1;
     const startItem = currPage * this.findClientMaxVisiblePage;
     const endItem = startItem + this.findClientMaxVisiblePage;
     this.sortedFindClient.set(this.findClient().slice(startItem, endItem));
   }
 
-  public replaceClient(editClient: IClient, editClientDummy: IClient, findClientList: IClient[], id: string): 
-  { backupFindClient: IClient | undefined, backupFindClientDummy: IClient | undefined, backupFindClientList: IClient[] | undefined } {
+  public replaceClient(
+    editClient: IClient,
+    editClientDummy: IClient,
+    findClientList: IClient[],
+    id: string
+  ): {
+    backupFindClient: IClient | undefined;
+    backupFindClientDummy: IClient | undefined;
+    backupFindClientList: IClient[] | undefined;
+  } {
     const backupFindClient = cloneObject(editClient);
     const backupFindClientDummy = cloneObject<IClient | undefined>(
       editClientDummy
     );
     const backupFindClientList = cloneObject<IClient[]>(findClientList);
-    
+
     return { backupFindClient, backupFindClientDummy, backupFindClientList };
   }
 
-  public resetFindClient(backupFindClient: IClient | undefined, backupFindClientDummy: IClient | undefined, backupFindClientList: IClient[] | undefined): 
-  { editClient: IClient | undefined, editClientDummy: IClient | undefined, findClient: IClient[] | undefined } {
+  public resetFindClient(
+    backupFindClient: IClient | undefined,
+    backupFindClientDummy: IClient | undefined,
+    backupFindClientList: IClient[] | undefined
+  ): {
+    editClient: IClient | undefined;
+    editClientDummy: IClient | undefined;
+    findClient: IClient[] | undefined;
+  } {
     const editClient = cloneObject<IClient | undefined>(backupFindClient);
     const editClientDummy = cloneObject<IClient | undefined>(
       backupFindClientDummy
