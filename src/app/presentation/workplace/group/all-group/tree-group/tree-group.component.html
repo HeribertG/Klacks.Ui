@@ -97,7 +97,7 @@
            [id]="'drop-zone-' + node.id"
            [cdkDropListData]="node"
            cdkDropListSortingDisabled
-           (cdkDropListEntered)="onDropZoneEnter(node, $event)"
+           (cdkDropListEntered)="onDropZoneEnter(node)"
            (cdkDropListExited)="onDropZoneExit()"
            (cdkDropListDropped)="onDrop($event)">
         <div class="tree-node-item"

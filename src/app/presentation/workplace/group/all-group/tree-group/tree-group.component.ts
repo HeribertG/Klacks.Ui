@@ -33,7 +33,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragEnter, CdkDragExit, CdkDragMove } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tree-group',
@@ -295,7 +295,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onDropZoneEnter(node: Group, event: CdkDragEnter<Group>): void {
+  onDropZoneEnter(node: Group): void {
     if (this.isDragging && node.id !== this.draggedNodeId) {
       this.hoveredNodeId = node.id || null;
       this.startExpandTimer(node);
