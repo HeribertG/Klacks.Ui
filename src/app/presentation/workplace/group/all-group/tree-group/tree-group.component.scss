@@ -156,12 +156,19 @@
 
 // CDK Drag & Drop Styles
 .cdk-drag-preview {
-  opacity: 0.8;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-  background-color: white;
-  border: 1px solid var(--gridColorLine);
+  opacity: 0.9;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+  background-color: var(--backgroundColorFocus);
+  border: none;
   padding: 8px;
   border-radius: 4px;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  color: var(--gridColorText);
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
 }
 
 .tree-node-item.cdk-drag-placeholder {
@@ -176,7 +183,9 @@
 }
 
 .cdk-drag-animating {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: none !important;
+  opacity: 0 !important;
+  display: none !important;
 }
 
 .cdk-drop-list-dragging .tree-node-item:not(.cdk-drag-placeholder) {

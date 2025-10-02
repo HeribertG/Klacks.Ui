@@ -33,7 +33,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragEnter, CdkDragExit } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragEnter, CdkDragExit, CdkDragMove } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tree-group',
@@ -76,6 +76,9 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private effectRef: EffectRef | null = null;
   private expandTimeout: any = null;
+  private scrollInterval: any = null;
+  private readonly SCROLL_ZONE_SIZE = 100;
+  private readonly SCROLL_SPEED = 10;
 
   ngOnInit(): void {
     this.dataManagementGroupService.init();
@@ -255,6 +258,41 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     this.draggedNodeId = null;
     this.hoveredNodeId = null;
     this.clearExpandTimer();
+    this.stopAutoScroll();
+  }
+
+  onDragMoved(event: CdkDragMove): void {
+    const pointerY = event.pointerPosition.y;
+    const appMain = document.querySelector('app-main');
+
+    if (!appMain) return;
+
+    const rect = appMain.getBoundingClientRect();
+    const distanceFromTop = pointerY - rect.top;
+    const distanceFromBottom = rect.bottom - pointerY;
+
+    if (distanceFromTop < this.SCROLL_ZONE_SIZE && distanceFromTop > 0) {
+      this.startAutoScroll(appMain, -this.SCROLL_SPEED);
+    } else if (distanceFromBottom < this.SCROLL_ZONE_SIZE && distanceFromBottom > 0) {
+      this.startAutoScroll(appMain, this.SCROLL_SPEED);
+    } else {
+      this.stopAutoScroll();
+    }
+  }
+
+  private startAutoScroll(element: Element, scrollSpeed: number): void {
+    if (this.scrollInterval) return;
+
+    this.scrollInterval = setInterval(() => {
+      element.scrollTop += scrollSpeed;
+    }, 16);
+  }
+
+  private stopAutoScroll(): void {
+    if (this.scrollInterval) {
+      clearInterval(this.scrollInterval);
+      this.scrollInterval = null;
+    }
   }
 
   onDropZoneEnter(node: Group, event: CdkDragEnter<Group>): void {

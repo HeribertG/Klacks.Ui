@@ -105,6 +105,7 @@
              cdkDrag
              [cdkDragData]="node"
              (cdkDragStarted)="onDragStarted(node)"
+             (cdkDragMoved)="onDragMoved($event)"
              (cdkDragEnded)="onDragEnded()">
           <div
             class="tree-node-indicator"
