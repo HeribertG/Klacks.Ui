@@ -33,6 +33,7 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragEnter, CdkDragExit } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-tree-group',
@@ -53,6 +54,9 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
     IconRefreshGreyComponent,
     IconCollapseAllGreyComponent,
     IconExpandAllGreyComponent,
+    CdkDrag,
+    CdkDropList,
+    CdkDropListGroup,
   ],
 })
 export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -66,6 +70,9 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() switchToGrid = new EventEmitter<void>();
 
   public hierarchicalTree: Group[] = [];
+  public isDragging = false;
+  public hoveredNodeId: string | null = null;
+  public draggedNodeId: string | null = null;
 
   private effectRef: EffectRef | null = null;
 
@@ -235,6 +242,115 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.hierarchicalTree && this.hierarchicalTree.length > 0) {
       this.dataManagementGroupService.collapseAllNodes();
     }
+  }
+
+  onDragStarted(node: Group): void {
+    console.log('[onDragStarted] Node:', node.id, node.name);
+    this.isDragging = true;
+    this.draggedNodeId = node.id || null;
+    console.log('[onDragStarted] isDragging:', this.isDragging, 'draggedNodeId:', this.draggedNodeId);
+  }
+
+  onDragEnded(): void {
+    console.log('[onDragEnded] Cleaning up drag state');
+    this.isDragging = false;
+    this.draggedNodeId = null;
+    this.hoveredNodeId = null;
+  }
+
+  onDropZoneEnter(node: Group, event: CdkDragEnter<Group>): void {
+    console.log('=== [onDropZoneEnter] ===');
+    console.log('[onDropZoneEnter] Entered Drop Zone for Node:', node.id, node.name);
+    console.log('[onDropZoneEnter] Container ID:', event.container.id);
+    console.log('[onDropZoneEnter] isDragging:', this.isDragging, 'draggedNodeId:', this.draggedNodeId);
+    console.log('[onDropZoneEnter] Dragged item:', event.item.data);
+
+    if (this.isDragging && node.id !== this.draggedNodeId) {
+      this.hoveredNodeId = node.id || null;
+      console.log('[onDropZoneEnter] ✓ Set hoveredNodeId to:', this.hoveredNodeId, '(' + node.name + ')');
+    } else {
+      console.log('[onDropZoneEnter] ✗ Skipped - isDragging:', this.isDragging, 'sameNode:', node.id === this.draggedNodeId);
+    }
+    console.log('======================');
+  }
+
+  onDropZoneExit(): void {
+    console.log('[onDropZoneExit] Clearing hoveredNodeId (was:', this.hoveredNodeId, ')');
+    this.hoveredNodeId = null;
+  }
+
+  shouldShowDropZone(node: Group): boolean {
+    const result = this.isDragging &&
+           this.hoveredNodeId === node.id &&
+           node.id !== this.draggedNodeId;
+    if (result) {
+      console.log('[shouldShowDropZone] Showing drop zone for node:', node.id, node.name);
+    }
+    return result;
+  }
+
+  onDrop(event: CdkDragDrop<Group>): void {
+    console.log('[onDrop] Event triggered!');
+    console.log('[onDrop] Event:', event);
+    console.log('[onDrop] event.item.data:', event.item.data);
+    console.log('[onDrop] event.container.data:', event.container.data);
+    console.log('[onDrop] previousContainer:', event.previousContainer.id);
+    console.log('[onDrop] container:', event.container.id);
+
+    if (event.previousContainer === event.container) {
+      console.warn('[onDrop] Same container - no move needed, refreshing tree');
+      this.dataManagementGroupService.initTree(undefined, true);
+      this.resetDragState();
+      return;
+    }
+
+    const draggedNode = event.item.data as Group;
+    const targetNode = event.container.data;
+
+    console.log('[onDrop] draggedNode:', draggedNode?.id, draggedNode?.name);
+    console.log('[onDrop] targetNode:', targetNode?.id, targetNode?.name);
+
+    if (!draggedNode || !targetNode) {
+      console.warn('[onDrop] Missing draggedNode or targetNode - refreshing tree');
+      this.dataManagementGroupService.initTree(undefined, true);
+      this.resetDragState();
+      return;
+    }
+
+    if (draggedNode.id === targetNode.id) {
+      console.warn('[onDrop] Cannot drop node on itself - refreshing tree');
+      this.dataManagementGroupService.initTree(undefined, true);
+      this.resetDragState();
+      return;
+    }
+
+    if (this.isDescendant(draggedNode, targetNode)) {
+      console.warn('[onDrop] Cannot move node to its own descendant - refreshing tree');
+      this.dataManagementGroupService.initTree(undefined, true);
+      this.resetDragState();
+      return;
+    }
+
+    console.log('[onDrop] Moving node:', draggedNode.id, 'to parent:', targetNode.id);
+    if (draggedNode.id && targetNode.id) {
+      this.dataManagementGroupService.moveGroup(draggedNode.id, targetNode.id);
+    }
+
+    this.resetDragState();
+  }
+
+  private resetDragState(): void {
+    console.log('[resetDragState] Resetting all drag states');
+    this.isDragging = false;
+    this.draggedNodeId = null;
+    this.hoveredNodeId = null;
+  }
+
+  private isDescendant(parent: Group, potentialDescendant: Group): boolean {
+    if (parent.lft < potentialDescendant.lft && parent.rgt > potentialDescendant.rgt) {
+      return true;
+    }
+    return false;
   }
 
   private readSignals(): void {

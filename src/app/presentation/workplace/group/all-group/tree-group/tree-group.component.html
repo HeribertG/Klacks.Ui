@@ -73,7 +73,7 @@
 
   @if (dataManagementGroupService.showTree()) {
   <!-- tree view -->
-  <div class="tree-container">
+  <div class="tree-container" cdkDropListGroup>
     @if (hierarchicalTree && hierarchicalTree.length > 0) {
     <ul class="tree-root">
       @for (node of hierarchicalTree; track node.id) {
@@ -91,73 +91,90 @@
     }
 
     <ng-template #recursiveTree let-node>
-      <div class="tree-node-item" [class.active]="isNodeSelected(node)">
-        <div
-          class="tree-node-indicator"
-          [style.padding-left.px]="node.depth * 20"
-        >
-          @if (hasChildren(node)) {
-          <span
-            class="tree-toggle"
-            (click)="toggleNode(node)"
-            (keyup.enter)="toggleNode(node)"
-            (keyup.space)="toggleNode(node)"
+      <div class="tree-node-wrapper"
+           [attr.data-node-id]="node.id"
+           cdkDropList
+           [id]="'drop-zone-' + node.id"
+           [cdkDropListData]="node"
+           cdkDropListSortingDisabled
+           (cdkDropListEntered)="onDropZoneEnter(node, $event)"
+           (cdkDropListExited)="onDropZoneExit()"
+           (cdkDropListDropped)="onDrop($event)">
+        <div class="tree-node-item"
+             [class.active]="isNodeSelected(node)"
+             cdkDrag
+             [cdkDragData]="node"
+             (cdkDragStarted)="onDragStarted(node)"
+             (cdkDragEnded)="onDragEnded()">
+          <div
+            class="tree-node-indicator"
+            [style.padding-left.px]="node.depth * 20"
+          >
+            @if (hasChildren(node)) {
+            <span
+              class="tree-toggle"
+              (click)="toggleNode(node)"
+              (keyup.enter)="toggleNode(node)"
+              (keyup.space)="toggleNode(node)"
+              tabindex="0"
+              role="button"
+              [attr.aria-expanded]="isNodeExpanded(node)"
+              [attr.aria-label]="
+                isNodeExpanded(node) ? 'Collapse subgroups' : 'Expand subgroups'
+              "
+            >
+              @if (isNodeExpanded(node)) {
+              <app-icon-angle-down></app-icon-angle-down>
+              } @if (!isNodeExpanded(node)) {
+              <app-icon-angle-right></app-icon-angle-right>
+              }
+            </span>
+            } @if (!hasChildren(node)) {
+            <span class="tree-toggle-placeholder"></span>
+            }
+          </div>
+
+          <div
+            class="tree-node-content"
+            (click)="selectNode(node)"
+            (keyup.enter)="selectNode(node)"
+            (keyup.space)="selectNode(node)"
             tabindex="0"
             role="button"
-            [attr.aria-expanded]="isNodeExpanded(node)"
-            [attr.aria-label]="
-              isNodeExpanded(node) ? 'Collapse subgroups' : 'Expand subgroups'
-            "
+            [attr.aria-selected]="isNodeSelected(node)"
+            [attr.aria-label]="'Group ' + node.name + ' select'"
+            [title]="node.description || ''"
           >
-            @if (isNodeExpanded(node)) {
-            <app-icon-angle-down></app-icon-angle-down>
-            } @if (!isNodeExpanded(node)) {
-            <app-icon-angle-right></app-icon-angle-right>
-            }
-          </span>
-          } @if (!hasChildren(node)) {
-          <span class="tree-toggle-placeholder"></span>
+            <span class="tree-node-name">{{ node.name }}</span>
+            <span class="tree-node-badge"
+              >{{ getTotalClientsCount(node) }} | {{ node.clientsCount }}</span
+            >
+          </div>
+
+          @if (authorizationService.isAuthorised) {
+          <div class="tree-node-actions">
+            <button class="tree-action-btn" (click)="editNode(node)">
+              <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
+            </button>
+            <button class="tree-action-btn" (click)="addChildNode(node)">
+              <app-icon-add></app-icon-add>
+            </button>
+            <button class="tree-action-btn" (click)="deleteNode(node)">
+              <app-icon-trash-red></app-icon-trash-red>
+            </button>
+          </div>
+          } @if (!authorizationService.isAuthorised) {
+          <div class="tree-node-actions">
+            <button class="tree-action-btn" (click)="editNode(node)">
+              <app-icon-eye-grey></app-icon-eye-grey>
+            </button>
+          </div>
+          }
+
+          @if (shouldShowDropZone(node)) {
+          <div class="tree-drop-zone-overlay"></div>
           }
         </div>
-
-        <!-- Node Content -->
-        <div
-          class="tree-node-content"
-          (click)="selectNode(node)"
-          (keyup.enter)="selectNode(node)"
-          (keyup.space)="selectNode(node)"
-          tabindex="0"
-          role="button"
-          [attr.aria-selected]="isNodeSelected(node)"
-          [attr.aria-label]="'Group ' + node.name + ' select'"
-          [title]="node.description || ''"
-        >
-          <span class="tree-node-name">{{ node.name }}</span>
-          <span class="tree-node-badge"
-            >{{ getTotalClientsCount(node) }} | {{ node.clientsCount }}</span
-          >
-        </div>
-
-        <!-- Actions for the node -->
-        @if (authorizationService.isAuthorised) {
-        <div class="tree-node-actions">
-          <button class="tree-action-btn" (click)="editNode(node)">
-            <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
-          </button>
-          <button class="tree-action-btn" (click)="addChildNode(node)">
-            <app-icon-add></app-icon-add>
-          </button>
-          <button class="tree-action-btn" (click)="deleteNode(node)">
-            <app-icon-trash-red></app-icon-trash-red>
-          </button>
-        </div>
-        } @if (!authorizationService.isAuthorised) {
-        <div class="tree-node-actions">
-          <button class="tree-action-btn" (click)="editNode(node)">
-            <app-icon-eye-grey></app-icon-eye-grey>
-          </button>
-        </div>
-        }
       </div>
 
       <!-- Children of the node-->

@@ -123,9 +123,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     this.readPage();
   }
 
-  initTree(rootId?: string) {
+  initTree(rootId?: string, preserveExpandedState = false) {
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
     setTimeout(() => this.showProgressSpinner.set(true), 0);
+
+    const previousExpandedNodes = preserveExpandedState ? new Set(this.expandedNodes) : new Set<string>();
 
     this.dataGroupService.getGroupTree(rootId).subscribe({
       next: (tree: IGroupTree) => {
@@ -134,13 +136,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
         this.flatNodeList = this.flattenTree(this.groupTree.nodes);
 
-        const expandedSet = new Set<string>();
-        this.groupTree.nodes.forEach((node) => {
-          if (node.id) {
-            expandedSet.add(node.id);
-          }
-        });
-        this.expandedNodes = expandedSet;
+        if (preserveExpandedState) {
+          this.expandedNodes = previousExpandedNodes;
+        } else {
+          this.expandedNodes = new Set<string>();
+        }
 
         this.fireIsReadEvent();
       },
@@ -498,7 +498,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient
-      .get<IGroup[]>(`${environment.baseUrl}GroupTrees/path/${id}`)
+      .get<IGroup[]>(`${environment.baseUrl}Groups/path/${id}`)
       .pipe(
         catchError((error) => {
           this.toastShowService.showError(error, 'GroupPathError');
@@ -513,7 +513,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     const params = new HttpParams().set('newParentId', newParentId);
 
     return this.httpClient
-      .post<IGroup>(`${environment.baseUrl}GroupTrees/move/${id}`, null, {
+      .post<IGroup>(`${environment.baseUrl}Groups/move/${id}`, null, {
         params,
       })
       .pipe(
@@ -525,7 +525,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       .subscribe({
         next: () => {
           this.init();
-          this.initTree();
+          this.initTree(undefined, true);
           this.showProgressSpinner.set(false);
         },
         error: () => {
