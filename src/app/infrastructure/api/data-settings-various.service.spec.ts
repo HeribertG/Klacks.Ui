@@ -40,7 +40,7 @@ describe('DataSettingsVariousService', () => {
     });
 
     const req = httpTestingController.expectOne(
-      `${environment.baseUrl}Settings/GetSetting/${settingValue}`
+      `${environment.baseUrl}GeneralSettings/GetSetting/${settingValue}`
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockSetting);
@@ -58,7 +58,7 @@ describe('DataSettingsVariousService', () => {
     });
 
     const req = httpTestingController.expectOne(
-      `${environment.baseUrl}Settings/PutSetting/`
+      `${environment.baseUrl}GeneralSettings/PutSetting/`
     );
     expect(req.request.method).toBe('PUT');
     req.flush(mockSetting);
@@ -76,7 +76,7 @@ describe('DataSettingsVariousService', () => {
     });
 
     const req = httpTestingController.expectOne(
-      `${environment.baseUrl}Settings/AddSetting/`
+      `${environment.baseUrl}GeneralSettings/AddSetting/`
     );
     expect(req.request.method).toBe('POST');
     req.flush(mockSetting);
@@ -93,7 +93,7 @@ describe('DataSettingsVariousService', () => {
     });
 
     const req = httpTestingController.expectOne(
-      `${environment.baseUrl}Settings/GetSettingsList`
+      `${environment.baseUrl}GeneralSettings/GetSettingsList`
     );
     expect(req.request.method).toBe('GET');
     req.flush(mockSettings);

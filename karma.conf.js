@@ -8,7 +8,11 @@ module.exports = function (config) {
     plugins: [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
+      require('karma-firefox-launcher'),
+      require('karma-edge-launcher'),
       require('karma-jasmine-html-reporter'),
+      require('karma-junit-reporter'),
+      require('karma-html-reporter'),
       require('karma-coverage'),
       require('@angular-devkit/build-angular/plugins/karma')
     ],
@@ -20,10 +24,15 @@ module.exports = function (config) {
         // the possible options are listed at https://jasmine.github.io/api/edge/Configuration.html
         // for example, you can disable the random execution with `random: false`
         // or set a specific seed with `seed: 4321`
+        random: false,
+        hideDisabled: true
       },
+      captureConsole: false,
+      clearContext: false
     },
     jasmineHtmlReporter: {
-      suppressAll: true // removes the duplicated traces
+      suppressAll: false, // show all test details
+      suppressFailed: false
     },
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/klacks.ui'),
@@ -33,21 +42,45 @@ module.exports = function (config) {
         { type: 'text-summary' }
       ]
     },
-    reporters: ['progress', 'kjhtml'],
-    browsers: ['ChromeHeadless'],
+    reporters: ['progress', 'kjhtml', 'junit', 'html'],
+    junitReporter: {
+      outputDir: 'test-results',
+      outputFile: 'test-results.xml',
+      useBrowserName: false
+    },
+    htmlReporter: {
+      outputDir: 'test-results/html',
+      reportName: 'test-report',
+      pageTitle: 'Klacks.Ui Test Results',
+      subPageTitle: 'Unit Tests',
+      groupSuites: true,
+      useCompactStyle: true
+    },
+    browsers: ['Chrome'],
     restartOnFileChange: true,
     customLaunchers: {
-      ChromeHeadless: {
-        base: 'Chrome',
+      CustomChromiumHeadless: {
+        base: 'ChromiumHeadless',
         flags: [
-          '--headless',
-          '--disable-gpu',
           '--no-sandbox',
           '--disable-dev-shm-usage',
           '--disable-extensions',
-          '--remote-debugging-port=9222'
+          '--disable-gpu',
+          '--disable-software-rasterizer'
+        ]
+      },
+      ChromeHeadlessCI: {
+        base: 'ChromeHeadless',
+        flags: [
+          '--no-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-extensions',
+          '--disable-gpu'
         ]
       }
-    }
+    },
+    browserNoActivityTimeout: 60000,
+    browserDisconnectTimeout: 10000,
+    browserDisconnectTolerance: 3
   });
 };

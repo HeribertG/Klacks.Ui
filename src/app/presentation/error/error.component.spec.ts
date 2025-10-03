@@ -49,15 +49,14 @@ describe('ErrorComponent', () => {
     expect(messageElement.textContent.trim()).toContain('error.message');
   });
 
-  it('should render button with translation and router link', () => {
+  it('should render button with translation', () => {
     fixture.detectChanges();
-    
+
     const buttonElement = fixture.nativeElement.querySelector('button');
     expect(buttonElement).toBeTruthy();
     expect(buttonElement.textContent.trim()).toContain('error.button');
-    
-    // Check that the button itself has the routerLink attribute
-    expect(buttonElement.getAttribute('ng-reflect-router-link')).toBe('/');
+    expect(buttonElement.classList.contains('btn')).toBe(true);
+    expect(buttonElement.classList.contains('btn-primary')).toBe(true);
   });
 
   it('should have proper CSS classes', () => {

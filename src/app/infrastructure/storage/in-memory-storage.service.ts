@@ -5,10 +5,13 @@ import { IFilterStorage } from '../../application/interfaces/filter-storage.inte
 export class InMemoryStorageService implements IFilterStorage {
   private storage = new Map<string, string>();
   private available = true;
+  private suppressWarnings = false;
 
   async saveFilter<T>(key: string, filter: T): Promise<boolean> {
     if (!(await this.isAvailable())) {
-      console.warn('InMemoryStorage is not available. Filter could not be saved.');
+      if (!this.suppressWarnings) {
+        console.warn('InMemoryStorage is not available. Filter could not be saved.');
+      }
       return false;
     }
 
@@ -24,7 +27,9 @@ export class InMemoryStorageService implements IFilterStorage {
 
   async restoreFilter<T>(key: string): Promise<T | null> {
     if (!(await this.isAvailable())) {
-      console.warn('InMemoryStorage is not available. Filter could not be restored.');
+      if (!this.suppressWarnings) {
+        console.warn('InMemoryStorage is not available. Filter could not be restored.');
+      }
       return null;
     }
 
@@ -44,7 +49,9 @@ export class InMemoryStorageService implements IFilterStorage {
 
   async removeFilter(key: string): Promise<boolean> {
     if (!(await this.isAvailable())) {
-      console.warn('InMemoryStorage is not available. Filter could not be removed.');
+      if (!this.suppressWarnings) {
+        console.warn('InMemoryStorage is not available. Filter could not be removed.');
+      }
       return false;
     }
 
@@ -103,6 +110,10 @@ export class InMemoryStorageService implements IFilterStorage {
 
   setAvailable(available: boolean): void {
     this.available = available;
+  }
+
+  setSuppressWarnings(suppress: boolean): void {
+    this.suppressWarnings = suppress;
   }
 
   size(): number {

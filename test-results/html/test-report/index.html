@@ -1,0 +1,4815 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Klacks.Ui Test Results</title>
+<style>
+body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
+#HTMLReporter h1 { font-size: 12px; font-weight: normal; text-align: right; margin: 10px 0 10px 0 !important; }
+#HTMLReporter { font-size: 11px; font-family: Monaco, "Lucida Console", monospace; line-height: 14px; color: #333333; }
+#HTMLReporter a { text-decoration: none; }
+#HTMLReporter a:hover { text-decoration: underline; }
+#HTMLReporter p, #HTMLReporter h1, #HTMLReporter h2, #HTMLReporter h3, #HTMLReporter h4, #HTMLReporter h5, #HTMLReporter h6 { margin: 0; line-height: 14px; }
+#HTMLReporter .banner, #HTMLReporter .symbolSummary, #HTMLReporter .summary, #HTMLReporter .resultMessage, #HTMLReporter .specDetail .description, #HTMLReporter .alert .bar, #HTMLReporter .stackTrace { padding-left: 9px; padding-right: 9px; }
+
+#HTMLReporter #jasmine_content { position: fixed; right: 100%; }
+#HTMLReporter .version { color: #aaaaaa; }
+#HTMLReporter .banner { margin-top: 14px; }
+#HTMLReporter .duration { color: #aaaaaa; float: right; }
+#HTMLReporter .exceptions { color: #fff; float: right; margin-top: 5px; margin-right: 5px; }
+#HTMLReporter .bar { line-height: 28px; font-size: 14px; display: block; color: #eee; }
+#HTMLReporter .runningAlert { background-color: #666666; }
+#HTMLReporter .skippedAlert { background-color: #aaaaaa; }
+#HTMLReporter .skippedAlert:first-child { background-color: #333333; }
+#HTMLReporter .skippedAlert:hover { text-decoration: none; color: white; text-decoration: underline; }
+#HTMLReporter .passingAlert { background-color: #a6b779; }
+#HTMLReporter .passingAlert:first-child { background-color: #5e7d00; }
+#HTMLReporter .failingAlert { background-color: #cf867e; }
+#HTMLReporter .failingAlert:first-child { background-color: #b03911; }
+#HTMLReporter .results { margin-top: 14px; }
+#HTMLReporter #details { display: none; }
+#HTMLReporter .resultsMenu { color: #999; background-color: #fff; }
+
+#HTMLReporter .summaryMenuItem { font-weight: normal; text-decoration: none; margin-right: 5px; color: #333; }
+#HTMLReporter .detailsMenuItem { font-weight: normal; text-decoration: none; margin-left: 5px; color: #999; }
+
+#HTMLReporter.showDetails .summaryMenuItem { color: #999; }
+#HTMLReporter.showDetails .detailsMenuItem { color: #333; }
+#HTMLReporter.showDetails .summaryMenuItem:hover { text-decoration: underline; }
+#HTMLReporter             .detailsMenuItem:hover { text-decoration: underline; }
+
+
+#HTMLReporter.showDetails .summary { display: none; }
+#HTMLReporter.showDetails #details { display: block; }
+#HTMLReporter .summary { margin-top: 14px; margin-bottom: 40px; }
+#HTMLReporter .summary .suite .suite, #HTMLReporter .summary .specSummary { margin-left: 14px; }
+#HTMLReporter .summary .specSummary.passed { color: #5e7d00; }
+#HTMLReporter .summary .specSummary.failed { color: #b03911; }
+#HTMLReporter .summary .specSummary.skipped { color: #ba9d37; }
+#HTMLReporter .description + .suite { margin-top: 0; }
+#HTMLReporter .suite { margin-top: 14px; }
+#HTMLReporter .suite a { color: #333333; }
+#HTMLReporter #details .specDetail { margin-bottom: 28px; }
+#HTMLReporter #details .specDetail .description { display: block; color: white; background-color: #b03911; }
+#HTMLReporter .resultMessage { padding-top: 14px; color: #333333; }
+#HTMLReporter .resultMessage span.result { display: block; }
+#HTMLReporter .stackTrace { margin: 5px 0 0 0; max-height: 224px; overflow: auto; 
+    line-height: 18px; color: #666666; border: 1px solid #ddd; background: white; white-space: pre; }
+
+
+.fold-buttons { float: right; }
+.fold-buttons a { color: #fff; font-size: 12px; }
+.fold-buttons { display: none } 
+#HTMLReporter .br { margin-top: 8px; }
+#HTMLReporter .section-starter { font-size: 14px; line-height: 18px }
+#HTMLReporter .summary-section { 
+  cursor: -webkit-zoom-out; cursor: -moz-zoom-out; cursor: zoom-out; 
+  background: #fafafa; 
+  padding: 10px; 
+  border-bottom: #eaeaea 1px solid; }
+#HTMLReporter .summary-section.folded { 
+  cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in; 
+  padding-bottom: 8px;
+}
+#HTMLReporter .summary-section.folded div { display: none }
+#HTMLReporter .summary-section.folded div.section-starter { display: block }
+/*#HTMLReporter .summary-section:hover { background: #e9e9e9; }*/
+#HTMLReporter .summary-section:hover { background: #f5f5f5; }
+#HTMLReporter .summary-section-totals { 
+  font-size: 11px;
+  display: none; 
+  margin-left: 11px; 
+  overflow: hidden; 
+  position: relative;
+  top: -1px; 
+}
+#HTMLReporter .summary-section.folded .summary-section-totals { display: inline; }
+#HTMLReporter .summary-section-total { color: #fff; vertical-align: baseline; padding: 1px 8px; }
+#HTMLReporter .summary-section-total.passed { background: #5e7d00;  }
+#HTMLReporter .summary-section-total.failed { background: #b03911;  }
+#HTMLReporter .summary-section-total.skipped { background: #ba9d37;  }
+
+#HTMLReporter { font-size: 12px; line-height: 18px; } /*larget font-size*/
+
+</style>
+</head>
+
+<body id="HTMLReporter" class="html-reporter">
+<h1>Tested in Chrome 140.0.0.0 (Windows 10) on Thu Oct 02 2025</h1>
+
+<div class="alert">
+
+
+
+  
+  <span class="passingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
+  <a href="#" onclick="unfold();">Unfold</a></span>910 specs, 0 failed, 21 pending</span>
+  
+
+
+</div>
+<div class="results">
+  <div class="summary">
+  
+  
+  
+  
+  
+    <div class="suite passed">
+      <span class="description">AppComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create the app</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have as title 'klacks'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render the content correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ScriptService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 10/9</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 10/9</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 10\9</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 10\9</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 10 mod 3</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 10 mod 3</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 10 ^ 3</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 10 ^ 3</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint -1 * -1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, -1 * -1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 1 * -1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 1 * -1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 0 * 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 0 * 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 0 / 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 0 / 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 1 / 0</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 1 / 0</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint 2 + 3 * 4</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, 2 + 3 * 4</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: debugprint (2 + 3) * 4</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: message 1, (2 + 3) * 4</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: dim x
+
+x = 10
+x += 5
+x *= 3
+x -=10
+x /= 2.5
+
+x &amp;= &quot; cm&quot;
+
+debugprint x</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: dim x
+
+x = 10
+x += 5
+x *= 3
+x -=10
+x /= 2.5
+
+x &amp;= &quot; cm&quot;
+
+message 1, x</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: dim x
+
+x = 10
+x += 5
+x *= 3
+x -=10
+x /= 2.5
+
+x &amp;= &quot; cm&quot;
+
+debugprint x</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should interpret correctly for script: dim x
+
+x = 10
+x += 5
+x *= 3
+x -=10
+x /= 2.5
+
+x &amp;= &quot; cm&quot;
+
+message 1, x</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageStack pushOnStack</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should push a value onto the stack</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not push a duplicate of the last element</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageStack popFromStack</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should pop the last value from the stack</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return an empty string if the stack is empty</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageStack countItemInStack</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return the correct number of items in the stack</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageStack deleteStack</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete the stack from localStorage</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TranslateStringConstantsService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Utility Functions isNumeric</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for numeric values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for non-numeric values</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Utility Functions replaceUmlaut</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should replace lowercase umlauts</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should replace lowercase umlauts</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle strings without umlauts</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle empty strings</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle strings</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Utility Functions validateEmail</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for valid email addresses</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for invalid email addresses</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for empty string</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Password Utilities generatePassword</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should generate a password of correct length</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should contain at least one lowercase, uppercase, digit, and special character</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Password Utilities checkPasswordStrength</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return Short for passwords shorter than minimum length</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return Common for common passwords</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return Weak for weak passwords</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return Ok for moderate passwords</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return Strong for strong passwords</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">HolidaysListHelper</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with the current year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a calendar rule</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compute eastern</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compute pentecost</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compute corpus christi</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compute silvester</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compute labor day</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is not leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 1 for 1 January</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 31 for 31 January</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Should return 59 for 28 February in a non-leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Should return 60 for 29 February in a leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 52 for 1st January 2022</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 52 for 31st December 2021</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 1 for 4th January 2021</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 53 for 31st December 2020</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 2 for 6th January 2020</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 1 for 30th December 2019</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 2 for 7th January 2019</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 1 for 1st January 2018</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 1 for 31st December 2018</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return week 52 for 25th December 2017</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementBreakService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementBreakService Membership validation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow break creation for client without membership</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow valid break creation within membership period</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reject break creation before membership start</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reject break creation after membership end</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reject break spanning outside membership period</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for invalid client index</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should format error messages with date parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should validate membership with only validFrom date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should validate membership with only validUntil date</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementBreakService updateBreak validation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should reject break update outside membership period</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService initialization</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize models on startup</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default model from enabled models</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle model loading error</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService sendMessage</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should send message and create conversation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return error when no model selected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle chat error</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService model management</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set current model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not set disabled model as current</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get model info</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get default model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should enable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should create model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should throw error when updating model without ID</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService conversation management</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear specific conversation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear all conversations</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get conversation IDs</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get all conversations sorted by last activity</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService usage and statistics</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should get usage statistics</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle usage statistics error</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService language and context</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set language</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get help information</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get functions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService loading state</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should track loading state</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementLLMService reload functionality</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should reload models</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementShiftCutService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should implement the necessary interfaces</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementShiftCutService goBack</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct path</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataManagementShiftService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService calculateWorkTime</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate normal shift correctly: 08:00-16:00 → Start: 8×60=480min, End: 16×60=960min, Result: 960-480=480min=8.0h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate overnight shift correctly: 22:00-06:00 → Start: 22×60=1320min, End: 6×60=360min, Result: (24×60-1320)+360=120+360=480min=8.0h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate 24-hour shift correctly: 07:00-07:00 → Start: 7×60=420min, End: 7×60=420min, Same time → 24×60=1440min=24.0h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate shift with minutes correctly: 09:30-17:45 → Start: 9×60+30=570min, End: 17×60+45=1065min, Result: 1065-570=495min=8.25h=8:15</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 0 for invalid input</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService calculateWorkTimeWithFallback</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should use automatic calculation when start and end are provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fallback to manual workTime when start/end are invalid</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 0 when all inputs are invalid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService isValidTimeSpan</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for valid normal shift</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for valid overnight shift</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for 24-hour shift</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for invalid input</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService formatWorkTimeForDisplay</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should format whole hours correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should format hours with minutes correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should format half hours correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle zero correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkTimeCalculationService Real-world scenarios</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Database Fix: 07:00-15:00 → 8.0h (was 24h), 15:00-23:00 → 8.0h (was 0.4h), 23:00-07:00 → 8.0h (was 0.4h)</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataCountryStateService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch country list</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a country</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update a country</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete a country</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService getProviders</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch all providers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retry on failure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService getProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch specific provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService createProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService updateProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should update existing provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService deleteProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService error handling</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should make HTTP request for getProvider</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should make HTTP request for createProvider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService chat</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should send chat request and return response</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retry on failure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getModels</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch available models</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService updateModel</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should update model configuration</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService model management</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should enable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete model</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getUsage</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch usage statistics with default days</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch usage statistics with custom days</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getFunctions</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch available functions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getHelp</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch help information</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataScheduleService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should retrieve a work item by id</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a new work item</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update an existing work item</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retrieve a list of client works based on filter</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataSettingsVariousService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should read a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should read a list of settings</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataShiftCutsService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataShiftService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">BrowserStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save and restore filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null for non-existent filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check availability</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get keys with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear filters with prefix</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">InMemoryStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save and restore filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null for non-existent filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check availability</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle unavailable storage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get keys with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear filters with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should provide utility methods</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should get item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set item to localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get JSON item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set JSON item to localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear all items from localStorage</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">AuthGuard</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true if user is authenticated and authorised</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should navigate to root and return false if user is not authenticated</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should navigate to root and return false if user is not authorised</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">AuthService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should authenticate a user and store a token on login</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove token on logout</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DragDropFileUploadDirective</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create an instance</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should change background on dragover</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit fileDropped event on drop</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ErrorComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render error headline with translation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render error message with translation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render button with translation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render SVG illustration</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DrawHelper GetDarkColor</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return a darker color</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DrawHelper GetLightColor</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return a lighter color</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DrawHelper</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should throw an error if color or d is not provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should throw an error if color or d is not provided</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ModalService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit openModelEvent when openModel is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit resultEvent when result is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit reasonEvent when reason is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default values for Input modal</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default values for Delete modal</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default values for Message modal</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">NoAccessComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have NavigationService injected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have TranslateService injected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call navigationService.navigateToRoot when onClick is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render lock icon SVG</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render no-access message with translation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render button with translation and click handler</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onClick when button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper container CSS class</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have lock icon with proper path and styling</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SearchStrategyService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call client strategy for CLIENT entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call group strategy for GROUP entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter for current entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle unknown entity gracefully</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow adding and removing strategies</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SearchComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call globalSearch when onClickSearch is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter when search input is cleared</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not reset filter when search input has value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should trigger search on HostListener search event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle focus change correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should restore search string when restoreSearch returns value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render search input when showSearch returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not render search when showSearch returns false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render address checkbox when showIncludeAddress returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render client checkbox when showIncludeClient returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should bind searchString to input value</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService setRowHeights</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default row height</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set both default and min row heights</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should only set min height when default is undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService calculateOptimalRowCount</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate optimal row count with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should respect minimum items per page</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should respect maxItems constraint</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use actual row heights when available</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use default height when no tbody rows exist</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle height variations correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService localStorage integration</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should get saved row size from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null for invalid saved row size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save row size to localStorage</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService auto mode detection</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should detect auto mode when value is -1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should detect auto mode when value is null</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not be auto mode for positive values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check localStorage when no value provided</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService effective row size</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return calculated optimal rows in auto mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return saved value when not in auto mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return calculated optimal when no saved value (auto mode)</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService resize observables</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create window resize observable</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should create table resize observable</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should create combined resize observable</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TableResizeService edge cases</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle element without table child</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle custom row heights correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle zero or negative window height gracefully</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpinnerService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">FallbackPipe</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create an instance</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null if source is undefined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return language-specific string if it exists</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return first non-null language string if requested language does not exist</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with welcome message on ngOnInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should load available models on init</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set current model on init</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent sendMessage</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should not send empty message</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should send message and handle response</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle error in sendMessage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should navigate when actionPerformed is true</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent voice input</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should call speech service methods when starting voice input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not start voice input when permission denied</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should stop voice input</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent model selection</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle model dropdown</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should select model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get current model info</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent suggestions and navigation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle suggestion click</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle navigate click</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent utility functions</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should format cost correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should format message content</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle Enter key press</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not handle Enter key press with Shift</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMChatComponent clearChat</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear chat and reset conversation</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LoginComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default language on ngOnInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use saved language if available</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check token validity on ngAfterViewInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle successful login</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle failed login</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set isClicked to true during login process</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DeletewindowComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default title</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have empty default message</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom title input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom message input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display attention icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render template correctly with inputs</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">MessageWindowComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should translate title on ngOnInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom title input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom message input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display question mark icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render template correctly with inputs</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update title after translation in ngOnInit even with initial custom title</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ModalComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">AbsenceSearchStrategy</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct entity name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with correct parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientSearchStrategy</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct entity name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with correct parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with default options</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GroupSearchStrategy</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct entity name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with correct parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ScheduleSearchStrategy</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct entity name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with correct parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ShiftSearchStrategy</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return correct entity name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with correct parameters</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should search with default options</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonExcelComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default buttonDisabled value as false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept buttonDisabled input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper button structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render Excel icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonNewComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render button with correct classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct button role</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render SVG icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct SVG path</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct SVG attributes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonPdfComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default buttonDisabled value as false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept buttonDisabled input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper button structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render PDF icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonSettingComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default buttonDisabled value as false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept buttonDisabled input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper button structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render gear icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper icon container structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CalendarDropdownComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit an event when onOpenChange is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call correct service method when onSelectStates is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit an event when onChangeStateSelection is called</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CalendarSelectorComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default property values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize calendar rules service on ngOnInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should read data on ngAfterViewInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should compare calendars correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit changeEvent when onChangeFilter is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get chip display name correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get chip key correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should track chips by key</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine if add button should be enabled</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine if calendar selections are valid</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine if chips exist</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should open modal with correct type</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit openMenu when onIsClosing without dirty filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call changeEvent emit when onChangeFilter with checkIfDirty</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle onDeleteChip correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clean up subscriptions on destroy</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ChipsComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept name input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept key input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display name in span element</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit delete event with key when onDelete is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onDelete when delete button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render delete button with correct attributes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper span classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit correct key when delete is triggered</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update displayed name when name input changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ContextMenuComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default menuData</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default rightPanelStyle</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit hasClicked when service emits</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set rightPanelStyle to contents when openMenu is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call main.openMenu with correct coordinates when openMenu is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should close menu immediately when force is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set timer to close menu when force is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should prevent default and stop propagation in stopEvent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle stopEvent when methods are undefined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render context menu div with correct attributes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render app-menu component</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should properly clean up subscriptions on destroy</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept menuData input</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">MenuService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CounterComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default property values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept maxNumber input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept currentNumber input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display current number in template</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should increment current number when clicking right button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should decrement current number when clicking left button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not decrement below 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not increment above maxNumber</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use default maxNumber when undefined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle zero change value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render left arrow button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render right arrow button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onClickPaginationButton when left button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onClickPaginationButton when right button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit change event with current number</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle large increment values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle large decrement values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper container CSS class</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display updated number after multiple clicks</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DateInputComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with null value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit valueChange and dateChange when updateValue is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle date change with valid date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle date change with null</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle date change with undefined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept NgbDateStruct value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept null value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept undefined value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display label when showLabel is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not display label when showLabel is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set label alignment style</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set correct input properties</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept and store inputName property</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable input when disabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should enable input when disabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct input width class</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display calendar icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle multiple date changes correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should maintain container structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set container alignment based on labelAlign</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle edge case dates correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">HScrollbarComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clamp value within valid range</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit valueChange when value changes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update metrics on refresh</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should correctly calculate X position for the thumb</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle canvas width constraint in calculateXPosition</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable arrow buttons at boundaries</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize safe SVG content</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle isAtStart correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle isAtEnd correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent component initialization</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize visibleRow options</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent ngOnInit</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should load saved row size from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle auto mode (-1) from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default when no saved value exists</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default when numberOfItemsPerPage is 0</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit numberOfItemsPerPageChange for fixed values</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent page change handling</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle next page navigation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle previous page navigation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle random page navigation</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit pageChange event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should store items per page for current page</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent row size change handling</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should change to fixed row size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should change to auto mode (-1)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not emit numberOfItemsPerPageChange for auto mode</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent template rendering</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should render row selector when showRowSelector is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not render row selector when showRowSelector is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render pagination component</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render all row size options</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display correct max items count</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should bind pagination properties correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent event handling in template</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onPageChange when pagination page changes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onChangeRowSize when select changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent data service integration</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle undefined data service gracefully</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update when data service values change</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent edge cases</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle invalid localStorage values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle undefined event in onChangeRowSize</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle string numbers in onChangeRowSize</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset pagination state on page change</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PaginationComponent input/output properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept page input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept numberOfItemsPerPage input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept maxSize input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept showRowSelector input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have working output events</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SimpleGroupSelectComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default property values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize services on ngOnInit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept hasOptionButton input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept label input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept required input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should build hierarchical tree when data is read</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should build display tree from hierarchical tree</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle dropdown when not disabled</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not toggle dropdown when disabled</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should close dropdown</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should detect if node has children</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check if node is expanded</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle node expansion</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should select group and emit events</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should programmatically select group</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should write value and find group</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear selection when writing null value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should register onChange callback</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should register onTouched callback</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set disabled state</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clean up effects on destroy</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should find and select group recursively</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle component visibility</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display selected group name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display placeholder when no group selected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should show dropdown when open</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should hide dropdown when closed</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render required marker when required is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not render required marker when required is false</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SimplePaginationComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default OwnTime value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit valueChange and timeChange when updateValue is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle hours input change for duration</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle hours input change for time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle minutes input change for duration</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle minutes input change for time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit keyUp event when onInputKeyUp is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display label when showLabel is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not display label when showLabel is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set label alignment style</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set input values correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable inputs when disabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle invalid input gracefully</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent Time mode (forDuration = false)</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should limit hours to 23 for time mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept hours 0-23 for time mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not allow hours above 23 for time mode</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent Duration mode (forDuration = true)</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow hours above 23 for duration mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow up to 999 hours for duration mode</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should limit hours to 999 for duration mode</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent Minutes validation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should limit minutes to 59</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle minutes above 59</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should pad single digit minutes with zero</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept valid minutes 00-59</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle multiple digit input correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle input &quot;059&quot; as &quot;59&quot;</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent Special input cases</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle non-numeric input by removing it</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle empty input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle leading zeros correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TimeInputComponent OwnTime object formatting</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should format time correctly for display</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should maintain duration values without time restrictions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">VScrollbarComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clamp value within valid range</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit valueChange when value changes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update metrics on refresh</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should correctly calculate Y position for the thumb</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle canvas height constraint in calculateYPosition</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable arrow buttons at boundaries</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize safe SVG content</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle isAtStart correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle isAtEnd correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpinnerWrapperComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not show spinner when showProgressSpinner is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should show spinner when showProgressSpinner is true</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService browser support detection</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should detect speech recognition support</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should detect when speech recognition is not supported</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should detect insecure context</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService speech recognition functionality</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should start listening and emit results</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should stop listening</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should abort listening</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle speech recognition errors</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle microphone permission denied error</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService language management</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should set language</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should update language and restart if listening</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should provide supported languages list</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService microphone permissions</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should request and receive microphone permissions</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle microphone permission denial</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService browser-specific handling</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle Edge browser specifically</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle Safari browser</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService error handling</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle language not supported error</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle network error</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should handle no match found</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SpeechRecognitionService listening state management</span>
+    
+      <div class="specSummary skipped">
+      <span class="description">should track listening state</span>
+      </div>
+    
+      <div class="specSummary skipped">
+      <span class="description">should not start listening when already active</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rectangle isEmpty</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for a newly created rectangle</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false for a rectangle with non-zero dimensions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rectangle equals</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when comparing a rectangle to itself</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when comparing to a different rectangle</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rectangle translate</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should correctly translate the rectangle</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">MyPosition</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with provided values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">isEmpty should return true for default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">isEmpty should return false for non-default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">isEqual should return true for same values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">isEqual should return false for different values</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">MyPositionCollection</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should start empty</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a position</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear all positions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PixelToCmService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">AbsenceGanttMaskComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have initial currentLang as &quot;de&quot;</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">BreakLayerService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService createDefaultConfig</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create default configuration with current year</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService getDaysInYear</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 365 for non-leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return 366 for leap year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use HolidaysListHelper for calculation</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService getActualRowHeaderWidth</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate 12% of page width</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService getCalendarWidth</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should calculate calendar width correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawRowHeader</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw row header with correct styling</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw top border when requested</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawMonthHeaders</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw month headers with translated names</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawRowSeparatorLine</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw horizontal line across full width</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawBreakBar</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw break bar within current year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should skip break outside current year</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use default color if absence color not provided</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawRowBreaks</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw multiple breaks</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle empty breaks array</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawLegend</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw legend items with colors and names</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle line wrapping for many items</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfDrawingService drawCompleteRow</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw all row components</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should include month headers when requested</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService getSelectedAbsenceTypes</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return selected absence types with localized names</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use fallback color if absence has no color</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle errors gracefully</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService addPageHeader</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should add title and page information</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService exportTest2DDrawing</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should use current year from break filter in title</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use custom title if provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw legend if absence types are selected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not draw legend if no absence types selected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw month headers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should draw rows for each client</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle pagination for many clients</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should pass break data to drawCompleteRow</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display message when no client data available</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display summary when clients are exported</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save PDF with timestamp in filename</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use year from break filter for config</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService A3_LANDSCAPE dimensions</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct A3 landscape dimensions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">GanttPdfExportService MARGINS</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should have appropriate margins</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Initialization</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should load models on init</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should load providers on init</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should filter only enabled providers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle model loading error</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle provider loading error with fallback</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Add Model</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize new model with default values</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Edit Model</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set editing model and reset API key</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Delete Model</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should not delete if index is invalid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Save Model</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update existing model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should include API key if provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle save error</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not save if form is invalid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Form Validation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should validate complete model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if modelId is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if modelName is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if apiModelId is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if providerId is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if contextWindow is zero or negative</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if maxTokens is zero or negative</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept zero costs</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return validation error messages</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should require API key for new models with certain providers</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Helper Methods</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should format cost correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should generate provider class name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine if provider API key is editable</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not allow API key edit for non-API providers</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMModelsComponent Event Emitters</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit isChangingEvent</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Initialization</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should load providers on init</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should subscribe to providers$</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Add Provider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize new provider with default values</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Edit Provider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set editing provider and API key</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle provider without API key</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Delete Provider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set providerToDelete</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Toggle Provider Status</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle provider status</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit isChangingEvent on successful toggle</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not emit if toggle fails</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not toggle if index is invalid</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not toggle if provider has no ID</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Save Provider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new provider</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update existing provider</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not save if form is invalid</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not update provider without ID</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not close modal if save fails</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Form Validation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should validate complete provider</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if providerName is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if baseUrl is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fail validation if apiKey is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should require providerId for new providers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not require providerId for existing providers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return validation error messages</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Helper Methods</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should generate provider class name</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine status class</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get status text</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check if provider has API key</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should determine if provider can be deleted</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow deletion if no default model exists</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LLMProvidersComponent Event Emitters</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit isChangingEvent</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Drag and Drop State Management</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should set dragging state on drag started</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset dragging state on drag ended</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set hovered node on drop zone enter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not set hovered node when hovering over dragged node</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear hovered node on drop zone exit</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Drop Zone Visibility</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should show drop zone when dragging and hovering over different node</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not show drop zone when not dragging</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not show drop zone when hovering over dragged node</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not show drop zone when hovering over different node</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Auto-Expand Functionality</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should expand collapsed node after 800ms hover</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not expand node if hover time is less than 800ms</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should cancel expand timer on drop zone exit</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not expand already expanded node</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not expand node without children</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Drop Event Handling</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should call moveGroup when dropping on different parent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should refresh tree when dropping on same container</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not move when dropping node on itself</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should prevent dropping parent into its own descendant</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset drag state after drop</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle drop with missing node IDs gracefully</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Auto-Scroll Functionality</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should trigger auto-scroll when near top edge</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should trigger auto-scroll when near bottom edge</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not trigger auto-scroll when in middle zone</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should stop auto-scroll on drag ended</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not crash when app-main element is not found</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">TreeGroupComponent - Drag and Drop Descendant Check</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should identify child as descendant of parent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should identify grandchild as descendant of grandparent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not identify parent as descendant of child</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not identify sibling as descendant</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not identify node as descendant of itself</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ScheduleDataService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ShiftDataService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PropertyGridComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic Cut Time Logic Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 1: 24h Shift (00:00-00:00) cut at 12:00 → 12h + 12h = 24h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 2: 24h Shift (07:00-07:00) cut at 15:00 → 8h + 16h = 24h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 3: 24h Shift (12:00-12:00) cut at 18:00 → 6h + 18h = 24h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 4: Normal Shift (06:00-14:00) cut at 10:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 5: Normal Shift (08:00-16:00) cut at 12:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 6: Normal Shift (14:00-22:00) cut at 18:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 7: Over-Midnight (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 8: Over-Midnight (20:00-04:00) cut at 23:00 → 3h + 5h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 9: Over-Midnight (18:00-02:00) cut at 22:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 10: Already Over-Midnight (15:00-07:00) cut at 23:00 → 8h + 8h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 11: Already Over-Midnight (15:00-07:00) cut at 03:00 → 12h + 4h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 12: Already Over-Midnight (23:00-07:00) cut at 03:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 13: Cut exactly at midnight (20:00-04:00) cut at 00:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 14: Start at midnight (00:00-08:00) cut at 04:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 15: End at midnight (16:00-00:00) cut at 20:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 16: Early morning shift (04:00-12:00) cut at 08:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 17: Late evening shift (19:00-03:00) cut at 01:00 → 6h + 2h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 18: Night shift (23:30-07:30) cut at 03:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 19: Already Over-Midnight (22:00-06:00) cut at 04:00 → 6h + 2h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 20: 12-hour shift (12:00-00:00) cut at 18:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 21: Morning to evening (05:00-21:00) cut at 13:00 → 8h + 8h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 22: Already Over-Midnight (21:00-05:00) cut at 02:00 → 5h + 3h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 23: Afternoon shift (13:00-21:00) cut at 17:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 24: Cross midnight (17:00-01:00) cut at 22:00 → 5h + 3h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 25: Early morning over midnight (03:00-11:00) cut at 07:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 26: 15-minute precision (23:45-07:15) cut at 03:45 → 4h + 3.5h = 7.5h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 27: Already Over-Midnight (16:00-08:00) cut at 23:30 → 7.5h + 8.5h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 28: Already Over-Midnight (16:00-08:00) cut at 04:00 → 12h + 4h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 29: Full night (20:00-08:00) cut at 00:30 → 4.5h + 7.5h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 30: Exact 8 hours (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 31: 10-hour shift (14:00-00:00) cut at 19:00 → 5h + 5h = 10h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 32: Swing shift (15:30-23:30) cut at 19:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 33: Graveyard shift (00:00-08:00) cut at 04:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 34: Split shift already over midnight (19:00-03:00) cut at 23:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 35: Split shift already over midnight (19:00-03:00) cut at 01:00 → 6h + 2h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 36: Long day shift (06:00-18:00) cut at 12:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 37: Evening to morning (18:00-06:00) cut at 00:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 38: Already midnight crossing (21:30-05:30) cut at 01:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 39: Short night shift (23:00-03:00) cut at 01:00 → 2h + 2h = 4h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 40: 16-hour shift (08:00-00:00) cut at 16:00 → 8h + 8h = 16h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 41: Multiple cuts scenario 1: (20:00-04:00) cut at 22:00 → 2h + 6h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 42: Multiple cuts scenario 2: (22:00-04:00) already cut, cut at 01:00 → 3h + 3h = 6h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 43: Unusual hours (11:15-19:45) cut at 15:30 → 4.25h + 4.25h = 8.5h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 44: Complex over midnight (17:45-01:15) cut at 23:15 → 5.5h + 2h = 7.5h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 45: 3-shift rotation morning (06:00-14:00) cut at 10:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 46: 3-shift rotation afternoon (14:00-22:00) cut at 18:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 47: 3-shift rotation night (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 48: Restaurant split shift (10:00-14:00) cut at 12:00 → 2h + 2h = 4h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 49: Restaurant evening (17:00-23:00) cut at 20:00 → 3h + 3h = 6h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 50: Healthcare 12h day (07:00-19:00) cut at 13:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 51: Healthcare 12h night (19:00-07:00) cut at 01:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 52: Security patrol (18:00-06:00) cut at 00:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 53: Airport early shift (04:00-12:00) cut at 08:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 54: Airport late shift (16:00-00:30) cut at 20:00 → 4h + 4.5h = 8.5h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 55: Retail opening shift (07:30-15:30) cut at 11:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 56: Retail closing shift (13:30-21:30) cut at 17:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 57: Manufacturing rotating shift A (05:00-13:00) cut at 09:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 58: Manufacturing rotating shift B (13:00-21:00) cut at 17:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 59: Manufacturing rotating shift C (21:00-05:00) cut at 01:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 60: Hotel reception day (08:00-16:00) cut at 12:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 61: Hotel reception evening (16:00-00:00) cut at 20:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 62: Hotel reception night (00:00-08:00) cut at 04:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 63: Bakery early morning (03:00-11:00) cut at 07:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 64: Bakery overnight prep (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 65: Call center late shift (15:00-23:00) cut at 19:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 66: Call center overnight (23:00-07:00) cut at 03:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 67: Emergency services 24h (06:00-06:00) cut at 18:00 → 12h + 12h = 24h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 68: Already over midnight 24h (18:00-06:00) cut at 00:00 → 6h + 6h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 69: Warehouse morning (05:30-13:30) cut at 09:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 70: Warehouse evening (13:30-21:30) cut at 17:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 71: Warehouse night (21:30-05:30) cut at 01:30 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 72: Transport driver day (06:00-14:00) cut at 10:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 73: Transport driver evening (14:00-22:00) cut at 18:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 74: Transport driver night (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 75: Office standard (09:00-17:00) cut at 13:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 76: Office flex early (07:00-15:00) cut at 11:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 77: Office flex late (11:00-19:00) cut at 15:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 78: Cinema matinee (10:00-18:00) cut at 14:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 79: Cinema evening (16:00-00:30) cut at 20:00 → 4h + 4.5h = 8.5h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 80: Bar afternoon (16:00-00:00) cut at 20:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 81: Bar late night (20:00-04:00) cut at 00:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 82: Club bouncer (22:00-06:00) cut at 02:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 83: IT maintenance window (02:00-06:00) cut at 04:00 → 2h + 2h = 4h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 84: IT overnight support (19:00-07:00) cut at 23:00 → 4h + 8h = 12h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 85: Already over midnight IT support (23:00-07:00) cut at 03:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 86: Gym early bird (05:00-13:00) cut at 09:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 87: Gym evening (15:00-23:00) cut at 19:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 88: Pharmacy day (08:30-18:30) cut at 13:30 → 5h + 5h = 10h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 89: Pharmacy emergency (18:30-08:30) cut at 00:30 → 6h + 8h = 14h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 90: School janitor early (06:00-14:00) cut at 10:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 91: School janitor late (14:00-22:00) cut at 18:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 92: Library morning (09:00-17:00) cut at 13:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 93: Library evening (12:00-20:00) cut at 16:00 → 4h + 4h = 8h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 94: Minimum split case: 23:58 to 00:02 cut at 00:00 → 2min + 2min = 4min</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 95: Edge case: Already cut (20:00-02:00) then (20:00-23:00) cut at 21:30 → 1.5h + 1.5h = 3h</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Test 96: Edge case: Already cut (20:00-02:00) then (23:00-02:00) cut at 00:30 → 1.5h + 1.5h = 3h</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic Cut Date Logic Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Date Test 1: Normal shift split by date - minimum 2 days (08:00-16:00) from 2025-01-01, cut at 2025-01-02</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Date Test 2: Over-midnight shift split after 3 days (22:00-06:00) from 2025-01-01, cut at 2025-01-04</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Date Test 3: 24h shift split after 7 days (00:00-00:00) from 2025-01-01, cut at 2025-01-08</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic Cut Staff Logic Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Staff Test 1: Split 10 employees: 7 original + 3 copied</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Staff Test 2: Split 5 employees: 3 original + 2 copied</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Staff Test 3: Split 2 employees: 1 original + 1 copied (minimum split)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Staff Test 4: Split 50 employees: 30 original + 20 copied (large team)</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic Cut Task Logic Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Task Test 1: Split 20 tasks: 15 original + 5 copied</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Task Test 2: Split 10 tasks: 7 original + 3 copied</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Task Test 3: Split 2 tasks: 1 original + 1 copied (minimum split)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Cut Task Test 4: Split 100 tasks: 75 original + 25 copied (large quantity)</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic ValidateAndCorrectTime Logic Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 1: Normal shift (07:00-15:00): User enters 16:00 → corrected to 14:59</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 2: Normal shift (07:00-15:00): User enters 06:00 → corrected to 07:01</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 3: Normal shift (07:00-15:00): User enters 07:00 → corrected to 07:01</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 4: Normal shift (07:00-15:00): User enters 15:00 → corrected to 14:59</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 5: Normal shift (07:00-15:00): User enters 10:00 → valid, no change</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 6: Over-midnight shift (23:00-07:00): User enters 08:00 → corrected to 07:00 (closer to end)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 7: Over-midnight shift (23:00-07:00): User enters 15:00 → corrected to 23:00 (closer to start)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 8: Over-midnight shift (23:00-07:00): User enters 22:00 → corrected to 23:00 (closer to start)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 9: Over-midnight shift (23:00-07:00): User enters 23:30 → valid, no change</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 10: Over-midnight shift (23:00-07:00): User enters 02:00 → valid, no change</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 11: Over-midnight shift (23:00-07:00): User enters 23:00 → valid, no change (start allowed)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 12: Over-midnight shift (23:00-07:00): User enters 07:00 → valid, no change (end allowed)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 13: 24h shift (00:00-00:00): User enters 00:00 → corrected to 00:01 (exact start not allowed)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 14: 24h shift (00:00-00:00): User enters 12:00 → valid, no change</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 15: 24h shift (00:00-00:00): User enters 23:59 → valid, no change</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 16: 24h shift (08:00-08:00): User enters 08:00 → corrected to 08:01 (exact start not allowed)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 17: Over-midnight shift (20:00-04:00): User enters 10:00 → corrected to 04:00 (closer to end)</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Validate Time Test 18: Over-midnight shift (20:00-04:00): User enters 19:00 → corrected to 20:00 (closer to start)</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutShiftListComponent - Time Cut Logic Auto-Selection of Child Cut Tests</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should auto-select new child cut after cut by time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should auto-select new child cut after cut by date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should auto-select new child cut after cut by staff</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should auto-select new child cut after cut by task</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should analyze cut possibilities for the newly selected child cut</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CutTableComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+  
+</div>
+
+<div id="details">
+  
+</div>
+
+<script>
+
+var folded = false;
+
+document.body.onkeypress = function (e) {
+  if (!e || !e.keyCode) return;
+  switch (e.keyCode) {
+    case 102: toggleFold(); break;
+    case 49: showSummary(); break;
+    
+  }
+};
+
+function showSummary() { document.body.className = "html-reporter showSummary"; }
+function showFailures() { document.body.className = "html-reporter showDetails"; }
+
+function toggleSection(el) {
+  el.className = el.className === 'summary-section' ? 'summary-section folded' : 'summary-section';
+}
+
+function toggleFold() { (folded) ? unfold() : fold(); }
+function fold() {
+  var els = document.querySelectorAll('.summary-section');
+  for (var i = 0; i < els.length; i++) {
+    els[i].className = 'summary-section folded';
+  }
+  folded = true;
+}
+function unfold() {
+  var els = document.querySelectorAll('.summary-section');
+  for (var i = 0; i < els.length; i++) {
+    els[i].className = 'summary-section';
+  }
+  folded = false;
+}
+
+</script>
+
+
+</body>
+</html>
+

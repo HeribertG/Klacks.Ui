@@ -51,6 +51,7 @@ describe('InMemoryStorageService', () => {
   });
 
   it('should handle unavailable storage', async () => {
+    service.setSuppressWarnings(true);
     service.setAvailable(false);
 
     const saveResult = await service.saveFilter(testKey, testFilter);
@@ -64,6 +65,7 @@ describe('InMemoryStorageService', () => {
 
     // Reset for other tests
     service.setAvailable(true);
+    service.setSuppressWarnings(false);
   });
 
   it('should get keys with prefix', async () => {
