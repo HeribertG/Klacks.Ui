@@ -1,0 +1,89 @@
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../../assets/standard-styles/navigation.scss";
+
+.expand-button {
+  margin-right: 30px;
+}
+
+button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-icon {
+  position: absolute;
+  right: 8px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+table select,
+.table select {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  padding-right: 30px !important;
+  width: 100%;
+}
+
+table input:not([type="checkbox"]),
+.table input:not([type="checkbox"]) {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+}
+
+table .input-group-text,
+.table .input-group-text {
+  border: none !important;
+  background: transparent !important;
+}
+
+.calendar-icon {
+  font-size: 16px;
+  color: var(--colorLine) !important;
+}
+
+table input[type="checkbox"].checkbox,
+td input[type="checkbox"].checkbox,
+.table input[type="checkbox"].checkbox {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: 1px solid var(--colorLine) !important;
+  background: transparent !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  &:checked::after {
+    content: "✔" !important;
+    display: block !important;
+    color: var(--colorText) !important;
+    font-size: 12px !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    line-height: 16px !important;
+  }
+
+  &:not(:checked)::after {
+    content: "" !important;
+  }
+}

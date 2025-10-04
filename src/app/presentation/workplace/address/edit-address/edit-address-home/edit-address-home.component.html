@@ -19,6 +19,16 @@
     </app-membership>
   </div>
 
+  @if (dataManagementClientService.editClient()?.type !== 2) {
+  <div class="container-profilline">
+    <app-client-contracts
+      (isChangingEvent)="onIsChanging($event)"
+      class="container-profile first border-right-card border-bottom-card"
+    >
+    </app-client-contracts>
+  </div>
+  }
+
   <div class="container-profilline">
     <app-note
       (isChangingEvent)="onIsChanging($event)"

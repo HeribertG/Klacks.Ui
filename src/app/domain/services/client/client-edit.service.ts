@@ -15,6 +15,7 @@ import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
+import { ClientContractService } from './client-contract.service';
 import { ClientConfigService } from './client-config.service';
 
 @Injectable({
@@ -25,6 +26,7 @@ export class ClientEditService {
   private navigationService = inject(NavigationService);
   private addressService = inject(AddressService);
   private communicationService = inject(CommunicationService);
+  private clientContractService = inject(ClientContractService);
   private clientConfigService = inject(ClientConfigService);
 
   public editClient = signal<IClient | undefined>(undefined);
@@ -108,7 +110,15 @@ export class ClientEditService {
   public saveEditClient(withoutUpdateDummy = false) {
     if (!this.isDirty()) return;
 
-    const clientToSave = this.editClient()!;
+    const filteredContracts = this.editClient()!.clientContracts.filter(
+      (contract) => contract.contractId && contract.contractId !== ''
+    );
+
+    const clientToSave: IClient = {
+      ...this.editClient()!,
+      clientContracts: filteredContracts,
+    };
+
     const apiCall = clientToSave.id
       ? this.dataClientService.updateClient(clientToSave)
       : this.dataClientService.addClient(clientToSave);
@@ -162,7 +172,10 @@ export class ClientEditService {
         client!.membership!.internalValidFrom =
             transformDateToNgbDateStruct(client!.membership!.validFrom);
         client!.membership!.internalValidUntil =
-            transformDateToNgbDateStruct(client!.membership!.validUntil!); 
+            transformDateToNgbDateStruct(client!.membership!.validUntil!);
+
+        this.clientContractService.setDateStructs(client!.clientContracts);
+
         return client;
     });
   }

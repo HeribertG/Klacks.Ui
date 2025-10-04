@@ -22,6 +22,7 @@ import { DateToString } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
+import { ClientContractService } from './client-contract.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Injectable({
@@ -36,6 +37,7 @@ export class DataManagementClientService
   public clientSearchService = inject(ClientSearchService);
   public addressService = inject(AddressService);
   public communicationService = inject(CommunicationService);
+  public clientContractService = inject(ClientContractService);
   private dataClientService = inject(DataClientService);
   private navigationService = inject(NavigationService);
 
@@ -194,6 +196,13 @@ export class DataManagementClientService
     }
   };
 
+  public addContract = () => {
+    if (this.editClient()) {
+      this.clientContractService.addContract(this.editClient()!);
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
+    }
+  };
+
   public removeCurrentAddress = () => {
     if (this.editClient()) {
       const updatedClient = this.addressService.removeCurrentAddress(
@@ -223,7 +232,6 @@ export class DataManagementClientService
         address,
         this.clientConfigService.stateList()
       );
-      console.log(filteredStates);
     }
   };
 

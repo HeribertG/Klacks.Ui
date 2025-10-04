@@ -179,7 +179,7 @@
 </ng-template>
 
 <form #clientForm="ngForm" class="container-card">
-  <div class="container-header header-container">
+  <div class="container-header header-container end-card">
     <div>
       {{ "address.edit-address.address-persona.id-number" | translate }}
       {{ dataManagementClientService.editClient()?.typeAbbreviation }}
@@ -306,8 +306,8 @@
                     | translate
                 }}
               </option>
-              @if (dataManagementClientService.editClient()?.legalEntity === true)
-              {
+              @if (dataManagementClientService.editClient()?.legalEntity ===
+              true) {
               <option value="3">
                 {{ "address.edit-address.address-persona.unknown" | translate }}
               </option>
@@ -428,8 +428,8 @@
           </div>
         </div>
       </div>
-      } @if (addNameLine2 && +dataManagementClientService.editClient()!.gender !==
-      3 && dataManagementClientService.isCurrentAddressMainAddress()) {
+      } @if (addNameLine2 && +dataManagementClientService.editClient()!.gender
+      !== 3 && dataManagementClientService.isCurrentAddressMainAddress()) {
       <div class="row-line">
         <div class="form-group firstColumn">
           <label for="maidenName">{{
@@ -640,8 +640,8 @@
             list="dynamicPlace"
           />
           <datalist id="dynamicPlace">
-            @for (item of dataManagementClientService.lastCountries(); track item)
-            {
+            @for (item of dataManagementClientService.lastCountries(); track
+            item) {
             <option [ngValue]="item">
               {{ item.city }}
             </option>
@@ -749,7 +749,7 @@
             <select
               class="form-select gap-prefix"
               [(ngModel)]="phoneData.prefix"
-              name="phonePrefix-{{ii}}"
+              name="phonePrefix-{{ ii }}"
               aria-label="Vorwahl"
               [disabled]="isDisabled()"
             >
@@ -770,7 +770,7 @@
               type="text"
               class="form-control medium-width-tel"
               [(ngModel)]="phoneData.value"
-              name="phoneValue-{{ii}}"
+              name="phoneValue-{{ ii }}"
               aria-label="Telefon"
               [disabled]="isDisabled()"
               (keyup)="onKeyupPhoneNumber(ii, $event)"
@@ -779,12 +779,13 @@
             <select
               class="form-select gap"
               [(ngModel)]="phoneData.type"
-              name="phoneType-{{ii}}"
+              name="phoneType-{{ ii }}"
               aria-label="phoneType"
               [disabled]="isDisabled()"
             >
-              @for (c of dataManagementClientService.communicationTypePhoneList();
-              track c.type) {
+              @for (c of
+              dataManagementClientService.communicationTypePhoneList(); track
+              c.type) {
               <option [value]="c.type" [selected]="phoneData.type === c.type">
                 {{ c.name }}
               </option>
@@ -822,25 +823,27 @@
               [(ngModel)]="emailData.value"
               aria-label="E-Mail"
               [disabled]="isDisabled()"
-              name="emailValue-{{i}}"
+              name="emailValue-{{ i }}"
             />
 
             <select
               class="form-select gap"
               [(ngModel)]="emailData.type"
-              name="emailType-{{i}}"
+              name="emailType-{{ i }}"
               aria-label="E-Mail Typ"
               [disabled]="isDisabled()"
             >
-              @for (c of dataManagementClientService.communicationTypeEmailList();
-              track c.type) {
+              @for (c of
+              dataManagementClientService.communicationTypeEmailList(); track
+              c.type) {
               <option [value]="c.type" [selected]="emailData.type === c.type">
                 {{ c.name }}
               </option>
               }
             </select>
-            @if (i === dataManagementClientService.communicationEmailList().length
-            - 1 && !isDisabled()) {
+            @if (i ===
+            dataManagementClientService.communicationEmailList().length - 1 &&
+            !isDisabled()) {
             <span class="add-button" type="button" (click)="onClickAddEmail()"
               >+</span
             >

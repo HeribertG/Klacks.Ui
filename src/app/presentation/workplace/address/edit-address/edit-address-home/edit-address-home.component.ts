@@ -12,6 +12,7 @@ import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workp
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';
 import { MembershipComponent } from '../membership/membership.component';
+import { ClientContractsComponent } from '../client-contracts/client-contracts.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
@@ -31,6 +32,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     TranslateModule,
     AddressPersonaComponent,
     MembershipComponent,
+    ClientContractsComponent,
     NoteComponent,
     EditAddressNavComponent,
   ],

@@ -8,6 +8,7 @@ import {
   IBaseTruncated,
 } from './general-class';
 import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
+import { IContract } from './contract-class';
 import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';
@@ -118,6 +119,7 @@ export interface IClient extends BaseEntity {
   addresses: IAddress[];
   communications: ICommunication[];
   annotations: IAnnotation[];
+  clientContracts: IClientContract[];
   internalBirthdate: NgbDateStruct | undefined;
 
   hasFutureAddress: boolean;
@@ -171,6 +173,18 @@ export interface IMembership {
   internalValidUntil: NgbDateStruct | undefined;
 }
 
+export interface IClientContract {
+  id: string | undefined;
+  clientId: string | undefined;
+  contractId: string | undefined;
+  contract: IContract | undefined;
+  fromDate: Date;
+  untilDate: Date | undefined;
+  internalFromDate: NgbDateStruct | undefined;
+  internalUntilDate: NgbDateStruct | undefined;
+  isActive: boolean;
+}
+
 export interface IAnnotation {
   id: string | undefined;
   clientId: string | undefined;
@@ -220,6 +234,18 @@ export class Annotation extends BaseEntity implements IAnnotation {
   note = '';
 }
 
+export class ClientContract implements IClientContract {
+  id = '';
+  clientId = '';
+  contractId = '';
+  contract = undefined;
+  fromDate = new Date();
+  untilDate: Date | undefined = undefined;
+  internalFromDate: NgbDateStruct | undefined = undefined;
+  internalUntilDate: NgbDateStruct | undefined = undefined;
+  isActive = false;
+}
+
 export class Client extends BaseEntity implements IClient {
   constructor() {
     super();
@@ -230,6 +256,8 @@ export class Client extends BaseEntity implements IClient {
 
     const ann = new Annotation();
     this.annotations = [ann];
+
+    this.clientContracts = [];
   }
 
   id = '';
@@ -249,6 +277,7 @@ export class Client extends BaseEntity implements IClient {
   addresses: IAddress[];
   communications: ICommunication[];
   annotations: IAnnotation[];
+  clientContracts: IClientContract[];
 
   internalBirthdate = undefined;
 

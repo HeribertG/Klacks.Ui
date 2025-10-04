@@ -1,0 +1,153 @@
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<form #contractsForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    {{ "address.edit-address.contracts.header" | translate }}
+
+    <span class="filler"></span>
+
+    @if (!isDisabled()) {
+    <app-button-new
+      placement="top"
+      type="button"
+      (click)="addContract()"
+      ngbTooltip="{{
+        'address.edit-address.contracts.add-contract' | translate
+      }}"
+    >
+    </app-button-new>
+    }
+
+    <button class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  <div class="container-line"></div>
+  <div [ngStyle]="{ display: visibleTable }">
+    @if (dataManagementClientService.editClient() !== undefined) {
+    <div class="container-table">
+      <table class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header" style="width: 360px">
+              {{ "address.edit-address.contracts.contract" | translate }}
+            </th>
+            <th class="table-header" style="width: 140px">
+              {{ "address.edit-address.contracts.from-date" | translate }}
+            </th>
+            <th class="table-header" style="width: 140px">
+              {{ "address.edit-address.contracts.until-date" | translate }}
+            </th>
+            <th class="table-header" style="width: 50px">
+              {{ "address.edit-address.contracts.active" | translate }}
+            </th>
+            <th
+              class="table-header action"
+              style="width: 60px; max-width: 60px; min-width: 60px"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (contract of
+          dataManagementClientService.editClient()?.clientContracts; track
+          trackByIndex($index)) {
+          <tr class="table-row">
+            <td class="table-cell">
+              <div class="select-wrapper">
+                <select
+                  class="form-select"
+                  name="contract-{{ $index }}"
+                  id="contract-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  [(ngModel)]="contract.contractId"
+                >
+                  <option value="">
+                    {{
+                      "address.edit-address.contracts.select-contract"
+                        | translate
+                    }}
+                  </option>
+                  @for (c of contracts; track c.id) {
+                  <option [ngValue]="c.id">{{ c.name }}</option>
+                  }
+                </select>
+                <div class="select-icon">
+                  <app-icon-angle-down></app-icon-angle-down>
+                </div>
+              </div>
+            </td>
+            <td class="table-cell">
+              <div class="input-group">
+                <input
+                  class="form-control"
+                  name="fromDate-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  aria-labelledby="from date"
+                  id="from-date-{{ $index }}"
+                  [(ngModel)]="contract.internalFromDate"
+                  ngbDatepicker
+                  #fromDate="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="fromDate.toggle()"
+                >
+                  <fa-icon [icon]="faCalendar" class="calendar-icon"></fa-icon>
+                </span>
+              </div>
+            </td>
+            <td class="table-cell">
+              <div class="input-group">
+                <input
+                  class="form-control"
+                  name="untilDate-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  aria-label="until-date-{{ $index }}"
+                  aria-labelledby="untilDate"
+                  id="until-date-{{ $index }}"
+                  [(ngModel)]="contract.internalUntilDate"
+                  ngbDatepicker
+                  #untilDate="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="untilDate.toggle()"
+                >
+                  <fa-icon [icon]="faCalendar" class="calendar-icon"></fa-icon>
+                </span>
+              </div>
+            </td>
+            <td class="table-cell cell-center cell-center-vertical">
+              <input
+                class="checkbox"
+                type="checkbox"
+                name="active-{{ $index }}"
+                id="active-{{ $index }}"
+                [disabled]="isDisabled()"
+                [(ngModel)]="contract.isActive"
+              />
+            </td>
+            <td class="table-cell cell-right">
+              @if (!isDisabled()) {
+              <div class="icon" (click)="removeContract($index)">
+                <app-icon-trash-red></app-icon-trash-red>
+              </div>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+
+  <div class="bottom-border-space"></div>
+</form>

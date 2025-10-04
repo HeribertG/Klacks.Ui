@@ -192,6 +192,17 @@ export class DataClientService {
     value.addresses.forEach((x) => {
       x.validFrom = dateWithLocalTimeCorrection(x.validFrom)!;
     });
+
+    value.clientContracts.forEach((x) => {
+      x.fromDate = dateWithLocalTimeCorrection(
+        transformNgbDateStructToDate(x.internalFromDate)
+      )!;
+      if (isNgbDateStructOk(x!.internalUntilDate)) {
+        x.untilDate = dateWithLocalTimeCorrection(
+          transformNgbDateStructToDate(x.internalUntilDate)
+        )!;
+      }
+    });
   }
 
   private setCorrectGender(value: IClient) {
@@ -231,6 +242,13 @@ export class DataClientService {
     });
 
     value.annotations.forEach((x) => {
+      if (x.id === '') {
+        delete x.id;
+        delete x.clientId;
+      }
+    });
+
+    value.clientContracts.forEach((x) => {
       if (x.id === '') {
         delete x.id;
         delete x.clientId;

@@ -94,7 +94,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
 </head>
 
 <body id="HTMLReporter" class="html-reporter">
-<h1>Tested in Chrome 140.0.0.0 (Windows 10) on Thu Oct 02 2025</h1>
+<h1>Tested in Chrome 140.0.0.0 (Windows 10) on Sat Oct 04 2025</h1>
 
 <div class="alert">
 
@@ -102,7 +102,7 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
 
   
   <span class="passingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
-  <a href="#" onclick="unfold();">Unfold</a></span>910 specs, 0 failed, 21 pending</span>
+  <a href="#" onclick="unfold();">Unfold</a></span>925 specs, 0 failed, 21 pending</span>
   
 
 
@@ -1688,6 +1688,86 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
+      <span class="description">ClientContractService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientContractService setDateStructs</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should transform fromDate to internalFromDate NgbDateStruct</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should transform both fromDate and untilDate when untilDate is set</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle multiple contracts</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle empty array</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientContractService addContract</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a new contract to client</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set fromDate to today</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set internalFromDate to NgbDateStruct of today</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should preserve existing contracts when adding new one</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle client without id</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientContractService removeContract</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove contract at specified index</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove first contract when index is 0</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove last contract when index is last</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle removing from single contract array</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not modify array when index is out of bounds</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
       <span class="description">LLMChatComponent</span>
     
       <div class="specSummary passed">
@@ -2122,47 +2202,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">ButtonPdfComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have default buttonDisabled value as false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept buttonDisabled input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper button structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render PDF icon</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper styling structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">ButtonSettingComponent</span>
     
       <div class="specSummary passed">
@@ -2203,6 +2242,47 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should have complete template structure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonPdfComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default buttonDisabled value as false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept buttonDisabled input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper button structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render PDF icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
       </div>
     
     </div>
@@ -2302,63 +2382,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">ChipsComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have default values</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept name input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept key input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should display name in span element</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit delete event with key when onDelete is called</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call onDelete when delete button is clicked</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render delete button with correct attributes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper CSS classes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper span classes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have complete template structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit correct key when delete is triggered</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should update displayed name when name input changes</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">ContextMenuComponent</span>
     
       <div class="specSummary passed">
@@ -2424,6 +2447,63 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ChipsComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept name input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept key input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display name in span element</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit delete event with key when onDelete is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onDelete when delete button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render delete button with correct attributes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper span classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit correct key when delete is triggered</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update displayed name when name input changes</span>
       </div>
     
     </div>
@@ -4179,15 +4259,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">ScheduleDataService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">ShiftDataService</span>
     
       <div class="specSummary passed">
@@ -4197,10 +4268,10 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">PropertyGridComponent</span>
+      <span class="description">ScheduleDataService</span>
     
       <div class="specSummary passed">
-      <span class="description">should create</span>
+      <span class="description">should be created</span>
       </div>
     
     </div>
@@ -4757,6 +4828,15 @@ message 1, x</span>
   
     <div class="suite passed">
       <span class="description">CutTableComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PropertyGridComponent</span>
     
       <div class="specSummary passed">
       <span class="description">should create</span>
