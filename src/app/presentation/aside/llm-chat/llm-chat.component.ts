@@ -28,9 +28,10 @@ import { DataManagementLLMService } from 'src/app/domain/services/data-managemen
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
-import { IconChatComponent } from '../../icons/icon-chat.component';
 import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
+import { IconMMLComponent } from '../../icons/icon-mml.component';
+import { IconChatComponent } from '../../icons/icon-chat.component';
 
 export interface ChatMessage {
   id: string;
@@ -50,7 +51,7 @@ export interface ChatMessage {
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
-    IconChatComponent,
+    IconMMLComponent,
     IconUserComponent,
   ],
   templateUrl: './llm-chat.component.html',
