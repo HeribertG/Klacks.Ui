@@ -5,11 +5,13 @@ export interface CanComponentDeactivate {
   canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class CanDeactivateGuard {
   canDeactivate(
     component: CanComponentDeactivate
   ): Observable<boolean> | Promise<boolean> | boolean {
-    return component.canDeactivate();
+    return component.canDeactivate ? component.canDeactivate() : true;
   }
 }

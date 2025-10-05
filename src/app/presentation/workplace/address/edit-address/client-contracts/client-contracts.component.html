@@ -132,6 +132,7 @@
                 id="active-{{ $index }}"
                 [disabled]="isDisabled()"
                 [(ngModel)]="contract.isActive"
+                (ngModelChange)="onActiveChange($index)"
               />
             </td>
             <td class="table-cell cell-right">

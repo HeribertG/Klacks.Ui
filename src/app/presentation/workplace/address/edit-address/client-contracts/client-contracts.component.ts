@@ -109,4 +109,17 @@ export class ClientContractsComponent
   trackByIndex(index: number): number {
     return index;
   }
+
+  onActiveChange(index: number): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client || !client.clientContracts[index]?.isActive) {
+      return;
+    }
+
+    client.clientContracts.forEach((contract, i) => {
+      if (i !== index) {
+        contract.isActive = false;
+      }
+    });
+  }
 }

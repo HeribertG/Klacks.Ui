@@ -21,6 +21,7 @@ import { UrlParameterService } from 'src/app/presentation/services/url-parameter
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -37,7 +38,7 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditAddressNavComponent,
   ],
 })
-export class EditAddressHomeComponent implements OnInit {
+export class EditAddressHomeComponent implements OnInit, CanComponentDeactivate {
   @Input() isEditClient = false;
   @Output() isEnterEvent = new EventEmitter();
 
@@ -82,5 +83,21 @@ export class EditAddressHomeComponent implements OnInit {
     } else {
       this.workplaceStateService.checkIfDirtyIsNecessary();
     }
+  }
+
+  canDeactivate(): boolean {
+    const hasError = this.dataManagementClientService.clientEditService.lastSaveError();
+
+    if (hasError) {
+      return false;
+    }
+
+    const isDirty = this.dataManagementClientService.areObjectsDirty();
+
+    if (isDirty) {
+      return confirm('Es gibt ungespeicherte Änderungen. Möchten Sie wirklich fortfahren?');
+    }
+
+    return true;
   }
 }

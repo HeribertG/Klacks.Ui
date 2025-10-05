@@ -20,7 +20,6 @@ const routes: Routes = [
     path: 'workplace',
     component: HomeComponent,
     canActivate: [AuthGuard],
-    canDeactivate: [CanDeactivateGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { 
@@ -31,13 +30,15 @@ const routes: Routes = [
         path: 'client', 
         loadComponent: () => import('./presentation/workplace/address/all-address/all-address-home/all-address-home.component').then(m => m.AllAddressHomeComponent)
       },
-      { 
-        path: 'edit-address', 
-        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent)
+      {
+        path: 'edit-address',
+        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent),
+        canDeactivate: [CanDeactivateGuard]
       },
-      { 
-        path: 'edit-address/:id', 
-        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent)
+      {
+        path: 'edit-address/:id',
+        loadComponent: () => import('./presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component').then(m => m.EditAddressHomeComponent),
+        canDeactivate: [CanDeactivateGuard]
       },
       { 
         path: 'schedule', 

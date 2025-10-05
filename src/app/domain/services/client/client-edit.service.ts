@@ -17,6 +17,8 @@ import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientConfigService } from './client-config.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root',
@@ -28,12 +30,16 @@ export class ClientEditService {
   private communicationService = inject(CommunicationService);
   private clientContractService = inject(ClientContractService);
   private clientConfigService = inject(ClientConfigService);
+  private toastShowService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
 
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
 
   public showProgressSpinner = signal(false);
   public onSaveCompleted?: () => void;
+  public lastSaveError = signal<boolean>(false);
+  public lastSaveErrorMessage = signal<string>('');
 
   public currentAddressIndex = signal(-1);
   public currentAnnotationIndex = signal(-1);
@@ -125,12 +131,47 @@ export class ClientEditService {
 
     apiCall.subscribe({
       next: (x) => {
+        this.lastSaveError.set(false);
+        this.lastSaveErrorMessage.set('');
         this.prepareClient(x, withoutUpdateDummy);
         this.onSaveCompleted?.();
       },
       error: (error) => {
         console.error('Error saving client:', error);
-        this.onSaveCompleted?.();
+        this.lastSaveError.set(true);
+        this.showProgressSpinner.set(false);
+
+        let errorMessage = 'Fehler beim Speichern';
+        const errorKeys: string[] = [];
+
+        if (error?.error?.errors) {
+          const errors = error.error.errors;
+
+          for (const [field, messages] of Object.entries(errors)) {
+            if (Array.isArray(messages)) {
+              errorKeys.push(...messages);
+            }
+          }
+
+          if (errorKeys.length > 0) {
+            const translatedMessages = errorKeys.map(key => {
+              const translated = this.translateService.instant(key);
+              return translated !== key ? translated : key;
+            });
+            errorMessage = translatedMessages.join('. ');
+          }
+        } else if (error?.error?.detail) {
+          const translated = this.translateService.instant(error.error.detail);
+          errorMessage = translated !== error.error.detail ? translated : error.error.detail;
+        } else if (error?.error?.title) {
+          const translated = this.translateService.instant(error.error.title);
+          errorMessage = translated !== error.error.title ? translated : error.error.title;
+        } else if (error?.message) {
+          errorMessage = error.message;
+        }
+
+        this.lastSaveErrorMessage.set(errorMessage);
+        this.toastShowService.showError(errorMessage, 'client-save-error');
       },
     });
   }
