@@ -203,6 +203,17 @@ export class DataClientService {
         )!;
       }
     });
+
+    value.groupItems.forEach((x) => {
+      x.validFrom = dateWithLocalTimeCorrection(
+        transformNgbDateStructToDate(x.internalValidFrom)
+      )!;
+      if (isNgbDateStructOk(x!.internalValidUntil)) {
+        x.validUntil = dateWithLocalTimeCorrection(
+          transformNgbDateStructToDate(x.internalValidUntil)
+        )!;
+      }
+    });
   }
 
   private setCorrectGender(value: IClient) {

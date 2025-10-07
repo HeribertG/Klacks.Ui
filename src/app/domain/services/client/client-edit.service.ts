@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import {
@@ -8,14 +9,13 @@ import {
   Annotation,
 } from 'src/app/domain/models/client-class';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
-import {
-  transformDateToNgbDateStruct,
-} from 'src/app/domain/helpers/format-helper';
+import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
+import { ClientGroupItemService } from './client-group-item.service';
 import { ClientConfigService } from './client-config.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ export class ClientEditService {
   private addressService = inject(AddressService);
   private communicationService = inject(CommunicationService);
   private clientContractService = inject(ClientContractService);
+  private clientGroupItemService = inject(ClientGroupItemService);
   private clientConfigService = inject(ClientConfigService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
@@ -53,7 +54,10 @@ export class ClientEditService {
     this.editClient.set(value);
     this.setDateStruc();
 
-    const { editClient, currentAddressIndex } = this.addressService.setAddress(this.editClient()!, -1);
+    const { editClient, currentAddressIndex } = this.addressService.setAddress(
+      this.editClient()!,
+      -1
+    );
     this.editClient.set(editClient);
     this.currentAddressIndex.set(currentAddressIndex);
 
@@ -75,7 +79,10 @@ export class ClientEditService {
       return;
     }
 
-    const { editClient, currentAddressIndex } = this.addressService.setAddress(this.editClient()!, -1);
+    const { editClient, currentAddressIndex } = this.addressService.setAddress(
+      this.editClient()!,
+      -1
+    );
     this.editClient.set(editClient);
     this.currentAddressIndex.set(currentAddressIndex);
 
@@ -154,7 +161,7 @@ export class ClientEditService {
           }
 
           if (errorKeys.length > 0) {
-            const translatedMessages = errorKeys.map(key => {
+            const translatedMessages = errorKeys.map((key) => {
               const translated = this.translateService.instant(key);
               return translated !== key ? translated : key;
             });
@@ -162,10 +169,12 @@ export class ClientEditService {
           }
         } else if (error?.error?.detail) {
           const translated = this.translateService.instant(error.error.detail);
-          errorMessage = translated !== error.error.detail ? translated : error.error.detail;
+          errorMessage =
+            translated !== error.error.detail ? translated : error.error.detail;
         } else if (error?.error?.title) {
           const translated = this.translateService.instant(error.error.title);
-          errorMessage = translated !== error.error.title ? translated : error.error.title;
+          errorMessage =
+            translated !== error.error.title ? translated : error.error.title;
         } else if (error?.message) {
           errorMessage = error.message;
         }
@@ -177,7 +186,7 @@ export class ClientEditService {
   }
 
   public addAnnotation() {
-    this.editClient.update(client => {
+    this.editClient.update((client) => {
       if (!client!.annotations) {
         client!.annotations = [];
       }
@@ -187,7 +196,7 @@ export class ClientEditService {
   }
 
   public removeCurrentAnnotation() {
-    this.editClient.update(client => {
+    this.editClient.update((client) => {
       if (client!.annotations) {
         client!.annotations.splice(this.currentAnnotationIndex(), 1);
       }
@@ -197,7 +206,7 @@ export class ClientEditService {
 
   public readClientAddressListWithoutQueryFilter() {
     if (this.editClient()?.id) {
-        this.dataClientService
+      this.dataClientService
         .readClientAddressList(this.editClient()!.id!)
         .subscribe((x) => {
           this.clientAddressListWithoutQueryFilter.set(x);
@@ -206,37 +215,39 @@ export class ClientEditService {
   }
 
   private setDateStruc() {
-    this.editClient.update(client => {
-        client!.internalBirthdate = transformDateToNgbDateStruct(
-            client!.birthdate!
-        );
-        client!.membership!.internalValidFrom =
-            transformDateToNgbDateStruct(client!.membership!.validFrom);
-        client!.membership!.internalValidUntil =
-            transformDateToNgbDateStruct(client!.membership!.validUntil!);
+    this.editClient.update((client) => {
+      client!.internalBirthdate = transformDateToNgbDateStruct(
+        client!.birthdate!
+      );
+      client!.membership!.internalValidFrom = transformDateToNgbDateStruct(
+        client!.membership!.validFrom
+      );
+      client!.membership!.internalValidUntil = transformDateToNgbDateStruct(
+        client!.membership!.validUntil!
+      );
 
-        this.clientContractService.setDateStructs(client!.clientContracts);
+      this.clientContractService.setDateStructs(client!.clientContracts);
+      this.clientGroupItemService.setDateStructs(client!.groupItems);
 
-        return client;
+      return client;
     });
   }
 
   public isDirty(): boolean {
     if (!this.editClient() || !this.editClientDummy) {
-        return false;
+      return false;
     }
     // This is a simplified dirty check. The original used a complex object comparison.
     // A more robust implementation might be needed.
-    const isDirty = JSON.stringify(this.editClient()) !== JSON.stringify(this.editClientDummy);
+    const isDirty =
+      JSON.stringify(this.editClient()) !==
+      JSON.stringify(this.editClientDummy);
     return isDirty && this.isDirtyClientValid();
   }
 
   private isDirtyClientValid(): boolean {
     const client = this.editClient();
-    if (
-      client?.gender === GenderEnum.legalEntity &&
-      !client?.company
-    ) {
+    if (client?.gender === GenderEnum.legalEntity && !client?.company) {
       return false;
     }
     return true;
@@ -244,7 +255,7 @@ export class ClientEditService {
 
   public resetData(): void {
     if (this.editClientDummy) {
-        this.prepareClient(cloneObject<IClient>(this.editClientDummy)!);
+      this.prepareClient(cloneObject<IClient>(this.editClientDummy)!);
     }
   }
 }

@@ -34,17 +34,21 @@
       <table class="table table-borderless">
         <thead>
           <tr>
-            <th class="table-header" style="width: 360px">
+            <th class="table-header clickable" style="width: 360px" (click)="onClickHeader('contract')">
               {{ "address.edit-address.contracts.contract" | translate }}
+              <span class="sort-arrow">{{ arrowContract }}</span>
             </th>
-            <th class="table-header" style="width: 140px">
+            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('fromDate')">
               {{ "address.edit-address.contracts.from-date" | translate }}
+              <span class="sort-arrow">{{ arrowFromDate }}</span>
             </th>
-            <th class="table-header" style="width: 140px">
+            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('untilDate')">
               {{ "address.edit-address.contracts.until-date" | translate }}
+              <span class="sort-arrow">{{ arrowUntilDate }}</span>
             </th>
-            <th class="table-header" style="width: 50px">
+            <th class="table-header clickable" style="width: 50px" (click)="onClickHeader('active')">
               {{ "address.edit-address.contracts.active" | translate }}
+              <span class="sort-arrow">{{ arrowActive }}</span>
             </th>
             <th
               class="table-header action"
@@ -135,7 +139,7 @@
                 (ngModelChange)="onActiveChange($index)"
               />
             </td>
-            <td class="table-cell cell-right">
+            <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
               <div class="icon" (click)="removeContract($index)">
                 <app-icon-trash-red></app-icon-trash-red>

@@ -24,7 +24,7 @@ import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-do
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
 import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
-import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 
 interface VirtualGroup {
   id: string | null;
@@ -357,6 +357,7 @@ export class GroupSelectComponent
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
+      case EntityName.CLIENT_EDIT:
         return true;
     }
 

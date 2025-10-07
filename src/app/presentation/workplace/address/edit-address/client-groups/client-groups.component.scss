@@ -1,8 +1,8 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
-@use "../../../../../../assets/standard-styles/standard-grid.scss";
-@use "../../../../../../assets/standard-styles/navigation.scss";
 
 .expand-button {
   margin-right: 30px;
@@ -15,18 +15,12 @@ button {
   background-color: transparent;
 }
 
-.select-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
+.filler {
+  flex: 1;
 }
 
-.select-icon {
-  position: absolute;
-  right: 8px;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
+.group-select-container {
+  margin-top: 1rem;
 }
 
 table select,
@@ -39,6 +33,31 @@ table select,
   -moz-appearance: none !important;
   padding-right: 30px !important;
   width: 100%;
+}
+
+table app-group-select ::ng-deep .group-select-container,
+.table app-group-select ::ng-deep .group-select-container {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+table app-group-select ::ng-deep .group-select-box,
+.table app-group-select ::ng-deep .group-select-box {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: auto !important;
+
+  &:hover {
+    border: none !important;
+  }
+
+  &.open {
+    border: none !important;
+    box-shadow: none !important;
+  }
 }
 
 table input:not([type="checkbox"]),

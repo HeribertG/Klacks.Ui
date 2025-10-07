@@ -1,121 +1,140 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <form #membershipForm="ngForm" class="container-card">
-  <div class="container-header">
+  <div class="container-header header-container">
     {{ "address.edit-address.membership.header" | translate }}
+
+    <span class="filler"></span>
+
+    <button class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
   </div>
 
   <div class="container-line"></div>
 
-  @if (dataManagementClientService.editClient() !== undefined) {
-  <div class="container-bank-box">
-    <div class="container-bank-value firstColumn">
-      <div class="row-line">
-        <div class="form-group medium-width">
-          <label for="client-type">{{
-            "address.edit-address.membership.type" | translate
-          }}</label>
-          <select
-            class="form-select"
-            name="type"
-            id="client-type"
-            [disabled]="isDisabled()"
-            [ngModel]="dataManagementClientService.editClient()?.type"
-            (ngModelChange)="dataManagementClientService.editClient()!.type = $event"
-          >
-            <option value="0">{{
-              "address.edit-address.membership.type.employee" | translate
-            }}</option>
-            <option value="1">{{
-              "address.edit-address.membership.type.externEmp" | translate
-            }}</option>
-            <option value="2">{{
-              "address.edit-address.membership.type.customer" | translate
-            }}</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="container-bank-value">
-      <div class="row-line">
-        <div class="form-group medium-width">
-          <label for="membership-entry-date">{{
-            "address.edit-address.membership.entry-date" | translate
-          }}</label>
-          <div class="input-group medium-width">
-            <input
-              class="form-control"
-              name="validFrom"
+  <div [ngStyle]="{ display: visibleTable }">
+    @if (dataManagementClientService.editClient() !== undefined) {
+    <div class="container-bank-box">
+      <div class="container-bank-value firstColumn">
+        <div class="row-line">
+          <div class="form-group medium-width">
+            <label for="client-type">{{
+              "address.edit-address.membership.type" | translate
+            }}</label>
+            <select
+              class="form-select"
+              name="type"
+              id="client-type"
               [disabled]="isDisabled()"
-              aria-labelledby="valid from"
-              id="membership-entry-date"
-              [ngModel]="
-                dataManagementClientService.editClient()?.membership!
-                  .internalValidFrom
-              "
+              [ngModel]="dataManagementClientService.editClient()?.type"
               (ngModelChange)="
-                dataManagementClientService.editClient()!.membership!.internalValidFrom =
-                  $event
+                dataManagementClientService.editClient()!.type = $event
               "
-              ngbDatepicker
-              #validFrom="ngbDatepicker"
-            />
-            <span
-              class="input-group-text"
-              style="width: 40px"
-              (click)="validFrom.toggle()"
             >
-              <fa-icon
-                [icon]="faCalendar"
-                [style]="{ 'font-size': '16px', color: '#464e5f' }"
-              ></fa-icon>
-            </span>
+              <option value="0">
+                {{
+                  "address.edit-address.membership.type.employee" | translate
+                }}
+              </option>
+              <option value="1">
+                {{
+                  "address.edit-address.membership.type.externEmp" | translate
+                }}
+              </option>
+              <option value="2">
+                {{
+                  "address.edit-address.membership.type.customer" | translate
+                }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
 
-      <div class="row-line">
-        <div class="form-group medium-width">
-          <label for="membership-until-date">{{
-            "address.edit-address.membership.until-date" | translate
-          }}</label>
-          <div class="input-group flex-nowrap medium-width">
-            <input
-              class="form-control"
-              name="validUntil"
-              [disabled]="isDisabled()"
-              aria-label="membership-until-date"
-              aria-labelledby="validUntil"
-              id="membership-until-date"
-              [ngModel]="
-                dataManagementClientService.editClient()?.membership!
-                  .internalValidUntil
-              "
-              (ngModelChange)="
-                dataManagementClientService.editClient()!.membership!.internalValidUntil =
-                  $event
-              "
-              ngbDatepicker
-              #validUntil="ngbDatepicker"
-            />
+      <div class="container-bank-value">
+        <div class="row-line">
+          <div class="form-group medium-width">
+            <label for="membership-entry-date">{{
+              "address.edit-address.membership.entry-date" | translate
+            }}</label>
+            <div class="input-group medium-width">
+              <input
+                class="form-control"
+                name="validFrom"
+                [disabled]="isDisabled()"
+                aria-labelledby="valid from"
+                id="membership-entry-date"
+                [ngModel]="
+                  (dataManagementClientService.editClient()?.membership)!
+                    .internalValidFrom
+                "
+                (ngModelChange)="
+                  dataManagementClientService.editClient()!.membership!.internalValidFrom =
+                    $event
+                "
+                ngbDatepicker
+                #validFrom="ngbDatepicker"
+              />
+              <span
+                class="input-group-text"
+                style="width: 40px"
+                (click)="validFrom.toggle()"
+              >
+                <fa-icon
+                  [icon]="faCalendar"
+                  [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                ></fa-icon>
+              </span>
+            </div>
+          </div>
+        </div>
 
-            <span
-              class="input-group-text"
-              style="width: 40px"
-              (click)="validUntil.toggle()"
-            >
-              <fa-icon
-                [icon]="faCalendar"
-                [style]="{ 'font-size': '16px', color: '#464e5f' }"
-              ></fa-icon>
-            </span>
+        <div class="row-line">
+          <div class="form-group medium-width">
+            <label for="membership-until-date">{{
+              "address.edit-address.membership.until-date" | translate
+            }}</label>
+            <div class="input-group flex-nowrap medium-width">
+              <input
+                class="form-control"
+                name="validUntil"
+                [disabled]="isDisabled()"
+                aria-label="membership-until-date"
+                aria-labelledby="validUntil"
+                id="membership-until-date"
+                [ngModel]="
+                  (dataManagementClientService.editClient()?.membership)!
+                    .internalValidUntil
+                "
+                (ngModelChange)="
+                  dataManagementClientService.editClient()!.membership!.internalValidUntil =
+                    $event
+                "
+                ngbDatepicker
+                #validUntil="ngbDatepicker"
+              />
+
+              <span
+                class="input-group-text"
+                style="width: 40px"
+                (click)="validUntil.toggle()"
+              >
+                <fa-icon
+                  [icon]="faCalendar"
+                  [style]="{ 'font-size': '16px', color: '#464e5f' }"
+                ></fa-icon>
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    }
   </div>
-  }
-
   <div class="bottom-border-space"></div>
 </form>

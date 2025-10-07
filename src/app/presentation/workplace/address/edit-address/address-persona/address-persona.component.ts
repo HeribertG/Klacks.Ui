@@ -33,14 +33,19 @@ import {
 import { createStringId } from 'src/app/domain/helpers/object-helpers';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
-import { GearGreyComponent } from 'src/app/presentation/icons/gear-grey.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
+import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
+import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -54,9 +59,11 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
     NgbTooltipModule,
     NgbDatepickerModule,
     FontAwesomeModule,
-    GearGreyComponent,
+    OtherGreyComponent,
     FallbackPipe,
     ButtonNewComponent,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
   ],
 })
 export class AddressPersonaComponent
@@ -96,6 +103,7 @@ export class AddressPersonaComponent
   public title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
   public newAddressString = MessageLibrary.NEW_ADDRESS;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  public visibleTable = 'inline';
 
   public isPhoneValueSeals = false;
 
@@ -156,7 +164,10 @@ export class AddressPersonaComponent
     this.modalService.resultEvent
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x: ModalType) => {
-        if (x === ModalType.Delete && this.modalService.componentContext === 'address-persona') {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'address-persona'
+        ) {
           this.onDeleteCurrentAddress();
           this.modalService.componentContext = '';
           this.modalService.Filing = '';
@@ -179,12 +190,17 @@ export class AddressPersonaComponent
     this.effects = [];
   }
 
+  onClickVisibleTable() {
+    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
+  }
+
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
   }
+
   isWeekend(date: NgbDateStruct) {
     const d = new Date(date.year!, date.month! - 1, date.day!);
     return d.getDay() === 0 || d.getDay() === 6;
@@ -207,19 +223,23 @@ export class AddressPersonaComponent
   }
 
   assemblyAddress(index: number) {
-    if (this.dataManagementClientService.editClient()?.addresses[index].street2) {
+    if (
+      this.dataManagementClientService.editClient()?.addresses[index].street2
+    ) {
       if (
-        this.dataManagementClientService.editClient()!.addresses[index].street2 !==
-        ''
+        this.dataManagementClientService.editClient()!.addresses[index]
+          .street2 !== ''
       ) {
         this.addStreetLine2 = true;
       }
     }
 
-    if (this.dataManagementClientService.editClient()?.addresses[index].street3) {
+    if (
+      this.dataManagementClientService.editClient()?.addresses[index].street3
+    ) {
       if (
-        this.dataManagementClientService.editClient()!.addresses[index].street3 !==
-        ''
+        this.dataManagementClientService.editClient()!.addresses[index]
+          .street3 !== ''
       ) {
         this.addStreetLine3 = true;
       }
@@ -232,10 +252,9 @@ export class AddressPersonaComponent
     if (value) {
       const tmp =
         this.dataManagementClientService.communicationPhoneList()[index];
-      let data =
-        this.dataManagementClientService.editClient()!.communications.find(
-          (x) => x.internalId === tmp.internalId
-        );
+      let data = this.dataManagementClientService
+        .editClient()!
+        .communications.find((x) => x.internalId === tmp.internalId);
 
       if (!data) {
         data = tmp;
@@ -243,7 +262,9 @@ export class AddressPersonaComponent
         data.index = index;
         data.type = 0;
         data.isPhone = true;
-        this.dataManagementClientService.editClient()!.communications.push(data);
+        this.dataManagementClientService
+          .editClient()!
+          .communications.push(data);
       }
 
       data.type = +value;
@@ -257,10 +278,9 @@ export class AddressPersonaComponent
     if (value) {
       const tmp =
         this.dataManagementClientService.communicationPhoneList()[index];
-      let data =
-        this.dataManagementClientService.editClient()!.communications.find(
-          (x) => x.internalId === tmp.internalId
-        );
+      let data = this.dataManagementClientService
+        .editClient()!
+        .communications.find((x) => x.internalId === tmp.internalId);
 
       if (!data) {
         data = tmp;
@@ -268,7 +288,9 @@ export class AddressPersonaComponent
         data.index = index;
         data.type = 0;
         data.isPhone = true;
-        this.dataManagementClientService.editClient()!.communications.push(data);
+        this.dataManagementClientService
+          .editClient()!
+          .communications.push(data);
       }
 
       data.prefix = value;
@@ -288,17 +310,18 @@ export class AddressPersonaComponent
 
       const tmp =
         this.dataManagementClientService.communicationPhoneList()[index];
-      let data =
-        this.dataManagementClientService.editClient()!.communications.find(
-          (x) => x.internalId === tmp.internalId
-        );
+      let data = this.dataManagementClientService
+        .editClient()!
+        .communications.find((x) => x.internalId === tmp.internalId);
 
       if (!data) {
         data = tmp;
         data.internalId = createStringId();
         data.index = index;
         data.isPhone = true;
-        this.dataManagementClientService.editClient()!.communications.push(data);
+        this.dataManagementClientService
+          .editClient()!
+          .communications.push(data);
       }
 
       data.value = value;
@@ -322,17 +345,18 @@ export class AddressPersonaComponent
     if (value) {
       const tmp =
         this.dataManagementClientService.communicationEmailList()[index];
-      let data =
-        this.dataManagementClientService.editClient()!.communications.find(
-          (x) => x.internalId === tmp.internalId
-        );
+      let data = this.dataManagementClientService
+        .editClient()!
+        .communications.find((x) => x.internalId === tmp.internalId);
 
       if (!data) {
         data = tmp;
         data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
-        this.dataManagementClientService.editClient()!.communications.push(data);
+        this.dataManagementClientService
+          .editClient()!
+          .communications.push(data);
       }
 
       data.value = value;
@@ -347,17 +371,18 @@ export class AddressPersonaComponent
     if (value) {
       const tmp =
         this.dataManagementClientService.communicationEmailList()[index];
-      let data =
-        this.dataManagementClientService.editClient()!.communications.find(
-          (x) => x.internalId === tmp.internalId
-        );
+      let data = this.dataManagementClientService
+        .editClient()!
+        .communications.find((x) => x.internalId === tmp.internalId);
 
       if (!data) {
         data = tmp;
         data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
-        this.dataManagementClientService.editClient()!.communications.push(data);
+        this.dataManagementClientService
+          .editClient()!
+          .communications.push(data);
       }
 
       data.type = +value;
@@ -464,7 +489,8 @@ export class AddressPersonaComponent
 
           this.dataManagementClientService.editClient()!.addresses.push(c);
           this.dataManagementClientService.clientEditService.currentAddressIndex.set(
-            this.dataManagementClientService.editClient()!.addresses.length - 1);
+            this.dataManagementClientService.editClient()!.addresses.length - 1
+          );
 
           this.isChangingEvent.emit(true);
         },
@@ -475,7 +501,7 @@ export class AddressPersonaComponent
   openDeleteAddress() {
     this.modalService.Filing = '';
     this.modalService.componentContext = 'address-persona';
-    
+
     this.modalService.deleteMessage = this.message;
     this.modalService.deleteMessageTitle = this.title;
     this.modalService.deleteMessageOkButton = this.title;
@@ -503,9 +529,9 @@ export class AddressPersonaComponent
   }
 
   onChangingAddress(event: any) {
-    const address = this.dataManagementClientService.editClient()!.addresses.find(
-      (x) => x.id === event.toString()
-    );
+    const address = this.dataManagementClientService
+      .editClient()!
+      .addresses.find((x) => x.id === event.toString());
 
     if (address!.id === event.toString()) {
       this.dataManagementClientService.reReadAddress();

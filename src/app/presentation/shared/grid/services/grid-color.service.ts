@@ -188,7 +188,16 @@ export class GridColorService {
     return s;
   }
 
+  private isValidColor(color: string): boolean {
+    if (!color || color.trim() === '') return false;
+    return /^#[0-9A-Fa-f]{6}$/.test(color);
+  }
+
   private setSetting(value: ISetting) {
+    if (!this.isValidColor(value.value)) {
+      return;
+    }
+
     switch (value.type) {
       case ConstantKeys.BACKGROUND_COLOR_HOLIDAY_KEY:
         this.backGroundColorHolyday = value.value;

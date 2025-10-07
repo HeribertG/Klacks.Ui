@@ -17,6 +17,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 
 @Component({
   selector: 'app-membership',
@@ -29,6 +31,8 @@ import { AuthorizationService } from 'src/app/application/services/authorization
     TranslateModule,
     FontAwesomeModule,
     NgbModule,
+    IconAngleRightComponent,
+    IconAngleDownComponent,
   ],
 })
 export class MembershipComponent implements AfterViewInit, OnDestroy {
@@ -40,6 +44,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   public faCalendar = faCalendar;
   public now = new Date();
   public objectForUnsubscribe: any;
+  public visibleTable = 'inline';
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
@@ -65,6 +70,10 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
+  }
+
+  onClickVisibleTable() {
+    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   onChangeDateBack(event: any) {

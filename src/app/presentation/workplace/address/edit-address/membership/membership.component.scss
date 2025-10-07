@@ -1,10 +1,22 @@
+@use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
-@use "../../../../../../assets/standard-styles/colors";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/colors.scss";
 
-input {
-  height: 35px;
+.expand-button {
+  margin-right: 30px;
+}
+
+button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.filler {
+  flex: 1;
 }
 
 .default-width {
@@ -22,10 +34,6 @@ input {
 
 .medium-width-without-button {
   width: 200px;
-}
-
-select {
-  height: 35px;
 }
 
 label {

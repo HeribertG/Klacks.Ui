@@ -12,7 +12,7 @@ export class DataAssignedGroupService {
 
   readAssignedGroupList(id: string | undefined) {
     return this.httpClient
-      .get<IAssignedGroup[]>(`${environment.baseUrl}AssignedGroups/list/` + id)
+      .get<IAssignedGroup[]>(`${environment.baseUrl}AssignedGroups/list?id=` + id)
       .pipe();
   }
 

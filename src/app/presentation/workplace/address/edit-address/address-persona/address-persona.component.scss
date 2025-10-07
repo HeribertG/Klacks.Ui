@@ -6,6 +6,13 @@
 @use "../../../../../../assets/standard-styles/menu.scss";
 @use "../../../../../../assets/standard-styles/datepicker.scss";
 
+button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
 .end-card {
   margin-right: 30px;
 }

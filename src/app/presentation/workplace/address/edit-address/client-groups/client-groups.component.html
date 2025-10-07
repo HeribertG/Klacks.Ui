@@ -1,0 +1,137 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form #groupsForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    {{ translate.instant("address.edit-address.client-groups.header") }}
+
+    <span class="filler"></span>
+
+    @if (!isDisabled()) {
+    <app-button-new
+      placement="top"
+      type="button"
+      (click)="addGroup()"
+      ngbTooltip="{{
+        'address.edit-address.client-groups.add-group' | translate
+      }}"
+    >
+    </app-button-new>
+    }
+
+    <button class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  <div class="container-line"></div>
+  <div [ngStyle]="{ display: visibleTable }">
+    @if (dataManagementClientService.editClient() !== undefined) {
+    <div class="container-table">
+      <table class="table table-borderless">
+        <thead>
+          <tr>
+            <th class="table-header clickable" style="width: 360px" (click)="onClickHeader('name')">
+              {{
+                translate.instant(
+                  "address.edit-address.client-groups.table.name"
+                )
+              }}
+              <span class="sort-arrow">{{ arrowName }}</span>
+            </th>
+            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validFrom')">
+              {{
+                translate.instant(
+                  "address.edit-address.client-groups.table.valid-from"
+                )
+              }}
+              <span class="sort-arrow">{{ arrowValidFrom }}</span>
+            </th>
+            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validUntil')">
+              {{
+                translate.instant(
+                  "address.edit-address.client-groups.table.valid-until"
+                )
+              }}
+              <span class="sort-arrow">{{ arrowValidUntil }}</span>
+            </th>
+            <th
+              class="table-header action"
+              style="width: 60px; max-width: 60px; min-width: 60px"
+            ></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (groupItem of clientGroups; track trackByIndex($index)) {
+          <tr class="table-row">
+            <td class="table-cell cell-center-vertical">
+              <app-group-select
+                [showAllGroupsOption]="false"
+                [(ngModel)]="groupItem.groupId"
+                name="groupId-{{ $index }}"
+                (groupSelected)="onGroupChanged($index, $event)"
+              ></app-group-select>
+            </td>
+            <td class="table-cell">
+              <div class="input-group">
+                <input
+                  class="form-control"
+                  name="validFrom-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  aria-labelledby="valid from"
+                  id="valid-from-{{ $index }}"
+                  [(ngModel)]="groupItem.internalValidFrom"
+                  ngbDatepicker
+                  #validFrom="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="validFrom.toggle()"
+                >
+                  <fa-icon [icon]="faCalendar" class="calendar-icon"></fa-icon>
+                </span>
+              </div>
+            </td>
+            <td class="table-cell">
+              <div class="input-group">
+                <input
+                  class="form-control"
+                  name="validUntil-{{ $index }}"
+                  [disabled]="isDisabled()"
+                  aria-label="valid-until-{{ $index }}"
+                  aria-labelledby="validUntil"
+                  id="valid-until-{{ $index }}"
+                  [(ngModel)]="groupItem.internalValidUntil"
+                  ngbDatepicker
+                  #validUntil="ngbDatepicker"
+                />
+                <span
+                  class="input-group-text"
+                  style="width: 40px"
+                  (click)="validUntil.toggle()"
+                >
+                  <fa-icon [icon]="faCalendar" class="calendar-icon"></fa-icon>
+                </span>
+              </div>
+            </td>
+            <td class="table-cell cell-right cell-center-vertical">
+              @if (!isDisabled()) {
+              <div class="icon" (click)="open(groupItem)">
+                <app-icon-trash-red></app-icon-trash-red>
+              </div>
+              }
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+
+  <div class="bottom-border-space"></div>
+</form>

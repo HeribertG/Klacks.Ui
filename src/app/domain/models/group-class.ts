@@ -95,6 +95,7 @@ export interface IGroupItem {
   groupId?: string;
   clientId?: string;
   client?: IClient;
+  group?: IGroup;
 }
 
 export class GroupItem implements IGroupItem {
@@ -102,6 +103,7 @@ export class GroupItem implements IGroupItem {
   groupId?: string;
   clientId?: string;
   client?: Client;
+  group?: Group;
 }
 
 export interface ITruncatedGroup extends IBaseTruncated {

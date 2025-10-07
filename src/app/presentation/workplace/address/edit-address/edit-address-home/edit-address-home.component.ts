@@ -13,6 +13,7 @@ import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.co
 import { NoteComponent } from '../note/note.component';
 import { MembershipComponent } from '../membership/membership.component';
 import { ClientContractsComponent } from '../client-contracts/client-contracts.component';
+import { ClientGroupsComponent } from '../client-groups/client-groups.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
@@ -34,6 +35,7 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactiva
     AddressPersonaComponent,
     MembershipComponent,
     ClientContractsComponent,
+    ClientGroupsComponent,
     NoteComponent,
     EditAddressNavComponent,
   ],

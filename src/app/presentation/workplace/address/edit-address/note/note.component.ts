@@ -15,10 +15,10 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { TrashIconLightRedComponent } from 'src/app/presentation/icons/trash-icon-light-red.component ';
-import { GearGreyComponent } from 'src/app/presentation/icons/gear-grey.component';
 import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
+import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 
 @Component({
   selector: 'app-note',
@@ -33,7 +33,7 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
     IconAngleDownComponent,
     TrashIconRedComponent,
     TrashIconLightRedComponent,
-    GearGreyComponent,
+    OtherGreyComponent,
     TranslateModule,
     ButtonNewComponent,
   ],
@@ -103,7 +103,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
   onChange(index: number, event: Event) {
     const target = event.target as HTMLTextAreaElement;
     if (target) {
-      this.dataManagementClientService.editClient.update(client => {
+      this.dataManagementClientService.editClient.update((client) => {
         if (client) {
           client.annotations[index].note = target.value;
         }
@@ -133,7 +133,9 @@ export class NoteComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(index);
+    this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(
+      index
+    );
   }
 
   onClickVisibleTable() {

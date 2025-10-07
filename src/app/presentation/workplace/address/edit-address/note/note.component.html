@@ -23,7 +23,7 @@
         data-bs-toggle="dropdown"
         aria-label="note-delete"
       >
-        <app-icon-gear-grey></app-icon-gear-grey>
+        <app-icon-other-grey></app-icon-other-grey>
       </div>
       }
 
@@ -73,8 +73,8 @@
   <div [ngStyle]="{ display: visibleTable }">
     @if (dataManagementClientService.editClient()?.annotations) {
     <div class="container-main">
-      @for (annotation of dataManagementClientService.editClient()?.annotations ||
-      []; track annotation; let i = $index) {
+      @for (annotation of dataManagementClientService.editClient()?.annotations
+      || []; track annotation; let i = $index) {
       <div class="row-line">
         <button
           [ngClass]="{

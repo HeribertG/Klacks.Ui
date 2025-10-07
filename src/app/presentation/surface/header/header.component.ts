@@ -13,15 +13,14 @@ import {
 import { Subject, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { GroupSelectComponent } from 'src/app/presentation/group-select/group-select.component';
+import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
 import { IconSignOutComponent } from 'src/app/presentation/icons/icon-sign-out.component';
 import { SearchComponent } from 'src/app/presentation/search/search.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faRobot } from '@fortawesome/free-solid-svg-icons';
-import { IconChatComponent } from '../../icons/icon-chat.component';
+import { IconMMLComponent } from '../../icons/icon-mml.component';
 
 @Component({
   selector: 'app-header',
@@ -34,7 +33,7 @@ import { IconChatComponent } from '../../icons/icon-chat.component';
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
-    IconChatComponent,
+    IconMMLComponent,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
@@ -53,7 +52,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.dataLoadFileService.logoImageDimensions$()
   );
 
-  // Calculated proportional dimensions for the logo
   public logoDisplayDimensions = computed(() => {
     const dimensions = this.logoDimensions();
     if (!dimensions) {
@@ -76,9 +74,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   private currentTheme = signal<string>('light');
   private effectRefs: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
-
-  // Font Awesome icons
-  faRobot = faRobot;
 
   public imageName = computed(() => {
     const theme = this.currentTheme();
