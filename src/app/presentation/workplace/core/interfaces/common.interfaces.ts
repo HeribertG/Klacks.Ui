@@ -2,6 +2,7 @@ import { Signal } from '@angular/core';
 
 export interface ISaveable {
   areObjectsDirty(): boolean;
+  canSave?(): boolean;
   save(): void;
   onSaveCompleted?: () => void;
 }

@@ -28,6 +28,18 @@
     &::placeholder {
       color: var(--colorPlaceholder);
     }
+
+    &.is-invalid {
+      border-color: #dc3545;
+      background-image: none !important;
+      padding-right: 0.75rem;
+    }
+
+    &.is-valid {
+      border-color: #198754;
+      background-image: none !important;
+      padding-right: 0.75rem;
+    }
   }
 }
 

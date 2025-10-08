@@ -8,6 +8,9 @@ import {
   ViewChild,
   OnDestroy,
   OnInit,
+  Injector,
+  effect,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -23,6 +26,7 @@ import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-do
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 interface HeaderProperties {
   order: number;
@@ -70,6 +74,7 @@ export class ClientContractsComponent
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public contractService = inject(DataManagementContractService);
+  private injector = inject(Injector);
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -87,7 +92,12 @@ export class ClientContractsComponent
   orderBy = 'contract';
   sortOrder = 'asc';
 
+  public contractValidationState: Map<number, boolean | undefined> = new Map();
+  public contractFromDateValidationState: Map<number, boolean | undefined> = new Map();
+  public hasAtLeastOneActive = true;
+
   async ngOnInit(): Promise<void> {
+    this.readSignals();
     await this.loadContracts();
   }
 
@@ -294,5 +304,60 @@ export class ClientContractsComponent
       default:
         return '';
     }
+  }
+
+  private readSignals(): void {
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const client = this.dataManagementClientService.editClient();
+        if (client?.clientContracts) {
+          this.sortContracts();
+          this.calcValidation();
+        }
+      });
+    });
+  }
+
+  public calcValidation(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client || !client.clientContracts) {
+      return;
+    }
+
+    this.contractValidationState.clear();
+    this.contractFromDateValidationState.clear();
+
+    client.clientContracts.forEach((contract, index) => {
+      const fromDate = transformNgbDateStructToDate(contract.internalFromDate);
+
+      if (!fromDate) {
+        this.contractFromDateValidationState.set(index, false);
+      } else {
+        this.contractFromDateValidationState.set(index, true);
+      }
+
+      if (!contract.internalUntilDate) {
+        this.contractValidationState.set(index, undefined);
+      } else {
+        const untilDate = transformNgbDateStructToDate(contract.internalUntilDate);
+
+        if (!fromDate || !untilDate) {
+          this.contractValidationState.set(index, false);
+        } else {
+          const isValid = fromDate <= untilDate;
+          this.contractValidationState.set(index, isValid);
+        }
+      }
+    });
+
+    this.hasAtLeastOneActive = client.clientContracts.some((c) => c.isActive);
+  }
+
+  isContractDateValid(index: number): boolean | undefined {
+    return this.contractValidationState.get(index);
+  }
+
+  isContractFromDateValid(index: number): boolean | undefined {
+    return this.contractFromDateValidationState.get(index);
   }
 }

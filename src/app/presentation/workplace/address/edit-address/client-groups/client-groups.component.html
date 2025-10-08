@@ -65,11 +65,12 @@
           </tr>
         </thead>
         <tbody>
-          @for (groupItem of clientGroups; track trackByIndex($index)) {
+          @for (groupItem of clientGroups; track trackByGroupItem($index, groupItem)) {
           <tr class="table-row">
             <td class="table-cell cell-center-vertical">
               <app-group-select
                 [showAllGroupsOption]="false"
+                [useGlobalSelection]="false"
                 [(ngModel)]="groupItem.groupId"
                 name="groupId-{{ $index }}"
                 (groupSelected)="onGroupChanged($index, $event)"
@@ -84,8 +85,14 @@
                   aria-labelledby="valid from"
                   id="valid-from-{{ $index }}"
                   [(ngModel)]="groupItem.internalValidFrom"
+                  (ngModelChange)="calcValidation()"
                   ngbDatepicker
                   #validFrom="ngbDatepicker"
+                  #validFromField="ngModel"
+                  [ngClass]="{
+                    'is-invalid': isGroupFromDateValid($index) === false && validFromField.touched,
+                    'is-valid': isGroupFromDateValid($index) === true
+                  }"
                 />
                 <span
                   class="input-group-text"
@@ -106,8 +113,14 @@
                   aria-labelledby="validUntil"
                   id="valid-until-{{ $index }}"
                   [(ngModel)]="groupItem.internalValidUntil"
+                  (ngModelChange)="calcValidation()"
                   ngbDatepicker
                   #validUntil="ngbDatepicker"
+                  #validUntilField="ngModel"
+                  [ngClass]="{
+                    'is-invalid': isGroupDateValid($index) === false && validUntilField.touched,
+                    'is-valid': isGroupDateValid($index) === true
+                  }"
                 />
                 <span
                   class="input-group-text"

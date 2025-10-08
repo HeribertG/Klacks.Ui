@@ -3,9 +3,12 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   EventEmitter,
   inject,
+  Injector,
   Output,
+  runInInjectionContext,
   ViewChild,
   OnDestroy,
 } from '@angular/core';
@@ -19,6 +22,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
+import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 @Component({
   selector: 'app-membership',
@@ -45,9 +49,11 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   public now = new Date();
   public objectForUnsubscribe: any;
   public visibleTable = 'inline';
+  public isValidFromValid: boolean | undefined;
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
+  private injector = inject(Injector);
 
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.membershipForm!.valueChanges!.subscribe(
@@ -57,6 +63,15 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
         }
       }
     );
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const client = this.dataManagementClientService.editClient();
+        if (client) {
+          this.calcValidation();
+        }
+      });
+    });
   }
 
   ngOnDestroy(): void {
@@ -74,6 +89,16 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
 
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
+  }
+
+  public calcValidation(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client || !client.membership) {
+      return;
+    }
+
+    const validFrom = transformNgbDateStructToDate(client.membership.internalValidFrom);
+    this.isValidFromValid = validFrom ? true : false;
   }
 
   onChangeDateBack(event: any) {

@@ -23,6 +23,8 @@ export class DateInputComponent {
   @Input() labelAlign: 'left' | 'center' | 'right' = 'left';
   @Input() inputWidth = 'medium-width';
   @Input() value: NgbDateStruct | null | undefined = null;
+  @Input() isValid: boolean | undefined = undefined;
+  @Input() touched = false;
   @Output() valueChange = new EventEmitter<NgbDateStruct | null | undefined>();
   @Output() dateChange = new EventEmitter<NgbDateStruct | null | undefined>();
 

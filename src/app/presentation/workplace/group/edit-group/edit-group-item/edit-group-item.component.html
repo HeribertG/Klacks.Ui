@@ -38,9 +38,12 @@
             [value]="dataManagementGroupService.editGroup.internalValidFrom"
             (valueChange)="
               dataManagementGroupService.editGroup.internalValidFrom =
-                $event || undefined
+                $event || undefined;
+              onValidFromChange()
             "
             [disabled]="!authorizationService.isAuthorised"
+            [isValid]="validFromValid"
+            [touched]="validFromTouched"
           ></app-date-input>
         </div>
       </div>
@@ -56,9 +59,12 @@
           [value]="dataManagementGroupService.editGroup.internalValidUntil"
           (valueChange)="
             dataManagementGroupService.editGroup.internalValidUntil =
-              $event || undefined
+              $event || undefined;
+            onValidUntilChange()
           "
           [disabled]="!authorizationService.isAuthorised"
+          [isValid]="validUntilValid"
+          [touched]="validUntilTouched"
         ></app-date-input>
       </div>
     </div>

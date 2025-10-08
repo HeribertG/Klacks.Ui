@@ -94,8 +94,14 @@
                   aria-labelledby="from date"
                   id="from-date-{{ $index }}"
                   [(ngModel)]="contract.internalFromDate"
+                  (ngModelChange)="calcValidation()"
                   ngbDatepicker
                   #fromDate="ngbDatepicker"
+                  #fromDateField="ngModel"
+                  [ngClass]="{
+                    'is-invalid': isContractFromDateValid($index) === false && fromDateField.touched,
+                    'is-valid': isContractFromDateValid($index) === true
+                  }"
                 />
                 <span
                   class="input-group-text"
@@ -116,8 +122,14 @@
                   aria-labelledby="untilDate"
                   id="until-date-{{ $index }}"
                   [(ngModel)]="contract.internalUntilDate"
+                  (ngModelChange)="calcValidation()"
                   ngbDatepicker
                   #untilDate="ngbDatepicker"
+                  #untilDateField="ngModel"
+                  [ngClass]="{
+                    'is-invalid': isContractDateValid($index) === false && untilDateField.touched,
+                    'is-valid': isContractDateValid($index) === true
+                  }"
                 />
                 <span
                   class="input-group-text"
@@ -150,6 +162,11 @@
           }
         </tbody>
       </table>
+      @if (dataManagementClientService.editClient()?.clientContracts && dataManagementClientService.editClient()!.clientContracts.length > 0 && !hasAtLeastOneActive) {
+        <div class="alert alert-danger" role="alert" style="margin: 10px;">
+          {{ "address.edit-address.contracts.validation.at-least-one-active" | translate }}
+        </div>
+      }
     </div>
     }
   </div>

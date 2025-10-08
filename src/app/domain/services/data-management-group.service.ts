@@ -28,6 +28,7 @@ import {
 import {
   isNgbDateStructValid,
   transformDateToNgbDateStruct,
+  transformNgbDateStructToDate,
 } from 'src/app/domain/helpers/format-helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
@@ -438,14 +439,28 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   private isValid(): boolean {
     if (
-      this.editGroup?.name &&
-      this.editGroup?.validFrom &&
-      this.editGroup?.internalValidFrom &&
-      isNgbDateStructValid(this.editGroup?.internalValidFrom)
+      !this.editGroup?.name ||
+      !this.editGroup?.validFrom ||
+      !this.editGroup?.internalValidFrom ||
+      !isNgbDateStructValid(this.editGroup?.internalValidFrom)
     ) {
-      return true;
+      return false;
     }
-    return false;
+
+    if (this.editGroup.internalValidUntil) {
+      const validFrom = transformNgbDateStructToDate(this.editGroup.internalValidFrom);
+      const validUntil = transformNgbDateStructToDate(this.editGroup.internalValidUntil);
+
+      if (!validFrom || !validUntil) {
+        return false;
+      }
+
+      if (validFrom >= validUntil) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /* #endregion   edit Group */

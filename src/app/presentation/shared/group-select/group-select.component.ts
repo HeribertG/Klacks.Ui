@@ -63,6 +63,7 @@ export class GroupSelectComponent
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+  @Input() useGlobalSelection = true;
 
   // @Output() properties
   @Output() groupSelected = new EventEmitter<Group | null>();
@@ -100,7 +101,9 @@ export class GroupSelectComponent
     this.dataManagementGroupService.initTree();
 
     this.readSignals();
-    this.readSignalsService();
+    if (this.useGlobalSelection) {
+      this.readSignalsService();
+    }
   }
 
   ngOnDestroy(): void {
@@ -214,9 +217,10 @@ export class GroupSelectComponent
     this.onTouched();
     this.groupSelected.emit(null);
 
-    this.groupSelectionService.clearSelection();
-
-    this.dataManagementGroupService.selectNode(null as any);
+    if (this.useGlobalSelection) {
+      this.groupSelectionService.clearSelection();
+      this.dataManagementGroupService.selectNode(null as any);
+    }
 
     this.closeDropdown();
   }
@@ -230,8 +234,10 @@ export class GroupSelectComponent
       this.onTouched();
       this.groupSelected.emit(group);
 
-      this.groupSelectionService.selectGroup(group);
-      this.dataManagementGroupService.selectNode(group);
+      if (this.useGlobalSelection) {
+        this.groupSelectionService.selectGroup(group);
+        this.dataManagementGroupService.selectNode(group);
+      }
     }
   }
 
@@ -298,8 +304,10 @@ export class GroupSelectComponent
         this.onTouched();
         this.groupSelected.emit(this.selectedGroup);
 
-        this.groupSelectionService.selectGroup(this.selectedGroup);
-        this.dataManagementGroupService.selectNode(this.selectedGroup);
+        if (this.useGlobalSelection) {
+          this.groupSelectionService.selectGroup(this.selectedGroup);
+          this.dataManagementGroupService.selectNode(this.selectedGroup);
+        }
       }
     }
 
@@ -311,7 +319,9 @@ export class GroupSelectComponent
 
     if (value === this.ALL_GROUPS_ID) {
       this.selectedGroup = null;
-      this.groupSelectionService.clearSelection();
+      if (this.useGlobalSelection) {
+        this.groupSelectionService.clearSelection();
+      }
     } else if (value && this.hierarchicalTree.length > 0) {
       this.findAndSelectGroup(value, this.hierarchicalTree);
     } else if (!value) {
@@ -319,7 +329,9 @@ export class GroupSelectComponent
         this.selectAllGroups();
       } else {
         this.selectedGroup = null;
-        this.groupSelectionService.clearSelection();
+        if (this.useGlobalSelection) {
+          this.groupSelectionService.clearSelection();
+        }
       }
     }
   }
@@ -342,8 +354,10 @@ export class GroupSelectComponent
         const group = node as Group;
         this.selectedGroup = group;
 
-        this.groupSelectionService.selectGroup(group);
-        this.dataManagementGroupService.selectNode(group);
+        if (this.useGlobalSelection) {
+          this.groupSelectionService.selectGroup(group);
+          this.dataManagementGroupService.selectNode(group);
+        }
         return;
       }
       if (this.hasChildren(node as Group) && node.children) {

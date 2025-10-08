@@ -73,6 +73,7 @@ export class WorkplaceStateService {
   );
 
   private _isDirty = signal<boolean>(false);
+  private _canSave = signal<boolean>(false);
   private _isDisabled = signal<boolean>(false);
   private _isSavedOrReset = signal<boolean>(false);
 
@@ -84,6 +85,14 @@ export class WorkplaceStateService {
 
   public set isDirty(value: boolean) {
     this._isDirty.set(value);
+  }
+
+  public get canSave(): boolean {
+    return this._canSave();
+  }
+
+  public set canSave(value: boolean) {
+    this._canSave.set(value);
   }
 
   public get isDisabled(): boolean {
@@ -171,19 +180,24 @@ export class WorkplaceStateService {
 
   private checkObjectDirty(): void {
     let isDirty = false;
+    let canSave = false;
 
     if (this.activeManager()) {
       const manager = this.activeManager()!;
       if (isSaveable(manager)) {
         isDirty = manager.areObjectsDirty();
+        canSave = manager.canSave ? manager.canSave() : isDirty;
       } else {
         isDirty = false;
+        canSave = false;
       }
     } else {
       isDirty = false;
+      canSave = false;
     }
 
     this._isDirty.set(isDirty);
+    this._canSave.set(canSave);
 
     if (!isDirty) {
       this._isDisabled.set(false);

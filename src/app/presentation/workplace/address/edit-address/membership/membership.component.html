@@ -61,7 +61,7 @@
           <div class="form-group medium-width">
             <label for="membership-entry-date">{{
               "address.edit-address.membership.entry-date" | translate
-            }}</label>
+            }} *</label>
             <div class="input-group medium-width">
               <input
                 class="form-control"
@@ -75,10 +75,15 @@
                 "
                 (ngModelChange)="
                   dataManagementClientService.editClient()!.membership!.internalValidFrom =
-                    $event
+                    $event; calcValidation()
                 "
                 ngbDatepicker
                 #validFrom="ngbDatepicker"
+                #validFromField="ngModel"
+                [ngClass]="{
+                  'is-invalid': isValidFromValid === false && validFromField.touched,
+                  'is-valid': isValidFromValid === true
+                }"
               />
               <span
                 class="input-group-text"

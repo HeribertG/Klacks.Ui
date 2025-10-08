@@ -26,6 +26,10 @@
       [placeholder]="placeholder"
       ngbDatepicker
       #datePicker="ngbDatepicker"
+      [ngClass]="{
+        'is-invalid': isValid === false && touched,
+        'is-valid': isValid === true
+      }"
     />
     <span
       class="input-group-text"

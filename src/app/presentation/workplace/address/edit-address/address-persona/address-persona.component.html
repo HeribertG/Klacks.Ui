@@ -271,7 +271,7 @@
           <div class="form-group firstColumn">
             <label for="company">{{
               "address.edit-address.address-persona.firm" | translate
-            }}</label>
+            }} *</label>
             <div class="custom-control-inline">
               <input
                 type="text"
@@ -279,9 +279,15 @@
                 autocomplete="off"
                 [disabled]="isDisabled()"
                 [(ngModel)]="dataManagementClientService.editClient()!.company"
+                (ngModelChange)="calcValidation()"
                 id="company"
                 name="company"
                 maxlength="50"
+                #companyField="ngModel"
+                [ngClass]="{
+                  'is-invalid': isCompanyValid === false && companyField.touched,
+                  'is-valid': isCompanyValid === true
+                }"
               />
             </div>
           </div>
@@ -292,40 +298,50 @@
             <div class="gender">
               <label for="gender">{{
                 "address.edit-address.address-persona.gender" | translate
-              }}</label>
-              <select
-                class="form-select"
-                [ngModel]="dataManagementClientService.editClient()?.gender"
-                id="gender"
-                [disabled]="isDisabled()"
-                (ngModelChange)="
-                  dataManagementClientService.editClient()!.gender = $event
-                "
-                name="client.gender"
-              >
-                <option value="1">
-                  {{ "address.edit-address.address-persona.male" | translate }}
-                </option>
-                <option value="0">
-                  {{
-                    "address.edit-address.address-persona.female" | translate
-                  }}
-                </option>
-                <option value="2">
-                  {{
-                    "address.edit-address.address-persona.intersexuality"
-                      | translate
-                  }}
-                </option>
-                @if (dataManagementClientService.editClient()?.legalEntity ===
-                true) {
-                <option value="3">
-                  {{
-                    "address.edit-address.address-persona.unknown" | translate
-                  }}
-                </option>
-                }
-              </select>
+              }} *</label>
+              <div class="select-wrapper">
+                <select
+                  class="form-select"
+                  [ngModel]="dataManagementClientService.editClient()?.gender"
+                  id="gender"
+                  [disabled]="isDisabled()"
+                  (ngModelChange)="
+                    dataManagementClientService.editClient()!.gender = $event
+                  "
+                  name="client.gender"
+                  #genderField="ngModel"
+                  [ngClass]="{
+                    'is-invalid': isGenderValid === false && genderField.touched,
+                    'is-valid': isGenderValid === true
+                  }"
+                >
+                  <option value="1">
+                    {{ "address.edit-address.address-persona.male" | translate }}
+                  </option>
+                  <option value="0">
+                    {{
+                      "address.edit-address.address-persona.female" | translate
+                    }}
+                  </option>
+                  <option value="2">
+                    {{
+                      "address.edit-address.address-persona.intersexuality"
+                        | translate
+                    }}
+                  </option>
+                  @if (dataManagementClientService.editClient()?.legalEntity ===
+                  true) {
+                  <option value="3">
+                    {{
+                      "address.edit-address.address-persona.unknown" | translate
+                    }}
+                  </option>
+                  }
+                </select>
+                <div class="select-icon">
+                  <app-icon-angle-down></app-icon-angle-down>
+                </div>
+              </div>
             </div>
           </div>
           <label class="checkbox-label legal-entity">
@@ -334,6 +350,7 @@
               [(ngModel)]="
                 dataManagementClientService.editClient()!.legalEntity
               "
+              (ngModelChange)="onLegalEntityChange($event)"
               name="legalEntity"
               [disabled]="isDisabled()"
             />
@@ -367,7 +384,7 @@
           <div class="form-group firstColumn">
             <label for="firstname">{{
               "address.edit-address.address-persona.firstname" | translate
-            }}</label>
+            }} *</label>
             <div class="custom-control-inline">
               <input
                 type="text"
@@ -380,6 +397,11 @@
                 id="firstname"
                 name="FirstName"
                 maxlength="50"
+                #firstNameField="ngModel"
+                [ngClass]="{
+                  'is-invalid': isFirstNameValid === false && firstNameField.touched,
+                  'is-valid': isFirstNameValid === true
+                }"
               />
               @if (!addFirstNameLine2 === true && !isDisabled()) {
               <span
@@ -429,7 +451,7 @@
           <div class="form-group firstColumn">
             <label for="profile-name">{{
               "address.edit-address.address-persona.name" | translate
-            }}</label>
+            }} *</label>
             <div class="custom-control-inline">
               <input
                 type="text"
@@ -440,6 +462,11 @@
                 id="profile-name"
                 required
                 maxlength="50"
+                #nameField="ngModel"
+                [ngClass]="{
+                  'is-invalid': isNameValid === false && nameField.touched,
+                  'is-valid': isNameValid === true
+                }"
               />
               @if (!addNameLine2 === true && !isDisabled()) {
               <span
@@ -633,11 +660,12 @@
           <div class="form-group firstColumn">
             <label for="zip" class="zip">{{
               "address.edit-address.address-persona.zip" | translate
-            }}</label>
+            }} *</label>
             <input
               type="text"
               class="form-control zip"
               (focusout)="onZipFocusout()"
+              (ngModelChange)="calcValidation()"
               id="zip"
               [disabled]="isDisabled()"
               [(ngModel)]="
@@ -646,12 +674,17 @@
                 ].zip
               "
               name="zip"
+              #zipField="ngModel"
+              [ngClass]="{
+                'is-invalid': isZipValid === false && zipField.touched,
+                'is-valid': isZipValid === true
+              }"
             />
           </div>
           <div>
             <label for="city" class="place">{{
               "address.edit-address.address-persona.place" | translate
-            }}</label>
+            }} *</label>
             <input
               type="text"
               class="form-control place"
@@ -662,8 +695,14 @@
                   dataManagementClientService.currentAddressIndex()
                 ].city
               "
+              (ngModelChange)="calcValidation()"
               name="city"
               list="dynamicPlace"
+              #cityField="ngModel"
+              [ngClass]="{
+                'is-invalid': isCityValid === false && cityField.touched,
+                'is-valid': isCityValid === true
+              }"
             />
             <datalist id="dynamicPlace">
               @for (item of dataManagementClientService.lastCountries(); track
@@ -682,16 +721,16 @@
               for="state"
               class="zip"
               [hidden]="
-                !dataManagementClientService.stateList() ||
-                dataManagementClientService.stateList().length === 0
+                !dataManagementClientService.filteredStateList() ||
+                dataManagementClientService.filteredStateList().length === 0
               "
               >{{ choseCorrectState() | translate }}</label
             >
             <select
               class="form-select zip"
               [hidden]="
-                !dataManagementClientService.stateList() ||
-                dataManagementClientService.stateList().length === 0
+                !dataManagementClientService.filteredStateList() ||
+                dataManagementClientService.filteredStateList().length === 0
               "
               id="state"
               [disabled]="isDisabled()"
@@ -702,7 +741,7 @@
               "
               name="state"
             >
-              @for (c of dataManagementClientService.stateList(); track c.state)
+              @for (c of dataManagementClientService.filteredStateList(); track c.state)
               {
               <option
                 [value]="c.state"
@@ -722,7 +761,7 @@
           <div>
             <label for="country" class="place">{{
               "address.edit-address.address-persona.country" | translate
-            }}</label>
+            }} *</label>
 
             <select
               class="form-select place"
@@ -734,7 +773,12 @@
                 ].country
               "
               name="country"
-              (ngModelChange)="dataManagementClientService.filterState()"
+              (ngModelChange)="onCountryChange()"
+              #countryField="ngModel"
+              [ngClass]="{
+                'is-invalid': isCountryValid === false && countryField.touched,
+                'is-valid': isCountryValid === true
+              }"
             >
               @for (c of dataManagementClientService.currentFilter.countries;
               track c.abbreviation) {

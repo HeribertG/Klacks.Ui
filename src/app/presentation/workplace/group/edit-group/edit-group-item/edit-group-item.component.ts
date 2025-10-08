@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
+import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -57,6 +58,11 @@ export class EditGroupItemComponent
 
   private ngUnsubscribe = new Subject<void>();
   private objectForUnsubscribe: Subscription | undefined;
+
+  public validFromValid: boolean | undefined = undefined;
+  public validUntilValid: boolean | undefined = undefined;
+  public validFromTouched = false;
+  public validUntilTouched = false;
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
@@ -97,6 +103,45 @@ export class EditGroupItemComponent
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }
       });
+
+      effect(() => {
+        const group = this.dataManagementGroupService.editGroup;
+        if (group) {
+          this.calcValidation();
+        }
+      });
     });
+  }
+
+  public calcValidation(): void {
+    const group = this.dataManagementGroupService.editGroup;
+    if (!group) {
+      return;
+    }
+
+    this.validFromValid = group.internalValidFrom ? true : undefined;
+
+    if (group.internalValidUntil) {
+      const validFrom = transformNgbDateStructToDate(group.internalValidFrom);
+      const validUntil = transformNgbDateStructToDate(group.internalValidUntil);
+
+      if (!validFrom || !validUntil) {
+        this.validUntilValid = false;
+      } else {
+        this.validUntilValid = validFrom < validUntil;
+      }
+    } else {
+      this.validUntilValid = undefined;
+    }
+  }
+
+  public onValidFromChange(): void {
+    this.validFromTouched = true;
+    this.calcValidation();
+  }
+
+  public onValidUntilChange(): void {
+    this.validUntilTouched = true;
+    this.calcValidation();
   }
 }

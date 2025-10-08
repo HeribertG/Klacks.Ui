@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
@@ -8,8 +9,8 @@ import {
   Membership,
   Annotation,
 } from 'src/app/domain/models/client-class';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
-import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
+import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object-helpers';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';
@@ -64,7 +65,9 @@ export class ClientEditService {
     this.communicationService.setCommunication(this.editClient()!);
 
     if (!withoutUpdateDummy) {
-      this.editClientDummy = cloneObject<IClient>(this.editClient()!);
+      setTimeout(() => {
+        this.editClientDummy = cloneObject<IClient>(this.editClient()!);
+      }, 0);
     }
 
     if (this.editClient()!.id) {
@@ -121,7 +124,7 @@ export class ClientEditService {
   }
 
   public saveEditClient(withoutUpdateDummy = false) {
-    if (!this.isDirty()) return;
+    if (!this.canSave()) return;
 
     const filteredContracts = this.editClient()!.clientContracts.filter(
       (contract) => contract.contractId && contract.contractId !== ''
@@ -234,23 +237,132 @@ export class ClientEditService {
   }
 
   public isDirty(): boolean {
-    if (!this.editClient() || !this.editClientDummy) {
+    const a = this.editClient();
+    const b = this.editClientDummy;
+
+    if (!a || !b) {
       return false;
     }
-    // This is a simplified dirty check. The original used a complex object comparison.
-    // A more robust implementation might be needed.
-    const isDirty =
-      JSON.stringify(this.editClient()) !==
-      JSON.stringify(this.editClientDummy);
-    return isDirty && this.isDirtyClientValid();
+
+    return !compareComplexObjects(a, b);
   }
 
-  private isDirtyClientValid(): boolean {
+  public canSave(): boolean {
+    return this.isDirty() && this.isValid();
+  }
+
+  public isValid(): boolean {
     const client = this.editClient();
-    if (client?.gender === GenderEnum.legalEntity && !client?.company) {
+    if (!client) {
       return false;
     }
-    return true;
+
+    if (client.legalEntity) {
+      return this.isValidLegalEntity(client);
+    } else {
+      return this.isValidNormalClient(client);
+    }
+  }
+
+  private isValidLegalEntity(client: IClient): boolean {
+    if (!client.company || client.company.trim() === '') {
+      return false;
+    }
+
+    const hasValidAddress = client.addresses.some(
+      (addr) =>
+        addr.zip &&
+        addr.zip.trim() !== '' &&
+        addr.city &&
+        addr.city.trim() !== '' &&
+        addr.country &&
+        addr.country.trim() !== ''
+    );
+
+    if (!hasValidAddress) {
+      return false;
+    }
+
+    if (!this.isValidContracts(client)) {
+      return false;
+    }
+
+    return this.isValidGroupItems(client);
+  }
+
+  private isValidNormalClient(client: IClient): boolean {
+    if (!client.firstName || client.firstName.trim() === '') {
+      return false;
+    }
+
+    if (!client.name || client.name.trim() === '') {
+      return false;
+    }
+
+    if (
+      client.gender !== GenderEnum.female &&
+      client.gender !== GenderEnum.male &&
+      client.gender !== GenderEnum.intersexuality
+    ) {
+      return false;
+    }
+
+    if (!this.isValidContracts(client)) {
+      return false;
+    }
+
+    return this.isValidGroupItems(client);
+  }
+
+  private isValidContracts(client: IClient): boolean {
+    if (!client.clientContracts || client.clientContracts.length === 0) {
+      return true;
+    }
+
+    const hasActiveContract = client.clientContracts.some((c) => c.isActive);
+    if (!hasActiveContract) {
+      return false;
+    }
+
+    const allDatesValid = client.clientContracts.every((c) => {
+      if (!c.internalUntilDate) {
+        return true;
+      }
+
+      const fromDate = transformNgbDateStructToDate(c.internalFromDate);
+      const untilDate = transformNgbDateStructToDate(c.internalUntilDate);
+
+      if (!fromDate || !untilDate) {
+        return false;
+      }
+
+      return fromDate <= untilDate;
+    });
+
+    return allDatesValid;
+  }
+
+  private isValidGroupItems(client: IClient): boolean {
+    if (!client.groupItems || client.groupItems.length === 0) {
+      return true;
+    }
+
+    const allDatesValid = client.groupItems.every((g) => {
+      if (!g.internalValidUntil) {
+        return true;
+      }
+
+      const validFrom = transformNgbDateStructToDate(g.internalValidFrom);
+      const validUntil = transformNgbDateStructToDate(g.internalValidUntil);
+
+      if (!validFrom || !validUntil) {
+        return false;
+      }
+
+      return validFrom < validUntil;
+    });
+
+    return allDatesValid;
   }
 
   public resetData(): void {

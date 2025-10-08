@@ -11,6 +11,9 @@ import {
   Output,
   ViewChild,
   AfterViewInit,
+  Injector,
+  effect,
+  runInInjectionContext,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -35,6 +38,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ClientGroupItemService } from 'src/app/domain/services/client/client-group-item.service';
+import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 interface HeaderProperties {
   order: number;
@@ -78,6 +82,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   private dataGroupItemService = inject(DataGroupItemService);
   private modalService = inject(ModalService);
   private clientGroupItemService = inject(ClientGroupItemService);
+  private injector = inject(Injector);
 
   public faCalendar = faCalendar;
   public visibleTable = 'inline';
@@ -104,7 +109,11 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private ngUnsubscribe = new Subject<void>();
 
+  public groupValidationState: Map<number, boolean | undefined> = new Map();
+  public groupFromDateValidationState: Map<number, boolean | undefined> = new Map();
+
   ngOnInit(): void {
+    this.readSignals();
     this.loadClientGroups();
 
     this.modalService.resultEvent
@@ -155,12 +164,12 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    this.clientGroups = currentClient.groupItems;
+    this.clientGroups = [...currentClient.groupItems];
     this.sortClientGroups();
   }
 
   sortClientGroups(): void {
-    this.clientGroups.sort((a, b) => {
+    const sorted = [...this.clientGroups].sort((a, b) => {
       let compareValue = 0;
 
       if (this.orderBy === 'name') {
@@ -177,6 +186,8 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
       return this.sortOrder === 'asc' ? compareValue : -compareValue;
     });
+
+    this.clientGroups = sorted;
   }
 
   onClickHeader(orderBy: string): void {
@@ -264,25 +275,18 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  trackByIndex(index: number): number {
-    return index;
+  trackByGroupItem(index: number, item: IClientGroupItem): string {
+    return `${item.clientId || ''}-${item.groupId || ''}-${index}`;
   }
 
   onGroupChanged(index: number, selectedGroup: Group | null): void {
     if (!selectedGroup) return;
 
-    const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.groupItems?.[index]) return;
+    const groupItem = this.clientGroups[index];
+    if (!groupItem) return;
 
-    const groupItem = currentClient.groupItems[index];
     groupItem.groupId = selectedGroup.id;
     groupItem.groupName = selectedGroup.name;
-
-    // Update local array as well
-    if (this.clientGroups[index]) {
-      this.clientGroups[index].groupId = selectedGroup.id;
-      this.clientGroups[index].groupName = selectedGroup.name;
-    }
   }
 
   open(groupItem: IClientGroupItem): void {
@@ -317,5 +321,52 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
         this.dataManagementClientService.init();
         this.isChangingEvent.emit(true);
       });
+  }
+
+  public calcValidation(): void {
+    this.groupValidationState.clear();
+    this.groupFromDateValidationState.clear();
+
+    this.clientGroups.forEach((groupItem, index) => {
+      const validFrom = transformNgbDateStructToDate(groupItem.internalValidFrom);
+
+      if (!validFrom) {
+        this.groupFromDateValidationState.set(index, false);
+      } else {
+        this.groupFromDateValidationState.set(index, true);
+      }
+
+      if (!groupItem.internalValidUntil) {
+        this.groupValidationState.set(index, undefined);
+      } else {
+        const validUntil = transformNgbDateStructToDate(groupItem.internalValidUntil);
+
+        if (!validFrom || !validUntil) {
+          this.groupValidationState.set(index, false);
+        } else {
+          this.groupValidationState.set(index, validFrom < validUntil);
+        }
+      }
+    });
+  }
+
+  isGroupDateValid(index: number): boolean | undefined {
+    return this.groupValidationState.get(index);
+  }
+
+  isGroupFromDateValid(index: number): boolean | undefined {
+    return this.groupFromDateValidationState.get(index);
+  }
+
+  private readSignals(): void {
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const client = this.dataManagementClientService.editClient();
+        if (client) {
+          this.loadClientGroups();
+          this.calcValidation();
+        }
+      });
+    });
   }
 }

@@ -89,6 +89,7 @@ export class DataManagementClientService
 
   public editClientDeleted = signal(false);
   public lastCountries = signal<any[]>([]);
+  public filteredStateList = signal<any[]>([]);
   public editClientLastMutation = signal('');
 
   public showProgressSpinner = computed(
@@ -232,6 +233,7 @@ export class DataManagementClientService
         address,
         this.clientConfigService.stateList()
       );
+      this.filteredStateList.set(filteredStates);
     }
   };
 
@@ -265,6 +267,10 @@ export class DataManagementClientService
 
   areObjectsDirty(): boolean {
     return this.clientEditService.isDirty();
+  }
+
+  canSave(): boolean {
+    return this.clientEditService.canSave();
   }
 
   resetData(): void {

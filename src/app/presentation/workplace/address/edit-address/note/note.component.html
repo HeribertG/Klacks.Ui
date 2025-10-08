@@ -73,8 +73,7 @@
   <div [ngStyle]="{ display: visibleTable }">
     @if (dataManagementClientService.editClient()?.annotations) {
     <div class="container-main">
-      @for (annotation of dataManagementClientService.editClient()?.annotations
-      || []; track annotation; let i = $index) {
+      @for (annotation of sortedAnnotations(); track annotation; let i = $index) {
       <div class="row-line">
         <button
           [ngClass]="{
@@ -93,22 +92,22 @@
               (click)="toggleNoteExpansion(i, $event)"
               (keydown.enter)="handleKeyDown(i, $event)"
               (keydown.space)="handleKeyDown(i, $event)"
-              [attr.aria-expanded]="expandedNotes[i]"
+              [attr.aria-expanded]="expandedNotes[getOriginalIndex(i)]"
               [attr.aria-controls]="'noteContent' + i"
               [attr.aria-label]="
-                expandedNotes[i] ? 'Notiz einklappen' : 'Notiz ausklappen'
+                expandedNotes[getOriginalIndex(i)] ? 'Notiz einklappen' : 'Notiz ausklappen'
               "
               tabindex="0"
             >
-              @if (!expandedNotes[i]) {
+              @if (!expandedNotes[getOriginalIndex(i)]) {
               <app-icon-angle-right></app-icon-angle-right>
-              } @if (expandedNotes[i]) {
+              } @if (expandedNotes[getOriginalIndex(i)]) {
               <app-icon-angle-down></app-icon-angle-down>
               }
             </button>
           </div>
           <div class="firstColumn note-container">
-            @if (!expandedNotes[i]) {
+            @if (!expandedNotes[getOriginalIndex(i)]) {
             <div class="collapsed-note" [attr.id]="'noteContent' + i">
               <div
                 class="first-line"
@@ -119,7 +118,7 @@
                 {{ getFirstLine(annotation.note) }}
               </div>
             </div>
-            } @if (expandedNotes[i]) {
+            } @if (expandedNotes[getOriginalIndex(i)]) {
             <div [attr.id]="'noteContent' + i">
               <textarea
                 [id]="'note' + i"

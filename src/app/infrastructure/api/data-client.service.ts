@@ -35,7 +35,7 @@ export class DataClientService {
   }
 
   readClientList(filter: IFilter) {
-    this.setCorrectDatFilter(filter);
+    this.setCorrectDateFilter(filter);
 
     return this.httpClient
       .post<ITruncatedClient>(
@@ -137,19 +137,7 @@ export class DataClientService {
       .pipe();
   }
 
-  countNewEntries() {
-    const now = new Date();
-    const month = now.getMonth();
-    const year = now.getUTCFullYear();
-    const str = `${year}-${month + 1}-${1}`;
-    const from = new Date(str).toUTCString();
-
-    return this.httpClient
-      .get<number>(`${environment.baseUrl}Clients/NewEntries/` + from)
-      .pipe();
-  }
-
-  private setCorrectDatFilter(value: IFilter) {
+  private setCorrectDateFilter(value: IFilter) {
     if (isNgbDateStructOk(value!.internalScopeFrom)) {
       value.scopeFrom = dateWithLocalTimeCorrection(
         transformNgbDateStructToDate(value!.internalScopeFrom)

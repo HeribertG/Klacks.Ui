@@ -23,7 +23,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-import { Address, ICommunication } from 'src/app/domain/models/client-class';
+import { Address, ICommunication, IClient } from 'src/app/domain/models/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import {
   formatPhoneNumber,
@@ -46,6 +46,7 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
+import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 
 @Component({
   selector: 'app-address-persona',
@@ -106,6 +107,14 @@ export class AddressPersonaComponent
   public visibleTable = 'inline';
 
   public isPhoneValueSeals = false;
+
+  public isCompanyValid: boolean | undefined;
+  public isFirstNameValid: boolean | undefined;
+  public isNameValid: boolean | undefined;
+  public isGenderValid: boolean | undefined;
+  public isZipValid: boolean | undefined;
+  public isCityValid: boolean | undefined;
+  public isCountryValid: boolean | undefined;
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -199,6 +208,24 @@ export class AddressPersonaComponent
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAuthorised
     );
+  }
+
+  onLegalEntityChange(isLegalEntity: boolean): void {
+    if (this.dataManagementClientService.editClient()) {
+      if (isLegalEntity) {
+        this.dataManagementClientService.editClient()!.type = EntityTypeEnum.customer;
+        this.dataManagementClientService.editClient()!.gender = GenderEnum.legalEntity;
+      } else {
+        this.dataManagementClientService.editClient()!.type = 0;
+        this.dataManagementClientService.editClient()!.gender = GenderEnum.female;
+      }
+      this.calcValidation();
+    }
+  }
+
+  onCountryChange(): void {
+    this.dataManagementClientService.filterState();
+    this.calcValidation();
   }
 
   isWeekend(date: NgbDateStruct) {
@@ -569,6 +596,71 @@ export class AddressPersonaComponent
         }
       });
       this.effects.push(effect2);
+
+      const effect3 = effect(() => {
+        const client = this.dataManagementClientService.editClient();
+        if (client) {
+          this.dataManagementClientService.filterState();
+          this.calcValidation();
+        }
+      });
+      this.effects.push(effect3);
+
+      const effect4 = effect(() => {
+        const currentAddressIndex = this.dataManagementClientService.currentAddressIndex();
+        if (this.dataManagementClientService.editClient()) {
+          this.dataManagementClientService.filterState();
+        }
+      });
+      this.effects.push(effect4);
     });
+  }
+
+  public calcValidation(): void {
+    const client = this.dataManagementClientService.editClient();
+    if (!client) {
+      return;
+    }
+
+    if (client.legalEntity) {
+      this.calcValidationLegalEntity(client);
+    } else {
+      this.calcValidationNormalClient(client);
+    }
+  }
+
+  private calcValidationLegalEntity(client: IClient): void {
+    this.isCompanyValid = client.company && client.company.trim() !== '' ? true : false;
+
+    const currentAddress = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    if (currentAddress) {
+      this.isZipValid = currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
+      this.isCityValid = currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
+      this.isCountryValid = currentAddress.country && currentAddress.country.trim() !== '' ? true : false;
+    }
+
+    this.isFirstNameValid = undefined;
+    this.isNameValid = undefined;
+    this.isGenderValid = undefined;
+  }
+
+  private calcValidationNormalClient(client: IClient): void {
+    this.isFirstNameValid = client.firstName && client.firstName.trim() !== '' ? true : false;
+    this.isNameValid = client.name && client.name.trim() !== '' ? true : false;
+    this.isGenderValid =
+      client.gender === GenderEnum.female ||
+      client.gender === GenderEnum.male ||
+      client.gender === GenderEnum.intersexuality
+        ? true
+        : false;
+
+    const currentAddress = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    if (currentAddress) {
+      this.isZipValid = currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
+      this.isCityValid = currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
+      this.isCountryValid = currentAddress.country && currentAddress.country.trim() !== '' ? true : false;
+    }
+
+    this.isCompanyValid = undefined;
   }
 }

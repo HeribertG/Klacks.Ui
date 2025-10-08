@@ -29,7 +29,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
 
       <div class="filler"></div>
 
-      @if (workplaceStateService.isDirty && !workplaceStateService.isDisabled) {
+      @if (workplaceStateService.isDirty) {
       <span
         type="button"
         class="link-button red-font"
@@ -48,7 +48,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
         class="btn save-btn"
         tabindex="0"
         (click)="onClickSave()"
-        [disabled]="workplaceStateService.isDisabled"
+        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled"
         aria-label="Save changes"
       >
         {{ 'store' | translate }}
@@ -59,7 +59,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
         class="btn save-btn"
         tabindex="0"
         (click)="onClickSaveAndClose()"
-        [disabled]="workplaceStateService.isDisabled"
+        [disabled]="!workplaceStateService.canSave || workplaceStateService.isDisabled"
         aria-label="Save changes and close"
       >
         {{ 'saveAndClose' | translate }}

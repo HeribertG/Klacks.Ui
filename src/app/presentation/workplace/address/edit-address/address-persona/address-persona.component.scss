@@ -161,3 +161,49 @@ btn-outline-secondary {
   width: 100px;
   margin-top: 40px;
 }
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+  background-image: none !important;
+  padding-right: 0.75rem;
+}
+
+.form-control.is-valid {
+  border-color: #198754;
+  background-image: none !important;
+  padding-right: 0.75rem;
+}
+
+select.is-invalid {
+  border-color: #dc3545 !important;
+  background-image: none !important;
+}
+
+select.is-valid {
+  border-color: #198754 !important;
+  background-image: none !important;
+}
+
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.select-wrapper select {
+  width: 100%;
+  padding-right: 30px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.select-wrapper .select-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}

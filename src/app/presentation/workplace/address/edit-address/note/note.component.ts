@@ -4,6 +4,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   AfterViewInit,
   Component,
+  computed,
   EventEmitter,
   inject,
   OnInit,
@@ -19,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
+import { IAnnotation } from 'src/app/domain/models/client-class';
 
 @Component({
   selector: 'app-note',
@@ -49,12 +51,20 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
 
+  public sortedAnnotations = computed(() => {
+    const annotations = this.dataManagementClientService.editClient()?.annotations || [];
+    return [...annotations].reverse();
+  });
+
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
     if (this.dataManagementClientService.editClient()?.annotations) {
       this.expandedNotes = new Array(
         this.dataManagementClientService.editClient()!.annotations.length
       ).fill(false);
+      if (this.expandedNotes.length > 0) {
+        this.expandedNotes[this.expandedNotes.length - 1] = true;
+      }
     } else {
       this.expandedNotes = [];
     }
@@ -81,14 +91,15 @@ export class NoteComponent implements OnInit, AfterViewInit {
     return firstLineEnd > -1 ? text.substring(0, firstLineEnd) : text;
   }
 
-  toggleNoteExpansion(index: number, event: MouseEvent | KeyboardEvent): void {
+  toggleNoteExpansion(sortedIndex: number, event: MouseEvent | KeyboardEvent): void {
     event.stopPropagation();
 
     if (event instanceof KeyboardEvent && event.code === 'Space') {
       event.preventDefault();
     }
 
-    this.expandedNotes[index] = !this.expandedNotes[index];
+    const originalIndex = this.getOriginalIndex(sortedIndex);
+    this.expandedNotes[originalIndex] = !this.expandedNotes[originalIndex];
 
     setTimeout(() => {
       const button = (event.target as HTMLElement).closest(
@@ -100,12 +111,18 @@ export class NoteComponent implements OnInit, AfterViewInit {
     }, 0);
   }
 
-  onChange(index: number, event: Event) {
+  getOriginalIndex(sortedIndex: number): number {
+    const annotations = this.dataManagementClientService.editClient()?.annotations || [];
+    return annotations.length - 1 - sortedIndex;
+  }
+
+  onChange(sortedIndex: number, event: Event) {
     const target = event.target as HTMLTextAreaElement;
     if (target) {
+      const originalIndex = this.getOriginalIndex(sortedIndex);
       this.dataManagementClientService.editClient.update((client) => {
         if (client) {
-          client.annotations[index].note = target.value;
+          client.annotations[originalIndex].note = target.value;
         }
         return client;
       });
@@ -115,7 +132,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   newAnnotation() {
     this.dataManagementClientService.addAnnotation();
-    this.expandedNotes.push(false);
+    this.expandedNotes.push(true);
   }
 
   onDeleteCurrentAnnotation() {
@@ -128,13 +145,14 @@ export class NoteComponent implements OnInit, AfterViewInit {
     this.isChangingEvent.emit(true);
   }
 
-  onFocus(index: number) {
+  onFocus(sortedIndex: number) {
     if (this.isDisabled()) {
       return;
     }
 
+    const originalIndex = this.getOriginalIndex(sortedIndex);
     this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(
-      index
+      originalIndex
     );
   }
 
