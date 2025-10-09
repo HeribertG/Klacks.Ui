@@ -97,30 +97,9 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const validFrom = transformNgbDateStructToDate(client.membership.internalValidFrom);
+    const validFrom = transformNgbDateStructToDate(
+      client.membership.internalValidFrom
+    );
     this.isValidFromValid = validFrom ? true : false;
-  }
-
-  onChangeDateBack(event: any) {
-    if (event) {
-      if (
-        typeof event === 'object' &&
-        event.hasOwnProperty('year') &&
-        event.hasOwnProperty('month') &&
-        event.hasOwnProperty('day')
-      ) {
-        if (
-          event.year.toString().lenght === 4 &&
-          event.month.toString().lenght === 2 &&
-          event.day.toString().lenght === 2
-        ) {
-          return new Date(event.year, event.month - 1, event.day);
-        }
-        return event;
-      } else {
-        return event;
-      }
-    }
-    return null;
   }
 }

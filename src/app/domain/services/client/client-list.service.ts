@@ -29,8 +29,6 @@ export class ClientListService {
   public checkedArray = signal<CheckBoxValue[]>([]);
   public headerCheckBoxValue = signal(false);
 
-  private currentFilterDummy: Filter | undefined;
-
   public readPage(currentFilter: Filter, clientAttribute: IClientAttribute[]) {
     if (currentFilter.isFilterValid()) {
       this.showProgressSpinner.set(true);
@@ -69,9 +67,6 @@ export class ClientListService {
       maxPages: x.maxPages,
     });
 
-    // Assuming isFilter_Dirty is a method that compares currentFilter with a stored one
-    // this.currentFilterDummy = cloneObject<Filter>(currentFilter);
-
     this.showProgressSpinner.set(false);
   }
 
@@ -99,8 +94,6 @@ export class ClientListService {
       MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
       'PLEASE_BE_PATIENT_EXCEL'
     );
-    // The actual export call seems to be missing in the original code
-    // this.dataClientService.exportExcel(filter).subscribe(...);
   }
 
   public clearCheckedArray() {

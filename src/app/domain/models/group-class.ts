@@ -96,6 +96,10 @@ export interface IGroupItem {
   clientId?: string;
   client?: IClient;
   group?: IGroup;
+  validFrom?: Date;
+  validUntil?: Date;
+  internalValidFrom?: NgbDateStruct;
+  internalValidUntil?: NgbDateStruct;
 }
 
 export class GroupItem implements IGroupItem {
@@ -104,6 +108,10 @@ export class GroupItem implements IGroupItem {
   clientId?: string;
   client?: Client;
   group?: Group;
+  validFrom?: Date;
+  validUntil?: Date;
+  internalValidFrom?: NgbDateStruct;
+  internalValidUntil?: NgbDateStruct;
 }
 
 export interface ITruncatedGroup extends IBaseTruncated {

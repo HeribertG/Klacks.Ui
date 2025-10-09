@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ButtonSettingComponent } from './button-setting.component';
-import { GearGreyComponent } from 'src/app/presentation/icons/gear-grey.component';
+import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 
 describe('ButtonSettingComponent', () => {
   let component: ButtonSettingComponent;
@@ -9,7 +9,7 @@ describe('ButtonSettingComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ButtonSettingComponent, GearGreyComponent]
+      imports: [ButtonSettingComponent, OtherGreyComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ButtonSettingComponent);
@@ -55,11 +55,11 @@ describe('ButtonSettingComponent', () => {
     expect(buttonElement.getAttribute('role')).toBe('button');
   });
 
-  it('should render gear icon', () => {
+  it('should render other icon', () => {
     fixture.detectChanges();
 
-    const gearIcon = fixture.nativeElement.querySelector('app-icon-gear-grey');
-    expect(gearIcon).toBeTruthy();
+    const otherIcon = fixture.nativeElement.querySelector('app-icon-other-grey');
+    expect(otherIcon).toBeTruthy();
   });
 
   it('should have proper icon container structure', () => {
@@ -67,9 +67,9 @@ describe('ButtonSettingComponent', () => {
 
     const iconContainer = fixture.nativeElement.querySelector('.btn div');
     expect(iconContainer).toBeTruthy();
-    
-    const gearIcon = iconContainer.querySelector('app-icon-gear-grey');
-    expect(gearIcon).toBeTruthy();
+
+    const otherIcon = iconContainer.querySelector('app-icon-other-grey');
+    expect(otherIcon).toBeTruthy();
   });
 
   it('should toggle CSS classes when buttonDisabled changes', () => {
@@ -92,14 +92,14 @@ describe('ButtonSettingComponent', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    
+
     // Check button exists
     expect(compiled.querySelector('.btn')).toBeTruthy();
-    
+
     // Check div container
     expect(compiled.querySelector('.btn div')).toBeTruthy();
-    
-    // Check gear icon
-    expect(compiled.querySelector('app-icon-gear-grey')).toBeTruthy();
+
+    // Check other icon
+    expect(compiled.querySelector('app-icon-other-grey')).toBeTruthy();
   });
 });

@@ -23,7 +23,11 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-import { Address, ICommunication, IClient } from 'src/app/domain/models/client-class';
+import {
+  Address,
+  ICommunication,
+  IClient,
+} from 'src/app/domain/models/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import {
   formatPhoneNumber,
@@ -213,11 +217,14 @@ export class AddressPersonaComponent
   onLegalEntityChange(isLegalEntity: boolean): void {
     if (this.dataManagementClientService.editClient()) {
       if (isLegalEntity) {
-        this.dataManagementClientService.editClient()!.type = EntityTypeEnum.customer;
-        this.dataManagementClientService.editClient()!.gender = GenderEnum.legalEntity;
+        this.dataManagementClientService.editClient()!.type =
+          EntityTypeEnum.customer;
+        this.dataManagementClientService.editClient()!.gender =
+          GenderEnum.legalEntity;
       } else {
         this.dataManagementClientService.editClient()!.type = 0;
-        this.dataManagementClientService.editClient()!.gender = GenderEnum.female;
+        this.dataManagementClientService.editClient()!.gender =
+          GenderEnum.female;
       }
       this.calcValidation();
     }
@@ -607,7 +614,6 @@ export class AddressPersonaComponent
       this.effects.push(effect3);
 
       const effect4 = effect(() => {
-        const currentAddressIndex = this.dataManagementClientService.currentAddressIndex();
         if (this.dataManagementClientService.editClient()) {
           this.dataManagementClientService.filterState();
         }
@@ -630,13 +636,20 @@ export class AddressPersonaComponent
   }
 
   private calcValidationLegalEntity(client: IClient): void {
-    this.isCompanyValid = client.company && client.company.trim() !== '' ? true : false;
+    this.isCompanyValid =
+      client.company && client.company.trim() !== '' ? true : false;
 
-    const currentAddress = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    const currentAddress =
+      client.addresses[this.dataManagementClientService.currentAddressIndex()];
     if (currentAddress) {
-      this.isZipValid = currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
-      this.isCityValid = currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
-      this.isCountryValid = currentAddress.country && currentAddress.country.trim() !== '' ? true : false;
+      this.isZipValid =
+        currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
+      this.isCityValid =
+        currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
+      this.isCountryValid =
+        currentAddress.country && currentAddress.country.trim() !== ''
+          ? true
+          : false;
     }
 
     this.isFirstNameValid = undefined;
@@ -645,7 +658,8 @@ export class AddressPersonaComponent
   }
 
   private calcValidationNormalClient(client: IClient): void {
-    this.isFirstNameValid = client.firstName && client.firstName.trim() !== '' ? true : false;
+    this.isFirstNameValid =
+      client.firstName && client.firstName.trim() !== '' ? true : false;
     this.isNameValid = client.name && client.name.trim() !== '' ? true : false;
     this.isGenderValid =
       client.gender === GenderEnum.female ||
@@ -654,11 +668,17 @@ export class AddressPersonaComponent
         ? true
         : false;
 
-    const currentAddress = client.addresses[this.dataManagementClientService.currentAddressIndex()];
+    const currentAddress =
+      client.addresses[this.dataManagementClientService.currentAddressIndex()];
     if (currentAddress) {
-      this.isZipValid = currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
-      this.isCityValid = currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
-      this.isCountryValid = currentAddress.country && currentAddress.country.trim() !== '' ? true : false;
+      this.isZipValid =
+        currentAddress.zip && currentAddress.zip.trim() !== '' ? true : false;
+      this.isCityValid =
+        currentAddress.city && currentAddress.city.trim() !== '' ? true : false;
+      this.isCountryValid =
+        currentAddress.country && currentAddress.country.trim() !== ''
+          ? true
+          : false;
     }
 
     this.isCompanyValid = undefined;

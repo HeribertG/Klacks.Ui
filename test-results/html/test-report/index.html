@@ -93,20 +93,17 @@ body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
 </style>
 </head>
 
-<body id="HTMLReporter" class="html-reporter showDetails">
-<h1>Tested in Chrome 141.0.0.0 (Windows 10) on Wed Oct 08 2025</h1>
+<body id="HTMLReporter" class="html-reporter">
+<h1>Tested in Chrome 141.0.0.0 (Linux x86_64) on Wed Oct 08 2025</h1>
 
 <div class="alert">
 
 
-<!-- <span class="failingAlert bar">Failed 24 specs</span> -->
-<span class="failingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
-  <a href="#" onclick="unfold();">Unfold</a></span>925 specs, 24 failed, 21 pending</span>
-<span class="resultsMenu bar">
-<a class="summaryMenuItem" onclick="showSummary();" href="#">Spec List<a>|<a 
-   class="detailsMenuItem" onclick="showFailures();" href="#">Failures</a>
-</span>
 
+  
+  <span class="passingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
+  <a href="#" onclick="unfold();">Unfold</a></span>958 specs, 0 failed, 21 pending</span>
+  
 
 
 </div>
@@ -336,361 +333,6 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataCountryStateService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch country list</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should add a country</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should update a country</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should delete a country</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService getProviders</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch all providers</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should retry on failure</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService getProvider</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch specific provider</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService createProvider</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create new provider</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService updateProvider</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should update existing provider</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService deleteProvider</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should delete provider</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMProviderService error handling</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should make HTTP request for getProvider</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should make HTTP request for createProvider</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService chat</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should send chat request and return response</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should retry on failure</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService getModels</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch available models</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService updateModel</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should update model configuration</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService model management</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should enable model</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should disable model</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should set default model</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should create new model</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should delete model</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService getUsage</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch usage statistics with default days</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch usage statistics with custom days</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService getFunctions</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch available functions</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataLLMService getHelp</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should fetch help information</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataScheduleService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should retrieve a work item by id</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should add a new work item</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should update an existing work item</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should retrieve a list of client works based on filter</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataSettingsVariousService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should read a setting</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should update a setting</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should add a setting</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should read a list of settings</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataShiftCutsService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">DataShiftService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">BrowserStorageService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should save and restore filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should return null for non-existent filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should remove filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should check availability</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should get keys with prefix</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should clear filters with prefix</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">InMemoryStorageService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should save and restore filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should return null for non-existent filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should remove filter</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should check availability</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should handle unavailable storage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should get keys with prefix</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should clear filters with prefix</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should provide utility methods</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">LocalStorageService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should get item from localStorage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should set item to localStorage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should remove item from localStorage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should get JSON item from localStorage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should set JSON item to localStorage</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should clear all items from localStorage</span>
       </div>
     
     </div>
@@ -1243,18 +885,356 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">DragDropFileUploadDirective</span>
+      <span class="description">DataCountryStateService</span>
     
       <div class="specSummary passed">
-      <span class="description">should create an instance</span>
+      <span class="description">should fetch country list</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should change background on dragover</span>
+      <span class="description">should add a country</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should emit fileDropped event on drop</span>
+      <span class="description">should update a country</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete a country</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService getProviders</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch all providers</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retry on failure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService getProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch specific provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService createProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService updateProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should update existing provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService deleteProvider</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete provider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMProviderService error handling</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should make HTTP request for getProvider</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should make HTTP request for createProvider</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService chat</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should send chat request and return response</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retry on failure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getModels</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch available models</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService updateModel</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should update model configuration</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService model management</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should enable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should disable model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set default model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should create new model</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should delete model</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getUsage</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch usage statistics with default days</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch usage statistics with custom days</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getFunctions</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch available functions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataLLMService getHelp</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should fetch help information</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataScheduleService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should retrieve a work item by id</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a new work item</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update an existing work item</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should retrieve a list of client works based on filter</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataSettingsVariousService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should read a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should add a setting</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should read a list of settings</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataShiftCutsService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DataShiftService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">BrowserStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save and restore filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null for non-existent filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check availability</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get keys with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear filters with prefix</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">InMemoryStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should save and restore filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return null for non-existent filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove filter</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should check availability</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle unavailable storage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get keys with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear filters with prefix</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should provide utility methods</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">LocalStorageService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should get item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set item to localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should remove item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should get JSON item from localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should set JSON item to localStorage</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should clear all items from localStorage</span>
       </div>
     
     </div>
@@ -1289,6 +1269,23 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should remove token on logout</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DragDropFileUploadDirective</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create an instance</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should change background on dragover</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit fileDropped event on drop</span>
       </div>
     
     </div>
@@ -1440,92 +1437,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">SearchStrategyService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call client strategy for CLIENT entity</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call group strategy for GROUP entity</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should reset filter for current entity</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should handle unknown entity gracefully</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should allow adding and removing strategies</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">SearchComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should initialize with default values</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call globalSearch when onClickSearch is called</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should reset filter when search input is cleared</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should not reset filter when search input has value</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should trigger search on HostListener search event</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should handle focus change correctly</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should restore search string when restoreSearch returns value</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render search input when showSearch returns true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should not render search when showSearch returns false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render address checkbox when showIncludeAddress returns true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render client checkbox when showIncludeClient returns true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should bind searchString to input value</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">TableResizeService setRowHeights</span>
     
       <div class="specSummary passed">
@@ -1661,6 +1572,92 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
+      <span class="description">SearchStrategyService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call client strategy for CLIENT entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call group strategy for GROUP entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter for current entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle unknown entity gracefully</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should allow adding and removing strategies</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">SearchComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should initialize with default values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call globalSearch when onClickSearch is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should reset filter when search input is cleared</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not reset filter when search input has value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should trigger search on HostListener search event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle focus change correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should restore search string when restoreSearch returns value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render search input when showSearch returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not render search when showSearch returns false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render address checkbox when showIncludeAddress returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render client checkbox when showIncludeClient returns true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should bind searchString to input value</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
       <span class="description">SpinnerService</span>
     
       <div class="specSummary passed">
@@ -1770,90 +1767,230 @@ message 1, x</span>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
+      <span class="description">ClientEditService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isDirty</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when editClient and editClientDummy are the same</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when editClient has changed</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when editClient is undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isValidNormalClient</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for valid normal client</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when firstName is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when name is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when gender is invalid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isValidLegalEntity</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true for valid legal entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when company is missing</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when address is missing</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isValidContracts</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when no contracts exist</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when contracts have valid dates</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when untilDate is before fromDate</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when untilDate is undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isValidGroupItems</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when no group items exist</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when group items have valid dates</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when validUntil is before validFrom</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when validUntil is undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService canSave</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when client is not dirty</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when client is dirty but invalid</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return true when client is dirty and valid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ClientEditService isValid</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should call isValidLegalEntity when client is legal entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call isValidNormalClient when client is not legal entity</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false when client is undefined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
       <span class="description">LLMChatComponent</span>
     
       <div class="specSummary passed">
       <span class="description">should create</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should initialize with welcome message on ngOnInit</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should load available models on init</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should set current model on init</span>
       </div>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
       <span class="description">LLMChatComponent sendMessage</span>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should not send empty message</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should send message and handle response</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should handle error in sendMessage</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should navigate when actionPerformed is true</span>
       </div>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
       <span class="description">LLMChatComponent voice input</span>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should call speech service methods when starting voice input</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should not start voice input when permission denied</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should stop voice input</span>
       </div>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
       <span class="description">LLMChatComponent model selection</span>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should toggle model dropdown</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should select model</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should get current model info</span>
       </div>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
       <span class="description">LLMChatComponent suggestions and navigation</span>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should handle suggestion click</span>
       </div>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should handle navigate click</span>
       </div>
     
@@ -1880,10 +2017,10 @@ message 1, x</span>
     
     </div>
   
-    <div class="suite failed">
+    <div class="suite passed">
       <span class="description">LLMChatComponent clearChat</span>
     
-      <div class="specSummary failed">
+      <div class="specSummary passed">
       <span class="description">should clear chat and reset conversation</span>
       </div>
     
@@ -1922,6 +2059,43 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should set isClicked to true during login process</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">DeletewindowComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default title</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have empty default message</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom title input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept custom message input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display attention icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper CSS classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render template correctly with inputs</span>
       </div>
     
     </div>
@@ -1977,38 +2151,79 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">DeletewindowComponent</span>
+      <span class="description">ButtonExcelComponent</span>
     
       <div class="specSummary passed">
       <span class="description">should create</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should have default title</span>
+      <span class="description">should have default buttonDisabled value as false</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should have empty default message</span>
+      <span class="description">should accept buttonDisabled input</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should accept custom title input</span>
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should accept custom message input</span>
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should display attention icon</span>
+      <span class="description">should have proper button structure</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should have proper CSS classes</span>
+      <span class="description">should render Excel icon</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should render template correctly with inputs</span>
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonNewComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render button with correct classes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct button role</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render SVG icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct SVG rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper styling structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have correct SVG attributes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
       </div>
     
     </div>
@@ -2126,109 +2341,6 @@ message 1, x</span>
     
     </div>
   
-    <div class="suite failed">
-      <span class="description">ButtonNewComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render button with correct classes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have correct button role</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should render SVG icon</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have correct SVG path</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have proper styling structure</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have correct SVG attributes</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have complete template structure</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite failed">
-      <span class="description">ButtonSettingComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have default buttonDisabled value as false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept buttonDisabled input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper button structure</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should render gear icon</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have proper icon container structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
-      </div>
-    
-      <div class="specSummary failed">
-      <span class="description">should have complete template structure</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">CalendarDropdownComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit an event when onOpenChange is called</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call correct service method when onSelectStates is called</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit an event when onChangeStateSelection is called</span>
-      </div>
-    
-    </div>
-  
     <div class="suite passed">
       <span class="description">ButtonPdfComponent</span>
     
@@ -2266,6 +2378,72 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ButtonSettingComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default buttonDisabled value as false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept buttonDisabled input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper button structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render other icon</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper icon container structure</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have complete template structure</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CalendarDropdownComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit an event when onOpenChange is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call correct service method when onSelectStates is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit an event when onChangeStateSelection is called</span>
       </div>
     
     </div>
@@ -2344,63 +2522,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">ChipsComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have default values</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept name input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept key input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should display name in span element</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit delete event with key when onDelete is called</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call onDelete when delete button is clicked</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render delete button with correct attributes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper CSS classes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper span classes</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have complete template structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit correct key when delete is triggered</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should update displayed name when name input changes</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">ContextMenuComponent</span>
     
       <div class="specSummary passed">
@@ -2471,86 +2592,58 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">CounterComponent</span>
+      <span class="description">ChipsComponent</span>
     
       <div class="specSummary passed">
       <span class="description">should create</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should have default property values</span>
+      <span class="description">should have default values</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should accept maxNumber input</span>
+      <span class="description">should accept name input</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should accept currentNumber input</span>
+      <span class="description">should accept key input</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should display current number in template</span>
+      <span class="description">should display name in span element</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should increment current number when clicking right button</span>
+      <span class="description">should emit delete event with key when onDelete is called</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should decrement current number when clicking left button</span>
+      <span class="description">should call onDelete when delete button is clicked</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should not decrement below 1</span>
+      <span class="description">should render delete button with correct attributes</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should not increment above maxNumber</span>
+      <span class="description">should have proper CSS classes</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should use default maxNumber when undefined</span>
+      <span class="description">should have proper span classes</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should handle zero change value</span>
+      <span class="description">should have complete template structure</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should render left arrow button</span>
+      <span class="description">should emit correct key when delete is triggered</span>
       </div>
     
       <div class="specSummary passed">
-      <span class="description">should render right arrow button</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call onClickPaginationButton when left button is clicked</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should call onClickPaginationButton when right button is clicked</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should emit change event with current number</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should handle large increment values</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should handle large decrement values</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper container CSS class</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should display updated number after multiple clicks</span>
+      <span class="description">should update displayed name when name input changes</span>
       </div>
     
     </div>
@@ -2648,6 +2741,91 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should handle edge case dates correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">CounterComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have default property values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept maxNumber input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should accept currentNumber input</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display current number in template</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should increment current number when clicking right button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should decrement current number when clicking left button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not decrement below 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should not increment above maxNumber</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should use default maxNumber when undefined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle zero change value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render left arrow button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should render right arrow button</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onClickPaginationButton when left button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should call onClickPaginationButton when right button is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should emit change event with current number</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle large increment values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should handle large decrement values</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should have proper container CSS class</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should display updated number after multiple clicks</span>
       </div>
     
     </div>
@@ -3012,47 +3190,6 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
-      <span class="description">ButtonExcelComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have default buttonDisabled value as false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should accept buttonDisabled input</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button class when buttonDisabled is false</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should apply ownStyle-button-disabled class when buttonDisabled is true</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper button structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should render Excel icon</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should have proper styling structure</span>
-      </div>
-    
-      <div class="specSummary passed">
-      <span class="description">should toggle CSS classes when buttonDisabled changes</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
       <span class="description">SimplePaginationComponent</span>
     
       <div class="specSummary passed">
@@ -3281,6 +3418,58 @@ message 1, x</span>
     
       <div class="specSummary passed">
       <span class="description">should show spinner when showProgressSpinner is true</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkplaceStateService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkplaceStateService isDirty</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false initially</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update when set</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkplaceStateService canSave</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false initially</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update when set</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should be independent of isDirty</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">WorkplaceStateService isDisabled</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should return false initially</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">should update when set</span>
       </div>
     
     </div>
@@ -4262,6 +4451,33 @@ message 1, x</span>
     </div>
   
     <div class="suite passed">
+      <span class="description">ScheduleDataService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">ShiftDataService</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should be created</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">PropertyGridComponent</span>
+    
+      <div class="specSummary passed">
+      <span class="description">should create</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
       <span class="description">CutTableComponent</span>
     
       <div class="specSummary passed">
@@ -4820,505 +5036,10 @@ message 1, x</span>
     
     </div>
   
-    <div class="suite passed">
-      <span class="description">PropertyGridComponent</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should create</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">ScheduleDataService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
-    <div class="suite passed">
-      <span class="description">ShiftDataService</span>
-    
-      <div class="specSummary passed">
-      <span class="description">should be created</span>
-      </div>
-    
-    </div>
-  
   
 </div>
 
 <div id="details">
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent should initialize with welcome message on ngOnInit</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent should load available models on init</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent should set current model on init</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent sendMessage should not send empty message</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent sendMessage should send message and handle response</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent sendMessage should handle error in sendMessage</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent sendMessage should navigate when actionPerformed is true</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent voice input should call speech service methods when starting voice input</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent voice input should not start voice input when permission denied</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent voice input should stop voice input</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent model selection should toggle model dropdown</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent model selection should select model</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent model selection should get current model info</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent suggestions and navigation should handle suggestion click</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent suggestions and navigation should handle navigate click</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">LLMChatComponent clearChat should clear chat and reset conversation</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Error: NG0304: 'app-icon-mml' is not a known element (used in the 'LLMChatComponent' component template):
-1. If 'app-icon-mml' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
-2. If 'app-icon-mml' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
-error properties: Object({ code: 304 })
-    at validateElementIsKnown (node_modules/@angular/core/fesm2022/debug_node.mjs:5987:23)
-    at ɵɵelementStart (node_modules/@angular/core/fesm2022/debug_node.mjs:23239:9)
-    at ɵɵelement (node_modules/@angular/core/fesm2022/debug_node.mjs:23282:5)
-    at templateFn (ng:///LLMChatComponent.js:83:17)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)
-    at renderView (node_modules/@angular/core/fesm2022/debug_node.mjs:8713:13)
-    at createAndRenderEmbeddedLView (node_modules/@angular/core/fesm2022/debug_node.mjs:8783:9)
-    at ɵɵconditional (node_modules/@angular/core/fesm2022/debug_node.mjs:22865:39)
-    at templateFn (ng:///LLMChatComponent.js:158:5)
-    at executeTemplate (node_modules/@angular/core/fesm2022/debug_node.mjs:8091:9)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonNewComponent should render SVG icon</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected '20' to be '16'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:44:46)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),Expected '20' to be '16'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:45:47)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonNewComponent should have correct SVG path</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:52:25)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),TypeError: Cannot read properties of null (reading 'getAttribute')
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:53:24)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)
-    at ZoneImpl.run (node_modules/zone.js/fesm2015/zone.js:113:43)
-    at runInTestZone (node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.&lt;anonymous&gt; (node_modules/zone.js/fesm2015/zone-testing.js:234:32)
-    at &lt;Jasmine&gt;</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonNewComponent should have proper styling structure</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected '-6px' to be '-2px'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:63:44)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonNewComponent should have correct SVG attributes</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be '1.2'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:71:48)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),Expected null to be 'visible'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:72:49)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),Expected null to be 'none'.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:73:60)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),TypeError: Cannot read properties of null (reading 'getAttribute')
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:74:24)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)
-    at ZoneImpl.run (node_modules/zone.js/fesm2015/zone.js:113:43)
-    at runInTestZone (node_modules/zone.js/fesm2015/zone-testing.js:216:38)
-    at UserContext.&lt;anonymous&gt; (node_modules/zone.js/fesm2015/zone-testing.js:234:32)
-    at &lt;Jasmine&gt;</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonNewComponent should have complete template structure</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:90:45)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34),Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-new/button-new.component.spec.ts:91:48)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
-  
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonSettingComponent should render gear icon</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-setting/button-setting.component.spec.ts:62:22)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonSettingComponent should have proper icon container structure</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-setting/button-setting.component.spec.ts:72:22)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
-  <div class="specDetail failed">
-    <span class="description">ButtonSettingComponent should have complete template structure</span>
-    <div class="stackTrace">
-      <div class="resultMessage">Expected null to be truthy.
-    at &lt;Jasmine&gt;
-    at UserContext.apply (src/app/presentation/shared/button-setting/button-setting.component.spec.ts:103:58)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:398:28)
-    at ProxyZoneSpec.onInvoke (node_modules/zone.js/fesm2015/zone-testing.js:2132:39)
-    at _ZoneDelegate.invoke (node_modules/zone.js/fesm2015/zone.js:397:34)</div>
-    </div>
-  </div>
-  
   
 </div>
 
@@ -5331,7 +5052,7 @@ document.body.onkeypress = function (e) {
   switch (e.keyCode) {
     case 102: toggleFold(); break;
     case 49: showSummary(); break;
-    case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;case 50: showFailures(); break;
+    
   }
 };
 

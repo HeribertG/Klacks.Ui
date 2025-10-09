@@ -41,17 +41,27 @@ describe('ButtonNewComponent', () => {
     const svgElement = fixture.nativeElement.querySelector('svg');
     expect(svgElement).toBeTruthy();
     expect(svgElement.getAttribute('viewBox')).toBe('0 0 24 24');
-    expect(svgElement.getAttribute('width')).toBe('16');
-    expect(svgElement.getAttribute('height')).toBe('16');
+    expect(svgElement.getAttribute('width')).toBe('20');
+    expect(svgElement.getAttribute('height')).toBe('20');
   });
 
-  it('should have correct SVG path', () => {
+  it('should have correct SVG rects', () => {
     fixture.detectChanges();
 
-    const pathElement = fixture.nativeElement.querySelector('svg path');
-    expect(pathElement).toBeTruthy();
-    expect(pathElement.getAttribute('d')).toContain('M14 10H2v2h12v-2z');
-    expect(pathElement.style.fill).toBe('rgb(27, 197, 189)');
+    const rectElements = fixture.nativeElement.querySelectorAll('svg rect');
+    expect(rectElements.length).toBe(2);
+
+    const verticalRect = rectElements[0];
+    expect(verticalRect.getAttribute('x')).toBe('10');
+    expect(verticalRect.getAttribute('y')).toBe('2');
+    expect(verticalRect.getAttribute('width')).toBe('4');
+    expect(verticalRect.getAttribute('height')).toBe('20');
+
+    const horizontalRect = rectElements[1];
+    expect(horizontalRect.getAttribute('x')).toBe('2');
+    expect(horizontalRect.getAttribute('y')).toBe('10');
+    expect(horizontalRect.getAttribute('width')).toBe('20');
+    expect(horizontalRect.getAttribute('height')).toBe('4');
   });
 
   it('should have proper styling structure', () => {
@@ -60,34 +70,31 @@ describe('ButtonNewComponent', () => {
     const iconContainer = fixture.nativeElement.querySelector('button div');
     expect(iconContainer).toBeTruthy();
     expect(iconContainer.style.marginTop).toBe('-2px');
-    expect(iconContainer.style.marginLeft).toBe('-2px');
+    expect(iconContainer.style.marginLeft).toBe('-6px');
   });
 
   it('should have correct SVG attributes', () => {
     fixture.detectChanges();
 
     const svgElement = fixture.nativeElement.querySelector('svg');
-    const pathElement = fixture.nativeElement.querySelector('svg path');
-    expect(svgElement.getAttribute('version')).toBe('1.2');
-    expect(svgElement.getAttribute('overflow')).toBe('visible');
-    expect(svgElement.getAttribute('preserveAspectRatio')).toBe('none');
-    expect(pathElement.getAttribute('vector-effect')).toBe('non-scaling-stroke');
+    expect(svgElement.getAttribute('xmlns')).toBe('http://www.w3.org/2000/svg');
+    expect(svgElement.getAttribute('viewBox')).toBe('0 0 24 24');
+    expect(svgElement.getAttribute('fill')).toBe('var(--standartGreenColor)');
   });
 
   it('should have complete template structure', () => {
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    
+
     // Check button exists
     expect(compiled.querySelector('button')).toBeTruthy();
-    
+
     // Check div container
     expect(compiled.querySelector('button div')).toBeTruthy();
-    
-    // Check SVG and path
+
+    // Check SVG and rects
     expect(compiled.querySelector('svg')).toBeTruthy();
-    expect(compiled.querySelector('svg g')).toBeTruthy();
-    expect(compiled.querySelector('svg path')).toBeTruthy();
+    expect(compiled.querySelectorAll('svg rect').length).toBe(2);
   });
 });

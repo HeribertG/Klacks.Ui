@@ -19,6 +19,7 @@ import { DataManagementLLMService } from 'src/app/domain/services/data-managemen
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
+import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -113,6 +114,7 @@ describe('LLMChatComponent', () => {
             FormsModule,
             MockTranslatePipe,
             IconChatComponent,
+            IconMMLComponent,
           ],
         },
       })
