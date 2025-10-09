@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-generic-constructors */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   AfterViewInit,
@@ -70,31 +71,32 @@ export class ClientContractsComponent
   public visibleTable = 'inline';
   public objectForUnsubscribe: any;
   public contracts: IContract[] = [];
+  public contractValidationState: Map<number, boolean | undefined> = new Map();
+  public contractFromDateValidationState: Map<number, boolean | undefined> =
+    new Map();
+  public hasAtLeastOneActive = true;
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public contractService = inject(DataManagementContractService);
+
+  public arrowContract = '';
+  public arrowFromDate = '';
+  public arrowUntilDate = '';
+  public arrowActive = '';
+
+  public contractHeader: HeaderProperties = { order: HeaderDirection.None };
+  public fromDateHeader: HeaderProperties = { order: HeaderDirection.None };
+  public untilDateHeader: HeaderProperties = { order: HeaderDirection.None };
+  public activeHeader: HeaderProperties = { order: HeaderDirection.None };
+
+  public orderBy = 'contract';
+  public sortOrder = 'asc';
+
   private injector = inject(Injector);
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
-
-  arrowContract = '';
-  arrowFromDate = '';
-  arrowUntilDate = '';
-  arrowActive = '';
-
-  contractHeader: HeaderProperties = { order: HeaderDirection.None };
-  fromDateHeader: HeaderProperties = { order: HeaderDirection.None };
-  untilDateHeader: HeaderProperties = { order: HeaderDirection.None };
-  activeHeader: HeaderProperties = { order: HeaderDirection.None };
-
-  orderBy = 'contract';
-  sortOrder = 'asc';
-
-  public contractValidationState: Map<number, boolean | undefined> = new Map();
-  public contractFromDateValidationState: Map<number, boolean | undefined> = new Map();
-  public hasAtLeastOneActive = true;
 
   async ngOnInit(): Promise<void> {
     this.readSignals();
@@ -288,9 +290,7 @@ export class ClientContractsComponent
     this.arrowUntilDate = this.setHeaderArrowTemplateSub(
       this.untilDateHeader.order
     );
-    this.arrowActive = this.setHeaderArrowTemplateSub(
-      this.activeHeader.order
-    );
+    this.arrowActive = this.setHeaderArrowTemplateSub(this.activeHeader.order);
   }
 
   private setHeaderArrowTemplateSub(order: number): string {
@@ -339,7 +339,9 @@ export class ClientContractsComponent
       if (!contract.internalUntilDate) {
         this.contractValidationState.set(index, undefined);
       } else {
-        const untilDate = transformNgbDateStructToDate(contract.internalUntilDate);
+        const untilDate = transformNgbDateStructToDate(
+          contract.internalUntilDate
+        );
 
         if (!fromDate || !untilDate) {
           this.contractValidationState.set(index, false);

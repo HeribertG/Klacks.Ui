@@ -13,7 +13,7 @@ import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
-import { IClientGroupItem, ClientGroupItem } from './client-group-item-class';
+import { IClientGroupItem } from './client-group-item-class';
 
 export interface IPostCodeCH {
   id: number;
@@ -103,6 +103,15 @@ export interface ITruncatedClient extends IBaseTruncated {
   lastChange: Date | string;
 }
 
+export interface IClientImage {
+  id: string | undefined;
+  clientId: string | undefined;
+  imageData: string;
+  contentType: string;
+  fileName: string | undefined;
+  fileSize: number;
+}
+
 export interface IClient extends BaseEntity {
   id: string | undefined;
   idNumber: number;
@@ -122,6 +131,7 @@ export interface IClient extends BaseEntity {
   annotations: IAnnotation[];
   clientContracts: IClientContract[];
   groupItems: IClientGroupItem[];
+  clientImage: IClientImage | undefined;
   internalBirthdate: NgbDateStruct | undefined;
 
   hasFutureAddress: boolean;
@@ -282,6 +292,7 @@ export class Client extends BaseEntity implements IClient {
   annotations: IAnnotation[];
   clientContracts: IClientContract[];
   groupItems: IClientGroupItem[];
+  clientImage: IClientImage | undefined = undefined;
 
   internalBirthdate = undefined;
 

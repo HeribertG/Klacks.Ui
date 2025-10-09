@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { inject, Injectable, signal } from '@angular/core';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
@@ -9,8 +8,14 @@ import {
   Membership,
   Annotation,
 } from 'src/app/domain/models/client-class';
-import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object-helpers';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
+import {
+  cloneObject,
+  compareComplexObjects,
+} from 'src/app/domain/helpers/object-helpers';
+import {
+  transformDateToNgbDateStruct,
+  transformNgbDateStructToDate,
+} from 'src/app/domain/helpers/format-helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';

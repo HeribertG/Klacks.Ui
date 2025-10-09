@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CdkDragDrop, CdkDragMove, DragDropModule } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  CdkDragMove,
+  DragDropModule,
+} from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
 
 import { TreeGroupComponent } from './tree-group.component';
@@ -333,9 +338,10 @@ describe('TreeGroupComponent - Drag and Drop', () => {
 
       component.onDrop(mockEvent);
 
-      expect(
-        mockDataManagementGroupService.initTree
-      ).toHaveBeenCalledWith(undefined, true);
+      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
+        undefined,
+        true
+      );
       expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
     });
 
@@ -351,9 +357,10 @@ describe('TreeGroupComponent - Drag and Drop', () => {
       component.onDrop(mockEvent);
 
       expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-      expect(
-        mockDataManagementGroupService.initTree
-      ).toHaveBeenCalledWith(undefined, true);
+      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
+        undefined,
+        true
+      );
     });
 
     it('should prevent dropping parent into its own descendant', () => {
@@ -369,9 +376,10 @@ describe('TreeGroupComponent - Drag and Drop', () => {
       component.onDrop(mockEvent);
 
       expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-      expect(
-        mockDataManagementGroupService.initTree
-      ).toHaveBeenCalledWith(undefined, true);
+      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
+        undefined,
+        true
+      );
     });
 
     it('should reset drag state after drop', () => {
@@ -417,7 +425,7 @@ describe('TreeGroupComponent - Drag and Drop', () => {
       mockAppMain = document.createElement('div');
       Object.defineProperty(mockAppMain, 'scrollTop', {
         writable: true,
-        value: 100
+        value: 100,
       });
       spyOn(document, 'querySelector').and.returnValue(mockAppMain);
     });

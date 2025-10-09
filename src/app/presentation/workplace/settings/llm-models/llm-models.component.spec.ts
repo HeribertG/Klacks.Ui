@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -168,9 +169,7 @@ describe('LLMModelsComponent', () => {
       fixture.detectChanges();
 
       expect(component.availableProviders.length).toBe(2);
-      expect(
-        component.availableProviders.every((p) => p.isEnabled)
-      ).toBe(true);
+      expect(component.availableProviders.every((p) => p.isEnabled)).toBe(true);
     });
 
     it('should handle model loading error', () => {
@@ -445,11 +444,9 @@ describe('LLMModelsComponent', () => {
       component.editingModel!.providerId = 'openai';
       component.providerApiKey = '';
 
-      const errors = component.getValidationErrors();
+      component.getValidationErrors();
 
-      expect(
-        mockTranslateService.instant
-      ).toHaveBeenCalledWith(
+      expect(mockTranslateService.instant).toHaveBeenCalledWith(
         'settings.llm-models.validation.api-key-required'
       );
     });

@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
-import { IAnnotation } from 'src/app/domain/models/client-class';
 
 @Component({
   selector: 'app-note',
@@ -52,7 +51,8 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private translate = inject(TranslateService);
 
   public sortedAnnotations = computed(() => {
-    const annotations = this.dataManagementClientService.editClient()?.annotations || [];
+    const annotations =
+      this.dataManagementClientService.editClient()?.annotations || [];
     return [...annotations].reverse();
   });
 
@@ -91,7 +91,10 @@ export class NoteComponent implements OnInit, AfterViewInit {
     return firstLineEnd > -1 ? text.substring(0, firstLineEnd) : text;
   }
 
-  toggleNoteExpansion(sortedIndex: number, event: MouseEvent | KeyboardEvent): void {
+  toggleNoteExpansion(
+    sortedIndex: number,
+    event: MouseEvent | KeyboardEvent
+  ): void {
     event.stopPropagation();
 
     if (event instanceof KeyboardEvent && event.code === 'Space') {
@@ -112,7 +115,8 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   getOriginalIndex(sortedIndex: number): number {
-    const annotations = this.dataManagementClientService.editClient()?.annotations || [];
+    const annotations =
+      this.dataManagementClientService.editClient()?.annotations || [];
     return annotations.length - 1 - sortedIndex;
   }
 

@@ -1,0 +1,79 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form #imageForm="ngForm" class="container-card">
+  <div class="container-header header-container">
+    {{ translate.instant("address.edit-address.client-image.headline") }}
+
+    <span class="filler"></span>
+
+    <button class="expand-button" (click)="onClickVisibleTable()">
+      @if (visibleTable === 'inline') {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @if (visibleTable === 'none') {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+  </div>
+
+  <div class="container-line"></div>
+
+  <div [ngStyle]="{ display: visibleTable }">
+    @if (isLoading()) {
+    <div class="loading-spinner">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+    } @if (imageUrl() && !isLoading()) {
+    <div class="image-container-show">
+      <img [src]="imageUrl()" alt="Client Image" class="client-image" />
+
+      <div class="row">
+        <span
+          class="delete-button delete-button-icon"
+          type="button"
+          (click)="onClickDeleteImage()"
+        >
+          {{
+            translate.instant("address.edit-address.client-image.remove-image")
+          }}
+        </span>
+      </div>
+    </div>
+    } @if (!imageUrl() && !isLoading()) {
+    <div
+      class="image-container"
+      [ngbTooltip]="
+        translate.instant('address.edit-address.client-image.tooltip')
+      "
+      autoClose="true"
+    >
+      <label class="first">
+        {{ translate.instant("address.edit-address.client-image.label") }}
+      </label>
+
+      <div
+        class="fileupload-image"
+        appDragDropFileUpload
+        (click)="fileField.click()"
+        (fileDropped)="onUploadImage($event)"
+      >
+        <span class="ddinfo">
+          {{ translate.instant("address.edit-address.client-image.info") }}
+        </span>
+        <input
+          type="file"
+          name="clientImage"
+          #fileField
+          (change)="onUploadImage1($event)"
+          hidden
+          accept="image/*"
+        />
+      </div>
+    </div>
+    }
+  </div>
+
+  <div class="bottom-border-space"></div>
+</form>

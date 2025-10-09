@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/consistent-generic-constructors */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
@@ -90,27 +90,27 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public highlightRowId: string | undefined = undefined;
   public objectForUnsubscribe: any;
 
+  public groupValidationState: Map<number, boolean | undefined> = new Map();
+  public groupFromDateValidationState: Map<number, boolean | undefined> =
+    new Map();
+
+  public arrowName = '';
+  public arrowValidFrom = '';
+  public arrowValidUntil = '';
+
+  public nameHeader: HeaderProperties = { order: HeaderDirection.None };
+  public validFromHeader: HeaderProperties = { order: HeaderDirection.None };
+  public validUntilHeader: HeaderProperties = { order: HeaderDirection.None };
+
+  public orderBy = 'name';
+  public sortOrder = 'asc';
+
+  public message = MessageLibrary.DELETE_ENTRY;
+
+  private ngUnsubscribe = new Subject<void>();
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
   private tmplateArrowUndefined = '↕';
-
-  arrowName = '';
-  arrowValidFrom = '';
-  arrowValidUntil = '';
-
-  nameHeader: HeaderProperties = { order: HeaderDirection.None };
-  validFromHeader: HeaderProperties = { order: HeaderDirection.None };
-  validUntilHeader: HeaderProperties = { order: HeaderDirection.None };
-
-  orderBy = 'name';
-  sortOrder = 'asc';
-
-  message = MessageLibrary.DELETE_ENTRY;
-
-  private ngUnsubscribe = new Subject<void>();
-
-  public groupValidationState: Map<number, boolean | undefined> = new Map();
-  public groupFromDateValidationState: Map<number, boolean | undefined> = new Map();
 
   ngOnInit(): void {
     this.readSignals();
@@ -197,10 +197,14 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
       this.nameHeader.order = this.toggleHeaderDirection(this.nameHeader.order);
       sortOrder = this.getSortOrder(this.nameHeader.order);
     } else if (orderBy === 'validFrom') {
-      this.validFromHeader.order = this.toggleHeaderDirection(this.validFromHeader.order);
+      this.validFromHeader.order = this.toggleHeaderDirection(
+        this.validFromHeader.order
+      );
       sortOrder = this.getSortOrder(this.validFromHeader.order);
     } else if (orderBy === 'validUntil') {
-      this.validUntilHeader.order = this.toggleHeaderDirection(this.validUntilHeader.order);
+      this.validUntilHeader.order = this.toggleHeaderDirection(
+        this.validUntilHeader.order
+      );
       sortOrder = this.getSortOrder(this.validUntilHeader.order);
     }
 
@@ -258,8 +262,12 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private setHeaderArrowTemplate(): void {
     this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader.order);
-    this.arrowValidFrom = this.setHeaderArrowTemplateSub(this.validFromHeader.order);
-    this.arrowValidUntil = this.setHeaderArrowTemplateSub(this.validUntilHeader.order);
+    this.arrowValidFrom = this.setHeaderArrowTemplateSub(
+      this.validFromHeader.order
+    );
+    this.arrowValidUntil = this.setHeaderArrowTemplateSub(
+      this.validUntilHeader.order
+    );
   }
 
   private setHeaderArrowTemplateSub(order: number): string {
@@ -328,7 +336,9 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.groupFromDateValidationState.clear();
 
     this.clientGroups.forEach((groupItem, index) => {
-      const validFrom = transformNgbDateStructToDate(groupItem.internalValidFrom);
+      const validFrom = transformNgbDateStructToDate(
+        groupItem.internalValidFrom
+      );
 
       if (!validFrom) {
         this.groupFromDateValidationState.set(index, false);
@@ -339,7 +349,9 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
       if (!groupItem.internalValidUntil) {
         this.groupValidationState.set(index, undefined);
       } else {
-        const validUntil = transformNgbDateStructToDate(groupItem.internalValidUntil);
+        const validUntil = transformNgbDateStructToDate(
+          groupItem.internalValidUntil
+        );
 
         if (!validFrom || !validUntil) {
           this.groupValidationState.set(index, false);

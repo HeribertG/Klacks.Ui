@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -226,9 +228,7 @@ describe('LLMProvidersComponent', () => {
     it('should not toggle if index is invalid', async () => {
       await component.onClickToggleEnable(-1);
 
-      expect(
-        mockProviderService.toggleProviderStatus
-      ).not.toHaveBeenCalled();
+      expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
     });
 
     it('should not toggle if provider has no ID', async () => {
@@ -237,9 +237,7 @@ describe('LLMProvidersComponent', () => {
 
       await component.onClickToggleEnable(0);
 
-      expect(
-        mockProviderService.toggleProviderStatus
-      ).not.toHaveBeenCalled();
+      expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
     });
   });
 
@@ -336,7 +334,9 @@ describe('LLMProvidersComponent', () => {
         priority: 10,
       };
       component.providerApiKey = 'key';
-      mockProviderService.createProvider.and.returnValue(Promise.resolve(undefined));
+      mockProviderService.createProvider.and.returnValue(
+        Promise.resolve(undefined)
+      );
 
       await component.onSave(mockModal);
 

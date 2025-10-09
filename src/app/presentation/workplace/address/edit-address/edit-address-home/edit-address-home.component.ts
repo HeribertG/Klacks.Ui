@@ -15,6 +15,7 @@ import { MembershipComponent } from '../membership/membership.component';
 import { ClientContractsComponent } from '../client-contracts/client-contracts.component';
 import { ClientGroupsComponent } from '../client-groups/client-groups.component';
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
+import { ClientImageComponent } from '../client-image/client-image.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -37,6 +38,7 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactiva
     ClientContractsComponent,
     ClientGroupsComponent,
     NoteComponent,
+    ClientImageComponent,
     EditAddressNavComponent,
   ],
 })

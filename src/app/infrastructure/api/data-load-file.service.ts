@@ -2,7 +2,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { retry } from 'rxjs/operators';
+import { retry, catchError } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -271,6 +272,36 @@ export class DataLoadFileService {
     }
 
     return { width: newWidth, height: newHeight };
+  }
+
+  uploadClientImage(clientId: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return this.httpClient.post(
+      `${environment.baseUrl}LoadFile/client/${clientId}/upload`,
+      formData
+    );
+  }
+
+  downloadClientImage(clientId: string): Observable<Blob> {
+    return this.httpClient.get(
+      `${environment.baseUrl}LoadFile/client/${clientId}/download`,
+      { responseType: 'blob' }
+    ).pipe(
+      catchError((error) => {
+        if (error.status === 404) {
+          return of(new Blob());
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteClientImage(clientId: string) {
+    return this.httpClient.delete(
+      `${environment.baseUrl}LoadFile/client/${clientId}`
+    );
   }
 
   /**
