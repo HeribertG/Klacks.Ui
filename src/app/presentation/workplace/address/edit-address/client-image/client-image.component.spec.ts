@@ -1,28 +1,28 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientImageComponent } from './client-image.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 
 describe('ClientImageComponent', () => {
   let component: ClientImageComponent;
   let fixture: ComponentFixture<ClientImageComponent>;
-  let mockDataManagementClientService: jasmine.SpyObj<DataManagementClientService>;
+  let mockDataManagementClientService: any;
   let mockDataLoadFileService: jasmine.SpyObj<DataLoadFileService>;
+  let editClientSignal: WritableSignal<any>;
 
   beforeEach(async () => {
-    mockDataManagementClientService = jasmine.createSpyObj(
-      'DataManagementClientService',
-      ['editClient'],
-      {
-        editClient: signal({
-          id: '123',
-          clientImage: undefined,
-        }),
-      }
-    );
+    editClientSignal = signal({
+      id: '123',
+      clientImage: undefined,
+    });
+
+    mockDataManagementClientService = {
+      editClient: editClientSignal,
+    };
 
     mockDataLoadFileService = jasmine.createSpyObj('DataLoadFileService', [
       'uploadFile',
@@ -50,13 +50,13 @@ describe('ClientImageComponent', () => {
 
   describe('loadImage', () => {
     it('should set imageUrl to undefined when no client', () => {
-      mockDataManagementClientService.editClient = signal(undefined);
+      editClientSignal.set(undefined);
       component.loadImage();
       expect(component.imageUrl()).toBeUndefined();
     });
 
     it('should set imageUrl to undefined when no clientImage', () => {
-      mockDataManagementClientService.editClient = signal({
+      editClientSignal.set({
         id: '123',
         clientImage: undefined,
       });
@@ -66,7 +66,7 @@ describe('ClientImageComponent', () => {
 
     it('should create blob URL when clientImage exists', () => {
       const base64Data = btoa('test image data');
-      mockDataManagementClientService.editClient = signal({
+      editClientSignal.set({
         id: '123',
         clientImage: {
           id: '456',
@@ -86,7 +86,7 @@ describe('ClientImageComponent', () => {
 
   describe('onClickDeleteImage', () => {
     it('should clear clientImage and imageUrl', () => {
-      mockDataManagementClientService.editClient = signal({
+      editClientSignal.set({
         id: '123',
         clientImage: {
           id: '456',
@@ -144,7 +144,7 @@ describe('ClientImageComponent', () => {
 
   describe('error handling', () => {
     it('should handle image conversion errors', () => {
-      mockDataManagementClientService.editClient = signal({
+      editClientSignal.set({
         id: '123',
         clientImage: {
           id: '456',

@@ -1,15 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
-  effect,
   EffectRef,
   EventEmitter,
   inject,
   Injector,
-  Input,
   OnDestroy,
   OnInit,
   Output,
-  runInInjectionContext,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -135,7 +133,11 @@ export class ClientImageComponent implements OnInit, OnDestroy {
           let width = img.width;
           let height = img.height;
 
-          if (width <= MAX_WIDTH && height <= MAX_HEIGHT && file.size <= MAX_FILE_SIZE) {
+          if (
+            width <= MAX_WIDTH &&
+            height <= MAX_HEIGHT &&
+            file.size <= MAX_FILE_SIZE
+          ) {
             resolve(file);
             return;
           }

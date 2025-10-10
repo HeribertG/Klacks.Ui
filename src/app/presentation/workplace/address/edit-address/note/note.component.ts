@@ -9,7 +9,6 @@ import {
   inject,
   OnInit,
   Output,
-  signal,
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
