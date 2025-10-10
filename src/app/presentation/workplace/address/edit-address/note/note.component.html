@@ -115,20 +115,18 @@
                 (keydown.enter)="handleKeyDown(i, $event)"
                 (keydown.space)="handleKeyDown(i, $event)"
               >
-                {{ getFirstLine(annotation.note) }}
+                {{ getFirstLine(textFormatterService.stripFormatting(annotation.note || '')) }}
               </div>
             </div>
             } @if (expandedNotes[getOriginalIndex(i)]) {
             <div [attr.id]="'noteContent' + i">
-              <textarea
-                [id]="'note' + i"
-                [value]="annotation.note"
+              <app-rich-text-editor
+                [content]="annotation.note || ''"
                 [disabled]="isDisabled()"
-                (input)="onChange(i, $event)"
-                aria-labelledby="Freitextfeld"
-                class="form-control freetext"
-                [name]="'note' + i"
-              ></textarea>
+                [editorId]="'note-editable-' + i"
+                (contentChange)="onContentChange(i, $event)"
+                (focused)="onFocus(i)"
+              ></app-rich-text-editor>
             </div>
             }
           </div>

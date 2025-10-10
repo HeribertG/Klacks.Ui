@@ -9,6 +9,7 @@ import {
   inject,
   OnInit,
   Output,
+  signal,
 } from '@angular/core';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -20,6 +21,8 @@ import { FormsModule } from '@angular/forms';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
+import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
+import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 
 @Component({
   selector: 'app-note',
@@ -37,6 +40,7 @@ import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.c
     OtherGreyComponent,
     TranslateModule,
     ButtonNewComponent,
+    RichTextEditorComponent,
   ],
 })
 export class NoteComponent implements OnInit, AfterViewInit {
@@ -46,6 +50,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
   public expandedNotes: boolean[] = [];
 
   public dataManagementClientService = inject(DataManagementClientService);
+  public textFormatterService = inject(TextFormatterService);
 
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
@@ -171,5 +176,16 @@ export class NoteComponent implements OnInit, AfterViewInit {
     ) {
       this.toggleNoteExpansion(index, event as KeyboardEvent);
     }
+  }
+
+  onContentChange(sortedIndex: number, content: string): void {
+    const originalIndex = this.getOriginalIndex(sortedIndex);
+    this.dataManagementClientService.editClient.update((client) => {
+      if (client) {
+        client.annotations[originalIndex].note = content;
+      }
+      return client;
+    });
+    this.isChangingEvent.emit(true);
   }
 }

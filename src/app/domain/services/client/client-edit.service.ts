@@ -312,6 +312,20 @@ export class ClientEditService {
       return false;
     }
 
+    const hasValidAddress = client.addresses.some(
+      (addr) =>
+        addr.zip &&
+        addr.zip.trim() !== '' &&
+        addr.city &&
+        addr.city.trim() !== '' &&
+        addr.country &&
+        addr.country.trim() !== ''
+    );
+
+    if (!hasValidAddress) {
+      return false;
+    }
+
     if (!this.isValidContracts(client)) {
       return false;
     }

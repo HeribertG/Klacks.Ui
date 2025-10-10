@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-copy-grey',
+  selector: 'app-icon-underline-grey',
   styleUrls: ['./icon.scss'],
   template: `
     <svg
@@ -14,10 +14,10 @@ import { Component } from '@angular/core';
       <path
         fill="var(--iconStandartColor)"
         opacity="0.4"
-        d="M7 6V3C7 1.89543 7.89543 1 9 1H19C20.1046 1 21 1.89543 21 3V17C21 18.1046 20.1046 19 19 19H17V21C17 22.1046 16.1046 23 15 23H5C3.89543 23 3 22.1046 3 21V9C3 7.89543 3.89543 7 5 7H7V6ZM9 7H15C16.1046 7 17 7.89543 17 9V17H19V3H9V7ZM5 9V21H15V9H5Z"
+        d="M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z"
       />
     </svg>
   `,
   standalone: true,
 })
-export class IconCopyGreyComponent {}
+export class IconUnderlineGreyComponent {}

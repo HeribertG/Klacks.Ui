@@ -306,7 +306,7 @@
                   id="gender"
                   [disabled]="isDisabled()"
                   (ngModelChange)="
-                    dataManagementClientService.editClient()!.gender = $event
+                    dataManagementClientService.editClient()!.gender = +$event
                   "
                   name="client.gender"
                   #genderField="ngModel"
@@ -315,15 +315,15 @@
                     'is-valid': isGenderValid === true
                   }"
                 >
-                  <option value="1">
+                  <option [value]="1">
                     {{ "address.edit-address.address-persona.male" | translate }}
                   </option>
-                  <option value="0">
+                  <option [value]="0">
                     {{
                       "address.edit-address.address-persona.female" | translate
                     }}
                   </option>
-                  <option value="2">
+                  <option [value]="2">
                     {{
                       "address.edit-address.address-persona.intersexuality"
                         | translate
@@ -331,7 +331,7 @@
                   </option>
                   @if (dataManagementClientService.editClient()?.legalEntity ===
                   true) {
-                  <option value="3">
+                  <option [value]="3">
                     {{
                       "address.edit-address.address-persona.unknown" | translate
                     }}

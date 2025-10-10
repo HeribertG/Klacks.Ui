@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-copy-grey',
+  selector: 'app-icon-align-left-grey',
   styleUrls: ['./icon.scss'],
   template: `
     <svg
@@ -14,10 +14,10 @@ import { Component } from '@angular/core';
       <path
         fill="var(--iconStandartColor)"
         opacity="0.4"
-        d="M7 6V3C7 1.89543 7.89543 1 9 1H19C20.1046 1 21 1.89543 21 3V17C21 18.1046 20.1046 19 19 19H17V21C17 22.1046 16.1046 23 15 23H5C3.89543 23 3 22.1046 3 21V9C3 7.89543 3.89543 7 5 7H7V6ZM9 7H15C16.1046 7 17 7.89543 17 9V17H19V3H9V7ZM5 9V21H15V9H5Z"
+        d="M3 3h18v2H3V3zm0 4h12v2H3V7zm0 4h18v2H3v-2zm0 4h12v2H3v-2zm0 4h18v2H3v-2z"
       />
     </svg>
   `,
   standalone: true,
 })
-export class IconCopyGreyComponent {}
+export class IconAlignLeftGreyComponent {}

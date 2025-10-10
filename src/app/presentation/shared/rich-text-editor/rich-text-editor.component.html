@@ -1,0 +1,126 @@
+@if (showToolbar && (showToolbarOnlyOnFocus ? isFocused : true)) {
+<div class="toolbar">
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('bold')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.bold' | translate"
+    placement="top"
+  >
+    <app-icon-bold-grey></app-icon-bold-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('italic')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.italic' | translate"
+    placement="top"
+  >
+    <app-icon-italic-grey></app-icon-italic-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('underline')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.underline' | translate"
+    placement="top"
+  >
+    <app-icon-underline-grey></app-icon-underline-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('insertUnorderedList')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.list' | translate"
+    placement="top"
+  >
+    <app-icon-list-grey></app-icon-list-grey>
+  </button>
+  <div class="toolbar-separator"></div>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('justifyLeft')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.align-left' | translate"
+    placement="top"
+  >
+    <app-icon-align-left-grey></app-icon-align-left-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('justifyCenter')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.align-center' | translate"
+    placement="top"
+  >
+    <app-icon-align-center-grey></app-icon-align-center-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="formatText('justifyRight')"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.align-right' | translate"
+    placement="top"
+  >
+    <app-icon-align-right-grey></app-icon-align-right-grey>
+  </button>
+  <div class="toolbar-separator"></div>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="onCopy()"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.copy' | translate"
+    placement="top"
+  >
+    <app-icon-copy-grey></app-icon-copy-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="onCut()"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.cut' | translate"
+    placement="top"
+  >
+    <app-icon-cut-grey></app-icon-cut-grey>
+  </button>
+  <button
+    type="button"
+    class="toolbar-btn"
+    (mousedown)="$event.preventDefault()"
+    (click)="onPaste()"
+    [disabled]="disabled"
+    [ngbTooltip]="'address.edit-address.note.toolbar.paste' | translate"
+    placement="top"
+  >
+    <app-icon-paste-grey></app-icon-paste-grey>
+  </button>
+</div>
+}
+<div
+  [id]="editorId"
+  [contentEditable]="!disabled"
+  [appInitContent]="content"
+  (input)="onContentChange($event)"
+  (focus)="onFocus()"
+  (blur)="onBlur()"
+  [attr.placeholder]="placeholder"
+  class="form-control editable-note"
+></div>

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-icon-copy-grey',
+  selector: 'app-icon-paste-grey',
   styleUrls: ['./icon.scss'],
   template: `
     <svg
@@ -14,10 +14,10 @@ import { Component } from '@angular/core';
       <path
         fill="var(--iconStandartColor)"
         opacity="0.4"
-        d="M7 6V3C7 1.89543 7.89543 1 9 1H19C20.1046 1 21 1.89543 21 3V17C21 18.1046 20.1046 19 19 19H17V21C17 22.1046 16.1046 23 15 23H5C3.89543 23 3 22.1046 3 21V9C3 7.89543 3.89543 7 5 7H7V6ZM9 7H15C16.1046 7 17 7.89543 17 9V17H19V3H9V7ZM5 9V21H15V9H5Z"
+        d="M9 3C8.44772 3 8 3.44772 8 4V5H7C5.89543 5 5 5.89543 5 7V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V7C19 5.89543 18.1046 5 17 5H16V4C16 3.44772 15.5523 3 15 3H9ZM10 5H14V6H10V5ZM7 7H8V8C8 8.55228 8.44772 9 9 9H15C15.5523 9 16 8.55228 16 8V7H17V20H7V7Z"
       />
     </svg>
   `,
   standalone: true,
 })
-export class IconCopyGreyComponent {}
+export class IconPasteGreyComponent {}

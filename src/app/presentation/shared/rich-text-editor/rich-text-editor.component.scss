@@ -1,0 +1,65 @@
+.toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 4px;
+  background-color: var(--backgroundColorCard);
+  border-radius: 4px;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+  background-color: var(--standartTextBackground);
+  border: 1px solid var(--gridColorLine);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  box-shadow: none;
+
+  &:hover:not(:disabled) {
+    background-color: var(--gridColorLine);
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background-color: var(--gridColorLine);
+  margin: 0 4px;
+}
+
+.editable-note {
+  min-height: 144px;
+  outline: none;
+  overflow-y: auto;
+  text-align: left;
+  color: var(--standartTextColor);
+  background-color: var(--standartTextBackground);
+
+  &:focus {
+    border-color: var(--gridColorLine);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  &[contenteditable="true"]:empty:before {
+    content: attr(placeholder);
+    color: var(--gridColorLine);
+    opacity: 0.5;
+  }
+}

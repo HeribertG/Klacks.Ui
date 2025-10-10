@@ -130,6 +130,16 @@
   "address.edit-address.note.delete": "Supprimer la note",
   "address.edit-address.note.header": "Notes",
   "address.edit-address.note.notepad": "Zone de texte libre",
+  "address.edit-address.note.toolbar.align-center": "Centrer",
+  "address.edit-address.note.toolbar.align-left": "Aligner à gauche",
+  "address.edit-address.note.toolbar.align-right": "Aligner à droite",
+  "address.edit-address.note.toolbar.bold": "Gras",
+  "address.edit-address.note.toolbar.copy": "Copier",
+  "address.edit-address.note.toolbar.cut": "Couper",
+  "address.edit-address.note.toolbar.italic": "Italique",
+  "address.edit-address.note.toolbar.list": "Liste",
+  "address.edit-address.note.toolbar.paste": "Coller",
+  "address.edit-address.note.toolbar.underline": "Souligner",
 
 
   "auth.forgot-password.email-address": "Adresse e-mail",
