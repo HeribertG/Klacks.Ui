@@ -42,3 +42,4 @@ testem.log
 Thumbs.db
 test-results/test-results.xml
 test-results/html/test-report/index.html
+test-results/
