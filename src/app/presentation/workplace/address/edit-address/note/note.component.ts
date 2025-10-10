@@ -5,8 +5,10 @@ import {
   AfterViewInit,
   Component,
   computed,
+  effect,
   EventEmitter,
   inject,
+  Injector,
   OnInit,
   Output,
 } from '@angular/core';
@@ -53,6 +55,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
+  private injector = inject(Injector);
 
   public sortedAnnotations = computed(() => {
     const annotations =
@@ -62,6 +65,17 @@ export class NoteComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
+    this.initializeExpandedNotes();
+
+    effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client?.annotations) {
+        this.initializeExpandedNotes();
+      }
+    }, { injector: this.injector });
+  }
+
+  private initializeExpandedNotes(): void {
     if (this.dataManagementClientService.editClient()?.annotations) {
       this.expandedNotes = new Array(
         this.dataManagementClientService.editClient()!.annotations.length

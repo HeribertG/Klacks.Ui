@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
+  effect,
   EffectRef,
   EventEmitter,
   inject,
@@ -56,6 +57,15 @@ export class ClientImageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadImage();
+
+    const clientEffect = effect(() => {
+      const client = this.dataManagementClientService.editClient();
+      if (client) {
+        this.loadImage();
+      }
+    }, { injector: this.injector });
+
+    this.effects.push(clientEffect);
   }
 
   ngOnDestroy(): void {

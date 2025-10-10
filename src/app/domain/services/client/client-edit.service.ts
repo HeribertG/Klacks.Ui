@@ -70,9 +70,7 @@ export class ClientEditService {
     this.communicationService.setCommunication(this.editClient()!);
 
     if (!withoutUpdateDummy) {
-      setTimeout(() => {
-        this.editClientDummy = cloneObject<IClient>(this.editClient()!);
-      }, 0);
+      this.editClientDummy = cloneObject<IClient>(this.editClient()!);
     }
 
     if (this.editClient()!.id) {
@@ -249,7 +247,7 @@ export class ClientEditService {
       return false;
     }
 
-    return !compareComplexObjects(a, b);
+    return !compareComplexObjects(a, b, ['clientImage']);
   }
 
   public canSave(): boolean {
