@@ -3,7 +3,7 @@
   gap: 8px;
   margin-bottom: 8px;
   padding: 4px;
-  background-color: var(--backgroundColorCard);
+  background-color: transparent;
   border-radius: 4px;
 }
 
@@ -45,7 +45,6 @@
 }
 
 .editable-note {
-  min-height: 144px;
   outline: none;
   overflow-y: auto;
   text-align: left;

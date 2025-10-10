@@ -122,5 +122,7 @@
   (focus)="onFocus()"
   (blur)="onBlur()"
   [attr.placeholder]="placeholder"
+  [style.height]="height"
+  [style.min-height]="height ? 'auto' : '144px'"
   class="form-control editable-note"
 ></div>

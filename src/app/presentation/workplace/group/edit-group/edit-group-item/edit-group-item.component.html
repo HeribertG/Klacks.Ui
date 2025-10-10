@@ -81,6 +81,7 @@
           [disabled]="!authorizationService.isAuthorised"
           [showToolbar]="true"
           [showToolbarOnlyOnFocus]="false"
+          [height]="'auto'"
           editorId="group-description-editor"
           (contentChange)="onDescriptionChange($event)"
         ></app-rich-text-editor>

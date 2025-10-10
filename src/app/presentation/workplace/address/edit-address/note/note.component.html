@@ -73,7 +73,8 @@
   <div [ngStyle]="{ display: visibleTable }">
     @if (dataManagementClientService.editClient()?.annotations) {
     <div class="container-main">
-      @for (annotation of sortedAnnotations(); track annotation; let i = $index) {
+      @for (annotation of sortedAnnotations(); track annotation; let i = $index)
+      {
       <div class="row-line">
         <button
           [ngClass]="{
@@ -95,7 +96,9 @@
               [attr.aria-expanded]="expandedNotes[getOriginalIndex(i)]"
               [attr.aria-controls]="'noteContent' + i"
               [attr.aria-label]="
-                expandedNotes[getOriginalIndex(i)] ? 'Notiz einklappen' : 'Notiz ausklappen'
+                expandedNotes[getOriginalIndex(i)]
+                  ? 'Notiz einklappen'
+                  : 'Notiz ausklappen'
               "
               tabindex="0"
             >
@@ -115,7 +118,11 @@
                 (keydown.enter)="handleKeyDown(i, $event)"
                 (keydown.space)="handleKeyDown(i, $event)"
               >
-                {{ getFirstLine(textFormatterService.stripFormatting(annotation.note || '')) }}
+                {{
+                  getFirstLine(
+                    textFormatterService.stripFormatting(annotation.note || "")
+                  )
+                }}
               </div>
             </div>
             } @if (expandedNotes[getOriginalIndex(i)]) {
@@ -123,6 +130,7 @@
               <app-rich-text-editor
                 [content]="annotation.note || ''"
                 [disabled]="isDisabled()"
+                [height]="'auto'"
                 [editorId]="'note-editable-' + i"
                 (contentChange)="onContentChange(i, $event)"
                 (focused)="onFocus(i)"

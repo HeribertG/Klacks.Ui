@@ -44,6 +44,7 @@ export class RichTextEditorComponent {
   @Input() placeholder = '';
   @Input() showToolbar = true;
   @Input() showToolbarOnlyOnFocus = true;
+  @Input() height?: string;
 
   @Output() contentChange = new EventEmitter<string>();
   @Output() plainTextChange = new EventEmitter<string>();

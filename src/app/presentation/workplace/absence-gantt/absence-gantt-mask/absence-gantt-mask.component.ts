@@ -42,6 +42,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgClass, NgStyle } from '@angular/common';
+import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 
 @Component({
   selector: 'app-absence-gantt-mask',
@@ -60,6 +61,7 @@ import { NgClass, NgStyle } from '@angular/common';
     FallbackPipe,
     AbsenceGanttGridComponent,
     SimplePaginationComponent,
+    RichTextEditorComponent,
   ],
   providers: [DatePipe],
 })
@@ -285,5 +287,12 @@ export class AbsenceGanttMaskComponent
 
   onBreakSelected(breakId: string): void {
     this.breakIdSelected.emit(breakId);
+  }
+
+  onInformationChange(content: string): void {
+    if (this.selectedBreak) {
+      this.selectedBreak.information = content;
+      this.onChange();
+    }
   }
 }

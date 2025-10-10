@@ -185,12 +185,14 @@
               }}
             </label>
             <div class="input-text">
-              <textarea
-                class="form-control"
-                [(ngModel)]="selectedBreak.information"
-                name="information"
-                (change)="onChange()"
-              ></textarea>
+              <app-rich-text-editor
+                [content]="selectedBreak.information || ''"
+                [showToolbar]="true"
+                [showToolbarOnlyOnFocus]="false"
+                [height]="'55px'"
+                editorId="absence-information-editor"
+                (contentChange)="onInformationChange($event)"
+              ></app-rich-text-editor>
             </div>
           </div>
         </div>
