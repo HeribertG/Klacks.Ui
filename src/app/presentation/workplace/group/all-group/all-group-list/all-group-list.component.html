@@ -75,7 +75,7 @@
           <th
             class="table-header"
             (click)="onClickHeader('description')"
-            style="width: 320px"
+            style="width: 280px"
           >
             <div class="table-header-cell custom-control-inline">
               <p class="gap noselect">
@@ -129,7 +129,7 @@
 
           <th
             class="table-header action cell-right"
-            style="width: 90px; max-width: 90px; min-width: 90px"
+            style="width: 130px; max-width: 130px; min-width: 130px"
           >
             <div class="table-header-cell custom-control-inline"></div>
           </th>
@@ -175,6 +175,10 @@
             <div>
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
+              </div>
+
+              <div class="icon icon-padding" (click)="onCopyGroup(data)">
+                <app-icon-copy-grey></app-icon-copy-grey>
               </div>
 
               <div class="icon" (click)="open(data)">

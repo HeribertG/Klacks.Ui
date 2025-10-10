@@ -26,7 +26,9 @@ import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.compon
 import { IconGridComponent } from 'src/app/presentation/icons/icon-grid.component';
 import { IconRefreshGreyComponent } from 'src/app/presentation/icons/icon-refresh-grey.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
+import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import {
   ModalService,
   ModalType,
@@ -48,6 +50,7 @@ import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from
     IconAngleRightComponent,
     TrashIconRedComponent,
     PencilIconGreyComponent,
+    IconCopyGreyComponent,
     IconAddComponent,
     IconGridComponent,
     IconEyeGreyComponent,
@@ -172,6 +175,22 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   editNode(node: IGroup): void {
     this.dataManagementGroupService.prepareGroup(node);
     this.navigationService.navigateToEditGroup(node.id);
+  }
+
+  copyNode(node: IGroup): void {
+    const copiedNode = cloneObject<IGroup>(node);
+    copiedNode.id = '';
+    copiedNode.name = `${copiedNode.name}-copy`;
+
+    if (copiedNode.groupItems) {
+      copiedNode.groupItems.forEach(item => {
+        item.id = undefined;
+        item.groupId = undefined;
+      });
+    }
+
+    this.dataManagementGroupService.prepareGroup(copiedNode);
+    this.navigationService.navigateToEditGroup();
   }
 
   addChildNode(parentNode: Group): void {

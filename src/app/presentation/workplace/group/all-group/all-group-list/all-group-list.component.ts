@@ -36,7 +36,9 @@ import { ResizeTableDirective } from 'src/app/presentation/directives/resize-tab
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
+import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import {
   ModalService,
   ModalType,
@@ -60,6 +62,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
     NgbPaginationModule,
     TranslateModule,
     PencilIconGreyComponent,
+    IconCopyGreyComponent,
     TrashIconRedComponent,
     IconTreeComponent,
     ResizeTableDirective,
@@ -407,6 +410,23 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.allGroupStateService.saveCurrentFilter();
     this.dataManagementGroupService.prepareGroup(data);
     this.navigationService.navigateToEditGroup(data.id);
+  }
+
+  onCopyGroup(data: IGroup): void {
+    this.allGroupStateService.saveCurrentFilter();
+    const copiedGroup = cloneObject<IGroup>(data);
+    copiedGroup.id = '';
+    copiedGroup.name = `${copiedGroup.name}-copy`;
+
+    if (copiedGroup.groupItems) {
+      copiedGroup.groupItems.forEach(item => {
+        item.id = undefined;
+        item.groupId = undefined;
+      });
+    }
+
+    this.dataManagementGroupService.prepareGroup(copiedGroup);
+    this.navigationService.navigateToEditGroup();
   }
 
   onChangeRowSize(event: any): void {
