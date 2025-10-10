@@ -24,6 +24,7 @@ import { CommonModule } from '@angular/common';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
+import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 @Component({
@@ -38,6 +39,7 @@ import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-help
     TranslateModule,
     FontAwesomeModule,
     DateInputComponent,
+    RichTextEditorComponent,
   ],
 })
 export class EditGroupItemComponent
@@ -143,5 +145,12 @@ export class EditGroupItemComponent
   public onValidUntilChange(): void {
     this.validUntilTouched = true;
     this.calcValidation();
+  }
+
+  public onDescriptionChange(content: string): void {
+    if (this.dataManagementGroupService.editGroup) {
+      this.dataManagementGroupService.editGroup.description = content;
+      this.isChangingEvent.emit(true);
+    }
   }
 }

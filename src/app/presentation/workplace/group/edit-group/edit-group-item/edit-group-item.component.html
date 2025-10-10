@@ -76,13 +76,14 @@
         "absence-gantt.absence-gantt-mask.absence-gantt-mask.note" | translate
       }}</label>
       <div class="input-text">
-        <textarea
-          class="form-control"
-          [(ngModel)]="dataManagementGroupService.editGroup.description"
-          name="description"
+        <app-rich-text-editor
+          [content]="dataManagementGroupService.editGroup.description"
           [disabled]="!authorizationService.isAuthorised"
-        >
-        </textarea>
+          [showToolbar]="true"
+          [showToolbarOnlyOnFocus]="false"
+          editorId="group-description-editor"
+          (contentChange)="onDescriptionChange($event)"
+        ></app-rich-text-editor>
       </div>
     </div>
   </div>
