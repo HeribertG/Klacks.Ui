@@ -17,10 +17,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-client-image',
@@ -33,8 +32,7 @@ import { DataManagementClientService } from 'src/app/domain/services/client/data
     FormsModule,
     NgbModule,
     DragDropFileUploadDirective,
-    IconAngleDownComponent,
-    IconAngleRightComponent,
+    ExpandableCardComponent,
   ],
 })
 export class ClientImageComponent implements OnInit, OnDestroy {
@@ -51,7 +49,6 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   public translate = inject(TranslateService);
   public dataManagementClientService = inject(DataManagementClientService);
   private injector = inject(Injector);
-  public visibleTable = 'inline';
 
   private effects: EffectRef[] = [];
 
@@ -75,10 +72,6 @@ export class ClientImageComponent implements OnInit, OnDestroy {
       }
     });
     this.effects = [];
-  }
-
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   loadImage() {
