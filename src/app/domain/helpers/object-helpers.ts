@@ -213,11 +213,11 @@ export function compareComplexObjects(
   ): boolean {
     // Helper function to log mismatches
     function logMismatch(reason: string, index?: number) {
-      console.info(
-        `Array mismatch: ${reason}${
-          index !== undefined ? ` at index ${index}` : ''
-        }`
-      );
+      // console.info(
+      //   `Array mismatch: ${reason}${
+      //     index !== undefined ? ` at index ${index}` : ''
+      //   }`
+      // );
       return false;
     }
 

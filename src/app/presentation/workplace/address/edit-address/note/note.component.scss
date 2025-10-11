@@ -45,7 +45,7 @@ textarea {
 
 .note-container {
   position: relative;
-  width: calc(100% - 30px);
+  width: calc(100% - 60px);
 }
 
 .collapsed-note {
@@ -54,9 +54,13 @@ textarea {
   padding: 0.375rem 0.75rem;
   background-color: var(--standartTextBackground);
   color: var(--standartTextColor);
-  width: calc(100% - 30px);
+  width: 100%;
   position: relative;
   min-height: 38px;
+}
+
+.expanded-note {
+  width: 100%;
 }
 
 .first-line {

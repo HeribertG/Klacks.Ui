@@ -56,35 +56,45 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private authorizationService = inject(AuthorizationService);
   private translate = inject(TranslateService);
   private injector = inject(Injector);
+  private isInitializing = false;
+  private effectRunCount = 0;
 
-  public sortedAnnotations = computed(() => {
-    const annotations =
-      this.dataManagementClientService.editClient()?.annotations || [];
-    return [...annotations].reverse();
-  });
+  public sortedAnnotations: any[] = [];
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;
     this.initializeExpandedNotes();
 
     effect(() => {
+      this.effectRunCount++;
+      console.log('[DEBUG] Effect triggered #' + this.effectRunCount + ' - isInitializing:', this.isInitializing);
       const client = this.dataManagementClientService.editClient();
-      if (client?.annotations) {
+      console.log('[DEBUG] Client annotations:', client?.annotations?.length);
+      if (client?.annotations && !this.isInitializing) {
+        console.log('[DEBUG] Effect calling initializeExpandedNotes()');
         this.initializeExpandedNotes();
+      } else {
+        console.log('[DEBUG] Effect skipped initializeExpandedNotes() - has annotations:', !!client?.annotations, 'isInitializing:', this.isInitializing);
       }
     }, { injector: this.injector });
   }
 
   private initializeExpandedNotes(): void {
-    if (this.dataManagementClientService.editClient()?.annotations) {
-      this.expandedNotes = new Array(
-        this.dataManagementClientService.editClient()!.annotations.length
-      ).fill(false);
+    console.log('[DEBUG] initializeExpandedNotes() called');
+    const annotations = this.dataManagementClientService.editClient()?.annotations;
+    console.log('[DEBUG] Annotations length:', annotations?.length);
+    if (annotations) {
+      this.sortedAnnotations = [...annotations];
+      console.log('[DEBUG] sortedAnnotations length:', this.sortedAnnotations.length);
+      this.expandedNotes = new Array(annotations.length).fill(false);
       if (this.expandedNotes.length > 0) {
-        this.expandedNotes[this.expandedNotes.length - 1] = true;
+        this.expandedNotes[0] = true;
       }
+      console.log('[DEBUG] expandedNotes length:', this.expandedNotes.length);
     } else {
+      this.sortedAnnotations = [];
       this.expandedNotes = [];
+      console.log('[DEBUG] No annotations, expandedNotes set to empty array');
     }
   }
 
@@ -133,9 +143,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   getOriginalIndex(sortedIndex: number): number {
-    const annotations =
-      this.dataManagementClientService.editClient()?.annotations || [];
-    return annotations.length - 1 - sortedIndex;
+    return sortedIndex;
   }
 
   onChange(sortedIndex: number, event: Event) {
@@ -153,8 +161,24 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   newAnnotation() {
+    console.log('[DEBUG] newAnnotation() called - isInitializing:', this.isInitializing);
+    this.isInitializing = true;
+    console.log('[DEBUG] Set isInitializing to true');
     this.dataManagementClientService.addAnnotation();
-    this.expandedNotes.push(true);
+    console.log('[DEBUG] addAnnotation() returned, setting timeout');
+    setTimeout(() => {
+      console.log('[DEBUG] setTimeout callback executing');
+      const annotations = this.dataManagementClientService.editClient()?.annotations;
+      if (annotations) {
+        this.expandedNotes.unshift(true);
+        this.sortedAnnotations = [...annotations];
+        console.log('[DEBUG] Added new annotation - expandedNotes length:', this.expandedNotes.length);
+        console.log('[DEBUG] expandedNotes values:', this.expandedNotes);
+      }
+      this.isChangingEvent.emit(true);
+      this.isInitializing = false;
+      console.log('[DEBUG] Set isInitializing to false');
+    }, 0);
   }
 
   onDeleteCurrentAnnotation() {
