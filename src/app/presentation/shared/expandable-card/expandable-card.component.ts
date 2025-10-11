@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IconAngleDownComponent } from '../../icons/icon-angle-down.component';
 import { IconAngleRightComponent } from '../../icons/icon-angle-right.component';
@@ -14,15 +14,25 @@ import { IconAngleRightComponent } from '../../icons/icon-angle-right.component'
     IconAngleRightComponent,
   ],
 })
-export class ExpandableCardComponent implements OnInit {
+export class ExpandableCardComponent implements OnInit, AfterViewInit {
   @Input() headerTitle = '';
   @Input() initiallyExpanded = true;
   @Input() showExpandButton = true;
 
   isExpanded = true;
+  private viewInitialized = false;
 
   ngOnInit(): void {
-    this.isExpanded = this.initiallyExpanded;
+    this.isExpanded = true;
+  }
+
+  ngAfterViewInit(): void {
+    this.viewInitialized = true;
+    if (!this.initiallyExpanded) {
+      setTimeout(() => {
+        this.isExpanded = false;
+      }, 0);
+    }
   }
 
   toggle(): void {
@@ -30,6 +40,9 @@ export class ExpandableCardComponent implements OnInit {
   }
 
   get displayStyle(): string {
+    if (!this.viewInitialized) {
+      return 'block';
+    }
     return this.isExpanded ? 'block' : 'none';
   }
 }

@@ -247,7 +247,7 @@ export class ClientEditService {
       return false;
     }
 
-    return !compareComplexObjects(a, b, ['clientImage']);
+    return !compareComplexObjects(a, b);
   }
 
   public canSave(): boolean {
