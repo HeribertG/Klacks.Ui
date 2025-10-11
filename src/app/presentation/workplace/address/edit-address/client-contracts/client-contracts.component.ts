@@ -23,11 +23,11 @@ import { NgbModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IContract } from 'src/app/domain/models/contract-class';
 import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 
 interface HeaderProperties {
   order: number;
@@ -45,7 +45,6 @@ enum HeaderDirection {
   styleUrls: ['./client-contracts.component.scss'],
   standalone: true,
   imports: [
-    IconAngleRightComponent,
     IconAngleDownComponent,
     CommonModule,
     FormsModule,
@@ -55,6 +54,7 @@ enum HeaderDirection {
     NgbTooltipModule,
     ButtonNewComponent,
     TrashIconRedComponent,
+    ExpandableCardComponent,
   ],
 })
 export class ClientContractsComponent
@@ -68,13 +68,13 @@ export class ClientContractsComponent
   public faCalendar = faCalendar;
   public faPlus = faPlus;
   public faTimes = faTimes;
-  public visibleTable = 'inline';
   public objectForUnsubscribe: any;
   public contracts: IContract[] = [];
   public contractValidationState: Map<number, boolean | undefined> = new Map();
   public contractFromDateValidationState: Map<number, boolean | undefined> =
     new Map();
   public hasAtLeastOneActive = true;
+  public hasValidContracts = false;
 
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
@@ -119,10 +119,6 @@ export class ClientContractsComponent
     }
   }
 
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
-  }
-
   async loadContracts(): Promise<void> {
     this.contracts = await this.contractService.readContracts();
   }
@@ -150,15 +146,19 @@ export class ClientContractsComponent
 
   onActiveChange(index: number): void {
     const client = this.dataManagementClientService.editClient();
-    if (!client || !client.clientContracts[index]?.isActive) {
+    if (!client) {
       return;
     }
 
-    client.clientContracts.forEach((contract, i) => {
-      if (i !== index) {
-        contract.isActive = false;
-      }
-    });
+    if (client.clientContracts[index]?.isActive) {
+      client.clientContracts.forEach((contract, i) => {
+        if (i !== index) {
+          contract.isActive = false;
+        }
+      });
+    }
+
+    this.calcValidation();
   }
 
   sortContracts(): void {
@@ -352,7 +352,12 @@ export class ClientContractsComponent
       }
     });
 
-    this.hasAtLeastOneActive = client.clientContracts.some((c) => c.isActive);
+    const validContracts = client.clientContracts.filter(
+      (c) => c.contractId && c.contractId !== ''
+    );
+
+    this.hasValidContracts = validContracts.length > 0;
+    this.hasAtLeastOneActive = validContracts.some((c) => c.isActive);
   }
 
   isContractDateValid(index: number): boolean | undefined {

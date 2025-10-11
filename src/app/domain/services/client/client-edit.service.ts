@@ -336,12 +336,20 @@ export class ClientEditService {
       return true;
     }
 
-    const hasActiveContract = client.clientContracts.some((c) => c.isActive);
+    const validContracts = client.clientContracts.filter(
+      (c) => c.contractId && c.contractId !== ''
+    );
+
+    if (validContracts.length === 0) {
+      return true;
+    }
+
+    const hasActiveContract = validContracts.some((c) => c.isActive);
     if (!hasActiveContract) {
       return false;
     }
 
-    const allDatesValid = client.clientContracts.every((c) => {
+    const allDatesValid = validContracts.every((c) => {
       if (!c.internalUntilDate) {
         return true;
       }

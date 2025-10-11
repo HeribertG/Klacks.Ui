@@ -4,17 +4,6 @@
 @use "../../../../../../assets/standard-styles/standard-grid.scss";
 @use "../../../../../../assets/standard-styles/navigation.scss";
 
-.expand-button {
-  margin-right: 30px;
-}
-
-button {
-  outline: none;
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
-}
-
 .select-wrapper {
   position: relative;
   display: flex;

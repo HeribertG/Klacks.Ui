@@ -1,34 +1,24 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<form #contractsForm="ngForm" class="container-card">
-  <div class="container-header header-container">
-    {{ "address.edit-address.contracts.header" | translate }}
+<form #contractsForm="ngForm">
+  <app-expandable-card
+    [headerTitle]="'address.edit-address.contracts.header' | translate">
 
-    <span class="filler"></span>
-
-    @if (!isDisabled()) {
-    <app-button-new
-      placement="top"
-      type="button"
-      (click)="addContract()"
-      ngbTooltip="{{
-        'address.edit-address.contracts.add-contract' | translate
-      }}"
-    >
-    </app-button-new>
-    }
-
-    <button class="expand-button" (click)="onClickVisibleTable()">
-      @if (visibleTable === 'inline') {
-      <app-icon-angle-down></app-icon-angle-down>
-      } @if (visibleTable === 'none') {
-      <app-icon-angle-right></app-icon-angle-right>
+    <div headerActions>
+      @if (!isDisabled()) {
+      <app-button-new
+        placement="top"
+        type="button"
+        (click)="addContract()"
+        ngbTooltip="{{
+          'address.edit-address.contracts.add-contract' | translate
+        }}"
+      >
+      </app-button-new>
       }
-    </button>
-  </div>
+    </div>
 
-  <div class="container-line"></div>
-  <div [ngStyle]="{ display: visibleTable }">
+    <div>
     @if (dataManagementClientService.editClient() !== undefined) {
     <div class="container-table">
       <table class="table table-borderless">
@@ -69,6 +59,7 @@
                   id="contract-{{ $index }}"
                   [disabled]="isDisabled()"
                   [(ngModel)]="contract.contractId"
+                  (ngModelChange)="calcValidation()"
                 >
                   <option value="">
                     {{
@@ -162,14 +153,14 @@
           }
         </tbody>
       </table>
-      @if (dataManagementClientService.editClient()?.clientContracts && dataManagementClientService.editClient()!.clientContracts.length > 0 && !hasAtLeastOneActive) {
+      @if (hasValidContracts && !hasAtLeastOneActive) {
         <div class="alert alert-danger" role="alert" style="margin: 10px;">
           {{ "address.edit-address.contracts.validation.at-least-one-active" | translate }}
         </div>
       }
     </div>
     }
-  </div>
+    </div>
 
-  <div class="bottom-border-space"></div>
+  </app-expandable-card>
 </form>

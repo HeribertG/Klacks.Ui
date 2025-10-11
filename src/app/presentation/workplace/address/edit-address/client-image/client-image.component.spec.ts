@@ -107,16 +107,6 @@ describe('ClientImageComponent', () => {
     });
   });
 
-  describe('onClickVisibleTable', () => {
-    it('should toggle visibleTable between inline and none', () => {
-      expect(component.visibleTable).toBe('inline');
-      component.onClickVisibleTable();
-      expect(component.visibleTable).toBe('none');
-      component.onClickVisibleTable();
-      expect(component.visibleTable).toBe('inline');
-    });
-  });
-
   describe('base64ToBlob', () => {
     it('should convert base64 string to Blob', () => {
       const testData = 'test data';
