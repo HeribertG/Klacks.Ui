@@ -24,11 +24,10 @@ import { DataManagementGroupService } from 'src/app/domain/services/data-managem
 import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-edit-group-members',
@@ -39,9 +38,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
     CommonModule,
     FormsModule,
     TranslateModule,
-    IconAngleDownComponent,
-    IconAngleRightComponent,
     TrashIconRedComponent,
+    ExpandableCardComponent,
   ],
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit {
@@ -61,7 +59,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   selectedClient: IClient | undefined = undefined;
 
   page = 1;
-  visibleTable = 'inline';
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -161,10 +158,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
         this.refreshList(this.selectedClientName);
       }
     }
-  }
-
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   private refreshList(term: string) {

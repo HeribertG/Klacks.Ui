@@ -38,6 +38,11 @@ export class DataGroupService {
 
   updateGroup(value: IGroup): Observable<IGroup> {
     this.setCorrectDate(value);
+
+    if (value.groupItems) {
+      value.groupItems = value.groupItems.filter(item => item.clientId != null);
+    }
+
     return this.httpClient
       .put<IGroup>(`${environment.baseUrl}Groups/`, value)
       .pipe(retry(3));

@@ -31,6 +31,7 @@ import { createSmartAbbreviation } from 'src/app/domain/helpers/format-helper';
 import { LockComponent } from 'src/app/presentation/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/presentation/icons/icon-unlock.component';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 
 @Component({
   selector: 'app-edit-shift-item',
@@ -48,6 +49,7 @@ import { ShiftStatus } from 'src/app/domain/models/shift-class';
     NgbTooltipModule,
     LockComponent,
     UnlockComponent,
+    RichTextEditorComponent,
   ],
 })
 export class EditShiftItemComponent
@@ -124,6 +126,13 @@ export class EditShiftItemComponent
       }
     }
     this.isChangingEvent.emit(true);
+  }
+
+  onDescriptionChange(content: string): void {
+    if (this.dataManagementShiftService.editShift) {
+      this.dataManagementShiftService.editShift.description = content;
+      this.isChangingEvent.emit(true);
+    }
   }
 
   onClickVisibleTable() {

@@ -221,12 +221,15 @@
               | translate
           }}</label>
           <div class="input-text">
-            <textarea
-              class="form-control"
-              [(ngModel)]="dataManagementShiftService.editShift.description"
-              name="description"
-            >
-            </textarea>
+            <app-rich-text-editor
+              [content]="dataManagementShiftService.editShift.description || ''"
+              [disabled]="isEditableFieldsDisabled"
+              [showToolbar]="true"
+              [showToolbarOnlyOnFocus]="false"
+              [height]="'auto'"
+              editorId="shift-description-editor"
+              (contentChange)="onDescriptionChange($event)"
+            ></app-rich-text-editor>
           </div>
         </div>
       </div>

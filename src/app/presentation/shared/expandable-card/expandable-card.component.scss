@@ -1,0 +1,17 @@
+@use "../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../assets/standard-styles/colors.scss";
+
+.expand-button {
+  margin-right: 30px;
+}
+
+button {
+  outline: none;
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.filler {
+  flex: 1;
+}

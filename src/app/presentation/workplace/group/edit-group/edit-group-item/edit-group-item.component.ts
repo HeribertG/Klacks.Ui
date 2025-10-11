@@ -26,6 +26,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -40,6 +41,7 @@ import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-help
     FontAwesomeModule,
     DateInputComponent,
     RichTextEditorComponent,
+    ExpandableCardComponent,
   ],
 })
 export class EditGroupItemComponent

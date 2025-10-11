@@ -1,9 +1,6 @@
-<form #parentForm="ngForm" class="container-card">
-  <div class="container-header header-container">
-    {{ "group.edit-group.edit-group-parent.headline" | translate }}
-    <span class="filler"></span>
-  </div>
-  <div class="container-line"></div>
+<form #parentForm="ngForm">
+  <app-expandable-card
+    [headerTitle]="'group.edit-group.edit-group-parent.headline' | translate">
 
   @if (dataManagementGroupService.editGroup) {
   <div class="parent-selection">
@@ -48,7 +45,8 @@
     </div>
     }
 
-    <div class="bottom-border-space"></div>
   </div>
   }
+
+  </app-expandable-card>
 </form>

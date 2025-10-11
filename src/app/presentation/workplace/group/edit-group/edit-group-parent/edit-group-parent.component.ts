@@ -20,13 +20,14 @@ import { DataManagementGroupService } from 'src/app/domain/services/data-managem
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-edit-group-parent',
   templateUrl: './edit-group-parent.component.html',
   styleUrls: ['./edit-group-parent.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
 })
 export class EditGroupParentComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();

@@ -1,0 +1,27 @@
+<div class="container-card">
+  <div class="container-header header-container">
+    {{ headerTitle }}
+
+    <span class="filler"></span>
+
+    <ng-content select="[headerActions]"></ng-content>
+
+    @if (showExpandButton) {
+    <button class="expand-button" (click)="toggle()">
+      @if (isExpanded) {
+      <app-icon-angle-down></app-icon-angle-down>
+      } @else {
+      <app-icon-angle-right></app-icon-angle-right>
+      }
+    </button>
+    }
+  </div>
+
+  <div class="container-line"></div>
+
+  <div [ngStyle]="{ display: displayStyle }">
+    <ng-content></ng-content>
+  </div>
+
+  <div class="bottom-border-space"></div>
+</div>

@@ -1,9 +1,6 @@
-<form #groupForm="ngForm" class="container-card">
-  <div class="container-header header-container">
-    {{ "group.edit-group.edit-group-item.headline" | translate }}
-    <span class="filler"></span>
-  </div>
-  <div class="container-line"></div>
+<form #groupForm="ngForm">
+  <app-expandable-card
+    [headerTitle]="'group.edit-group.edit-group-item.headline' | translate">
 
   @if (dataManagementGroupService.editGroup !== undefined) {
   <div class="firstColumn first-row">
@@ -90,5 +87,5 @@
   </div>
   }
 
-  <div class="bottom-border-space"></div>
+  </app-expandable-card>
 </form>
