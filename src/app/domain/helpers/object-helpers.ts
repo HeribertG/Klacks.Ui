@@ -164,8 +164,7 @@ export function compareComplexObjects(
     if (Array.isArray(value1)) {
       return (
         (Array.isArray(value2) &&
-          (value1.length === 0 ||
-            compareArray(value1, value2, listExcludedObject))) ||
+          compareArray(value1, value2, listExcludedObject)) ||
         logMismatch('Array comparison failed')
       );
     }

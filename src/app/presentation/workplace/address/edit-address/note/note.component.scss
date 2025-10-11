@@ -17,15 +17,6 @@
   margin-left: 30px;
 }
 
-.freetext {
-  width: calc(100% - 30px);
-  height: 144px;
-}
-
-textarea {
-  resize: none;
-}
-
 .ownStyle-button {
   width: 53px;
   height: 34px;
@@ -37,10 +28,6 @@ textarea {
 
 .container-box {
   background-color: var(--backgroundColorCard);
-}
-
-.expand-button {
-  margin-right: 30px;
 }
 
 .note-container {
@@ -69,11 +56,6 @@ textarea {
   text-overflow: ellipsis;
 }
 
-.toggle-container {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .toggle-note-button {
   width: 24px;
   height: 24px;
@@ -81,9 +63,9 @@ textarea {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-
   z-index: 1000;
 }
+
 .header {
   width: calc(100% - 60px);
   display: flex;
@@ -95,8 +77,4 @@ button {
   border: none;
   box-shadow: none;
   background-color: transparent;
-}
-
-app-rich-text-editor {
-  margin-right: 30px;
 }

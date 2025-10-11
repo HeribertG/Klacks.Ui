@@ -2,75 +2,66 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form #noteForm="ngForm">
-  <div class="container-header header-container">
-    {{ "address.edit-address.note.header" | translate }}
+  <app-expandable-card
+    [headerTitle]="'address.edit-address.note.header' | translate">
 
-    <span class="filler"></span>
+    <div headerActions>
+      @if (!isDisabled()) {
+      <div>
+        @if (dataManagementClientService.editClientDeleted() === false) {
+        <app-button-new
+          placement="top"
+          (click)="newAnnotation()"
+          ngbTooltip="{{ note_new }}"
+        >
+        </app-button-new>
+        } @if (dataManagementClientService.editClientDeleted() === false) {
+        <div
+          class="btn dropdown-toggle ownStyle-button"
+          role="button"
+          data-bs-toggle="dropdown"
+          aria-label="note-delete"
+        >
+          <app-icon-other-grey></app-icon-other-grey>
+        </div>
+        }
 
-    @if (!isDisabled()) {
-    <div>
-      @if (dataManagementClientService.editClientDeleted() === false) {
-      <app-button-new
-        placement="top"
-        (click)="newAnnotation()"
-        ngbTooltip="{{ note_new }}"
-      >
-      </app-button-new>
-      } @if (dataManagementClientService.editClientDeleted() === false) {
-      <div
-        class="btn dropdown-toggle ownStyle-button"
-        role="button"
-        data-bs-toggle="dropdown"
-        aria-label="note-delete"
-      >
-        <app-icon-other-grey></app-icon-other-grey>
+        <ul
+          class="dropdown-menu dropdown-menu-lg-end"
+          aria-labelledby="dropdownMenuDel"
+        >
+          <li>
+            @if (dataManagementClientService.editClient() !== undefined &&
+            dataManagementClientService.currentAnnotationIndex() > -1) {
+            <a class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
+              <div class="custom-control-inline" style="height: 25px">
+                <app-icon-trash-red></app-icon-trash-red>
+                <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
+                  {{ "address.edit-address.note.delete" | translate }}
+                </p>
+              </div>
+            </a>
+            }
+          </li>
+          <li>
+            @if (dataManagementClientService.editClient() !== undefined &&
+            dataManagementClientService.currentAnnotationIndex() === -1) {
+            <a class="dropdown-item disabled">
+              <div class="custom-control-inline" style="height: 25px">
+                <app-icon-trash-light-red></app-icon-trash-light-red>
+                <p style="margin-left: 10px; font-size: 13px; color: #fac1c7">
+                  {{ "address.edit-address.note.delete" | translate }}
+                </p>
+              </div>
+            </a>
+            }
+          </li>
+        </ul>
       </div>
       }
-
-      <ul
-        class="dropdown-menu dropdown-menu-lg-end"
-        aria-labelledby="dropdownMenuDel"
-      >
-        <li>
-          @if (dataManagementClientService.editClient() !== undefined &&
-          dataManagementClientService.currentAnnotationIndex() > -1) {
-          <a class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
-            <div class="custom-control-inline" style="height: 25px">
-              <app-icon-trash-red></app-icon-trash-red>
-              <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
-                {{ "address.edit-address.note.delete" | translate }}
-              </p>
-            </div>
-          </a>
-          }
-        </li>
-        <li>
-          @if (dataManagementClientService.editClient() !== undefined &&
-          dataManagementClientService.currentAnnotationIndex() === -1) {
-          <a class="dropdown-item disabled">
-            <div class="custom-control-inline" style="height: 25px">
-              <app-icon-trash-light-red></app-icon-trash-light-red>
-              <p style="margin-left: 10px; font-size: 13px; color: #fac1c7">
-                {{ "address.edit-address.note.delete" | translate }}
-              </p>
-            </div>
-          </a>
-          }
-        </li>
-      </ul>
     </div>
-    }
 
-    <button class="expand-button" (click)="onClickVisibleTable()">
-      @if (visibleTable === 'inline') {
-      <app-icon-angle-down></app-icon-angle-down>
-      } @if (visibleTable === 'none') {
-      <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-  <div class="container-line"></div>
-  <div [ngStyle]="{ display: visibleTable }">
+  <div>
     @if (dataManagementClientService.editClient()?.annotations) {
     <div class="container-main">
       @for (annotation of sortedAnnotations; track annotation; let i = $index)
@@ -144,5 +135,6 @@
     </div>
     }
   </div>
-  <div class="bottom-border-space"></div>
+
+  </app-expandable-card>
 </form>

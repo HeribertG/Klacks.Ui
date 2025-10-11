@@ -24,6 +24,7 @@ import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/butto
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-note',
@@ -42,12 +43,12 @@ import { TextFormatterService } from 'src/app/presentation/shared/rich-text-edit
     TranslateModule,
     ButtonNewComponent,
     RichTextEditorComponent,
+    ExpandableCardComponent,
   ],
 })
 export class NoteComponent implements OnInit, AfterViewInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   public note_new = MessageLibrary.NOTE_NEW;
-  public visibleTable = 'inline';
   public expandedNotes: boolean[] = [];
 
   public dataManagementClientService = inject(DataManagementClientService);
@@ -57,7 +58,6 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private translate = inject(TranslateService);
   private injector = inject(Injector);
   private isInitializing = false;
-  private effectRunCount = 0;
 
   public sortedAnnotations: any[] = [];
 
@@ -66,35 +66,24 @@ export class NoteComponent implements OnInit, AfterViewInit {
     this.initializeExpandedNotes();
 
     effect(() => {
-      this.effectRunCount++;
-      console.log('[DEBUG] Effect triggered #' + this.effectRunCount + ' - isInitializing:', this.isInitializing);
       const client = this.dataManagementClientService.editClient();
-      console.log('[DEBUG] Client annotations:', client?.annotations?.length);
       if (client?.annotations && !this.isInitializing) {
-        console.log('[DEBUG] Effect calling initializeExpandedNotes()');
         this.initializeExpandedNotes();
-      } else {
-        console.log('[DEBUG] Effect skipped initializeExpandedNotes() - has annotations:', !!client?.annotations, 'isInitializing:', this.isInitializing);
       }
     }, { injector: this.injector });
   }
 
   private initializeExpandedNotes(): void {
-    console.log('[DEBUG] initializeExpandedNotes() called');
     const annotations = this.dataManagementClientService.editClient()?.annotations;
-    console.log('[DEBUG] Annotations length:', annotations?.length);
     if (annotations) {
       this.sortedAnnotations = [...annotations];
-      console.log('[DEBUG] sortedAnnotations length:', this.sortedAnnotations.length);
       this.expandedNotes = new Array(annotations.length).fill(false);
       if (this.expandedNotes.length > 0) {
         this.expandedNotes[0] = true;
       }
-      console.log('[DEBUG] expandedNotes length:', this.expandedNotes.length);
     } else {
       this.sortedAnnotations = [];
       this.expandedNotes = [];
-      console.log('[DEBUG] No annotations, expandedNotes set to empty array');
     }
   }
 
@@ -161,34 +150,44 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   newAnnotation() {
-    console.log('[DEBUG] newAnnotation() called - isInitializing:', this.isInitializing);
     this.isInitializing = true;
-    console.log('[DEBUG] Set isInitializing to true');
     this.dataManagementClientService.addAnnotation();
-    console.log('[DEBUG] addAnnotation() returned, setting timeout');
     setTimeout(() => {
-      console.log('[DEBUG] setTimeout callback executing');
       const annotations = this.dataManagementClientService.editClient()?.annotations;
       if (annotations) {
         this.expandedNotes.unshift(true);
         this.sortedAnnotations = [...annotations];
-        console.log('[DEBUG] Added new annotation - expandedNotes length:', this.expandedNotes.length);
-        console.log('[DEBUG] expandedNotes values:', this.expandedNotes);
       }
       this.isChangingEvent.emit(true);
       this.isInitializing = false;
-      console.log('[DEBUG] Set isInitializing to false');
     }, 0);
   }
 
   onDeleteCurrentAnnotation() {
     const currentIndex =
       this.dataManagementClientService.currentAnnotationIndex();
-    this.dataManagementClientService.removeCurrentAnnotation();
-    if (currentIndex > -1 && currentIndex < this.expandedNotes.length) {
-      this.expandedNotes.splice(currentIndex, 1);
+
+    if (currentIndex === -1) {
+      return;
     }
-    this.isChangingEvent.emit(true);
+
+    this.isInitializing = true;
+    this.dataManagementClientService.removeCurrentAnnotation();
+
+    setTimeout(() => {
+      if (currentIndex > -1 && currentIndex < this.expandedNotes.length) {
+        this.expandedNotes.splice(currentIndex, 1);
+      }
+
+      const annotations = this.dataManagementClientService.editClient()?.annotations;
+      if (annotations) {
+        this.sortedAnnotations = [...annotations];
+      }
+
+      this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(-1);
+      this.isChangingEvent.emit(true);
+      this.isInitializing = false;
+    }, 0);
   }
 
   onFocus(sortedIndex: number) {
@@ -200,10 +199,6 @@ export class NoteComponent implements OnInit, AfterViewInit {
     this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(
       originalIndex
     );
-  }
-
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   handleKeyDown(index: number, event: Event): void {

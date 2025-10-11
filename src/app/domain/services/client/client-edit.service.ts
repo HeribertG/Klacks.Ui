@@ -192,17 +192,13 @@ export class ClientEditService {
   }
 
   public addAnnotation() {
-    console.log('[DEBUG] addAnnotation() called');
     this.editClient.update((client) => {
       if (!client!.annotations) {
         client!.annotations = [];
       }
-      console.log('[DEBUG] Before unshift - annotations length:', client!.annotations.length);
       client!.annotations.unshift(new Annotation());
-      console.log('[DEBUG] After unshift - annotations length:', client!.annotations.length);
       return client;
     });
-    console.log('[DEBUG] addAnnotation() completed');
   }
 
   public removeCurrentAnnotation() {
