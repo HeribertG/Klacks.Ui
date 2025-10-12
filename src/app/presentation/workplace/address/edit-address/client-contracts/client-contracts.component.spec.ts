@@ -182,10 +182,10 @@ describe('ClientContractsComponent', () => {
       expect(client.clientContracts[1].isActive).toBe(true);
     });
 
-    it('should call calcValidation', () => {
-      spyOn(component, 'calcValidation');
+    it('should update client signal and emit change event', () => {
+      const spy = spyOn(component.isChangingEvent, 'emit');
       component.onActiveChange(0);
-      expect(component.calcValidation).toHaveBeenCalled();
+      expect(spy).toHaveBeenCalledWith(true);
     });
   });
 

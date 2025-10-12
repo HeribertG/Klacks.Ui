@@ -17,13 +17,13 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/domain/helpers/format-helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { ClientConfigService } from './client-config.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
@@ -31,13 +31,12 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ClientEditService {
   private dataClientService = inject(DataClientService);
-  private navigationService = inject(NavigationService);
   private addressService = inject(AddressService);
   private communicationService = inject(CommunicationService);
   private clientContractService = inject(ClientContractService);
   private clientGroupItemService = inject(ClientGroupItemService);
   private clientConfigService = inject(ClientConfigService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private translateService = inject(TranslateService);
 
   public editClient = signal<IClient | undefined>(undefined);
@@ -103,7 +102,7 @@ export class ClientEditService {
       this._showProgressSpinner.set(true);
       this.dataClientService.getClient(id).subscribe((x) => {
         this.prepareClient(x);
-        this.navigationService.navigateToEditAddress(id);
+        this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
       });
     }
   }
@@ -120,7 +119,7 @@ export class ClientEditService {
       a.type = AddressTypeEnum.customer;
 
       this.prepareClient(c);
-      this.navigationService.navigateToEditAddress();
+      this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address' });
       this._showProgressSpinner.set(false);
     });
   }
@@ -190,7 +189,11 @@ export class ClientEditService {
         }
 
         this.lastSaveErrorMessage.set(errorMessage);
-        this.toastShowService.showError(errorMessage, 'client-save-error');
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: errorMessage,
+          code: 'client-save-error',
+          context: 'ClientEditService.saveEditClient'
+        });
       },
     });
   }

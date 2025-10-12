@@ -12,7 +12,8 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
 
 @Injectable({
@@ -20,7 +21,7 @@ import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calenda
 })
 export class DataManagementCalendarRulesService {
   public dataCalendarRuleService = inject(DataCalendarRuleService);
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
 
   public isRead = signal(false);
 
@@ -124,7 +125,7 @@ export class DataManagementCalendarRulesService {
         this.readPage(language);
       })
       .catch(() => {
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
       });
   }
 
@@ -134,7 +135,7 @@ export class DataManagementCalendarRulesService {
         this.readPage(language);
       })
       .catch(() => {
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
       });
   }
 

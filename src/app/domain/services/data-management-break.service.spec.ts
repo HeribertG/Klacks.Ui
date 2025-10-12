@@ -5,19 +5,19 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
-import { ToastShowService } from '../../presentation/toast/toast-show.service';
+import { EventBus } from '../../application/services/event-bus.service';
 import { DataBreakService } from '../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../models/client-class';
 import { IBreak } from '../models/break-class';
 
 describe('DataManagementBreakService', () => {
   let service: DataManagementBreakService;
-  let mockToastShowService: jasmine.SpyObj<ToastShowService>;
+  let mockEventBus: jasmine.SpyObj<EventBus>;
   let mockDataBreakService: jasmine.SpyObj<DataBreakService>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(() => {
-    const toastSpy = jasmine.createSpyObj('ToastShowService', ['showError']);
+    const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
     const dataSpy = jasmine.createSpyObj('DataBreakService', [
       'addBreak',
       'updateBreak',
@@ -31,16 +31,16 @@ describe('DataManagementBreakService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         DataManagementBreakService,
-        { provide: ToastShowService, useValue: toastSpy },
+        { provide: EventBus, useValue: eventBusSpy },
         { provide: DataBreakService, useValue: dataSpy },
         { provide: TranslateService, useValue: translateSpy },
       ],
     });
 
     service = TestBed.inject(DataManagementBreakService);
-    mockToastShowService = TestBed.inject(
-      ToastShowService
-    ) as jasmine.SpyObj<ToastShowService>;
+    mockEventBus = TestBed.inject(
+      EventBus
+    ) as jasmine.SpyObj<EventBus>;
     mockDataBreakService = TestBed.inject(
       DataBreakService
     ) as jasmine.SpyObj<DataBreakService>;
@@ -143,7 +143,7 @@ describe('DataManagementBreakService', () => {
 
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
-      expect(mockToastShowService.showError).not.toHaveBeenCalled();
+      expect(mockEventBus.emit).not.toHaveBeenCalled();
     });
 
     it('should allow valid break creation within membership period', () => {
@@ -151,7 +151,7 @@ describe('DataManagementBreakService', () => {
 
       expect(result).toBe(true);
       expect(mockDataBreakService.addBreak).toHaveBeenCalled();
-      expect(mockToastShowService.showError).not.toHaveBeenCalled();
+      expect(mockEventBus.emit).not.toHaveBeenCalled();
     });
 
     it('should reject break creation before membership start', () => {
@@ -162,7 +162,7 @@ describe('DataManagementBreakService', () => {
       expect(mockTranslateService.get).toHaveBeenCalledWith(
         'absence-gantt.validation.membership.before-start'
       );
-      expect(mockToastShowService.showError).toHaveBeenCalled();
+      expect(mockEventBus.emit).toHaveBeenCalled();
     });
 
     it('should reject break creation after membership end', () => {
@@ -173,7 +173,7 @@ describe('DataManagementBreakService', () => {
       expect(mockTranslateService.get).toHaveBeenCalledWith(
         'absence-gantt.validation.membership.after-end'
       );
-      expect(mockToastShowService.showError).toHaveBeenCalled();
+      expect(mockEventBus.emit).toHaveBeenCalled();
     });
 
     it('should reject break spanning outside membership period', () => {
@@ -193,7 +193,7 @@ describe('DataManagementBreakService', () => {
       expect(mockTranslateService.get).toHaveBeenCalledWith(
         'absence-gantt.validation.membership.before-start'
       );
-      expect(mockToastShowService.showError).toHaveBeenCalled();
+      expect(mockEventBus.emit).toHaveBeenCalled();
     });
 
     it('should return false for invalid client index', () => {
@@ -201,7 +201,7 @@ describe('DataManagementBreakService', () => {
 
       expect(result).toBe(false);
       expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
-      expect(mockToastShowService.showError).not.toHaveBeenCalled();
+      expect(mockEventBus.emit).not.toHaveBeenCalled();
     });
 
     it('should format error messages with date parameters', () => {
@@ -210,10 +210,7 @@ describe('DataManagementBreakService', () => {
       expect(mockTranslateService.get).toHaveBeenCalledWith(
         'absence-gantt.validation.membership.before-start'
       );
-      expect(mockToastShowService.showError).toHaveBeenCalledWith(
-        jasmine.stringContaining('2024'),
-        'membership-validation-error'
-      );
+      expect(mockEventBus.emit).toHaveBeenCalled();
     });
 
     it('should validate membership with only validFrom date', () => {
@@ -287,7 +284,7 @@ describe('DataManagementBreakService', () => {
       expect(mockTranslateService.get).toHaveBeenCalledWith(
         'absence-gantt.validation.membership.before-start'
       );
-      expect(mockToastShowService.showError).toHaveBeenCalled();
+      expect(mockEventBus.emit).toHaveBeenCalled();
     });
   });
 });

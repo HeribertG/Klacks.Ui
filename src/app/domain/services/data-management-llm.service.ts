@@ -9,7 +9,8 @@ import {
   ILLMModel,
   ILLMUsage,
 } from 'src/app/infrastructure/api/data-llm.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { LLMSystemContextService } from './llm-system-context.service';
 import { LLMFunctionExecutionService } from './llm-function-execution.service';
@@ -35,7 +36,7 @@ export interface IConversation {
 })
 export class DataManagementLLMService {
   private dataLLMService = inject(DataLLMService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private translateService = inject(TranslateService);
   private systemContextService = inject(LLMSystemContextService);
   private functionExecutionService = inject(LLMFunctionExecutionService);
@@ -82,7 +83,7 @@ export class DataManagementLLMService {
           }
         }),
         catchError(() => {
-          this.toastShowService.showError('settings.llm-models.error.load');
+          this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.load', code: 'LLMModelError', context: 'DataManagementLLMService.initializeModels' });
           // Set empty array if backend fails
           this.availableModels$.next([]);
           this.selectedModelId$.next('');
@@ -173,9 +174,11 @@ export class DataManagementLLMService {
       catchError((error) => {
         this._showProgressSpinner.set(false);
         this.isLoading$.next(false);
-        this.toastShowService.showError(
-          'settings.llm-models.error.communication'
-        );
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: 'settings.llm-models.error.communication',
+          code: 'LLMCommunicationError',
+          context: 'DataManagementLLMService.sendMessage'
+        });
         return throwError(() => error);
       })
     );
@@ -207,7 +210,7 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.enable');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.enable', code: 'LLMModelError', context: 'DataManagementLLMService.enableModel' });
         throw error;
       })
     );
@@ -219,7 +222,7 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.disable');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.disable', code: 'LLMModelError', context: 'DataManagementLLMService.disableModel' });
         throw error;
       })
     );
@@ -231,9 +234,11 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError(
-          'settings.llm-models.error.set-default'
-        );
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: 'settings.llm-models.error.set-default',
+          code: 'LLMModelError',
+          context: 'DataManagementLLMService.setDefaultModel'
+        });
         throw error;
       })
     );
@@ -358,7 +363,7 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.save');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementLLMService' });
         throw error;
       })
     );
@@ -370,7 +375,7 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.delete');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.delete', code: 'LLMModelError', context: 'DataManagementLLMService.deleteModel' });
         throw error;
       })
     );
@@ -385,7 +390,7 @@ export class DataManagementLLMService {
         this.initializeModels();
       }),
       catchError((error) => {
-        this.toastShowService.showError('settings.llm-models.error.save');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.save', code: 'LLMModelError', context: 'DataManagementLLMService' });
         throw error;
       })
     );
@@ -400,7 +405,7 @@ export class DataManagementLLMService {
         console.log('Function execution results:', results);
       }),
       catchError(() => {
-        this.toastShowService.showError('Function execution failed');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'Function execution failed', code: 'LLMFunctionError', context: 'DataManagementLLMService.executeFunctionCalls' });
         return of([]);
       })
     );

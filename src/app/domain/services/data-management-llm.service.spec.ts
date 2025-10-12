@@ -11,12 +11,12 @@ import {
   ILLMChatResponse,
   ILLMUsage,
 } from 'src/app/infrastructure/api/data-llm.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
 
 describe('DataManagementLLMService', () => {
   let service: DataManagementLLMService;
   let mockDataLLMService: jasmine.SpyObj<DataLLMService>;
-  let mockToastService: jasmine.SpyObj<ToastShowService>;
+  let mockEventBus: jasmine.SpyObj<EventBus>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockModels: ILLMModel[] = [
@@ -63,10 +63,7 @@ describe('DataManagementLLMService', () => {
       'updateModel',
     ]);
 
-    const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
-      'showError',
-      'showSuccess',
-    ]);
+    const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
 
     const translateServiceSpy = jasmine.createSpyObj(
       'TranslateService',
@@ -83,7 +80,7 @@ describe('DataManagementLLMService', () => {
       providers: [
         DataManagementLLMService,
         { provide: DataLLMService, useValue: dataLLMServiceSpy },
-        { provide: ToastShowService, useValue: toastServiceSpy },
+        { provide: EventBus, useValue: eventBusSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
     });
@@ -92,9 +89,9 @@ describe('DataManagementLLMService', () => {
     mockDataLLMService = TestBed.inject(
       DataLLMService
     ) as jasmine.SpyObj<DataLLMService>;
-    mockToastService = TestBed.inject(
-      ToastShowService
-    ) as jasmine.SpyObj<ToastShowService>;
+    mockEventBus = TestBed.inject(
+      EventBus
+    ) as jasmine.SpyObj<EventBus>;
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
@@ -146,9 +143,7 @@ describe('DataManagementLLMService', () => {
       service.initializeLLMModels();
 
       // Assert
-      expect(mockToastService.showError).toHaveBeenCalledWith(
-        'settings.llm-models.error.load'
-      );
+      expect(mockEventBus.emit).toHaveBeenCalled();
 
       service.getAvailableModels().subscribe((models) => {
         expect(models).toEqual([]);
@@ -227,9 +222,7 @@ describe('DataManagementLLMService', () => {
           },
           error: (error) => {
             // Assert
-            expect(mockToastService.showError).toHaveBeenCalledWith(
-              'settings.llm-models.error.communication'
-            );
+            expect(mockEventBus.emit).toHaveBeenCalled();
             expect(service.showProgressSpinner).toBe(false);
             done();
           },

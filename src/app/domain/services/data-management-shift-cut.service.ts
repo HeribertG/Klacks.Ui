@@ -4,8 +4,8 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
@@ -16,8 +16,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
   providedIn: 'root',
 })
 export class DataManagementShiftCutService implements ISaveable, IResettable, ILoadable, INavigable {
-  public toastShowService = inject(ToastShowService);
-  private navigationService = inject(NavigationService);
+  private eventBus = inject(EventBus);
   private dataShiftCutsService = inject(DataShiftCutsService);
 
   private newCuts: Shift[] = [];
@@ -51,7 +50,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
         this.cutShifts = x;
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
-        this.navigationService.navigateToCutShift();
+        this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/cut-shift' });
 
         setTimeout(
           () => history.pushState(null, '', this.createCutShiftUrl(id)),
@@ -149,7 +148,11 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
           this.checkAndCallSaveCompleted();
         },
         error: (error) => {
-          this.toastShowService.showError(error, 'Cut Create Error');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'Cut Create Error',
+            context: 'DataManagementShiftCutService.saveCuts'
+          });
           this._showProgressSpinner.set(false);
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
@@ -165,7 +168,11 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
           this.checkAndCallSaveCompleted();
         },
         error: (error) => {
-          this.toastShowService.showError(error, 'Cut Update Error');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'Cut Update Error',
+            context: 'DataManagementShiftCutService.saveCuts'
+          });
           this._showProgressSpinner.set(false);
           if (this.onSaveCompleted) {
             this.onSaveCompleted();

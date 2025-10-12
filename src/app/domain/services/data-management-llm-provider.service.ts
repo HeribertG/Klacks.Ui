@@ -1,14 +1,15 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
 import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataManagementLLMProviderService {
   private dataLLMProviderService = inject(DataLLMProviderService);
-  private toastService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
 
   private providersSubject = new BehaviorSubject<ILLMProvider[]>([]);
   public providers$ = this.providersSubject.asObservable();
@@ -23,7 +24,7 @@ export class DataManagementLLMProviderService {
       return providers;
     } catch (error) {
       console.error('Error loading providers:', error);
-      this.toastService.showError('settings.llm-providers.error.load');
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.load', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
       return [];
     } finally {
       this.isLoading.set(false);
@@ -42,11 +43,11 @@ export class DataManagementLLMProviderService {
       );
       this.providersSubject.next(updatedProviders);
 
-      this.toastService.showSuccess('settings.llm-providers.success.update', 'Success');
+      this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.update', context: 'Success' });
       return updatedProvider;
     } catch (error) {
       console.error('Error updating provider:', error);
-      this.toastService.showError('settings.llm-providers.error.save');
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.save', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
       return undefined;
     }
   }
@@ -57,12 +58,12 @@ export class DataManagementLLMProviderService {
       const provider = currentProviders.find(p => p.id === id);
       
       if (!provider) {
-        this.toastService.showError('settings.llm-providers.error.not-found');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.not-found', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
         return false;
       }
 
       if (isEnabled && !provider.apiKey) {
-        this.toastService.showError('settings.llm-providers.error.no-api-key');
+        this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.no-api-key', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
         return false;
       }
 
@@ -80,14 +81,14 @@ export class DataManagementLLMProviderService {
         const successKey = isEnabled 
           ? 'settings.llm-providers.success.enable'
           : 'settings.llm-providers.success.disable';
-        this.toastService.showSuccess(successKey, 'Success');
+        this.eventBus.emit(DomainEventType.SUCCESS, { message: successKey, context: 'Success' });
         return true;
       }
       
       return false;
     } catch (error) {
       console.error('Error toggling provider status:', error);
-      this.toastService.showError('settings.llm-providers.error.toggle');
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.toggle', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
       return false;
     }
   }
@@ -101,11 +102,11 @@ export class DataManagementLLMProviderService {
       const currentProviders = this.providersSubject.value;
       this.providersSubject.next([...currentProviders, newProvider]);
 
-      this.toastService.showSuccess('settings.llm-providers.success.create', 'Success');
+      this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.create', context: 'Success' });
       return newProvider;
     } catch (error) {
       console.error('Error creating provider:', error);
-      this.toastService.showError('settings.llm-providers.error.create');
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.create', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
       return undefined;
     }
   }
@@ -118,11 +119,11 @@ export class DataManagementLLMProviderService {
       const updatedProviders = currentProviders.filter(provider => provider.id !== id);
       this.providersSubject.next(updatedProviders);
 
-      this.toastService.showSuccess('settings.llm-providers.success.delete', 'Success');
+      this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.delete', context: 'Success' });
       return true;
     } catch (error) {
       console.error('Error deleting provider:', error);
-      this.toastService.showError('settings.llm-providers.error.delete');
+      this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-providers.error.delete', code: 'LLMProviderError', context: 'DataManagementLLMProviderService' });
       return false;
     }
   }

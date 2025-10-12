@@ -24,7 +24,8 @@ import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,7 @@ export class DataManagementClientService
   public clientContractService = inject(ClientContractService);
   public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
-  private navigationService = inject(NavigationService);
+  private eventBus = inject(EventBus);
 
   public currentFilter: Filter = new Filter();
   public lastChangeFilter: Filter = new Filter();
@@ -325,6 +326,6 @@ export class DataManagementClientService
 
   showExternalClient(id: string) {
     this.clientEditService.readClient(id);
-    this.navigationService.navigateToEditAddress(id);
+    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
   }
 }

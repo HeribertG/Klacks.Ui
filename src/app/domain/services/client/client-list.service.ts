@@ -9,7 +9,8 @@ import {
   ExportClient,
   IClientAttribute,
 } from 'src/app/domain/models/client-class';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
 import { Observable } from 'rxjs';
@@ -19,7 +20,7 @@ import { Observable } from 'rxjs';
 })
 export class ClientListService {
   private dataClientService = inject(DataClientService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
 
   public listWrapper = signal<ITruncatedClient | undefined>(undefined);
   public paginationDataService = signal<IPaginationDataService | undefined>(
@@ -91,10 +92,10 @@ export class ClientListService {
       return filter.selection.push(x.id);
     });
 
-    this.toastShowService.showInfo(
-      MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
-      'PLEASE_BE_PATIENT_EXCEL'
-    );
+    this.eventBus.emit(DomainEventType.INFO, {
+      message: MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
+      context: 'PLEASE_BE_PATIENT_EXCEL'
+    });
   }
 
   public clearCheckedArray() {

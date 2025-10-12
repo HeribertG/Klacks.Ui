@@ -5,7 +5,8 @@ import {
   ICalendarSelection,
   SelectedCalendar,
 } from 'src/app/domain/models/calendar-selection-class';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -20,7 +21,7 @@ import { TranslateService } from '@ngx-translate/core';
   providedIn: 'root',
 })
 export class DataManagementCalendarSelectionService {
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private translate = inject(TranslateService);
@@ -130,7 +131,7 @@ export class DataManagementCalendarSelectionService {
           await this.readData();
         })
         .catch(() => {
-          this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
+          this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
         });
     }
   }
@@ -140,7 +141,7 @@ export class DataManagementCalendarSelectionService {
         this.readData();
       })
       .catch(() => {
-        this.toastShowService.showError(MessageLibrary.UNKNOWN_ERROR);
+        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
       });
   }
 

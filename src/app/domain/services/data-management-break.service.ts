@@ -13,7 +13,8 @@ import {
 } from 'src/app/domain/helpers/object-helpers';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from '../models/entity-names.enum';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 
@@ -22,7 +23,7 @@ import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 })
 export class DataManagementBreakService implements ILoadable {
   private dataBreakService = inject(DataBreakService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private translateService = inject(TranslateService);
 
   public isRead = signal(false);
@@ -225,10 +226,11 @@ export class DataManagementBreakService implements ILoadable {
             '{0}',
             membershipValidFrom.toLocaleDateString()
           );
-          this.toastShowService.showError(
-            formattedMessage,
-            'membership-validation-error'
-          );
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: formattedMessage,
+            code: 'membership-validation-error',
+            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+          });
         });
       return false;
     }
@@ -241,10 +243,11 @@ export class DataManagementBreakService implements ILoadable {
             '{0}',
             membershipValidUntil.toLocaleDateString()
           );
-          this.toastShowService.showError(
-            formattedMessage,
-            'membership-validation-error'
-          );
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: formattedMessage,
+            code: 'membership-validation-error',
+            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+          });
         });
       return false;
     }
@@ -260,10 +263,11 @@ export class DataManagementBreakService implements ILoadable {
           const formattedMessage = message
             .replace('{0}', membershipValidFrom.toLocaleDateString())
             .replace('{1}', membershipValidUntil.toLocaleDateString());
-          this.toastShowService.showError(
-            formattedMessage,
-            'membership-validation-error'
-          );
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: formattedMessage,
+            code: 'membership-validation-error',
+            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+          });
         });
       return false;
     }
