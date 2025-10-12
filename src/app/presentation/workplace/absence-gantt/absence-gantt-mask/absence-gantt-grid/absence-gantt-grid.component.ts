@@ -27,6 +27,7 @@ import { daysBetweenDates } from 'src/app/domain/helpers/format-helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { PdfExportService } from '../../services/pdf-export.service';
+import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 
 @Component({
   selector: 'app-absence-gantt-grid',
@@ -48,6 +49,7 @@ export class AbsenceGanttGridComponent
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
   private pdfExportService = inject(PdfExportService);
+  private textFormatterService = inject(TextFormatterService);
 
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -120,6 +122,13 @@ export class AbsenceGanttGridComponent
       }
     }
     return '';
+  }
+
+  getPlainTextNote(value: IBreak): string {
+    if (!value?.information) {
+      return '';
+    }
+    return this.textFormatterService.stripFormatting(value.information);
   }
 
   onClickedRow(value: IBreak) {
