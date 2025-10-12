@@ -122,11 +122,13 @@ export class NoteComponent implements OnInit, AfterViewInit {
     this.expandedNotes[originalIndex] = !this.expandedNotes[originalIndex];
 
     setTimeout(() => {
-      const button = (event.target as HTMLElement).closest(
-        '.toggle-note-button'
-      );
-      if (button) {
-        (button as HTMLElement).focus();
+      if (event.target) {
+        const button = (event.target as HTMLElement).closest(
+          '.toggle-note-button'
+        );
+        if (button) {
+          (button as HTMLElement).focus();
+        }
       }
     }, 0);
   }

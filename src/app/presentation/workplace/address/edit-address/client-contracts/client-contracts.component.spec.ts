@@ -23,7 +23,7 @@ describe('ClientContractsComponent', () => {
     const mockContract: IClientContract = {
       id: '1',
       clientId: '123',
-      contractId: 'contract-1',
+      contractId: '550e8400-e29b-41d4-a716-446655440000',
       contract: undefined,
       fromDate: new Date('2025-01-01'),
       untilDate: undefined,
@@ -50,8 +50,8 @@ describe('ClientContractsComponent', () => {
         .createSpy('readContracts')
         .and.returnValue(
           Promise.resolve([
-            { id: 'contract-1', name: 'Vollzeit 160 BE' },
-            { id: 'contract-2', name: 'Teilzeit 80 BE' },
+            { id: '550e8400-e29b-41d4-a716-446655440000', name: 'Vollzeit 160 BE' },
+            { id: '660e8400-e29b-41d4-a716-446655440001', name: 'Teilzeit 80 BE' },
           ])
         ),
     };
@@ -149,7 +149,7 @@ describe('ClientContractsComponent', () => {
           {
             id: '1',
             clientId: '123',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             contract: undefined,
             isActive: true,
             fromDate: new Date(),
@@ -160,7 +160,7 @@ describe('ClientContractsComponent', () => {
           {
             id: '2',
             clientId: '123',
-            contractId: 'contract-2',
+            contractId: '660e8400-e29b-41d4-a716-446655440001',
             contract: undefined,
             isActive: false,
             fromDate: new Date(),
@@ -196,13 +196,13 @@ describe('ClientContractsComponent', () => {
         clientContracts: [
           {
             id: '1',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             fromDate: new Date('2025-01-01'),
             isActive: true,
           },
           {
             id: '2',
-            contractId: 'contract-2',
+            contractId: '660e8400-e29b-41d4-a716-446655440001',
             fromDate: new Date('2024-01-01'),
             isActive: false,
           },
@@ -212,8 +212,8 @@ describe('ClientContractsComponent', () => {
 
     it('should sort by contract name ascending', () => {
       component.contracts = [
-        { id: 'contract-1', name: 'Vollzeit 160 BE' } as any,
-        { id: 'contract-2', name: 'Teilzeit 80 BE' } as any,
+        { id: '550e8400-e29b-41d4-a716-446655440000', name: 'Vollzeit 160 BE' } as any,
+        { id: '660e8400-e29b-41d4-a716-446655440001', name: 'Teilzeit 80 BE' } as any,
       ];
       component.orderBy = 'contract';
       component.sortOrder = 'asc';
@@ -221,8 +221,8 @@ describe('ClientContractsComponent', () => {
       component.sortContracts();
 
       const contracts = editClientSignal().clientContracts;
-      expect(contracts[0].contractId).toBe('contract-2');
-      expect(contracts[1].contractId).toBe('contract-1');
+      expect(contracts[0].contractId).toBe('660e8400-e29b-41d4-a716-446655440001');
+      expect(contracts[1].contractId).toBe('550e8400-e29b-41d4-a716-446655440000');
     });
 
     it('should sort by fromDate', () => {
@@ -299,7 +299,7 @@ describe('ClientContractsComponent', () => {
         clientContracts: [
           {
             id: '1',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             isActive: true,
             fromDate: new Date(),
             internalFromDate: { year: 2025, month: 1, day: 1 },
@@ -319,7 +319,7 @@ describe('ClientContractsComponent', () => {
         clientContracts: [
           {
             id: '1',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             isActive: true,
             fromDate: new Date('2025-01-01'),
             untilDate: new Date('2024-01-01'),
@@ -340,7 +340,7 @@ describe('ClientContractsComponent', () => {
         clientContracts: [
           {
             id: '1',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             isActive: true,
             fromDate: undefined,
             internalFromDate: undefined,
@@ -359,7 +359,7 @@ describe('ClientContractsComponent', () => {
         clientContracts: [
           {
             id: '1',
-            contractId: 'contract-1',
+            contractId: '550e8400-e29b-41d4-a716-446655440000',
             isActive: true,
             fromDate: new Date('2025-01-01'),
             internalFromDate: { year: 2025, month: 1, day: 1 },
@@ -400,13 +400,13 @@ describe('ClientContractsComponent', () => {
   describe('getContractName', () => {
     beforeEach(() => {
       component.contracts = [
-        { id: 'contract-1', name: 'Vollzeit 160 BE' } as any,
-        { id: 'contract-2', name: 'Teilzeit 80 BE' } as any,
+        { id: '550e8400-e29b-41d4-a716-446655440000', name: 'Vollzeit 160 BE' } as any,
+        { id: '660e8400-e29b-41d4-a716-446655440001', name: 'Teilzeit 80 BE' } as any,
       ];
     });
 
     it('should return contract name for valid contractId', () => {
-      const name = (component as any).getContractName('contract-1');
+      const name = (component as any).getContractName('550e8400-e29b-41d4-a716-446655440000');
       expect(name).toBe('Vollzeit 160 BE');
     });
 
@@ -473,7 +473,7 @@ describe('ClientContractsComponent', () => {
           },
           {
             id: '2',
-            contractId: 'contract-2',
+            contractId: '660e8400-e29b-41d4-a716-446655440001',
             isActive: true,
             fromDate: new Date(),
             internalFromDate: { year: 2025, month: 1, day: 1 },

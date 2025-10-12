@@ -223,6 +223,7 @@ describe('ClientEditService', () => {
     it('should return true when contracts have valid dates', () => {
       const client = new Client();
       const contract = new ClientContract();
+      contract.contractId = '550e8400-e29b-41d4-a716-446655440000';
       contract.internalFromDate = { year: 2025, month: 1, day: 1 } as NgbDateStruct;
       contract.internalUntilDate = { year: 2025, month: 12, day: 31 } as NgbDateStruct;
       contract.isActive = true;
@@ -236,8 +237,10 @@ describe('ClientEditService', () => {
     it('should return false when untilDate is before fromDate', () => {
       const client = new Client();
       const contract = new ClientContract();
+      contract.contractId = '550e8400-e29b-41d4-a716-446655440001';
       contract.internalFromDate = { year: 2025, month: 12, day: 31 } as NgbDateStruct;
       contract.internalUntilDate = { year: 2025, month: 1, day: 1 } as NgbDateStruct;
+      contract.isActive = true;
       client.clientContracts = [contract];
 
       const result = service['isValidContracts'](client);
@@ -248,6 +251,7 @@ describe('ClientEditService', () => {
     it('should return true when untilDate is undefined', () => {
       const client = new Client();
       const contract = new ClientContract();
+      contract.contractId = '550e8400-e29b-41d4-a716-446655440002';
       contract.internalFromDate = { year: 2025, month: 1, day: 1 } as NgbDateStruct;
       contract.internalUntilDate = undefined;
       contract.isActive = true;
@@ -256,6 +260,55 @@ describe('ClientEditService', () => {
       const result = service['isValidContracts'](client);
 
       expect(result).toBe(true);
+    });
+
+    it('should ignore contracts without contractId (new/empty contracts)', () => {
+      const client = new Client();
+      const emptyContract = new ClientContract();
+      emptyContract.isActive = true;
+      client.clientContracts = [emptyContract];
+
+      const result = service['isValidContracts'](client);
+
+      expect(result).toBe(true);
+    });
+
+    it('should validate only contracts with contractId', () => {
+      const client = new Client();
+
+      const emptyContract = new ClientContract();
+      emptyContract.isActive = false;
+
+      const validContract = new ClientContract();
+      validContract.id = '550e8400-e29b-41d4-a716-446655440003';
+      validContract.contractId = '550e8400-e29b-41d4-a716-446655440010';
+      validContract.isActive = true;
+      validContract.internalFromDate = { year: 2025, month: 1, day: 1 } as NgbDateStruct;
+
+      client.clientContracts = [emptyContract, validContract];
+
+      const result = service['isValidContracts'](client);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false when only valid contract is not active', () => {
+      const client = new Client();
+
+      const emptyContract = new ClientContract();
+      emptyContract.isActive = true;
+
+      const validContract = new ClientContract();
+      validContract.id = '550e8400-e29b-41d4-a716-446655440004';
+      validContract.contractId = '550e8400-e29b-41d4-a716-446655440011';
+      validContract.isActive = false;
+      validContract.internalFromDate = { year: 2025, month: 1, day: 1 } as NgbDateStruct;
+
+      client.clientContracts = [emptyContract, validContract];
+
+      const result = service['isValidContracts'](client);
+
+      expect(result).toBe(false);
     });
   });
 
