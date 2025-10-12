@@ -89,6 +89,7 @@
                   ngbDatepicker
                   #fromDate="ngbDatepicker"
                   #fromDateField="ngModel"
+                  [minDate]="getMinDate()"
                   [ngClass]="{
                     'is-invalid': isContractFromDateValid($index) === false && fromDateField.touched,
                     'is-valid': isContractFromDateValid($index) === true

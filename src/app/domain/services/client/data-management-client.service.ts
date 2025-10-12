@@ -23,6 +23,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
+import { ClientGroupItemService } from './client-group-item.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Injectable({
@@ -38,6 +39,7 @@ export class DataManagementClientService
   public addressService = inject(AddressService);
   public communicationService = inject(CommunicationService);
   public clientContractService = inject(ClientContractService);
+  public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
   private navigationService = inject(NavigationService);
 
@@ -200,6 +202,13 @@ export class DataManagementClientService
   public addContract = () => {
     if (this.editClient()) {
       this.clientContractService.addContract(this.editClient()!);
+      this.clientEditService.editClient.update((client) => ({ ...client! }));
+    }
+  };
+
+  public addGroup = () => {
+    if (this.editClient()) {
+      this.clientGroupItemService.addGroup(this.editClient()!);
       this.clientEditService.editClient.update((client) => ({ ...client! }));
     }
   };

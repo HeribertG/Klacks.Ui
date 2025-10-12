@@ -65,7 +65,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (groupItem of clientGroups; track trackByGroupItem($index, groupItem)) {
+          @for (groupItem of dataManagementClientService.editClient()?.groupItems; track trackByIndex($index)) {
           <tr class="table-row">
             <td class="table-cell cell-center-vertical">
               <app-group-select
@@ -89,6 +89,7 @@
                   ngbDatepicker
                   #validFrom="ngbDatepicker"
                   #validFromField="ngModel"
+                  [minDate]="getMinDate()"
                   [ngClass]="{
                     'is-invalid': isGroupFromDateValid($index) === false && validFromField.touched,
                     'is-valid': isGroupFromDateValid($index) === true
@@ -133,7 +134,7 @@
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
-              <div class="icon" (click)="open(groupItem)">
+              <div class="icon" (click)="removeGroup($index)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }

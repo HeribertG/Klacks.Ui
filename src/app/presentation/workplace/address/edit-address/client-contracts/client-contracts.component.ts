@@ -19,7 +19,7 @@ import { faCalendar, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { NgbModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbTooltipModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IContract } from 'src/app/domain/models/contract-class';
 import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
@@ -130,14 +130,26 @@ export class ClientContractsComponent
     );
   }
 
+  getMinDate(): NgbDateStruct {
+    const client = this.dataManagementClientService.editClient();
+    return client?.membership?.internalValidFrom || { year: 1900, month: 1, day: 1 };
+  }
+
   addContract(): void {
     this.dataManagementClientService.addContract();
+    this.isChangingEvent.emit(true);
   }
 
   removeContract(index: number): void {
-    this.dataManagementClientService
-      .editClient()
-      ?.clientContracts.splice(index, 1);
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient?.clientContracts) return;
+
+    currentClient.clientContracts.splice(index, 1);
+
+    this.dataManagementClientService.editClient.update((client) => ({
+      ...client!,
+    }));
+    this.isChangingEvent.emit(true);
   }
 
   trackByIndex(index: number): number {
@@ -145,20 +157,21 @@ export class ClientContractsComponent
   }
 
   onActiveChange(index: number): void {
-    const client = this.dataManagementClientService.editClient();
-    if (!client) {
-      return;
-    }
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient?.clientContracts?.[index]) return;
 
-    if (client.clientContracts[index]?.isActive) {
-      client.clientContracts.forEach((contract, i) => {
+    if (currentClient.clientContracts[index].isActive) {
+      currentClient.clientContracts.forEach((contract, i) => {
         if (i !== index) {
           contract.isActive = false;
         }
       });
     }
 
-    this.calcValidation();
+    this.dataManagementClientService.editClient.update((client) => ({
+      ...client!,
+    }));
+    this.isChangingEvent.emit(true);
   }
 
   sortContracts(): void {

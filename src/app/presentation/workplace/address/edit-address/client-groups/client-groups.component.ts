@@ -18,18 +18,12 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group-class';
 import { IClientGroupItem } from 'src/app/domain/models/client-group-item-class';
-import { DataGroupItemService } from 'src/app/infrastructure/api/data-group-item.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
-import {
-  ModalService,
-  ModalType,
-} from 'src/app/presentation/modal/modal.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
@@ -37,7 +31,6 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { ClientGroupItemService } from 'src/app/domain/services/client/client-group-item.service';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 
 interface HeaderProperties {
@@ -79,14 +72,10 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public translate = inject(TranslateService);
   public authorizationService = inject(AuthorizationService);
 
-  private dataGroupItemService = inject(DataGroupItemService);
-  private modalService = inject(ModalService);
-  private clientGroupItemService = inject(ClientGroupItemService);
   private injector = inject(Injector);
 
   public faCalendar = faCalendar;
   public visibleTable = 'inline';
-  public clientGroups: IClientGroupItem[] = [];
   public highlightRowId: string | undefined = undefined;
   public objectForUnsubscribe: any;
 
@@ -105,8 +94,6 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public orderBy = 'name';
   public sortOrder = 'asc';
 
-  public message = MessageLibrary.DELETE_ENTRY;
-
   private ngUnsubscribe = new Subject<void>();
   private tmplateArrowDown = '↓';
   private tmplateArrowUp = '↑';
@@ -114,20 +101,6 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     this.readSignals();
-    this.loadClientGroups();
-
-    this.modalService.resultEvent
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((x: ModalType) => {
-        if (
-          x === ModalType.Delete &&
-          this.modalService.componentContext === 'client-groups'
-        ) {
-          this.deleteGroupItem(this.modalService.Filing);
-          this.modalService.componentContext = '';
-          this.modalService.Filing = '';
-        }
-      });
   }
 
   ngAfterViewInit(): void {
@@ -153,23 +126,20 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     );
   }
 
+  getMinDate(): NgbDateStruct {
+    const client = this.dataManagementClientService.editClient();
+    return client?.membership?.internalValidFrom || { year: 1900, month: 1, day: 1 };
+  }
+
   onClickVisibleTable() {
     this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
-  loadClientGroups(): void {
-    const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.groupItems) {
-      this.clientGroups = [];
-      return;
-    }
-
-    this.clientGroups = [...currentClient.groupItems];
-    this.sortClientGroups();
-  }
-
   sortClientGroups(): void {
-    const sorted = [...this.clientGroups].sort((a, b) => {
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient?.groupItems) return;
+
+    currentClient.groupItems.sort((a, b) => {
       let compareValue = 0;
 
       if (this.orderBy === 'name') {
@@ -186,8 +156,6 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
       return this.sortOrder === 'asc' ? compareValue : -compareValue;
     });
-
-    this.clientGroups = sorted;
   }
 
   onClickHeader(orderBy: string): void {
@@ -283,59 +251,52 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  trackByGroupItem(index: number, item: IClientGroupItem): string {
-    return `${item.clientId || ''}-${item.groupId || ''}-${index}`;
+  trackByIndex(index: number): number {
+    return index;
   }
 
   onGroupChanged(index: number, selectedGroup: Group | null): void {
     if (!selectedGroup) return;
 
-    const groupItem = this.clientGroups[index];
-    if (!groupItem) return;
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient?.groupItems?.[index]) return;
 
-    groupItem.groupId = selectedGroup.id;
-    groupItem.groupName = selectedGroup.name;
+    currentClient.groupItems[index].groupId = selectedGroup.id;
+    currentClient.groupItems[index].groupName = selectedGroup.name;
+
+    this.dataManagementClientService.editClient.update((client) => ({
+      ...client!,
+    }));
+    this.isChangingEvent.emit(true);
   }
 
-  open(groupItem: IClientGroupItem): void {
-    if (!groupItem.groupId) return;
+  removeGroup(index: number): void {
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient?.groupItems) return;
 
-    this.modalService.Filing = '';
-    this.modalService.componentContext = 'client-groups';
+    currentClient.groupItems.splice(index, 1);
 
-    this.modalService.Filing = groupItem.groupId;
-    this.modalService.deleteMessage = this.message;
-    this.modalService.setDefault(ModalType.Delete);
-    this.modalService.openModel(ModalType.Delete);
+    this.dataManagementClientService.editClient.update((client) => ({
+      ...client!,
+    }));
+    this.isChangingEvent.emit(true);
   }
 
   addGroup(): void {
-    const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient) return;
-
-    const updatedClient = this.clientGroupItemService.addGroup(currentClient);
-    this.dataManagementClientService.editClient.set(updatedClient);
-    this.loadClientGroups();
-  }
-
-  private deleteGroupItem(groupId: string): void {
-    const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.id) return;
-
-    this.dataGroupItemService
-      .deleteGroupItem(currentClient.id, groupId)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
-        this.dataManagementClientService.init();
-        this.isChangingEvent.emit(true);
-      });
+    this.dataManagementClientService.addGroup();
+    this.isChangingEvent.emit(true);
   }
 
   public calcValidation(): void {
+    const currentClient = this.dataManagementClientService.editClient();
+    if (!currentClient || !currentClient.groupItems) {
+      return;
+    }
+
     this.groupValidationState.clear();
     this.groupFromDateValidationState.clear();
 
-    this.clientGroups.forEach((groupItem, index) => {
+    currentClient.groupItems.forEach((groupItem, index) => {
       const validFrom = transformNgbDateStructToDate(
         groupItem.internalValidFrom
       );
@@ -374,8 +335,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const client = this.dataManagementClientService.editClient();
-        if (client) {
-          this.loadClientGroups();
+        if (client?.groupItems) {
           this.calcValidation();
         }
       });

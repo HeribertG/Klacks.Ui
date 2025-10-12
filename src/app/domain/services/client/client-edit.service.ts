@@ -52,7 +52,7 @@ export class ClientEditService {
   public currentAnnotationIndex = signal(-1);
   public clientAddressListWithoutQueryFilter = signal<IAddress[]>([]);
 
-  private prepareClient(value: IClient, withoutUpdateDummy = false) {
+  private prepareClient(value: IClient) {
     if (value == null) {
       return;
     }
@@ -69,9 +69,7 @@ export class ClientEditService {
 
     this.communicationService.setCommunication(this.editClient()!);
 
-    if (!withoutUpdateDummy) {
-      this.editClientDummy = cloneObject<IClient>(this.editClient()!);
-    }
+    this.editClientDummy = cloneObject<IClient>(this.editClient()!);
 
     if (this.editClient()!.id) {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
@@ -126,7 +124,7 @@ export class ClientEditService {
     });
   }
 
-  public saveEditClient(withoutUpdateDummy = false) {
+  public saveEditClient() {
     if (!this.canSave()) return;
 
     const filteredContracts = this.editClient()!.clientContracts.filter(
@@ -146,8 +144,13 @@ export class ClientEditService {
       next: (x) => {
         this.lastSaveError.set(false);
         this.lastSaveErrorMessage.set('');
-        this.prepareClient(x, withoutUpdateDummy);
-        this.onSaveCompleted?.();
+
+        if (x.id) {
+          this.dataClientService.getClient(x.id).subscribe((refreshedClient) => {
+            this.prepareClient(refreshedClient);
+            this.onSaveCompleted?.();
+          });
+        }
       },
       error: (error) => {
         console.error('Error saving client:', error);
@@ -392,7 +395,7 @@ export class ClientEditService {
 
   public resetData(): void {
     if (this.editClientDummy) {
-      this.prepareClient(cloneObject<IClient>(this.editClientDummy)!);
+      this.prepareClient(cloneObject<IClient>(this.editClientDummy));
     }
   }
 }
