@@ -178,9 +178,9 @@
   </div>
 </ng-template>
 
-<form #clientForm="ngForm" class="container-card">
-  <div class="container-header header-container end-card">
-    <div>
+<form #clientForm="ngForm">
+  <app-expandable-card>
+    <div headerTitle>
       {{ "address.edit-address.address-persona.id-number" | translate }}
       {{ dataManagementClientService.editClient()?.typeAbbreviation }}
       {{ dataManagementClientService.editClient()?.idNumber }}
@@ -189,10 +189,8 @@
       </div>
     </div>
 
-    <span class="filler"></span>
-
-    @if (!isDisabled()) {
-    <div>
+    <div headerActions>
+      @if (!isDisabled()) {
       <app-button-new
         (click)="openNewAddress(newAddress)"
         ngbTooltip="{{ newAddressString }}"
@@ -247,21 +245,10 @@
           }
         </li>
       </ul>
-    </div>
-    }
-
-    <button class="expand-button" (click)="onClickVisibleTable()">
-      @if (visibleTable === 'inline') {
-      <app-icon-angle-down></app-icon-angle-down>
-      } @if (visibleTable === 'none') {
-      <app-icon-angle-right></app-icon-angle-right>
       }
-    </button>
-  </div>
+    </div>
 
-  <div class="container-line"></div>
-
-  <div [ngStyle]="{ display: visibleTable }">
+    <div>
     @if (dataManagementClientService.editClient() !== undefined) {
     <div class="container-bank-box">
       <div class="firstColumContainer">
@@ -973,7 +960,7 @@
       </div>
     </div>
     }
-  </div>
+    </div>
 
-  <div class="bottom-border-space"></div>
+  </app-expandable-card>
 </form>

@@ -47,10 +47,9 @@ import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
   selector: 'app-address-persona',
@@ -67,8 +66,7 @@ import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
     OtherGreyComponent,
     FallbackPipe,
     ButtonNewComponent,
-    IconAngleRightComponent,
-    IconAngleDownComponent,
+    ExpandableCardComponent,
   ],
 })
 export class AddressPersonaComponent
@@ -108,7 +106,6 @@ export class AddressPersonaComponent
   public title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
   public newAddressString = MessageLibrary.NEW_ADDRESS;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
-  public visibleTable = 'inline';
 
   public isPhoneValueSeals = false;
 
@@ -201,10 +198,6 @@ export class AddressPersonaComponent
       }
     });
     this.effects = [];
-  }
-
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   isDisabled(): boolean {
