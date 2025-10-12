@@ -24,9 +24,8 @@ import { IClientGroupItem } from 'src/app/domain/models/client-group-item-class'
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
-import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
+import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
@@ -55,9 +54,8 @@ enum HeaderDirection {
     TranslateModule,
     TrashIconRedComponent,
     GroupSelectComponent,
-    IconAngleRightComponent,
-    IconAngleDownComponent,
     ButtonNewComponent,
+    ExpandableCardComponent,
     FontAwesomeModule,
     NgbTooltipModule,
   ],
@@ -75,7 +73,6 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   private injector = inject(Injector);
 
   public faCalendar = faCalendar;
-  public visibleTable = 'inline';
   public highlightRowId: string | undefined = undefined;
   public objectForUnsubscribe: any;
 
@@ -129,10 +126,6 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   getMinDate(): NgbDateStruct {
     const client = this.dataManagementClientService.editClient();
     return client?.membership?.internalValidFrom || { year: 1900, month: 1, day: 1 };
-  }
-
-  onClickVisibleTable() {
-    this.visibleTable = this.visibleTable == 'inline' ? 'none' : 'inline';
   }
 
   sortClientGroups(): void {

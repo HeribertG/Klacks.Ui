@@ -1,34 +1,24 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form #groupsForm="ngForm" class="container-card">
-  <div class="container-header header-container">
-    {{ translate.instant("address.edit-address.client-groups.header") }}
+<form #groupsForm="ngForm">
+  <app-expandable-card
+    [headerTitle]="'address.edit-address.client-groups.header' | translate">
 
-    <span class="filler"></span>
-
-    @if (!isDisabled()) {
-    <app-button-new
-      placement="top"
-      type="button"
-      (click)="addGroup()"
-      ngbTooltip="{{
-        'address.edit-address.client-groups.add-group' | translate
-      }}"
-    >
-    </app-button-new>
-    }
-
-    <button class="expand-button" (click)="onClickVisibleTable()">
-      @if (visibleTable === 'inline') {
-      <app-icon-angle-down></app-icon-angle-down>
-      } @if (visibleTable === 'none') {
-      <app-icon-angle-right></app-icon-angle-right>
+    <div headerActions>
+      @if (!isDisabled()) {
+      <app-button-new
+        placement="top"
+        type="button"
+        (click)="addGroup()"
+        ngbTooltip="{{
+          'address.edit-address.client-groups.add-group' | translate
+        }}"
+      >
+      </app-button-new>
       }
-    </button>
-  </div>
+    </div>
 
-  <div class="container-line"></div>
-  <div [ngStyle]="{ display: visibleTable }">
+    <div>
     @if (dataManagementClientService.editClient() !== undefined) {
     <div class="container-table">
       <table class="table table-borderless">
@@ -145,7 +135,7 @@
       </table>
     </div>
     }
-  </div>
+    </div>
 
-  <div class="bottom-border-space"></div>
+  </app-expandable-card>
 </form>
