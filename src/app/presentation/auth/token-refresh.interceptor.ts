@@ -7,16 +7,18 @@ import {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject, from } from 'rxjs';
+import { Observable, throwError, BehaviorSubject, from, EMPTY } from 'rxjs';
 import { catchError, switchMap, filter, take } from 'rxjs/operators';
 import { AuthService } from '../auth/auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { NavigationService } from '../services/navigation.service';
 
 @Injectable()
 export class TokenRefreshInterceptor implements HttpInterceptor {
   private authService = inject(AuthService);
   private localStorageService = inject(LocalStorageService);
+  private navigationService = inject(NavigationService);
 
   private isRefreshing = false;
   private refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -52,13 +54,15 @@ export class TokenRefreshInterceptor implements HttpInterceptor {
             return next.handle(newAuthReq);
           } else {
             this.authService.logOut();
-            return throwError(() => new HttpErrorResponse({ status: 401 }));
+            this.navigationService.navigateToRoot();
+            return EMPTY;
           }
         }),
-        catchError((refreshError) => {
+        catchError(() => {
           this.isRefreshing = false;
           this.authService.logOut();
-          return throwError(() => refreshError);
+          this.navigationService.navigateToRoot();
+          return EMPTY;
         })
       );
     } else {
