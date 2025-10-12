@@ -25,18 +25,19 @@ export class ClientListService {
   public paginationDataService = signal<IPaginationDataService | undefined>(
     undefined
   );
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public checkedArray = signal<CheckBoxValue[]>([]);
   public headerCheckBoxValue = signal(false);
 
   public readPage(currentFilter: Filter, clientAttribute: IClientAttribute[]) {
     if (currentFilter.isFilterValid()) {
-      this.showProgressSpinner.set(true);
+      this._showProgressSpinner.set(true);
       this.dataClientService.readClientList(currentFilter).subscribe({
         next: (x) => {
           if (!x || !x.clients) {
             console.warn('readPage: Empty or invalid response received');
-            this.showProgressSpinner.set(false);
+            this._showProgressSpinner.set(false);
             return;
           }
 
@@ -53,7 +54,7 @@ export class ClientListService {
         },
         error: (err) => {
           console.error('Error reading client list:', err);
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
         },
       });
     }
@@ -67,7 +68,7 @@ export class ClientListService {
       maxPages: x.maxPages,
     });
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   public deleteClient(key: string): Observable<IClient> {

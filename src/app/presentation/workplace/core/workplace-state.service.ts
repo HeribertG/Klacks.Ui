@@ -13,7 +13,7 @@ import {
   IResettable,
   ISaveable,
   INavigable,
-} from './interfaces/common.interfaces';
+} from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceFactory } from './manageable-service.factory';
 import {
   EntityName,
@@ -69,7 +69,7 @@ export class WorkplaceStateService {
   };
 
   public showProgressSpinnerNew = computed(
-    () => this.activeManager()?.showProgressSpinner() ?? false
+    () => this.activeManager()?.showProgressSpinner ?? false
   );
 
   private _isDirty = signal<boolean>(false);

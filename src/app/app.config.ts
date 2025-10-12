@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom, LOCALE_ID } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, LOCALE_ID, APP_INITIALIZER } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { AppRoutingModule } from './app-routing.module';
 import {
@@ -42,6 +42,7 @@ import { CustomDatepickerI18n } from 'src/app/application/services/custom-datepi
 import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
 import { Title } from '@angular/platform-browser';
+import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -56,10 +57,20 @@ export function localeFactory(localeService: LocaleService) {
   return localeService.getLocale();
 }
 
+export function initializeDomainEventHandler(handler: DomainEventHandler) {
+  return () => handler;
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter([]),
     provideHttpClient(withInterceptorsFromDi()),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeDomainEventHandler,
+      deps: [DomainEventHandler],
+      multi: true,
+    },
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ResponseInterceptor, multi: true },
     {

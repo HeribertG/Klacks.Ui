@@ -46,7 +46,8 @@ export class DataManagementLLMService {
   private isLoading$ = new BehaviorSubject<boolean>(false);
   private currentLanguage$ = new BehaviorSubject<string>('de');
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public isConnected = signal(true);
 
   constructor() {
@@ -132,7 +133,7 @@ export class DataManagementLLMService {
       },
     };
 
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.isLoading$.next(true);
 
     return this.dataLLMService.chat(request).pipe(
@@ -166,11 +167,11 @@ export class DataManagementLLMService {
         return of(response);
       }),
       tap(() => {
-        this.showProgressSpinner.set(false);
+        this._showProgressSpinner.set(false);
         this.isLoading$.next(false);
       }),
       catchError((error) => {
-        this.showProgressSpinner.set(false);
+        this._showProgressSpinner.set(false);
         this.isLoading$.next(false);
         this.toastShowService.showError(
           'settings.llm-models.error.communication'

@@ -2,10 +2,11 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/domain/models/authentification-class';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -14,7 +15,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 })
 export class DataManagementProfileService implements ISaveable, IResettable, ILoadable, INavigable {
   public userAdministrationService = inject(UserAdministrationService);
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private localStorageService = inject(LocalStorageService);
 
   constructor() {
@@ -25,10 +26,12 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   }
 
   // IManageable implementation
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
 
   public changePasswordWrapper: ChangePassword = new ChangePassword();
@@ -53,12 +56,12 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       .changePassword(this.changePasswordWrapper!)
       .subscribe({
         next: () => {
-          this.isReset.set(true);
-          setTimeout(() => this.isReset.set(false), 100);
-          this.toastShowService.showSuccess(
-            MessageLibrary.REGISTER_CHANGE_PASSWORD,
-            MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
-          );
+          this._isReset.set(true);
+          setTimeout(() => this._isReset.set(false), 100);
+          this.eventBus.emit(DomainEventType.SUCCESS, {
+            message: MessageLibrary.REGISTER_CHANGE_PASSWORD,
+            context: MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
+          });
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
@@ -87,8 +90,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       this.changePassword();
       this.changePasswordWrapper!.oldPassword = '';
       this.changePasswordWrapper!.password = '';
-      this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      setTimeout(() => this._isReset.set(false), 100);
     }
   }
 

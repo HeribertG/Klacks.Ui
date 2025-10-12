@@ -230,7 +230,7 @@ describe('DataManagementLLMService', () => {
             expect(mockToastService.showError).toHaveBeenCalledWith(
               'settings.llm-models.error.communication'
             );
-            expect(service.showProgressSpinner()).toBe(false);
+            expect(service.showProgressSpinner).toBe(false);
             done();
           },
         });

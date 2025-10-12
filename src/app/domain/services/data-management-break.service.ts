@@ -15,17 +15,19 @@ import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/m
 import { RouteName } from '../models/entity-names.enum';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementBreakService {
+export class DataManagementBreakService implements ILoadable {
   private dataBreakService = inject(DataBreakService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
 
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public isUpdate = signal<IBreak | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
 
@@ -57,7 +59,7 @@ export class DataManagementBreakService {
   }
 
   readYear() {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     if (this.canReadBreaks) {
       this.clients = [];
 
@@ -80,14 +82,14 @@ export class DataManagementBreakService {
           });
 
           this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
           this.isRead.set(true);
 
           setTimeout(() => this.isRead.set(false), 100);
         },
         error: (err) => {
           console.error('Error loading the breaks:', err);
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
         },
       });
     }

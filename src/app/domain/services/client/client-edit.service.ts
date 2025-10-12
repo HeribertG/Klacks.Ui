@@ -43,7 +43,8 @@ export class ClientEditService {
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
   public lastSaveError = signal<boolean>(false);
   public lastSaveErrorMessage = signal<string>('');
@@ -75,7 +76,7 @@ export class ClientEditService {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   public refreshClientState() {
@@ -99,7 +100,7 @@ export class ClientEditService {
 
   public readClient(id: string) {
     if (id !== '') {
-      this.showProgressSpinner.set(true);
+      this._showProgressSpinner.set(true);
       this.dataClientService.getClient(id).subscribe((x) => {
         this.prepareClient(x);
         this.navigationService.navigateToEditAddress(id);
@@ -108,7 +109,7 @@ export class ClientEditService {
   }
 
   public createClient() {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.dataClientService.countIdNumber().subscribe((x) => {
       const c = new Client();
       c.membership = new Membership();
@@ -120,7 +121,7 @@ export class ClientEditService {
 
       this.prepareClient(c);
       this.navigationService.navigateToEditAddress();
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
     });
   }
 
@@ -155,7 +156,7 @@ export class ClientEditService {
       error: (error) => {
         console.error('Error saving client:', error);
         this.lastSaveError.set(true);
-        this.showProgressSpinner.set(false);
+        this._showProgressSpinner.set(false);
 
         let errorMessage = 'Fehler beim Speichern';
         const errorKeys: string[] = [];

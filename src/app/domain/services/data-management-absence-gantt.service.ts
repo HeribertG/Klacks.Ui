@@ -8,7 +8,8 @@ import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.serv
 export class DataManagementAbsenceGanttService {
   private dataAbsence = inject(DataAbsenceService);
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public currentYearChanging = signal(false);
 
   public absenceList = signal<IAbsence[]>([]);
@@ -19,10 +20,10 @@ export class DataManagementAbsenceGanttService {
   readData(): void {
     this.dataAbsence.readAbsenceList().subscribe((absences) => {
       if (absences) {
-        this.isReset.set(true);
+        this._isReset.set(true);
         this.absenceList.set(absences);
         setTimeout(
-          () => this.isReset.set(false),
+          () => this._isReset.set(false),
           DataManagementAbsenceGanttService.RESET_DELAY
         );
       }

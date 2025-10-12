@@ -1,5 +1,5 @@
 import { inject, Injectable, Injector } from '@angular/core';
-import { ILoadable } from './interfaces/common.interfaces';
+import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from './manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 

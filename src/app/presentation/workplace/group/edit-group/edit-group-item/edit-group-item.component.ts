@@ -102,7 +102,7 @@ export class EditGroupItemComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       effect(() => {
-        const isReset = this.dataManagementGroupService.isReset();
+        const isReset = this.dataManagementGroupService.isReset;
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }

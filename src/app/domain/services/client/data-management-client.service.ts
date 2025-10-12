@@ -10,7 +10,7 @@ import {
   ILoadable,
   IResettable,
   ISaveable,
-} from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+} from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ClientListService } from './client-list.service';
@@ -94,12 +94,15 @@ export class DataManagementClientService
   public filteredStateList = signal<any[]>([]);
   public editClientLastMutation = signal('');
 
-  public showProgressSpinner = computed(
+  private _showProgressSpinner = computed(
     () =>
-      this.clientListService.showProgressSpinner() ||
-      this.clientEditService.showProgressSpinner()
+      this.clientListService.showProgressSpinner ||
+      this.clientEditService.showProgressSpinner
   );
-  public isReset = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
   public initIsRead = this.clientConfigService.isInit;
 

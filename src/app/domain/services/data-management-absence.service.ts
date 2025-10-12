@@ -10,10 +10,9 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { ILoadable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -22,7 +21,6 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 })
 export class DataManagementAbsenceService implements ILoadable {
   public dataAbsenceService = inject(DataAbsenceService);
-  public toastShowService = inject(ToastShowService);
   private dataLoadFileService = inject(DataLoadFileService);
 
   constructor() {
@@ -33,7 +31,8 @@ export class DataManagementAbsenceService implements ILoadable {
     );
   }
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
   public isRead = signal(false);
 
@@ -68,7 +67,7 @@ export class DataManagementAbsenceService implements ILoadable {
   /* #endregion   temporary check is Filter dirty */
 
   readPage(language: string) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.currentFilter.language = language;
 
     this.dataAbsenceService
@@ -82,7 +81,7 @@ export class DataManagementAbsenceService implements ILoadable {
           );
           this.maxItems = x.maxItems;
           this.firstItem = x.firstItemOnPage;
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
           this.isRead.set(true);
           setTimeout(
             () => this.isRead.set(false),

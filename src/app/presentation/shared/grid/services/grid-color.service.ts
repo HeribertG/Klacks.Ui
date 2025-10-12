@@ -13,7 +13,8 @@ import { ConstantKeys } from '../constants/constants';
 export class GridColorService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
 
   settingList: ISetting[] = [];
 
@@ -80,7 +81,8 @@ export class GridColorService {
 
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
-        this.isReset.set(true);
+        this._isReset.set(true);
+        setTimeout(() => this._isReset.set(false), 100);
       }
     });
   }

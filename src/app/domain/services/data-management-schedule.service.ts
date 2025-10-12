@@ -6,13 +6,12 @@ import {
   Work,
   WorkFilter,
 } from 'src/app/domain/models/schedule-class';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ILoadable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -20,7 +19,6 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
   providedIn: 'root',
 })
 export class DataManagementScheduleService implements ILoadable {
-  public toastShowService = inject(ToastShowService);
   private dataSchedule = inject(DataScheduleService);
 
   constructor() {
@@ -30,7 +28,8 @@ export class DataManagementScheduleService implements ILoadable {
     );
   }
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
   public isRead = signal(false);
   public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
@@ -45,12 +44,12 @@ export class DataManagementScheduleService implements ILoadable {
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
   readDatas() {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this.isRead.set(true);
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
       setTimeout(() => this.isRead.set(false), 100);
     });
   }

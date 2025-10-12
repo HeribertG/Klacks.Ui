@@ -134,7 +134,7 @@ export class ProfileDataEditComponent implements OnInit, DoCheck {
 
   private setupResetSignalEffect(): void {
     effect(() => {
-      const isReset = this.dataManagementProfileService.isReset();
+      const isReset = this.dataManagementProfileService.isReset;
       if (isReset) {
         setTimeout(() => this.isChangingEvent.emit(false), 100);
       }

@@ -8,7 +8,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -30,9 +30,11 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
     );
   }
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
 
   public cutShifts: Shift[] = [];
@@ -44,7 +46,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
 
   readCutShiftList(id: string): void {
     if (id !== '') {
-      this.showProgressSpinner.set(true);
+      this._showProgressSpinner.set(true);
       this.dataShiftCutsService.getCutShiftList(id).subscribe((x) => {
         this.cutShifts = x;
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
@@ -57,7 +59,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
         );
 
         this.fireIsReadEvent();
-        this.showProgressSpinner.set(false);
+        this._showProgressSpinner.set(false);
       });
     }
   }
@@ -131,7 +133,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   }
 
   private saveCuts(): void {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     this.separateNewAndExistingCuts();
 
@@ -148,7 +150,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
         },
         error: (error) => {
           this.toastShowService.showError(error, 'Cut Create Error');
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
@@ -164,19 +166,19 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
         },
         error: (error) => {
           this.toastShowService.showError(error, 'Cut Update Error');
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
         },
         complete: () => {
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
         },
       });
     }
 
     if (this.newCuts.length === 0 && this.existingCuts.length === 0) {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
       }
@@ -237,8 +239,8 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   }
 
   private fireIsResetEvent(): void {
-    this.isReset.set(true);
-    setTimeout(() => this.isReset.set(false), 100);
+    this._isReset.set(true);
+    setTimeout(() => this._isReset.set(false), 100);
   }
 
   goBack(): string {
@@ -251,7 +253,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   private checkAndCallSaveCompleted(): void {
     this.operationsCompleted++;
     if (this.operationsCompleted >= this.totalOperations) {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
       }

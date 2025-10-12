@@ -18,7 +18,6 @@ import {
   ITruncatedGroup,
 } from 'src/app/domain/models/group-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import {
@@ -32,10 +31,11 @@ import {
 } from 'src/app/domain/helpers/format-helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
@@ -46,9 +46,8 @@ import { IPaginationDataService } from 'src/app/presentation/shared/pagination/p
 export class DataManagementGroupService implements ISaveable, IResettable, ILoadable, INavigable {
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private dataCountryStateService = inject(DataCountryStateService);
-  private navigationService = inject(NavigationService);
   private httpClient = inject(HttpClient);
 
   constructor() {
@@ -62,11 +61,13 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     );
   }
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
   public onExternalFilterChange?: () => void;
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
@@ -126,7 +127,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   initTree(rootId?: string, preserveExpandedState = false) {
     this.flatNodeList = this.flattenTree(this.groupTree.nodes);
-    setTimeout(() => this.showProgressSpinner.set(true), 0);
+    setTimeout(() => this._showProgressSpinner.set(true), 0);
 
     const previousExpandedNodes = preserveExpandedState ? new Set(this.expandedNodes) : new Set<string>();
 
@@ -146,10 +147,14 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         this.fireIsReadEvent();
       },
       error: (error) => {
-        this.toastShowService.showError(error, 'GroupTreeError');
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: error,
+          code: 'GroupTreeError',
+          context: 'DataManagementGroupService.initTree'
+        });
       },
       complete: () => {
-        setTimeout(() => this.showProgressSpinner.set(false), 0);
+        setTimeout(() => this._showProgressSpinner.set(false), 0);
       },
     });
   }
@@ -157,30 +162,34 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   /* #endregion   init */
 
   showExternalClient(id: string) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.dataGroupService.getGroup(id).subscribe({
       next: (x: IGroup) => {
         this.prepareGroup(x);
-        this.navigationService.navigateToEditGroup(id);
-        this.showProgressSpinner.set(false);
+        this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-group/${id}` });
+        this._showProgressSpinner.set(false);
       },
       error: (error) => {
         console.error('Error while loading groups:', error);
-        this.toastShowService.showError(error, 'GroupLoadError');
-        this.showProgressSpinner.set(false);
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: error,
+          code: 'GroupLoadError',
+          context: 'DataManagementGroupService.showExternalClient'
+        });
+        this._showProgressSpinner.set(false);
       },
     });
   }
 
   readPageClient() {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     this.dataClientService
       .readClientList(this.currentClientFilter)
       .subscribe((x) => {
         this.listClientWrapper = x;
       });
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
     this.fireIsReadEvent();
   }
 
@@ -233,7 +242,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   readPage(isSecondRead = false) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
       this.listWrapper = x;
       this.paginationDataService = {
@@ -246,7 +255,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     if (isSecondRead) {
       this.fireIsReadEvent();
     }
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   deleteGroup(key: string): Observable<IGroup> {
@@ -256,7 +265,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         return response;
       }),
       catchError((error) => {
-        this.toastShowService.showError(error, 'GroupDeleteError');
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: error,
+          code: 'GroupDeleteError',
+          context: 'DataManagementGroupService.deleteGroup'
+        });
         return throwError(() => error);
       })
     );
@@ -270,7 +283,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   /* #region   edit Group */
 
   createGroup(parentId?: string) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     const c = new Group({
       name: '',
       description: '',
@@ -283,13 +296,13 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
     this.prepareGroup(c);
 
-    this.navigationService.navigateToEditGroup();
+    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-group' });
 
     setTimeout(() => {
       this.fireIsReadEvent();
     }, 300);
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   prepareGroup(value: IGroup, withoutUpdateDummy = false) {
@@ -311,9 +324,9 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     }
 
     setTimeout(() => {
-      this.isReset.set(true);
-      this.showProgressSpinner.set(false);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      this._showProgressSpinner.set(false);
+      setTimeout(() => this._isReset.set(false), 100);
     }, 200);
   }
 
@@ -337,7 +350,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
             this.createGroup();
           }
 
-          this.toastShowService.showError(error, 'GroupError');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupError',
+            context: 'DataManagementGroupService.saveEditGroup'
+          });
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
@@ -508,7 +525,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   /* #region   Tree Group */
 
   showGroupTree() {
-    this.navigationService.navigateToGroupTree();
+    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/group-structure' });
   }
 
   getPathToNode(id: string): Observable<IGroup[]> {
@@ -516,14 +533,18 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       .get<IGroup[]>(`${environment.baseUrl}Groups/path/${id}`)
       .pipe(
         catchError((error) => {
-          this.toastShowService.showError(error, 'GroupPathError');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupPathError',
+            context: 'DataManagementGroupService.getPathToNode'
+          });
           return throwError(() => error);
         })
       );
   }
 
   moveGroup(id: string, newParentId: string) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     const params = new HttpParams().set('newParentId', newParentId);
 
@@ -533,7 +554,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       })
       .pipe(
         catchError((error) => {
-          this.toastShowService.showError(error, 'GroupMoveError');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupMoveError',
+            context: 'DataManagementGroupService.moveGroup'
+          });
           return throwError(() => error);
         })
       )
@@ -541,10 +566,10 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         next: () => {
           this.init();
           this.initTree(undefined, true);
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
         },
         error: () => {
-          this.showProgressSpinner.set(false);
+          this._showProgressSpinner.set(false);
         },
       });
   }
@@ -567,7 +592,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         this.initTree();
       },
       error: (error) => {
-        this.toastShowService.showError(error, 'RefreshGroupTreeError');
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: error,
+          code: 'RefreshGroupTreeError',
+          context: 'DataManagementGroupService.refreshTree'
+        });
       },
     });
   }

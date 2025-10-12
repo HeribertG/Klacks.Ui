@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Output,
   OnDestroy,
+  inject,
 } from '@angular/core';
 import ResizeObserver from 'resize-observer-polyfill';
 

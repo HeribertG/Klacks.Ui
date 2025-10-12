@@ -3,7 +3,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Contract, IContract } from 'src/app/domain/models/contract-class';
 import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
 import { DataManagementCalendarSelectionService } from './data-management-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
@@ -22,13 +23,12 @@ import {
 } from '../helpers/format-helper';
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../models/schedule-class';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementContractService {
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private dataContractService = inject(DataContractService);
   private translate = inject(TranslateService);
   public dataManagementCalendarSelectionService = inject(
@@ -37,10 +37,12 @@ export class DataManagementContractService {
 
   constructor() {}
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
   public initIsRead = signal(false);
 
@@ -125,7 +127,7 @@ export class DataManagementContractService {
   /* #region   Contract CRUD operations */
 
   async readContracts(): Promise<IContract[]> {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     try {
       const result = await lastValueFrom(this.dataContractService.getList());
@@ -139,19 +141,20 @@ export class DataManagementContractService {
       this.fireIsReadEvent();
       return this.contracts;
     } catch (error) {
-      this.toastShowService.showError(
-        MessageLibrary.UNKNOWN_ERROR,
-        'errorLoadingData'
-      );
+      this.eventBus.emit(DomainEventType.ERROR, {
+        message: MessageLibrary.UNKNOWN_ERROR,
+        code: 'errorLoadingData',
+        context: 'DataManagementContractService.readContracts'
+      });
       console.error('Error loading contracts:', error);
       return [];
     } finally {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
     }
   }
 
   async readContract(id: string): Promise<void> {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     try {
       const result = await lastValueFrom(
@@ -162,18 +165,19 @@ export class DataManagementContractService {
         this.prepareContract(result);
       }
     } catch (error) {
-      this.toastShowService.showError(
-        MessageLibrary.UNKNOWN_ERROR,
-        'errorLoadingData'
-      );
+      this.eventBus.emit(DomainEventType.ERROR, {
+        message: MessageLibrary.UNKNOWN_ERROR,
+        code: 'errorLoadingData',
+        context: 'DataManagementContractService.readContract'
+      });
       console.error('Error loading contract:', error);
     } finally {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
     }
   }
 
   public createContract(): Contract {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     const newContract = new Contract();
     newContract.name = '';
@@ -190,7 +194,7 @@ export class DataManagementContractService {
       this.fireIsReadEvent();
     }, 300);
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
 
     return newContract;
   }
@@ -210,9 +214,9 @@ export class DataManagementContractService {
     }
 
     setTimeout(() => {
-      this.isReset.set(true);
-      this.showProgressSpinner.set(false);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      this._showProgressSpinner.set(false);
+      setTimeout(() => this._isReset.set(false), 100);
     }, 200);
   }
 
@@ -297,7 +301,7 @@ export class DataManagementContractService {
       return false;
     }
 
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     try {
       const action = this.editContract.id
@@ -329,7 +333,7 @@ export class DataManagementContractService {
 
       return false;
     } finally {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
     }
   }
 
@@ -338,7 +342,7 @@ export class DataManagementContractService {
       return false;
     }
 
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
 
     try {
       await lastValueFrom(this.dataContractService.deleteContract(id));
@@ -347,14 +351,15 @@ export class DataManagementContractService {
 
       return true;
     } catch (error) {
-      this.toastShowService.showError(
-        MessageLibrary.UNKNOWN_ERROR,
-        'errorDeletingData'
-      );
+      this.eventBus.emit(DomainEventType.ERROR, {
+        message: MessageLibrary.UNKNOWN_ERROR,
+        code: 'errorDeletingData',
+        context: 'DataManagementContractService.deleteContract'
+      });
       console.error('Error deleting contract:', error);
       return false;
     } finally {
-      this.showProgressSpinner.set(false);
+      this._showProgressSpinner.set(false);
     }
   }
 

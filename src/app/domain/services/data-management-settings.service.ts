@@ -6,7 +6,8 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import {
   IAuthentication,
@@ -26,7 +27,7 @@ import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service'
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { ILoadable, IResettable, ISaveable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable, IResettable, ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -36,24 +37,25 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   public dataSettingsVariousService = inject(DataSettingsVariousService);
   public dataCountryStateService = inject(DataCountryStateService);
   public dataMacroService = inject(DataMacroService);
-  public toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   public gridColorService = inject(GridColorService);
 
   constructor() {
     effect(() => {
-      const isReset = this.gridColorService.isReset();
+      const isReset = this.gridColorService.isReset;
       if (isReset) {
-        this.isReset.set(true);
-        this.gridColorService.isReset.set(false);
+        this._isReset.set(true);
       }
     });
   }
 
   // IManageable implementation
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
 
   public accountsList: IAuthentication[] = [];
   public accountCount = 0;
@@ -161,10 +163,10 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     this.userAdministrationService.addAccount(value).subscribe({
       next: (x) => {
         if (x && x.id) {
-          this.toastShowService.showInfo('', 'REGISTER');
-          this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_SENT');
+          this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'REGISTER' });
+          this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'PASSWORD_RESET_EMAIL_SENT' });
         } else if (x && !x.mailSuccess) {
-          this.toastShowService.showInfo('', 'EMAIL_WARNING');
+          this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'EMAIL_WARNING' });
         }
 
         this.readAccountsList();
@@ -173,30 +175,39 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         console.error('User creation error:', error);
 
         if (error.status === 500) {
-          this.toastShowService.showInfo('', 'USER_CREATION_FALLBACK');
+          this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'USER_CREATION_FALLBACK' });
 
           this.userAdministrationService
             .requestPasswordReset(value.email!)
             .subscribe({
               next: () => {
-                this.toastShowService.showInfo(
-                  '',
-                  'PASSWORD_RESET_FALLBACK_SUCCESS'
-                );
+                this.eventBus.emit(DomainEventType.INFO, {
+                  message: '',
+                  context: 'PASSWORD_RESET_FALLBACK_SUCCESS'
+                });
               },
               error: (resetError) => {
                 console.error('Password reset fallback failed:', resetError);
-                this.toastShowService.showError(
-                  '',
-                  'USER_CREATION_COMPLETE_FAILURE'
-                );
+                this.eventBus.emit(DomainEventType.ERROR, {
+                  message: '',
+                  code: 'USER_CREATION_COMPLETE_FAILURE',
+                  context: 'DataManagementSettingsService.addAccount'
+                });
               },
             });
         } else if (error.status === 400) {
           const errorKey = this.mapValidationErrorToI18nKey(error.error);
-          this.toastShowService.showError('', errorKey);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: errorKey,
+            context: 'DataManagementSettingsService.addAccount'
+          });
         } else {
-          this.toastShowService.showError('', 'USER_CREATION_ERROR');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: 'USER_CREATION_ERROR',
+            context: 'DataManagementSettingsService.addAccount'
+          });
         }
         this.readAccountsList();
       },
@@ -249,9 +260,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   sentPassword(value: ChangePassword) {
     this.userAdministrationService.ChangePassword(value).subscribe((x) => {
       if (x.success === true) {
-        this.toastShowService.showInfo('', 'REGISTER_SEND_PASSWORD');
+        this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'REGISTER_SEND_PASSWORD' });
       } else {
-        this.toastShowService.showInfo('', 'REGISTER_SEND_PASSWORD_ERROR');
+        this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'REGISTER_SEND_PASSWORD_ERROR' });
       }
     });
   }
@@ -259,10 +270,10 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   requestPasswordReset(email: string) {
     this.userAdministrationService.requestPasswordReset(email).subscribe({
       next: () => {
-        this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_SENT');
+        this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'PASSWORD_RESET_EMAIL_SENT' });
       },
       error: () => {
-        this.toastShowService.showInfo('', 'PASSWORD_RESET_EMAIL_ERROR');
+        this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'PASSWORD_RESET_EMAIL_ERROR' });
       },
     });
   }
@@ -641,8 +652,8 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       if (x) {
         this.countriesList = x as ICountry[];
         this.countriesListDummy = cloneObject<ICountry[]>(this.countriesList);
-        this.isReset.set(true);
-        setTimeout(() => this.isReset.set(false), 100);
+        this._isReset.set(true);
+        setTimeout(() => this._isReset.set(false), 100);
       }
     });
   }
@@ -731,8 +742,8 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       if (x) {
         this.statesList = x as IState[];
         this.statesListDummy = cloneObject<IState[]>(this.statesList);
-        this.isReset.set(true);
-        setTimeout(() => this.isReset.set(false), 100);
+        this._isReset.set(true);
+        setTimeout(() => this._isReset.set(false), 100);
       }
     });
   }
@@ -830,8 +841,8 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
       this.macroListDummy = cloneObject<IMacro[]>(this.macroList);
 
-      this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      setTimeout(() => this._isReset.set(false), 100);
     });
   }
 
@@ -982,8 +993,8 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   IfStorageIsSuccessful() {
     if (this.settingsCount === 0) {
       this.isDirty = this.areObjectsDirty();
-      this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      setTimeout(() => this._isReset.set(false), 100);
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
       }

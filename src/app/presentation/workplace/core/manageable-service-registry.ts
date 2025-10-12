@@ -1,6 +1,6 @@
 import { Type } from '@angular/core';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { ILoadable } from './interfaces/common.interfaces';
+import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 
 export class ManageableServiceRegistry {
   private static registry = new Map<string, Type<ILoadable>>();

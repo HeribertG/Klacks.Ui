@@ -8,11 +8,11 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift-data-class';
 import {
   CheckBoxValue,
@@ -25,7 +25,7 @@ import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
+import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
@@ -33,8 +33,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
   providedIn: 'root',
 })
 export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable {
-  public toastShowService = inject(ToastShowService);
-  private navigationService = inject(NavigationService);
+  private eventBus = inject(EventBus);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);
@@ -56,9 +55,11 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   // IManageable implementation - nur für Edit-Modus
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
   public makeValidation = signal(false);
   public initIsRead = signal(false);
@@ -195,7 +196,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   readPage(isSecondRead = false) {
-    this.showProgressSpinner.set(true);
+    this._showProgressSpinner.set(true);
     this.dataShiftService.readShiftList(this.currentFilter).subscribe((x) => {
       this.shifts = x.shifts;
       this.listWrapper = x;
@@ -207,7 +208,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     if (isSecondRead) {
       this.fireIsReadEvent();
     }
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   fireIsReadEvent() {
@@ -221,7 +222,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
-    this.navigationService.navigateToNewShift();
+    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/new-shift' });
   }
 
   private prepareNewShift(): IShift {
@@ -264,8 +265,8 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     }
 
     setTimeout(() => {
-      this.isReset.set(true);
-      setTimeout(() => this.isReset.set(false), 100);
+      this._isReset.set(true);
+      setTimeout(() => this._isReset.set(false), 100);
     }, 200);
   }
 
@@ -288,7 +289,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
           );
         }
 
-        this.navigationService.navigateToEditShift(id);
+        this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-shift/${id}` });
         this.fireIsReadEvent();
       });
     }
@@ -371,7 +372,11 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
             this.createShift();
           }
 
-          this.toastShowService.showError(error, 'ShiftError');
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'ShiftError',
+            context: 'DataManagementShiftService.saveEditShift'
+          });
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }

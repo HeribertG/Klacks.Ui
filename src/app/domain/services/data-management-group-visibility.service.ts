@@ -10,7 +10,8 @@ export class DataManagementGroupVisibilityService {
   public dataGroupVisibilityService = inject(DataGroupVisibilityService);
 
   public isRead = signal(false);
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public readonly rootList = signal<IGroup[]>([]);
   public readonly groupVisibilityList = signal<IGroupVisibility[]>([]);
   public readonly groupVisibilitiesUpdated = signal<boolean>(false);
