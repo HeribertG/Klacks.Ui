@@ -8,7 +8,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { SettingsManageableWrapperService } from 'src/app/domain/services/settings/settings-manageable-wrapper.service';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { FooterService } from 'src/app/presentation/services/footer.service';

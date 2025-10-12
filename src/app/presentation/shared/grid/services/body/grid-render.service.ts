@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';

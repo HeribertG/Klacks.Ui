@@ -3,10 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  PaginationComponent,
-  IPaginationDataService,
-} from './pagination.component';
+import { PaginationComponent } from './pagination.component';
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { By } from '@angular/platform-browser';

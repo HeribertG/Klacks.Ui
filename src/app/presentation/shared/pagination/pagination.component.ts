@@ -15,12 +15,7 @@ import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
-
-export interface IPaginationDataService {
-  maxItems: number;
-  firstItem: number;
-  maxPages: number;
-}
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
 @Component({
   selector: 'app-pagination',

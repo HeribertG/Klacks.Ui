@@ -11,7 +11,7 @@ import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';

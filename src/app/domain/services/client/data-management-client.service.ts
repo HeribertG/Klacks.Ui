@@ -11,7 +11,7 @@ import {
   IResettable,
   ISaveable,
 } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
+import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';

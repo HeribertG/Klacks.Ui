@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
-import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
+import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 export interface FooterConfig {

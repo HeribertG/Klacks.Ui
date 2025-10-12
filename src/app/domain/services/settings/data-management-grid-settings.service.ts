@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { ConstantKeys } from 'src/app/presentation/shared/grid/constants/constants';
+import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 

@@ -15,7 +15,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import { Size } from 'src/app/presentation/shared/grid/classes/geometry';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';

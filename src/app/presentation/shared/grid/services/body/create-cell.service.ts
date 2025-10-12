@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {

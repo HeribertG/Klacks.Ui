@@ -24,10 +24,8 @@ import { OriginalTableComponent } from './original-table/original-table.componen
 import { Shift } from 'src/app/domain/models/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import {
-  PaginationComponent,
-  IPaginationDataService,
-} from 'src/app/presentation/shared/pagination/pagination.component';
+import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';

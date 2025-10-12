@@ -11,7 +11,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
+import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from '../../models/entity-names.enum';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

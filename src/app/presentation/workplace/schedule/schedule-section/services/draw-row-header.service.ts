@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';

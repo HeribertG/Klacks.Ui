@@ -5,7 +5,7 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IBreak } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { GridColorService } from '../../../shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';

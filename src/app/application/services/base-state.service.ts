@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';

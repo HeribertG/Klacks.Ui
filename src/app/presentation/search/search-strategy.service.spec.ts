@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { SearchStrategyService } from './search-strategy.service';
-import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
+import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { ClientSearchStrategy } from './strategies/client-search.strategy';
 import { GroupSearchStrategy } from './strategies/group-search.strategy';
 import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';

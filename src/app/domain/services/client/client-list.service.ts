@@ -12,7 +12,7 @@ import {
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { Observable } from 'rxjs';
 
 @Injectable({

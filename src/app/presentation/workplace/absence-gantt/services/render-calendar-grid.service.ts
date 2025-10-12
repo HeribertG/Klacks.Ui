@@ -4,7 +4,7 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { GridColorService } from '../../../shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from '../../../shared/grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';

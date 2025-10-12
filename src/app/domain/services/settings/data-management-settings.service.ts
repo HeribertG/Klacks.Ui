@@ -25,7 +25,7 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/data-country
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { ILoadable, IResettable, ISaveable } from 'src/app/domain/interfaces/manageable.interface';
 

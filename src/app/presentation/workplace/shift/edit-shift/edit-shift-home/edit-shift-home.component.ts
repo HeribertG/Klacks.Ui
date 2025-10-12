@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { EditShiftItemComponent } from '../edit-shift-item/edit-shift-item.component';
 import { EditShiftWeekdayComponent } from '../edit-shift-weekday/edit-shift-weekday.component';

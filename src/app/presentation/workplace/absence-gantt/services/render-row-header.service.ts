@@ -3,7 +3,7 @@ import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import {
