@@ -4,21 +4,6 @@
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
 
-.expand-button {
-  margin-right: 30px;
-}
-
-button {
-  outline: none;
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
-}
-
-.filler {
-  flex: 1;
-}
-
 .group-select-container {
   margin-top: 1rem;
 }
@@ -65,7 +50,10 @@ table input:not([type="checkbox"]):not(.is-invalid):not(.is-valid),
   border: none !important;
   background: transparent !important;
   outline: none !important;
-  border-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 table input.is-invalid,
@@ -74,7 +62,10 @@ table input.is-invalid,
   background: transparent !important;
   background-image: none !important;
   padding-right: 0.75rem !important;
-  border-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 table input.is-valid,
@@ -83,7 +74,10 @@ table input.is-valid,
   background: transparent !important;
   background-image: none !important;
   padding-right: 0.75rem !important;
-  border-radius: 4px !important;
+  border-top-left-radius: 4px !important;
+  border-bottom-left-radius: 4px !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 
 table .input-group-text,

@@ -1,23 +1,10 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<form #membershipForm="ngForm" class="container-card">
-  <div class="container-header header-container">
-    {{ "address.edit-address.membership.header" | translate }}
+<form #membershipForm="ngForm">
+  <app-expandable-card
+    [headerTitle]="'address.edit-address.membership.header' | translate">
 
-    <span class="filler"></span>
-
-    <button class="expand-button" (click)="onClickVisibleTable()">
-      @if (visibleTable === 'inline') {
-      <app-icon-angle-down></app-icon-angle-down>
-      } @if (visibleTable === 'none') {
-      <app-icon-angle-right></app-icon-angle-right>
-      }
-    </button>
-  </div>
-
-  <div class="container-line"></div>
-
-  <div [ngStyle]="{ display: visibleTable }">
+    <div>
     @if (dataManagementClientService.editClient() !== undefined) {
     <div class="container-bank-box">
       <div class="container-bank-value firstColumn">
@@ -140,6 +127,7 @@
       </div>
     </div>
     }
-  </div>
-  <div class="bottom-border-space"></div>
+    </div>
+
+  </app-expandable-card>
 </form>

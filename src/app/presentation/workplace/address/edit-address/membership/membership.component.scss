@@ -3,41 +3,10 @@
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/colors.scss";
-
-.expand-button {
-  margin-right: 30px;
-}
-
-button {
-  outline: none;
-  border: none;
-  box-shadow: none;
-  background-color: transparent;
-}
-
-.filler {
-  flex: 1;
-}
-
-.default-width {
-  width: 400px;
-}
-
-.medium-width-tel {
-  margin-left: 20px;
-  width: 180px;
-}
+@use "../../../../../../assets/standard-styles/required-field.scss";
 
 .medium-width {
   width: 280px;
-}
-
-.medium-width-without-button {
-  width: 200px;
-}
-
-label {
-  width: 400px;
 }
 
 .row-line {
@@ -45,36 +14,8 @@ label {
   display: inline-flex;
 }
 
-.row-line-add {
-  display: inline-flex;
-  padding-bottom: 20px;
-}
-
 .firstColumn {
   margin-left: 30px;
-}
-
-.gap {
-  margin-left: 20px;
-  width: 100px;
-}
-
-.gap-prefix {
-  width: 80px;
-}
-
-.ownStyle-button {
-  width: 180px;
-  height: 40px;
-  background-color: colors.$standartBlueColor;
-  font-weight: 600;
-  font-size: 14px;
-  color: colors.$standartWhiteColor;
-}
-
-.own-boolean {
-  width: 40px;
-  margin-left: 0px;
 }
 
 .container-bank-box {
@@ -85,24 +26,4 @@ label {
 .container-bank-value {
   flex-direction: column;
   width: 450px;
-}
-
-.add-credits {
-  margin-left: 180px;
-  color: colors.$standartBlueColor;
-  font-weight: 500;
-  font-size: 12px;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.add-gap {
-  margin-top: 25px;
-}
-
-.top-gap-negativ {
-  margin-top: -25px;
-}
-.text-right {
-  text-align: right;
 }
