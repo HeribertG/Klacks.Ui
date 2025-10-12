@@ -5,6 +5,7 @@
 @use "../../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../../assets/standard-styles/menu.scss";
 @use "../../../../../../assets/standard-styles/datepicker.scss";
+@use "../../../../../../assets/standard-styles/required-field.scss";
 
 .default-width {
   width: 390px;
@@ -17,10 +18,6 @@
 
 .medium-width {
   width: 280px;
-}
-
-label {
-  width: 400px;
 }
 
 .row-line {
@@ -110,48 +107,18 @@ label {
   margin-top: 40px;
 }
 
-.form-control.is-invalid {
-  border-color: #dc3545;
-  background-image: none !important;
-  padding-right: 0.75rem;
-}
-
-.form-control.is-valid {
-  border-color: #198754;
-  background-image: none !important;
-  padding-right: 0.75rem;
-}
-
 select.is-invalid {
   border-color: #dc3545 !important;
-  background-image: none !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
 }
 
 select.is-valid {
   border-color: #198754 !important;
-  background-image: none !important;
-}
-
-.select-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.select-wrapper select {
-  width: 100%;
-  padding-right: 30px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-.select-wrapper .select-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  display: flex;
-  align-items: center;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 16px 12px !important;
 }

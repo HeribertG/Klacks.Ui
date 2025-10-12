@@ -120,6 +120,13 @@ export class AddressPersonaComponent
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
+  get headerTitle(): string {
+    const idNumberLabel = this.translateService.instant('address.edit-address.address-persona.id-number');
+    const typeAbbr = this.dataManagementClientService.editClient()?.typeAbbreviation || '';
+    const idNumber = this.dataManagementClientService.editClient()?.idNumber || '';
+    return `${idNumberLabel} ${typeAbbr}${idNumber}`;
+  }
+
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
     this.currentLang = this.translateService.currentLang as Language;
