@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CutShiftListComponent } from './cut-shift-list.component';
-import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { NgbModal, NgbCalendar, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Shift } from 'src/app/domain/models/shift-class';

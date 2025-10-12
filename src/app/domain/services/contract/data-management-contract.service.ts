@@ -6,7 +6,7 @@ import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-cla
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
-import { DataManagementCalendarSelectionService } from './data-management-calendar-selection.service';
+import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
@@ -20,9 +20,9 @@ import {
   isNgbDateStructOk,
   transformOwnTimeToNumber,
   isOwnTimeStructOk,
-} from '../helpers/format-helper';
+} from '../../helpers/format-helper';
 import { TranslateService } from '@ngx-translate/core';
-import { OwnTime } from '../models/schedule-class';
+import { OwnTime } from '../../models/schedule-class';
 
 @Injectable({
   providedIn: 'root',

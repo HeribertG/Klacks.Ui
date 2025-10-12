@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';

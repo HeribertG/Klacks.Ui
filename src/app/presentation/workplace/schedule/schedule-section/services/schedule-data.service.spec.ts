@@ -4,7 +4,7 @@ import { ScheduleDataService } from './schedule-data.service';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 describe('ScheduleDataService', () => {
   let service: ScheduleDataService;

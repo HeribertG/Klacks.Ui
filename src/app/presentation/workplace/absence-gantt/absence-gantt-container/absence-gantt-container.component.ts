@@ -7,7 +7,7 @@ import {
   output,
 } from '@angular/core';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';

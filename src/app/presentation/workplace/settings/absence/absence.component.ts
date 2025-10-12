@@ -24,7 +24,7 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { DataManagementAbsenceService } from 'src/app/domain/services/data-management-absence.service';
+import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

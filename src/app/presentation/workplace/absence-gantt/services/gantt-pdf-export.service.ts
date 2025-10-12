@@ -2,8 +2,8 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 
 export interface GanttExportOptions {

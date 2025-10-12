@@ -16,7 +16,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription, takeUntil } from 'rxjs';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';

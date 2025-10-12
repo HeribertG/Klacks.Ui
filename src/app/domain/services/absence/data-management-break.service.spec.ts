@@ -5,10 +5,10 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
-import { EventBus } from '../../application/services/event-bus.service';
-import { DataBreakService } from '../../infrastructure/api/data-break.service';
-import { IClientBreak, IMembership } from '../models/client-class';
-import { IBreak } from '../models/break-class';
+import { EventBus } from '../../../application/services/event-bus.service';
+import { DataBreakService } from '../../../infrastructure/api/data-break.service';
+import { IClientBreak, IMembership } from '../../models/client-class';
+import { IBreak } from '../../models/break-class';
 
 describe('DataManagementBreakService', () => {
   let service: DataManagementBreakService;

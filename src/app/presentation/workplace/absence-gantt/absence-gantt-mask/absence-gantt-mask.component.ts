@@ -16,8 +16,8 @@ import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import {
   addDays,
   isNgbDateStructOk,

@@ -33,7 +33,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
-import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Component({
   selector: 'app-shift-section',

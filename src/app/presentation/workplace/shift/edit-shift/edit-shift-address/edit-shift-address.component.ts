@@ -14,7 +14,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { IClient } from 'src/app/domain/models/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';

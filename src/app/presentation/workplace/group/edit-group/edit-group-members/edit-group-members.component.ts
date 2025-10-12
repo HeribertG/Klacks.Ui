@@ -20,8 +20,8 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
-import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

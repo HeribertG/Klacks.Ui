@@ -2,8 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/domain/models/group-class';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { DataManagementBreakService } from './data-management-break.service';
-import { DataManagementScheduleService } from './data-management-schedule.service';
+import { DataManagementBreakService } from '../absence/data-management-break.service';
+import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
 
 @Injectable({
   providedIn: 'root',

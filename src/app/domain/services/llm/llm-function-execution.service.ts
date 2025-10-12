@@ -7,7 +7,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import {
   ILLMFunctionCall,
   ILLMFunctionResult,
-} from '../models/llm-function-definitions.interface';
+} from '../../models/llm-function-definitions.interface';
 import { LLMFunctionRegistryService } from './llm-function-registry.service';
 import { environment } from 'src/environments/environment';
 

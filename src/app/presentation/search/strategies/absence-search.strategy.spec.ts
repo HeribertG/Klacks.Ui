@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { AbsenceSearchStrategy } from './absence-search.strategy';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 describe('AbsenceSearchStrategy', () => {

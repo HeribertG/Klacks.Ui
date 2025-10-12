@@ -5,7 +5,7 @@ import { DataSettingsVariousService } from '../../infrastructure/api/data-settin
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AppSetting, ISetting } from 'src/app/domain/models/settings-various-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
+import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 
 @Injectable({
   providedIn: 'root'

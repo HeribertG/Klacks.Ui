@@ -2,7 +2,7 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
   addDays,
   EqualDate,

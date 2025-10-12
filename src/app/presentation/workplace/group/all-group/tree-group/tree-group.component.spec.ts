@@ -9,7 +9,7 @@ import {
 import { of } from 'rxjs';
 
 import { TreeGroupComponent } from './tree-group.component';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ModalService } from 'src/app/presentation/modal/modal.service';

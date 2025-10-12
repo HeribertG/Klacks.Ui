@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 import { NgbModule, NgbTooltipModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IContract } from 'src/app/domain/models/contract-class';
-import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
+import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';

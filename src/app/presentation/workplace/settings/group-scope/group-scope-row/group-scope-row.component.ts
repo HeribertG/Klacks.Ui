@@ -16,7 +16,7 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import { IGroupVisibility, GroupVisibility } from 'src/app/domain/models/group-class';
-import { DataManagementGroupVisibilityService } from 'src/app/domain/services/data-management-group-visibility.service';
+import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
 
 @Component({
   selector: 'app-group-scope-row',

@@ -2,7 +2,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientContractsComponent } from './client-contracts.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
-import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
+import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';

@@ -26,7 +26,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
-import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import {
   transformStringToOwnTimeStruct,
   transformDateToNgbDateStruct,

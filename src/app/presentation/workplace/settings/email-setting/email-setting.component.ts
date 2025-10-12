@@ -18,7 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, Subscription } from 'rxjs';
-import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';

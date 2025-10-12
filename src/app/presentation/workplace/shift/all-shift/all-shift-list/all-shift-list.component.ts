@@ -17,8 +17,8 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
-import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/domain/models/shift-class';

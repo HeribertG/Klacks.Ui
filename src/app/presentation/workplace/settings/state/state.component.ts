@@ -10,7 +10,7 @@ import { StateRowComponent } from './state-row/state-row.component';
 
 import { State } from 'src/app/domain/models/client-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
 @Component({

@@ -3,7 +3,7 @@ import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/in
 import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { DataManagementSettingsService } from './data-management-settings.service';
-import { DataManagementContractService } from './data-management-contract.service';
+import { DataManagementContractService } from '../contract/data-management-contract.service';
 
 /**
  * Wrapper Service that combines DataManagementSettingsService and DataManagementContractService

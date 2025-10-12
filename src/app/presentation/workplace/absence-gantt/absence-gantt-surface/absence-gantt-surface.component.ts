@@ -33,8 +33,8 @@ import { GridColorService } from 'src/app/presentation/shared/grid/services/grid
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';

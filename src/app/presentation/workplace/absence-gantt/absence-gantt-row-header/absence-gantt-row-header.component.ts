@@ -18,7 +18,7 @@ import { Size } from 'src/app/presentation/shared/grid/classes/geometry';
 import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';

@@ -11,13 +11,13 @@ import {
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import {
   NgbDropdown,
   NgbDropdownModule,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

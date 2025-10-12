@@ -21,7 +21,7 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { Group, IGroup } from 'src/app/domain/models/group-class';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';

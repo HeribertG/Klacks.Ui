@@ -30,7 +30,7 @@ import {
   HeaderDirection,
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
 
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';

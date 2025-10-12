@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { LLMFunctionRegistryService } from './llm-function-registry.service';
-import { ILLMToolDefinition } from '../models/llm-function-definitions.interface';
+import { ILLMToolDefinition } from '../../models/llm-function-definitions.interface';
 
 export interface ILLMSystemContext {
   systemPrompt: string;
