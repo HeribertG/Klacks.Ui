@@ -560,6 +560,7 @@ export class AddressPersonaComponent
 
   async onZipFocusout() {
     await this.dataManagementClientService.writeCity();
+    this.calcValidation();
   }
 
   onChangingAddress(event: any) {

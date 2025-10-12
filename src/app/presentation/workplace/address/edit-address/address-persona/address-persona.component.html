@@ -384,6 +384,7 @@
                   [(ngModel)]="
                     dataManagementClientService.editClient()!.firstName
                   "
+                  (ngModelChange)="calcValidation()"
                   id="firstname"
                   name="FirstName"
                   maxlength="50"
@@ -452,6 +453,7 @@
                   class="form-control default-width"
                   [disabled]="isDisabled()"
                   [(ngModel)]="dataManagementClientService.editClient()!.name"
+                  (ngModelChange)="calcValidation()"
                   name="Name"
                   id="profile-name"
                   required
