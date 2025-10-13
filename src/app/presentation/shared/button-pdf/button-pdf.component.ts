@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-button-pdf',
   templateUrl: './button-pdf.component.html',
   styleUrls: ['./button-pdf.component.scss'],
