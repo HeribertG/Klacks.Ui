@@ -1,13 +1,12 @@
 import { CommonModule } from '@angular/common';
 import {
   Component,
-  OnDestroy,
   inject,
   ElementRef,
   Renderer2,
   ViewChild,
+  effect,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
 import { AsideService } from './aside.service';
 import { LLMChatComponent } from './llm-chat/llm-chat.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
@@ -25,32 +24,25 @@ import { TranslateModule } from '@ngx-translate/core';
     TranslateModule,
   ],
 })
-export class AsideComponent implements OnDestroy {
+export class AsideComponent {
   @ViewChild(LLMChatComponent) llmChatComponent!: LLMChatComponent;
 
   private asideService = inject(AsideService);
   private elementRef = inject(ElementRef);
   private renderer = inject(Renderer2);
-  private destroy$ = new Subject<void>();
-  isVisible = false;
+
+  isVisible = this.asideService.isVisible;
 
   constructor() {
-    this.asideService.isVisible
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((visible) => {
-        this.isVisible = visible;
+    effect(() => {
+      const visible = this.isVisible();
 
-        if (visible) {
-          this.renderer.addClass(this.elementRef.nativeElement, 'visible');
-        } else {
-          this.renderer.removeClass(this.elementRef.nativeElement, 'visible');
-        }
-      });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+      if (visible) {
+        this.renderer.addClass(this.elementRef.nativeElement, 'visible');
+      } else {
+        this.renderer.removeClass(this.elementRef.nativeElement, 'visible');
+      }
+    });
   }
 
   close(): void {

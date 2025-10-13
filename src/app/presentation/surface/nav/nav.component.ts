@@ -173,6 +173,11 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       this.effectRefs.push(langEffect);
 
+      const themeSyncEffect = effect(() => {
+        this.currentTheme.set(this.themeService.theme());
+      });
+      this.effectRefs.push(themeSyncEffect);
+
       const themeEffect = effect(() => {
         const theme = this.currentTheme();
         if (theme && this.iconsInitialized()) {
@@ -202,13 +207,6 @@ export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private setupRxJSSubscriptions(): void {
-    // Theme subscription
-    this.themeService.theme$
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((theme) => {
-        this.currentTheme.set(theme);
-      });
-
     // Language change subscription - verwende original approach
     this.translateService.onLangChange
       .pipe(takeUntil(this.ngUnsubscribe))

@@ -1,5 +1,4 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
@@ -7,8 +6,8 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 export class AuthorizationService {
   private localStorage = inject(LocalStorageService);
 
-  private _isAdmin$ = new BehaviorSubject<boolean>(false);
-  private _isAuthorised$ = new BehaviorSubject<boolean>(false);
+  private _isAdmin = signal<boolean>(false);
+  private _isAuthorised = signal<boolean>(false);
 
   constructor() {
     this.loadFromStorage();
@@ -18,8 +17,8 @@ export class AuthorizationService {
     const adminToken = this.localStorage.get(MessageLibrary.TOKEN_ADMIN);
     const authToken = this.localStorage.get(MessageLibrary.TOKEN_AUTHORISED);
 
-    this._isAdmin$.next(JSON.parse(adminToken ?? 'false'));
-    this._isAuthorised$.next(JSON.parse(authToken ?? 'false'));
+    this._isAdmin.set(JSON.parse(adminToken ?? 'false'));
+    this._isAuthorised.set(JSON.parse(authToken ?? 'false'));
   }
 
   refresh() {
@@ -27,9 +26,9 @@ export class AuthorizationService {
   }
 
   get isAdmin(): boolean {
-    return this._isAdmin$.value;
+    return this._isAdmin();
   }
   get isAuthorised(): boolean {
-    return this._isAuthorised$.value || this._isAdmin$.value;
+    return this._isAuthorised() || this._isAdmin();
   }
 }

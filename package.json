@@ -6,9 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test --watch=false && node open-test-report.js",
+    "test": "ng test --watch=false",
     "test:watch": "ng test",
-    "open-report": "node open-test-report.js",
     "lint": "ng lint",
     "postinstall": "npm rebuild esbuild"
   },
