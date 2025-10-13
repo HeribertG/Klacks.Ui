@@ -36,6 +36,8 @@ import {
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { CdkDragDrop, CdkDrag, CdkDropList, CdkDropListGroup, CdkDragMove } from '@angular/cdk/drag-drop';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-tree-group',
@@ -77,6 +79,7 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   public hoveredNodeId: string | null = null;
   public draggedNodeId: string | null = null;
 
+  private destroy$ = new Subject<void>();
   private effectRef: EffectRef | null = null;
   private expandTimeout: any = null;
   private scrollInterval: any = null;
@@ -98,6 +101,9 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     if (this.effectRef) {
       this.effectRef.destroy();
       this.effectRef = null;
@@ -218,17 +224,20 @@ export class TreeGroupComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.modalService.openModel(ModalType.Delete);
 
-    const subscription = this.modalService.resultEvent.subscribe((type) => {
-      if (
-        type === ModalType.Delete &&
-        this.modalService.componentContext === 'tree-group'
-      ) {
-        this.dataManagementGroupService.deleteGroup(node.id!).subscribe();
-        this.modalService.componentContext = '';
-        this.modalService.Filing = '';
-      }
-      subscription.unsubscribe();
-    });
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((type) => {
+        if (
+          type === ModalType.Delete &&
+          this.modalService.componentContext === 'tree-group'
+        ) {
+          this.dataManagementGroupService.deleteGroup(node.id!)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe();
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
   }
 
   expandAllNodes(): void {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Output, computed } from '@angular/core';
+import { Component, EventEmitter, inject, Output, computed, OnDestroy } from '@angular/core';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
@@ -8,6 +8,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings-general',
@@ -22,7 +24,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
     SpinnerModule,
   ],
 })
-export class SettingsGeneralComponent {
+export class SettingsGeneralComponent implements OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   selectedFileIcon: File | undefined;
@@ -31,6 +33,8 @@ export class SettingsGeneralComponent {
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+
+  private destroy$ = new Subject<void>();
 
   // Computed properties for logo dimensions and display
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
@@ -71,10 +75,12 @@ export class SettingsGeneralComponent {
 
       fd.append('file', this.selectedFileIcon!, 'own-icon.ico');
 
-      this.dataLoadFileService.upLoadFile(fd).subscribe(() => {
-        this.tryLoadProfileImage();
-        this.selectedFileIcon = undefined;
-      });
+      this.dataLoadFileService.upLoadFile(fd)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.tryLoadProfileImage();
+          this.selectedFileIcon = undefined;
+        });
     }
   }
 
@@ -96,10 +102,12 @@ export class SettingsGeneralComponent {
     const fd = new FormData();
     fd.append('file', this.selectedFileLogo!, 'own-logo.png');
 
-    this.dataLoadFileService.upLoadFile(fd).subscribe(() => {
-      this.tryLoadProfileImage();
-      this.selectedFileLogo = undefined;
-    });
+    this.dataLoadFileService.upLoadFile(fd)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.tryLoadProfileImage();
+        this.selectedFileLogo = undefined;
+      });
   }
 
   onUploadLogo(event: any) {
@@ -127,5 +135,10 @@ export class SettingsGeneralComponent {
   onClickDeleteLogo() {
     this.dataLoadFileService.logoImage = undefined;
     this.dataLoadFileService.deleteFile('own-logo.png');
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

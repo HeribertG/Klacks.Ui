@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /// <summary>
@@ -12,7 +13,6 @@ export function cloneObject<T>(o: T): T {
 
 export function compareProperty(o1: any, o2: any, property: string): boolean {
   // Helper function to log mismatches and return false
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function logMismatch(reason: string) {
     // console.info(`Property "${property}" does not match: ${reason}`);
     return false;
@@ -126,7 +126,6 @@ export function compareComplexObjects(
     listExcludedObject?: string[]
   ): boolean {
     // Helper function to log mismatches
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function logMismatch(reason: string) {
       return false;
     }
@@ -191,7 +190,6 @@ export function compareComplexObjects(
    * @param value - The value to check.
    * @returns True if the value is an array, false otherwise.
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function isArray(value: any): boolean {
     // Use the built-in Array.isArray method
     return Array.isArray(value);

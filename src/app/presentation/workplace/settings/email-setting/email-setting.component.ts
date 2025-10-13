@@ -18,6 +18,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
@@ -144,6 +145,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
 
     this.dataSettingsVariousService
       .testEmailConfiguration(emailConfig)
+      .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
         next: (result: EmailTestResult) => {
           this.isTestingEmail = false;

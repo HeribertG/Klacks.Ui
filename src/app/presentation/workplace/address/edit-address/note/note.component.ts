@@ -9,6 +9,7 @@ import {
   EventEmitter,
   inject,
   Injector,
+  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -25,6 +26,8 @@ import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.c
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-note',
@@ -46,7 +49,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
     ExpandableCardComponent,
   ],
 })
-export class NoteComponent implements OnInit, AfterViewInit {
+export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();
   public note_new = MessageLibrary.NOTE_NEW;
   public expandedNotes: boolean[] = [];
@@ -58,6 +61,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private translate = inject(TranslateService);
   private injector = inject(Injector);
   private isInitializing = false;
+  private destroy$ = new Subject<void>();
 
   public sortedAnnotations: IAnnotation[] = [];
 
@@ -88,11 +92,18 @@ export class NoteComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.translate.onLangChange.subscribe(() => {
-      setTimeout(() => {
-        this.note_new = MessageLibrary.NOTE_NEW;
-      }, 200);
-    });
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        setTimeout(() => {
+          this.note_new = MessageLibrary.NOTE_NEW;
+        }, 200);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   isDisabled(): boolean {
