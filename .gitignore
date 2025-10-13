@@ -43,3 +43,7 @@ Thumbs.db
 test-results/test-results.xml
 test-results/html/test-report/index.html
 test-results/
+find_component_leaks.sh
+find_leaks.py
+find_real_leaks.py
+fix_remaining_leaks.txt

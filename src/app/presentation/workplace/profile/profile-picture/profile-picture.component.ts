@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -11,6 +11,8 @@ import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.s
 import { getFileExtension } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile-picture',
@@ -27,7 +29,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
     FontAwesomeModule,
   ],
 })
-export class ProfilePictureComponent {
+export class ProfilePictureComponent implements OnDestroy {
   @Output() isChangingEvent = new EventEmitter();
 
   selectedFile: File | undefined = undefined;
@@ -36,6 +38,7 @@ export class ProfilePictureComponent {
   public translate = inject(TranslateService);
   public dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
+  private destroy$ = new Subject<void>();
 
   onFileSelected(event: { target: { files: File[] } }): void {
     this.selectedFile = event.target.files[0] as File;
@@ -53,11 +56,18 @@ export class ProfilePictureComponent {
       const fd = new FormData();
       fd.append('file', this.selectedFile!, filename);
 
-      this.dataLoadFileService.upLoadFile(fd).subscribe(() => {
-        this.tryLoadProfileImage();
-        this.selectedFile = undefined;
-      });
+      this.dataLoadFileService.upLoadFile(fd)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.tryLoadProfileImage();
+          this.selectedFile = undefined;
+        });
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDeleteImg(): void {
