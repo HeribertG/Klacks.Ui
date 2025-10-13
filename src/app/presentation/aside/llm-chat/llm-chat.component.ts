@@ -210,7 +210,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async startVoiceInput(): Promise<void> {
-    if (this.isListening || !this.speechService.isSupported$.value) {
+    if (this.isListening || !this.speechService.isSupported$()) {
       return;
     }
 

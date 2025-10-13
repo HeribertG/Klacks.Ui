@@ -86,7 +86,7 @@ describe('LLMChatComponent', () => {
         'setLanguage',
       ],
       {
-        isSupported$: new BehaviorSubject(true),
+        isSupported$: jasmine.createSpy('isSupported$').and.returnValue(true),
         errors: new BehaviorSubject(''),
       }
     );

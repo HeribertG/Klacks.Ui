@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { BehaviorSubject, firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -11,16 +12,16 @@ export class DataManagementLLMProviderService {
   private dataLLMProviderService = inject(DataLLMProviderService);
   private eventBus = inject(EventBus);
 
-  private providersSubject = new BehaviorSubject<ILLMProvider[]>([]);
-  public providers$ = this.providersSubject.asObservable();
-
+  public providers = signal<ILLMProvider[]>([]);
   public isLoading = signal(false);
+
+  private providers$ = toObservable(this.providers);
 
   async loadProviders(): Promise<ILLMProvider[]> {
     try {
       this.isLoading.set(true);
       const providers = await firstValueFrom(this.dataLLMProviderService.getProviders());
-      this.providersSubject.next(providers);
+      this.providers.set(providers);
       return providers;
     } catch (error) {
       console.error('Error loading providers:', error);
@@ -37,11 +38,11 @@ export class DataManagementLLMProviderService {
         this.dataLLMProviderService.updateProvider(id, request)
       );
 
-      const currentProviders = this.providersSubject.value;
+      const currentProviders = this.providers();
       const updatedProviders = currentProviders.map(provider =>
         provider.id === id ? updatedProvider : provider
       );
-      this.providersSubject.next(updatedProviders);
+      this.providers.set(updatedProviders);
 
       this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.update', context: 'Success' });
       return updatedProvider;
@@ -54,7 +55,7 @@ export class DataManagementLLMProviderService {
 
   async toggleProviderStatus(id: string, isEnabled: boolean): Promise<boolean> {
     try {
-      const currentProviders = this.providersSubject.value;
+      const currentProviders = this.providers();
       const provider = currentProviders.find(p => p.id === id);
       
       if (!provider) {
@@ -99,8 +100,8 @@ export class DataManagementLLMProviderService {
         this.dataLLMProviderService.createProvider(request)
       );
 
-      const currentProviders = this.providersSubject.value;
-      this.providersSubject.next([...currentProviders, newProvider]);
+      const currentProviders = this.providers();
+      this.providers.set([...currentProviders, newProvider]);
 
       this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.create', context: 'Success' });
       return newProvider;
@@ -115,9 +116,9 @@ export class DataManagementLLMProviderService {
     try {
       await firstValueFrom(this.dataLLMProviderService.deleteProvider(id));
 
-      const currentProviders = this.providersSubject.value;
+      const currentProviders = this.providers();
       const updatedProviders = currentProviders.filter(provider => provider.id !== id);
-      this.providersSubject.next(updatedProviders);
+      this.providers.set(updatedProviders);
 
       this.eventBus.emit(DomainEventType.SUCCESS, { message: 'settings.llm-providers.success.delete', context: 'Success' });
       return true;
@@ -129,7 +130,7 @@ export class DataManagementLLMProviderService {
   }
 
   getCurrentProviders(): ILLMProvider[] {
-    return this.providersSubject.value;
+    return this.providers();
   }
 
   getProviders(): Observable<ILLMProvider[]> {

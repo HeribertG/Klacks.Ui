@@ -65,7 +65,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
   }
 
   private setupProviderSubscription(): void {
-    this.providerService.providers$
+    this.providerService.getProviders()
       .pipe(takeUntil(this.destroy$))
       .subscribe(providers => {
         this.providers = providers;

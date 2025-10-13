@@ -62,6 +62,7 @@ describe('LLMProvidersComponent', () => {
         'updateProvider',
         'deleteProvider',
         'toggleProviderStatus',
+        'getProviders',
       ],
       {
         providers$: of(mockProviders),
@@ -87,6 +88,7 @@ describe('LLMProvidersComponent', () => {
     translateServiceSpy.instant.and.returnValue('Translated text');
 
     providerServiceSpy.loadProviders.and.returnValue(Promise.resolve());
+    providerServiceSpy.getProviders.and.returnValue(of(mockProviders));
     llmServiceSpy.getDefaultModel.and.returnValue(null);
 
     await TestBed.configureTestingModule({

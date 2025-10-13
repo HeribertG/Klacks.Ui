@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { catchError, tap, switchMap, map, takeUntil } from 'rxjs/operators';
+import { toObservable } from '@angular/core/rxjs-interop';
 import {
   DataLLMService,
   ILLMChatRequest,
@@ -42,18 +43,21 @@ export class DataManagementLLMService {
   private functionExecutionService = inject(LLMFunctionExecutionService);
 
   private conversations = new Map<string, IConversation>();
-  private availableModels$ = new BehaviorSubject<ILLMModel[]>([]);
-  private selectedModelId$ = new BehaviorSubject<string>('');
-  private isLoading$ = new BehaviorSubject<boolean>(false);
-  private currentLanguage$ = new BehaviorSubject<string>('de');
   private destroy$ = new Subject<void>();
 
-  private _showProgressSpinner = signal(false);
-  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+  public availableModels = signal<ILLMModel[]>([]);
+  public selectedModelId = signal<string>('');
+  public isLoading = signal<boolean>(false);
+  public currentLanguage = signal<string>('de');
   public isConnected = signal(true);
 
+  private availableModels$ = toObservable(this.availableModels);
+  private selectedModelId$ = toObservable(this.selectedModelId);
+  private currentLanguage$ = toObservable(this.currentLanguage);
+  private isLoading$ = toObservable(this.isLoading);
+
   constructor() {
-    this.currentLanguage$.next(this.translateService.currentLang);
+    this.currentLanguage.set(this.translateService.currentLang);
   }
 
   public initializeLLMModels(): void {
@@ -66,7 +70,7 @@ export class DataManagementLLMService {
       .pipe(
         tap((models) => {
           if (models && models.length > 0) {
-            this.availableModels$.next(models);
+            this.availableModels.set(models);
 
             // Find enabled models first
             const enabledModels = models.filter((m) => m.isEnabled);
@@ -75,19 +79,19 @@ export class DataManagementLLMService {
             const defaultModel =
               enabledModels.find((m) => m.isDefault) || enabledModels[0];
             if (defaultModel) {
-              this.selectedModelId$.next(defaultModel.modelId);
+              this.selectedModelId.set(defaultModel.modelId);
             } else {
-              this.selectedModelId$.next('');
+              this.selectedModelId.set('');
             }
           } else {
-            this.selectedModelId$.next('');
+            this.selectedModelId.set('');
           }
         }),
         catchError(() => {
           this.eventBus.emit(DomainEventType.ERROR, { message: 'settings.llm-models.error.load', code: 'LLMModelError', context: 'DataManagementLLMService.initializeModels' });
           // Set empty array if backend fails
-          this.availableModels$.next([]);
-          this.selectedModelId$.next('');
+          this.availableModels.set([]);
+          this.selectedModelId.set('');
           return of([]);
         })
       )
@@ -118,7 +122,7 @@ export class DataManagementLLMService {
       timestamp: new Date(),
     });
 
-    const modelId = this.selectedModelId$.value;
+    const modelId = this.selectedModelId();
     if (!modelId) {
       return throwError(() => new Error('Please select a model first.'));
     }
@@ -129,15 +133,14 @@ export class DataManagementLLMService {
       modelId: modelId,
       context: {
         conversationHistory: conversation.messages.slice(-10),
-        language: this.currentLanguage$.value,
+        language: this.currentLanguage(),
         userContext: this.getUserContext(),
         availableTools: this.systemContextService.getToolsForLLM(),
         systemContext: this.systemContextService.getSystemContext(),
       },
     };
 
-    this._showProgressSpinner.set(true);
-    this.isLoading$.next(true);
+    this.isLoading.set(true);
 
     return this.dataLLMService.chat(request).pipe(
       switchMap((response) => {
@@ -170,12 +173,10 @@ export class DataManagementLLMService {
         return of(response);
       }),
       tap(() => {
-        this._showProgressSpinner.set(false);
-        this.isLoading$.next(false);
+        this.isLoading.set(false);
       }),
       catchError((error) => {
-        this._showProgressSpinner.set(false);
-        this.isLoading$.next(false);
+        this.isLoading.set(false);
         this.eventBus.emit(DomainEventType.ERROR, {
           message: 'settings.llm-models.error.communication',
           code: 'LLMCommunicationError',
@@ -187,23 +188,23 @@ export class DataManagementLLMService {
   }
 
   getAvailableModels(): Observable<ILLMModel[]> {
-    return this.availableModels$.asObservable();
+    return this.availableModels$;
   }
 
   getCurrentModelId(): Observable<string> {
-    return this.selectedModelId$.asObservable();
+    return this.selectedModelId$;
   }
 
   setCurrentModel(modelId: string): void {
-    const models = this.availableModels$.value;
+    const models = this.availableModels();
     const model = models.find((m) => m.modelId === modelId && m.isEnabled);
     if (model) {
-      this.selectedModelId$.next(modelId);
+      this.selectedModelId.set(modelId);
     }
   }
 
   getModelInfo(modelId: string): ILLMModel | undefined {
-    return this.availableModels$.value.find((m) => m.modelId === modelId);
+    return this.availableModels().find((m) => m.modelId === modelId);
   }
 
   enableModel(modelId: string): Observable<any> {
@@ -247,7 +248,7 @@ export class DataManagementLLMService {
   }
 
   setLanguage(language: string): void {
-    this.currentLanguage$.next(language);
+    this.currentLanguage.set(language);
   }
 
   clearAllConversations(): void {
@@ -263,7 +264,7 @@ export class DataManagementLLMService {
   }
 
   getCurrentLanguage(): Observable<string> {
-    return this.currentLanguage$.asObservable();
+    return this.currentLanguage$;
   }
 
   getConversation(conversationId: string): IConversation | undefined {
@@ -290,12 +291,12 @@ export class DataManagementLLMService {
     );
   }
 
-  isLoading(): Observable<boolean> {
-    return this.isLoading$.asObservable();
+  isLoadingObservable(): Observable<boolean> {
+    return this.isLoading$;
   }
 
   getDefaultModel(): ILLMModel | undefined {
-    return this.availableModels$.value.find((m) => m.isDefault);
+    return this.availableModels().find((m) => m.isDefault);
   }
 
   reloadModels(): void {

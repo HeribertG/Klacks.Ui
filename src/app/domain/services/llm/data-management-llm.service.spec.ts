@@ -2,7 +2,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { of, throwError, delay } from 'rxjs';
 
 import { DataManagementLLMService } from './data-management-llm.service';
 import {
@@ -223,7 +223,7 @@ describe('DataManagementLLMService', () => {
           error: (error) => {
             // Assert
             expect(mockEventBus.emit).toHaveBeenCalled();
-            expect(service.showProgressSpinner).toBe(false);
+            expect(service.isLoading()).toBe(false);
             done();
           },
         });
@@ -561,19 +561,37 @@ describe('DataManagementLLMService', () => {
 
       const loadingStates: boolean[] = [];
 
-      service.isLoading().subscribe((loading) => {
+      // Subscribe to loading state
+      const sub = service.isLoadingObservable().subscribe((loading) => {
         loadingStates.push(loading);
       });
 
-      mockDataLLMService.chat.and.returnValue(of(mockResponse));
+      // Use a delayed observable to simulate async API call
+      // This ensures signal changes have time to propagate
+      mockDataLLMService.chat.and.returnValue(
+        of(mockResponse).pipe(delay(50))
+      );
 
-      // Act
-      service.sendMessage('Hello').subscribe(() => {
-        // Assert
-        expect(loadingStates).toContain(true); // Started loading
-        expect(loadingStates).toContain(false); // Finished loading
-        done();
-      });
+      // Wait for initial subscription to establish
+      setTimeout(() => {
+        // Act
+        service.sendMessage('Hello').subscribe({
+          next: () => {
+            // Assert - wait for all state changes to complete
+            setTimeout(() => {
+              expect(loadingStates.length).toBeGreaterThanOrEqual(2);
+              expect(loadingStates).toContain(true); // Started loading
+              expect(loadingStates).toContain(false); // Finished loading
+              sub.unsubscribe();
+              done();
+            }, 100);
+          },
+          error: (err) => {
+            sub.unsubscribe();
+            done.fail(err);
+          }
+        });
+      }, 50);
     });
   });
 

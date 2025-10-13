@@ -121,7 +121,7 @@
     <!-- Voice input indicator -->
     @if (isListening) {
     <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
-    } @if (speechService.isSupported$.value === false) {
+    } @if (speechService.isSupported$() === false) {
     <div class="speech-not-supported">
       ⚠️ {{ "llm-chat.speech-not-supported" | translate }}
     </div>
@@ -132,11 +132,11 @@
       <button
         class="btn-voice"
         [class.listening]="isListening"
-        [class.disabled]="!speechService.isSupported$.value"
-        [disabled]="isProcessing || !speechService.isSupported$.value"
+        [class.disabled]="!speechService.isSupported$()"
+        [disabled]="isProcessing || !speechService.isSupported$()"
         (click)="isListening ? stopVoiceInput() : startVoiceInput()"
         title="{{
-          !speechService.isSupported$.value
+          !speechService.isSupported$()
             ? ('llm-chat.speech-not-available' | translate)
             : isListening
             ? ('llm-chat.stop-recording' | translate)
