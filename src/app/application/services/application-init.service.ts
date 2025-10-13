@@ -6,6 +6,8 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { AppSetting, ISetting } from 'src/app/domain/models/settings-various-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +18,7 @@ export class ApplicationInitService {
   private dataLoadFileService = inject(DataLoadFileService);
   private localStorageService = inject(LocalStorageService);
   private llmService = inject(DataManagementLLMService);
+  private destroy$ = new Subject<void>();
 
   public initialize(): void {
     // This is now called after login from HomeComponent
@@ -56,7 +59,7 @@ export class ApplicationInitService {
 
     // Set application title from settings
     try {
-      this.dataSettingsVariousService.readSettingList().subscribe((l) => {
+      this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
         if (l) {
           const tmp = l as ISetting[];
           const title = tmp.find((x) => x.type === AppSetting.APP_NAME);
@@ -68,5 +71,10 @@ export class ApplicationInitService {
     } catch (e) {
       console.log('Error loading application title:', e);
     }
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
