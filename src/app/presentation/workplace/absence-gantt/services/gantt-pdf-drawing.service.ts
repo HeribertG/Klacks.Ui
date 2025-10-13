@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
 import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { Absence } from 'src/app/domain/models/absence-class';
 
 export interface GanttDrawingConfig {
   pageWidth: number;
@@ -30,6 +32,7 @@ export interface RowDrawingParams {
 export class GanttPdfDrawingService {
   private translateService = inject(TranslateService);
   private holidaysHelper = new HolidaysListHelper();
+  private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
 
   /**
    * Draws the background of a row with monthly backgrounds and day lines
@@ -387,20 +390,26 @@ export class GanttPdfDrawingService {
     const barStartX = calendarStartX + dayOfYearStart * dayWidth;
     const barWidth = (dayOfYearEnd - dayOfYearStart + 1) * dayWidth;
 
-    // Determine break color
-    let breakColor = '#ff6b6b'; // Default red if no absence color available
+    let breakColor = '#ff6b6b';
+
     if (breakData.absence && breakData.absence.color) {
       breakColor = breakData.absence.color;
     }
+    else if (breakData.absenceId) {
+      const fullAbsence = (this.dataManagementAbsence.absenceList() as Absence[])
+        .find((absence: Absence) => absence.id === breakData.absenceId);
 
-    // Draw break bar (slightly smaller than full row height for aesthetics)
-    const barHeight = rowHeight * 0.7; // 70% of row height
-    const barY = y + (rowHeight - barHeight) / 2; // Center vertically
+      if (fullAbsence?.color) {
+        breakColor = fullAbsence.color;
+      }
+    }
+
+    const barHeight = rowHeight * 0.7;
+    const barY = y + (rowHeight - barHeight) / 2;
 
     pdf.setFillColor(breakColor);
     pdf.rect(barStartX, barY, barWidth, barHeight, 'F');
 
-    // Optional: Border around break bar
     pdf.setDrawColor('#333333');
     pdf.setLineWidth(0.5);
     pdf.rect(barStartX, barY, barWidth, barHeight, 'S');
