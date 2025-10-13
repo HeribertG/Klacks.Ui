@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-prototype-builtins */
-import moment from 'moment';
+import { format, getTimezoneOffset } from 'date-fns';
+import { de, enUS } from 'date-fns/locale';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from '../../application/helpers/string-constants';
 import { OwnTime } from 'src/app/domain/models/schedule-class';

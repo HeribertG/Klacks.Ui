@@ -42,6 +42,7 @@
     "angular-split": "^20.0.0",
     "bootstrap": "^5.3.3",
     "codemirror": "^6.0.0",
+    "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
