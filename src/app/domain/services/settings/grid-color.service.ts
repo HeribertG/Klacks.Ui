@@ -6,12 +6,15 @@ import {
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GridColorService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
+  private destroy$ = new Subject<void>();
 
   private _isReset = signal(false);
   get isReset(): boolean { return this._isReset(); }
@@ -67,7 +70,7 @@ export class GridColorService {
   }
 
   private readSettingList() {
-    this.dataSettingsVariousService.readSettingList().subscribe((l) => {
+    this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
       this.settingList = [];
       this.settingListDummy = [];
       this.resetSettingList();
@@ -288,7 +291,7 @@ export class GridColorService {
     if (value !== dummy) {
       if (c.id) {
         this.countSettings(true);
-        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
+        this.dataSettingsVariousService.updateSetting(c).pipe(takeUntil(this.destroy$)).subscribe(() => {
           this.countSettings(false);
         });
       } else {
@@ -297,7 +300,7 @@ export class GridColorService {
         nc.value = value;
         nc.type = c.type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
+        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe(() => {
           this.countSettings(false);
         });
       }
@@ -334,5 +337,10 @@ export class GridColorService {
     if (this.settingsCount === 0) {
       this.readSettingList();
     }
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

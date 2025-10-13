@@ -25,6 +25,8 @@ import { ClientConfigService } from './client-config.service';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +40,7 @@ export class ClientEditService {
   private clientConfigService = inject(ClientConfigService);
   private eventBus = inject(EventBus);
   private translateService = inject(TranslateService);
+  private destroy$ = new Subject<void>();
 
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
@@ -100,7 +103,7 @@ export class ClientEditService {
   public readClient(id: string) {
     if (id !== '') {
       this._showProgressSpinner.set(true);
-      this.dataClientService.getClient(id).subscribe((x) => {
+      this.dataClientService.getClient(id).pipe(takeUntil(this.destroy$)).subscribe((x) => {
         this.prepareClient(x);
         this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
       });
@@ -109,7 +112,7 @@ export class ClientEditService {
 
   public createClient() {
     this._showProgressSpinner.set(true);
-    this.dataClientService.countIdNumber().subscribe((x) => {
+    this.dataClientService.countIdNumber().pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const c = new Client();
       c.membership = new Membership();
       c.membership.validFrom = new Date();
@@ -140,13 +143,13 @@ export class ClientEditService {
       ? this.dataClientService.updateClient(clientToSave)
       : this.dataClientService.addClient(clientToSave);
 
-    apiCall.subscribe({
+    apiCall.pipe(takeUntil(this.destroy$)).subscribe({
       next: (x) => {
         this.lastSaveError.set(false);
         this.lastSaveErrorMessage.set('');
 
         if (x.id) {
-          this.dataClientService.getClient(x.id).subscribe((refreshedClient) => {
+          this.dataClientService.getClient(x.id).pipe(takeUntil(this.destroy$)).subscribe((refreshedClient) => {
             this.prepareClient(refreshedClient);
             this.onSaveCompleted?.();
           });
@@ -221,6 +224,7 @@ export class ClientEditService {
     if (this.editClient()?.id) {
       this.dataClientService
         .readClientAddressList(this.editClient()!.id!)
+        .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
           this.clientAddressListWithoutQueryFilter.set(x);
         });
@@ -401,5 +405,10 @@ export class ClientEditService {
     if (this.editClientDummy) {
       this.prepareClient(cloneObject<IClient>(this.editClientDummy));
     }
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

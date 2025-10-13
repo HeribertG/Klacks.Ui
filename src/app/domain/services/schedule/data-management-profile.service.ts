@@ -10,6 +10,8 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   public userAdministrationService = inject(UserAdministrationService);
   private eventBus = inject(EventBus);
   private localStorageService = inject(LocalStorageService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     ManageableServiceRegistry.register(
@@ -55,6 +58,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
     this.changePasswordWrapper!.title = DomainMessages.CHANGEPASSWORD_TITLE;
     this.userAdministrationService
       .changePassword(this.changePasswordWrapper!)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this._isReset.set(true);
@@ -120,5 +124,10 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
 
   goBack(): string {
     return '';
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

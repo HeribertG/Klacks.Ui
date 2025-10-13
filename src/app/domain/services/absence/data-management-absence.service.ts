@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   Absence,
   AbsenceFilter,
@@ -22,6 +23,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 export class DataManagementAbsenceService implements ILoadable {
   public dataAbsenceService = inject(DataAbsenceService);
   private dataLoadFileService = inject(DataLoadFileService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     // Selbst-Registrierung für die absence Route
@@ -72,6 +74,7 @@ export class DataManagementAbsenceService implements ILoadable {
 
     this.dataAbsenceService
       .readTruncatedAbsence(this.currentFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x: TruncatedAbsence | undefined) => {
         if (x) {
           this.listWrapper = x;
@@ -104,5 +107,10 @@ export class DataManagementAbsenceService implements ILoadable {
   async updateAbsence(item: IAbsence, language: string): Promise<void> {
     await lastValueFrom(this.dataAbsenceService.updateAbsence(item));
     this.readPage(language);
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

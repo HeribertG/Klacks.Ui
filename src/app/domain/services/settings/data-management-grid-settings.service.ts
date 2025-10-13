@@ -2,12 +2,15 @@ import { inject, Injectable } from '@angular/core';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementGridSettingsService {
   public dataSettingsVariousService = inject(DataSettingsVariousService);
+  private destroy$ = new Subject<void>();
 
   public backgroundColorHoliday = '';
   public backgroundColor = '';
@@ -27,7 +30,7 @@ export class DataManagementGridSettingsService {
   private borderColorDummy = '';
 
   readSettingList() {
-    this.dataSettingsVariousService.readSettingList().subscribe((l) => {
+    this.dataSettingsVariousService.readSettingList().pipe(takeUntil(this.destroy$)).subscribe((l) => {
       if (l) {
         this.settingList = l as ISetting[];
         this.resetSetting();
@@ -123,12 +126,12 @@ export class DataManagementGridSettingsService {
       const c = this.settingList.find((x) => x.type === type);
       if (c) {
         c.value = value;
-        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {});
+        this.dataSettingsVariousService.updateSetting(c).pipe(takeUntil(this.destroy$)).subscribe(() => {});
       } else {
         const nc = new Setting();
         nc.value = value;
         nc.type = type;
-        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {});
+        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe(() => {});
       }
     }
   }
@@ -157,5 +160,10 @@ export class DataManagementGridSettingsService {
     }
 
     return false;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

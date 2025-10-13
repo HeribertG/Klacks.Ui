@@ -7,7 +7,8 @@ import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
@@ -34,6 +35,7 @@ export class DataManagementContractService {
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
+  private destroy$ = new Subject<void>();
 
   constructor() {}
 
@@ -97,9 +99,11 @@ export class DataManagementContractService {
     await this.readContracts();
     await this.loadCalendarSelections();
 
-    this.translate.onLangChange.subscribe(() => {
-      this.updateEmptyPlaceholder();
-    });
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateEmptyPlaceholder();
+      });
   }
 
   private async loadCalendarSelections(): Promise<void> {
@@ -572,4 +576,9 @@ export class DataManagementContractService {
   }
 
   /* #endregion   Utility methods */
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

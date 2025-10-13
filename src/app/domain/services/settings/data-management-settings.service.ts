@@ -9,6 +9,8 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   IAuthentication,
   ChangePassword,
@@ -39,6 +41,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   public dataMacroService = inject(DataMacroService);
   private eventBus = inject(EventBus);
   public gridColorService = inject(GridColorService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     effect(() => {
@@ -133,17 +136,19 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   /* #region  UserAdministration */
 
   readAccountsList() {
-    this.userAdministrationService.readAccountsList().subscribe((x) => {
-      if (x) {
-        this.accountsList = x as IAuthentication[];
-        this.accountsList.sort(compare);
-        function compare(a: IAuthentication, b: IAuthentication) {
-          const tmpa = a.lastName + ' ' + a.firstName;
-          const tmpb = b.lastName + ' ' + b.firstName;
-          return tmpa.localeCompare(tmpb);
+    this.userAdministrationService.readAccountsList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        if (x) {
+          this.accountsList = x as IAuthentication[];
+          this.accountsList.sort(compare);
+          function compare(a: IAuthentication, b: IAuthentication) {
+            const tmpa = a.lastName + ' ' + a.firstName;
+            const tmpb = b.lastName + ' ' + b.firstName;
+            return tmpa.localeCompare(tmpb);
+          }
         }
-      }
-    });
+      });
   }
 
   private countActionAccount(action: boolean) {
@@ -160,7 +165,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   addAccount(value: IAuthentication) {
-    this.userAdministrationService.addAccount(value).subscribe({
+    this.userAdministrationService.addAccount(value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: (x) => {
         if (x && x.id) {
           this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'REGISTER' });
@@ -179,6 +186,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
           this.userAdministrationService
             .requestPasswordReset(value.email!)
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: () => {
                 this.eventBus.emit(DomainEventType.INFO, {
@@ -215,7 +223,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   deleteAccount(id: string) {
-    this.userAdministrationService.deleteAccount(id).subscribe(() => {
+    this.userAdministrationService.deleteAccount(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.readAccountsList();
     });
   }
@@ -237,7 +247,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     c.roleName = 'Admin';
     c.isSelected = value.isAdmin;
 
-    this.userAdministrationService.changeRole(c).subscribe((x) => {
+    this.userAdministrationService.changeRole(c)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
       if (x) {
         this.countActionAccount(false);
       }
@@ -252,13 +264,17 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     c.roleName = 'Authorised';
     c.isSelected = value.isAuthorised;
 
-    this.userAdministrationService.changeRole(c).subscribe(() => {
+    this.userAdministrationService.changeRole(c)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
       this.countActionAccount(false);
     });
   }
 
   sentPassword(value: ChangePassword) {
-    this.userAdministrationService.ChangePassword(value).subscribe((x) => {
+    this.userAdministrationService.ChangePassword(value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
       if (x.success === true) {
         this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'REGISTER_SEND_PASSWORD' });
       } else {
@@ -268,7 +284,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   requestPasswordReset(email: string) {
-    this.userAdministrationService.requestPasswordReset(email).subscribe({
+    this.userAdministrationService.requestPasswordReset(email)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.eventBus.emit(DomainEventType.INFO, { message: '', context: 'PASSWORD_RESET_EMAIL_SENT' });
       },
@@ -294,7 +312,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   readSettingList() {
-    this.dataSettingsVariousService.readSettingList().subscribe((l) => {
+    this.dataSettingsVariousService.readSettingList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((l) => {
       if (l) {
         this.settingList = l as ISetting[];
         this.resetSetting();
@@ -558,7 +578,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       if (c) {
         this.countSettings(true);
         c.value = value;
-        this.dataSettingsVariousService.updateSetting(c).subscribe(() => {
+        this.dataSettingsVariousService.updateSetting(c)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
           this.countSettings(false);
         });
       } else {
@@ -566,7 +588,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         nc.value = value;
         nc.type = type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
+        this.dataSettingsVariousService.addSetting(nc)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
           this.countSettings(false);
         });
       }
@@ -648,7 +672,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   /* #region   countries */
 
   readCountryList() {
-    this.dataCountryStateService.getCountryList().subscribe((x) => {
+    this.dataCountryStateService.getCountryList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
       if (x) {
         this.countriesList = x as ICountry[];
         this.countriesListDummy = cloneObject<ICountry[]>(this.countriesList);
@@ -678,14 +704,18 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!).subscribe(() => {
-          this.countActionCountry(false);
-        });
+        this.dataCountryStateService.deleteCountry(x.id!)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionCountry(false);
+          });
       } else if (x.isDirty === 3) {
         this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!).subscribe(() => {
-          this.countActionCountry(false);
-        });
+        this.dataCountryStateService.deleteCountry(x.id!)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionCountry(false);
+          });
       } else if (
         !this.emptyPlaceholder(x.name!) &&
         x.isDirty &&
@@ -693,18 +723,22 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       ) {
         delete x.id;
         this.countActionCountry(true);
-        this.dataCountryStateService.addCountry(x).subscribe(() => {
-          this.countActionCountry(false);
-        });
+        this.dataCountryStateService.addCountry(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionCountry(false);
+          });
       } else if (
         this.emptyPlaceholder(x.name!) &&
         x.isDirty &&
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionCountry(true);
-        this.dataCountryStateService.updateCountry(x).subscribe(() => {
-          this.countActionCountry(false);
-        });
+        this.dataCountryStateService.updateCountry(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionCountry(false);
+          });
       }
     });
   }
@@ -738,7 +772,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   /* #region   states*/
 
   readStateList() {
-    this.dataCountryStateService.GetStateList().subscribe((x: IState[]) => {
+    this.dataCountryStateService.GetStateList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: IState[]) => {
       if (x) {
         this.statesList = x as IState[];
         this.statesListDummy = cloneObject<IState[]>(this.statesList);
@@ -768,14 +804,18 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!).subscribe(() => {
-          this.countActionState(false);
-        });
+        this.dataCountryStateService.deleteState(x.id!)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionState(false);
+          });
       } else if (x.isDirty === 3) {
         this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!).subscribe(() => {
-          this.countActionState(false);
-        });
+        this.dataCountryStateService.deleteState(x.id!)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionState(false);
+          });
       } else if (
         !this.emptyPlaceholder(x.name!) &&
         x.isDirty &&
@@ -783,18 +823,22 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       ) {
         delete x.id;
         this.countActionState(true);
-        this.dataCountryStateService.addState(x).subscribe(() => {
-          this.countActionState(false);
-        });
+        this.dataCountryStateService.addState(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionState(false);
+          });
       } else if (
         this.emptyPlaceholder(x.name!) &&
         x.isDirty &&
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionState(true);
-        this.dataCountryStateService.updateCountry(x).subscribe(() => {
-          this.countActionState(false);
-        });
+        this.dataCountryStateService.updateCountry(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionState(false);
+          });
       }
     });
   }
@@ -828,7 +872,9 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   /* #region  Macros */
 
   readMacroList() {
-    this.dataMacroService.readMacroList().subscribe((x) => {
+    this.dataMacroService.readMacroList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
       if (x) {
         this.macroList = x as IMacro[];
         if (this.macroList.length > 1) {
@@ -888,16 +934,20 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       ) {
         if (x.id) {
           this.countActionMacro(true);
-          this.dataMacroService.deleteMacro(x.id).subscribe(() => {
-            this.countActionMacro(false);
-          });
+          this.dataMacroService.deleteMacro(x.id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+              this.countActionMacro(false);
+            });
         }
       } else if (x.isDirty === CreateEntriesEnum.delete) {
         if (x.id) {
           this.countActionMacro(true);
-          this.dataMacroService.deleteMacro(x.id).subscribe(() => {
-            this.countActionMacro(false);
-          });
+          this.dataMacroService.deleteMacro(x.id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(() => {
+              this.countActionMacro(false);
+            });
         }
       } else if (
         x.name &&
@@ -907,9 +957,11 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       ) {
         delete x.id;
         this.countActionMacro(true);
-        this.dataMacroService.addMacro(x).subscribe(() => {
-          this.countActionMacro(false);
-        });
+        this.dataMacroService.addMacro(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionMacro(false);
+          });
       } else if (
         x.name &&
         x.name !== '' &&
@@ -917,9 +969,11 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         x.isDirty === CreateEntriesEnum.rewrite
       ) {
         this.countActionMacro(true);
-        this.dataMacroService.updateMacro(x).subscribe(() => {
-          this.countActionMacro(false);
-        });
+        this.dataMacroService.updateMacro(x)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(() => {
+            this.countActionMacro(false);
+          });
       }
     });
   }
@@ -1096,5 +1150,10 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     }
 
     return errorKey;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
