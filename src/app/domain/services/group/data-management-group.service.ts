@@ -305,7 +305,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     this._showProgressSpinner.set(false);
   }
 
-  prepareGroup(value: IGroup, withoutUpdateDummy = false) {
+  prepareGroup(value: IGroup) {
     this.setDateStruc(value);
     if (value == null) {
       return;
@@ -315,9 +315,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
     this.sortGroupItems();
 
-    if (!withoutUpdateDummy) {
-      this.editGroupDummy = cloneObject<IGroup>(this.editGroup);
-    }
+    this.editGroupDummy = cloneObject<IGroup>(this.editGroup);
 
     if (this.editGroup.id) {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
@@ -330,7 +328,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     }, 200);
   }
 
-  saveEditGroup(withoutUpdateDummy = false) {
+  saveEditGroup() {
     if (this.editGroup) {
       const action = this.editGroup.id
         ? this.dataGroupService.updateGroup(this.editGroup)
@@ -338,7 +336,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
       action.subscribe({
         next: (x) => {
-          this.prepareGroup(x, withoutUpdateDummy);
+          this.readGroup(x.id!);
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
