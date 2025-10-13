@@ -48,7 +48,7 @@ function isNavigable(manager: any): manager is INavigable {
   providedIn: 'root',
 })
 export class WorkplaceStateService implements IEntityStateProvider {
-  private spinnerService = inject(SpinnerService as { new (...args: any[]): ILoadingIndicator });
+  private spinnerService = inject(SpinnerService as new (...args: any[]) => ILoadingIndicator);
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
   public activeManager = signal<ILoadable | null>(null);

@@ -210,13 +210,7 @@ export function compareComplexObjects(
     arr2: any[],
     listExcludedObject?: string[]
   ): boolean {
-    // Helper function to log mismatches
-    function logMismatch(reason: string, index?: number) {
-      // console.info(
-      //   `Array mismatch: ${reason}${
-      //     index !== undefined ? ` at index ${index}` : ''
-      //   }`
-      // );
+    function logMismatch(_reason: string, _index?: number) {
       return false;
     }
 

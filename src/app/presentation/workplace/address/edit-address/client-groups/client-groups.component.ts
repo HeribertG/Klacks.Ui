@@ -17,10 +17,9 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group-class';
-import { IClientGroupItem } from 'src/app/domain/models/client-group-item-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';

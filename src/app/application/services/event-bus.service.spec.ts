@@ -150,7 +150,7 @@ describe('EventBus', () => {
     it('should not emit to completed subscribers', (done) => {
       let receivedCount = 0;
 
-      const subscription = service.on('TEST_EVENT').pipe(take(1)).subscribe(() => {
+      service.on('TEST_EVENT').pipe(take(1)).subscribe(() => {
         receivedCount++;
       });
 

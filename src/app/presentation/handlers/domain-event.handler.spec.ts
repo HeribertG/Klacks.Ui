@@ -11,8 +11,6 @@ import {
 describe('DomainEventHandler', () => {
   let handler: DomainEventHandler;
   let mockEventBus: jasmine.SpyObj<EventBus>;
-  let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockRouter: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
     const eventBusSpy = jasmine.createSpyObj('EventBus', ['on', 'emit']);
@@ -35,8 +33,6 @@ describe('DomainEventHandler', () => {
     });
 
     mockEventBus = TestBed.inject(EventBus) as jasmine.SpyObj<EventBus>;
-    mockToastService = TestBed.inject(ToastShowService) as jasmine.SpyObj<ToastShowService>;
-    mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
 
   it('should be created', () => {

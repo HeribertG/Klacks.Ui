@@ -10,7 +10,7 @@ import { DataManagementScheduleService } from '../schedule/data-management-sched
   providedIn: 'root',
 })
 export class GroupSelectionService {
-  private dataManagementSwitchboard = inject(WorkplaceStateService as { new (...args: any[]): IEntityStateProvider });
+  private dataManagementSwitchboard = inject(WorkplaceStateService as new (...args: unknown[]) => IEntityStateProvider);
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementScheduleService = inject(DataManagementScheduleService);
 

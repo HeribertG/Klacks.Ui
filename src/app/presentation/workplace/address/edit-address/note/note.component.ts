@@ -1,10 +1,10 @@
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { IAnnotation } from 'src/app/domain/models/client-class';
 import {
   AfterViewInit,
   Component,
-  computed,
   effect,
   EventEmitter,
   inject,
@@ -59,7 +59,7 @@ export class NoteComponent implements OnInit, AfterViewInit {
   private injector = inject(Injector);
   private isInitializing = false;
 
-  public sortedAnnotations: any[] = [];
+  public sortedAnnotations: IAnnotation[] = [];
 
   ngOnInit(): void {
     this.note_new = MessageLibrary.NOTE_NEW;

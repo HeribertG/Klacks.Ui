@@ -63,6 +63,16 @@ export class GroupSelectComponent
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+
+  /**
+   * Controls whether this component operates in global or local mode:
+   *
+   * - Global mode (true): Used in the header for filtering across pages (ABSENCE/SCHEDULE).
+   *   Selection is synchronized with GroupSelectionService and visibility is entity-dependent.
+   *
+   * - Local mode (false): Used in tables for local data selection (e.g., Client-Groups).
+   *   Selection is independent, always visible, and doesn't sync with global state.
+   */
   @Input() useGlobalSelection = true;
 
   // @Output() properties
@@ -99,6 +109,8 @@ export class GroupSelectComponent
   ngOnInit(): void {
     this.dataManagementGroupService.init();
     this.dataManagementGroupService.initTree();
+
+    this.isVisible = this.isComponentVisible();
 
     this.readSignals();
     if (this.useGlobalSelection) {
@@ -368,10 +380,13 @@ export class GroupSelectComponent
   }
 
   private isComponentVisible(): boolean {
+    if (!this.useGlobalSelection) {
+      return true;
+    }
+
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
-      case EntityName.CLIENT_EDIT:
         return true;
     }
 

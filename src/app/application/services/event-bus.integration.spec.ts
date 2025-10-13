@@ -14,7 +14,6 @@ import {
 
 describe('EventBus Integration Tests', () => {
   let eventBus: EventBus;
-  let domainEventHandler: DomainEventHandler;
   let mockToastService: jasmine.SpyObj<ToastShowService>;
   let mockRouter: jasmine.SpyObj<Router>;
 
@@ -36,7 +35,7 @@ describe('EventBus Integration Tests', () => {
     });
 
     eventBus = TestBed.inject(EventBus);
-    domainEventHandler = TestBed.inject(DomainEventHandler);
+    TestBed.inject(DomainEventHandler);
     mockToastService = TestBed.inject(ToastShowService) as jasmine.SpyObj<ToastShowService>;
     mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
   });
@@ -253,7 +252,7 @@ describe('EventBus Integration Tests', () => {
             this.eventBus.emit(DomainEventType.NAVIGATE, {
               route: '/success-page',
             });
-          } catch (error) {
+          } catch {
             this.eventBus.emit(DomainEventType.ERROR, {
               message: 'Failed to save data',
               code: 'SAVE_ERROR',

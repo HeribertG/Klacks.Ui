@@ -7,6 +7,8 @@ import {
   GanttDrawingConfig,
 } from './gantt-pdf-drawing.service';
 import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { signal } from '@angular/core';
 
 describe('GanttPdfDrawingService', () => {
   let service: GanttPdfDrawingService;
@@ -18,10 +20,15 @@ describe('GanttPdfDrawingService', () => {
     const translateSpy = jasmine.createSpyObj('TranslateService', ['instant']);
     translateSpy.instant.and.returnValue('Translated');
 
+    const absenceGanttSpy = jasmine.createSpyObj('DataManagementAbsenceGanttService', [], {
+      absenceList: signal([])
+    });
+
     TestBed.configureTestingModule({
       providers: [
         GanttPdfDrawingService,
         { provide: TranslateService, useValue: translateSpy },
+        { provide: DataManagementAbsenceGanttService, useValue: absenceGanttSpy },
       ],
     });
 
