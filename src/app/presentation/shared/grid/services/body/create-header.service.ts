@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enums/gradient-3d-border-style';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
@@ -10,7 +10,7 @@ import {
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 

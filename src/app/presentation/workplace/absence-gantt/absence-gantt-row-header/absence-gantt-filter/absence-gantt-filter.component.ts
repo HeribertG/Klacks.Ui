@@ -4,7 +4,7 @@ import {
   HeaderDirection,
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { IconAscComponent } from 'src/app/presentation/icons/icon-asc.component';
 import { IconDescComponent } from 'src/app/presentation/icons/icon-desc.component';
 

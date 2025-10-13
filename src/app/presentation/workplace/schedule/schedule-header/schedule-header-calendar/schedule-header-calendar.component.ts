@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
-import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';

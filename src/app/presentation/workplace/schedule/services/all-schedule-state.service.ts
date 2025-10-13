@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DataManagementScheduleService } from 'src/app/domain/services/data-management-schedule.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IWorkFilter } from 'src/app/domain/models/schedule-class';

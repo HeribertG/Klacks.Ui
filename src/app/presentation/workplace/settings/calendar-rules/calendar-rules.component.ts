@@ -33,7 +33,7 @@ import {
   IMultiLanguage,
   MultiLanguage,
 } from 'src/app/domain/models/multi-language-class';
-import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
+import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
@@ -139,9 +139,11 @@ export class CalendarRulesComponent
     this.dataManagementCalendarRulesService.init();
     this.currentLang = this.translate.currentLang as Language;
 
-    this.translate.get('setting.holiday-rules.filter-states').subscribe((x) => {
-      this.headerCalendarDropdown = x;
-    });
+    this.translate.get('setting.holiday-rules.filter-states')
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe((x) => {
+        this.headerCalendarDropdown = x;
+      });
 
     this.holidaysListHelper.currentYear = new Date().getFullYear();
     this.reReadSortData();
@@ -156,6 +158,7 @@ export class CalendarRulesComponent
 
         this.translate
           .get('setting.holiday-rules.filter-states')
+          .pipe(takeUntil(this.ngUnsubscribe))
           .subscribe((x) => {
             this.headerCalendarDropdown = x;
           });

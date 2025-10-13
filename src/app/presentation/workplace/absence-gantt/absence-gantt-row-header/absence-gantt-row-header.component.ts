@@ -14,11 +14,11 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
-import { Size } from 'src/app/presentation/shared/grid/classes/geometry';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { Size } from 'src/app/domain/helpers/geometry';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
@@ -266,19 +266,17 @@ export class AbsenceGanttRowHeaderComponent
       this.effects.push(effect1);
 
       const effect2 = effect(() => {
-        const isReset = this.gridColorService.isReset();
+        const isReset = this.gridColorService.isReset;
         if (isReset) {
           this.onResize([]);
-          this.gridColorService.isReset.set(false);
         }
       });
       this.effects.push(effect2);
 
       const effect3 = effect(() => {
-        const isReset = this.gridFontsService.isReset();
+        const isReset = this.gridFontsService.isReset;
         if (isReset) {
           this.onResize([]);
-          this.gridFontsService.isReset.set(false); // Hier war ein Fehler - sollte gridFontsService sein, nicht gridColorService
         }
       });
       this.effects.push(effect3);

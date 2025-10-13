@@ -5,8 +5,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { of, throwError } from 'rxjs';
 
 import { LLMModelsComponent } from './llm-models.component';
-import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
-import { DataManagementLLMProviderService } from 'src/app/domain/services/data-management-llm-provider.service';
+import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
+import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';

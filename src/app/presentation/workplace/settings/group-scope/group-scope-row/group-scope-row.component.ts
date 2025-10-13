@@ -4,6 +4,7 @@ import {
   Component,
   inject,
   Input,
+  OnDestroy,
   OnInit,
   ViewChild,
   effect,
@@ -16,7 +17,9 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 import { IGroupVisibility, GroupVisibility } from 'src/app/domain/models/group-class';
-import { DataManagementGroupVisibilityService } from 'src/app/domain/services/data-management-group-visibility.service';
+import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-scope-row',
@@ -25,7 +28,7 @@ import { DataManagementGroupVisibilityService } from 'src/app/domain/services/da
   styleUrl: './group-scope-row.component.scss',
   standalone: true,
 })
-export class GroupScopeRowComponent implements OnInit, OnChanges {
+export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild(NgForm, { static: false }) groupForm: NgForm | undefined;
   @Input() user: IAuthentication | undefined;
 
@@ -35,6 +38,7 @@ export class GroupScopeRowComponent implements OnInit, OnChanges {
     DataManagementGroupVisibilityService
   );
   private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
   private userSignal = signal<IAuthentication | undefined>(undefined);
 
@@ -146,6 +150,7 @@ export class GroupScopeRowComponent implements OnInit, OnChanges {
 
     this.dataManagementGroupVisibilityService
       .saveGroupVisibilities(updatedVisibilities)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           console.log('Group visibilities saved successfully');
@@ -160,5 +165,10 @@ export class GroupScopeRowComponent implements OnInit, OnChanges {
           this.loadUserGroups();
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

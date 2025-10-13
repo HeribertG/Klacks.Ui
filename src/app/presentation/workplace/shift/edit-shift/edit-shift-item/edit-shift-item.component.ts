@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
@@ -173,7 +173,7 @@ export class EditShiftItemComponent
         this.effects.push(effect1);
 
         const effect2 = effect(() => {
-          const isReset = this.dataManagementShiftService.isReset();
+          const isReset = this.dataManagementShiftService.isReset;
           if (isReset) {
             setTimeout(() => this.isChangingEvent.emit(false), 100);
           }

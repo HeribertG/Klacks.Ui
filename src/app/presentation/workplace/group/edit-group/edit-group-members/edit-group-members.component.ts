@@ -8,6 +8,7 @@ import {
   HostListener,
   inject,
   LOCALE_ID,
+  OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
@@ -20,14 +21,16 @@ import {
   HeaderProperties,
 } from 'src/app/domain/models/headerProperties';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
-import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-edit-group-members',
@@ -42,7 +45,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
     ExpandableCardComponent,
   ],
 })
-export class EditGroupMembersComponent implements OnInit, AfterViewInit {
+export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastShowService = inject(ToastShowService);
@@ -50,6 +53,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);
+  private destroy$ = new Subject<void>();
 
   @Output() isChangingEvent = new EventEmitter();
   @Output() isEnterEvent = new EventEmitter();
@@ -165,6 +169,7 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
 
     this.dataClientService
       .readClientList(this.dataManagementGroupService.currentClientFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         this.result = x.clients;
 
@@ -175,6 +180,11 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit {
             this.selectedClientName = this.visualName(this.result[0]);
         }
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private visualName(value: IClient): string {

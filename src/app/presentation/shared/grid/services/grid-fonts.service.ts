@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
-import { ConstantKeys } from '../constants/constants';
+import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { PixelToPtService } from './pixel-to-pt.service';
 import { Subject } from 'rxjs';
 
@@ -13,7 +13,8 @@ export class GridFontsService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private pixelToPt = inject(PixelToPtService);
 
-  public isReset = signal(false);
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isChangingEvent = new Subject<boolean>();
 
   public settingList: ISetting[] = [];
@@ -207,9 +208,9 @@ export class GridFontsService {
 
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
-        this.isReset.set(true);
+        this._isReset.set(true);
         this.isChangingEvent.next(false);
-        setTimeout(() => this.isReset.set(false), 100);
+        setTimeout(() => this._isReset.set(false), 100);
       }
     });
   }

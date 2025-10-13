@@ -1,13 +1,13 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { Rectangle } from '../../../shared/grid/classes/geometry';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
 import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IBreak } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { GridColorService } from '../../../shared/grid/services/grid-color.service';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { Subject } from 'rxjs';

@@ -11,7 +11,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { catchError } from 'rxjs/operators';
-import { WorkplaceStateService } from '../workplace/core/workplace-state.service';
+import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { ToastShowService } from '../toast/toast-show.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 

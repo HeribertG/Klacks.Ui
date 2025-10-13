@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { GridColorService } from './grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Injectable({
   providedIn: 'root',

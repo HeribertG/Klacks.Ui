@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
 import { NavIconColorService } from 'src/app/presentation/services/nav-icon-color.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-icon-user',
   styleUrls: ['./icon.scss'],
   template: ` <svg
@@ -52,12 +53,18 @@ import { NavIconColorService } from 'src/app/presentation/services/nav-icon-colo
 })
 export class IconUserComponent {
   private navIconColorService = inject(NavIconColorService);
+  private cdr = inject(ChangeDetectorRef);
 
-  public currentColor = this.navIconColorService.iconStandartColor;
+  private isSelected = false;
 
-  public ChangeColor(isSelected = false): void {
-    this.currentColor = isSelected
+  get currentColor(): string {
+    return this.isSelected
       ? this.navIconColorService.iconSelectionColor
       : this.navIconColorService.iconStandartColor;
+  }
+
+  public ChangeColor(isSelected = false): void {
+    this.isSelected = isSelected;
+    this.cdr.markForCheck();
   }
 }

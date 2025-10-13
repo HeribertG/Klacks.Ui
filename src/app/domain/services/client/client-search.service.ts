@@ -3,12 +3,15 @@ import { inject, Injectable, signal } from '@angular/core';
 import { IClient } from 'src/app/domain/models/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientSearchService {
   private dataClientService = inject(DataClientService);
+  private destroy$ = new Subject<void>();
 
   public findClient = signal<IClient[]>([]);
   public sortedFindClient = signal<IClient[]>([]);
@@ -34,6 +37,7 @@ export class ClientSearchService {
 
         this.dataClientService
           .findClient(company, name, firstName)
+          .pipe(takeUntil(this.destroy$))
           .subscribe((x) => {
             this.doSortFindClient(x);
           });
@@ -122,5 +126,10 @@ export class ClientSearchService {
 
   public isResetPossible(): boolean {
     return this.backupFindClient !== undefined;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

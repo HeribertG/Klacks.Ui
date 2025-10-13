@@ -598,7 +598,7 @@ export class AddressPersonaComponent
       this.effects.push(effect1);
 
       const effect2 = effect(() => {
-        const isReset = this.dataManagementClientService.isReset();
+        const isReset = this.dataManagementClientService.isReset;
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }

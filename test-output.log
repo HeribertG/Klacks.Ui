@@ -1,5 +1,0 @@
-
-> klacks.ui@0.0.0 test
-> ng test --watch=false && node open-test-report.js
-
-- Generating browser application bundles (phase: setup)...

@@ -7,7 +7,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { GridColorHeaderComponent } from './grid-color-header/grid-color-header.component';
 import { GridColorRowComponent } from './grid-color-row/grid-color-row.component';
 
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-grid-color',

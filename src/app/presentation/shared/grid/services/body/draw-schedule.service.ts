@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/presentation/shared/grid/classes/geometry';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { BaseCanvasManagerService } from './canvas-manager.service';
 import { BaseCellRenderService } from './cell-render.service';

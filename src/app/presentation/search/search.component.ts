@@ -13,7 +13,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { SearchStrategyService } from './search-strategy.service';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { SearchService } from 'src/app/application/services/search.service';
 

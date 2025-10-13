@@ -16,7 +16,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
-import { DataManagementContractService } from 'src/app/domain/services/data-management-contract.service';
+import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';

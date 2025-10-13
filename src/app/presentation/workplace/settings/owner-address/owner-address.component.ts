@@ -14,7 +14,7 @@ import {
   Injector,
 } from '@angular/core';
 import { Subject } from 'rxjs';
-import { DataManagementSettingsService } from 'src/app/domain/services/data-management-settings.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -79,7 +79,7 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const resetEffect = effect(() => {
-        const isReset = this.dataManagementSettingsService.isReset();
+        const isReset = this.dataManagementSettingsService.isReset;
         if (isReset) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }

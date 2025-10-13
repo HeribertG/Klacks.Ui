@@ -6,8 +6,9 @@ import {
   IPostCodeCH,
 } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
@@ -16,7 +17,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 })
 export class AddressService {
   private dataCountryStateService = inject(DataCountryStateService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
 
   public maxAddressType = 3;
 
@@ -52,10 +53,10 @@ export class AddressService {
             resolve({ address, lastCountries, stateList });
           })
           .catch(() => {
-            this.toastShowService.showInfo(
-              MessageLibrary.ZIP_NOT_VALID,
-              'ZIP_NOT_VALID'
-            );
+            this.eventBus.emit(DomainEventType.INFO, {
+              message: DomainMessages.ZIP_NOT_VALID,
+              context: 'AddressService.writeCity'
+            });
             reject();
           });
       } else {

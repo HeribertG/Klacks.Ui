@@ -19,7 +19,7 @@ import { AllAbsenceStateService } from '../services/all-absence-state.service';
 import { CalendarSettingService } from '../services/calendar-setting.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 
 @Component({
   selector: 'app-absence-gantt-home',

@@ -6,6 +6,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   EffectRef,
   Injector,
   runInInjectionContext,
@@ -102,20 +103,19 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   private setupEffects(): void {
-    runInInjectionContext(this.injector, () => {});
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        this.currentTheme.set(this.themeService.theme());
+      });
+    });
   }
 
   private setupRxJSSubscriptions(): void {
-    this.themeService.theme$
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe((theme) => {
-        this.currentTheme.set(theme);
-      });
+    // No longer needed - using signals effect instead
   }
 
   private initializeTheme(): void {
-    const currentTheme = this.themeService.getCurrentTheme();
-    this.currentTheme.set(currentTheme);
+    // Initialization is handled by effect
   }
 
   private initializeAuthState(): void {

@@ -9,53 +9,59 @@ import {
   ExportClient,
   IClientAttribute,
 } from 'src/app/domain/models/client-class';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { IPaginationDataService } from 'src/app/presentation/shared/pagination/pagination.component';
-import { Observable } from 'rxjs';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientListService {
   private dataClientService = inject(DataClientService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
+  private destroy$ = new Subject<void>();
 
   public listWrapper = signal<ITruncatedClient | undefined>(undefined);
   public paginationDataService = signal<IPaginationDataService | undefined>(
     undefined
   );
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public checkedArray = signal<CheckBoxValue[]>([]);
   public headerCheckBoxValue = signal(false);
 
   public readPage(currentFilter: Filter, clientAttribute: IClientAttribute[]) {
     if (currentFilter.isFilterValid()) {
-      this.showProgressSpinner.set(true);
-      this.dataClientService.readClientList(currentFilter).subscribe({
-        next: (x) => {
-          if (!x || !x.clients) {
-            console.warn('readPage: Empty or invalid response received');
-            this.showProgressSpinner.set(false);
-            return;
-          }
-
-          x.clients.forEach((z: IClient) => {
-            if (z) {
-              const res = clientAttribute.find((y) => +y.type === +z.type);
-              if (res) {
-                z.typeAbbreviation = res.name.substring(0, 1);
-              }
+      this._showProgressSpinner.set(true);
+      this.dataClientService.readClientList(currentFilter)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (x) => {
+            if (!x || !x.clients) {
+              console.warn('readPage: Empty or invalid response received');
+              this._showProgressSpinner.set(false);
+              return;
             }
-          });
 
-          this.updateListWrapper(x, currentFilter);
-        },
-        error: (err) => {
-          console.error('Error reading client list:', err);
-          this.showProgressSpinner.set(false);
-        },
-      });
+            x.clients.forEach((z: IClient) => {
+              if (z) {
+                const res = clientAttribute.find((y) => +y.type === +z.type);
+                if (res) {
+                  z.typeAbbreviation = res.name.substring(0, 1);
+                }
+              }
+            });
+
+            this.updateListWrapper(x, currentFilter);
+          },
+          error: (err) => {
+            console.error('Error reading client list:', err);
+            this._showProgressSpinner.set(false);
+          },
+        });
     }
   }
 
@@ -67,7 +73,7 @@ export class ClientListService {
       maxPages: x.maxPages,
     });
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   public deleteClient(key: string): Observable<IClient> {
@@ -90,10 +96,10 @@ export class ClientListService {
       return filter.selection.push(x.id);
     });
 
-    this.toastShowService.showInfo(
-      MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
-      'PLEASE_BE_PATIENT_EXCEL'
-    );
+    this.eventBus.emit(DomainEventType.INFO, {
+      message: DomainMessages.PLEASE_BE_PATIENT_EXCEL,
+      context: 'PLEASE_BE_PATIENT_EXCEL'
+    });
   }
 
   public clearCheckedArray() {
@@ -126,5 +132,10 @@ export class ClientListService {
     }
 
     return false;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

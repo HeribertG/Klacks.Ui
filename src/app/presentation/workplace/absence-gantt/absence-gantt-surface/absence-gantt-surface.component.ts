@@ -29,12 +29,12 @@ import {
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { GridColorService } from 'src/app/presentation/shared/grid/services/grid-color.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { DataManagementBreakService } from 'src/app/domain/services/data-management-break.service';
-import { DataManagementAbsenceGanttService } from 'src/app/domain/services/data-management-absence-gantt.service';
+import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
@@ -42,7 +42,7 @@ import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-m
 import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { MenuDataTemplate } from 'src/app/application/helpers/context-menu-data-template';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import {
   Menu,
   MenuItem,
@@ -1060,21 +1060,21 @@ export class AbsenceGanttSurfaceComponent
       this.effects.push(effect1);
 
       const effect2 = effect(() => {
-        if (this.gridColors.isReset()) {
+        if (this.gridColors.isReset) {
           this.addServicesCount();
         }
       });
       this.effects.push(effect2);
 
       const effect3 = effect(() => {
-        if (this.gridFonts.isReset()) {
+        if (this.gridFonts.isReset) {
           this.addServicesCount();
         }
       });
       this.effects.push(effect3);
 
       const effect4 = effect(() => {
-        if (this.holidayCollection.isReset()) {
+        if (this.holidayCollection.isReset) {
           this.drawCalendarGantt.selectedRow = -1;
           this.drawCalendarGantt.updateStartDate =
             this.holidayCollection.currentYear;

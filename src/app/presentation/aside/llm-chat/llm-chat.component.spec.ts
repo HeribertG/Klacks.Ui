@@ -15,7 +15,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { LLMChatComponent } from './llm-chat.component';
-import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
+import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
@@ -86,7 +86,7 @@ describe('LLMChatComponent', () => {
         'setLanguage',
       ],
       {
-        isSupported$: new BehaviorSubject(true),
+        isSupported$: jasmine.createSpy('isSupported$').and.returnValue(true),
         errors: new BehaviorSubject(''),
       }
     );

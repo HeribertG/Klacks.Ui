@@ -17,17 +17,15 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DataManagementShiftService } from 'src/app/domain/services/data-management-shift.service';
-import { DataManagementShiftCutService } from 'src/app/domain/services/data-management-shift-cut.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/domain/models/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import {
-  PaginationComponent,
-  IPaginationDataService,
-} from 'src/app/presentation/shared/pagination/pagination.component';
+import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
+import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';

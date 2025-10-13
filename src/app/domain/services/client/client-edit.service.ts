@@ -17,33 +17,36 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/domain/helpers/format-helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { ClientConfigService } from './client-config.service';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientEditService {
   private dataClientService = inject(DataClientService);
-  private navigationService = inject(NavigationService);
   private addressService = inject(AddressService);
   private communicationService = inject(CommunicationService);
   private clientContractService = inject(ClientContractService);
   private clientGroupItemService = inject(ClientGroupItemService);
   private clientConfigService = inject(ClientConfigService);
-  private toastShowService = inject(ToastShowService);
+  private eventBus = inject(EventBus);
   private translateService = inject(TranslateService);
+  private destroy$ = new Subject<void>();
 
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
 
-  public showProgressSpinner = signal(false);
+  private _showProgressSpinner = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
   public lastSaveError = signal<boolean>(false);
   public lastSaveErrorMessage = signal<string>('');
@@ -75,7 +78,7 @@ export class ClientEditService {
       setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
     }
 
-    this.showProgressSpinner.set(false);
+    this._showProgressSpinner.set(false);
   }
 
   public refreshClientState() {
@@ -99,17 +102,17 @@ export class ClientEditService {
 
   public readClient(id: string) {
     if (id !== '') {
-      this.showProgressSpinner.set(true);
-      this.dataClientService.getClient(id).subscribe((x) => {
+      this._showProgressSpinner.set(true);
+      this.dataClientService.getClient(id).pipe(takeUntil(this.destroy$)).subscribe((x) => {
         this.prepareClient(x);
-        this.navigationService.navigateToEditAddress(id);
+        this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
       });
     }
   }
 
   public createClient() {
-    this.showProgressSpinner.set(true);
-    this.dataClientService.countIdNumber().subscribe((x) => {
+    this._showProgressSpinner.set(true);
+    this.dataClientService.countIdNumber().pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const c = new Client();
       c.membership = new Membership();
       c.membership.validFrom = new Date();
@@ -119,8 +122,8 @@ export class ClientEditService {
       a.type = AddressTypeEnum.customer;
 
       this.prepareClient(c);
-      this.navigationService.navigateToEditAddress();
-      this.showProgressSpinner.set(false);
+      this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address' });
+      this._showProgressSpinner.set(false);
     });
   }
 
@@ -140,13 +143,13 @@ export class ClientEditService {
       ? this.dataClientService.updateClient(clientToSave)
       : this.dataClientService.addClient(clientToSave);
 
-    apiCall.subscribe({
+    apiCall.pipe(takeUntil(this.destroy$)).subscribe({
       next: (x) => {
         this.lastSaveError.set(false);
         this.lastSaveErrorMessage.set('');
 
         if (x.id) {
-          this.dataClientService.getClient(x.id).subscribe((refreshedClient) => {
+          this.dataClientService.getClient(x.id).pipe(takeUntil(this.destroy$)).subscribe((refreshedClient) => {
             this.prepareClient(refreshedClient);
             this.onSaveCompleted?.();
           });
@@ -155,7 +158,7 @@ export class ClientEditService {
       error: (error) => {
         console.error('Error saving client:', error);
         this.lastSaveError.set(true);
-        this.showProgressSpinner.set(false);
+        this._showProgressSpinner.set(false);
 
         let errorMessage = 'Fehler beim Speichern';
         const errorKeys: string[] = [];
@@ -189,7 +192,11 @@ export class ClientEditService {
         }
 
         this.lastSaveErrorMessage.set(errorMessage);
-        this.toastShowService.showError(errorMessage, 'client-save-error');
+        this.eventBus.emit(DomainEventType.ERROR, {
+          message: errorMessage,
+          code: 'client-save-error',
+          context: 'ClientEditService.saveEditClient'
+        });
       },
     });
   }
@@ -217,6 +224,7 @@ export class ClientEditService {
     if (this.editClient()?.id) {
       this.dataClientService
         .readClientAddressList(this.editClient()!.id!)
+        .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
           this.clientAddressListWithoutQueryFilter.set(x);
         });
@@ -397,5 +405,10 @@ export class ClientEditService {
     if (this.editClientDummy) {
       this.prepareClient(cloneObject<IClient>(this.editClientDummy));
     }
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -4,9 +4,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { signal } from '@angular/core';
 
 import { SimpleGroupSelectComponent } from './simple-group-select.component';
-import { DataManagementGroupService } from 'src/app/domain/services/data-management-group.service';
-import { GroupSelectionService } from 'src/app/domain/services/group-selection.service';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { Group } from 'src/app/domain/models/group-class';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';

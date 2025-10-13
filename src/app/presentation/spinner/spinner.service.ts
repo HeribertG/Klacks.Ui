@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
+import { ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SpinnerService {
+export class SpinnerService implements ILoadingIndicator {
   private _showProgressSpinner = false;
 
   get showProgressSpinner(): boolean {

@@ -7,13 +7,11 @@ import {
   HTTP_INTERCEPTORS,
   HttpClient,
   HttpErrorResponse,
-  HttpRequest,
 } from '@angular/common/http';
 import { TokenRefreshInterceptor } from './token-refresh.interceptor';
 import { AuthService } from './auth.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from '../services/navigation.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 describe('TokenRefreshInterceptor', () => {
   let httpClient: HttpClient;

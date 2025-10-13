@@ -6,7 +6,7 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { MultiLanguage } from './multi-language-class';
 
 export interface ICalendarRulesFilter extends IBaseFilter {
@@ -297,9 +297,7 @@ export class HolidaysListHelper {
   }
 
   formatDate(date: Date): string {
-    const currentDate = moment(date).format('DDD DD.MMM.YYYY');
-
-    return currentDate;
+    return format(date, 'd dd.MMM.yyyy');
   }
 
   public isHoliday(currentDate: Date): HolidayStatus {

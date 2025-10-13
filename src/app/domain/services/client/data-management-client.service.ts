@@ -10,8 +10,8 @@ import {
   ILoadable,
   IResettable,
   ISaveable,
-} from 'src/app/presentation/workplace/core/interfaces/common.interfaces';
-import { ManageableServiceRegistry } from 'src/app/presentation/workplace/core/manageable-service-registry';
+} from 'src/app/domain/interfaces/manageable.interface';
+import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';
@@ -19,12 +19,15 @@ import { ClientConfigService } from './client-config.service';
 import { ClientSearchService } from './client-search.service';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DateToString } from 'src/app/domain/helpers/format-helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { EventBus } from 'src/app/application/services/event-bus.service';
+import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +44,8 @@ export class DataManagementClientService
   public clientContractService = inject(ClientContractService);
   public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
-  private navigationService = inject(NavigationService);
+  private eventBus = inject(EventBus);
+  private destroy$ = new Subject<void>();
 
   public currentFilter: Filter = new Filter();
   public lastChangeFilter: Filter = new Filter();
@@ -94,12 +98,15 @@ export class DataManagementClientService
   public filteredStateList = signal<any[]>([]);
   public editClientLastMutation = signal('');
 
-  public showProgressSpinner = computed(
+  private _showProgressSpinner = computed(
     () =>
-      this.clientListService.showProgressSpinner() ||
-      this.clientEditService.showProgressSpinner()
+      this.clientListService.showProgressSpinner ||
+      this.clientEditService.showProgressSpinner
   );
-  public isReset = signal(false);
+  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+
+  private _isReset = signal(false);
+  get isReset(): boolean { return this._isReset(); }
   public isRead = signal(false);
   public initIsRead = this.clientConfigService.isInit;
 
@@ -290,9 +297,10 @@ export class DataManagementClientService
     return '/workplace/client';
   }
 
-  readChangeList(locale: string = MessageLibrary.DEFAULT_LANG) {
+  readChangeList(locale: string = DomainMessages.DEFAULT_LANG) {
     this.dataClientService
       .readChangeList(this.lastChangeFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         x.clients.forEach((z: IClient) => {
           const res = this.clientAttribute.find((y) => +y.type === +z.type);
@@ -309,19 +317,26 @@ export class DataManagementClientService
       });
   }
 
-  getLastChangeMetaData(locale: string = MessageLibrary.DEFAULT_LANG) {
-    this.dataClientService.getLastChangeMetaData().subscribe((x) => {
-      this.subTitleLastChangesAllAddress.set(
-        `${MessageLibrary.LAST_STATE} ${DateToString(
-          x.lastChangesDate,
-          locale
-        )}${MessageLibrary.EDITED_FROM} ${x.autor}`
-      );
-    });
+  getLastChangeMetaData(locale: string = DomainMessages.DEFAULT_LANG) {
+    this.dataClientService.getLastChangeMetaData()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.subTitleLastChangesAllAddress.set(
+          `${DomainMessages.LAST_STATE} ${DateToString(
+            x.lastChangesDate,
+            locale
+          )}${DomainMessages.EDITED_FROM} ${x.autor}`
+        );
+      });
   }
 
   showExternalClient(id: string) {
     this.clientEditService.readClient(id);
-    this.navigationService.navigateToEditAddress(id);
+    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

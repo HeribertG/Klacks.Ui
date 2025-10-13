@@ -24,7 +24,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementLLMService } from 'src/app/domain/services/data-management-llm.service';
+import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { SpeechRecognitionService } from './services/speech-recognition.service';
 import { Router } from '@angular/router';
@@ -210,7 +210,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async startVoiceInput(): Promise<void> {
-    if (this.isListening || !this.speechService.isSupported$.value) {
+    if (this.isListening || !this.speechService.isSupported$()) {
       return;
     }
 

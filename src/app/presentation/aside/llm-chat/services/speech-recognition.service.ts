@@ -1,8 +1,9 @@
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, inject } from '@angular/core';
-import { Observable, BehaviorSubject, Subject } from 'rxjs';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
 declare global {
@@ -23,15 +24,15 @@ export interface SpeechRecognitionResult {
 })
 export class SpeechRecognitionService {
   private recognition: any;
-  private isListening$ = new BehaviorSubject<boolean>(false);
-  private isSupportedSubject$ = new BehaviorSubject<boolean>(false);
+  public isListening = signal<boolean>(false);
+  public isSupported$ = signal<boolean>(false);
   private results$ = new Subject<string>();
   private errors$ = new Subject<string>();
   private languageMappingService = inject(LanguageMappingService);
 
   constructor() {
     this.initializeSpeechRecognition();
-    if (this.isSupportedSubject$.value) {
+    if (this.isSupported$()) {
       this.detectAvailableLanguages();
     }
   }
@@ -121,20 +122,20 @@ export class SpeechRecognitionService {
       /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
 
     if (!SpeechRecognition) {
-      this.isSupportedSubject$.next(false);
+      this.isSupported$.set(false);
       return;
     }
 
     // Check if we're in a secure context (HTTPS or localhost)
     if (!window.isSecureContext) {
-      this.isSupportedSubject$.next(false);
+      this.isSupported$.set(false);
       this.errors$.next('Spracherkennung erfordert HTTPS oder localhost');
       return;
     }
 
     // Windows Edge specific check
 
-    this.isSupportedSubject$.next(true);
+    this.isSupported$.set(true);
     this.recognition = new SpeechRecognition();
 
     // Configuration - DON'T set language here, let it be set dynamically
@@ -149,11 +150,11 @@ export class SpeechRecognitionService {
 
     // Event handlers
     this.recognition.onstart = () => {
-      this.isListening$.next(true);
+      this.isListening.set(true);
     };
 
     this.recognition.onend = () => {
-      this.isListening$.next(false);
+      this.isListening.set(false);
     };
 
     this.recognition.onresult = (event: any) => {
@@ -177,7 +178,7 @@ export class SpeechRecognitionService {
     };
 
     this.recognition.onerror = (event: any) => {
-      this.isListening$.next(false);
+      this.isListening.set(false);
 
       let errorMessage = 'Spracherkennungsfehler aufgetreten';
       switch (event.error) {
@@ -215,14 +216,14 @@ export class SpeechRecognitionService {
    * Start listening for speech input
    */
   startListening(language?: string): Observable<string> {
-    if (!this.isSupportedSubject$.value) {
+    if (!this.isSupported$()) {
       this.errors$.next(
         'Spracherkennung wird in diesem Browser nicht unterstützt'
       );
       return this.results$.asObservable();
     }
 
-    if (this.isListening$.value) {
+    if (this.isListening()) {
       return this.results$.asObservable();
     }
 
@@ -346,7 +347,7 @@ export class SpeechRecognitionService {
    * Stop listening for speech input
    */
   stopListening(): void {
-    if (this.recognition && this.isListening$.value) {
+    if (this.recognition && this.isListening()) {
       this.recognition.stop();
     }
   }
@@ -355,7 +356,7 @@ export class SpeechRecognitionService {
    * Abort current speech recognition session
    */
   abortListening(): void {
-    if (this.recognition && this.isListening$.value) {
+    if (this.recognition && this.isListening()) {
       this.recognition.abort();
     }
   }
@@ -372,7 +373,7 @@ export class SpeechRecognitionService {
   updateLanguage(language: string): void {
     this.setLanguage(language);
 
-    if (this.isListening$.value) {
+    if (this.isListening()) {
       this.stopListening();
       setTimeout(() => {
         this.startListening(language);
@@ -380,16 +381,12 @@ export class SpeechRecognitionService {
     }
   }
 
-  get isListening(): Observable<boolean> {
-    return this.isListening$.asObservable();
+  get isListeningObservable(): Observable<boolean> {
+    return toObservable(this.isListening);
   }
 
-  get isSupported(): Observable<boolean> {
-    return this.isSupportedSubject$.asObservable();
-  }
-
-  get isSupported$(): BehaviorSubject<boolean> {
-    return this.isSupportedSubject$;
+  get isSupported(): boolean {
+    return this.isSupported$();
   }
 
   get errors(): Observable<string> {

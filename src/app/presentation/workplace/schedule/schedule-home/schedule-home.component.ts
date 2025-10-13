@@ -21,8 +21,8 @@ import { ScheduleDataService } from '../schedule-section/services/schedule-data.
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
-import { WorkplaceStateService } from 'src/app/presentation/workplace/core/workplace-state.service';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 
 @Component({
@@ -84,7 +84,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private setupEffects(): void {
     runInInjectionContext(this.injector, () => {
       const holidayEffect = effect(() => {
-        if (this.holidayCollection.isReset()) {
+        if (this.holidayCollection.isReset) {
           this.refreshTrigger = !this.refreshTrigger;
         }
       });

@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   Component,
   inject,
+  OnDestroy,
   OnInit,
   ViewChild,
   TemplateRef,
@@ -22,6 +23,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -37,7 +40,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
     NgbModule,
   ],
 })
-export class LoginComponent implements OnInit, AfterViewInit {
+export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('forgotPasswordModal', { read: TemplateRef })
   forgotPasswordModal!: TemplateRef<any>;
   @ViewChild('loginForm', { static: false }) loginForm!: NgForm;
@@ -50,6 +53,8 @@ export class LoginComponent implements OnInit, AfterViewInit {
   private modalService = inject(NgbModal);
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
+
+  private destroy$ = new Subject<void>();
 
   public currentLang = MessageLibrary.CURRENT_LANG;
   public faEye = faEye;
@@ -124,6 +129,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
     this.userAdministrationService
       .requestPasswordReset(this.resetEmail)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.resetEmailSending = false;
@@ -141,5 +147,10 @@ export class LoginComponent implements OnInit, AfterViewInit {
           this.toastService.showInfo('', 'auth.forgot-password.error');
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -20,8 +20,8 @@ import {
   ICalendarSelection,
   SelectedCalendar,
 } from 'src/app/domain/models/calendar-selection-class';
-import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
+import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

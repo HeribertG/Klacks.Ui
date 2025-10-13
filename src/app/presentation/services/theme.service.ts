@@ -1,26 +1,26 @@
 // theme.service.ts
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { inject, Injectable, signal } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  private localStorage = inject(LocalStorageService);
-
   private localStorageService = inject(LocalStorageService);
-  private themeSubject = new BehaviorSubject<'light' | 'dark'>(
+
+  public theme = signal<'light' | 'dark'>(
     (this.localStorageService.get('theme') as 'light' | 'dark') ?? 'light'
   );
 
-  theme$ = this.themeSubject.asObservable();
+  constructor() {
+    document.documentElement.setAttribute('data-theme', this.theme());
+  }
 
   setTheme(mode: 'light' | 'dark') {
-    this.localStorage.set('theme', mode);
+    this.localStorageService.set('theme', mode);
     document.documentElement.setAttribute('data-theme', mode);
-    this.themeSubject.next(mode);
+    this.theme.set(mode);
   }
 
   getCurrentTheme(): 'light' | 'dark' {
-    return this.themeSubject.value;
+    return this.theme();
   }
 }

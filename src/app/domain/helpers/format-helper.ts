@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-prototype-builtins */
-import moment from 'moment';
+import { format } from 'date-fns';
+import { de, enUS } from 'date-fns/locale';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { MessageLibrary } from '../../application/helpers/string-constants';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
@@ -33,30 +34,39 @@ export function DateToStringShort(
  * Format a date as a string using the given format and locale.
  *
  * @param {Date | string} date - The date to format.
- * @param {string} format - The format string to use.
+ * @param {string} dateFormat - The format string to use.
  * @param {string} locale - The locale to use for formatting. Default is MessageLibrary.DEFAULT_LANG.
  * @returns {string} - The formatted date string.
  */
 function formatDate(
   date: Date | string,
-  format: string,
+  dateFormat: string,
   locale: string = MessageLibrary.DEFAULT_LANG
 ): string {
-  return moment(date).clone().locale(locale).format(format);
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const localeObj = locale === 'de' ? de : enUS;
+
+  const dateFnsFormat = dateFormat
+    .replace(/dddd/g, 'EEEE')
+    .replace(/DD/g, 'dd')
+    .replace(/yyyy/g, 'yyyy');
+
+  return format(dateObj, dateFnsFormat, { locale: localeObj });
 }
 
 export function dateWithLocalTimeCorrection(
   date: Date | string | undefined
 ): Date | undefined {
-  if (date === null) {
+  if (date === null || date === undefined) {
     return undefined;
   }
-  const userTimezoneOffset = moment(date).utcOffset();
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const userTimezoneOffset = -dateObj.getTimezoneOffset();
   const hourDiff = userTimezoneOffset / 60;
   return new Date(
-    moment(date).year(),
-    moment(date).month(),
-    moment(date).date(),
+    dateObj.getFullYear(),
+    dateObj.getMonth(),
+    dateObj.getDate(),
     hourDiff,
     0,
     0
@@ -67,9 +77,10 @@ export function utcToLocalDate(date: Date | string): Date | undefined {
   if (date === null) {
     return undefined;
   }
-  const userTimezoneOffset = moment(date).utcOffset();
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  const userTimezoneOffset = -dateObj.getTimezoneOffset();
   const hourDiff = userTimezoneOffset / 60;
-  const d = new Date(date).setHours(moment(date).hour() + hourDiff);
+  const d = dateObj.setHours(dateObj.getHours() + hourDiff);
   return new Date(d);
 }
 

@@ -1,33 +1,24 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AsideService {
-  private isVisible$ = new BehaviorSubject<boolean>(false);
-
-  get isVisible() {
-    return this.isVisible$.asObservable();
-  }
-
-  get isVisibleValue(): boolean {
-    return this.isVisible$.value;
-  }
+  public isVisible = signal<boolean>(false);
 
   show(): void {
     console.log('AsideService: show() called');
-    this.isVisible$.next(true);
+    this.isVisible.set(true);
   }
 
   hide(): void {
     console.log('AsideService: hide() called');
-    this.isVisible$.next(false);
+    this.isVisible.set(false);
   }
 
   toggle(): void {
-    const newValue = !this.isVisible$.value;
-    console.log('AsideService: toggle() called - current:', this.isVisible$.value, 'new:', newValue);
-    this.isVisible$.next(newValue);
+    const newValue = !this.isVisible();
+    console.log('AsideService: toggle() called - current:', this.isVisible(), 'new:', newValue);
+    this.isVisible.set(newValue);
   }
 }

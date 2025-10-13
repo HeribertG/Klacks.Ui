@@ -72,17 +72,15 @@ describe('ButtonPdfComponent', () => {
   });
 
   it('should toggle CSS classes when buttonDisabled changes', () => {
-    // Initially disabled is false
-    component.buttonDisabled = false;
+    fixture.componentRef.setInput('buttonDisabled', false);
     fixture.detectChanges();
-    
+
     const buttonElement = fixture.nativeElement.querySelector('.btn');
     expect(buttonElement.classList.contains('ownStyle-button')).toBe(true);
 
-    // Change to disabled
-    component.buttonDisabled = true;
+    fixture.componentRef.setInput('buttonDisabled', true);
     fixture.detectChanges();
-    
+
     expect(buttonElement.classList.contains('ownStyle-button')).toBe(false);
     expect(buttonElement.classList.contains('ownStyle-button-disabled')).toBe(true);
   });

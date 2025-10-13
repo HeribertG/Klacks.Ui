@@ -1,19 +1,17 @@
 // locale.service.ts
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
 
 export type SupportedLocales = 'en' | 'de' | 'fr' | 'it';
 
 @Injectable({ providedIn: 'root' })
 export class LocaleService {
-  private localeSubject = new BehaviorSubject<string>('en');
-  locale$ = this.localeSubject.asObservable();
+  public locale = signal<string>('en');
 
   setLocale(locale: string) {
-    this.localeSubject.next(locale);
+    this.locale.set(locale);
   }
 
   getLocale(): string {
-    return this.localeSubject.value;
+    return this.locale();
   }
 }

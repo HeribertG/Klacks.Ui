@@ -5,8 +5,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { of, Subject } from 'rxjs';
 
 import { CalendarSelectorComponent } from './calendar-selector.component';
-import { DataManagementCalendarSelectionService } from 'src/app/domain/services/data-management-calendar-selection.service';
-import { DataManagementCalendarRulesService } from 'src/app/domain/services/data-management-calendar-rules.service';
+import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
+import { DataManagementCalendarRulesService } from 'src/app/domain/services/calendar/data-management-calendar-rules.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import {
   ModalService,

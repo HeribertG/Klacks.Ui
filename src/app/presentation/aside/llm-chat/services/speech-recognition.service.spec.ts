@@ -111,10 +111,8 @@ xdescribe('SpeechRecognitionService', () => {
 
   describe('browser support detection', () => {
     it('should detect speech recognition support', (done) => {
-      service.isSupported$.subscribe((isSupported) => {
-        expect(isSupported).toBe(true);
-        done();
-      });
+      expect(service.isSupported$()).toBe(true);
+      done();
     });
 
     it('should detect when speech recognition is not supported', () => {
@@ -124,9 +122,7 @@ xdescribe('SpeechRecognitionService', () => {
 
       const serviceWithoutSupport = new SpeechRecognitionService();
 
-      serviceWithoutSupport.isSupported$.subscribe((isSupported) => {
-        expect(isSupported).toBe(false);
-      });
+      expect(serviceWithoutSupport.isSupported$()).toBe(false);
     });
 
     it('should detect insecure context', () => {
@@ -137,9 +133,7 @@ xdescribe('SpeechRecognitionService', () => {
 
       const serviceInsecure = new SpeechRecognitionService();
 
-      serviceInsecure.isSupported$.subscribe((isSupported) => {
-        expect(isSupported).toBe(false);
-      });
+      expect(serviceInsecure.isSupported$()).toBe(false);
     });
   });
 
@@ -391,7 +385,7 @@ xdescribe('SpeechRecognitionService', () => {
     it('should track listening state', (done) => {
       const states: boolean[] = [];
 
-      service.isListening.subscribe((state) => {
+      service.isListeningObservable.subscribe((state) => {
         states.push(state);
       });
 

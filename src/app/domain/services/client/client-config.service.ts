@@ -8,7 +8,8 @@ import {
 } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-enum';
-import { EMPTY, forkJoin, tap, catchError } from 'rxjs';
+import { EMPTY, forkJoin, Subject, tap, catchError } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
 @Injectable({
@@ -17,6 +18,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 export class ClientConfigService {
   private dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+  private destroy$ = new Subject<void>();
 
   public stateList = signal<StateCountryToken[]>([]);
   public countries = signal<ICountry[]>([]);
@@ -56,9 +58,15 @@ export class ClientConfigService {
           return EMPTY;
         })
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.isInit.set(true);
       });
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private processStateTokens(stateTokens: StateCountryToken[]) {
