@@ -14,12 +14,15 @@ import {
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementScheduleService implements ILoadable {
   private dataSchedule = inject(DataScheduleService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     ManageableServiceRegistry.register(
@@ -45,7 +48,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   readDatas() {
     this._showProgressSpinner.set(true);
-    this.dataSchedule.getClientList(this.workFilter).subscribe((x) => {
+    this.dataSchedule.getClientList(this.workFilter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
       this.clients = x;
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this.isRead.set(true);
@@ -72,7 +75,7 @@ export class DataManagementScheduleService implements ILoadable {
       const tmp = value as Work;
       value.clientId = client.id!;
       delete tmp.id;
-      this.dataSchedule.addWork(tmp).subscribe((x) => {
+      this.dataSchedule.addWork(tmp).pipe(takeUntil(this.destroy$)).subscribe((x) => {
         client.works.push(x);
         client.works = this.sortWorks(client.works);
         this.isUpdate.set(x);
@@ -83,7 +86,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   deleteWork(index: number, value: IWork) {
     if (value.id) {
-      this.dataSchedule.deleteWork(value.id!).subscribe(() => {
+      this.dataSchedule.deleteWork(value.id!).pipe(takeUntil(this.destroy$)).subscribe(() => {
         const client = this.clients[index];
         client.works = this.sortWorks(
           client.works.filter((obj) => obj.id !== value.id)
@@ -105,7 +108,7 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   async updateWork(index: number, value: IWork) {
-    return this.dataSchedule.updateWork(value as Work).subscribe(() => {
+    return this.dataSchedule.updateWork(value as Work).pipe(takeUntil(this.destroy$)).subscribe(() => {
       const client = this.clients[index];
       client.works = this.sortWorks(client.works);
       this.isUpdate.set(value);
@@ -138,5 +141,10 @@ export class DataManagementScheduleService implements ILoadable {
       return true;
     }
     return false;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

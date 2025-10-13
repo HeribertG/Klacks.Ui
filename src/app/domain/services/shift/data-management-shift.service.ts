@@ -28,6 +28,8 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/data-country
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -38,6 +40,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     ManageableServiceRegistry.register(
@@ -100,20 +103,23 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   init() {
     this.dataClientService
       .getStateTokenList(true)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x: StateCountryToken[]) => {
         this.stateList = x.filter((c) => c.state !== c.country);
         this.currentClientFilter.filteredStateToken = this.stateList;
         this.currentClientFilter.list = this.stateList;
       });
 
-    this.dataCountryStateService.getCountryList().subscribe((x: ICountry[]) => {
-      if (x) {
-        x.forEach((s) => (s.select = true));
-        this.currentClientFilter.countries = x;
+    this.dataCountryStateService.getCountryList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ICountry[]) => {
+        if (x) {
+          x.forEach((s) => (s.select = true));
+          this.currentClientFilter.countries = x;
 
-        this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
-      }
-    });
+          this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
+        }
+      });
     this.initCount = 0;
     this.readMacroList();
   }
@@ -130,18 +136,20 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   /* #region  Macros */
   readMacroList() {
-    this.dataMacroService.readMacroList().subscribe((x) => {
-      if (x) {
-        this.macroList = x as IMacro[];
-        if (this.macroList.length > 1) {
-          this.macroList.sort(compare);
-          function compare(a: IMacro, b: IMacro) {
-            return a.name!.localeCompare(b.name!);
+    this.dataMacroService.readMacroList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        if (x) {
+          this.macroList = x as IMacro[];
+          if (this.macroList.length > 1) {
+            this.macroList.sort(compare);
+            function compare(a: IMacro, b: IMacro) {
+              return a.name!.localeCompare(b.name!);
+            }
           }
+          this.isInitFinished(1);
         }
-        this.isInitFinished(1);
-      }
-    });
+      });
   }
 
   /* #endregion  Macros */
@@ -197,13 +205,15 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   readPage(isSecondRead = false) {
     this._showProgressSpinner.set(true);
-    this.dataShiftService.readShiftList(this.currentFilter).subscribe((x) => {
-      this.shifts = x.shifts;
-      this.listWrapper = x;
-      this.maxItems = x.maxItems;
-      this.firstItem = x.firstItemOnPage;
-      this.maxPages = x.maxPages;
-    });
+    this.dataShiftService.readShiftList(this.currentFilter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.shifts = x.shifts;
+        this.listWrapper = x;
+        this.maxItems = x.maxItems;
+        this.firstItem = x.firstItemOnPage;
+        this.maxPages = x.maxPages;
+      });
 
     if (isSecondRead) {
       this.fireIsReadEvent();
@@ -276,22 +286,24 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   readShift(id: string) {
     if (id !== '') {
-      this.dataShiftService.getShift(id).subscribe((x) => {
-        this.prepareShift(this.createShiftFromPlainObject(x));
-        if (this.editShift && this.editShift.fromDate && x.client) {
-          const index = this.setCurrentAddressIndex(
-            x.client,
-            this.editShift.fromDate
-          );
-          this.editShift.addressName = this.visualNameAndAddress(
-            x.client,
-            index
-          );
-        }
+      this.dataShiftService.getShift(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((x) => {
+          this.prepareShift(this.createShiftFromPlainObject(x));
+          if (this.editShift && this.editShift.fromDate && x.client) {
+            const index = this.setCurrentAddressIndex(
+              x.client,
+              this.editShift.fromDate
+            );
+            this.editShift.addressName = this.visualNameAndAddress(
+              x.client,
+              index
+            );
+          }
 
-        this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-shift/${id}` });
-        this.fireIsReadEvent();
-      });
+          this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-shift/${id}` });
+          this.fireIsReadEvent();
+        });
     }
   }
   save() {
@@ -344,45 +356,47 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         ? this.dataShiftService.updateShift(this.editShift)
         : this.dataShiftService.addShift(this.editShift);
 
-      action.subscribe({
-        next: (x) => {
-          this.prepareShift(
-            this.createShiftFromPlainObject(x),
-            withoutUpdateDummy
-          );
-          if (this.editShift && this.editShift.fromDate && x.client) {
-            const index = this.setCurrentAddressIndex(
-              x.client,
-              this.editShift.fromDate
+      action
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (x) => {
+            this.prepareShift(
+              this.createShiftFromPlainObject(x),
+              withoutUpdateDummy
             );
-            this.editShift.addressName = this.visualNameAndAddress(
-              x.client,
-              index
-            );
-          }
+            if (this.editShift && this.editShift.fromDate && x.client) {
+              const index = this.setCurrentAddressIndex(
+                x.client,
+                this.editShift.fromDate
+              );
+              this.editShift.addressName = this.visualNameAndAddress(
+                x.client,
+                index
+              );
+            }
 
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-        error: (error) => {
-          if (this.editShift?.id) {
-            this.readShift(this.editShift.id);
-          } else {
-            this.createShift();
-          }
+            if (this.onSaveCompleted) {
+              this.onSaveCompleted();
+            }
+          },
+          error: (error) => {
+            if (this.editShift?.id) {
+              this.readShift(this.editShift.id);
+            } else {
+              this.createShift();
+            }
 
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'ShiftError',
-            context: 'DataManagementShiftService.saveEditShift'
-          });
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-        complete: () => {},
-      });
+            this.eventBus.emit(DomainEventType.ERROR, {
+              message: error,
+              code: 'ShiftError',
+              context: 'DataManagementShiftService.saveEditShift'
+            });
+            if (this.onSaveCompleted) {
+              this.onSaveCompleted();
+            }
+          },
+          complete: () => {},
+        });
     }
   }
 
@@ -606,5 +620,10 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   goBack(): string {
     return '/workplace/shift';
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   CalendarRule,
   CalendarRulesFilter,
@@ -22,6 +23,7 @@ import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calenda
 export class DataManagementCalendarRulesService {
   public dataCalendarRuleService = inject(DataCalendarRuleService);
   private eventBus = inject(EventBus);
+  private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
 
@@ -39,15 +41,17 @@ export class DataManagementCalendarRulesService {
 
   /* #region   temporary check is Filter dirty */
   public init(): void {
-    this.dataCalendarRuleService.readRuleTokenList(true).subscribe((x) => {
-      this.currentFilter.list = x;
-      this.filteredRulesToken = x;
-      this.currentFilter.countries = Array.from(
-        new Set(x.map((x) => x.country))
-      );
-      this.isRead.set(true);
-      setTimeout(() => this.isRead.set(false), 100);
-    });
+    this.dataCalendarRuleService.readRuleTokenList(true)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.currentFilter.list = x;
+        this.filteredRulesToken = x;
+        this.currentFilter.countries = Array.from(
+          new Set(x.map((x) => x.country))
+        );
+        this.isRead.set(true);
+        setTimeout(() => this.isRead.set(false), 100);
+      });
   }
   public setTemporaryFilter(): void {
     this.temporaryFilterDummy = cloneObject<CalendarRulesFilter>(
@@ -104,6 +108,7 @@ export class DataManagementCalendarRulesService {
     this.currentFilter.language = language;
     this.dataCalendarRuleService
       .readTruncatedCalendarRule(this.currentFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x: TruncatedCalendarRule | undefined) => {
         if (x) {
           this.listWrapper = x;
@@ -148,9 +153,11 @@ export class DataManagementCalendarRulesService {
   }
 
   readCalendarRuleList(value: boolean): void {
-    this.dataCalendarRuleService.readRuleTokenList(value).subscribe((x) => {
-      this.currentFilter.list = x;
-    });
+    this.dataCalendarRuleService.readRuleTokenList(value)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.currentFilter.list = x;
+      });
   }
 
   exportExcel() {}
@@ -163,5 +170,10 @@ export class DataManagementCalendarRulesService {
       return true;
     }
     return false;
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -8,7 +8,8 @@ import {
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
@@ -25,6 +26,7 @@ export class DataManagementCalendarSelectionService {
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private translate = inject(TranslateService);
+  private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
   public isChanged = signal(false);
@@ -41,9 +43,11 @@ export class DataManagementCalendarSelectionService {
   constructor() {
     this.calendarsSelections.push(this.emptyCalendarSelection());
 
-    this.translate.onLangChange.subscribe(() => {
-      this.updateEmptyPlaceholder();
-    });
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateEmptyPlaceholder();
+      });
 
     this.updateEmptyPlaceholder();
   }
@@ -67,6 +71,7 @@ export class DataManagementCalendarSelectionService {
     });
     this.dataCalendarSelectionService
       .addCalendarSelection(value)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(async (x: CalendarSelection | undefined) => {
         if (x) {
           await this.readData();
@@ -104,6 +109,7 @@ export class DataManagementCalendarSelectionService {
   getCalendarSelection(id: string) {
     this.dataCalendarSelectionService
       .getCalendarSelection(id)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((calendarSelection: CalendarSelection | undefined) => {
         if (calendarSelection) {
           this.currentCalendarSelection = calendarSelection;
@@ -210,5 +216,10 @@ export class DataManagementCalendarSelectionService {
 
       return nameA.localeCompare(nameB);
     });
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

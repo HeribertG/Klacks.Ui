@@ -19,7 +19,8 @@ import {
 } from 'src/app/domain/models/group-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, throwError, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   cloneObject,
   compareComplexObjects,
@@ -49,6 +50,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   private eventBus = inject(EventBus);
   private dataCountryStateService = inject(DataCountryStateService);
   private httpClient = inject(HttpClient);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     ManageableServiceRegistry.register(
@@ -108,20 +110,23 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   init() {
     this.dataClientService
       .getStateTokenList(true)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x: StateCountryToken[]) => {
         this.stateList = x.filter((c) => c.state !== c.country);
         this.currentClientFilter.filteredStateToken = this.stateList;
         this.currentClientFilter.list = this.stateList;
       });
 
-    this.dataCountryStateService.getCountryList().subscribe((x: ICountry[]) => {
-      if (x) {
-        x.forEach((s) => (s.select = true));
-        this.currentClientFilter.countries = x;
+    this.dataCountryStateService.getCountryList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ICountry[]) => {
+        if (x) {
+          x.forEach((s) => (s.select = true));
+          this.currentClientFilter.countries = x;
 
-        this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
-      }
-    });
+          this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
+        }
+      });
     this.readPage();
   }
 
@@ -131,54 +136,58 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
     const previousExpandedNodes = preserveExpandedState ? new Set(this.expandedNodes) : new Set<string>();
 
-    this.dataGroupService.getGroupTree(rootId).subscribe({
-      next: (tree: IGroupTree) => {
-        this.groupTree = new GroupTree();
-        this.groupTree.rootId = tree.rootId;
-        this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
-        this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+    this.dataGroupService.getGroupTree(rootId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (tree: IGroupTree) => {
+          this.groupTree = new GroupTree();
+          this.groupTree.rootId = tree.rootId;
+          this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
+          this.flatNodeList = this.flattenTree(this.groupTree.nodes);
 
-        if (preserveExpandedState) {
-          this.expandedNodes = previousExpandedNodes;
-        } else {
-          this.expandedNodes = new Set<string>();
-        }
+          if (preserveExpandedState) {
+            this.expandedNodes = previousExpandedNodes;
+          } else {
+            this.expandedNodes = new Set<string>();
+          }
 
-        this.fireIsReadEvent();
-      },
-      error: (error) => {
-        this.eventBus.emit(DomainEventType.ERROR, {
-          message: error,
-          code: 'GroupTreeError',
-          context: 'DataManagementGroupService.initTree'
-        });
-      },
-      complete: () => {
-        setTimeout(() => this._showProgressSpinner.set(false), 0);
-      },
-    });
+          this.fireIsReadEvent();
+        },
+        error: (error) => {
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupTreeError',
+            context: 'DataManagementGroupService.initTree'
+          });
+        },
+        complete: () => {
+          setTimeout(() => this._showProgressSpinner.set(false), 0);
+        },
+      });
   }
 
   /* #endregion   init */
 
   showExternalClient(id: string) {
     this._showProgressSpinner.set(true);
-    this.dataGroupService.getGroup(id).subscribe({
-      next: (x: IGroup) => {
-        this.prepareGroup(x);
-        this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-group/${id}` });
-        this._showProgressSpinner.set(false);
-      },
-      error: (error) => {
-        console.error('Error while loading groups:', error);
-        this.eventBus.emit(DomainEventType.ERROR, {
-          message: error,
-          code: 'GroupLoadError',
-          context: 'DataManagementGroupService.showExternalClient'
-        });
-        this._showProgressSpinner.set(false);
-      },
-    });
+    this.dataGroupService.getGroup(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (x: IGroup) => {
+          this.prepareGroup(x);
+          this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-group/${id}` });
+          this._showProgressSpinner.set(false);
+        },
+        error: (error) => {
+          console.error('Error while loading groups:', error);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupLoadError',
+            context: 'DataManagementGroupService.showExternalClient'
+          });
+          this._showProgressSpinner.set(false);
+        },
+      });
   }
 
   readPageClient() {
@@ -186,6 +195,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
     this.dataClientService
       .readClientList(this.currentClientFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         this.listClientWrapper = x;
       });
@@ -243,14 +253,16 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   readPage(isSecondRead = false) {
     this._showProgressSpinner.set(true);
-    this.dataGroupService.readGroupList(this.currentFilter).subscribe((x) => {
-      this.listWrapper = x;
-      this.paginationDataService = {
-        maxItems: x.maxItems,
-        firstItem: x.firstItemOnPage,
-        maxPages: x.maxPages,
-      };
-    });
+    this.dataGroupService.readGroupList(this.currentFilter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.listWrapper = x;
+        this.paginationDataService = {
+          maxItems: x.maxItems,
+          firstItem: x.firstItemOnPage,
+          maxPages: x.maxPages,
+        };
+      });
 
     if (isSecondRead) {
       this.fireIsReadEvent();
@@ -334,31 +346,33 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         ? this.dataGroupService.updateGroup(this.editGroup)
         : this.dataGroupService.addGroup(this.editGroup);
 
-      action.subscribe({
-        next: (x) => {
-          this.readGroup(x.id!);
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-        error: (error) => {
-          if (this.editGroup?.id) {
-            this.readGroup(this.editGroup.id);
-          } else {
-            this.createGroup();
-          }
+      action
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (x) => {
+            this.readGroup(x.id!);
+            if (this.onSaveCompleted) {
+              this.onSaveCompleted();
+            }
+          },
+          error: (error) => {
+            if (this.editGroup?.id) {
+              this.readGroup(this.editGroup.id);
+            } else {
+              this.createGroup();
+            }
 
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'GroupError',
-            context: 'DataManagementGroupService.saveEditGroup'
-          });
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-        complete: () => {},
-      });
+            this.eventBus.emit(DomainEventType.ERROR, {
+              message: error,
+              code: 'GroupError',
+              context: 'DataManagementGroupService.saveEditGroup'
+            });
+            if (this.onSaveCompleted) {
+              this.onSaveCompleted();
+            }
+          },
+          complete: () => {},
+        });
     }
   }
 
@@ -368,9 +382,11 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   readGroup(id: string) {
     if (id) {
-      this.dataGroupService.getGroup(id).subscribe((x) => {
-        this.prepareGroup(x);
-      });
+      this.dataGroupService.getGroup(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((x) => {
+          this.prepareGroup(x);
+        });
     }
   }
 
@@ -551,6 +567,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
         params,
       })
       .pipe(
+        takeUntil(this.destroy$),
         catchError((error) => {
           this.eventBus.emit(DomainEventType.ERROR, {
             message: error,
@@ -585,18 +602,20 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   refreshTree() {
-    this.dataGroupService.getRefreshTree().subscribe({
-      next: () => {
-        this.initTree();
-      },
-      error: (error) => {
-        this.eventBus.emit(DomainEventType.ERROR, {
-          message: error,
-          code: 'RefreshGroupTreeError',
-          context: 'DataManagementGroupService.refreshTree'
-        });
-      },
-    });
+    this.dataGroupService.getRefreshTree()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.initTree();
+        },
+        error: (error) => {
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'RefreshGroupTreeError',
+            context: 'DataManagementGroupService.refreshTree'
+          });
+        },
+      });
   }
 
   private flattenTree(nodes: IGroup[]): Group[] {
@@ -636,5 +655,10 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
   goBack(): string {
     return '/workplace/group';
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

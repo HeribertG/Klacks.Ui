@@ -26,6 +26,8 @@ import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +45,7 @@ export class DataManagementClientService
   public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
   private eventBus = inject(EventBus);
+  private destroy$ = new Subject<void>();
 
   public currentFilter: Filter = new Filter();
   public lastChangeFilter: Filter = new Filter();
@@ -297,6 +300,7 @@ export class DataManagementClientService
   readChangeList(locale: string = DomainMessages.DEFAULT_LANG) {
     this.dataClientService
       .readChangeList(this.lastChangeFilter)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         x.clients.forEach((z: IClient) => {
           const res = this.clientAttribute.find((y) => +y.type === +z.type);
@@ -314,18 +318,25 @@ export class DataManagementClientService
   }
 
   getLastChangeMetaData(locale: string = DomainMessages.DEFAULT_LANG) {
-    this.dataClientService.getLastChangeMetaData().subscribe((x) => {
-      this.subTitleLastChangesAllAddress.set(
-        `${DomainMessages.LAST_STATE} ${DateToString(
-          x.lastChangesDate,
-          locale
-        )}${DomainMessages.EDITED_FROM} ${x.autor}`
-      );
-    });
+    this.dataClientService.getLastChangeMetaData()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        this.subTitleLastChangesAllAddress.set(
+          `${DomainMessages.LAST_STATE} ${DateToString(
+            x.lastChangesDate,
+            locale
+          )}${DomainMessages.EDITED_FROM} ${x.autor}`
+        );
+      });
   }
 
   showExternalClient(id: string) {
     this.clientEditService.readClient(id);
     this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

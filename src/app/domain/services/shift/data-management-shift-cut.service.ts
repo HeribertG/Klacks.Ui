@@ -11,6 +11,8 @@ import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +20,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 export class DataManagementShiftCutService implements ISaveable, IResettable, ILoadable, INavigable {
   private eventBus = inject(EventBus);
   private dataShiftCutsService = inject(DataShiftCutsService);
+  private destroy$ = new Subject<void>();
 
   private newCuts: Shift[] = [];
   private existingCuts: Shift[] = [];
@@ -46,7 +49,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   readCutShiftList(id: string): void {
     if (id !== '') {
       this._showProgressSpinner.set(true);
-      this.dataShiftCutsService.getCutShiftList(id).subscribe((x) => {
+      this.dataShiftCutsService.getCutShiftList(id).pipe(takeUntil(this.destroy$)).subscribe((x) => {
         this.cutShifts = x;
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
@@ -142,7 +145,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
     if (this.existingCuts.length > 0) this.totalOperations++;
 
     if (this.newCuts.length > 0) {
-      this.dataShiftCutsService.addCuts(this.newCuts).subscribe({
+      this.dataShiftCutsService.addCuts(this.newCuts).pipe(takeUntil(this.destroy$)).subscribe({
         next: (createdCuts) => {
           this.updateCutsAfterSave(createdCuts, true);
           this.checkAndCallSaveCompleted();
@@ -162,7 +165,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
     }
 
     if (this.existingCuts.length > 0) {
-      this.dataShiftCutsService.updateCuts(this.existingCuts).subscribe({
+      this.dataShiftCutsService.updateCuts(this.existingCuts).pipe(takeUntil(this.destroy$)).subscribe({
         next: (updatedCuts) => {
           this.updateCutsAfterSave(updatedCuts, false);
           this.checkAndCallSaveCompleted();
@@ -268,5 +271,10 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
       this.operationsCompleted = 0;
       this.totalOperations = 0;
     }
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

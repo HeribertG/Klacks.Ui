@@ -1,13 +1,15 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { IGroup, IGroupVisibility } from 'src/app/domain/models/group-class';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
-import { Observable, tap } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementGroupVisibilityService {
   public dataGroupVisibilityService = inject(DataGroupVisibilityService);
+  private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
   private _showProgressSpinner = signal(false);
@@ -18,7 +20,7 @@ export class DataManagementGroupVisibilityService {
 
   constructor() {
     effect(() => {
-      this.dataGroupVisibilityService.getRoots().subscribe({
+      this.dataGroupVisibilityService.getRoots().pipe(takeUntil(this.destroy$)).subscribe({
         next: (groups) => this.rootList.set(groups),
         error: (err) =>
           console.error('Error when loading the group roots: ', err),
@@ -26,7 +28,7 @@ export class DataManagementGroupVisibilityService {
     });
 
     effect(() => {
-      this.dataGroupVisibilityService.getGroupVisibilities().subscribe({
+      this.dataGroupVisibilityService.getGroupVisibilities().pipe(takeUntil(this.destroy$)).subscribe({
         next: (groupVisibilities) =>
           this.groupVisibilityList.set(groupVisibilities),
         error: (err) =>
@@ -47,4 +49,9 @@ export class DataManagementGroupVisibilityService {
   }
 
   /* #rendegion   edit GroupVisibility */
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

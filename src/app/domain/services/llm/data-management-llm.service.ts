@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
-import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { catchError, tap, switchMap, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, tap, switchMap, map, takeUntil } from 'rxjs/operators';
 import {
   DataLLMService,
   ILLMChatRequest,
@@ -46,6 +46,7 @@ export class DataManagementLLMService {
   private selectedModelId$ = new BehaviorSubject<string>('');
   private isLoading$ = new BehaviorSubject<boolean>(false);
   private currentLanguage$ = new BehaviorSubject<string>('de');
+  private destroy$ = new Subject<void>();
 
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
@@ -90,6 +91,7 @@ export class DataManagementLLMService {
           return of([]);
         })
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe();
   }
 
@@ -409,5 +411,10 @@ export class DataManagementLLMService {
         return of([]);
       })
     );
+  }
+
+  public destroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
