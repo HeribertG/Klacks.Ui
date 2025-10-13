@@ -5,7 +5,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
@@ -857,7 +857,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       const tmp = this.macroList.filter(
         (x) =>
           x.isDirty === CreateEntriesEnum.new &&
-          x.name === MessageLibrary.NOT_DEFINED
+          x.name === DomainMessages.NOT_DEFINED
       );
 
       if (tmp && tmp.length !== 0) {

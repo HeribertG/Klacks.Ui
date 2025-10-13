@@ -8,7 +8,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
   compareComplexObjects,
@@ -142,7 +142,7 @@ export class DataManagementContractService {
       return this.contracts;
     } catch (error) {
       this.eventBus.emit(DomainEventType.ERROR, {
-        message: MessageLibrary.UNKNOWN_ERROR,
+        message: DomainMessages.UNKNOWN_ERROR,
         code: 'errorLoadingData',
         context: 'DataManagementContractService.readContracts'
       });
@@ -166,7 +166,7 @@ export class DataManagementContractService {
       }
     } catch (error) {
       this.eventBus.emit(DomainEventType.ERROR, {
-        message: MessageLibrary.UNKNOWN_ERROR,
+        message: DomainMessages.UNKNOWN_ERROR,
         code: 'errorLoadingData',
         context: 'DataManagementContractService.readContract'
       });
@@ -352,7 +352,7 @@ export class DataManagementContractService {
       return true;
     } catch (error) {
       this.eventBus.emit(DomainEventType.ERROR, {
-        message: MessageLibrary.UNKNOWN_ERROR,
+        message: DomainMessages.UNKNOWN_ERROR,
         code: 'errorDeletingData',
         context: 'DataManagementContractService.deleteContract'
       });

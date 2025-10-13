@@ -1,6 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/domain/models/group-class';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { IEntityStateProvider } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { DataManagementBreakService } from '../absence/data-management-break.service';
 import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
@@ -9,7 +10,7 @@ import { DataManagementScheduleService } from '../schedule/data-management-sched
   providedIn: 'root',
 })
 export class GroupSelectionService {
-  private dataManagementSwitchboard = inject(WorkplaceStateService);
+  private dataManagementSwitchboard = inject(WorkplaceStateService as { new (...args: any[]): IEntityStateProvider });
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementScheduleService = inject(DataManagementScheduleService);
 

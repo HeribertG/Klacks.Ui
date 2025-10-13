@@ -1,5 +1,5 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { Rectangle } from '../../../shared/grid/classes/geometry';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
 import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IBreak } from 'src/app/domain/models/break-class';

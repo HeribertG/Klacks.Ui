@@ -7,13 +7,15 @@ import {
   computed,
   EffectRef,
 } from '@angular/core';
-import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import {
   ILoadable,
   IResettable,
   ISaveable,
   INavigable,
 } from 'src/app/domain/interfaces/manageable.interface';
+import { IEntityStateProvider } from 'src/app/domain/interfaces/entity-state-provider.interface';
+import { ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { ManageableServiceFactory } from './manageable-service.factory';
 import {
   EntityName,
@@ -45,8 +47,8 @@ function isNavigable(manager: any): manager is INavigable {
 @Injectable({
   providedIn: 'root',
 })
-export class WorkplaceStateService {
-  private spinnerService = inject(SpinnerService);
+export class WorkplaceStateService implements IEntityStateProvider {
+  private spinnerService = inject(SpinnerService as { new (...args: any[]): ILoadingIndicator });
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
   public activeManager = signal<ILoadable | null>(null);

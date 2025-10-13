@@ -1,7 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/domain/models/authentification-class';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
+import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
@@ -50,8 +51,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
 
   private changePassword() {
     this.changePasswordWrapper!.message =
-      MessageLibrary.CHANGEPASSWORDUSER_MAILTEXT;
-    this.changePasswordWrapper!.title = MessageLibrary.CHANGEPASSWORD_TITLE;
+      DomainMessages.CHANGEPASSWORDUSER_MAILTEXT;
+    this.changePasswordWrapper!.title = DomainMessages.CHANGEPASSWORD_TITLE;
     this.userAdministrationService
       .changePassword(this.changePasswordWrapper!)
       .subscribe({
@@ -59,8 +60,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
           this._isReset.set(true);
           setTimeout(() => this._isReset.set(false), 100);
           this.eventBus.emit(DomainEventType.SUCCESS, {
-            message: MessageLibrary.REGISTER_CHANGE_PASSWORD,
-            context: MessageLibrary.REGISTER_CHANGE_PASSWORD_HEADER
+            message: DomainMessages.REGISTER_CHANGE_PASSWORD,
+            context: DomainMessages.REGISTER_CHANGE_PASSWORD_HEADER
           });
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
@@ -98,9 +99,9 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   readData() {
     this.changePasswordWrapper = new ChangePassword();
     const username = this.localStorageService.get(
-      MessageLibrary.TOKEN_USERNAME
+      StorageKeys.TOKEN_USERNAME
     );
-    const subject = this.localStorageService.get(MessageLibrary.TOKEN_SUBJECT);
+    const subject = this.localStorageService.get(StorageKeys.TOKEN_SUBJECT);
 
     if (username && subject) {
       this.changePasswordWrapper.userName = username;

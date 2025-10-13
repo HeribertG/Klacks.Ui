@@ -42,7 +42,7 @@ import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-m
 import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { MenuDataTemplate } from 'src/app/application/helpers/context-menu-data-template';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import {
   Menu,
   MenuItem,

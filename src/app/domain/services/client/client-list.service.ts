@@ -11,7 +11,7 @@ import {
 } from 'src/app/domain/models/client-class';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { Observable } from 'rxjs';
 
@@ -93,7 +93,7 @@ export class ClientListService {
     });
 
     this.eventBus.emit(DomainEventType.INFO, {
-      message: MessageLibrary.PLEASE_BE_PATIENT_EXCEL,
+      message: DomainMessages.PLEASE_BE_PATIENT_EXCEL,
       context: 'PLEASE_BE_PATIENT_EXCEL'
     });
   }

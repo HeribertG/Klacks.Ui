@@ -11,7 +11,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
@@ -125,7 +125,7 @@ export class DataManagementCalendarRulesService {
         this.readPage(language);
       })
       .catch(() => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: DomainMessages.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
       });
   }
 
@@ -135,7 +135,7 @@ export class DataManagementCalendarRulesService {
         this.readPage(language);
       })
       .catch(() => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: DomainMessages.UNKNOWN_ERROR, code: 'CalendarRuleError', context: 'DataManagementCalendarRulesService' });
       });
   }
 

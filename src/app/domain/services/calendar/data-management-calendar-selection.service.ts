@@ -9,7 +9,7 @@ import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
 import { lastValueFrom } from 'rxjs';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
   compareComplexObjects,
@@ -85,9 +85,9 @@ export class DataManagementCalendarSelectionService {
         ...(x || []),
       ];
       const savedId = this.localStorageService.get(
-        MessageLibrary.CALENDAR_SELECTION_TYPE +
+        DomainMessages.CALENDAR_SELECTION_TYPE +
           '-' +
-          MessageLibrary.CALENDAR_SELECTION_ID
+          DomainMessages.CALENDAR_SELECTION_ID
       ) as string | null;
       if (savedId) {
         this.currentCalendarSelection =
@@ -131,7 +131,7 @@ export class DataManagementCalendarSelectionService {
           await this.readData();
         })
         .catch(() => {
-          this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
+          this.eventBus.emit(DomainEventType.ERROR, { message: DomainMessages.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
         });
     }
   }
@@ -141,7 +141,7 @@ export class DataManagementCalendarSelectionService {
         this.readData();
       })
       .catch(() => {
-        this.eventBus.emit(DomainEventType.ERROR, { message: MessageLibrary.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
+        this.eventBus.emit(DomainEventType.ERROR, { message: DomainMessages.UNKNOWN_ERROR, code: 'CalendarSelectionError', context: 'DataManagementCalendarSelectionService' });
       });
   }
 

@@ -1,5 +1,5 @@
-import { MenuItem } from '../../presentation/shared/context-menu/context-menu-class';
-import { MessageLibrary } from './string-constants';
+import { MenuItem } from '../shared/context-menu/context-menu-class';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 export class MenuDataTemplate {
   public static copyCutPaste(): MenuItem[] {

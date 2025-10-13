@@ -8,7 +8,7 @@ import {
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { EventBus } from 'src/app/application/services/event-bus.service';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
@@ -54,7 +54,7 @@ export class AddressService {
           })
           .catch(() => {
             this.eventBus.emit(DomainEventType.INFO, {
-              message: MessageLibrary.ZIP_NOT_VALID,
+              message: DomainMessages.ZIP_NOT_VALID,
               context: 'AddressService.writeCity'
             });
             reject();

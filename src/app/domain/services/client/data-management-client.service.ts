@@ -19,7 +19,7 @@ import { ClientConfigService } from './client-config.service';
 import { ClientSearchService } from './client-search.service';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DateToString } from 'src/app/domain/helpers/format-helper';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { DomainMessages } from 'src/app/domain/constants/messages';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
@@ -294,7 +294,7 @@ export class DataManagementClientService
     return '/workplace/client';
   }
 
-  readChangeList(locale: string = MessageLibrary.DEFAULT_LANG) {
+  readChangeList(locale: string = DomainMessages.DEFAULT_LANG) {
     this.dataClientService
       .readChangeList(this.lastChangeFilter)
       .subscribe((x) => {
@@ -313,13 +313,13 @@ export class DataManagementClientService
       });
   }
 
-  getLastChangeMetaData(locale: string = MessageLibrary.DEFAULT_LANG) {
+  getLastChangeMetaData(locale: string = DomainMessages.DEFAULT_LANG) {
     this.dataClientService.getLastChangeMetaData().subscribe((x) => {
       this.subTitleLastChangesAllAddress.set(
-        `${MessageLibrary.LAST_STATE} ${DateToString(
+        `${DomainMessages.LAST_STATE} ${DateToString(
           x.lastChangesDate,
           locale
-        )}${MessageLibrary.EDITED_FROM} ${x.autor}`
+        )}${DomainMessages.EDITED_FROM} ${x.autor}`
       );
     });
   }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from '../../../shared/grid/classes/geometry';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
