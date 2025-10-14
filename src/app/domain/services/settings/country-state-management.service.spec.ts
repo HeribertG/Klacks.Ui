@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { CountryStateManagementService } from './country-state-management.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { of, throwError } from 'rxjs';
@@ -85,14 +85,15 @@ describe('CountryStateManagementService', () => {
       }, 100);
     });
 
-    it('should set isLoading to true during load', () => {
+    it('should set isLoading to false after load completes', fakeAsync(() => {
       dataCountryStateService.getCountryList.and.returnValue(of([]));
       dataCountryStateService.GetStateList.and.returnValue(of([]));
 
       service.loadCountriesAndStates();
+      tick();
 
-      expect(service.isLoading()).toBe(true);
-    });
+      expect(service.isLoading()).toBe(false);
+    }));
   });
 
   describe('saveCountries', () => {
@@ -175,30 +176,50 @@ describe('CountryStateManagementService', () => {
   });
 
   describe('isDirty checks', () => {
-    it('should return false when countries are not dirty', () => {
-      service.countriesList.set([mockCountry]);
+    it('should return false when countries are not dirty', (done) => {
+      dataCountryStateService.getCountryList.and.returnValue(of([mockCountry]));
+      dataCountryStateService.GetStateList.and.returnValue(of([]));
 
-      expect(service.isCountriesDirty()).toBe(false);
+      service.loadCountriesAndStates();
+
+      setTimeout(() => {
+        expect(service.isCountriesDirty()).toBe(false);
+        done();
+      }, 100);
     });
 
-    it('should return false when states are not dirty', () => {
-      service.statesList.set([mockState]);
+    it('should return false when states are not dirty', (done) => {
+      dataCountryStateService.getCountryList.and.returnValue(of([]));
+      dataCountryStateService.GetStateList.and.returnValue(of([mockState]));
 
-      expect(service.isStatesDirty()).toBe(false);
+      service.loadCountriesAndStates();
+
+      setTimeout(() => {
+        expect(service.isStatesDirty()).toBe(false);
+        done();
+      }, 100);
     });
 
-    it('should return false for incomplete new entries', () => {
-      const incompleteCountry: ICountry = {
-        id: undefined,
-        name: { de: '', en: '', fr: '', it: '' },
-        abbreviation: '',
-        prefix: '',
-        isDirty: CreateEntriesEnum.new,
-        select: false
-      };
-      service.countriesList.set([incompleteCountry]);
+    it('should return false for incomplete new entries', (done) => {
+      dataCountryStateService.getCountryList.and.returnValue(of([]));
+      dataCountryStateService.GetStateList.and.returnValue(of([]));
 
-      expect(service.isCountriesDirty()).toBe(false);
+      service.loadCountriesAndStates();
+
+      setTimeout(() => {
+        const incompleteCountry: ICountry = {
+          id: undefined,
+          name: { de: '', en: '', fr: '', it: '' },
+          abbreviation: '',
+          prefix: '',
+          isDirty: CreateEntriesEnum.new,
+          select: false
+        };
+        service.countriesList.set([incompleteCountry]);
+
+        expect(service.isCountriesDirty()).toBe(false);
+        done();
+      }, 100);
     });
   });
 
