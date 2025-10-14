@@ -6,6 +6,12 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 
+export interface RoleChangeEvent {
+  account: IAuthentication;
+  roleName: 'Admin' | 'Authorised';
+  isSelected: boolean;
+}
+
 @Component({
   selector: 'app-user-administration-row',
   templateUrl: './user-administration-row.component.html',
@@ -17,7 +23,7 @@ export class UserAdministrationRowComponent {
   @Input() user: IAuthentication | undefined;
   @Input() enabled: boolean | undefined;
   @Output() isDeleteEvent = new EventEmitter<void>();
-  @Output() isChangingEvent = new EventEmitter<void>();
+  @Output() isRoleChangeEvent = new EventEmitter<RoleChangeEvent>();
   @Output() isSentToEvent = new EventEmitter<string>();
 
   public translate = inject(TranslateService);
@@ -26,13 +32,25 @@ export class UserAdministrationRowComponent {
     this.isDeleteEvent.emit();
   }
 
-  onChange(): void {
+  onAdminChange(): void {
     if (this.user) {
       this.user.isAdmin = Boolean(this.user.isAdmin?.toString() === 'true');
-      this.user.isAuthorised = Boolean(
-        this.user.isAuthorised?.toString() === 'true'
-      );
-      this.isChangingEvent.emit();
+      this.isRoleChangeEvent.emit({
+        account: this.user,
+        roleName: 'Admin',
+        isSelected: this.user.isAdmin,
+      });
+    }
+  }
+
+  onAuthorisedChange(): void {
+    if (this.user) {
+      this.user.isAuthorised = Boolean(this.user.isAuthorised?.toString() === 'true');
+      this.isRoleChangeEvent.emit({
+        account: this.user,
+        roleName: 'Authorised',
+        isSelected: this.user.isAuthorised,
+      });
     }
   }
 

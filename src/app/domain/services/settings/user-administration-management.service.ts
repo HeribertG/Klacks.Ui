@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject, signal } from '@angular/core';
 import { Subject, timer, of } from 'rxjs';
 import { takeUntil, retry, catchError, tap, finalize } from 'rxjs/operators';
@@ -9,6 +10,8 @@ import {
   ChangePassword,
   ChangeRole,
 } from 'src/app/domain/models/authentification-class';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +19,7 @@ import {
 export class UserAdministrationManagementService {
   private userAdministrationService = inject(UserAdministrationService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private localStorageService = inject(LocalStorageService);
   private destroy$ = new Subject<void>();
 
   public accountsList = signal<IAuthentication[]>([]);
@@ -26,7 +30,15 @@ export class UserAdministrationManagementService {
   private readonly RETRY_DELAY_MS = 1000;
 
   constructor() {
+    this.initializeCurrentAccountId();
     this.loadAccountsList();
+  }
+
+  private initializeCurrentAccountId(): void {
+    const userId = this.localStorageService.get(MessageLibrary.TOKEN_USERID);
+    if (userId) {
+      this.currentAccountId.set(userId);
+    }
   }
 
   private loadAccountsList(): void {
@@ -187,7 +199,11 @@ export class UserAdministrationManagementService {
       });
   }
 
-  updateAccountRole(account: IAuthentication, roleName: 'Admin' | 'Authorised', isSelected: boolean): void {
+  updateAccountRole(
+    account: IAuthentication,
+    roleName: 'Admin' | 'Authorised',
+    isSelected: boolean
+  ): void {
     this.isLoading.set(true);
 
     const changeRole = new ChangeRole();
@@ -232,7 +248,10 @@ export class UserAdministrationManagementService {
         retry({
           count: this.MAX_RETRIES,
           delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for sendPasswordResetEmail:`, error);
+            console.warn(
+              `Retry ${retryCount} for sendPasswordResetEmail:`,
+              error
+            );
             return timer(this.RETRY_DELAY_MS * retryCount);
           },
         }),
@@ -271,7 +290,10 @@ export class UserAdministrationManagementService {
         retry({
           count: this.MAX_RETRIES,
           delay: (error, retryCount) => {
-            console.warn(`Retry ${retryCount} for requestPasswordReset:`, error);
+            console.warn(
+              `Retry ${retryCount} for requestPasswordReset:`,
+              error
+            );
             return timer(this.RETRY_DELAY_MS * retryCount);
           },
         }),
@@ -299,17 +321,35 @@ export class UserAdministrationManagementService {
     if (typeof errorMessage === 'string') {
       const lowerError = errorMessage.toLowerCase();
 
-      if (lowerError.includes('benutzername') || lowerError.includes('username')) {
-        if (lowerError.includes('mindestens') || lowerError.includes('at least')) {
+      if (
+        lowerError.includes('benutzername') ||
+        lowerError.includes('username')
+      ) {
+        if (
+          lowerError.includes('mindestens') ||
+          lowerError.includes('at least')
+        ) {
           errorKey = 'USERNAME_MIN_LENGTH';
         }
-      } else if (lowerError.includes('e-mail') || lowerError.includes('email')) {
+      } else if (
+        lowerError.includes('e-mail') ||
+        lowerError.includes('email')
+      ) {
         errorKey = 'INVALID_EMAIL';
-      } else if (lowerError.includes('passwort') || lowerError.includes('password')) {
+      } else if (
+        lowerError.includes('passwort') ||
+        lowerError.includes('password')
+      ) {
         errorKey = 'PASSWORD_REQUIREMENTS';
-      } else if (lowerError.includes('vorname') || lowerError.includes('first name')) {
+      } else if (
+        lowerError.includes('vorname') ||
+        lowerError.includes('first name')
+      ) {
         errorKey = 'FIRSTNAME_REQUIRED';
-      } else if (lowerError.includes('nachname') || lowerError.includes('last name')) {
+      } else if (
+        lowerError.includes('nachname') ||
+        lowerError.includes('last name')
+      ) {
         errorKey = 'LASTNAME_REQUIRED';
       }
     } else if (errorMessage && typeof errorMessage === 'object') {

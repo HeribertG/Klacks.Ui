@@ -3,18 +3,8 @@ import { of, throwError } from 'rxjs';
 import { UserAdministrationManagementService } from './user-administration-management.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
-import { IAuthentication, ChangePassword, ChangeRole } from 'src/app/domain/models/authentification-class';
+import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
-
-class MockEventBus implements IEventBus {
-  emit<_T>(_eventType: string, _payload: _T): void {}
-  on<_T>(_eventType: string) {
-    return of();
-  }
-  onAny() {
-    return of();
-  }
-}
 
 describe('UserAdministrationManagementService', () => {
   let service: UserAdministrationManagementService;
@@ -42,11 +32,10 @@ describe('UserAdministrationManagementService', () => {
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
       ],
     });
-
-    service = TestBed.inject(UserAdministrationManagementService);
   });
 
   it('should be created', () => {
+    service = TestBed.inject(UserAdministrationManagementService);
     expect(service).toBeTruthy();
   });
 
@@ -85,12 +74,14 @@ describe('UserAdministrationManagementService', () => {
           })
         );
         done();
-      }, 100);
+      }, 3500);
     });
   });
 
   describe('addAccount', () => {
     it('should add account and reload list on success', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const newAccount: IAuthentication = {
         firstName: 'John',
         lastName: 'Doe',
@@ -114,6 +105,8 @@ describe('UserAdministrationManagementService', () => {
     });
 
     it('should handle 400 error with validation message', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const newAccount: IAuthentication = {
         firstName: 'John',
         lastName: 'Doe',
@@ -135,13 +128,15 @@ describe('UserAdministrationManagementService', () => {
           })
         );
         done();
-      }, 100);
+      }, 3500);
     });
   });
 
   describe('deleteAccount', () => {
     it('should delete account and reload list', (done) => {
-      mockUserAdministrationService.deleteAccount.and.returnValue(of(null));
+      service = TestBed.inject(UserAdministrationManagementService);
+
+      mockUserAdministrationService.deleteAccount.and.returnValue(of({} as IAuthentication));
 
       service.deleteAccount('123');
 
@@ -153,6 +148,8 @@ describe('UserAdministrationManagementService', () => {
     });
 
     it('should emit error event on delete failure', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       mockUserAdministrationService.deleteAccount.and.returnValue(
         throwError(() => new Error('Delete failed'))
       );
@@ -167,12 +164,14 @@ describe('UserAdministrationManagementService', () => {
           })
         );
         done();
-      }, 100);
+      }, 3500);
     });
   });
 
   describe('updateAccountRole', () => {
     it('should update admin role', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const account: IAuthentication = { id: '123' } as IAuthentication;
       mockUserAdministrationService.changeRole.and.returnValue(of(true));
 
@@ -191,6 +190,8 @@ describe('UserAdministrationManagementService', () => {
     });
 
     it('should emit error on role update failure', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const account: IAuthentication = { id: '123' } as IAuthentication;
       mockUserAdministrationService.changeRole.and.returnValue(
         throwError(() => new Error('Update failed'))
@@ -206,18 +207,20 @@ describe('UserAdministrationManagementService', () => {
           })
         );
         done();
-      }, 100);
+      }, 3500);
     });
   });
 
   describe('sendPasswordResetEmail', () => {
     it('should send password reset email successfully', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const passwordChange: ChangePassword = {
         email: 'test@test.com',
       } as ChangePassword;
 
       mockUserAdministrationService.ChangePassword.and.returnValue(
-        of({ success: true })
+        of({ success: true, expires: undefined, isAdmin: false, isAuthorised: false })
       );
 
       service.sendPasswordResetEmail(passwordChange);
@@ -232,12 +235,14 @@ describe('UserAdministrationManagementService', () => {
     });
 
     it('should handle password reset email failure', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       const passwordChange: ChangePassword = {
         email: 'test@test.com',
       } as ChangePassword;
 
       mockUserAdministrationService.ChangePassword.and.returnValue(
-        of({ success: false })
+        of({ success: false, expires: undefined, isAdmin: false, isAuthorised: false })
       );
 
       service.sendPasswordResetEmail(passwordChange);
@@ -254,6 +259,8 @@ describe('UserAdministrationManagementService', () => {
 
   describe('requestPasswordReset', () => {
     it('should request password reset successfully', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       mockUserAdministrationService.requestPasswordReset.and.returnValue(of(null));
 
       service.requestPasswordReset('test@test.com');
@@ -268,6 +275,8 @@ describe('UserAdministrationManagementService', () => {
     });
 
     it('should handle password reset request failure', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
       mockUserAdministrationService.requestPasswordReset.and.returnValue(
         throwError(() => new Error('Reset failed'))
       );
@@ -280,17 +289,27 @@ describe('UserAdministrationManagementService', () => {
           jasmine.objectContaining({ context: 'PASSWORD_RESET_EMAIL_ERROR' })
         );
         done();
-      }, 100);
+      }, 3500);
     });
   });
 
   describe('isLoading signal', () => {
-    it('should set isLoading to true during operations', () => {
-      mockUserAdministrationService.deleteAccount.and.returnValue(of(null));
+    it('should set isLoading to true during operations', (done) => {
+      service = TestBed.inject(UserAdministrationManagementService);
+
+      let wasLoadingSet = false;
+      mockUserAdministrationService.deleteAccount.and.callFake(() => {
+        wasLoadingSet = service.isLoading();
+        return of({} as IAuthentication);
+      });
 
       expect(service.isLoading()).toBe(false);
       service.deleteAccount('123');
-      expect(service.isLoading()).toBe(true);
+
+      setTimeout(() => {
+        expect(wasLoadingSet).toBe(true);
+        done();
+      }, 50);
     });
   });
 });

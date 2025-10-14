@@ -120,7 +120,7 @@
   <div class="modal-body">
     <p>
       {{ translate.instant("setting.user-admin.password-reset-question") }}<br /><b>{{
-        currentEmail
+        newUser?.email
       }}</b
       ><br />
     </p>
@@ -148,14 +148,14 @@
 
   <div class="container-box">
     <app-user-administration-header></app-user-administration-header>
-    @for (c of dataManagementSettingsService.accountsList; track c.id ||
+    @for (c of userAdminService.accountsList(); track c.id ||
     c.userName || $index; let i = $index) {
     <div>
       <app-user-administration-row
         [user]="c"
-        [enabled]="!(c.id === dataManagementSettingsService.CurrentAccountId)"
-        (isSentToEvent)="onSentTo($event); openMsg(msg)"
-        (isChangingEvent)="onIsChanging()"
+        [enabled]="!(c.id === userAdminService.currentAccountId())"
+        (isSentToEvent)="onSentTo($event)"
+        (isRoleChangeEvent)="onRoleChange($event.account, $event.roleName, $event.isSelected)"
         (isDeleteEvent)="onDelete(i)"
       >
       </app-user-administration-row>

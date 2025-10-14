@@ -5,6 +5,7 @@ import {
   inject,
   OnDestroy,
   AfterViewInit,
+  TemplateRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -18,6 +19,7 @@ import {
   IAuthentication,
 } from 'src/app/domain/models/authentification-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
 import { generatePassword } from 'src/app/domain/helpers/password';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
@@ -43,16 +45,17 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;
+  @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
 
   private ngbModal = inject(NgbModal);
   private modalService = inject(ModalService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  public userAdminService = inject(UserAdministrationManagementService);
   public translate = inject(TranslateService);
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
   disabled = true;
-  currentEmail = '';
   message = MessageLibrary.DELETE_ENTRY;
   pendingDeleteIndex = -1;
 
@@ -74,12 +77,12 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  onIsChanging(): void {
-    this.dataManagementSettingsService.saveAccountsRole();
+  onRoleChange(account: IAuthentication, roleName: 'Admin' | 'Authorised', isSelected: boolean): void {
+    this.userAdminService.updateAccountRole(account, roleName, isSelected);
   }
 
   onDelete(index: number): void {
-    const user = this.dataManagementSettingsService.accountsList[index];
+    const user = this.userAdminService.accountsList()[index];
     if (user?.id) {
       this.pendingDeleteIndex = index;
 
@@ -102,24 +105,19 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   }
 
   onSentTo(email: string): void {
-    this.currentEmail = email;
-  }
-
-  openMsg(content: any): void {
     this.newUser = new Authentication();
-    this.ngbModal.open(content, { size: 'sm', centered: true }).result.then(
+    this.newUser.email = email;
+    this.ngbModal.open(this.msgTemplate, { size: 'sm', centered: true }).result.then(
       () => {
-        this.dataManagementSettingsService.requestPasswordReset(
-          this.currentEmail
-        );
+        if (this.newUser?.email) {
+          this.userAdminService.requestPasswordReset(this.newUser.email);
+        }
       },
-      () => {
-        this.currentEmail = '';
-      }
+      () => {}
     );
   }
 
-  open(content: any): void {
+  open(content: unknown): void {
     this.newUser = new Authentication();
     this.newUser.message = MessageLibrary.REGISTERUSER_MAILTEXT;
     this.newUser.title = MessageLibrary.REGISTERUSER_TITLE;
@@ -131,7 +129,7 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
       () => {
         if (this.newUser) {
           this.newUser.password = generatePassword();
-          this.dataManagementSettingsService.addAccount(this.newUser);
+          this.userAdminService.addAccount(this.newUser);
         }
       },
       () => {}
@@ -147,13 +145,10 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
           this.modalService.componentContext === 'user-administration' &&
           this.pendingDeleteIndex >= 0
         ) {
-          const user =
-            this.dataManagementSettingsService.accountsList[
-              this.pendingDeleteIndex
-            ];
+          const user = this.userAdminService.accountsList()[this.pendingDeleteIndex];
           if (user?.id) {
             console.log('UserAdmin: Deleting user with ID:', user.id);
-            this.dataManagementSettingsService.deleteAccount(user.id);
+            this.userAdminService.deleteAccount(user.id);
           }
           this.pendingDeleteIndex = -1;
           this.modalService.componentContext = '';
