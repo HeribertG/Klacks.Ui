@@ -11,7 +11,7 @@ import {
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift-data-class';
 import {

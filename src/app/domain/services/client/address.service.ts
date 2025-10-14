@@ -6,7 +6,7 @@ import {
   IPostCodeCH,
 } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';

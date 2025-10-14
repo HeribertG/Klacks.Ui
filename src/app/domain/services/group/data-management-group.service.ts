@@ -32,7 +32,7 @@ import {
 } from 'src/app/domain/helpers/format-helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';

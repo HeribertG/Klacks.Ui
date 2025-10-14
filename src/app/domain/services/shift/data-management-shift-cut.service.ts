@@ -4,7 +4,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';

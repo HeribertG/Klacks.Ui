@@ -29,8 +29,8 @@ class MockTranslateService {
 }
 
 class MockEventBus implements IEventBus {
-  emit<T>(eventType: string, payload: T): void {}
-  on<T>(eventType: string) {
+  emit<_T>(_eventType: string, _payload: _T): void {}
+  on<_T>(_eventType: string) {
     return of();
   }
   onAny() {

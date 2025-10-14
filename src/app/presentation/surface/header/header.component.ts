@@ -11,7 +11,7 @@ import {
   Injector,
   runInInjectionContext,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';

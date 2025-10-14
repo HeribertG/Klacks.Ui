@@ -9,7 +9,7 @@ import {
   ExportClient,
   IClientAttribute,
 } from 'src/app/domain/models/client-class';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';

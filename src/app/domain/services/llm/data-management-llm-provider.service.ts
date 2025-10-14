@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 @Injectable({

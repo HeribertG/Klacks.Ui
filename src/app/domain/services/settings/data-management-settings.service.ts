@@ -6,7 +6,7 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { Subject } from 'rxjs';

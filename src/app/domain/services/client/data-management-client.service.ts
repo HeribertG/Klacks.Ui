@@ -24,7 +24,7 @@ import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';

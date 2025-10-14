@@ -3,7 +3,7 @@ import { ChangePassword } from 'src/app/domain/models/authentification-class';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';

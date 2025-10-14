@@ -13,7 +13,7 @@ import {
 } from 'src/app/domain/helpers/object-helpers';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from '../../models/entity-names.enum';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
