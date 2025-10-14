@@ -32,7 +32,7 @@ import {
 } from 'src/app/domain/helpers/format-helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
@@ -47,7 +47,7 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
 export class DataManagementGroupService implements ISaveable, IResettable, ILoadable, INavigable {
   public dataClientService = inject(DataClientService);
   public dataGroupService = inject(DataGroupService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private dataCountryStateService = inject(DataCountryStateService);
   private httpClient = inject(HttpClient);
   private destroy$ = new Subject<void>();

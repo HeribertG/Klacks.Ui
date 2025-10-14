@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { EventBus, DomainEvent } from './event-bus.service';
+import { EventBus } from './event-bus.service';
+import { DomainEvent } from '../../domain/interfaces/domain-event.interface';
 import { take } from 'rxjs/operators';
 
 describe('EventBus', () => {

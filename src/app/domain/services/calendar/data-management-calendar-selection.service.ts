@@ -5,7 +5,7 @@ import {
   ICalendarSelection,
   SelectedCalendar,
 } from 'src/app/domain/models/calendar-selection-class';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-calendar-selection.service';
 import { lastValueFrom, Subject } from 'rxjs';
@@ -22,7 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
   providedIn: 'root',
 })
 export class DataManagementCalendarSelectionService {
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private localStorageService = inject(LocalStorageService);
   private dataCalendarSelectionService = inject(DataCalendarSelectionService);
   private translate = inject(TranslateService);

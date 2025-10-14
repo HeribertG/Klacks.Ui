@@ -5,19 +5,19 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
-import { EventBus } from '../../../application/services/event-bus.service';
+import { IEventBus, EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { DataBreakService } from '../../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../../models/client-class';
 import { IBreak } from '../../models/break-class';
 
 describe('DataManagementBreakService', () => {
   let service: DataManagementBreakService;
-  let mockEventBus: jasmine.SpyObj<EventBus>;
+  let mockEventBus: jasmine.SpyObj<IEventBus>;
   let mockDataBreakService: jasmine.SpyObj<DataBreakService>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(() => {
-    const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
+    const eventBusSpy = jasmine.createSpyObj('IEventBus', ['emit', 'on', 'onAny']);
     const dataSpy = jasmine.createSpyObj('DataBreakService', [
       'addBreak',
       'updateBreak',
@@ -31,7 +31,7 @@ describe('DataManagementBreakService', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         DataManagementBreakService,
-        { provide: EventBus, useValue: eventBusSpy },
+        { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
         { provide: DataBreakService, useValue: dataSpy },
         { provide: TranslateService, useValue: translateSpy },
       ],
@@ -39,8 +39,8 @@ describe('DataManagementBreakService', () => {
 
     service = TestBed.inject(DataManagementBreakService);
     mockEventBus = TestBed.inject(
-      EventBus
-    ) as jasmine.SpyObj<EventBus>;
+      EVENT_BUS_TOKEN
+    ) as jasmine.SpyObj<IEventBus>;
     mockDataBreakService = TestBed.inject(
       DataBreakService
     ) as jasmine.SpyObj<DataBreakService>;

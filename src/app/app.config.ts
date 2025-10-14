@@ -43,6 +43,8 @@ import { AuthInterceptor } from './presentation/auth/auth.interceptor';
 import { TokenRefreshInterceptor } from './presentation/auth/token-refresh.interceptor';
 import { Title } from '@angular/platform-browser';
 import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
+import { EVENT_BUS_TOKEN } from './domain/interfaces/event-bus.interface';
+import { EventBus } from './application/services/event-bus.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -94,6 +96,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: FILTER_STORAGE_TOKEN,
       useClass: SessionStorageService,
+    },
+    {
+      provide: EVENT_BUS_TOKEN,
+      useClass: EventBus,
     },
     importProvidersFrom(
       NgbModule,

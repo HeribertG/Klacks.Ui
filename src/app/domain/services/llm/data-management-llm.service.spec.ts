@@ -11,12 +11,12 @@ import {
   ILLMChatResponse,
   ILLMUsage,
 } from 'src/app/infrastructure/api/data-llm.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 
 describe('DataManagementLLMService', () => {
   let service: DataManagementLLMService;
   let mockDataLLMService: jasmine.SpyObj<DataLLMService>;
-  let mockEventBus: jasmine.SpyObj<EventBus>;
+  let mockEventBus: jasmine.SpyObj<IEventBus>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockModels: ILLMModel[] = [
@@ -63,7 +63,7 @@ describe('DataManagementLLMService', () => {
       'updateModel',
     ]);
 
-    const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
+    const eventBusSpy = jasmine.createSpyObj('IEventBus', ['emit', 'on', 'onAny']);
 
     const translateServiceSpy = jasmine.createSpyObj(
       'TranslateService',
@@ -80,7 +80,7 @@ describe('DataManagementLLMService', () => {
       providers: [
         DataManagementLLMService,
         { provide: DataLLMService, useValue: dataLLMServiceSpy },
-        { provide: EventBus, useValue: eventBusSpy },
+        { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
     });
@@ -90,8 +90,8 @@ describe('DataManagementLLMService', () => {
       DataLLMService
     ) as jasmine.SpyObj<DataLLMService>;
     mockEventBus = TestBed.inject(
-      EventBus
-    ) as jasmine.SpyObj<EventBus>;
+      EVENT_BUS_TOKEN
+    ) as jasmine.SpyObj<IEventBus>;
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;

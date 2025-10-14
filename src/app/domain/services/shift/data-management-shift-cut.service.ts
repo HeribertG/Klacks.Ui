@@ -4,7 +4,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
@@ -18,7 +18,7 @@ import { takeUntil } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataManagementShiftCutService implements ISaveable, IResettable, ILoadable, INavigable {
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftCutsService = inject(DataShiftCutsService);
   private destroy$ = new Subject<void>();
 

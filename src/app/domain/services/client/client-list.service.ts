@@ -9,7 +9,7 @@ import {
   ExportClient,
   IClientAttribute,
 } from 'src/app/domain/models/client-class';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
@@ -21,7 +21,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class ClientListService {
   private dataClientService = inject(DataClientService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
   public listWrapper = signal<ITruncatedClient | undefined>(undefined);

@@ -4,6 +4,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { AppComponent } from './app.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
+import { EVENT_BUS_TOKEN, IEventBus } from './domain/interfaces/event-bus.interface';
 
 import { ToastShowService } from './presentation/toast/toast-show.service';
 
@@ -27,19 +28,32 @@ class MockTranslateService {
   onDefaultLangChange = of({ lang: 'de', translations: {} });
 }
 
+class MockEventBus implements IEventBus {
+  emit<T>(eventType: string, payload: T): void {}
+  on<T>(eventType: string) {
+    return of();
+  }
+  onAny() {
+    return of();
+  }
+}
+
 describe('AppComponent', () => {
   let mockToastService: MockToastService;
   let mockTranslateService: MockTranslateService;
+  let mockEventBus: MockEventBus;
 
   beforeEach(() => {
     mockToastService = new MockToastService();
     mockTranslateService = new MockTranslateService();
+    mockEventBus = new MockEventBus();
 
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, HttpClientTestingModule, TranslateModule.forRoot(), AppComponent], // AppComponent importieren
       providers: [
         { provide: ToastShowService, useValue: mockToastService }, // Mock für ToastService
-        { provide: TranslateService, useValue: mockTranslateService } // Mock für TranslateService
+        { provide: TranslateService, useValue: mockTranslateService }, // Mock für TranslateService
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus }
       ],
     });
   });

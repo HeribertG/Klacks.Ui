@@ -6,7 +6,7 @@ import {
   IPostCodeCH,
 } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { isNumeric } from 'src/app/domain/helpers/format-helper';
@@ -17,7 +17,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 })
 export class AddressService {
   private dataCountryStateService = inject(DataCountryStateService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
 
   public maxAddressType = 3;
 

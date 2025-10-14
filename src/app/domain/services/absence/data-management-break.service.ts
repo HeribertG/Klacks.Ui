@@ -13,7 +13,7 @@ import {
 } from 'src/app/domain/helpers/object-helpers';
 import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
 import { RouteName } from '../../models/entity-names.enum';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -25,7 +25,7 @@ import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 })
 export class DataManagementBreakService implements ILoadable {
   private dataBreakService = inject(DataBreakService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
 

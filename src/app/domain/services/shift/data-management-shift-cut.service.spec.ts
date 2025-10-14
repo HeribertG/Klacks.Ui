@@ -3,23 +3,23 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataManagementShiftCutService', () => {
   let service: DataManagementShiftCutService;
-  let mockEventBus: jasmine.SpyObj<EventBus>;
+  let mockEventBus: jasmine.SpyObj<IEventBus>;
   let mockDataShiftCutsService: jasmine.SpyObj<DataShiftCutsService>;
 
   beforeEach(() => {
-    mockEventBus = jasmine.createSpyObj('EventBus', ['emit']);
+    mockEventBus = jasmine.createSpyObj('IEventBus', ['emit', 'on', 'onAny']);
     mockDataShiftCutsService = jasmine.createSpyObj('DataShiftCutsService', ['getCutShiftList', 'addCuts', 'updateCuts']);
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        { provide: EventBus, useValue: mockEventBus },
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
         { provide: DataShiftCutsService, useValue: mockDataShiftCutsService },
         WorkTimeCalculationService
       ]

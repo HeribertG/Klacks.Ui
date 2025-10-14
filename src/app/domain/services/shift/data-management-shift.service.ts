@@ -11,7 +11,7 @@ import {
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { ITruncatedShift, ShiftFilter } from 'src/app/domain/models/shift-data-class';
 import {
@@ -35,7 +35,7 @@ import { takeUntil } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class DataManagementShiftService implements ISaveable, IResettable, ILoadable, INavigable {
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftService = inject(DataShiftService);
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);

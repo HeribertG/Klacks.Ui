@@ -6,7 +6,7 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { Subject } from 'rxjs';
@@ -39,7 +39,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   public dataSettingsVariousService = inject(DataSettingsVariousService);
   public dataCountryStateService = inject(DataCountryStateService);
   public dataMacroService = inject(DataMacroService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   public gridColorService = inject(GridColorService);
   private destroy$ = new Subject<void>();
 

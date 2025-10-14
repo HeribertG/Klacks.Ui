@@ -24,7 +24,7 @@ import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -44,7 +44,7 @@ export class DataManagementClientService
   public clientContractService = inject(ClientContractService);
   public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private destroy$ = new Subject<void>();
 
   public currentFilter: Filter = new Filter();

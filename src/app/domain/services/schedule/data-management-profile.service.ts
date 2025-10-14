@@ -3,7 +3,7 @@ import { ChangePassword } from 'src/app/domain/models/authentification-class';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -18,7 +18,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DataManagementProfileService implements ISaveable, IResettable, ILoadable, INavigable {
   public userAdministrationService = inject(UserAdministrationService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private localStorageService = inject(LocalStorageService);
   private destroy$ = new Subject<void>();
 

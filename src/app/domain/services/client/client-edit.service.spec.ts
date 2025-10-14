@@ -6,17 +6,35 @@ import { Client, ClientContract, Address } from 'src/app/domain/models/client-cl
 import { ClientGroupItem } from 'src/app/domain/models/client-group-item-class';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { of } from 'rxjs';
+
+class MockEventBus implements IEventBus {
+  emit<T>(eventType: string, payload: T): void {}
+  on<T>(eventType: string) {
+    return of();
+  }
+  onAny() {
+    return of();
+  }
+}
 
 describe('ClientEditService', () => {
   let service: ClientEditService;
+  let mockEventBus: MockEventBus;
 
   beforeEach(() => {
+    mockEventBus = new MockEventBus();
+
     TestBed.configureTestingModule({
       imports: [
         HttpClientTestingModule,
         TranslateModule.forRoot()
       ],
-      providers: [ClientEditService]
+      providers: [
+        ClientEditService,
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus }
+      ]
     });
     service = TestBed.inject(ClientEditService);
   });

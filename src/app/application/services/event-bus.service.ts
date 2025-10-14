@@ -1,17 +1,13 @@
 import { Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-
-export interface DomainEvent<T = unknown> {
-  type: string;
-  payload: T;
-  timestamp: Date;
-}
+import { IEventBus } from '../../domain/interfaces/event-bus.interface';
+import { DomainEvent } from '../../domain/interfaces/domain-event.interface';
 
 @Injectable({
   providedIn: 'root',
 })
-export class EventBus {
+export class EventBus implements IEventBus {
   private eventSubject = new Subject<DomainEvent>();
 
   emit<T>(eventType: string, payload: T): void {

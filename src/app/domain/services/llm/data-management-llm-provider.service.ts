@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { DataLLMProviderService, ILLMProvider, IUpdateProviderRequest, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 @Injectable({
@@ -10,7 +10,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 })
 export class DataManagementLLMProviderService {
   private dataLLMProviderService = inject(DataLLMProviderService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
 
   public providers = signal<ILLMProvider[]>([]);
   public isLoading = signal(false);

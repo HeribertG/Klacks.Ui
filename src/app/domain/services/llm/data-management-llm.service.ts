@@ -10,7 +10,7 @@ import {
   ILLMModel,
   ILLMUsage,
 } from 'src/app/infrastructure/api/data-llm.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { LLMSystemContextService } from './llm-system-context.service';
@@ -37,7 +37,7 @@ export interface IConversation {
 })
 export class DataManagementLLMService {
   private dataLLMService = inject(DataLLMService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private systemContextService = inject(LLMSystemContextService);
   private functionExecutionService = inject(LLMFunctionExecutionService);

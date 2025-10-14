@@ -22,7 +22,7 @@ import { CommunicationService } from './communication.service';
 import { ClientContractService } from './client-contract.service';
 import { ClientGroupItemService } from './client-group-item.service';
 import { ClientConfigService } from './client-config.service';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -38,7 +38,7 @@ export class ClientEditService {
   private clientContractService = inject(ClientContractService);
   private clientGroupItemService = inject(ClientGroupItemService);
   private clientConfigService = inject(ClientConfigService);
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
 

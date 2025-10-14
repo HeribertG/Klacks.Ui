@@ -3,7 +3,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Contract, IContract } from 'src/app/domain/models/contract-class';
 import { ICalendarSelection } from 'src/app/domain/models/calendar-selection-class';
-import { EventBus } from 'src/app/application/services/event-bus.service';
+import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataContractService } from 'src/app/infrastructure/api/data-contract.service';
 import { DataManagementCalendarSelectionService } from '../calendar/data-management-calendar-selection.service';
@@ -29,7 +29,7 @@ import { OwnTime } from '../../models/schedule-class';
   providedIn: 'root',
 })
 export class DataManagementContractService {
-  private eventBus = inject(EventBus);
+  private eventBus = inject(EVENT_BUS_TOKEN);
   private dataContractService = inject(DataContractService);
   private translate = inject(TranslateService);
   public dataManagementCalendarSelectionService = inject(
