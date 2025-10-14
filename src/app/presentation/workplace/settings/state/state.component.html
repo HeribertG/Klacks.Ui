@@ -11,12 +11,12 @@
   dataManagementSettingsService.statesList.length > 0) {
   <app-state-header> </app-state-header>
   }
-  <div class="container-box">
+  <div class="container-box" #containerBox>
     @for (c of dataManagementSettingsService.statesList; track c.id || $index;
     let i = $index) { @if (c.isDirty !== 3) {
     <app-state-row
       [data]="c"
-      (isChangingEvent)="onIsChanging($event)"
+      (isChangingEvent)="onIsChanging()"
       (isDeleteEvent)="onClickDelete(i)"
     >
     </app-state-row>

@@ -30,7 +30,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 })
 export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: IState | undefined;
-  @Output() isChangingEvent = new EventEmitter<true>();
+  @Output() isChangingEvent = new EventEmitter<void>();
   @Output() isDeleteEvent = new EventEmitter<void>();
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
@@ -62,12 +62,12 @@ export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onChange(event: any): void {
     this.updateDataDirtyState();
-    this.isChangingEvent.emit(true);
+    this.isChangingEvent.emit();
   }
 
   onKeyUp(event: any): void {
     this.updateDataDirtyState();
-    this.isChangingEvent.emit(true);
+    this.isChangingEvent.emit();
   }
 
   /**

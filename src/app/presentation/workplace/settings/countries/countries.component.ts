@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { Country } from 'src/app/domain/models/client-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -28,7 +28,7 @@ import { CountriesRowComponent } from './countries-row/countries-row.component';
   ],
 })
 export class CountriesComponent {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
@@ -36,29 +36,37 @@ export class CountriesComponent {
   onClickAdd() {
     const c = new Country();
     c.name = new MultiLanguage();
-
     c.isDirty = CreateEntriesEnum.new;
-    this.dataManagementSettingsService.countriesList.push(c);
-    this.onIsChanging(true);
+
+    const currentList = this.dataManagementSettingsService.countriesList;
+    this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList, c]);
+
+    setTimeout(() => {
+      if (this.containerBox?.nativeElement) {
+        this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+      }
+    }, 0);
   }
 
   onClickDelete(index: number) {
-    const c = this.dataManagementSettingsService.countriesList[index];
+    const currentList = this.dataManagementSettingsService.countriesList;
+    const c = currentList[index];
 
     if (c) {
       if (c.isDirty && c.isDirty === CreateEntriesEnum.new) {
-        this.dataManagementSettingsService.countriesList.splice(index, 1);
+        const updatedList = [...currentList];
+        updatedList.splice(index, 1);
+        this.dataManagementSettingsService.countryStateService.countriesList.set(updatedList);
       } else {
         c.name!.de = c.name!.de + '--isDeleted';
         c.isDirty = CreateEntriesEnum.delete;
+        this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList]);
       }
     }
-
-    this.onIsChanging(true);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onIsChanging(value: any) {
-    this.isChangingEvent.emit(value);
+  onIsChanging() {
+    const currentList = this.dataManagementSettingsService.countriesList;
+    this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList]);
   }
 }

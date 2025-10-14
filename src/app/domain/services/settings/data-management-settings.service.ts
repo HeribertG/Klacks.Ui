@@ -9,7 +9,7 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
-import { Subject } from 'rxjs';
+import { Subject, debounceTime } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   IAuthentication,
@@ -30,6 +30,7 @@ import { IMacro } from 'src/app/domain/models/macro-class';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { ILoadable, IResettable, ISaveable } from 'src/app/domain/interfaces/manageable.interface';
+import { CountryStateManagementService } from 'src/app/domain/services/settings/country-state-management.service';
 
 @Injectable({
   providedIn: 'root',
@@ -41,7 +42,11 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   public dataMacroService = inject(DataMacroService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   public gridColorService = inject(GridColorService);
+  public countryStateService = inject(CountryStateManagementService);
   private destroy$ = new Subject<void>();
+
+  public settingsChangeTrigger = signal<number>(0);
+  private autoSaveSettingsSubject = new Subject<void>();
 
   constructor() {
     effect(() => {
@@ -50,6 +55,26 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
         this._isReset.set(true);
       }
     });
+
+    effect(() => {
+      this.settingsChangeTrigger();
+      this.autoSaveSettingsSubject.next();
+    });
+
+    this.autoSaveSettingsSubject
+      .pipe(
+        debounceTime(1500),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.autoSaveSettings();
+      });
+  }
+
+  private autoSaveSettings(): void {
+    if (this.isSetting_Dirty()) {
+      this.saveSetting();
+    }
   }
 
   // IManageable implementation
@@ -64,13 +89,13 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   public accountCount = 0;
   public CurrentAccountId = '';
 
-  public countriesList: ICountry[] = new Array<ICountry>();
-  public countriesListDummy: ICountry[] = new Array<ICountry>();
-  public countriesListCount = 0;
+  get countriesList() {
+    return this.countryStateService.countriesList();
+  }
 
-  public statesList: IState[] = new Array<IState>();
-  public statesListDummy: IState[] = new Array<IState>();
-  public statesListCount = 0;
+  get statesList() {
+    return this.countryStateService.statesList();
+  }
 
   public macroList: IMacro[] = [];
   public macroListDummy: IMacro[] = [];
@@ -669,202 +694,34 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
   /* #endregion   various */
 
-  /* #region   countries */
+  /* #region   countries - Delegated to CountryStateManagementService */
 
   readCountryList() {
-    this.dataCountryStateService.getCountryList()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => {
-      if (x) {
-        this.countriesList = x as ICountry[];
-        this.countriesListDummy = cloneObject<ICountry[]>(this.countriesList);
-        this._isReset.set(true);
-        setTimeout(() => this._isReset.set(false), 100);
-      }
-    });
-  }
-
-  private countActionCountry(action: boolean) {
-    if (action) {
-      this.countriesListCount++;
-    } else {
-      this.countriesListCount--;
-    }
-    if (this.countriesListCount === 0) {
-      this.readCountryList();
-      this.IfStorageIsSuccessful();
-    }
+    this.countryStateService.loadCountriesAndStates();
   }
 
   private saveCountryList() {
-    this.countriesList.forEach(async (x) => {
-      if (
-        this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionCountry(false);
-          });
-      } else if (x.isDirty === 3) {
-        this.countActionCountry(true);
-        this.dataCountryStateService.deleteCountry(x.id!)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionCountry(false);
-          });
-      } else if (
-        !this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.new
-      ) {
-        delete x.id;
-        this.countActionCountry(true);
-        this.dataCountryStateService.addCountry(x)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionCountry(false);
-          });
-      } else if (
-        this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countActionCountry(true);
-        this.dataCountryStateService.updateCountry(x)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionCountry(false);
-          });
-      }
-    });
+    this.countryStateService.saveCountries();
   }
 
   private isCountryList_Dirty(): boolean {
-    const listOfExcludedObject = ['isDirty'];
-
-    const a = this.countriesList as ICountry[];
-    const b = this.countriesListDummy as ICountry[];
-
-    if (!compareComplexObjects(a, b, listOfExcludedObject)) {
-      // Bei unfertigen Eingaben wird kein isDirty geworfen
-      const tmp = this.countriesList.filter(
-        (x) =>
-          x.isDirty === CreateEntriesEnum.new &&
-          (this.emptyPlaceholder(x.name!) ||
-            x.abbreviation === '' ||
-            x.prefix === '')
-      );
-
-      if (tmp && tmp.length !== 0) {
-        return false;
-      }
-      return true;
-    }
-    return false;
+    return this.countryStateService.isCountriesDirty();
   }
 
   /* #endregion   countries */
 
-  /* #region   states*/
+  /* #region   states - Delegated to CountryStateManagementService */
 
   readStateList() {
-    this.dataCountryStateService.GetStateList()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((x: IState[]) => {
-      if (x) {
-        this.statesList = x as IState[];
-        this.statesListDummy = cloneObject<IState[]>(this.statesList);
-        this._isReset.set(true);
-        setTimeout(() => this._isReset.set(false), 100);
-      }
-    });
-  }
-
-  private countActionState(action: boolean) {
-    if (action) {
-      this.statesListCount++;
-    } else {
-      this.statesListCount--;
-    }
-    if (this.countriesListCount === 0) {
-      this.readStateList();
-      this.IfStorageIsSuccessful();
-    }
+    this.countryStateService.loadCountriesAndStates();
   }
 
   private saveStatesList() {
-    this.statesList.forEach(async (x) => {
-      if (
-        this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionState(false);
-          });
-      } else if (x.isDirty === 3) {
-        this.countActionState(true);
-        this.dataCountryStateService.deleteState(x.id!)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionState(false);
-          });
-      } else if (
-        !this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.new
-      ) {
-        delete x.id;
-        this.countActionState(true);
-        this.dataCountryStateService.addState(x)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionState(false);
-          });
-      } else if (
-        this.emptyPlaceholder(x.name!) &&
-        x.isDirty &&
-        x.isDirty === CreateEntriesEnum.rewrite
-      ) {
-        this.countActionState(true);
-        this.dataCountryStateService.updateCountry(x)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(() => {
-            this.countActionState(false);
-          });
-      }
-    });
+    this.countryStateService.saveStates();
   }
 
   private isStateList_Dirty(): boolean {
-    const listOfExcludedObject = ['isDirty'];
-
-    const a = this.statesList as IState[];
-    const b = this.statesListDummy as IState[];
-
-    if (!compareComplexObjects(a, b, listOfExcludedObject)) {
-      // Bei unfertigen Eingaben wird kein isDirty geworfen
-      const tmp = this.statesList.filter(
-        (x) =>
-          x.isDirty === CreateEntriesEnum.new &&
-          (this.emptyPlaceholder(x.name!) ||
-            x.abbreviation === '' ||
-            x.prefix === '')
-      );
-
-      if (tmp && tmp.length !== 0) {
-        return false;
-      }
-      return true;
-    }
-    return false;
+    return this.countryStateService.isStatesDirty();
   }
 
   /* #endregion   states */
@@ -1057,8 +914,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
   readData() {
     this.readSettingList();
-    this.readCountryList();
-    this.readStateList();
+    this.countryStateService.loadCountriesAndStates();
     this.readMacroList();
     this.readAccountsList();
   }

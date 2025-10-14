@@ -2,9 +2,7 @@
 import {
   Component,
   EffectRef,
-  EventEmitter,
   OnInit,
-  Output,
   ViewChild,
   effect,
   inject,
@@ -36,7 +34,6 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
   ],
 })
 export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
-  @Output() isChangingEvent = new EventEmitter();
 
   @ViewChild(NgForm, { static: false }) ownerAddressForm: NgForm | undefined;
 
@@ -57,7 +54,7 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
     this.objectForUnsubscribe = this.ownerAddressForm!.valueChanges!.subscribe(
       () => {
         if (this.ownerAddressForm!.dirty) {
-          setTimeout(() => this.isChangingEvent.emit(true), 100);
+          setTimeout(() => this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1), 100);
         }
       }
     );
@@ -81,7 +78,7 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
       const resetEffect = effect(() => {
         const isReset = this.dataManagementSettingsService.isReset;
         if (isReset) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
+          // Reset effect - no need to trigger save
         }
       });
       this.effects.push(resetEffect);

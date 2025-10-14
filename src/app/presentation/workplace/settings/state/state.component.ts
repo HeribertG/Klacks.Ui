@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
   ],
 })
 export class StateComponent {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+  @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
@@ -39,34 +39,42 @@ export class StateComponent {
     state.name = new MultiLanguage();
     state.isDirty = CreateEntriesEnum.new;
 
-    this.dataManagementSettingsService.statesList.push(state);
-    this.onIsChanging(true);
+    const currentList = this.dataManagementSettingsService.statesList;
+    this.dataManagementSettingsService.countryStateService.statesList.set([...currentList, state]);
+
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (this.containerBox?.nativeElement) {
+          this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+        }
+      }, 100);
+    });
   }
 
   onClickDelete(index: number): void {
-    const states = this.dataManagementSettingsService.statesList;
+    const currentList = this.dataManagementSettingsService.statesList;
 
-    if (index >= 0 && index < states.length) {
-      const state = states[index];
+    if (index >= 0 && index < currentList.length) {
+      const state = currentList[index];
 
       if (state) {
-        // Wenn es ein neuer Eintrag ist, komplett entfernen
         if (state.isDirty === CreateEntriesEnum.new) {
-          states.splice(index, 1);
+          const updatedList = [...currentList];
+          updatedList.splice(index, 1);
+          this.dataManagementSettingsService.countryStateService.statesList.set(updatedList);
         } else {
-          // Sonst als gelöscht markieren
           if (state.name?.de) {
             state.name.de = state.name.de + '--isDeleted';
           }
           state.isDirty = CreateEntriesEnum.delete;
+          this.dataManagementSettingsService.countryStateService.statesList.set([...currentList]);
         }
       }
-
-      this.onIsChanging(true);
     }
   }
 
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
+  onIsChanging(): void {
+    const currentList = this.dataManagementSettingsService.statesList;
+    this.dataManagementSettingsService.countryStateService.statesList.set([...currentList]);
   }
 }

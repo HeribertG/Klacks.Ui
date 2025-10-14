@@ -11,12 +11,12 @@
   dataManagementSettingsService.countriesList.length > 0) {
   <app-countries-header> </app-countries-header>
   }
-  <div class="container-box">
+  <div class="container-box" #containerBox>
     @for (c of dataManagementSettingsService.countriesList; track c.id ||
     $index; let i = $index) { @if (c.isDirty !== 3) {
     <app-countries-row
       [data]="c"
-      (isChangingEvent)="onIsChanging($event)"
+      (isChangingEvent)="onIsChanging()"
       (isDeleteEvent)="onClickDelete(i)"
     >
     </app-countries-row>

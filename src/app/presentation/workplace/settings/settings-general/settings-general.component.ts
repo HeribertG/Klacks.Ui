@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, EventEmitter, inject, Output, computed, OnDestroy } from '@angular/core';
+import { Component, inject, computed, OnDestroy } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
@@ -25,14 +26,13 @@ import { takeUntil } from 'rxjs/operators';
   ],
 })
 export class SettingsGeneralComponent implements OnDestroy {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
   selectedFileIcon: File | undefined;
   selectedFileLogo: File | undefined;
 
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private titleService = inject(Title);
 
   private destroy$ = new Subject<void>();
 
@@ -57,11 +57,20 @@ export class SettingsGeneralComponent implements OnDestroy {
   });
 
   onChange() {
-    this.isChangingEvent.emit(true);
+    this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
+    this.updateBrowserTitle();
   }
 
   onKeyUp() {
-    this.isChangingEvent.emit(true);
+    this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
+    this.updateBrowserTitle();
+  }
+
+  private updateBrowserTitle(): void {
+    const appName = this.dataManagementSettingsService.appName;
+    if (appName && appName.trim() !== '') {
+      this.titleService.setTitle(appName);
+    }
   }
 
   onIconSelected(event: any) {
