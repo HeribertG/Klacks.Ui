@@ -182,7 +182,7 @@
 
   <app-contract-header></app-contract-header>
 
-  <div class="container-box">
+  <div class="container-box" #containerBox>
     @for (contract of dataManagementContractService.contracts; track contract.id
     || $index; let i = $index) {
 

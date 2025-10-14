@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
-  EventEmitter,
-  Output,
+  ElementRef,
   inject,
   OnInit,
   ViewChild,
@@ -40,9 +39,9 @@ import { cloneObject } from 'src/app/domain/helpers/object-helpers';
   ],
 })
 export class ContractsComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
+  @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
   public dataManagementContractService = inject(DataManagementContractService);
@@ -50,6 +49,7 @@ export class ContractsComponent implements OnInit {
 
   public editingContract: IContract | null = null;
   private originalContract: IContract | null = null;
+  private isNewContract = false;
 
   async ngOnInit(): Promise<void> {
     try {
@@ -63,6 +63,7 @@ export class ContractsComponent implements OnInit {
     this.editingContract = this.dataManagementContractService.createContract();
 
     this.originalContract = null;
+    this.isNewContract = true;
 
     setTimeout(() => {
       this.modalService.open(this.contractModal, {
@@ -78,6 +79,7 @@ export class ContractsComponent implements OnInit {
 
     this.editingContract = clonedContract;
     this.originalContract = contract;
+    this.isNewContract = false;
 
     this.modalService.open(this.contractModal, {
       ariaLabelledBy: 'modal-title',
@@ -100,17 +102,11 @@ export class ContractsComponent implements OnInit {
           } else {
             contracts.splice(index, 1);
           }
-
-          this.onIsChanging(true);
         } catch (error) {
           console.error('Error deleting contract:', error);
         }
       }
     }
-  }
-
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
   }
 
   async onSave(modal: any): Promise<void> {
@@ -131,8 +127,17 @@ export class ContractsComponent implements OnInit {
         );
       }
 
-      this.onIsChanging(true);
       modal.close();
+
+      if (this.isNewContract) {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            if (this.containerBox?.nativeElement) {
+              this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+            }
+          }, 100);
+        });
+      }
     } catch (error) {
       console.error('Error saving contract:', error);
 
