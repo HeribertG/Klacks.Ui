@@ -51,8 +51,14 @@
   </form>
 
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="modal.close('OK')">
-      OK
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cross click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button type="button" class="btn save-btn" (click)="modal.close('OK')">
+      {{ translate.instant("setting.contract.save") }}
     </button>
   </div>
 </ng-template>
@@ -74,6 +80,7 @@
       class="btn btn btn-info center"
       aria-label="number"
       (click)="open(content)"
+      [disabled]="user?.isAdmin"
     >
       {{ assignedGroupsCount }}
     </button>

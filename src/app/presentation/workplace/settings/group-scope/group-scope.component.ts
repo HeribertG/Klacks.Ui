@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -16,8 +16,6 @@ import { DataManagementGroupVisibilityService } from 'src/app/domain/services/gr
   imports: [GroupScopeRowComponent, GroupScopeHeaderComponent, NgbModule],
 })
 export class GroupScopeComponent {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   public translate = inject(TranslateService);
   public dataManagementGroupService = inject(DataManagementGroupService);
@@ -25,8 +23,4 @@ export class GroupScopeComponent {
     DataManagementGroupVisibilityService
   );
   public readonly rootList = this.dataManagementGroupVisibilityService.rootList;
-
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
-  }
 }

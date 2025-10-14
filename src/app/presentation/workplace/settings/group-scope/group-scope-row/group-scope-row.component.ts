@@ -81,6 +81,10 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
   get assignedGroupsCount(): number {
     if (!this.user?.id) return 0;
 
+    if (this.user.isAdmin) {
+      return this.rootList().length;
+    }
+
     return this.dataManagementGroupVisibilityService
       .groupVisibilityList()
       .filter((gv) => gv.appUserId === this.user!.id).length;

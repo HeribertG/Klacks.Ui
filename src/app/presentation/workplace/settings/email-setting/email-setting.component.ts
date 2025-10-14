@@ -2,11 +2,9 @@
 import {
   Component,
   EffectRef,
-  EventEmitter,
   Injector,
   OnDestroy,
   OnInit,
-  Output,
   ViewChild,
   effect,
   inject,
@@ -47,7 +45,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
 
-  @Output() isChangingEvent = new EventEmitter<boolean>();
   @ViewChild(NgForm, { static: false }) emailSettingsForm: NgForm | undefined;
 
   ruleName = '';
@@ -74,7 +71,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
       this.formSubscription = this.emailSettingsForm.valueChanges.subscribe(
         () => {
           if (this.emailSettingsForm?.dirty) {
-            this.isChangingEvent.emit(true);
+            this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
           }
         }
       );
@@ -108,7 +105,6 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
             if (this.emailSettingsForm) {
               this.setupFormSubscription();
             }
-            this.isChangingEvent.emit(false);
           }, 100);
         }
       });

@@ -74,3 +74,31 @@ button {
   font-style: italic;
   color: var(--colorLabel) !important;
 }
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.red-font {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.save-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+}
+.save-btn-ok {
+  width: 50px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+}
