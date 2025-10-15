@@ -202,7 +202,7 @@
           </td>
 
           <td class="table-cell cell-right">
-            @if (authorizationService.isAuthorised) {
+            @if (authorizationService.isAdmin) {
             <div>
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
@@ -214,7 +214,7 @@
               </div>
               }
             </div>
-            } @if (!authorizationService.isAuthorised) {
+            } @if (!authorizationService.isAdmin) {
             <div>
               <div class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-eye-grey></app-icon-eye-grey>
