@@ -14,8 +14,7 @@ import {
   INavigable,
 } from 'src/app/domain/interfaces/manageable.interface';
 import { IEntityStateProvider } from 'src/app/domain/interfaces/entity-state-provider.interface';
-import { ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
-import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
 import { ManageableServiceFactory } from './manageable-service.factory';
 import {
   EntityName,
@@ -48,7 +47,7 @@ function isNavigable(manager: any): manager is INavigable {
   providedIn: 'root',
 })
 export class WorkplaceStateService implements IEntityStateProvider {
-  private spinnerService = inject(SpinnerService as new (...args: any[]) => ILoadingIndicator);
+  private spinnerService = inject(LOADING_INDICATOR_TOKEN);
   private manageableServiceFactory = inject(ManageableServiceFactory);
 
   public activeManager = signal<ILoadable | null>(null);

@@ -1,4 +1,4 @@
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   BaseEntity,

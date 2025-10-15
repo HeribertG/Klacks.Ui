@@ -26,7 +26,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -40,18 +40,19 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.SHIFT,
       DataManagementShiftService
     );
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.NEW_SHIFT,
       DataManagementShiftService
     );
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.EDIT_SHIFT,
       DataManagementShiftService
     );
@@ -61,8 +62,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
   public makeValidation = signal(false);
   public initIsRead = signal(false);
@@ -275,8 +275,8 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     }
 
     setTimeout(() => {
-      this._isReset.set(true);
-      setTimeout(() => this._isReset.set(false), 100);
+      this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
 

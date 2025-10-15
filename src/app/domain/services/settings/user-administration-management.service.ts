@@ -11,7 +11,7 @@ import {
   ChangeRole,
 } from 'src/app/domain/models/authentification-class';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { MessageLibrary } from 'src/app/domain/constants/message-library';
 
 @Injectable({
   providedIn: 'root',

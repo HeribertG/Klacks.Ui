@@ -266,7 +266,7 @@ export class AbsenceGanttRowHeaderComponent
       this.effects.push(effect1);
 
       const effect2 = effect(() => {
-        const isReset = this.gridColorService.isReset;
+        const isReset = this.gridColorService.isReset();
         if (isReset) {
           this.onResize([]);
         }
@@ -274,7 +274,7 @@ export class AbsenceGanttRowHeaderComponent
       this.effects.push(effect2);
 
       const effect3 = effect(() => {
-        const isReset = this.gridFontsService.isReset;
+        const isReset = this.gridFontsService.isReset();
         if (isReset) {
           this.onResize([]);
         }

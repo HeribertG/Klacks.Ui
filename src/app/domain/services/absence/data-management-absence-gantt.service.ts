@@ -11,8 +11,7 @@ export class DataManagementAbsenceGanttService {
   private dataAbsence = inject(DataAbsenceService);
   private destroy$ = new Subject<void>();
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public currentYearChanging = signal(false);
 
   public absenceList = signal<IAbsence[]>([]);
@@ -23,10 +22,10 @@ export class DataManagementAbsenceGanttService {
   readData(): void {
     this.dataAbsence.readAbsenceList().pipe(takeUntil(this.destroy$)).subscribe((absences) => {
       if (absences) {
-        this._isReset.set(true);
+        this.isReset.set(true);
         this.absenceList.set(absences);
         setTimeout(
-          () => this._isReset.set(false),
+          () => this.isReset.set(false),
           DataManagementAbsenceGanttService.RESET_DELAY
         );
       }

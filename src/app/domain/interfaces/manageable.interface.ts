@@ -1,3 +1,5 @@
+import { Signal } from '@angular/core';
+
 export interface ISaveable {
   areObjectsDirty(): boolean;
   canSave?(): boolean;
@@ -7,7 +9,7 @@ export interface ISaveable {
 
 export interface IResettable {
   resetData(): void;
-  readonly isReset: boolean;
+  readonly isReset: Signal<boolean>;
 }
 
 export interface ILoadable {

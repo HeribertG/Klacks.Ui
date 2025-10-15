@@ -1,30 +1,34 @@
-import { Type } from '@angular/core';
+import { Injectable, Type } from '@angular/core';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
+import { IManageableServiceRegistry } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 
-export class ManageableServiceRegistry {
-  private static registry = new Map<string, Type<ILoadable>>();
+@Injectable({
+  providedIn: 'root'
+})
+export class ManageableServiceRegistry implements IManageableServiceRegistry {
+  private registry = new Map<string, Type<ILoadable>>();
 
-  static register(
+  register(
     routeId: RouteName | string,
     serviceToken: Type<ILoadable>
   ): void {
     this.registry.set(routeId, serviceToken);
   }
 
-  static get(routeId: RouteName | string): Type<ILoadable> | undefined {
+  get(routeId: RouteName | string): Type<ILoadable> | undefined {
     return this.registry.get(routeId);
   }
 
-  static has(routeId: RouteName | string): boolean {
+  has(routeId: RouteName | string): boolean {
     return this.registry.has(routeId);
   }
 
-  static clear(): void {
+  clear(): void {
     this.registry.clear();
   }
 
-  static getRegisteredRoutes(): string[] {
+  getRegisteredRoutes(): string[] {
     return Array.from(this.registry.keys());
   }
 }

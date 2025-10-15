@@ -11,7 +11,7 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../models/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -27,11 +27,14 @@ export class DataManagementBreakService implements ILoadable {
   private dataBreakService = inject(DataBreakService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   public isRead = signal(false);
   private _showProgressSpinner = signal(false);
-  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+  get showProgressSpinner(): boolean {
+    return this._showProgressSpinner();
+  }
   public isUpdate = signal<IBreak | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
 
@@ -52,10 +55,7 @@ export class DataManagementBreakService implements ILoadable {
   canReadBreaks = false;
 
   constructor() {
-    ManageableServiceRegistry.register(
-      RouteName.ABSENCE,
-      DataManagementBreakService
-    );
+    this.registry.register(RouteName.ABSENCE, DataManagementBreakService);
   }
 
   reRead() {
@@ -67,35 +67,38 @@ export class DataManagementBreakService implements ILoadable {
     if (this.canReadBreaks) {
       this.clients = [];
 
-      this.dataBreakService.getClientList(this.breakFilter).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (clientBreaks) => {
-          this.clients = clientBreaks.map((client) => {
-            if (client.breaks && Array.isArray(client.breaks)) {
-              client.breaks = client.breaks.filter(
-                (brk) =>
-                  brk &&
-                  typeof brk === 'object' &&
-                  Object.keys(brk).length > 0 &&
-                  brk.from &&
-                  brk.until
-              );
-            } else {
-              client.breaks = [];
-            }
-            return client;
-          });
+      this.dataBreakService
+        .getClientList(this.breakFilter)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (clientBreaks) => {
+            this.clients = clientBreaks.map((client) => {
+              if (client.breaks && Array.isArray(client.breaks)) {
+                client.breaks = client.breaks.filter(
+                  (brk) =>
+                    brk &&
+                    typeof brk === 'object' &&
+                    Object.keys(brk).length > 0 &&
+                    brk.from &&
+                    brk.until
+                );
+              } else {
+                client.breaks = [];
+              }
+              return client;
+            });
 
-          this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
-          this._showProgressSpinner.set(false);
-          this.isRead.set(true);
+            this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
+            this._showProgressSpinner.set(false);
+            this.isRead.set(true);
 
-          setTimeout(() => this.isRead.set(false), 100);
-        },
-        error: (err) => {
-          console.error('Error loading the breaks:', err);
-          this._showProgressSpinner.set(false);
-        },
-      });
+            setTimeout(() => this.isRead.set(false), 100);
+          },
+          error: (err) => {
+            console.error('Error loading the breaks:', err);
+            this._showProgressSpinner.set(false);
+          },
+        });
     }
   }
 
@@ -137,12 +140,15 @@ export class DataManagementBreakService implements ILoadable {
       value.clientId = client.id!;
       delete tmp.id;
       delete tmp.absence;
-      this.dataBreakService.addBreak(tmp).pipe(takeUntil(this.destroy$)).subscribe((x: IBreak) => {
-        client.breaks.push(x);
-        client.breaks = this.sortBreaks(client.breaks);
+      this.dataBreakService
+        .addBreak(tmp)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((x: IBreak) => {
+          client.breaks.push(x);
+          client.breaks = this.sortBreaks(client.breaks);
 
-        this.isUpdate.set(x);
-      });
+          this.isUpdate.set(x);
+        });
       return true;
     }
     return false;
@@ -150,14 +156,17 @@ export class DataManagementBreakService implements ILoadable {
 
   deleteBreak(index: number, value: IBreak) {
     if (value.id) {
-      this.dataBreakService.deleteBreak(value.id!).pipe(takeUntil(this.destroy$)).subscribe(() => {
-        const client = this.clients[index];
-        client.breaks = this.sortBreaks(
-          client.breaks.filter((obj) => obj.id !== value.id)
-        );
-        this.isUpdate.set(value);
-        setTimeout(() => this.isUpdate.set(undefined), 100);
-      });
+      this.dataBreakService
+        .deleteBreak(value.id!)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          const client = this.clients[index];
+          client.breaks = this.sortBreaks(
+            client.breaks.filter((obj) => obj.id !== value.id)
+          );
+          this.isUpdate.set(value);
+          setTimeout(() => this.isUpdate.set(undefined), 100);
+        });
     }
   }
 
@@ -172,17 +181,28 @@ export class DataManagementBreakService implements ILoadable {
   }
 
   async updateBreak(index: number, value: IBreak) {
+    if (index < 0 || index >= this.clients.length) {
+      return;
+    }
+
     const client = this.clients[index];
+
+    if (!client) {
+      return;
+    }
 
     if (!this.validateBreakDatesAgainstMembership(client, value)) {
       return;
     }
 
-    return this.dataBreakService.updateBreak(value as Break).pipe(takeUntil(this.destroy$)).subscribe(() => {
-      client.breaks = this.sortBreaks(client.breaks);
-      this.isUpdate.set(value);
-      setTimeout(() => this.isUpdate.set(undefined), 100);
-    });
+    return this.dataBreakService
+      .updateBreak(value as Break)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        client.breaks = this.sortBreaks(client.breaks);
+        this.isUpdate.set(value);
+        setTimeout(() => this.isUpdate.set(undefined), 100);
+      });
   }
 
   indexOfBreak(value: IBreak): number {
@@ -233,7 +253,8 @@ export class DataManagementBreakService implements ILoadable {
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
             code: 'membership-validation-error',
-            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+            context:
+              'DataManagementBreakService.validateBreakDatesAgainstMembership',
           });
         });
       return false;
@@ -251,7 +272,8 @@ export class DataManagementBreakService implements ILoadable {
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
             code: 'membership-validation-error',
-            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+            context:
+              'DataManagementBreakService.validateBreakDatesAgainstMembership',
           });
         });
       return false;
@@ -272,7 +294,8 @@ export class DataManagementBreakService implements ILoadable {
           this.eventBus.emit(DomainEventType.ERROR, {
             message: formattedMessage,
             code: 'membership-validation-error',
-            context: 'DataManagementBreakService.validateBreakDatesAgainstMembership'
+            context:
+              'DataManagementBreakService.validateBreakDatesAgainstMembership',
           });
         });
       return false;

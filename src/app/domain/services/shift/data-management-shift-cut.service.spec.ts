@@ -4,6 +4,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataManagementShiftCutService', () => {
@@ -14,6 +15,13 @@ describe('DataManagementShiftCutService', () => {
   beforeEach(() => {
     mockEventBus = jasmine.createSpyObj('IEventBus', ['emit', 'on', 'onAny']);
     mockDataShiftCutsService = jasmine.createSpyObj('DataShiftCutsService', ['getCutShiftList', 'addCuts', 'updateCuts']);
+    const mockRegistry = {
+      register: jasmine.createSpy('register'),
+      get: jasmine.createSpy('get').and.returnValue(null),
+      has: jasmine.createSpy('has').and.returnValue(false),
+      clear: jasmine.createSpy('clear'),
+      getRegisteredRoutes: jasmine.createSpy('getRegisteredRoutes').and.returnValue([])
+    };
 
     TestBed.configureTestingModule({
       providers: [
@@ -21,6 +29,7 @@ describe('DataManagementShiftCutService', () => {
         provideHttpClientTesting(),
         { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
         { provide: DataShiftCutsService, useValue: mockDataShiftCutsService },
+        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
         WorkTimeCalculationService
       ]
     });

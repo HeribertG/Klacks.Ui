@@ -8,7 +8,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,10 +20,11 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   public userAdministrationService = inject(UserAdministrationService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private localStorageService = inject(LocalStorageService);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.PROFILE,
       DataManagementProfileService
     );
@@ -34,8 +35,7 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
 
   public changePasswordWrapper: ChangePassword = new ChangePassword();
@@ -61,8 +61,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this._isReset.set(true);
-          setTimeout(() => this._isReset.set(false), 100);
+          this.isReset.set(true);
+          setTimeout(() => this.isReset.set(false), 100);
           this.eventBus.emit(DomainEventType.SUCCESS, {
             message: DomainMessages.REGISTER_CHANGE_PASSWORD,
             context: DomainMessages.REGISTER_CHANGE_PASSWORD_HEADER
@@ -95,8 +95,8 @@ export class DataManagementProfileService implements ISaveable, IResettable, ILo
       this.changePassword();
       this.changePasswordWrapper!.oldPassword = '';
       this.changePasswordWrapper!.password = '';
-      this._isReset.set(true);
-      setTimeout(() => this._isReset.set(false), 100);
+      this.isReset.set(true);
+      setTimeout(() => this.isReset.set(false), 100);
     }
   }
 

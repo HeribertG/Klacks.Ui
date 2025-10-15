@@ -16,8 +16,7 @@ export class GridColorService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private destroy$ = new Subject<void>();
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
 
   settingList: ISetting[] = [];
 
@@ -84,8 +83,8 @@ export class GridColorService {
 
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
-        this._isReset.set(true);
-        setTimeout(() => this._isReset.set(false), 100);
+        this.isReset.set(true);
+        setTimeout(() => this.isReset.set(false), 100);
       }
     });
   }

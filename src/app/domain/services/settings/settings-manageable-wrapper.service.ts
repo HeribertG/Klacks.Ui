@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { DataManagementSettingsService } from './data-management-settings.service';
 import { DataManagementContractService } from '../contract/data-management-contract.service';
@@ -19,11 +19,12 @@ export class SettingsManageableWrapperService implements ISaveable, IResettable,
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
+
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.SETTINGS,
       SettingsManageableWrapperService
     );

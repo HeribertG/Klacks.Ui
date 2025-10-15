@@ -11,7 +11,7 @@ import {
   IResettable,
   ISaveable,
 } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';
@@ -45,6 +45,7 @@ export class DataManagementClientService
   public clientGroupItemService = inject(ClientGroupItemService);
   private dataClientService = inject(DataClientService);
   private eventBus = inject(EVENT_BUS_TOKEN);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   public currentFilter: Filter = new Filter();
@@ -105,17 +106,16 @@ export class DataManagementClientService
   );
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
   public initIsRead = this.clientConfigService.isInit;
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.CLIENT,
       DataManagementClientService
     );
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.EDIT_ADDRESS,
       DataManagementClientService
     );

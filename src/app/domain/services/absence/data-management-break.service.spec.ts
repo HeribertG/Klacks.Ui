@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
 import { IEventBus, EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { DataBreakService } from '../../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../../models/client-class';
 import { IBreak } from '../../models/break-class';
@@ -24,6 +25,13 @@ describe('DataManagementBreakService', () => {
       'deleteBreak',
     ]);
     const translateSpy = jasmine.createSpyObj('TranslateService', ['get']);
+    const mockRegistry = {
+      register: jasmine.createSpy('register'),
+      get: jasmine.createSpy('get').and.returnValue(null),
+      has: jasmine.createSpy('has').and.returnValue(false),
+      clear: jasmine.createSpy('clear'),
+      getRegisteredRoutes: jasmine.createSpy('getRegisteredRoutes').and.returnValue([])
+    };
 
     TestBed.configureTestingModule({
       imports: [TranslateModule.forRoot()],
@@ -34,6 +42,7 @@ describe('DataManagementBreakService', () => {
         { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
         { provide: DataBreakService, useValue: dataSpy },
         { provide: TranslateService, useValue: translateSpy },
+        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
       ],
     });
 

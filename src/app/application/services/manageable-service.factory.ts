@@ -1,14 +1,15 @@
 import { inject, Injectable, Injector } from '@angular/core';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from './manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({ providedIn: 'root' })
 export class ManageableServiceFactory {
   private injector = inject(Injector);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
 
   getService(routeId: RouteName | string): ILoadable | null {
-    const serviceToken = ManageableServiceRegistry.get(routeId);
+    const serviceToken = this.registry.get(routeId);
 
     if (serviceToken) {
       try {
@@ -22,6 +23,6 @@ export class ManageableServiceFactory {
   }
 
   hasService(routeId: RouteName | string): boolean {
-    return ManageableServiceRegistry.has(routeId);
+    return this.registry.has(routeId);
   }
 }

@@ -43,8 +43,7 @@ export class DataManagementContractService {
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
   public onSaveCompleted?: () => void;
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
   public initIsRead = signal(false);
 
@@ -218,9 +217,9 @@ export class DataManagementContractService {
     }
 
     setTimeout(() => {
-      this._isReset.set(true);
+      this.isReset.set(true);
       this._showProgressSpinner.set(false);
-      setTimeout(() => this._isReset.set(false), 100);
+      setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
 

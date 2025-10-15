@@ -1060,21 +1060,21 @@ export class AbsenceGanttSurfaceComponent
       this.effects.push(effect1);
 
       const effect2 = effect(() => {
-        if (this.gridColors.isReset) {
+        if (this.gridColors.isReset()) {
           this.addServicesCount();
         }
       });
       this.effects.push(effect2);
 
       const effect3 = effect(() => {
-        if (this.gridFonts.isReset) {
+        if (this.gridFonts.isReset()) {
           this.addServicesCount();
         }
       });
       this.effects.push(effect3);
 
       const effect4 = effect(() => {
-        if (this.holidayCollection.isReset) {
+        if (this.holidayCollection.isReset()) {
           this.drawCalendarGantt.selectedRow = -1;
           this.drawCalendarGantt.updateStartDate =
             this.holidayCollection.currentYear;

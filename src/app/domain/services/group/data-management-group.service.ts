@@ -37,7 +37,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
@@ -50,14 +50,15 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataCountryStateService = inject(DataCountryStateService);
   private httpClient = inject(HttpClient);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.GROUP,
       DataManagementGroupService
     );
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.EDIT_GROUP,
       DataManagementGroupService
     );
@@ -68,8 +69,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public onSaveCompleted?: () => void;
   public onExternalFilterChange?: () => void;
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
   public initIsRead = signal(false);
   public restoreSearch = signal('');
@@ -334,9 +334,9 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     }
 
     setTimeout(() => {
-      this._isReset.set(true);
+      this.isReset.set(true);
       this._showProgressSpinner.set(false);
-      setTimeout(() => this._isReset.set(false), 100);
+      setTimeout(() => this.isReset.set(false), 100);
     }, 200);
   }
 

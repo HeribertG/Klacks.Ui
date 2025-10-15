@@ -13,8 +13,7 @@ export class GridFontsService {
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private pixelToPt = inject(PixelToPtService);
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isChangingEvent = new Subject<boolean>();
 
   public settingList: ISetting[] = [];
@@ -208,9 +207,9 @@ export class GridFontsService {
 
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
-        this._isReset.set(true);
+        this.isReset.set(true);
         this.isChangingEvent.next(false);
-        setTimeout(() => this._isReset.set(false), 100);
+        setTimeout(() => this.isReset.set(false), 100);
       }
     });
   }

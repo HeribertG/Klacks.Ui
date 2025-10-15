@@ -9,7 +9,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,13 +20,14 @@ import { takeUntil } from 'rxjs/operators';
 export class DataManagementShiftCutService implements ISaveable, IResettable, ILoadable, INavigable {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftCutsService = inject(DataShiftCutsService);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   private newCuts: Shift[] = [];
   private existingCuts: Shift[] = [];
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.CUT_SHIFT,
       DataManagementShiftCutService
     );
@@ -35,8 +36,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public isRead = signal(false);
 
   public cutShifts: Shift[] = [];
@@ -249,8 +249,8 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   }
 
   private fireIsResetEvent(): void {
-    this._isReset.set(true);
-    setTimeout(() => this._isReset.set(false), 100);
+    this.isReset.set(true);
+    setTimeout(() => this.isReset.set(false), 100);
   }
 
   goBack(): string {

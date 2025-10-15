@@ -168,7 +168,7 @@ export class AbsenceGanttAbsenceListComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       this.effectRef = effect(() => {
-        const isReset = this.dataManagementAbsence.isReset;
+        const isReset = this.dataManagementAbsence.isReset();
         if (isReset) {
           this.fillImageMap();
         }

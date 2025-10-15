@@ -45,6 +45,12 @@ import { Title } from '@angular/platform-browser';
 import { DomainEventHandler } from './presentation/handlers/domain-event.handler';
 import { EVENT_BUS_TOKEN } from './domain/interfaces/event-bus.interface';
 import { EventBus } from './application/services/event-bus.service';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from './domain/interfaces/manageable-service-registry.interface';
+import { ManageableServiceRegistry } from './application/services/manageable-service-registry';
+import { ENTITY_STATE_PROVIDER_TOKEN } from './domain/interfaces/entity-state-provider.interface';
+import { WorkplaceStateService } from './application/services/workplace-state.service';
+import { LOADING_INDICATOR_TOKEN } from './domain/interfaces/loading-indicator.interface';
+import { SpinnerService } from './presentation/spinner/spinner.service';
 
 registerLocaleData(localeDe);
 registerLocaleData(localeFr);
@@ -100,6 +106,18 @@ export const appConfig: ApplicationConfig = {
     {
       provide: EVENT_BUS_TOKEN,
       useClass: EventBus,
+    },
+    {
+      provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN,
+      useClass: ManageableServiceRegistry,
+    },
+    {
+      provide: ENTITY_STATE_PROVIDER_TOKEN,
+      useClass: WorkplaceStateService,
+    },
+    {
+      provide: LOADING_INDICATOR_TOKEN,
+      useClass: SpinnerService,
     },
     importProvidersFrom(
       NgbModule,

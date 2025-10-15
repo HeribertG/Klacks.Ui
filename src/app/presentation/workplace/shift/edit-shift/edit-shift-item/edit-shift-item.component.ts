@@ -173,7 +173,7 @@ export class EditShiftItemComponent
         this.effects.push(effect1);
 
         const effect2 = effect(() => {
-          const isReset = this.dataManagementShiftService.isReset;
+          const isReset = this.dataManagementShiftService.isReset();
           if (isReset) {
             setTimeout(() => this.isChangingEvent.emit(false), 100);
           }

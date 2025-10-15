@@ -12,8 +12,7 @@ import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calenda
 export class HolidayCollectionService {
   private dataCalendarRule = inject(DataCalendarRuleService);
 
-  private _isReset = signal(false);
-  get isReset(): boolean { return this._isReset(); }
+  public isReset = signal(false);
   public holidays = new HolidaysListHelper();
   public possibleHolidayRule = new PossibleHolidayRuleWrapper();
 
@@ -27,7 +26,7 @@ export class HolidayCollectionService {
     return this.holidays.currentYear;
   }
   set currentYear(value: number) {
-    this._isReset.set(false);
+    this.isReset.set(false);
     this.holidays.currentYear = value;
     this.computeHolidays();
   }
@@ -48,7 +47,7 @@ export class HolidayCollectionService {
   }
 
   setSelection(values: StateCountryToken[]): void {
-    this._isReset.set(false);
+    this.isReset.set(false);
     this.possibleHolidayRule.setFilter(values);
     this.holidays.clear();
     const rules = this.possibleHolidayRule.getFilterData().map((x) => x.rule);
@@ -66,7 +65,7 @@ export class HolidayCollectionService {
     this.holidays.computeHolidays();
 
     setTimeout(
-      () => this._isReset.set(true),
+      () => this.isReset.set(true),
       HolidayCollectionService.WAIT_TIME
     );
   }

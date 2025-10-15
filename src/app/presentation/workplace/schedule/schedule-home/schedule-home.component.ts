@@ -84,7 +84,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private setupEffects(): void {
     runInInjectionContext(this.injector, () => {
       const holidayEffect = effect(() => {
-        if (this.holidayCollection.isReset) {
+        if (this.holidayCollection.isReset()) {
           this.refreshTrigger = !this.refreshTrigger;
         }
       });

@@ -12,7 +12,7 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
-import { ManageableServiceRegistry } from 'src/app/application/services/manageable-service-registry';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,10 +22,11 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DataManagementScheduleService implements ILoadable {
   private dataSchedule = inject(DataScheduleService);
+  private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
   constructor() {
-    ManageableServiceRegistry.register(
+    this.registry.register(
       RouteName.SCHEDULE,
       DataManagementScheduleService
     );

@@ -97,7 +97,7 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
   private readSignals(): void {
     const resetEffect = runInInjectionContext(this.injector, () => {
       return effect(() => {
-        const isReset = this.dataManagementSettingsService.isReset;
+        const isReset = this.dataManagementSettingsService.isReset();
         if (isReset && !this.isDataLoaded) {
           this.isDataLoaded = true;
 

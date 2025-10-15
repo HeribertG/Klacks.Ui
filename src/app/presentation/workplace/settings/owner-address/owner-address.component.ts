@@ -76,7 +76,7 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const resetEffect = effect(() => {
-        const isReset = this.dataManagementSettingsService.isReset;
+        const isReset = this.dataManagementSettingsService.isReset();
         if (isReset) {
           // Reset effect - no need to trigger save
         }

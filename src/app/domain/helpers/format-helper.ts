@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { MessageLibrary } from '../../application/helpers/string-constants';
+import { MessageLibrary } from '../constants/message-library';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 export function EqualDate(

@@ -225,7 +225,7 @@ export class AbsenceGanttMaskComponent
         }
 
         this.dataManagementBreak
-          .updateBreak(this.selectedBreakIndex, this.selectedBreak)
+          .updateBreak(this.selectedRow, this.selectedBreak)
           .then(() => {
             this.UpdateEvent.emit();
           });
