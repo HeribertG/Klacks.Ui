@@ -128,7 +128,7 @@ export class ClientContractsComponent
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAuthorised
+      !this.authorizationService.isAdmin
     );
   }
 

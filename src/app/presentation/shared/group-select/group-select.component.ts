@@ -63,6 +63,9 @@ export class GroupSelectComponent
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+  @Input() set disabled(value: boolean) {
+    this.setDisabledState(value);
+  }
 
   /**
    * Controls whether this component operates in global or local mode:

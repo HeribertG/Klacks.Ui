@@ -79,7 +79,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAuthorised
+      !this.authorizationService.isAdmin
     );
   }
 

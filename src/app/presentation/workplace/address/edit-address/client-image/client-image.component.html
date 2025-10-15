@@ -16,6 +16,7 @@
     <div class="image-container-show">
       <img [src]="imageUrl()" alt="Client Image" class="client-image" />
 
+      @if (!isDisabled()) {
       <div class="row">
         <span
           class="delete-button delete-button-icon"
@@ -27,6 +28,7 @@
           }}
         </span>
       </div>
+      }
     </div>
     } @if (!imageUrl() && !isLoading()) {
     <div
@@ -42,9 +44,10 @@
 
       <div
         class="fileupload-image"
+        [class.disabled]="isDisabled()"
         appDragDropFileUpload
-        (click)="fileField.click()"
-        (fileDropped)="onUploadImage($event)"
+        (click)="!isDisabled() && fileField.click()"
+        (fileDropped)="!isDisabled() && onUploadImage($event)"
       >
         <span class="ddinfo">
           {{ translate.instant("address.edit-address.client-image.info") }}
@@ -54,6 +57,7 @@
           name="clientImage"
           #fileField
           (change)="onUploadImage1($event)"
+          [disabled]="isDisabled()"
           hidden
           accept="image/*"
         />

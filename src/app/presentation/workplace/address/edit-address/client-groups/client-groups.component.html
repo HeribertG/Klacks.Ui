@@ -61,6 +61,7 @@
               <app-group-select
                 [showAllGroupsOption]="false"
                 [useGlobalSelection]="false"
+                [disabled]="isDisabled()"
                 [(ngModel)]="groupItem.groupId"
                 name="groupId-{{ $index }}"
                 (groupSelected)="onGroupChanged($index, $event)"

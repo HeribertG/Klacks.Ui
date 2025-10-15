@@ -118,7 +118,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAuthorised
+      !this.authorizationService.isAdmin
     );
   }
 

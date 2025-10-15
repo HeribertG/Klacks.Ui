@@ -19,6 +19,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DragDropFileUploadDirective } from 'src/app/presentation/directives/drag-drop-file-upload.directive';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 
 @Component({
@@ -48,6 +49,7 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
   public dataManagementClientService = inject(DataManagementClientService);
+  public authorizationService = inject(AuthorizationService);
   private injector = inject(Injector);
 
   private effects: EffectRef[] = [];
@@ -72,6 +74,13 @@ export class ClientImageComponent implements OnInit, OnDestroy {
       }
     });
     this.effects = [];
+  }
+
+  isDisabled(): boolean {
+    return (
+      this.dataManagementClientService.editClientDeleted() ||
+      !this.authorizationService.isAdmin
+    );
   }
 
   loadImage() {
