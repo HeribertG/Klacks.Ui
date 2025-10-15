@@ -17,6 +17,7 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Router } from '@angular/router';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
@@ -57,6 +58,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private tableResizeService = inject(TableResizeService);
   private allShiftStateService = inject(AllShiftStateService);
   private localStorageService = inject(LocalStorageService);
+  private router = inject(Router);
 
   selectedRowId?: string;
 
@@ -95,7 +97,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   resizeWindow: (() => void) | undefined;
 
   onAddShift(): void {
-    this.dataManagementShiftService.createShift();
+    this.router.navigate(['/workplace/new-shift']);
   }
 
   onLostFocus(): void {}
@@ -103,7 +105,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickEdit(data: Shift): void {
     if (data && data.id) {
       this.allShiftStateService.saveCurrentFilter();
-      this.dataManagementShiftService.readShift(data.id);
+      this.router.navigate(['/workplace/edit-shift', data.id]);
     }
   }
 
@@ -115,7 +117,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickCut(data: Shift) {
     if (data && data.originalId) {
-      this.dataManagementShiftCutService.readCutShiftList(data.originalId);
+      this.router.navigate(['/workplace/cut-shift', data.originalId]);
     }
   }
 

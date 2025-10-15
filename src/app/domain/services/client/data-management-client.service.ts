@@ -332,7 +332,6 @@ export class DataManagementClientService
 
   showExternalClient(id: string) {
     this.clientEditService.readClient(id);
-    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
   }
 
   public destroy(): void {

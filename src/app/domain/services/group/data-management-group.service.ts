@@ -175,7 +175,6 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
       .subscribe({
         next: (x: IGroup) => {
           this.prepareGroup(x);
-          this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-group/${id}` });
           this._showProgressSpinner.set(false);
         },
         error: (error) => {
@@ -307,8 +306,6 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     });
 
     this.prepareGroup(c);
-
-    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-group' });
 
     setTimeout(() => {
       this.fireIsReadEvent();
@@ -537,10 +534,6 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   /* #endregion   temporary check is GroupFilter dirty */
 
   /* #region   Tree Group */
-
-  showGroupTree() {
-    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/group-structure' });
-  }
 
   getPathToNode(id: string): Observable<IGroup[]> {
     return this.httpClient

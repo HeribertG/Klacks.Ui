@@ -53,8 +53,6 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
         this.cutShifts = x;
         this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
-        this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/cut-shift' });
-
         setTimeout(
           () => history.pushState(null, '', this.createCutShiftUrl(id)),
           100

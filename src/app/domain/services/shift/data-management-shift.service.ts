@@ -232,7 +232,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   createShift() {
     this.prepareShift(this.prepareNewShift());
-    this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/new-shift' });
   }
 
   private prepareNewShift(): IShift {
@@ -301,7 +300,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
             );
           }
 
-          this.eventBus.emit(DomainEventType.NAVIGATE, { route: `/workplace/edit-shift/${id}` });
           this.fireIsReadEvent();
         });
     }

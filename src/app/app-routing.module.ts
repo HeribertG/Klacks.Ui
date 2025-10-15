@@ -95,8 +95,8 @@ const routes: Routes = [
         path: 'edit-shift/:id', 
         loadComponent: () => import('./presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component').then(m => m.EditShiftHomeComponent)
       },
-      { 
-        path: 'cut-shift', 
+      {
+        path: 'cut-shift/:id',
         loadComponent: () => import('./presentation/workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component').then(m => m.CutShiftHomeComponent)
       }
     ]

@@ -4,7 +4,10 @@ import {
   Component,
   inject,
   OnInit,
+  OnDestroy,
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -15,10 +18,8 @@ import { EditShiftMacroComponent } from '../edit-shift-macro/edit-shift-macro.co
 import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-address.component';
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
-import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -41,19 +42,17 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditShiftGroupComponent,
   ],
 })
-export class EditShiftHomeComponent implements OnInit {
+export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
-  private workplaceStateService = inject(
-    WorkplaceStateService
-  );
+  private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
   public authorizationService = inject(AuthorizationService);
-  private urlParameterService = inject(UrlParameterService);
+  private activatedRoute = inject(ActivatedRoute);
   private localStorageService = inject(LocalStorageService);
-  private navigationService = inject(NavigationService);
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  private destroy$ = new Subject<void>();
 
   isComplex = false;
 
@@ -66,49 +65,28 @@ export class EditShiftHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    
-    // Hide search for edit/new pages
     this.searchService.setSearchVisibility(false);
-    
-    // Determine the route and set active manager
-    const result1 = this.urlParameterService.parseCurrentUrl(
-      '/workplace/edit-shift'
-    );
-    const result2 = this.urlParameterService.parseCurrentUrl(
-      '/workplace/new-shift'
-    );
-
-    if (result1.isValidRoute) {
-      this.workplaceStateService.setActiveManagerByRoute(
-        'edit-shift'
-      );
-    } else if (result2.isValidRoute) {
-      this.workplaceStateService.setActiveManagerByRoute(
-        'new-shift'
-      );
-    }
-    
-    // Show footer for this edit/new page
     this.footerService.setFooterVisibility(true);
 
-    if (this.dataManagementShiftService.editShift === undefined) {
-      if (result1.isValidRoute && result1.hasId && result1.id) {
-        this.dataManagementShiftService.readShift(result1.id);
-      } else {
-        if (this.authorizationService.isAdmin) {
-          this.dataManagementShiftService.createShift();
-        } else {
-          this.navigationService.navigateToPageNotFound();
-        }
-      }
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const id = params['id'];
 
-      if (result2.isValidRoute) {
+      if (id) {
+        this.workplaceStateService.setActiveManagerByRoute('edit-shift');
+        this.dataManagementShiftService.readShift(id);
+      } else {
+        this.workplaceStateService.setActiveManagerByRoute('new-shift');
         this.dataManagementShiftService.createShift();
       }
-    }
+    });
 
     this.onIsChangingMode();
     this.dataManagementShiftService.init();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onIsChanging(event: any) {

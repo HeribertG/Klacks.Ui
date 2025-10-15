@@ -128,9 +128,10 @@ describe('ClientContractsComponent', () => {
       const client = editClientSignal();
       expect(client.clientContracts.length).toBe(1);
 
-      component.removeContract(0);
+      component.removeContract(client.clientContracts[0]);
 
-      expect(client.clientContracts.length).toBe(0);
+      const updatedClient = editClientSignal();
+      expect(updatedClient.clientContracts.length).toBe(0);
     });
   });
 
@@ -171,20 +172,21 @@ describe('ClientContractsComponent', () => {
         ],
       });
 
-      component.onActiveChange(1);
-
       const client = editClientSignal();
+      component.onActiveChange(client.clientContracts[1]);
+
       client.clientContracts[1].isActive = true;
 
-      component.onActiveChange(1);
+      component.onActiveChange(client.clientContracts[1]);
 
       expect(client.clientContracts[0].isActive).toBe(false);
       expect(client.clientContracts[1].isActive).toBe(true);
     });
 
     it('should update client signal and emit change event', () => {
+      const client = editClientSignal();
       const spy = spyOn(component.isChangingEvent, 'emit');
-      component.onActiveChange(0);
+      component.onActiveChange(client.clientContracts[0]);
       expect(spy).toHaveBeenCalledWith(true);
     });
   });
