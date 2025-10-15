@@ -68,6 +68,8 @@ export class DataManagementClientService
   public readonly headerCheckBoxValue =
     this.clientListService.headerCheckBoxValue;
   public readonly editClient = this.clientEditService.editClient;
+  public readonly isRead = this.clientEditService.isRead;
+  public readonly isReset = this.clientEditService.isReset;
   public readonly currentAddressIndex =
     this.clientEditService.currentAddressIndex;
   public readonly currentAnnotationIndex =
@@ -106,8 +108,6 @@ export class DataManagementClientService
   );
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  public isReset = signal(false);
-  public isRead = signal(false);
   public initIsRead = this.clientConfigService.isInit;
 
   constructor() {

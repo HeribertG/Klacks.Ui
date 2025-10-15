@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
-import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { Router } from '@angular/router';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
@@ -76,7 +76,7 @@ export class AllAddressListComponent
   private injector = inject(Injector);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
-  private navigationService = inject(NavigationService);
+  private router = inject(Router);
   private tableResizeService = inject(TableResizeService);
   private allAddressStateService = inject(AllAddressStateService);
 
@@ -170,7 +170,7 @@ export class AllAddressListComponent
   }
 
   onAddAddress(): void {
-    this.dataManagementClientService.createClient();
+    this.router.navigate(['/workplace/edit-address']);
   }
 
   onChangeCheckBox(i: number, value: any): void {
@@ -221,7 +221,7 @@ export class AllAddressListComponent
 
   onClickEdit(data: IClient): void {
     this.allAddressStateService.saveCurrentFilter();
-    this.dataManagementClientService.readClient(data.id!);
+    this.router.navigate(['/workplace/edit-address', data.id!]);
   }
 
   onClickExportExcel(index: number): void {

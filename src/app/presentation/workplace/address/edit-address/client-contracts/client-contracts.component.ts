@@ -22,6 +22,7 @@ import { CommonModule } from '@angular/common';
 import { NgbModule, NgbTooltipModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { IContract } from 'src/app/domain/models/contract-class';
+import { IClientContract } from 'src/app/domain/models/client-class';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
@@ -70,6 +71,7 @@ export class ClientContractsComponent
   public faTimes = faTimes;
   public objectForUnsubscribe: any;
   public contracts: IContract[] = [];
+  public sortedContracts: IClientContract[] = [];
   public contractValidationState: Map<number, boolean | undefined> = new Map();
   public contractFromDateValidationState: Map<number, boolean | undefined> =
     new Map();
@@ -140,45 +142,46 @@ export class ClientContractsComponent
     this.isChangingEvent.emit(true);
   }
 
-  removeContract(index: number): void {
+  removeContract(contract: IClientContract): void {
     const currentClient = this.dataManagementClientService.editClient();
     if (!currentClient?.clientContracts) return;
 
-    currentClient.clientContracts.splice(index, 1);
-
-    this.dataManagementClientService.editClient.update((client) => ({
-      ...client!,
-    }));
-    this.isChangingEvent.emit(true);
+    const index = currentClient.clientContracts.findIndex(c => c === contract);
+    if (index > -1) {
+      currentClient.clientContracts.splice(index, 1);
+      this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+      this.isChangingEvent.emit(true);
+    }
   }
 
   trackByIndex(index: number): number {
     return index;
   }
 
-  onActiveChange(index: number): void {
+  onActiveChange(changedContract: IClientContract): void {
     const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.clientContracts?.[index]) return;
+    if (!currentClient?.clientContracts) return;
 
-    if (currentClient.clientContracts[index].isActive) {
-      currentClient.clientContracts.forEach((contract, i) => {
-        if (i !== index) {
+    if (changedContract.isActive) {
+      currentClient.clientContracts.forEach((contract) => {
+        if (contract !== changedContract) {
           contract.isActive = false;
         }
       });
     }
 
-    this.dataManagementClientService.editClient.update((client) => ({
-      ...client!,
-    }));
+    this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
     this.isChangingEvent.emit(true);
   }
 
   sortContracts(): void {
     const currentClient = this.dataManagementClientService.editClient();
-    if (!currentClient?.clientContracts) return;
+    if (!currentClient?.clientContracts) {
+      this.sortedContracts = [];
+      return;
+    }
 
-    currentClient.clientContracts.sort((a, b) => {
+    this.sortedContracts = [...currentClient.clientContracts].sort((a, b) => {
       let compareValue = 0;
 
       if (this.orderBy === 'contract') {

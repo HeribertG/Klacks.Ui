@@ -256,9 +256,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     currentClient.groupItems[index].groupId = selectedGroup.id;
     currentClient.groupItems[index].groupName = selectedGroup.name;
 
-    this.dataManagementClientService.editClient.update((client) => ({
-      ...client!,
-    }));
+    this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
     this.isChangingEvent.emit(true);
   }
 
@@ -268,9 +266,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
     currentClient.groupItems.splice(index, 1);
 
-    this.dataManagementClientService.editClient.update((client) => ({
-      ...client!,
-    }));
+    this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
     this.isChangingEvent.emit(true);
   }
 

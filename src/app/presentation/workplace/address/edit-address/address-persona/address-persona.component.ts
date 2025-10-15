@@ -589,37 +589,24 @@ export class AddressPersonaComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const effect1 = effect(() => {
-        const isRead = this.dataManagementClientService.isRead();
-        if (isRead) {
+        if (this.dataManagementClientService.isRead()) {
           setTimeout(() => this.setEnvironmentVariable(), 100);
-          this.dataManagementClientService.isRead.set(false);
         }
-      });
-      this.effects.push(effect1);
 
-      const effect2 = effect(() => {
-        const isReset = this.dataManagementClientService.isReset();
-        if (isReset) {
+        if (this.dataManagementClientService.isReset()) {
           setTimeout(() => this.isChangingEvent.emit(false), 100);
         }
-      });
-      this.effects.push(effect2);
 
-      const effect3 = effect(() => {
-        const client = this.dataManagementClientService.editClient();
-        if (client) {
+        if (this.dataManagementClientService.editClient()) {
           this.dataManagementClientService.filterState();
           this.calcValidation();
         }
       });
-      this.effects.push(effect3);
+      this.effects.push(effect1);
 
-      const effect4 = effect(() => {
-        if (this.dataManagementClientService.editClient()) {
-          this.dataManagementClientService.filterState();
-        }
-      });
-      this.effects.push(effect4);
+      if (this.dataManagementClientService.isRead() && this.dataManagementClientService.editClient()) {
+        setTimeout(() => this.setEnvironmentVariable(), 100);
+      }
     });
   }
 

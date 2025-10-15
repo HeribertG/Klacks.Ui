@@ -152,12 +152,11 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     const target = event.target as HTMLTextAreaElement;
     if (target) {
       const originalIndex = this.getOriginalIndex(sortedIndex);
-      this.dataManagementClientService.editClient.update((client) => {
-        if (client) {
-          client.annotations[originalIndex].note = target.value;
-        }
-        return client;
-      });
+      const client = this.dataManagementClientService.editClient();
+      if (client) {
+        client.annotations[originalIndex].note = target.value;
+        this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+      }
       this.isChangingEvent.emit(true);
     }
   }
@@ -225,12 +224,11 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onContentChange(sortedIndex: number, content: string): void {
     const originalIndex = this.getOriginalIndex(sortedIndex);
-    this.dataManagementClientService.editClient.update((client) => {
-      if (client) {
-        client.annotations[originalIndex].note = content;
-      }
-      return client;
-    });
+    const client = this.dataManagementClientService.editClient();
+    if (client) {
+      client.annotations[originalIndex].note = content;
+      this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+    }
     this.isChangingEvent.emit(true);
   }
 }

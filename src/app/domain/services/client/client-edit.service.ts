@@ -44,9 +44,13 @@ export class ClientEditService {
 
   public editClient = signal<IClient | undefined>(undefined);
   public editClientDummy: IClient | undefined;
+  public isRead = signal(false);
+  public isReset = signal(false);
 
   private _showProgressSpinner = signal(false);
-  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+  get showProgressSpinner(): boolean {
+    return this._showProgressSpinner();
+  }
   public onSaveCompleted?: () => void;
   public lastSaveError = signal<boolean>(false);
   public lastSaveErrorMessage = signal<string>('');
@@ -67,11 +71,10 @@ export class ClientEditService {
       this.editClient()!,
       -1
     );
+
     this.editClient.set(editClient);
     this.currentAddressIndex.set(currentAddressIndex);
-
     this.communicationService.setCommunication(this.editClient()!);
-
     this.editClientDummy = cloneObject<IClient>(this.editClient()!);
 
     if (this.editClient()!.id) {
@@ -79,6 +82,7 @@ export class ClientEditService {
     }
 
     this._showProgressSpinner.set(false);
+    this.isRead.set(true);
   }
 
   public refreshClientState() {
@@ -90,6 +94,7 @@ export class ClientEditService {
       this.editClient()!,
       -1
     );
+
     this.editClient.set(editClient);
     this.currentAddressIndex.set(currentAddressIndex);
 
@@ -103,28 +108,34 @@ export class ClientEditService {
   public readClient(id: string) {
     if (id !== '') {
       this._showProgressSpinner.set(true);
-      this.dataClientService.getClient(id).pipe(takeUntil(this.destroy$)).subscribe((x) => {
-        this.prepareClient(x);
-        this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address/' + id });
-      });
+      this.isRead.set(false);
+      this.dataClientService
+        .getClient(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((x) => {
+          this.prepareClient(x);
+        });
     }
   }
 
   public createClient() {
     this._showProgressSpinner.set(true);
-    this.dataClientService.countIdNumber().pipe(takeUntil(this.destroy$)).subscribe((x) => {
-      const c = new Client();
-      c.membership = new Membership();
-      c.membership.validFrom = new Date();
-      c.idNumber = x + 1;
-      const a = c.addresses[0];
-      a.validFrom = new Date();
-      a.type = AddressTypeEnum.customer;
+    this.isRead.set(false);
+    this.dataClientService
+      .countIdNumber()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x) => {
+        const c = new Client();
+        c.membership = new Membership();
+        c.membership.validFrom = new Date();
+        c.idNumber = x + 1;
+        const a = c.addresses[0];
+        a.validFrom = new Date();
+        a.type = AddressTypeEnum.customer;
 
-      this.prepareClient(c);
-      this.eventBus.emit(DomainEventType.NAVIGATE, { route: '/workplace/edit-address' });
-      this._showProgressSpinner.set(false);
-    });
+        this.prepareClient(c);
+        this._showProgressSpinner.set(false);
+      });
   }
 
   public saveEditClient() {
@@ -149,10 +160,13 @@ export class ClientEditService {
         this.lastSaveErrorMessage.set('');
 
         if (x.id) {
-          this.dataClientService.getClient(x.id).pipe(takeUntil(this.destroy$)).subscribe((refreshedClient) => {
-            this.prepareClient(refreshedClient);
-            this.onSaveCompleted?.();
-          });
+          this.dataClientService
+            .getClient(x.id)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe((refreshedClient) => {
+              this.prepareClient(refreshedClient);
+              this.onSaveCompleted?.();
+            });
         }
       },
       error: (error) => {
@@ -160,7 +174,7 @@ export class ClientEditService {
         this.lastSaveError.set(true);
         this._showProgressSpinner.set(false);
 
-        let errorMessage = 'Fehler beim Speichern';
+        let errorMessage = 'Error while saving';
         const errorKeys: string[] = [];
 
         if (error?.error?.errors) {
@@ -195,7 +209,7 @@ export class ClientEditService {
         this.eventBus.emit(DomainEventType.ERROR, {
           message: errorMessage,
           code: 'client-save-error',
-          context: 'ClientEditService.saveEditClient'
+          context: 'ClientEditService.saveEditClient',
         });
       },
     });
@@ -203,20 +217,24 @@ export class ClientEditService {
 
   public addAnnotation() {
     this.editClient.update((client) => {
-      if (!client!.annotations) {
-        client!.annotations = [];
+      if (!client) return client;
+
+      if (!client.annotations) {
+        client.annotations = [];
       }
-      client!.annotations.unshift(new Annotation());
-      return client;
+      client.annotations.unshift(new Annotation());
+
+      return { ...client };
     });
   }
 
   public removeCurrentAnnotation() {
     this.editClient.update((client) => {
-      if (client!.annotations) {
-        client!.annotations.splice(this.currentAnnotationIndex(), 1);
-      }
-      return client;
+      if (!client || !client.annotations) return client;
+
+      client.annotations.splice(this.currentAnnotationIndex(), 1);
+
+      return { ...client };
     });
   }
 
@@ -232,22 +250,21 @@ export class ClientEditService {
   }
 
   private setDateStruc() {
-    this.editClient.update((client) => {
-      client!.internalBirthdate = transformDateToNgbDateStruct(
-        client!.birthdate!
-      );
-      client!.membership!.internalValidFrom = transformDateToNgbDateStruct(
-        client!.membership!.validFrom
-      );
-      client!.membership!.internalValidUntil = transformDateToNgbDateStruct(
-        client!.membership!.validUntil!
-      );
+    const client = this.editClient();
+    if (!client) return;
 
-      this.clientContractService.setDateStructs(client!.clientContracts);
-      this.clientGroupItemService.setDateStructs(client!.groupItems);
+    client.internalBirthdate = transformDateToNgbDateStruct(
+      client.birthdate!
+    );
+    client.membership!.internalValidFrom = transformDateToNgbDateStruct(
+      client.membership!.validFrom
+    );
+    client.membership!.internalValidUntil = transformDateToNgbDateStruct(
+      client.membership!.validUntil!
+    );
 
-      return client;
-    });
+    this.clientContractService.setDateStructs(client.clientContracts);
+    this.clientGroupItemService.setDateStructs(client.groupItems);
   }
 
   public isDirty(): boolean {
@@ -403,7 +420,9 @@ export class ClientEditService {
 
   public resetData(): void {
     if (this.editClientDummy) {
+      this.isReset.set(true);
       this.prepareClient(cloneObject<IClient>(this.editClientDummy));
+      setTimeout(() => this.isReset.set(false), 100);
     }
   }
 

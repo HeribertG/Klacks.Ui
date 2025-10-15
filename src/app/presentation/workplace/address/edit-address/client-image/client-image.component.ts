@@ -229,12 +229,8 @@ export class ClientImageComponent implements OnInit, OnDestroy {
           clientImage.id = client.clientImage.id;
         }
 
-        this.dataManagementClientService.editClient.update((c) => {
-          if (c) {
-            c.clientImage = clientImage;
-          }
-          return c;
-        });
+        client.clientImage = clientImage;
+        this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
 
         this.loadImage();
         this.selectedFile = undefined;
@@ -257,12 +253,11 @@ export class ClientImageComponent implements OnInit, OnDestroy {
   }
 
   onClickDeleteImage() {
-    this.dataManagementClientService.editClient.update((c) => {
-      if (c) {
-        c.clientImage = undefined;
-      }
-      return c;
-    });
+    const client = this.dataManagementClientService.editClient();
+    if (client) {
+      client.clientImage = undefined;
+      this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+    }
 
     this.imageUrl.set(undefined);
     this.isChangingEvent.emit(true);

@@ -5,6 +5,7 @@ import {
   inject,
   Input,
   OnInit,
+  OnDestroy,
   Output,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
@@ -24,6 +25,8 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
+import { ActivatedRoute } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -42,7 +45,7 @@ import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactiva
     EditAddressNavComponent,
   ],
 })
-export class EditAddressHomeComponent implements OnInit, CanComponentDeactivate {
+export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   @Input() isEditClient = false;
   @Output() isEnterEvent = new EventEmitter();
 
@@ -61,6 +64,8 @@ export class EditAddressHomeComponent implements OnInit, CanComponentDeactivate 
   private footerService = inject(FooterService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  private activatedRoute = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
@@ -69,16 +74,20 @@ export class EditAddressHomeComponent implements OnInit, CanComponentDeactivate 
 
     this.footerService.setFooterVisibility(true);
 
-    if (this.dataManagementClientService.editClient() === undefined) {
-      const result = this.urlParameterService.parseCurrentUrl(
-        '/workplace/edit-address'
-      );
-      if (result.isValidRoute && result.hasId && result.id) {
-        this.dataManagementClientService.readClient(result.id);
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      const id = params['id'];
+
+      if (id) {
+        this.dataManagementClientService.readClient(id);
       } else {
         this.dataManagementClientService.createClient();
       }
-    }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onIsChanging(event: boolean) {

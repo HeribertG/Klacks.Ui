@@ -125,7 +125,6 @@ export function compareComplexObjects(
     p: string,
     listExcludedObject?: string[]
   ): boolean {
-    // Helper function to log mismatches
     function logMismatch(reason: string) {
       return false;
     }

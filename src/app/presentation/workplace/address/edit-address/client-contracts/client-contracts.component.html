@@ -47,8 +47,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (contract of
-          dataManagementClientService.editClient()?.clientContracts; track
+          @for (contract of sortedContracts; track
           trackByIndex($index)) {
           <tr class="table-row">
             <td class="table-cell">
@@ -140,12 +139,12 @@
                 id="active-{{ $index }}"
                 [disabled]="isDisabled()"
                 [(ngModel)]="contract.isActive"
-                (ngModelChange)="onActiveChange($index)"
+                (ngModelChange)="onActiveChange(contract)"
               />
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
-              <div class="icon" (click)="removeContract($index)">
+              <div class="icon" (click)="removeContract(contract)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }
