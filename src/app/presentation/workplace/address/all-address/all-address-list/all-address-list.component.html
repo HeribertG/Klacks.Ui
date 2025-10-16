@@ -6,7 +6,7 @@
 
     <span class="filler"></span>
 
-    @if (authorizationService.isAuthorised) {
+    @if (authorizationService.isAdmin) {
     <div class="tree-actions">
       <button class="btn new-btn" (click)="onAddAddress()" tabindex="0">
         {{ "new-address" | translate }}

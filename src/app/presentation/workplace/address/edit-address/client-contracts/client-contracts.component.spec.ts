@@ -43,6 +43,9 @@ describe('ClientContractsComponent', () => {
       editClient: editClientSignal,
       editClientDeleted: editClientDeletedSignal,
       addContract: jasmine.createSpy('addContract'),
+      clientEditService: {
+        editClient: editClientSignal,
+      },
     };
 
     mockContractService = {
@@ -57,7 +60,7 @@ describe('ClientContractsComponent', () => {
     };
 
     mockAuthorizationService = {
-      isAuthorised: true,
+      isAdmin: true,
     };
 
     await TestBed.configureTestingModule({
@@ -105,13 +108,13 @@ describe('ClientContractsComponent', () => {
     });
 
     it('should return true when not authorized', () => {
-      mockAuthorizationService.isAuthorised = false;
+      mockAuthorizationService.isAdmin = false;
       expect(component.isDisabled()).toBe(true);
     });
 
     it('should return false when authorized and client not deleted', () => {
       editClientDeletedSignal.set(false);
-      mockAuthorizationService.isAuthorised = true;
+      mockAuthorizationService.isAdmin = true;
       expect(component.isDisabled()).toBe(false);
     });
   });
@@ -222,9 +225,8 @@ describe('ClientContractsComponent', () => {
 
       component.sortContracts();
 
-      const contracts = editClientSignal().clientContracts;
-      expect(contracts[0].contractId).toBe('660e8400-e29b-41d4-a716-446655440001');
-      expect(contracts[1].contractId).toBe('550e8400-e29b-41d4-a716-446655440000');
+      expect(component.sortedContracts[0].contractId).toBe('660e8400-e29b-41d4-a716-446655440001');
+      expect(component.sortedContracts[1].contractId).toBe('550e8400-e29b-41d4-a716-446655440000');
     });
 
     it('should sort by fromDate', () => {
@@ -233,9 +235,8 @@ describe('ClientContractsComponent', () => {
 
       component.sortContracts();
 
-      const contracts = editClientSignal().clientContracts;
-      expect(contracts[0].id).toBe('2');
-      expect(contracts[1].id).toBe('1');
+      expect(component.sortedContracts[0].id).toBe('2');
+      expect(component.sortedContracts[1].id).toBe('1');
     });
 
     it('should sort by active status', () => {
@@ -244,9 +245,8 @@ describe('ClientContractsComponent', () => {
 
       component.sortContracts();
 
-      const contracts = editClientSignal().clientContracts;
-      expect(contracts[0].isActive).toBe(false);
-      expect(contracts[1].isActive).toBe(true);
+      expect(component.sortedContracts[0].isActive).toBe(false);
+      expect(component.sortedContracts[1].isActive).toBe(true);
     });
   });
 

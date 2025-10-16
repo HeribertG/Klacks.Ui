@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ClientImageComponent } from './client-image.component';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
@@ -12,7 +13,9 @@ describe('ClientImageComponent', () => {
   let fixture: ComponentFixture<ClientImageComponent>;
   let mockDataManagementClientService: any;
   let mockDataLoadFileService: jasmine.SpyObj<DataLoadFileService>;
+  let mockAuthorizationService: any;
   let editClientSignal: WritableSignal<any>;
+  let editClientDeletedSignal: WritableSignal<boolean>;
 
   beforeEach(async () => {
     editClientSignal = signal({
@@ -20,13 +23,23 @@ describe('ClientImageComponent', () => {
       clientImage: undefined,
     });
 
+    editClientDeletedSignal = signal(false);
+
     mockDataManagementClientService = {
       editClient: editClientSignal,
+      editClientDeleted: editClientDeletedSignal,
+      clientEditService: {
+        editClient: editClientSignal,
+      },
     };
 
     mockDataLoadFileService = jasmine.createSpyObj('DataLoadFileService', [
       'uploadFile',
     ]);
+
+    mockAuthorizationService = {
+      isAdmin: true,
+    };
 
     await TestBed.configureTestingModule({
       imports: [ClientImageComponent, TranslateModule.forRoot(), FormsModule],
@@ -36,6 +49,7 @@ describe('ClientImageComponent', () => {
           useValue: mockDataManagementClientService,
         },
         { provide: DataLoadFileService, useValue: mockDataLoadFileService },
+        { provide: AuthorizationService, useValue: mockAuthorizationService },
       ],
     }).compileComponents();
 

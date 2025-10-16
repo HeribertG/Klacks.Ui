@@ -39,6 +39,7 @@ import { ResizeTableDirective } from 'src/app/presentation/directives/resize-tab
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
+import { NavigationService } from 'src/app/presentation/services/navigation.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -76,9 +77,9 @@ export class AllAddressListComponent
   private injector = inject(Injector);
   private localStorageService = inject(LocalStorageService);
   private modalService = inject(ModalService);
-  private router = inject(Router);
   private tableResizeService = inject(TableResizeService);
   private allAddressStateService = inject(AllAddressStateService);
+  private navigationService = inject(NavigationService);
 
   public arrowCompany = '';
   public arrowFirstName = '';
@@ -170,7 +171,7 @@ export class AllAddressListComponent
   }
 
   onAddAddress(): void {
-    this.router.navigate(['/workplace/edit-address']);
+    this.navigationService.navigateToEditAddress();
   }
 
   onChangeCheckBox(i: number, value: any): void {
@@ -196,7 +197,9 @@ export class AllAddressListComponent
   }
 
   onChangeHeaderCheckBox(): void {
-    this.dataManagementClientService.clientListService.headerCheckBoxValue.set(this.headerCheckBoxValue);
+    this.dataManagementClientService.clientListService.headerCheckBoxValue.set(
+      this.headerCheckBoxValue
+    );
     this.dataManagementClientService.clearCheckedArray();
   }
 
@@ -221,7 +224,7 @@ export class AllAddressListComponent
 
   onClickEdit(data: IClient): void {
     this.allAddressStateService.saveCurrentFilter();
-    this.router.navigate(['/workplace/edit-address', data.id!]);
+    this.navigationService.navigateToEditAddress(data.id!);
   }
 
   onClickExportExcel(index: number): void {

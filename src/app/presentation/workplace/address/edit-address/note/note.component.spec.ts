@@ -36,6 +36,7 @@ describe('NoteComponent', () => {
       addAnnotation: jasmine.createSpy('addAnnotation'),
       removeCurrentAnnotation: jasmine.createSpy('removeCurrentAnnotation'),
       clientEditService: {
+        editClient: editClientSignal,
         currentAnnotationIndex: currentAnnotationIndexSignal,
       },
     };
