@@ -5,9 +5,9 @@
   >
     <div class="row-line">
       <p class="arrow">
-        @if (arrowFirstName === templateArrowDown) {
+        @if (sortingService.getArrow('firstName') === '↓') {
         <app-icon-asc></app-icon-asc>
-        } @if (arrowFirstName === templateArrowUp) {
+        } @if (sortingService.getArrow('firstName') === '↑') {
         <app-icon-desc></app-icon-desc>
         }
       </p>
@@ -20,9 +20,9 @@
   <button class="input-group button-as-div" (click)="onClickHeader('name')">
     <div class="row-line">
       <p class="arrow">
-        @if (arrowName === templateArrowDown) {
+        @if (sortingService.getArrow('name') === '↓') {
         <app-icon-asc></app-icon-asc>
-        } @if (arrowName === templateArrowUp) {
+        } @if (sortingService.getArrow('name') === '↑') {
         <app-icon-desc></app-icon-desc>
         }
       </p>
@@ -35,9 +35,9 @@
   <button class="input-group button-as-div" (click)="onClickHeader('company')">
     <div class="row-line">
       <p class="arrow">
-        @if (arrowCompany === templateArrowDown) {
+        @if (sortingService.getArrow('company') === '↓') {
         <app-icon-asc></app-icon-asc>
-        } @if (arrowCompany === templateArrowUp) {
+        } @if (sortingService.getArrow('company') === '↑') {
         <app-icon-desc></app-icon-desc>
         }
       </p>

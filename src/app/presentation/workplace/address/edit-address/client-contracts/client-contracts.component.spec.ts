@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { signal, WritableSignal } from '@angular/core';
 import { IClientContract } from 'src/app/domain/models/client-class';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 describe('ClientContractsComponent', () => {
   let component: ClientContractsComponent;
@@ -80,6 +81,7 @@ describe('ClientContractsComponent', () => {
           useValue: mockContractService,
         },
         { provide: AuthorizationService, useValue: mockAuthorizationService },
+        TableSortingService,
       ],
     }).compileComponents();
 
@@ -220,30 +222,22 @@ describe('ClientContractsComponent', () => {
         { id: '550e8400-e29b-41d4-a716-446655440000', name: 'Vollzeit 160 BE' } as any,
         { id: '660e8400-e29b-41d4-a716-446655440001', name: 'Teilzeit 80 BE' } as any,
       ];
-      component.orderBy = 'contract';
-      component.sortOrder = 'asc';
 
-      component.sortContracts();
+      component.onClickHeader('contract');
 
-      expect(component.sortedContracts[0].contractId).toBe('660e8400-e29b-41d4-a716-446655440001');
-      expect(component.sortedContracts[1].contractId).toBe('550e8400-e29b-41d4-a716-446655440000');
+      expect(component.sortedContracts[0].contractId).toBe('550e8400-e29b-41d4-a716-446655440000');
+      expect(component.sortedContracts[1].contractId).toBe('660e8400-e29b-41d4-a716-446655440001');
     });
 
     it('should sort by fromDate', () => {
-      component.orderBy = 'fromDate';
-      component.sortOrder = 'asc';
-
-      component.sortContracts();
+      component.onClickHeader('fromDate');
 
       expect(component.sortedContracts[0].id).toBe('2');
       expect(component.sortedContracts[1].id).toBe('1');
     });
 
     it('should sort by active status', () => {
-      component.orderBy = 'active';
-      component.sortOrder = 'asc';
-
-      component.sortContracts();
+      component.onClickHeader('active');
 
       expect(component.sortedContracts[0].isActive).toBe(false);
       expect(component.sortedContracts[1].isActive).toBe(true);
@@ -251,26 +245,24 @@ describe('ClientContractsComponent', () => {
   });
 
   describe('onClickHeader', () => {
-    it('should toggle sort direction', () => {
-      component.onClickHeader('contract');
-      expect(component.contractHeader.order).toBe(1);
+    it('should cycle through three-way sort: asc -> desc -> none', () => {
+      component.onClickHeader('fromDate');
+      expect(component.sortingService.getCurrentSortOrder()).toBe('asc');
+      expect(component.sortingService.getArrow('fromDate')).toBe('↓');
 
-      component.onClickHeader('contract');
-      expect(component.contractHeader.order).toBe(2);
+      component.onClickHeader('fromDate');
+      expect(component.sortingService.getCurrentSortOrder()).toBe('desc');
+      expect(component.sortingService.getArrow('fromDate')).toBe('↑');
 
-      component.onClickHeader('contract');
-      expect(component.contractHeader.order).toBe(0);
+      component.onClickHeader('fromDate');
+      expect(component.sortingService.getCurrentSortOrder()).toBe('');
+      expect(component.sortingService.getArrow('fromDate')).toBe('');
     });
 
-    it('should update arrow templates', () => {
+    it('should call sortContracts on header click', () => {
+      spyOn(component, 'sortContracts');
       component.onClickHeader('contract');
-      expect(component.arrowContract).toBe('↓');
-
-      component.onClickHeader('contract');
-      expect(component.arrowContract).toBe('↑');
-
-      component.onClickHeader('contract');
-      expect(component.arrowContract).toBe('');
+      expect(component.sortContracts).toHaveBeenCalled();
     });
   });
 

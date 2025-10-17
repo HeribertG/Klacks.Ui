@@ -19,10 +19,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 
 import { Subject, takeUntil } from 'rxjs';
 import { Absence, IAbsence } from 'src/app/domain/models/absence-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
 import { cloneObject } from 'src/app/domain/helpers/object-helpers';
@@ -58,41 +55,42 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
     FallbackPipe,
     SimplePaginationComponent,
   ],
+  providers: [TableSortingService],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) absenceForm: NgForm | undefined;
 
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
+  public sortingService = inject(TableSortingService);
 
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
   private translate = inject(TranslateService);
 
-  public arrowDescription = '';
-  public arrowName = '';
   public currentAbsence = new Absence();
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
-  public descriptionHeader = new HeaderProperties();
   public firstItemOnLastPage: number | undefined = undefined;
   public highlightRowId: string | undefined = undefined;
   public isComboBoxOpen = false;
   public isNextPage: boolean | undefined = undefined;
   public isPreviousPage: boolean | undefined = undefined;
   public message = MessageLibrary.DELETE_ENTRY;
-  public nameHeader = new HeaderProperties();
   public numberOfItemsPerPage = 7;
   public numberOfItemsPerPageMap = new Map<number, number>();
-  public orderBy = 'name';
   public page = 1;
-  public sortOrder = 'asc';
 
   private ngUnsubscribe = new Subject<void>();
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
-    this.reReadSortData();
+
+    this.sortingService.initialize({
+      columns: ['name', 'description'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     this.readPage();
   }
 
@@ -132,32 +130,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickDownloadExcel(): void {}
 
   onClickHeader(orderBy: string): void {
-    let sortOrder = '';
-
-    if (orderBy === 'name') {
-      this.nameHeader.DirectionSwitch();
-
-      if (this.nameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.nameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'description') {
-      this.descriptionHeader.DirectionSwitch();
-
-      if (this.descriptionHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.descriptionHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
-    this.readPage();
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
   onClickedRow(value: IAbsence): void {
@@ -264,71 +237,12 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     filter.isPreviousPage = this.isPreviousPage;
     filter.isNextPage = this.isNextPage;
 
-    filter.orderBy = this.orderBy;
-    filter.sortOrder = this.sortOrder;
+    filter.orderBy = this.sortingService.getCurrentOrderBy();
+    filter.sortOrder = this.sortingService.getCurrentSortOrder();
 
     filter.requiredPage = this.page - 1;
     filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
 
     this.dataManagementAbsenceService.readPage(this.currentLang);
-  }
-
-  private reReadSortData(): void {
-    this.sort(this.orderBy, this.sortOrder);
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate(): void {
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-    this.arrowDescription = this.setHeaderArrowTemplateSub(
-      this.descriptionHeader
-    );
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return '';
-    }
-  }
-
-  private setHeaderArrowToUndefined(): void {
-    this.nameHeader.order = HeaderDirection.None;
-    this.descriptionHeader.order = HeaderDirection.None;
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'name') {
-      return this.nameHeader;
-    }
-
-    if (orderBy === 'description') {
-      return this.descriptionHeader;
-    }
-
-    return undefined;
-  }
-
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    const header = this.setPosition(orderBy);
-    if (header) {
-      this.setDirection(sortOrder, header);
-    }
-    this.setHeaderArrowTemplate();
   }
 }

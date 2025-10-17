@@ -25,10 +25,7 @@ import {
   HolidaysListHelper,
   ICalendarRule,
 } from 'src/app/domain/models/calendar-rule-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import {
   IMultiLanguage,
   MultiLanguage,
@@ -68,6 +65,7 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
     CalendarDropdownComponent,
     SimplePaginationComponent,
   ],
+  providers: [TableSortingService],
 })
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -80,6 +78,8 @@ export class CalendarRulesComponent
   public dataManagementCalendarRulesService = inject(
     DataManagementCalendarRulesService
   );
+  public sortingService = inject(TableSortingService);
+
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
 
@@ -91,16 +91,6 @@ export class CalendarRulesComponent
   isNextPage: boolean | undefined = undefined;
   numberOfItemsPerPage = 7;
   numberOfItemsPerPageMap = new Map<number, number>();
-
-  // Sorting properties
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  arrowName = '';
-  arrowState = '';
-  arrowCountry = '';
-  arrowDescription = '';
-  orderBy = 'name';
-  sortOrder = 'asc';
 
   // Modal properties
   modalSelectedState: StateCountryToken | undefined;
@@ -115,12 +105,6 @@ export class CalendarRulesComponent
   selectedCountry = '';
   headerCalendarDropdown = '';
   isComboBoxOpen = false;
-
-  // Header properties
-  nameHeader = new HeaderProperties();
-  stateHeader = new HeaderProperties();
-  countryHeader = new HeaderProperties();
-  descriptionHeader = new HeaderProperties();
 
   // Clean up resources
   private ngUnsubscribe = new Subject<void>();
@@ -139,6 +123,13 @@ export class CalendarRulesComponent
     this.dataManagementCalendarRulesService.init();
     this.currentLang = this.translate.currentLang as Language;
 
+    this.sortingService.initialize({
+      columns: ['name', 'state', 'country', 'description'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     this.translate.get('setting.holiday-rules.filter-states')
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe((x) => {
@@ -146,7 +137,6 @@ export class CalendarRulesComponent
       });
 
     this.holidaysListHelper.currentYear = new Date().getFullYear();
-    this.reReadSortData();
   }
 
   ngAfterViewInit(): void {
@@ -190,8 +180,8 @@ export class CalendarRulesComponent
     filter.isPreviousPage = this.isPreviousPage;
     filter.isNextPage = this.isNextPage;
 
-    filter.orderBy = this.orderBy;
-    filter.sortOrder = this.sortOrder;
+    filter.orderBy = this.sortingService.getCurrentOrderBy();
+    filter.sortOrder = this.sortingService.getCurrentSortOrder();
 
     filter.requiredPage = this.page - 1;
     filter.numberOfItemsPerPage = this.numberOfItemsPerPage;
@@ -398,106 +388,7 @@ export class CalendarRulesComponent
 
   /* #region Header Sorting */
   onClickHeader(orderBy: string): void {
-    let sortOrder = '';
-    let headerProp: HeaderProperties | undefined;
-
-    switch (orderBy) {
-      case 'name':
-        headerProp = this.nameHeader;
-        break;
-      case 'country':
-        headerProp = this.countryHeader;
-        break;
-      case 'state':
-        headerProp = this.stateHeader;
-        break;
-      case 'description':
-        headerProp = this.descriptionHeader;
-        break;
-    }
-
-    if (headerProp) {
-      headerProp.DirectionSwitch();
-
-      if (headerProp.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (headerProp.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
-    this.readPage();
-  }
-
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-
-    const header = this.setPosition(orderBy);
-    if (header) {
-      this.setDirection(sortOrder, header);
-    }
-
-    this.setHeaderArrowTemplate();
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    switch (orderBy) {
-      case 'name':
-        return this.nameHeader;
-      case 'state':
-        return this.stateHeader;
-      case 'country':
-        return this.countryHeader;
-      case 'description':
-        return this.descriptionHeader;
-      default:
-        return undefined;
-    }
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate(): void {
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-    this.arrowState = this.setHeaderArrowTemplateSub(this.stateHeader);
-    this.arrowCountry = this.setHeaderArrowTemplateSub(this.countryHeader);
-    this.arrowDescription = this.setHeaderArrowTemplateSub(
-      this.descriptionHeader
-    );
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return ''; // Leerer String statt this.tmplateArrowUndefined
-    }
-  }
-
-  private reReadSortData(): void {
-    this.sort(this.orderBy, this.sortOrder);
-  }
-
-  private setHeaderArrowToUndefined(): void {
-    this.nameHeader.order = HeaderDirection.None;
-    this.stateHeader.order = HeaderDirection.None;
-    this.countryHeader.order = HeaderDirection.None;
-    this.descriptionHeader.order = HeaderDirection.None;
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
   /* #endregion Header Sorting */
 }

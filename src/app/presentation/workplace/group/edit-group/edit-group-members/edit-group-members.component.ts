@@ -16,10 +16,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client-class';
 import { IGroupItem } from 'src/app/domain/models/group-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -31,6 +27,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-edit-group-members',
@@ -44,12 +41,14 @@ import { takeUntil } from 'rxjs/operators';
     TrashIconRedComponent,
     ExpandableCardComponent,
   ],
+  providers: [TableSortingService],
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   public dataManagementGroupService = inject(DataManagementGroupService);
   public toastShowService = inject(ToastShowService);
   public groupSelectionService = inject(GroupSelectionService);
+  public sortingService = inject(TableSortingService);
   private locale: string = inject(LOCALE_ID);
   private dataClientService = inject(DataClientService);
   private cdr = inject(ChangeDetectorRef);
@@ -63,21 +62,6 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
   selectedClient: IClient | undefined = undefined;
 
   page = 1;
-
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
-
-  arrowNo = '';
-  arrowCompany = '';
-  arrowFirstName = '';
-  arrowName = '';
-
-  numberHeader: HeaderProperties = new HeaderProperties();
-  companyHeader: HeaderProperties = new HeaderProperties();
-  firstNameHeader: HeaderProperties = new HeaderProperties();
-  nameHeader: HeaderProperties = new HeaderProperties();
-
   checkBoxIndeterminate = false;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -90,6 +74,13 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
+
+    this.sortingService.initialize({
+      columns: ['idNumber', 'company', 'firstName', 'name'],
+      defaultOrderBy: 'idNumber',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
 
     this.setFilter();
   }
@@ -237,118 +228,22 @@ export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestr
   /* #region   header */
 
   onClickHeader(orderBy: string) {
-    let sortOrder = '';
-
-    if (orderBy === 'firstName') {
-      this.firstNameHeader.DirectionSwitchSimple();
-
-      if (this.firstNameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.firstNameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'idNumber') {
-      this.numberHeader.DirectionSwitchSimple();
-
-      if (this.numberHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.numberHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'company') {
-      this.companyHeader.DirectionSwitchSimple();
-
-      if (this.companyHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.companyHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'name') {
-      this.nameHeader.DirectionSwitchSimple();
-
-      if (this.nameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.nameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
-  }
-
-  private sort(orderBy: string, sortOrder: string) {
-    this.dataManagementGroupService.orderByGroupItem = orderBy;
-    this.dataManagementGroupService.sortOrderGroupItem = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
-    this.setHeaderArrowTemplate();
-    this.dataManagementGroupService.sortGroupItems();
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'firstName') {
-      return this.firstNameHeader;
-    }
-    if (orderBy === 'idNumber') {
-      return this.numberHeader;
-    }
-    if (orderBy === 'company') {
-      return this.companyHeader;
-    }
-    if (orderBy === 'name') {
-      return this.nameHeader;
-    }
-
-    return undefined;
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate() {
-    this.arrowFirstName = this.setHeaderArrowTemplateSub(this.firstNameHeader);
-    this.arrowNo = this.setHeaderArrowTemplateSub(this.numberHeader);
-    this.arrowCompany = this.setHeaderArrowTemplateSub(this.companyHeader);
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return ''; // this.tmplateArrowUndefined;
-    }
+    this.sortingService.onHeaderClick(orderBy, () => {
+      this.dataManagementGroupService.orderByGroupItem = this.sortingService.getCurrentOrderBy();
+      this.dataManagementGroupService.sortOrderGroupItem = this.sortingService.getCurrentSortOrder();
+      this.dataManagementGroupService.sortGroupItems();
+    });
   }
 
   private reReadSortData() {
-    this.sort(
+    this.sortingService.onHeaderClick(
       this.dataManagementGroupService.orderBy,
-      this.dataManagementGroupService.sortOrder
+      () => {
+        this.dataManagementGroupService.orderByGroupItem = this.sortingService.getCurrentOrderBy();
+        this.dataManagementGroupService.sortOrderGroupItem = this.sortingService.getCurrentSortOrder();
+        this.dataManagementGroupService.sortGroupItems();
+      }
     );
-  }
-
-  private setHeaderArrowToUndefined() {
-    this.firstNameHeader.order = HeaderDirection.None;
-    this.numberHeader.order = HeaderDirection.None;
-    this.companyHeader.order = HeaderDirection.None;
-    this.nameHeader.order = HeaderDirection.None;
   }
 
   /* #endregion   header */

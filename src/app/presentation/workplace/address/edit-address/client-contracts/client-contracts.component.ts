@@ -29,16 +29,7 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
-
-interface HeaderProperties {
-  order: number;
-}
-
-enum HeaderDirection {
-  None = 0,
-  Down = 1,
-  Up = 2,
-}
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-client-contracts',
@@ -57,6 +48,7 @@ enum HeaderDirection {
     TrashIconRedComponent,
     ExpandableCardComponent,
   ],
+  providers: [TableSortingService],
 })
 export class ClientContractsComponent
   implements AfterViewInit, OnDestroy, OnInit
@@ -81,26 +73,18 @@ export class ClientContractsComponent
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public contractService = inject(DataManagementContractService);
-
-  public arrowContract = '';
-  public arrowFromDate = '';
-  public arrowUntilDate = '';
-  public arrowActive = '';
-
-  public contractHeader: HeaderProperties = { order: HeaderDirection.None };
-  public fromDateHeader: HeaderProperties = { order: HeaderDirection.None };
-  public untilDateHeader: HeaderProperties = { order: HeaderDirection.None };
-  public activeHeader: HeaderProperties = { order: HeaderDirection.None };
-
-  public orderBy = 'contract';
-  public sortOrder = 'asc';
+  public sortingService = inject(TableSortingService);
 
   private injector = inject(Injector);
 
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-
   async ngOnInit(): Promise<void> {
+    this.sortingService.initialize({
+      columns: ['contract', 'fromDate', 'untilDate', 'active'],
+      defaultOrderBy: 'contract',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     this.readSignals();
     await this.loadContracts();
   }
@@ -181,28 +165,31 @@ export class ClientContractsComponent
       return;
     }
 
+    const orderBy = this.sortingService.getCurrentOrderBy();
+    const sortOrder = this.sortingService.getCurrentSortOrder();
+
     this.sortedContracts = [...currentClient.clientContracts].sort((a, b) => {
       let compareValue = 0;
 
-      if (this.orderBy === 'contract') {
+      if (orderBy === 'contract') {
         const aName = this.getContractName(a.contractId);
         const bName = this.getContractName(b.contractId);
         compareValue = (aName || '').localeCompare(bName || '');
-      } else if (this.orderBy === 'fromDate') {
+      } else if (orderBy === 'fromDate') {
         const aDate = a.fromDate ? new Date(a.fromDate).getTime() : 0;
         const bDate = b.fromDate ? new Date(b.fromDate).getTime() : 0;
         compareValue = aDate - bDate;
-      } else if (this.orderBy === 'untilDate') {
+      } else if (orderBy === 'untilDate') {
         const aDate = a.untilDate ? new Date(a.untilDate).getTime() : 0;
         const bDate = b.untilDate ? new Date(b.untilDate).getTime() : 0;
         compareValue = aDate - bDate;
-      } else if (this.orderBy === 'active') {
+      } else if (orderBy === 'active') {
         const aActive = a.isActive ? 1 : 0;
         const bActive = b.isActive ? 1 : 0;
         compareValue = aActive - bActive;
       }
 
-      return this.sortOrder === 'asc' ? compareValue : -compareValue;
+      return sortOrder === 'asc' ? compareValue : -compareValue;
     });
   }
 
@@ -213,113 +200,7 @@ export class ClientContractsComponent
   }
 
   onClickHeader(orderBy: string): void {
-    let sortOrder = '';
-
-    if (orderBy === 'contract') {
-      this.contractHeader.order = this.toggleHeaderDirection(
-        this.contractHeader.order
-      );
-      sortOrder = this.getSortOrder(this.contractHeader.order);
-    } else if (orderBy === 'fromDate') {
-      this.fromDateHeader.order = this.toggleHeaderDirection(
-        this.fromDateHeader.order
-      );
-      sortOrder = this.getSortOrder(this.fromDateHeader.order);
-    } else if (orderBy === 'untilDate') {
-      this.untilDateHeader.order = this.toggleHeaderDirection(
-        this.untilDateHeader.order
-      );
-      sortOrder = this.getSortOrder(this.untilDateHeader.order);
-    } else if (orderBy === 'active') {
-      this.activeHeader.order = this.toggleHeaderDirection(
-        this.activeHeader.order
-      );
-      sortOrder = this.getSortOrder(this.activeHeader.order);
-    }
-
-    this.sort(orderBy, sortOrder);
-  }
-
-  private toggleHeaderDirection(current: number): number {
-    if (current === HeaderDirection.None) return HeaderDirection.Down;
-    if (current === HeaderDirection.Down) return HeaderDirection.Up;
-    return HeaderDirection.None;
-  }
-
-  private getSortOrder(direction: number): string {
-    if (direction === HeaderDirection.Down) return 'asc';
-    if (direction === HeaderDirection.Up) return 'desc';
-    return '';
-  }
-
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, orderBy);
-    this.setHeaderArrowTemplate();
-    this.sortContracts();
-  }
-
-  private setDirection(sortOrder: string, orderBy: string): void {
-    if (orderBy === 'contract') {
-      if (sortOrder === 'asc') {
-        this.contractHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.contractHeader.order = HeaderDirection.Up;
-      }
-    } else if (orderBy === 'fromDate') {
-      if (sortOrder === 'asc') {
-        this.fromDateHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.fromDateHeader.order = HeaderDirection.Up;
-      }
-    } else if (orderBy === 'untilDate') {
-      if (sortOrder === 'asc') {
-        this.untilDateHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.untilDateHeader.order = HeaderDirection.Up;
-      }
-    } else if (orderBy === 'active') {
-      if (sortOrder === 'asc') {
-        this.activeHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.activeHeader.order = HeaderDirection.Up;
-      }
-    }
-  }
-
-  private setHeaderArrowToUndefined(): void {
-    this.contractHeader.order = HeaderDirection.None;
-    this.fromDateHeader.order = HeaderDirection.None;
-    this.untilDateHeader.order = HeaderDirection.None;
-    this.activeHeader.order = HeaderDirection.None;
-  }
-
-  private setHeaderArrowTemplate(): void {
-    this.arrowContract = this.setHeaderArrowTemplateSub(
-      this.contractHeader.order
-    );
-    this.arrowFromDate = this.setHeaderArrowTemplateSub(
-      this.fromDateHeader.order
-    );
-    this.arrowUntilDate = this.setHeaderArrowTemplateSub(
-      this.untilDateHeader.order
-    );
-    this.arrowActive = this.setHeaderArrowTemplateSub(this.activeHeader.order);
-  }
-
-  private setHeaderArrowTemplateSub(order: number): string {
-    switch (order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return '';
-      default:
-        return '';
-    }
+    this.sortingService.onHeaderClick(orderBy, () => this.sortContracts());
   }
 
   private readSignals(): void {

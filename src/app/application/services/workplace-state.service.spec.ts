@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { WorkplaceStateService } from './workplace-state.service';
-import { LOADING_INDICATOR_TOKEN } from 'src/app/domain/interfaces/loading-indicator.interface';
-import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
+import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN, IManageableServiceRegistry } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 
 describe('WorkplaceStateService', () => {
   let service: WorkplaceStateService;
-  let mockLoadingIndicator: any;
-  let mockRegistry: any;
+  let mockLoadingIndicator: ILoadingIndicator;
+  let mockRegistry: jasmine.SpyObj<IManageableServiceRegistry>;
 
   beforeEach(() => {
     mockLoadingIndicator = { showProgressSpinner: false };

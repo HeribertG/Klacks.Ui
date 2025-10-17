@@ -30,7 +30,7 @@
                   "address.edit-address.client-groups.table.name"
                 )
               }}
-              <span class="sort-arrow">{{ arrowName }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('name') }}</span>
             </th>
             <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validFrom')">
               {{
@@ -38,7 +38,7 @@
                   "address.edit-address.client-groups.table.valid-from"
                 )
               }}
-              <span class="sort-arrow">{{ arrowValidFrom }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('validFrom') }}</span>
             </th>
             <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validUntil')">
               {{
@@ -46,7 +46,7 @@
                   "address.edit-address.client-groups.table.valid-until"
                 )
               }}
-              <span class="sort-arrow">{{ arrowValidUntil }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('validUntil') }}</span>
             </th>
             <th
               class="table-header action"

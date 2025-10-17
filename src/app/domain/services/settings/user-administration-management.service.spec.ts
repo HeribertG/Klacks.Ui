@@ -89,6 +89,7 @@ describe('UserAdministrationManagementService', () => {
       } as IAuthentication;
 
       mockUserAdministrationService.addAccount.and.returnValue(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         of({ id: '123', mailSuccess: true } as any)
       );
 

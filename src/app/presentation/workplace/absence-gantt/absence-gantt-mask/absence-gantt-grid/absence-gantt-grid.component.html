@@ -9,7 +9,7 @@
                 | translate
             }}
           </p>
-          <p class="table-header-cell-arrow noselect">{{ arrowFrom }}</p>
+          <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('from') }}</p>
         </div>
       </th>
       <th class="table-header with100" (click)="onClickHeader('until')">
@@ -20,7 +20,7 @@
                 | translate
             }}
           </p>
-          <p class="table-header-cell-arrow noselect">{{ arrowUntil }}</p>
+          <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('until') }}</p>
         </div>
       </th>
       <th class="table-header maxWith250" (click)="onClickHeader('absence')">
@@ -31,7 +31,7 @@
                 | translate
             }}
           </p>
-          <p class="table-header-cell-arrow noselect">{{ arrowAbsence }}</p>
+          <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('absence') }}</p>
         </div>
       </th>
       <th class="table-header with20">

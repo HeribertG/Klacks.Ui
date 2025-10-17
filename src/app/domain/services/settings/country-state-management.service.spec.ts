@@ -225,12 +225,16 @@ describe('CountryStateManagementService', () => {
 
   describe('destroy', () => {
     it('should complete destroy$ subject', () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       spyOn((service as any).destroy$, 'next');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       spyOn((service as any).destroy$, 'complete');
 
       service.destroy();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((service as any).destroy$.next).toHaveBeenCalled();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((service as any).destroy$.complete).toHaveBeenCalled();
     });
   });

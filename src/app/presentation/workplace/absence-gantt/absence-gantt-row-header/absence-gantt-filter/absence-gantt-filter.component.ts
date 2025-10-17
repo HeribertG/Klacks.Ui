@@ -1,12 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { IconAscComponent } from 'src/app/presentation/icons/icon-asc.component';
 import { IconDescComponent } from 'src/app/presentation/icons/icon-desc.component';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-absence-gantt-filter',
@@ -14,28 +11,26 @@ import { IconDescComponent } from 'src/app/presentation/icons/icon-desc.componen
   styleUrls: ['./absence-gantt-filter.component.scss'],
   standalone: true,
   imports: [TranslateModule, IconAscComponent, IconDescComponent],
+  providers: [TableSortingService],
 })
-export class AbsenceGanttFilterComponent {
+export class AbsenceGanttFilterComponent implements OnInit {
   public dataManagementBreak = inject(DataManagementBreakService);
+  public sortingService = inject(TableSortingService);
 
-  public arrowCompany = '';
-  public arrowFirstName = '';
-  public arrowName = '↓';
-
-  public companyHeader: HeaderProperties = new HeaderProperties();
-  public firstNameHeader: HeaderProperties = new HeaderProperties();
-  public nameHeader: HeaderProperties = new HeaderProperties();
-
-  public orderBy = 'name';
-  public sortOrder = 'asc';
-  public templateArrowDown = '↓';
-  public templateArrowUp = '↑';
-  private templateArrowUndefined = ''; //'↕';
+  ngOnInit(): void {
+    this.sortingService.initialize({
+      columns: ['firstName', 'company', 'name'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+  }
 
   private setFilter() {
-    this.dataManagementBreak.breakFilter.orderBy = this.orderBy;
-    this.dataManagementBreak.breakFilter.sortOrder = this.sortOrder;
+    this.dataManagementBreak.breakFilter.orderBy = this.sortingService.getCurrentOrderBy();
+    this.dataManagementBreak.breakFilter.sortOrder = this.sortingService.getCurrentSortOrder();
   }
+
   private readPage() {
     this.setFilter();
     this.dataManagementBreak.reRead();
@@ -44,85 +39,7 @@ export class AbsenceGanttFilterComponent {
   /* #region   header */
 
   onClickHeader(orderBy: string) {
-    let header: HeaderProperties;
-    switch (orderBy) {
-      case 'firstName':
-        header = this.firstNameHeader;
-        break;
-      case 'company':
-        header = this.companyHeader;
-        break;
-      case 'name':
-        header = this.nameHeader;
-        break;
-      default:
-        throw new Error(`Unexpected orderBy value: ${orderBy}`);
-    }
-    const sortOrder = this.determineSortOrder(header);
-    this.sort(orderBy, sortOrder);
-    this.readPage();
-  }
-
-  private determineSortOrder(header: HeaderProperties): string {
-    header.DirectionSwitch();
-    if (header.order === HeaderDirection.Down) return 'asc';
-    if (header.order === HeaderDirection.Up) return 'desc';
-    return '';
-  }
-
-  private sort(orderBy: string, sortOrder: string) {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
-    this.setHeaderArrowTemplate();
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'firstName') {
-      return this.firstNameHeader;
-    }
-
-    if (orderBy === 'company') {
-      return this.companyHeader;
-    }
-    if (orderBy === 'name') {
-      return this.nameHeader;
-    }
-
-    return undefined;
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate() {
-    this.arrowFirstName = this.setHeaderArrowTemplateSub(this.firstNameHeader);
-    this.arrowCompany = this.setHeaderArrowTemplateSub(this.companyHeader);
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.templateArrowDown;
-      case HeaderDirection.Up:
-        return this.templateArrowUp;
-      case HeaderDirection.None:
-        return this.templateArrowUndefined;
-    }
-  }
-
-  private setHeaderArrowToUndefined() {
-    this.firstNameHeader.order = HeaderDirection.None;
-    this.companyHeader.order = HeaderDirection.None;
-    this.nameHeader.order = HeaderDirection.None;
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
   /* #endregion   header */

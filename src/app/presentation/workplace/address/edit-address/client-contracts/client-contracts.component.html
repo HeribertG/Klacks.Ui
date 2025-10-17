@@ -26,19 +26,19 @@
           <tr>
             <th class="table-header clickable" style="width: 360px" (click)="onClickHeader('contract')">
               {{ "address.edit-address.contracts.contract" | translate }}
-              <span class="sort-arrow">{{ arrowContract }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('contract') }}</span>
             </th>
             <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('fromDate')">
               {{ "address.edit-address.contracts.from-date" | translate }}
-              <span class="sort-arrow">{{ arrowFromDate }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('fromDate') }}</span>
             </th>
             <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('untilDate')">
               {{ "address.edit-address.contracts.until-date" | translate }}
-              <span class="sort-arrow">{{ arrowUntilDate }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('untilDate') }}</span>
             </th>
             <th class="table-header clickable" style="width: 50px" (click)="onClickHeader('active')">
               {{ "address.edit-address.contracts.active" | translate }}
-              <span class="sort-arrow">{{ arrowActive }}</span>
+              <span class="sort-arrow">{{ sortingService.getArrow('active') }}</span>
             </th>
             <th
               class="table-header action"

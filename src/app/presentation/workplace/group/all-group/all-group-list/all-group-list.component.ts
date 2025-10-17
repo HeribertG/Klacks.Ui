@@ -49,6 +49,7 @@ import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagi
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllGroupStateService } from '../services/all-group-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-all-group-list',
@@ -68,7 +69,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
     ResizeTableDirective,
     PaginationComponent,
   ],
-  providers: [TableResizeService, AllGroupStateService],
+  providers: [TableResizeService, AllGroupStateService, TableSortingService],
 })
 export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(ResizeTableDirective, { static: false })
@@ -81,6 +82,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public dataManagementGroupService = inject(DataManagementGroupService);
   public translate = inject(TranslateService);
+  public sortingService = inject(TableSortingService);
   private spinnerService = inject(SpinnerService);
   private navigationService = inject(NavigationService);
   private modalService = inject(ModalService);
@@ -97,23 +99,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   isPreviousPage: boolean | undefined = undefined;
   isNextPage: boolean | undefined = undefined;
 
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
-
-  arrowName = '';
-  arrowValidFrom = '';
-  arrowValidUntil = '';
-  arrowDescription = '';
-
-  nameHeader: HeaderProperties = new HeaderProperties();
-  validFromHeader: HeaderProperties = new HeaderProperties();
-  validUntilHeader: HeaderProperties = new HeaderProperties();
-  descriptionHeader: HeaderProperties = new HeaderProperties();
-
-  orderBy = 'name';
-  sortOrder = 'asc';
-
   message = MessageLibrary.DELETE_ENTRY;
   checkBoxIndeterminate = false;
   isAuthorised = false;
@@ -127,7 +112,13 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.dataManagementGroupService.init();
     this.allGroupStateService.initializeWorkplaceState();
-    this.reReadSortData();
+
+    this.sortingService.initialize({
+      columns: ['name', 'description', 'valid_from', 'valid_until'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
 
     this.readSignals();
   }
@@ -181,52 +172,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   /* #region   header */
 
   onClickHeader(orderBy: string) {
-    let sortOrder = '';
-
-    if (orderBy === 'name') {
-      this.nameHeader.DirectionSwitch();
-
-      if (this.nameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.nameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'description') {
-      this.descriptionHeader.DirectionSwitch();
-
-      if (this.descriptionHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.descriptionHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'valid_from') {
-      this.validFromHeader.DirectionSwitch();
-
-      if (this.validFromHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.validFromHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'valid_until') {
-      this.validUntilHeader.DirectionSwitch();
-
-      if (this.validUntilHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.validUntilHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
-    this.readPage();
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
   onAddGroup() {
@@ -237,72 +183,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.switchToTree.emit();
   }
 
-  private sort(orderBy: string, sortOrder: string) {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
-    this.setHeaderArrowTemplate();
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'name') {
-      return this.nameHeader;
-    }
-    if (orderBy === 'description') {
-      return this.descriptionHeader;
-    }
-    if (orderBy === 'valid_from') {
-      return this.validFromHeader;
-    }
-    if (orderBy === 'valid_until') {
-      return this.validUntilHeader;
-    }
-
-    return undefined;
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate() {
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-    this.arrowDescription = this.setHeaderArrowTemplateSub(
-      this.descriptionHeader
-    );
-    this.arrowValidFrom = this.setHeaderArrowTemplateSub(this.validFromHeader);
-    this.arrowValidUntil = this.setHeaderArrowTemplateSub(
-      this.validUntilHeader
-    );
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return ''; // this.tmplateArrowUndefined;
-    }
-  }
-
-  private reReadSortData() {
-    this.sort(this.orderBy, this.sortOrder);
-  }
-
-  private setHeaderArrowToUndefined() {
-    this.nameHeader.order = HeaderDirection.None;
-    this.validFromHeader.order = HeaderDirection.None;
-    this.validUntilHeader.order = HeaderDirection.None;
-    this.descriptionHeader.order = HeaderDirection.None;
-  }
 
   /* #endregion   header */
 
@@ -397,8 +277,8 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private setFilter(): void {
     this.allGroupStateService.prepareFilterForRequest(
-      this.orderBy,
-      this.sortOrder,
+      this.sortingService.getCurrentOrderBy(),
+      this.sortingService.getCurrentSortOrder(),
       this.page,
       this.firstItemOnLastPage,
       this.isPreviousPage,

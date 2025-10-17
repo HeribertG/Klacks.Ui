@@ -68,7 +68,7 @@
                   translate.instant("group.all-group.all-group-list.table.name")
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
             </div>
           </th>
 
@@ -86,7 +86,7 @@
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
-                {{ arrowDescription }}
+                {{ sortingService.getArrow('description') }}
               </p>
             </div>
           </th>
@@ -103,7 +103,7 @@
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
-                {{ arrowValidFrom }}
+                {{ sortingService.getArrow('valid_from') }}
               </p>
             </div>
           </th>
@@ -122,7 +122,7 @@
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
-                {{ arrowValidUntil }}
+                {{ sortingService.getArrow('valid_until') }}
               </p>
             </div>
           </th>

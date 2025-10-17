@@ -75,7 +75,7 @@
                       "group.edit-group.edit-group-member.table.nr" | translate
                     }}
                   </p>
-                  <p class="table-header-cell-arrow noselect">{{ arrowNo }}</p>
+                  <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('idNumber') }}</p>
                 </div>
               </th>
               <th
@@ -91,7 +91,7 @@
                     }}
                   </p>
                   <p class="table-header-cell-arrow noselect">
-                    {{ arrowCompany }}
+                    {{ sortingService.getArrow('company') }}
                   </p>
                 </div>
               </th>
@@ -109,7 +109,7 @@
                     }}
                   </p>
                   <p class="table-header-cell-arrow noselect">
-                    {{ arrowFirstName }}
+                    {{ sortingService.getArrow('firstName') }}
                   </p>
                 </div>
               </th>
@@ -126,7 +126,7 @@
                     }}
                   </p>
                   <p class="table-header-cell-arrow noselect">
-                    {{ arrowName }}
+                    {{ sortingService.getArrow('name') }}
                   </p>
                 </div>
               </th>

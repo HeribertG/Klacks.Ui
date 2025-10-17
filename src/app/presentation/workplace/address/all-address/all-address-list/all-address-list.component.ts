@@ -14,10 +14,6 @@ import {
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CheckBoxValue, IClient } from 'src/app/domain/models/client-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -32,7 +28,6 @@ import { CommonModule } from '@angular/common';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
-import { Router } from '@angular/router';
 import { IconEyeGreyComponent } from 'src/app/presentation/icons/icon-eye.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
@@ -40,6 +35,7 @@ import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagi
 import { TableResizeService } from 'src/app/presentation/services/table-resize.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-all-address-list',
@@ -58,7 +54,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
     ResizeTableDirective,
     PaginationComponent,
   ],
-  providers: [TableResizeService, AllAddressStateService],
+  providers: [TableResizeService, AllAddressStateService, TableSortingService],
 })
 export class AllAddressListComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -73,6 +69,7 @@ export class AllAddressListComponent
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
+  public sortingService = inject(TableSortingService);
 
   private injector = inject(Injector);
   private localStorageService = inject(LocalStorageService);
@@ -81,15 +78,8 @@ export class AllAddressListComponent
   private allAddressStateService = inject(AllAddressStateService);
   private navigationService = inject(NavigationService);
 
-  public arrowCompany = '';
-  public arrowFirstName = '';
-  public arrowName = '';
-  public arrowNo = '';
-  public arrowStatus = '';
   public checkBoxIndeterminate = false;
-  public companyHeader: HeaderProperties = new HeaderProperties();
   public firstItemOnLastPage: number | undefined = undefined;
-  public firstNameHeader: HeaderProperties = new HeaderProperties();
   public highlightRowId: string | undefined = undefined;
   public isAuthorised = false;
   public isFirstRead = true;
@@ -97,23 +87,16 @@ export class AllAddressListComponent
   public isPreviousPage: boolean | undefined = undefined;
   public message = MessageLibrary.DELETE_ENTRY;
   public monthList = [];
-  public nameHeader: HeaderProperties = new HeaderProperties();
-  public numberHeader: HeaderProperties = new HeaderProperties();
   public numberOfItemsPerPage = 5;
   public numberOfItemsPerPageMap = new Map();
-  public orderBy = 'name';
   public page = 1;
   public realRow = -1;
-  public sortOrder = 'asc';
-  public statusHeader: HeaderProperties = new HeaderProperties();
 
   public headerCheckBoxValue = false;
 
   // Private properties
   private effects: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
 
   // Lifecycle hooks
   ngOnInit(): void {
@@ -124,7 +107,13 @@ export class AllAddressListComponent
       );
     }
 
-    this.reReadSortData();
+    this.sortingService.initialize({
+      columns: ['idNumber', 'company', 'firstName', 'name', 'status'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: false,
+    });
+
     this.readSignals();
   }
 
@@ -237,52 +226,7 @@ export class AllAddressListComponent
   }
 
   onClickHeader(orderBy: string): void {
-    let sortOrder = '';
-
-    if (orderBy === 'firstName') {
-      this.firstNameHeader.DirectionSwitch();
-
-      if (this.firstNameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.firstNameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      }
-    } else if (orderBy === 'idNumber') {
-      this.numberHeader.DirectionSwitch();
-
-      if (this.numberHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.numberHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      }
-    } else if (orderBy === 'company') {
-      this.companyHeader.DirectionSwitch();
-
-      if (this.companyHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.companyHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      }
-    } else if (orderBy === 'name') {
-      this.nameHeader.DirectionSwitch();
-
-      if (this.nameHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.nameHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      }
-    } else if (orderBy === 'status') {
-      this.statusHeader.DirectionSwitch();
-
-      if (this.statusHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.statusHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
-    this.readPage();
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
   onClickedRow(value: IClient): void {
@@ -419,8 +363,8 @@ export class AllAddressListComponent
 
   private setFilter(): void {
     this.allAddressStateService.prepareFilterForRequest(
-      this.orderBy,
-      this.sortOrder,
+      this.sortingService.getCurrentOrderBy(),
+      this.sortingService.getCurrentSortOrder(),
       this.page,
       this.firstItemOnLastPage,
       this.isPreviousPage,
@@ -465,73 +409,6 @@ export class AllAddressListComponent
       });
     });
     this.effects.push(initEffect);
-  }
-
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
-    this.setHeaderArrowTemplate();
-  }
-
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'firstName') {
-      return this.firstNameHeader;
-    }
-    if (orderBy === 'idNumber') {
-      return this.numberHeader;
-    }
-    if (orderBy === 'company') {
-      return this.companyHeader;
-    }
-    if (orderBy === 'name') {
-      return this.nameHeader;
-    }
-    if (orderBy === 'status') {
-      return this.statusHeader;
-    }
-    return undefined;
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate(): void {
-    this.arrowFirstName = this.setHeaderArrowTemplateSub(this.firstNameHeader);
-    this.arrowCompany = this.setHeaderArrowTemplateSub(this.companyHeader);
-    this.arrowNo = this.setHeaderArrowTemplateSub(this.numberHeader);
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader);
-    this.arrowStatus = this.setHeaderArrowTemplateSub(this.statusHeader);
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return ''; // this.tmplateArrowUndefined;
-    }
-  }
-
-  private reReadSortData(): void {
-    this.sort(this.orderBy, this.sortOrder);
-  }
-
-  private setHeaderArrowToUndefined(): void {
-    this.firstNameHeader.order = HeaderDirection.None;
-    this.numberHeader.order = HeaderDirection.None;
-    this.companyHeader.order = HeaderDirection.None;
-    this.nameHeader.order = HeaderDirection.None;
-    this.statusHeader.order = HeaderDirection.None;
   }
 
   private setupTableResize(): void {

@@ -17,10 +17,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { IBreak } from 'src/app/domain/models/break-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { daysBetweenDates } from 'src/app/domain/helpers/format-helper';
@@ -28,6 +24,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { PdfExportService } from '../../services/pdf-export.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-absence-gantt-grid',
@@ -35,6 +32,7 @@ import { TextFormatterService } from 'src/app/presentation/shared/rich-text-edit
   styleUrls: ['./absence-gantt-grid.component.scss'],
   standalone: true,
   imports: [DatePipe, TranslateModule],
+  providers: [TableSortingService],
 })
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
@@ -46,36 +44,29 @@ export class AbsenceGanttGridComponent
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public dataManagementBreak = inject(DataManagementBreakService);
+  public sortingService = inject(TableSortingService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);
   private pdfExportService = inject(PdfExportService);
   private textFormatterService = inject(TextFormatterService);
 
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
-
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
   highlightRowId: string | undefined = undefined;
 
-  arrowFrom = '';
-  arrowUntil = '';
-  arrowAbsence = '';
-
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
-
-  fromHeader: HeaderProperties = new HeaderProperties();
-  untilHeader: HeaderProperties = new HeaderProperties();
-  absenceHeader: HeaderProperties = new HeaderProperties();
-
-  orderBy = 'absence';
-  sortOrder = 'asc';
 
   private absence: IAbsence[] = [];
 
   ngOnInit(): void {
+    this.sortingService.initialize({
+      columns: ['from', 'until', 'absence'],
+      defaultOrderBy: 'absence',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     this.readSignals();
     this.absence = this.dataManagementAbsence.absenceList();
     this.currentLang = this.translateService.currentLang as Language;
@@ -139,103 +130,18 @@ export class AbsenceGanttGridComponent
   }
 
   onClickHeader(orderBy: string) {
-    let sortOrder = '';
-
-    if (orderBy === 'from') {
-      this.fromHeader.DirectionSwitch();
-
-      if (this.fromHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.fromHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
+    this.sortingService.onHeaderClick(orderBy, () => {
+      if (this.selectedRowData && this.selectedRowData.length > 0) {
+        this.sortSelectedRowData();
       }
-    } else if (orderBy === 'until') {
-      this.untilHeader.DirectionSwitch();
-
-      if (this.untilHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.untilHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    } else if (orderBy === 'absence') {
-      this.absenceHeader.DirectionSwitch();
-
-      if (this.absenceHeader.order === HeaderDirection.Down) {
-        sortOrder = 'asc';
-      } else if (this.absenceHeader.order === HeaderDirection.Up) {
-        sortOrder = 'desc';
-      } else {
-        sortOrder = '';
-      }
-    }
-
-    this.sort(orderBy, sortOrder);
+    });
   }
 
-  private sort(orderBy: string, sortOrder: string) {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, this.setPosition(orderBy)!);
-    this.setHeaderArrowTemplate();
-    
-    if (this.selectedRowData && this.selectedRowData.length > 0) {
-      this.sortSelectedRowData(orderBy, sortOrder);
-    }
-  }
+  private sortSelectedRowData() {
+    const orderBy = this.sortingService.getCurrentOrderBy();
+    const sortOrder = this.sortingService.getCurrentSortOrder();
 
-  private setPosition(orderBy: string): HeaderProperties | undefined {
-    if (orderBy === 'from') {
-      return this.fromHeader;
-    }
-    if (orderBy === 'until') {
-      return this.untilHeader;
-    }
-    if (orderBy === 'absence') {
-      return this.absenceHeader;
-    }
-
-    return undefined;
-  }
-
-  private setDirection(sortOrder: string, value: HeaderProperties): void {
-    if (sortOrder === 'asc') {
-      value.order = HeaderDirection.Down;
-    }
-    if (sortOrder === 'desc') {
-      value.order = HeaderDirection.Up;
-    }
-  }
-
-  private setHeaderArrowTemplate() {
-    this.arrowFrom = this.setHeaderArrowTemplateSub(this.fromHeader);
-    this.arrowUntil = this.setHeaderArrowTemplateSub(this.untilHeader);
-    this.arrowAbsence = this.setHeaderArrowTemplateSub(this.absenceHeader);
-  }
-
-  private setHeaderArrowTemplateSub(value: HeaderProperties): string {
-    switch (value.order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return ''; // this.tmplateArrowUndefined;
-    }
-  }
-
-  private setHeaderArrowToUndefined() {
-    this.fromHeader.order = HeaderDirection.None;
-    this.untilHeader.order = HeaderDirection.None;
-    this.absenceHeader.order = HeaderDirection.None;
-  }
-
-  private sortSelectedRowData(orderBy: string, sortOrder: string) {
-    if (!sortOrder || sortOrder === '' || !this.selectedRowData) {
+    if (!sortOrder || !this.selectedRowData) {
       return;
     }
 

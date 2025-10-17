@@ -258,7 +258,7 @@
                 <p class="gap noselect">
                   {{ translate.instant("default.grid.name") }}
                 </p>
-                <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+                <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
               </div>
             </th>
             <th
@@ -270,7 +270,7 @@
                   {{ translate.instant("setting.holiday-rules.country") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
-                  {{ arrowCountry }}
+                  {{ sortingService.getArrow('country') }}
                 </p>
               </div>
             </th>
@@ -282,7 +282,7 @@
                 <p class="gap noselect">
                   {{ translate.instant("setting.holiday-rules.states") }}
                 </p>
-                <p class="table-header-cell-arrow noselect">{{ arrowState }}</p>
+                <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('state') }}</p>
               </div>
             </th>
             <th
@@ -294,7 +294,7 @@
                   {{ translate.instant("default.grid.description") }}
                 </p>
                 <p class="table-header-cell-arrow noselect">
-                  {{ arrowDescription }}
+                  {{ sortingService.getArrow('description') }}
                 </p>
               </div>
             </th>

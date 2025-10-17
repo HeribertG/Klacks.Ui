@@ -89,7 +89,7 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ arrowNo }}</p>
+              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('idNumber') }}</p>
             </div>
           </th>
           <th
@@ -105,7 +105,7 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ arrowCompany }}</p>
+              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('company') }}</p>
             </div>
           </th>
           <th
@@ -122,7 +122,7 @@
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
-                {{ arrowFirstName }}
+                {{ sortingService.getArrow('firstName') }}
               </p>
             </div>
           </th>
@@ -139,7 +139,7 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ arrowName }}</p>
+              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
             </div>
           </th>
 

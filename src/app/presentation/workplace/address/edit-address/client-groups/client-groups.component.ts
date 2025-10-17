@@ -30,16 +30,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
-
-interface HeaderProperties {
-  order: number;
-}
-
-enum HeaderDirection {
-  None = 0,
-  Down = 1,
-  Up = 2,
-}
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-client-groups',
@@ -58,6 +49,7 @@ enum HeaderDirection {
     FontAwesomeModule,
     NgbTooltipModule,
   ],
+  providers: [TableSortingService],
 })
 export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() clientId?: string;
@@ -68,6 +60,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public dataManagementClientService = inject(DataManagementClientService);
   public translate = inject(TranslateService);
   public authorizationService = inject(AuthorizationService);
+  public sortingService = inject(TableSortingService);
 
   private injector = inject(Injector);
 
@@ -79,23 +72,16 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public groupFromDateValidationState: Map<number, boolean | undefined> =
     new Map();
 
-  public arrowName = '';
-  public arrowValidFrom = '';
-  public arrowValidUntil = '';
-
-  public nameHeader: HeaderProperties = { order: HeaderDirection.None };
-  public validFromHeader: HeaderProperties = { order: HeaderDirection.None };
-  public validUntilHeader: HeaderProperties = { order: HeaderDirection.None };
-
-  public orderBy = 'name';
-  public sortOrder = 'asc';
-
   private ngUnsubscribe = new Subject<void>();
-  private tmplateArrowDown = '↓';
-  private tmplateArrowUp = '↑';
-  private tmplateArrowUndefined = '↕';
 
   ngOnInit(): void {
+    this.sortingService.initialize({
+      columns: ['name', 'validFrom', 'validUntil'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     this.readSignals();
   }
 
@@ -131,116 +117,30 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     const currentClient = this.dataManagementClientService.editClient();
     if (!currentClient?.groupItems) return;
 
+    const orderBy = this.sortingService.getCurrentOrderBy();
+    const sortOrder = this.sortingService.getCurrentSortOrder();
+
     currentClient.groupItems.sort((a, b) => {
       let compareValue = 0;
 
-      if (this.orderBy === 'name') {
+      if (orderBy === 'name') {
         compareValue = (a.groupName || '').localeCompare(b.groupName || '');
-      } else if (this.orderBy === 'validFrom') {
+      } else if (orderBy === 'validFrom') {
         const aDate = a.validFrom ? new Date(a.validFrom).getTime() : 0;
         const bDate = b.validFrom ? new Date(b.validFrom).getTime() : 0;
         compareValue = aDate - bDate;
-      } else if (this.orderBy === 'validUntil') {
+      } else if (orderBy === 'validUntil') {
         const aDate = a.validUntil ? new Date(a.validUntil).getTime() : 0;
         const bDate = b.validUntil ? new Date(b.validUntil).getTime() : 0;
         compareValue = aDate - bDate;
       }
 
-      return this.sortOrder === 'asc' ? compareValue : -compareValue;
+      return sortOrder === 'asc' ? compareValue : -compareValue;
     });
   }
 
   onClickHeader(orderBy: string): void {
-    let sortOrder = '';
-
-    if (orderBy === 'name') {
-      this.nameHeader.order = this.toggleHeaderDirection(this.nameHeader.order);
-      sortOrder = this.getSortOrder(this.nameHeader.order);
-    } else if (orderBy === 'validFrom') {
-      this.validFromHeader.order = this.toggleHeaderDirection(
-        this.validFromHeader.order
-      );
-      sortOrder = this.getSortOrder(this.validFromHeader.order);
-    } else if (orderBy === 'validUntil') {
-      this.validUntilHeader.order = this.toggleHeaderDirection(
-        this.validUntilHeader.order
-      );
-      sortOrder = this.getSortOrder(this.validUntilHeader.order);
-    }
-
-    this.sort(orderBy, sortOrder);
-  }
-
-  private toggleHeaderDirection(current: number): number {
-    if (current === HeaderDirection.None) return HeaderDirection.Down;
-    if (current === HeaderDirection.Down) return HeaderDirection.Up;
-    return HeaderDirection.None;
-  }
-
-  private getSortOrder(direction: number): string {
-    if (direction === HeaderDirection.Down) return 'asc';
-    if (direction === HeaderDirection.Up) return 'desc';
-    return '';
-  }
-
-  private sort(orderBy: string, sortOrder: string): void {
-    this.orderBy = orderBy;
-    this.sortOrder = sortOrder;
-    this.setHeaderArrowToUndefined();
-    this.setDirection(sortOrder, orderBy);
-    this.setHeaderArrowTemplate();
-    this.sortClientGroups();
-  }
-
-  private setDirection(sortOrder: string, orderBy: string): void {
-    if (orderBy === 'name') {
-      if (sortOrder === 'asc') {
-        this.nameHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.nameHeader.order = HeaderDirection.Up;
-      }
-    } else if (orderBy === 'validFrom') {
-      if (sortOrder === 'asc') {
-        this.validFromHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.validFromHeader.order = HeaderDirection.Up;
-      }
-    } else if (orderBy === 'validUntil') {
-      if (sortOrder === 'asc') {
-        this.validUntilHeader.order = HeaderDirection.Down;
-      } else if (sortOrder === 'desc') {
-        this.validUntilHeader.order = HeaderDirection.Up;
-      }
-    }
-  }
-
-  private setHeaderArrowToUndefined(): void {
-    this.nameHeader.order = HeaderDirection.None;
-    this.validFromHeader.order = HeaderDirection.None;
-    this.validUntilHeader.order = HeaderDirection.None;
-  }
-
-  private setHeaderArrowTemplate(): void {
-    this.arrowName = this.setHeaderArrowTemplateSub(this.nameHeader.order);
-    this.arrowValidFrom = this.setHeaderArrowTemplateSub(
-      this.validFromHeader.order
-    );
-    this.arrowValidUntil = this.setHeaderArrowTemplateSub(
-      this.validUntilHeader.order
-    );
-  }
-
-  private setHeaderArrowTemplateSub(order: number): string {
-    switch (order) {
-      case HeaderDirection.Down:
-        return this.tmplateArrowDown;
-      case HeaderDirection.Up:
-        return this.tmplateArrowUp;
-      case HeaderDirection.None:
-        return '';
-      default:
-        return '';
-    }
+    this.sortingService.onHeaderClick(orderBy, () => this.sortClientGroups());
   }
 
   trackByIndex(index: number): number {
