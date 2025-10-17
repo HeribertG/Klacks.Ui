@@ -113,7 +113,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: ENTITY_STATE_PROVIDER_TOKEN,
-      useClass: WorkplaceStateService,
+      useExisting: WorkplaceStateService,
     },
     {
       provide: LOADING_INDICATOR_TOKEN,

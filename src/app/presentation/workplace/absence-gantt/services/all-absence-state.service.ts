@@ -19,7 +19,7 @@ export class AllAbsenceStateService extends BaseStateService<
   
   override async initializeWorkplaceState(): Promise<void> {
     await super.initializeWorkplaceState();
-    
+
     if (this.dataManagementService.currentFilter.searchString) {
       await this.saveCurrentFilter();
       const searchValue = this.dataManagementService.currentFilter.searchString;

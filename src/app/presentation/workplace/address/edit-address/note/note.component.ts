@@ -69,16 +69,20 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     this.note_new = MessageLibrary.NOTE_NEW;
     this.initializeExpandedNotes();
 
-    effect(() => {
-      const client = this.dataManagementClientService.editClient();
-      if (client?.annotations && !this.isInitializing) {
-        this.initializeExpandedNotes();
-      }
-    }, { injector: this.injector });
+    effect(
+      () => {
+        const client = this.dataManagementClientService.editClient();
+        if (client?.annotations && !this.isInitializing) {
+          this.initializeExpandedNotes();
+        }
+      },
+      { injector: this.injector }
+    );
   }
 
   private initializeExpandedNotes(): void {
-    const annotations = this.dataManagementClientService.editClient()?.annotations;
+    const annotations =
+      this.dataManagementClientService.editClient()?.annotations;
     if (annotations) {
       this.sortedAnnotations = [...annotations];
       this.expandedNotes = new Array(annotations.length).fill(false);
@@ -92,13 +96,11 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.translate.onLangChange
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        setTimeout(() => {
-          this.note_new = MessageLibrary.NOTE_NEW;
-        }, 200);
-      });
+    this.translate.onLangChange.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      setTimeout(() => {
+        this.note_new = MessageLibrary.NOTE_NEW;
+      }, 200);
+    });
   }
 
   ngOnDestroy(): void {
@@ -109,7 +111,7 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
   isDisabled(): boolean {
     return (
       this.dataManagementClientService.editClientDeleted() ||
-      !this.authorizationService.isAuthorised
+      !this.authorizationService.isAdmin
     );
   }
 
@@ -155,7 +157,9 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
       const client = this.dataManagementClientService.editClient();
       if (client) {
         client.annotations[originalIndex].note = target.value;
-        this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+        this.dataManagementClientService.clientEditService.editClient.update(
+          (c) => ({ ...c! })
+        );
       }
       this.isChangingEvent.emit(true);
     }
@@ -165,7 +169,8 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isInitializing = true;
     this.dataManagementClientService.addAnnotation();
     setTimeout(() => {
-      const annotations = this.dataManagementClientService.editClient()?.annotations;
+      const annotations =
+        this.dataManagementClientService.editClient()?.annotations;
       if (annotations) {
         this.expandedNotes.unshift(true);
         this.sortedAnnotations = [...annotations];
@@ -191,12 +196,15 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
         this.expandedNotes.splice(currentIndex, 1);
       }
 
-      const annotations = this.dataManagementClientService.editClient()?.annotations;
+      const annotations =
+        this.dataManagementClientService.editClient()?.annotations;
       if (annotations) {
         this.sortedAnnotations = [...annotations];
       }
 
-      this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(-1);
+      this.dataManagementClientService.clientEditService.currentAnnotationIndex.set(
+        -1
+      );
       this.isChangingEvent.emit(true);
       this.isInitializing = false;
     }, 0);
@@ -227,7 +235,9 @@ export class NoteComponent implements OnInit, AfterViewInit, OnDestroy {
     const client = this.dataManagementClientService.editClient();
     if (client) {
       client.annotations[originalIndex].note = content;
-      this.dataManagementClientService.clientEditService.editClient.update((c) => ({ ...c! }));
+      this.dataManagementClientService.clientEditService.editClient.update(
+        (c) => ({ ...c! })
+      );
     }
     this.isChangingEvent.emit(true);
   }

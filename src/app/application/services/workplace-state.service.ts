@@ -114,9 +114,10 @@ export class WorkplaceStateService implements IEntityStateProvider {
 
   public nameOfVisibleEntity = computed(() => {
     const route = this.activeRoute();
-    return isValidRouteName(route)
+    const result = isValidRouteName(route)
       ? WorkplaceStateService.ROUTE_ENTITY_MAP[route]
       : '';
+    return result;
   });
 
   private _isGroupSearchVisible = signal<boolean>(false);
