@@ -12,6 +12,7 @@
   }
 
   <div
+    id="group-select-dropdown-toggle"
     class="group-select-box form-group"
     [class.disabled]="isDisabled"
     [class.open]="isDropdownOpen"
@@ -23,7 +24,6 @@
     [attr.aria-label]="label || 'Select group'"
     (keyup.enter)="toggleDropdown()"
     (keyup.space)="toggleDropdown()"
-    [id]="'group-select-' + (label || '')"
     aria-controls="select group"
   >
     <div class="group-select-value">
@@ -60,6 +60,7 @@
         <li class="group-tree-node">
           @if (isVirtualGroup(node)) {
           <div
+            id="group-select-all-groups"
             class="group-tree-node-item all-groups-option"
             [class.selected]="selectedGroupId === ALL_GROUPS_ID"
             (click)="selectGroup(node, $event)"
@@ -109,6 +110,7 @@
 
 <ng-template #recursiveTree let-node>
   <div
+    [id]="'group-node-' + node.id"
     class="group-tree-node-item"
     [class.selected]="selectedGroup?.id === node.id"
   >
@@ -118,6 +120,7 @@
     >
       @if (hasChildren(node)) {
       <span
+        [id]="'group-toggle-' + node.id"
         class="group-tree-toggle"
         (click)="toggleNode(node, $event)"
         (keyup.enter)="toggleNode(node, $event)"
@@ -141,6 +144,7 @@
     </div>
 
     <div
+      [id]="'group-option-' + node.id"
       class="group-option-button"
       (click)="selectGroup(node, $event)"
       (keyup.enter)="selectGroup(node, $event)"
