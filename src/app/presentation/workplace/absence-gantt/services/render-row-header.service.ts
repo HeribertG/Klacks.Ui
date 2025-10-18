@@ -181,19 +181,26 @@ export class RenderRowHeaderService {
   }
 
   private DrawHeaderCanvas(rec: Rectangle): void {
+    const totalCount = this.dataManagementBreak.totalAvailableRows;
+    const loadedCount = this.dataManagementBreak.clients.length;
+    const displayCount = totalCount > 0 ? totalCount : loadedCount;
+    const headerText = `Name (${displayCount})`;
+
     this.renderRowHeaderCell.drawText(
       this.rowHeaderCanvasManager.headerCtx!,
-      `Name (${this.dataManagementBreak.clients.length})`,
+      headerText,
       rec.left + 2,
       rec.top,
       rec.width - 2,
-      rec.height,
+      rec.height - 3,
       this.gridFonts.mainFontString,
       12,
       this.gridColors.foreGroundColor,
       TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center
     );
+
+    this.drawProgressLine(rec);
 
     this.renderRowHeaderCell.drawBorder(
       this.rowHeaderCanvasManager.headerCtx!,
@@ -205,6 +212,21 @@ export class RenderRowHeaderService {
       2,
       Gradient3DBorderStyleEnum.Raised
     );
+  }
+
+  private drawProgressLine(rec: Rectangle): void {
+    const loadingProgress = this.dataManagementBreak.loadingProgress;
+    if (loadingProgress > 0 && loadingProgress < 100) {
+      const ctx = this.rowHeaderCanvasManager.headerCtx!;
+      const lineHeight = 2;
+      const y = rec.height - lineHeight;
+      const progressWidth = (rec.width * loadingProgress) / 100;
+
+      ctx.save();
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(rec.left, y, progressWidth, lineHeight);
+      ctx.restore();
+    }
   }
 
   private drawFilterIcon(rec: Rectangle) {

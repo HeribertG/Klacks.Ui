@@ -44,6 +44,8 @@ export interface IBreakFilter extends IBaseFilter {
   currentYear: number;
   absences: AbsenceTokenFilter[];
   selectedGroup: string | undefined;
+  startRow?: number;
+  rowCount?: number;
 }
 
 export class BreakFilter implements IBreakFilter {
@@ -59,4 +61,6 @@ export class BreakFilter implements IBreakFilter {
   isPreviousPage: boolean | undefined = undefined;
   isNextPage: boolean | undefined = undefined;
   selectedGroup: string | undefined = undefined;
+  startRow?: number;
+  rowCount?: number;
 }

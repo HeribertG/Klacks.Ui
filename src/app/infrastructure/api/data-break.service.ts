@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { retry } from 'rxjs';
+import { retry, map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Break, IBreak, IBreakFilter } from 'src/app/domain/models/break-class';
 import { IClientBreak } from 'src/app/domain/models/client-class';
@@ -38,13 +38,23 @@ export class DataBreakService {
       .pipe(retry(3));
   }
 
-  getClientList(filter: IBreakFilter) {
+  getClientList(filter: IBreakFilter): Observable<{ clients: IClientBreak[], totalCount: number }> {
     return this.httpClient
       .post<IClientBreak[]>(
         `${environment.baseUrl}Breaks/GetClientList/`,
-        filter
+        filter,
+        { observe: 'response' }
       )
-      .pipe(retry(3));
+      .pipe(
+        retry(3),
+        map((response: HttpResponse<IClientBreak[]>) => {
+          const totalCount = parseInt(response.headers.get('X-Total-Count') || '0', 10);
+          return {
+            clients: response.body || [],
+            totalCount: totalCount
+          };
+        })
+      );
   }
 
   private setCorrectDate(value: Break) {

@@ -12,7 +12,6 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { RowHeaderCanvasManagerService } from '../services/row-header-canvas.service';
 import { RenderRowHeaderCellService } from '../services/render-row-header-cell.service';
 import { BreakLayerService } from '../services/break-layer.service';
-import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { FooterService } from 'src/app/presentation/services/footer.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { AllAbsenceStateService } from '../services/all-absence-state.service';
@@ -20,6 +19,7 @@ import { CalendarSettingService } from '../services/calendar-setting.service';
 import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
+import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -43,9 +43,9 @@ import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absen
     RowHeaderCanvasManagerService,
     RenderRowHeaderCellService,
     BreakLayerService,
-    HolidayCollectionService,
     AllAbsenceStateService,
     DataManagementAbsenceGanttService,
+    HolidayCollectionService,
     GanttPdfExportService,
     GanttPdfDrawingService,
   ],

@@ -37,7 +37,7 @@
         this.dataManagementGroupService.numberOfItemsPerPage
       "
       [maxItems]="
-        this.dataManagementGroupService.paginationDataService.maxItems
+        this.dataManagementGroupService.paginationDataService?.maxItems || 0
       "
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
@@ -192,6 +192,7 @@
     </table>
   </div>
 
+  @if (dataManagementGroupService.paginationDataService) {
   <app-pagination
     [dataService]="dataManagementGroupService.paginationDataService"
     [(page)]="page"
@@ -203,4 +204,5 @@
     (rowSizeChange)="onChangeRowSize($event)"
   >
   </app-pagination>
+  }
 </form>

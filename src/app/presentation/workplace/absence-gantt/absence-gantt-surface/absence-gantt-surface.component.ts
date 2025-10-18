@@ -187,7 +187,24 @@ export class AbsenceGanttSurfaceComponent
     }
 
     if (changes['valueChangeVScrollbar']) {
-      this.scroll.verticalScrollPosition = this.valueChangeVScrollbar;
+      const requestedPosition = this.valueChangeVScrollbar;
+      const loadedRows = this.dataManagementBreak.rows;
+      const totalRows = this.dataManagementBreak.totalAvailableRows;
+
+      if (totalRows > 0 && loadedRows < totalRows) {
+        const maxAllowedPosition = Math.max(0, loadedRows - this.scroll.visibleRows);
+        this.scroll.verticalScrollPosition = Math.min(requestedPosition, maxAllowedPosition);
+
+        if (requestedPosition > maxAllowedPosition) {
+          this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
+
+          if (!this.dataManagementBreak.isLoadingMore) {
+            this.dataManagementBreak.loadMoreRows();
+          }
+        }
+      } else {
+        this.scroll.verticalScrollPosition = requestedPosition;
+      }
       vDirection = true;
     }
 
@@ -1038,9 +1055,13 @@ export class AbsenceGanttSurfaceComponent
   }
 
   private setRowsScrollValues(): void {
-    this.scroll.maxRows = this.dataManagementBreak.rows;
+    const totalRows = this.dataManagementBreak.totalAvailableRows > 0
+      ? this.dataManagementBreak.totalAvailableRows
+      : this.dataManagementBreak.rows;
+
+    this.scroll.maxRows = totalRows;
     this.scroll.visibleRows = this.drawCalendarGantt.visibleRow();
-    this.maxValueVScrollbar.emit(this.drawCalendarGantt.rows);
+    this.maxValueVScrollbar.emit(totalRows);
     this.visibleValueVScrollbar.emit(this.drawCalendarGantt.visibleRow());
   }
 

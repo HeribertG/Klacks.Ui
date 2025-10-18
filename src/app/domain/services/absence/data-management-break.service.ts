@@ -50,9 +50,31 @@ export class DataManagementBreakService implements ILoadable {
   public onExternalFilterChange?: () => void;
   private breakFilterDummy: IBreakFilter | undefined = undefined;
 
-  // only when DataManagementAbsenceGanttService has loaded its AbsenceFilter,
-  // can be read. The AbsenceFilter is integrated in the breakFilter.
   canReadBreaks = false;
+
+  private readonly INITIAL_CHUNK_SIZE = 100;
+  private readonly LOAD_MORE_CHUNK_SIZE = 100;
+  private _totalAvailableRows = 0;
+  private _isLoadingMore = signal(false);
+  private _currentChunkSize = 100;
+  private _autoLoadEnabled = true;
+
+  get isLoadingMore(): boolean {
+    return this._isLoadingMore();
+  }
+
+  get hasMoreRows(): boolean {
+    return this.clients.length < this._totalAvailableRows;
+  }
+
+  get loadingProgress(): number {
+    if (this._totalAvailableRows === 0) return 0;
+    return Math.round((this.clients.length / this._totalAvailableRows) * 100);
+  }
+
+  get totalAvailableRows(): number {
+    return this._totalAvailableRows;
+  }
 
   constructor() {
     this.registry.register(RouteName.ABSENCE, DataManagementBreakService);
@@ -66,33 +88,30 @@ export class DataManagementBreakService implements ILoadable {
     this._showProgressSpinner.set(true);
     if (this.canReadBreaks) {
       this.clients = [];
+      this.breakFilter.startRow = 0;
+      this.breakFilter.rowCount = this.INITIAL_CHUNK_SIZE;
+      this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
+      this._autoLoadEnabled = true;
 
       this.dataBreakService
         .getClientList(this.breakFilter)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
-          next: (clientBreaks) => {
-            this.clients = clientBreaks.map((client) => {
-              if (client.breaks && Array.isArray(client.breaks)) {
-                client.breaks = client.breaks.filter(
-                  (brk) =>
-                    brk &&
-                    typeof brk === 'object' &&
-                    Object.keys(brk).length > 0 &&
-                    brk.from &&
-                    brk.until
-                );
-              } else {
-                client.breaks = [];
-              }
-              return client;
-            });
+          next: (response) => {
+            this.clients = this.processClientBreaks(response.clients);
+            this._totalAvailableRows = response.totalCount;
+
+            console.log(`Initial load: ${this.clients.length} clients, Total available: ${this._totalAvailableRows}`);
 
             this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
             this._showProgressSpinner.set(false);
             this.isRead.set(true);
 
             setTimeout(() => this.isRead.set(false), 100);
+
+            if (this._autoLoadEnabled && this.hasMoreRows) {
+              setTimeout(() => this.autoLoadNextChunk(), 100);
+            }
           },
           error: (err) => {
             console.error('Error loading the breaks:', err);
@@ -100,6 +119,106 @@ export class DataManagementBreakService implements ILoadable {
           },
         });
     }
+  }
+
+  loadMoreRows(): void {
+    if (!this.hasMoreRows || this._isLoadingMore()) {
+      return;
+    }
+
+    this._isLoadingMore.set(true);
+    this.breakFilter.startRow = this.clients.length;
+    this.breakFilter.rowCount = this.LOAD_MORE_CHUNK_SIZE;
+
+    console.log(`Manual load triggered: startRow=${this.breakFilter.startRow}, rowCount=${this.LOAD_MORE_CHUNK_SIZE}`);
+
+    this.dataBreakService
+      .getClientList(this.breakFilter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const newClients = this.processClientBreaks(response.clients);
+          this.clients.push(...newClients);
+
+          if (newClients.length < this.LOAD_MORE_CHUNK_SIZE) {
+            this._totalAvailableRows = this.clients.length;
+          }
+
+          this._isLoadingMore.set(false);
+          this.isRead.set(true);
+          setTimeout(() => this.isRead.set(false), 100);
+
+          if (this._autoLoadEnabled && this.hasMoreRows) {
+            setTimeout(() => this.autoLoadNextChunk(), 50);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading more breaks:', err);
+          this._isLoadingMore.set(false);
+        },
+      });
+  }
+
+  private autoLoadNextChunk(): void {
+    if (!this._autoLoadEnabled || !this.hasMoreRows || this._isLoadingMore()) {
+      return;
+    }
+
+    this._isLoadingMore.set(true);
+    this.breakFilter.startRow = this.clients.length;
+    this.breakFilter.rowCount = this._currentChunkSize;
+
+    console.log(`Auto-loading chunk: startRow=${this.breakFilter.startRow}, rowCount=${this._currentChunkSize}`);
+
+    this.dataBreakService
+      .getClientList(this.breakFilter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const newClients = this.processClientBreaks(response.clients);
+          this.clients.push(...newClients);
+
+          if (newClients.length < this._currentChunkSize) {
+            this._totalAvailableRows = this.clients.length;
+            this._autoLoadEnabled = false;
+            console.log(`Auto-loading completed. Total rows: ${this.clients.length}`);
+          } else {
+            this._currentChunkSize = Math.min(this._currentChunkSize * 2, 800);
+            console.log(`Next chunk size will be: ${this._currentChunkSize}`);
+          }
+
+          this._isLoadingMore.set(false);
+          this.isRead.set(true);
+          setTimeout(() => this.isRead.set(false), 100);
+
+          if (this._autoLoadEnabled && this.hasMoreRows) {
+            setTimeout(() => this.autoLoadNextChunk(), 50);
+          }
+        },
+        error: (err) => {
+          console.error('Error auto-loading breaks:', err);
+          this._isLoadingMore.set(false);
+          this._autoLoadEnabled = false;
+        },
+      });
+  }
+
+  private processClientBreaks(clientBreaks: IClientBreak[]): IClientBreak[] {
+    return clientBreaks.map((client) => {
+      if (client.breaks && Array.isArray(client.breaks)) {
+        client.breaks = client.breaks.filter(
+          (brk) =>
+            brk &&
+            typeof brk === 'object' &&
+            Object.keys(brk).length > 0 &&
+            brk.from &&
+            brk.until
+        );
+      } else {
+        client.breaks = [];
+      }
+      return client;
+    });
   }
 
   readClientName(index: number): string {
