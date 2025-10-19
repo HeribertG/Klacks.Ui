@@ -13,7 +13,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 
@@ -36,7 +36,7 @@ export class AllGroupHomeComponent implements OnInit {
     WorkplaceStateService
   );
   private localStorageService = inject(LocalStorageService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
 
@@ -71,7 +71,7 @@ export class AllGroupHomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    this.footerService.setFooterVisibility(false);
+    this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(true);
     
     // Set active manager for group route to enable search functionality

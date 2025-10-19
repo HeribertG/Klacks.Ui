@@ -12,7 +12,7 @@ import { EditGroupMembersComponent } from '../edit-group-members/edit-group-memb
 import { EditGroupNavComponent } from '../edit-group-nav/edit-group-nav.component';
 import { EditGroupParentComponent } from '../edit-group-parent/edit-group-parent.component';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 
@@ -37,7 +37,7 @@ export class EditGroupHomeComponent implements OnInit {
   );
   public dataManagementGroupService = inject(DataManagementGroupService);
   private urlParameterService = inject(UrlParameterService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
 
@@ -51,7 +51,7 @@ export class EditGroupHomeComponent implements OnInit {
     this.workplaceStateService.setActiveManagerByRoute('edit-group');
     
     // Show footer for this edit page
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(true);
     
     if (this.dataManagementGroupService.editGroup === undefined) {
       const result = this.urlParameterService.parseCurrentUrl(

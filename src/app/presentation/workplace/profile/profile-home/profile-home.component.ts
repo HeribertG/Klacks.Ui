@@ -16,7 +16,7 @@ import { ProfileCustomSettingComponent } from '../profile-custom-setting/profile
 // Services
 import { DataManagementProfileService } from 'src/app/domain/services/schedule/data-management-profile.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 
@@ -40,7 +40,7 @@ export class ProfileHomeComponent implements OnInit {
     WorkplaceStateService
   );
   public dataManagementProfileService = inject(DataManagementProfileService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
 
@@ -54,7 +54,7 @@ export class ProfileHomeComponent implements OnInit {
     this.workplaceStateService.setActiveManagerByRoute('profile');
     
     // Show footer for this profile page
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(true);
     
     this.dataManagementProfileService.readData();
   }

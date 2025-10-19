@@ -18,7 +18,7 @@ import { BaseCellRenderService } from '../../../shared/grid/services/body/cell-r
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleDataService } from '../schedule-section/services/schedule-data.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -42,7 +42,7 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
   ],
 })
 export class ScheduleHomeComponent implements OnInit, OnDestroy {
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
@@ -59,7 +59,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private effects: EffectRef[] = [];
 
   ngOnInit(): void {
-    this.footerService.setFooterVisibility(false);
+    this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
 
     this.allScheduleStateService.initializeWorkplaceState();

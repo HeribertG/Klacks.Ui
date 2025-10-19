@@ -18,7 +18,7 @@ import { EditShiftMacroComponent } from '../edit-shift-macro/edit-shift-macro.co
 import { EditShiftAddressComponent } from '../edit-shift-address/edit-shift-address.component';
 import { EditShiftSpecialFeatureComponent } from '../edit-shift-special-feature/edit-shift-special-feature.component';
 import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.component';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
@@ -49,7 +49,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   public authorizationService = inject(AuthorizationService);
   private activatedRoute = inject(ActivatedRoute);
   private localStorageService = inject(LocalStorageService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private destroy$ = new Subject<void>();
@@ -66,7 +66,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(true);
 
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params['id'];

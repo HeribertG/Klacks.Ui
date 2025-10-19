@@ -7,11 +7,10 @@ import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { SettingsManageableWrapperService } from 'src/app/domain/services/settings/settings-manageable-wrapper.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SettingsGeneralComponent } from '../settings-general/settings-general.component';
@@ -61,11 +60,9 @@ export class SettingsHomeComponent implements OnInit {
 
   private workplaceStateService = inject(WorkplaceStateService);
   private dataManagementSettingsService = inject(DataManagementSettingsService);
-  private settingsManageableWrapperService = inject(
-    SettingsManageableWrapperService
-  );
+
   private localStorageService = inject(LocalStorageService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
 
@@ -84,7 +81,7 @@ export class SettingsHomeComponent implements OnInit {
     const id = this.localStorageService.get(MessageLibrary.TOKEN_USERID) + '';
     this.dataManagementSettingsService.CurrentAccountId = id;
     this.workplaceStateService.setActiveManagerByRoute('settings');
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(false);
     this.dataManagementSettingsService.readData();
   }
 

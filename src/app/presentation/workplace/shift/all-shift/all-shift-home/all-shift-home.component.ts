@@ -3,7 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';
 import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
@@ -21,14 +21,14 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   ],
 })
 export class AllShiftHomeComponent implements OnInit {
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    this.footerService.setFooterVisibility(false);
+    this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(true);
 
     // Set active manager for shift route to enable search functionality

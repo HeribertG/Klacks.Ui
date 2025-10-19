@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 
 @Component({
   selector: 'app-savebar',
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
-    @if (footerService.showFooter()) {
+    @if (savebarService.showSavebar()) {
     <div class="footer custom-control-inline">
       @if (showGoBackButton()) {
       <span
@@ -42,7 +42,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
       >
         {{ 'reset' | translate }}
       </span>
-      } @if (footerService.footerConfig().showSaveButtons) {
+      } @if (savebarService.savebarConfig().showSaveButtons) {
       <button
         type="button"
         class="btn save-btn"
@@ -53,7 +53,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
       >
         {{ 'store' | translate }}
       </button>
-      } @if (footerService.footerConfig().showSaveAndCloseButton) {
+      } @if (savebarService.savebarConfig().showSaveAndCloseButton) {
       <button
         type="button"
         class="btn save-btn"
@@ -72,7 +72,7 @@ import { FooterService } from 'src/app/presentation/services/footer.service';
 })
 export class SavebarComponent {
   public workplaceStateService = inject(WorkplaceStateService);
-  public footerService = inject(FooterService);
+  public savebarService = inject(SavebarService);
   private navigationService = inject(NavigationService);
 
   public showGoBackButton = computed(() => {

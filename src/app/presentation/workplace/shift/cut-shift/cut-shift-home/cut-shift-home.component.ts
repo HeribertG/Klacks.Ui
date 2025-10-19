@@ -12,7 +12,7 @@ import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.componen
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 
@@ -28,7 +28,7 @@ export class CutShiftHomeComponent implements OnInit, OnDestroy {
   private activatedRoute = inject(ActivatedRoute);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   private workplaceStateService = inject(WorkplaceStateService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private destroy$ = new Subject<void>();
@@ -37,7 +37,7 @@ export class CutShiftHomeComponent implements OnInit, OnDestroy {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
     this.workplaceStateService.setActiveManagerByRoute('cut-shift');
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(true);
 
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params['id'];

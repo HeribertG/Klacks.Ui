@@ -3,7 +3,7 @@ import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.compo
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { AllAddressStateService } from '../services/all-address-state.service';
@@ -22,14 +22,14 @@ import { AllAddressStateService } from '../services/all-address-state.service';
   providers: [AllAddressStateService],
 })
 export class AllAddressHomeComponent implements OnInit {
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private allAddressStateService = inject(AllAddressStateService);
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    this.footerService.setFooterVisibility(false);
+    this.savebarService.setSavebarVisibility(false);
     this.searchService.setSearchVisibility(true);
 
     this.allAddressStateService.initializeWorkplaceState();

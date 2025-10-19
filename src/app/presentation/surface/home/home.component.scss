@@ -4,7 +4,7 @@
 @use "sass:color";
 
 $header_height: 65px;
-$footer_height: var(--footer_height);
+$savebar_height: var(--savebar_height);
 $main-footer_height: 0px;
 $nav_width: 100px;
 
@@ -27,7 +27,7 @@ app-main {
   order: 3;
   flex: 1;
   height: calc(
-    100vh - (#{$header_height} + #{$main-footer_height} + #{$footer_height})
+    100vh - (#{$header_height} + #{$main-footer_height} + #{$savebar_height})
   );
   width: calc(100% - #{$nav_width});
   background-color: var(--backgroundColorWorkplace);
@@ -40,8 +40,8 @@ app-main {
   order: 6;
   position: absolute;
 
-  height: $footer_height;
-  top: calc(100vh - (#{$footer_height} + #{$main-footer_height}));
+  height: $savebar_height;
+  top: calc(100vh - (#{$savebar_height} + #{$main-footer_height}));
   max-width: calc(1445px - (#{$nav_width}));
   width: calc(100% - (#{$nav_width}));
   margin-left: $nav_width;

@@ -2,8 +2,8 @@ import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
-export interface FooterConfig {
-  showFooter: boolean;
+export interface SavebarConfig {
+  showSavebar: boolean;
   showGoBackButton: boolean;
   showSaveButtons: boolean;
   showSaveAndCloseButton: boolean;
@@ -13,19 +13,19 @@ export interface FooterConfig {
 @Injectable({
   providedIn: 'root',
 })
-export class FooterService {
+export class SavebarService {
   private workplaceState = inject(WorkplaceStateService);
 
-  private _showFooter = signal<boolean>(false);
+  private _showSavebar = signal<boolean>(false);
 
-  public showFooter = computed(() => this._showFooter());
+  public showSavebar = computed(() => this._showSavebar());
   public showGoBackButton = computed(() => this.workplaceState.goBack() !== '');
   public goBackRoute = computed(() => this.workplaceState.goBack());
   public isDirty = computed(() => this.workplaceState.isDirty);
   public isDisabled = computed(() => this.workplaceState.isDisabled);
 
-  public footerConfig = computed<FooterConfig>(() => ({
-    showFooter: this._showFooter(),
+  public savebarConfig = computed<SavebarConfig>(() => ({
+    showSavebar: this._showSavebar(),
     showGoBackButton: this.showGoBackButton(),
     showSaveButtons: this.isDirty(),
     showSaveAndCloseButton:
@@ -42,18 +42,18 @@ export class FooterService {
 
   constructor() {
     effect(() => {
-      this.updateFooterHeight(this._showFooter());
+      this.updateSavebarHeight(this._showSavebar());
     });
   }
 
-  public setFooterVisibility(show: boolean): void {
-    this._showFooter.set(show);
+  public setSavebarVisibility(show: boolean): void {
+    this._showSavebar.set(show);
   }
 
-  private updateFooterHeight(show: boolean): void {
+  private updateSavebarHeight(show: boolean): void {
     const body = document.querySelector('body');
     if (body) {
-      body.style.setProperty('--footer_height', show ? '65px' : '0px');
+      body.style.setProperty('--savebar_height', show ? '65px' : '0px');
     }
   }
 }

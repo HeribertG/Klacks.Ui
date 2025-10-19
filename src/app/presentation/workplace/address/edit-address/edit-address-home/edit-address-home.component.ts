@@ -21,7 +21,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
-import { FooterService } from 'src/app/presentation/services/footer.service';
+import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
@@ -61,7 +61,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   public dataManagementClientService = inject(DataManagementClientService);
   public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
-  private footerService = inject(FooterService);
+  private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private activatedRoute = inject(ActivatedRoute);
@@ -72,7 +72,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
     this.searchService.setSearchVisibility(false);
     this.workplaceStateService.setActiveManagerByRoute('edit-address');
 
-    this.footerService.setFooterVisibility(true);
+    this.savebarService.setSavebarVisibility(true);
 
     this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const id = params['id'];
