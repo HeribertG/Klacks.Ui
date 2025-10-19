@@ -2,7 +2,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
-import { of, throwError, signal } from 'rxjs';
+import { of, throwError } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { EmailSettingComponent } from './email-setting.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';

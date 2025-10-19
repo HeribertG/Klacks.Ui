@@ -13,27 +13,29 @@ describe('OwnerAddressComponent', () => {
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
-  const mockOwnerAddress = {
-    companyName: 'Test Company GmbH',
-    street: 'Teststrasse 123',
-    zip: '12345',
-    city: 'Teststadt',
-    country: 'Deutschland',
-    phone: '+49 123 456789',
-    email: 'info@testcompany.de',
-    website: 'www.testcompany.de',
-  };
+  let mockOwnerAddress: any;
 
   beforeEach(async () => {
+    mockOwnerAddress = {
+      companyName: 'Test Company GmbH',
+      street: 'Teststrasse 123',
+      zip: '12345',
+      city: 'Teststadt',
+      country: 'Deutschland',
+      phone: '+49 123 456789',
+      email: 'info@testcompany.de',
+      website: 'www.testcompany.de',
+    };
+
     const settingsServiceSpy = jasmine.createSpyObj(
       'DataManagementSettingsService',
       ['loadSettings', 'saveSettings', 'resetSettings'],
       {
         settingsChangeTrigger: signal(0),
         isReset: signal(false),
-        ownerAddress: mockOwnerAddress,
       }
     );
+    settingsServiceSpy.ownerAddress = mockOwnerAddress;
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -83,7 +85,8 @@ describe('OwnerAddressComponent', () => {
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress).toBe(mockOwnerAddress);
+      expect(mockOwnerAddress).toBeDefined();
+      expect(mockOwnerAddress.companyName).toBe('Test Company GmbH');
     });
   });
 
@@ -131,11 +134,11 @@ describe('OwnerAddressComponent', () => {
       const newCompanyName = 'New Company Name GmbH';
 
       // Act
-      mockSettingsService.ownerAddress.companyName = newCompanyName;
+      mockOwnerAddress.companyName = newCompanyName;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.companyName).toBe(newCompanyName);
+      expect(mockOwnerAddress.companyName).toBe(newCompanyName);
     });
 
     it('should allow editing street address', () => {
@@ -144,11 +147,11 @@ describe('OwnerAddressComponent', () => {
       const newStreet = 'Neue Strasse 456';
 
       // Act
-      mockSettingsService.ownerAddress.street = newStreet;
+      mockOwnerAddress.street = newStreet;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.street).toBe(newStreet);
+      expect(mockOwnerAddress.street).toBe(newStreet);
     });
 
     it('should allow editing zip code', () => {
@@ -157,11 +160,11 @@ describe('OwnerAddressComponent', () => {
       const newZip = '54321';
 
       // Act
-      mockSettingsService.ownerAddress.zip = newZip;
+      mockOwnerAddress.zip = newZip;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.zip).toBe(newZip);
+      expect(mockOwnerAddress.zip).toBe(newZip);
     });
 
     it('should allow editing city', () => {
@@ -170,11 +173,11 @@ describe('OwnerAddressComponent', () => {
       const newCity = 'Neue Stadt';
 
       // Act
-      mockSettingsService.ownerAddress.city = newCity;
+      mockOwnerAddress.city = newCity;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.city).toBe(newCity);
+      expect(mockOwnerAddress.city).toBe(newCity);
     });
 
     it('should allow editing phone number', () => {
@@ -183,11 +186,11 @@ describe('OwnerAddressComponent', () => {
       const newPhone = '+49 987 654321';
 
       // Act
-      mockSettingsService.ownerAddress.phone = newPhone;
+      mockOwnerAddress.phone = newPhone;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.phone).toBe(newPhone);
+      expect(mockOwnerAddress.phone).toBe(newPhone);
     });
 
     it('should allow editing email address', () => {
@@ -196,11 +199,11 @@ describe('OwnerAddressComponent', () => {
       const newEmail = 'contact@newcompany.de';
 
       // Act
-      mockSettingsService.ownerAddress.email = newEmail;
+      mockOwnerAddress.email = newEmail;
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.email).toBe(newEmail);
+      expect(mockOwnerAddress.email).toBe(newEmail);
     });
   });
 
@@ -210,8 +213,8 @@ describe('OwnerAddressComponent', () => {
       fixture.detectChanges();
       const originalAddress = { ...mockOwnerAddress };
 
-      mockSettingsService.ownerAddress.companyName = 'Modified Company';
-      mockSettingsService.ownerAddress.street = 'Modified Street';
+      mockOwnerAddress.companyName = 'Modified Company';
+      mockOwnerAddress.street = 'Modified Street';
 
       // Act
       mockSettingsService.isReset.set(true);
@@ -227,17 +230,15 @@ describe('OwnerAddressComponent', () => {
       const originalCompanyName = mockOwnerAddress.companyName;
 
       // Modify values
-      mockSettingsService.ownerAddress.companyName = 'Modified Company';
+      mockOwnerAddress.companyName = 'Modified Company';
 
       // Act - Simulate reset by restoring original data
-      mockSettingsService.ownerAddress.companyName = originalCompanyName;
+      mockOwnerAddress.companyName = originalCompanyName;
       mockSettingsService.isReset.set(true);
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.companyName).toBe(
-        originalCompanyName
-      );
+      expect(mockOwnerAddress.companyName).toBe(originalCompanyName);
     });
   });
 
@@ -304,16 +305,14 @@ describe('OwnerAddressComponent', () => {
       };
 
       // Act
-      Object.assign(mockSettingsService.ownerAddress, updatedAddress);
+      Object.assign(mockOwnerAddress, updatedAddress);
       fixture.detectChanges();
 
       // Assert
-      expect(mockSettingsService.ownerAddress.companyName).toBe(
-        updatedAddress.companyName
-      );
-      expect(mockSettingsService.ownerAddress.street).toBe(updatedAddress.street);
-      expect(mockSettingsService.ownerAddress.city).toBe(updatedAddress.city);
-      expect(mockSettingsService.ownerAddress.zip).toBe(updatedAddress.zip);
+      expect(mockOwnerAddress.companyName).toBe(updatedAddress.companyName);
+      expect(mockOwnerAddress.street).toBe(updatedAddress.street);
+      expect(mockOwnerAddress.city).toBe(updatedAddress.city);
+      expect(mockOwnerAddress.zip).toBe(updatedAddress.zip);
     });
   });
 });

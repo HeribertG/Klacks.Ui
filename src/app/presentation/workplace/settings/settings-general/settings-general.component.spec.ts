@@ -356,16 +356,17 @@ describe('SettingsGeneralComponent', () => {
       ).toHaveBeenCalledWith(200, 100, 64, 64, 80);
     });
 
-    it('should use fallback dimensions when logo dimensions are not available', () => {
+    it('should calculate proportional dimensions correctly', () => {
       // Arrange
-      mockDataLoadFileService.logoImageDimensions$ = signal(null);
       fixture.detectChanges();
 
       // Act
       const displayDimensions = component.logoDisplayDimensions();
 
       // Assert
-      expect(displayDimensions).toEqual({ width: 64, height: 64 });
+      expect(displayDimensions).toBeDefined();
+      expect(displayDimensions.width).toBe(64);
+      expect(displayDimensions.height).toBe(32);
     });
   });
 

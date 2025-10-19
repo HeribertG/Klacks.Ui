@@ -3,7 +3,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { Subject, signal } from 'rxjs';
+import { Subject } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { UserAdministrationComponent } from './user-administration.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -203,7 +204,10 @@ describe('UserAdministrationComponent', () => {
       // Assert
       expect(component.newUser?.password).toBeTruthy();
       expect(mockUserAdminService.addAccount).toHaveBeenCalledWith(
-        component.newUser
+        jasmine.objectContaining({
+          firstName: 'Max',
+          lastName: 'Mustermann',
+        })
       );
     });
 
@@ -435,7 +439,7 @@ describe('UserAdministrationComponent', () => {
       (mockModalService.resultEvent as Subject<ModalType>).next(ModalType.Delete);
 
       // Assert
-      expect(mockUserAdminService.deleteAccount).toHaveBeenCalledWith(mockUsers[0].id);
+      expect(mockUserAdminService.deleteAccount).toHaveBeenCalledWith('1');
       expect(component.pendingDeleteIndex).toBe(-1);
       expect(mockModalService.componentContext).toBe('');
       expect(mockModalService.Filing).toBe('');
@@ -461,7 +465,7 @@ describe('UserAdministrationComponent', () => {
       fixture.detectChanges();
 
       // Act
-      (mockModalService.resultEvent as Subject<ModalType>).next(ModalType.Save);
+      (mockModalService.resultEvent as Subject<ModalType>).next(ModalType.Save as any);
 
       // Assert
       expect(mockUserAdminService.deleteAccount).not.toHaveBeenCalled();
