@@ -504,13 +504,4 @@ describe('LLMModelsComponent', () => {
     });
   });
 
-  describe('Event Emitters', () => {
-    it('should emit isChangingEvent', () => {
-      spyOn(component.isChangingEvent, 'emit');
-
-      component.onIsChanging(true);
-
-      expect(component.isChangingEvent.emit).toHaveBeenCalledWith(true);
-    });
-  });
 });

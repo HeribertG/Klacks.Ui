@@ -14,7 +14,6 @@
     let i = $index) { @if (!(c.isDirty === 3)) {
     <app-macro-row
       [data]="c"
-      (isChangingEvent)="onIsChanging($event)"
       (isDeleteEvent)="onClickDelete(i)"
     >
     </app-macro-row>

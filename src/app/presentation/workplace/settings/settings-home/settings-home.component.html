@@ -21,7 +21,6 @@
   <div class="container-profilline">
     <app-user-administration
       class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (isChangingEvent)="onIsChanging($event)"
       (click)="isfocused('app-user-administration')"
     >
     </app-user-administration>
@@ -50,14 +49,12 @@
   <div class="container-profilline">
     <app-grid-color
       class="container-setting-small first border-right-card border-bottom-card"
-      (isChangingEvent)="onIsChanging($event)"
       (click)="isfocused('app-grid-color')"
     >
     </app-grid-color>
 
     <app-macros
       class="container-setting-small border-right-card border-bottom-card"
-      (isChangingEvent)="onIsChanging($event)"
       (click)="isfocused('app-macros')"
     >
     </app-macros>
@@ -80,7 +77,6 @@
   <div class="container-profilline">
     <app-absence
       class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
-      (isChangingEvent)="onIsChanging($event)"
       (click)="isfocused('app-absence')"
     >
     </app-absence>
@@ -89,7 +85,6 @@
   <div class="container-profilline">
     <app-calendar-rules
       class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
-      (isChangingEvent)="onIsChanging($event)"
       (click)="isfocused('app-calendar-rules')"
     >
     </app-calendar-rules>

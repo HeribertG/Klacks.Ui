@@ -71,7 +71,6 @@
   color: colors.$standartWhiteColor;
   margin-right: 20px;
   border: none;
-  cursor: pointer;
 
   &:hover:not(:disabled) {
     background-color: color.adjust(
@@ -207,6 +206,7 @@
 .link-button {
   font-size: 13px;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .red-font {

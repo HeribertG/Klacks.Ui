@@ -6,6 +6,19 @@
     <div class="container-header-modal modal-title" id="modal-title1">
       {{ translate.instant("setting.holiday-rules.create-rules") }}
     </div>
+    <span class="filler"></span>
+
+    <div type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
   </div>
 
   <div class="modal-body first-modal">
@@ -89,43 +102,40 @@
       <div class="row-line">
         <div class="single-line">
           <div class="row-line gap">
-            <label for="state" class="col-form-label">{{
-              translate.instant("setting.holiday-rules.states-modal")
+            <label for="country" class="col-form-label">{{
+              translate.instant("setting.holiday-rules.country-modal")
             }}</label>
 
-            @if (modalSelectedState) {
+            <select
+              name="country"
+              class="form-select rule-state"
+              [ngModel]="currentRule.country"
+              aria-label="country"
+              (ngModelChange)="onCountryChange($event)"
+            >
+              @for (country of dataManagementCalendarRulesService.currentFilter.countries; track country) {
+              <option [value]="country">
+                {{ country }}
+              </option>
+              }
+            </select>
+          </div>
+          <div class="row-line">
+            <label for="state" class="col-form-label">Land/Kanton/Departement</label>
+
             <select
               name="state"
               class="form-select rule-state"
-              [ngModel]="modalSelectedState.id"
+              [ngModel]="currentRule.state"
               aria-label="state"
-              (ngModelChange)="onSelectionChange($event)"
+              (ngModelChange)="onStateChange($event)"
             >
-              @for (item of
-              dataManagementCalendarRulesService.filteredRulesToken; track
-              item.id) {
-              <option
-                [value]="item.id"
-                [selected]="modalSelectedState.id === item.id"
-              >
+              @for (item of getFilteredStates(); track item.id) {
+              <option [value]="item.state">
                 {{ item.state }}
               </option>
               }
             </select>
-            }
-          </div>
-          <div class="row-line">
-            <label for="state" class="col-form-label">{{
-              translate.instant("setting.holiday-rules.country-modal")
-            }}</label>
-
-            <input
-              name="country"
-              class="form-control rule-state"
-              [ngModel]="currentRule.country"
-              aria-label="state"
-              [disabled]="true"
-            />
           </div>
         </div>
       </div>

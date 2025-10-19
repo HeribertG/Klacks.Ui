@@ -205,27 +205,6 @@ describe('LLMProvidersComponent', () => {
       );
     });
 
-    it('should emit isChangingEvent on successful toggle', async () => {
-      spyOn(component.isChangingEvent, 'emit');
-      mockProviderService.toggleProviderStatus.and.returnValue(
-        Promise.resolve(true)
-      );
-
-      await component.onClickToggleEnable(0);
-
-      expect(component.isChangingEvent.emit).toHaveBeenCalledWith(true);
-    });
-
-    it('should not emit if toggle fails', async () => {
-      spyOn(component.isChangingEvent, 'emit');
-      mockProviderService.toggleProviderStatus.and.returnValue(
-        Promise.resolve(false)
-      );
-
-      await component.onClickToggleEnable(0);
-
-      expect(component.isChangingEvent.emit).not.toHaveBeenCalled();
-    });
 
     it('should not toggle if index is invalid', async () => {
       await component.onClickToggleEnable(-1);
@@ -477,13 +456,4 @@ describe('LLMProvidersComponent', () => {
     });
   });
 
-  describe('Event Emitters', () => {
-    it('should emit isChangingEvent', () => {
-      spyOn(component.isChangingEvent, 'emit');
-
-      component.onIsChanging(true);
-
-      expect(component.isChangingEvent.emit).toHaveBeenCalledWith(true);
-    });
-  });
 });

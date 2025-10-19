@@ -16,7 +16,6 @@ export class LLMProvidersRowComponent {
   @Input() canDelete = true;
   @Output() editEvent = new EventEmitter<ILLMProvider>();
   @Output() deleteEvent = new EventEmitter<ILLMProvider>();
-  @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public translate = inject(TranslateService);
 

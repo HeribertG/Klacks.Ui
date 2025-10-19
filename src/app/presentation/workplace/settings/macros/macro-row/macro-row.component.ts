@@ -41,7 +41,6 @@ import { ShiftData } from 'src/app/domain/models/shift-data-class';
 export class MacroRowComponent implements OnInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
   @Input() data: IMacro = new Macro();
-  @Output() isChangingEvent = new EventEmitter<true>();
   @Output() isDeleteEvent = new EventEmitter<void>();
 
   public translate = inject(TranslateService);
@@ -100,13 +99,6 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     ) {
       this.data.isDirty = CreateEntriesEnum.rewrite;
     }
-
-    this.onIsChanging(true);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onIsChanging(event: boolean): void {
-    this.isChangingEvent.emit(true);
   }
 
   open(content: any): void {

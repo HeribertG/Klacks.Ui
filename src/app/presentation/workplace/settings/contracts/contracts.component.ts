@@ -4,14 +4,17 @@ import {
   ElementRef,
   inject,
   OnInit,
+  OnDestroy,
+  AfterViewInit,
   ViewChild,
   TemplateRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { Subject, takeUntil } from 'rxjs';
 
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
@@ -38,9 +41,10 @@ import { cloneObject } from 'src/app/domain/helpers/object-helpers';
     DateInputComponent,
   ],
 })
-export class ContractsComponent implements OnInit {
+export class ContractsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
+  @ViewChild('contractForm') contractForm!: NgForm;
   @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
@@ -50,6 +54,8 @@ export class ContractsComponent implements OnInit {
   public editingContract: IContract | null = null;
   private originalContract: IContract | null = null;
   private isNewContract = false;
+  private isSaving = false;
+  private destroy$ = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
     try {
@@ -57,6 +63,14 @@ export class ContractsComponent implements OnInit {
     } catch (error) {
       console.error('Error initializing contracts:', error);
     }
+  }
+
+  ngAfterViewInit(): void {
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onClickAdd(): void {
@@ -109,10 +123,17 @@ export class ContractsComponent implements OnInit {
     }
   }
 
-  async onSave(modal: any): Promise<void> {
-    if (!this.editingContract || !this.isFormValid()) {
+  async onSaveModal(modal: any): Promise<void> {
+    await this.saveContract();
+    modal.close();
+  }
+
+  private async saveContract(): Promise<void> {
+    if (!this.editingContract || !this.isFormValid() || this.isSaving) {
       return;
     }
+
+    this.isSaving = true;
 
     try {
       if (this.originalContract) {
@@ -125,18 +146,22 @@ export class ContractsComponent implements OnInit {
         await this.dataManagementContractService.saveExistingContract(
           this.editingContract
         );
+        this.originalContract = this.editingContract;
+        this.isNewContract = false;
+
+        if (this.containerBox?.nativeElement) {
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (this.containerBox?.nativeElement) {
+                this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+              }
+            }, 100);
+          });
+        }
       }
 
-      modal.close();
-
-      if (this.isNewContract) {
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (this.containerBox?.nativeElement) {
-              this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
-            }
-          }, 100);
-        });
+      if (this.contractForm) {
+        this.contractForm.form.markAsPristine();
       }
     } catch (error) {
       console.error('Error saving contract:', error);
@@ -149,6 +174,8 @@ export class ContractsComponent implements OnInit {
           reloadError
         );
       }
+    } finally {
+      this.isSaving = false;
     }
   }
 

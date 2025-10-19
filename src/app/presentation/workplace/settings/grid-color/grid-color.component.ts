@@ -25,16 +25,10 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   ],
 })
 export class GridColorComponent implements OnInit {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
   public translate = inject(TranslateService);
   public gridColorService = inject(GridColorService);
 
   ngOnInit(): void {
     this.gridColorService.readData();
-  }
-
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
   }
 }

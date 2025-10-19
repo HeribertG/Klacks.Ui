@@ -37,7 +37,7 @@
         this.dataManagementGroupService.numberOfItemsPerPage
       "
       [maxItems]="
-        this.dataManagementGroupService.paginationDataService?.maxItems || 0
+        this.dataManagementGroupService.paginationDataService.maxItems || 0
       "
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"

@@ -8,11 +8,12 @@ import {
   ViewChild,
   EventEmitter,
   Output,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil, firstValueFrom } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom, debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
@@ -39,9 +40,9 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
 })
-export class LLMModelsComponent implements OnInit, OnDestroy {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
+  @ViewChild('llmForm') llmForm!: NgForm;
 
   private llmService = inject(DataManagementLLMService);
   private providerService = inject(DataManagementLLMProviderService);
@@ -58,10 +59,14 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   providerApiKey = '';
   isNewModel = false;
+  private isSaving = false;
 
   ngOnInit(): void {
     this.loadModels();
     this.loadProviders();
+  }
+
+  ngAfterViewInit(): void {
   }
 
   ngOnDestroy(): void {
@@ -152,6 +157,11 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     }, 0);
   }
 
+  async onSaveModal(modal: any): Promise<void> {
+    await this.saveModel();
+    modal.close();
+  }
+
   onClickEdit(model: ILLMModel): void {
     this.isNewModel = false;
     this.editingModel = { ...model };
@@ -196,7 +206,6 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
                 await firstValueFrom(this.llmService.deleteModel(model.id));
 
                 this.models.splice(index, 1);
-                this.onIsChanging(true);
                 this.toastService.showSuccess(
                   'settings.llm-models.success.delete',
                   'Success'
@@ -213,14 +222,12 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
-  }
-
-  async onSave(modal: any): Promise<void> {
-    if (!this.editingModel || !this.isFormValid()) {
+  private async saveModel(): Promise<void> {
+    if (!this.editingModel || !this.isFormValid() || this.isSaving) {
       return;
     }
+
+    this.isSaving = true;
 
     try {
       if (this.providerApiKey.trim()) {
@@ -230,28 +237,27 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
       if (this.originalModel) {
         const updatedModel = { ...this.originalModel, ...this.editingModel };
         await firstValueFrom(this.llmService.updateModel(updatedModel));
-        this.toastService.showSuccess(
-          'settings.llm-models.success.update',
-          'Success'
-        );
       } else {
         const createdModel = await firstValueFrom(
           this.llmService.createModel(this.editingModel)
         );
-        this.models.push(createdModel || this.editingModel);
-        this.toastService.showSuccess(
-          'settings.llm-models.success.create',
-          'Success'
-        );
+        if (createdModel) {
+          this.models.push(createdModel);
+          this.isNewModel = false;
+          this.editingModel = createdModel;
+          this.originalModel = createdModel;
+        }
       }
 
-      this.onIsChanging(true);
-      modal.close();
+      if (this.llmForm) {
+        this.llmForm.form.markAsPristine();
+      }
     } catch (error) {
       console.error('Error saving model:', error);
       this.toastService.showError('settings.llm-models.error.save');
-
       this.loadModels();
+    } finally {
+      this.isSaving = false;
     }
   }
 

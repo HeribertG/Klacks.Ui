@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ISetting } from 'src/app/domain/models/settings-various-class';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-grid-color-row',
@@ -14,15 +15,23 @@ import { ISetting } from 'src/app/domain/models/settings-various-class';
 })
 export class GridColorRowComponent {
   @Input() data: ISetting | undefined;
-  @Output() isChangingEvent = new EventEmitter<true>();
 
   public translate = inject(TranslateService);
+  private gridColorService = inject(GridColorService);
+  private saveTimeout: any;
 
   onChange(event: Event): void {
     if (this.data && event.target) {
       const inputElement = event.target as HTMLInputElement;
       this.data.value = inputElement.value;
     }
-    this.isChangingEvent.emit(true);
+
+    if (this.saveTimeout) {
+      clearTimeout(this.saveTimeout);
+    }
+
+    this.saveTimeout = setTimeout(() => {
+      this.gridColorService.save();
+    }, 800);
   }
 }

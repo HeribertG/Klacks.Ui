@@ -16,7 +16,6 @@
     $index; let i = $index) { @if (c.isDirty !== 3) {
     <app-countries-row
       [data]="c"
-      (isChangingEvent)="onIsChanging()"
       (isDeleteEvent)="onClickDelete(i)"
     >
     </app-countries-row>

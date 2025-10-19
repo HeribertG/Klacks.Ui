@@ -8,11 +8,12 @@ import {
   ViewChild,
   EventEmitter,
   Output,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -38,10 +39,10 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],
 })
-export class LLMProvidersComponent implements OnInit, OnDestroy {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
+export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
+  @ViewChild('providerForm') providerForm!: NgForm;
 
   private toastService = inject(ToastShowService);
   private modalService = inject(NgbModal);
@@ -58,10 +59,14 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
   providerApiKey = '';
   isNewProvider = false;
   providerToDelete: ILLMProvider | null = null;
+  private isSaving = false;
 
   ngOnInit(): void {
     this.loadProviders();
     this.setupProviderSubscription();
+  }
+
+  ngAfterViewInit(): void {
   }
 
   private setupProviderSubscription(): void {
@@ -113,6 +118,11 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     });
   }
 
+  async onSaveModal(modal: any): Promise<void> {
+    await this.saveProvider();
+    modal.close();
+  }
+
   onClickDelete(provider: ILLMProvider): void {
     this.providerToDelete = provider;
     
@@ -144,69 +154,67 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
       const provider = this.providers[index];
 
       if (provider && provider.id) {
-        const success = await this.providerService.toggleProviderStatus(
-          provider.id, 
+        await this.providerService.toggleProviderStatus(
+          provider.id,
           !provider.isEnabled
         );
-        
-        if (success) {
-          this.onIsChanging(true);
-        }
       }
     }
   }
 
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
-  }
-
-  async onSave(modal: any): Promise<void> {
-    if (!this.editingProvider || !this.isFormValid()) {
+  private async saveProvider(): Promise<void> {
+    if (!this.editingProvider || !this.isFormValid() || this.isSaving) {
       return;
     }
 
-    if (this.isNewProvider) {
-      const createRequest: ICreateProviderRequest = {
-        providerId: this.editingProvider.providerId,
-        providerName: this.editingProvider.providerName,
-        apiKey: this.providerApiKey.trim() || undefined,
-        baseUrl: this.editingProvider.baseUrl,
-        apiVersion: this.editingProvider.apiVersion,
-        isEnabled: this.editingProvider.isEnabled,
-        priority: this.editingProvider.priority
-      };
+    this.isSaving = true;
 
-      const newProvider = await this.providerService.createProvider(createRequest);
-      if (newProvider) {
-        this.onIsChanging(true);
-        // Models neu laden da neuer Provider erstellt wurde
-        this.llmService.reloadModels();
-        modal.close();
+    try {
+      if (this.isNewProvider) {
+        const createRequest: ICreateProviderRequest = {
+          providerId: this.editingProvider.providerId,
+          providerName: this.editingProvider.providerName,
+          apiKey: this.providerApiKey.trim() || undefined,
+          baseUrl: this.editingProvider.baseUrl,
+          apiVersion: this.editingProvider.apiVersion,
+          isEnabled: this.editingProvider.isEnabled,
+          priority: this.editingProvider.priority
+        };
+
+        const newProvider = await this.providerService.createProvider(createRequest);
+        if (newProvider) {
+          this.llmService.reloadModels();
+          this.isNewProvider = false;
+          this.editingProvider = newProvider;
+        }
+      } else {
+        if (!this.editingProvider.id) {
+          return;
+        }
+
+        const updateRequest = {
+          apiKey: this.providerApiKey.trim() || undefined,
+          baseUrl: this.editingProvider.baseUrl,
+          apiVersion: this.editingProvider.apiVersion,
+          isEnabled: this.editingProvider.isEnabled,
+          priority: this.editingProvider.priority
+        };
+
+        const updatedProvider = await this.providerService.updateProvider(
+          this.editingProvider.id,
+          updateRequest
+        );
+
+        if (updatedProvider) {
+          this.llmService.reloadModels();
+        }
       }
-    } else {
-      if (!this.editingProvider.id) {
-        return;
+
+      if (this.providerForm) {
+        this.providerForm.form.markAsPristine();
       }
-
-      const updateRequest = {
-        apiKey: this.providerApiKey.trim() || undefined,
-        baseUrl: this.editingProvider.baseUrl,
-        apiVersion: this.editingProvider.apiVersion,
-        isEnabled: this.editingProvider.isEnabled,
-        priority: this.editingProvider.priority
-      };
-
-      const updatedProvider = await this.providerService.updateProvider(
-        this.editingProvider.id,
-        updateRequest
-      );
-
-      if (updatedProvider) {
-        this.onIsChanging(true);
-        // Models neu laden da Provider geändert wurde
-        this.llmService.reloadModels();
-        modal.close();
-      }
+    } finally {
+      this.isSaving = false;
     }
   }
 
@@ -220,10 +228,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const success = await this.providerService.deleteProvider(this.providerToDelete.id);
-    if (success) {
-      this.onIsChanging(true);
-    }
+    await this.providerService.deleteProvider(this.providerToDelete.id);
     this.providerToDelete = null;
   }
 

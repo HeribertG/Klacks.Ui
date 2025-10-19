@@ -82,3 +82,35 @@
   display: flex;
   align-content: center;
 }
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.red-font {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: var(--standartRedColor);
+}
+
+.save-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: none;
+
+  &:hover {
+    background-color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
+}
+
+.close {
+  background: none;
+  border: none;
+  cursor: pointer;
+}

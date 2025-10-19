@@ -12,7 +12,7 @@
   <div class="container-box">
     @for (c of gridColorService.settingList; track c.id || $index; let i =
     $index) {
-    <app-grid-color-row [data]="c" (isChangingEvent)="onIsChanging($event)">
+    <app-grid-color-row [data]="c">
     </app-grid-color-row>
     }
   </div>

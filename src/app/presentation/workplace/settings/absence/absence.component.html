@@ -25,6 +25,19 @@
     <div class="container-header-modal modal-title" id="modal-title1">
       {{ "setting.absence.modal.edit" | translate }}
     </div>
+    <span class="filler"></span>
+
+    <div type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
   </div>
 
   <form>
@@ -219,8 +232,12 @@
       (click)="modal.dismiss('Cancel click')"
       >{{ "cancel" | translate }}</span
     >
-    <button type="button" class="btn save-btn" (click)="modal.close()">
-      {{ "setting.absence.modal.add" | translate }}
+    <button
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+    >
+      {{ "save" | translate }}
     </button>
   </div>
 </ng-template>

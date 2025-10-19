@@ -80,6 +80,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   public page = 1;
 
   private ngUnsubscribe = new Subject<void>();
+  private isSaving = false;
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
@@ -123,7 +124,9 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   createNewAbsence(content: any): void {
     this.currentAbsence = new Absence();
     this.currentAbsence.name = new MultiLanguage();
+    this.currentAbsence.name.de = '';
     this.currentAbsence.description = new MultiLanguage();
+    this.currentAbsence.description.de = '';
     this.openNewAbsence(content);
   }
 
@@ -200,30 +203,42 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   openNewAbsence(content: any): void {
-    this.ngbModal
-      .open(content, {
-        size: 'md',
-        centered: true,
-        windowClass: 'custom-class',
-        ariaLabelledBy: 'modal-edit',
-      })
-      .result.then(
-        () => {
-          if (this.currentAbsence.id) {
-            this.dataManagementAbsenceService.updateAbsence(
-              this.currentAbsence,
-              this.currentLang
-            );
-          } else {
-            delete this.currentAbsence.id;
-            this.dataManagementAbsenceService.addAbsence(
-              this.currentAbsence,
-              this.currentLang
-            );
-          }
-        },
-        () => {}
-      );
+    this.ngbModal.open(content, {
+      size: 'md',
+      centered: true,
+      windowClass: 'custom-class',
+      ariaLabelledBy: 'modal-edit',
+    });
+  }
+
+  async onSaveModal(modal: any): Promise<void> {
+    await this.saveAbsence();
+    modal.close();
+  }
+
+  private async saveAbsence(): Promise<void> {
+    if (this.isSaving) {
+      return;
+    }
+
+    this.isSaving = true;
+
+    try {
+      if (this.currentAbsence.id) {
+        await this.dataManagementAbsenceService.updateAbsence(
+          this.currentAbsence,
+          this.currentLang
+        );
+      } else {
+        delete this.currentAbsence.id;
+        await this.dataManagementAbsenceService.addAbsence(
+          this.currentAbsence,
+          this.currentLang
+        );
+      }
+    } finally {
+      this.isSaving = false;
+    }
   }
 
   private deleteAbsence(id: string): void {

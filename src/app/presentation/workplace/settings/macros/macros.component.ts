@@ -29,8 +29,6 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   ],
 })
 export class MacrosComponent {
-  @Output() isChangingEvent = new EventEmitter<boolean>();
-
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
 
@@ -40,7 +38,6 @@ export class MacrosComponent {
     macro.isDirty = CreateEntriesEnum.new;
 
     this.dataManagementSettingsService.macroList.push(macro);
-    this.onIsChanging(true);
   }
 
   onClickDelete(index: number): void {
@@ -50,24 +47,16 @@ export class MacrosComponent {
       const macro = macros[index];
 
       if (macro) {
-        // Wenn es ein neuer Eintrag ist, komplett entfernen
         if (macro.isDirty === CreateEntriesEnum.new) {
           macros.splice(index, 1);
         } else {
-          // Sonst als gelöscht markieren
           if (macro.name) {
             macro.name = macro.name + '--isDeleted';
           }
           macro.isDirty = CreateEntriesEnum.delete;
         }
       }
-
-      this.onIsChanging(true);
     }
-  }
-
-  onIsChanging(value: boolean): void {
-    this.isChangingEvent.emit(value);
   }
 
   /**

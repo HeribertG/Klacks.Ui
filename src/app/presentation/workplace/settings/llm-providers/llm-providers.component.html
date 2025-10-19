@@ -165,10 +165,10 @@
     <button
       type="button"
       class="btn save-btn"
-      (click)="onSave(modal)"
+      (click)="onSaveModal(modal)"
       [disabled]="!isFormValid()"
     >
-      {{ translate.instant("settings.llm-providers.save") }}
+      {{ translate.instant("save") }}
     </button>
   </div>
 </ng-template>
@@ -188,7 +188,6 @@
     <app-llm-providers-row
       [data]="provider"
       [canDelete]="canDeleteProvider(provider)"
-      (isChangingEvent)="onIsChanging($event)"
       (editEvent)="onClickEdit($event)"
       (deleteEvent)="onClickDelete($event)"
     >

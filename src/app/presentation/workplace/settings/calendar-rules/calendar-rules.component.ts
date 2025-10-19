@@ -249,7 +249,7 @@ export class CalendarRulesComponent
 
   /* #region Modal Handling */
   onModalChange(): void {
-    if (this.modalSelectedState) {
+    if (this.modalSelectedState && this.currentRule.rule) {
       this.currentRule.state = this.modalSelectedState.state;
       this.currentRule.country = this.modalSelectedState.country;
 
@@ -264,17 +264,40 @@ export class CalendarRulesComponent
     }
   }
 
-  onSelectionChange(id: string): void {
-    const token =
-      this.dataManagementCalendarRulesService.filteredRulesToken.find(
-        (x) => x.id === id
-      );
+  onCountryChange(country: string): void {
+    this.currentRule.country = country;
+
+    const filteredStates = this.getFilteredStates();
+    if (filteredStates.length > 0) {
+      this.currentRule.state = filteredStates[0].state;
+      this.modalSelectedState = filteredStates[0];
+    }
+
+    this.onModalChange();
+  }
+
+  onStateChange(state: string): void {
+    this.currentRule.state = state;
+
+    const token = this.dataManagementCalendarRulesService.currentFilter.list.find(
+      (x) => x.state === state && x.country === this.currentRule.country
+    );
 
     if (token) {
       this.modalSelectedState = token;
-      this.currentRule.state = token.state;
-      this.currentRule.country = token.country;
     }
+
+    this.onModalChange();
+  }
+
+  getFilteredStates(): StateCountryToken[] {
+    if (!this.currentRule.country) {
+      return [];
+    }
+
+    return this.dataManagementCalendarRulesService.currentFilter.list.filter(
+      (x) => x.country === this.currentRule.country
+    );
   }
 
   openDeleteRule(data: ICalendarRule): void {
@@ -325,6 +348,21 @@ export class CalendarRulesComponent
     this.holidaysListHelper.clear();
     this.currentRule = new CalendarRule();
     this.initMultiLanguage();
+
+    if (this.dataManagementCalendarRulesService.currentFilter.countries.length > 0) {
+      const firstCountry = this.dataManagementCalendarRulesService.currentFilter.countries[0];
+      this.currentRule.country = firstCountry;
+
+      const filteredStates = this.dataManagementCalendarRulesService.currentFilter.list.filter(
+        (x) => x.country === firstCountry
+      );
+
+      if (filteredStates.length > 0) {
+        this.currentRule.state = filteredStates[0].state;
+        this.modalSelectedState = filteredStates[0];
+      }
+    }
+
     this.openNewRule(content);
   }
 

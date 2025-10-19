@@ -160,15 +160,14 @@
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
-      >{{ translate.instant("cancel") }}</span
+      >{{ "cancel" | translate }}</span
     >
     <button
       type="button"
       class="btn save-btn"
-      (click)="onSave(modal)"
-      [disabled]="!isFormValid()"
+      (click)="onSaveModal(modal)"
     >
-      {{ translate.instant("setting.contract.save") }}
+      {{ "save" | translate }}
     </button>
   </div>
 </ng-template>
