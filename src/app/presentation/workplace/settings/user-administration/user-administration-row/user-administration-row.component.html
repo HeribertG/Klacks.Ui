@@ -3,6 +3,7 @@
 <div class="first custom-control-inline">
   <div class="form-group">
     <input
+      id="user-admin-row-name-{{ user!.id }}"
       type="text"
       [ngModel]="user!.firstName + ' ' + user!.lastName"
       name="user.name"
@@ -14,6 +15,7 @@
 
   <div class="form-group">
     <input
+      id="user-admin-row-email-{{ user!.id }}"
       type="email"
       [(ngModel)]="user!.email"
       class="form-control gap"
@@ -22,13 +24,14 @@
       aria-label="email"
     />
     @if (enabled) {
-    <span class="send-to" (click)="onClickSentTo()">{{
+    <span id="user-admin-row-sendto-{{ user!.id }}" class="send-to" (click)="onClickSentTo()">{{
       translate.instant("setting.user-admin.row.send")
     }}</span>
     }
   </div>
   <div class="form-group">
     <select
+      id="user-admin-row-authorised-{{ user!.id }}"
       [(ngModel)]="user!.isAuthorised"
       (change)="onAuthorisedChange()"
       class="form-select gap"
@@ -47,6 +50,7 @@
 
   <div class="form-group">
     <select
+      id="user-admin-row-admin-{{ user!.id }}"
       [(ngModel)]="user!.isAdmin"
       (change)="onAdminChange()"
       class="form-select"
@@ -60,7 +64,7 @@
   </div>
   <div>
     @if (enabled) {
-    <span class="delete-button" type="button" (click)="onDelete()">✕</span>
+    <span id="user-admin-row-delete-{{ user!.id }}" class="delete-button" type="button" (click)="onDelete()">✕</span>
     }
   </div>
 </div>

@@ -12,6 +12,7 @@
           translate.instant("setting.owner-address.name")
         }}</label>
         <input
+          id="setting-owner-address-name"
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.appAddressName"
@@ -26,6 +27,7 @@
             translate.instant("setting.owner-address.phone")
           }}</label>
           <input
+            id="setting-owner-address-tel"
             type="text"
             class="form-control"
             [(ngModel)]="dataManagementSettingsService.appAddressPhone"
@@ -42,6 +44,7 @@
           translate.instant("setting.owner-address.supplement")
         }}</label>
         <input
+          id="setting-owner-address-supplement"
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.appSupplementAddress"
@@ -52,10 +55,11 @@
 
       <div>
         <div class="form-group secondColumn">
-          <label for="setting-owner-addressl-email">{{
+          <label for="setting-owner-address-email">{{
             translate.instant("setting.owner-address.email")
           }}</label>
           <input
+            id="setting-owner-address-email"
             type="email"
             class="form-control"
             [(ngModel)]="dataManagementSettingsService.appAddressMail"
@@ -72,6 +76,7 @@
           translate.instant("setting.owner-address.street")
         }}</label>
         <input
+          id="setting-owner-address-street"
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.appAddressAddress"
@@ -87,6 +92,7 @@
           translate.instant("setting.owner-address.zip")
         }}</label>
         <input
+          id="setting-owner-address-zip"
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.appAddressZip"
@@ -102,6 +108,7 @@
           translate.instant("setting.owner-address.place")
         }}</label>
         <input
+          id="setting-owner-address-city"
           type="text"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.appAddressPlace"

@@ -6,7 +6,7 @@
       <div class="container-header-modal modal-title" id="modal-title-user">
         {{ translate.instant("setting.user-admin.modal-title-user") }}
       </div>
-      <div type="button" class="close" (click)="modal.dismiss('Cross click')">
+      <div id="user-admin-modal-close-btn" type="button" class="close" (click)="modal.dismiss('Cross click')">
         <span
           aria-hidden="true"
           style="
@@ -95,12 +95,14 @@
 
   <div class="modal-footer">
     <span
+      id="user-admin-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("setting.user-admin.cancel") }}</span
     >
     <button
+      id="user-admin-modal-save-btn"
       type="button"
       class="btn save-btn"
       (click)="modal.close()"
@@ -128,12 +130,13 @@
 
   <div class="modal-footer">
     <span
+      id="user-admin-msg-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("setting.user-admin.cancel") }}</span
     >
-    <button type="button" class="btn save-btn-ok" (click)="modal.close()">
+    <button id="user-admin-msg-modal-ok-btn" type="button" class="btn save-btn-ok" (click)="modal.close()">
       Ok
     </button>
   </div>
@@ -165,7 +168,7 @@
 
   <div class="row">
     <div class="filler"></div>
-    <span class="first add-button" type="button" (click)="open(content)"
+    <span id="user-admin-add-user-btn" class="first add-button" type="button" (click)="open(content)"
       >{{ translate.instant("setting.user-admin.add") }}
     </span>
   </div>

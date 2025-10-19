@@ -124,8 +124,9 @@
       </div>
 
       <div class="form-group secondColumn">
-        <label for="setting-owner-address-zip">Disposition Notification</label>
+        <label for="dispositionNotification">Disposition Notification</label>
         <select
+          id="dispositionNotification"
           type="text"
           class="form-select"
           [(ngModel)]="dataManagementSettingsService.dispositionNotification"
@@ -222,6 +223,7 @@
             autocomplete="new-password"
           />
           <fa-icon
+            id="setting-email-password-toggle"
             [icon]="showPassword ? faEyeSlash : faEye"
             class="password-toggle-icon"
             (click)="showPassword = !showPassword"
@@ -234,6 +236,7 @@
     <div class="test-email-section">
       <div class="test-button-container">
         <button
+          id="setting-email-test-btn"
           type="button"
           class="btn btn-primary test-email-button"
           (click)="testEmailConfiguration()"

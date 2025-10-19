@@ -4,6 +4,7 @@
   <div class="first custom-control-inline">
     <div>
       <input
+        id="state-row-abbreviation-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.abbreviation"
         (change)="onChange($event)"
@@ -16,6 +17,7 @@
     <div>
       @if (currentLang === 'de') {
       <input
+        id="state-row-name-de-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.name!.de"
         (change)="onChange($event)"
@@ -26,6 +28,7 @@
       />
       } @if (currentLang === 'en') {
       <input
+        id="state-row-name-en-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.name!.en"
         (change)="onChange($event)"
@@ -36,6 +39,7 @@
       />
       } @if (currentLang === 'fr') {
       <input
+        id="state-row-name-fr-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.name!.fr"
         (change)="onChange($event)"
@@ -46,6 +50,7 @@
       />
       } @if (currentLang === 'it') {
       <input
+        id="state-row-name-it-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.name!.it"
         (change)="onChange($event)"
@@ -58,6 +63,7 @@
     </div>
     <div>
       <input
+        id="state-row-prefix-{{ data!.id }}"
         type="text"
         [(ngModel)]="data!.countryPrefix"
         (change)="onChange($event)"
@@ -68,6 +74,6 @@
       />
     </div>
 
-    <span class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+    <span id="state-row-delete-{{ data!.id }}" class="delete-button" type="button" (click)="onClickDelete()">✕</span>
   </div>
 </form>

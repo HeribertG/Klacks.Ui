@@ -9,6 +9,7 @@
       <span class="filler"></span>
 
       <div
+        id="group-scope-modal-close-btn"
         type="button"
         class="close"
         aria-label="Close"
@@ -52,12 +53,13 @@
 
   <div class="modal-footer">
     <span
+      id="group-scope-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cross click')"
       >{{ translate.instant("cancel") }}</span
     >
-    <button type="button" class="btn save-btn" (click)="modal.close('OK')">
+    <button id="group-scope-modal-save-btn" type="button" class="btn save-btn" (click)="modal.close('OK')">
       {{ translate.instant("setting.contract.save") }}
     </button>
   </div>
@@ -66,6 +68,7 @@
 <div class="first custom-control-inline">
   <div class="form-group">
     <input
+      id="group-scope-row-name-{{ user!.id }}"
       type="text"
       [ngModel]="user!.firstName + ' ' + user!.lastName"
       name="user.name"
@@ -76,6 +79,7 @@
   </div>
   <div class="form-group">
     <button
+      id="group-scope-row-count-btn-{{ user!.id }}"
       type="button"
       class="btn btn btn-info center"
       aria-label="number"
