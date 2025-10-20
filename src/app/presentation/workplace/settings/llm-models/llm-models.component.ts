@@ -6,14 +6,11 @@ import {
   inject,
   TemplateRef,
   ViewChild,
-  EventEmitter,
-  Output,
-  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil, firstValueFrom, debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
@@ -40,7 +37,7 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
 })
-export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class LLMModelsComponent implements OnInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
   @ViewChild('llmForm') llmForm!: NgForm;
 
@@ -64,9 +61,6 @@ export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.loadModels();
     this.loadProviders();
-  }
-
-  ngAfterViewInit(): void {
   }
 
   ngOnDestroy(): void {
@@ -158,8 +152,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async onSaveModal(modal: any): Promise<void> {
-    await this.saveModel();
-    modal.close();
+    const success = await this.saveModel();
+    if (success) {
+      modal.close();
+    }
   }
 
   onClickEdit(model: ILLMModel): void {
@@ -222,9 +218,9 @@ export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private async saveModel(): Promise<void> {
+  private async saveModel(): Promise<boolean> {
     if (!this.editingModel || !this.isFormValid() || this.isSaving) {
-      return;
+      return false;
     }
 
     this.isSaving = true;
@@ -237,6 +233,10 @@ export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
       if (this.originalModel) {
         const updatedModel = { ...this.originalModel, ...this.editingModel };
         await firstValueFrom(this.llmService.updateModel(updatedModel));
+        this.toastService.showSuccess(
+          'settings.llm-models.success.update',
+          'Success'
+        );
       } else {
         const createdModel = await firstValueFrom(
           this.llmService.createModel(this.editingModel)
@@ -246,16 +246,22 @@ export class LLMModelsComponent implements OnInit, OnDestroy, AfterViewInit {
           this.isNewModel = false;
           this.editingModel = createdModel;
           this.originalModel = createdModel;
+          this.toastService.showSuccess(
+            'settings.llm-models.success.create',
+            'Success'
+          );
         }
       }
 
       if (this.llmForm) {
         this.llmForm.form.markAsPristine();
       }
+      return true;
     } catch (error) {
       console.error('Error saving model:', error);
       this.toastService.showError('settings.llm-models.error.save');
       this.loadModels();
+      return false;
     } finally {
       this.isSaving = false;
     }

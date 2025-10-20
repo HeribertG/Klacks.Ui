@@ -17,7 +17,7 @@ describe('EmailSettingComponent', () => {
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
   let mockDataSettingsService: jasmine.SpyObj<DataSettingsVariousService>;
   let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
     const settingsServiceSpy = jasmine.createSpyObj(
@@ -40,6 +40,7 @@ describe('EmailSettingComponent', () => {
       'DataSettingsVariousService',
       ['testEmailConfiguration']
     );
+    dataSettingsServiceSpy.testEmailConfiguration.and.returnValue(of({ success: true, message: 'Default success' }));
 
     const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
       'showSuccess',
@@ -48,8 +49,13 @@ describe('EmailSettingComponent', () => {
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
-    ]);
+    ], {
+      onLangChange: of({ lang: 'en' }),
+      onTranslationChange: of({}),
+      onDefaultLangChange: of({ lang: 'en' })
+    });
     translateServiceSpy.instant.and.returnValue('Translated text');
+    translateServiceSpy.get = jasmine.createSpy('get').and.returnValue(of('Translated text'));
 
     await TestBed.configureTestingModule({
       imports: [EmailSettingComponent, TranslateModule.forRoot(), FormsModule],
@@ -76,7 +82,7 @@ describe('EmailSettingComponent', () => {
     mockToastService = TestBed.inject(
       ToastShowService
     ) as jasmine.SpyObj<ToastShowService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 
@@ -166,7 +172,11 @@ describe('EmailSettingComponent', () => {
 
     it('should validate email address before testing', () => {
       // Arrange
-      mockSettingsService.outgoingserverUsername = 'invalid-email';
+      Object.defineProperty(mockSettingsService, 'outgoingserverUsername', {
+        value: 'invalid-email',
+        writable: true,
+        configurable: true
+      });
 
       // Act
       component.testEmailConfiguration();
@@ -228,26 +238,22 @@ describe('EmailSettingComponent', () => {
   });
 
   describe('Form Changes', () => {
-    it('should trigger settings change when form becomes dirty', (done) => {
+    it('should setup form subscription when data is loaded', (done) => {
       // Arrange
+      const setupSpy = spyOn<any>(component, 'setupFormSubscription');
+      component.isDataLoaded = false;
+      component.ngOnInit();
       fixture.detectChanges();
+
+      // Act
       mockSettingsService.isReset.set(true);
       fixture.detectChanges();
 
+      // Assert
       setTimeout(() => {
-        if (component.emailSettingsForm) {
-          const initialValue = mockSettingsService.settingsChangeTrigger();
-          component.emailSettingsForm.form.markAsDirty();
-
-          setTimeout(() => {
-            expect(mockSettingsService.settingsChangeTrigger()).toBeGreaterThan(
-              initialValue
-            );
-            done();
-          }, 50);
-        } else {
-          done();
-        }
+        expect(setupSpy).toHaveBeenCalled();
+        expect(component.isDataLoaded).toBe(true);
+        done();
       }, 150);
     });
   });

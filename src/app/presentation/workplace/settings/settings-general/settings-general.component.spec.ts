@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Title } from '@angular/platform-browser';
-import { of, Subject } from 'rxjs';
-import { signal, computed } from '@angular/core';
+import { of } from 'rxjs';
+import { signal } from '@angular/core';
 
 import { SettingsGeneralComponent } from './settings-general.component';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
@@ -14,7 +14,7 @@ describe('SettingsGeneralComponent', () => {
   let fixture: ComponentFixture<SettingsGeneralComponent>;
   let mockDataLoadFileService: jasmine.SpyObj<DataLoadFileService>;
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
   let mockTitleService: jasmine.SpyObj<Title>;
 
   beforeEach(async () => {
@@ -45,9 +45,15 @@ describe('SettingsGeneralComponent', () => {
       ['loadSettings'],
       {
         settingsChangeTrigger: signal(0),
-        appName: 'Klacks',
       }
     );
+
+    let mockAppName = 'Klacks';
+    Object.defineProperty(settingsServiceSpy, 'appName', {
+      get: () => mockAppName,
+      set: (value: string) => { mockAppName = value; },
+      configurable: true
+    });
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -75,7 +81,7 @@ describe('SettingsGeneralComponent', () => {
     mockSettingsService = TestBed.inject(
       DataManagementSettingsService
     ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
     mockTitleService = TestBed.inject(Title) as jasmine.SpyObj<Title>;
@@ -118,6 +124,7 @@ describe('SettingsGeneralComponent', () => {
     it('should update browser title when app name changes', () => {
       // Arrange
       mockSettingsService.appName = 'New App Name';
+      mockTitleService.setTitle.calls.reset();
 
       // Act
       component.onChange();
@@ -390,6 +397,7 @@ describe('SettingsGeneralComponent', () => {
       // Arrange
       const newAppName = 'My Custom App';
       mockSettingsService.appName = newAppName;
+      mockTitleService.setTitle.calls.reset();
 
       // Act
       component.onChange();

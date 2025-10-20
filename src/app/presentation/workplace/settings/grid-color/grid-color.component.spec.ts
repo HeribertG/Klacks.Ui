@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -9,7 +9,7 @@ describe('GridColorComponent', () => {
   let component: GridColorComponent;
   let fixture: ComponentFixture<GridColorComponent>;
   let mockGridColorService: jasmine.SpyObj<GridColorService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   beforeEach(async () => {
     const gridColorServiceSpy = jasmine.createSpyObj('GridColorService', [
@@ -34,7 +34,7 @@ describe('GridColorComponent', () => {
     mockGridColorService = TestBed.inject(
       GridColorService
     ) as jasmine.SpyObj<GridColorService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 

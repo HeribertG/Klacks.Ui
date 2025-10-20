@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ElementRef } from '@angular/core';
@@ -14,7 +14,7 @@ describe('CountriesComponent', () => {
   let component: CountriesComponent;
   let fixture: ComponentFixture<CountriesComponent>;
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockCountries: ICountry[] = [
     {
@@ -67,10 +67,14 @@ describe('CountriesComponent', () => {
       'DataManagementSettingsService',
       ['loadSettings'],
       {
-        countriesList: mockCountries,
         countryStateService: mockCountryStateService,
       }
     );
+
+    Object.defineProperty(settingsServiceSpy, 'countriesList', {
+      get: () => mockCountryStateService.countriesList(),
+      configurable: true
+    });
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -91,7 +95,7 @@ describe('CountriesComponent', () => {
     mockSettingsService = TestBed.inject(
       DataManagementSettingsService
     ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 
@@ -331,7 +335,7 @@ describe('CountriesComponent', () => {
 
       // Act - Add new country
       component.onClickAdd();
-      let currentList =
+      const currentList =
         mockSettingsService.countryStateService.countriesList();
       const newCountryIndex = currentList.length - 1;
 
@@ -348,10 +352,10 @@ describe('CountriesComponent', () => {
       const finalList = mockSettingsService.countryStateService.countriesList();
       expect(finalList.length).toBe(initialLength + 1);
 
-      const newCountry = finalList[newCountryIndex];
-      expect(newCountry.abbreviation).toBe('FR');
-      expect(newCountry.name!.de).toBe('Frankreich');
-      expect(newCountry.prefix).toBe('+33');
+      const updatedNewCountry = finalList[newCountryIndex];
+      expect(updatedNewCountry.abbreviation).toBe('FR');
+      expect(updatedNewCountry.name!.de).toBe('Frankreich');
+      expect(updatedNewCountry.prefix).toBe('+33');
 
       const deletedCountry = finalList[0];
       expect(deletedCountry.isDirty).toBe(CreateEntriesEnum.delete);

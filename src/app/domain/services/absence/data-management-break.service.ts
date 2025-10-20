@@ -37,6 +37,7 @@ export class DataManagementBreakService implements ILoadable {
   }
   public isUpdate = signal<IBreak | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
+  public resetScrollPosition$ = new Subject<void>();
 
   public breakFilter: IBreakFilter = new BreakFilter();
   public get currentFilter(): IBreakFilter {
@@ -92,6 +93,8 @@ export class DataManagementBreakService implements ILoadable {
       this.breakFilter.rowCount = this.INITIAL_CHUNK_SIZE;
       this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
       this._autoLoadEnabled = true;
+
+      this.resetScrollPosition$.next();
 
       this.dataBreakService
         .getClientList(this.breakFilter)

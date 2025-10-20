@@ -82,6 +82,11 @@ export class AbsenceGanttContainerComponent {
       this.hScrollbarSize.set(isLocked ? 0 : this.defaultHScrollbarSize);
       this.updateScrollbarSizes();
     });
+
+    this.dataManagementBreakService.resetScrollPosition$.subscribe(() => {
+      this.scrollService.verticalScrollPosition = 0;
+      this.vScrollbarValue.set(0);
+    });
   }
 
   onHScrollbarValueChange(value: number): void {

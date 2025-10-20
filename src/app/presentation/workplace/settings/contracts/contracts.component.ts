@@ -14,7 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
@@ -63,9 +63,6 @@ export class ContractsComponent implements OnInit, OnDestroy, AfterViewInit {
     } catch (error) {
       console.error('Error initializing contracts:', error);
     }
-  }
-
-  ngAfterViewInit(): void {
   }
 
   ngOnDestroy(): void {

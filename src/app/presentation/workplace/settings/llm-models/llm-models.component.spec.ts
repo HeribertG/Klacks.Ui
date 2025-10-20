@@ -267,7 +267,7 @@ describe('LLMModelsComponent', () => {
       };
       mockLLMService.createModel.and.returnValue(of(component.editingModel));
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockLLMService.createModel).toHaveBeenCalled();
       expect(mockToastService.showSuccess).toHaveBeenCalledWith(
@@ -283,7 +283,7 @@ describe('LLMModelsComponent', () => {
       component.editingModel!.maxTokens = 8000;
       mockLLMService.updateModel.and.returnValue(of(component.editingModel!));
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockLLMService.updateModel).toHaveBeenCalled();
       expect(mockToastService.showSuccess).toHaveBeenCalledWith(
@@ -311,7 +311,7 @@ describe('LLMModelsComponent', () => {
       };
       mockLLMService.createModel.and.returnValue(of(component.editingModel));
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(component.editingModel.providerApiKey).toBe('test-api-key');
     });
@@ -335,7 +335,7 @@ describe('LLMModelsComponent', () => {
         throwError(() => new Error('Save failed'))
       );
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockToastService.showError).toHaveBeenCalledWith(
         'settings.llm-models.error.save'
@@ -358,7 +358,7 @@ describe('LLMModelsComponent', () => {
         capabilities: [],
       };
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockLLMService.createModel).not.toHaveBeenCalled();
       expect(mockLLMService.updateModel).not.toHaveBeenCalled();

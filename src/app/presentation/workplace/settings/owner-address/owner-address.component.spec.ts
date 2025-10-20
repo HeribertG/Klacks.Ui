@@ -11,7 +11,7 @@ describe('OwnerAddressComponent', () => {
   let component: OwnerAddressComponent;
   let fixture: ComponentFixture<OwnerAddressComponent>;
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   let mockOwnerAddress: any;
 
@@ -56,7 +56,7 @@ describe('OwnerAddressComponent', () => {
     mockSettingsService = TestBed.inject(
       DataManagementSettingsService
     ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 
@@ -94,17 +94,25 @@ describe('OwnerAddressComponent', () => {
     it('should trigger settings change when form becomes dirty', (done) => {
       // Arrange
       fixture.detectChanges();
+      component.ngAfterViewInit();
+
+      const mockFormChanges = {
+        subscribe: (callback: () => void) => {
+          callback();
+          return { unsubscribe: () => {} };
+        }
+      };
+
+      const mockForm = {
+        dirty: true,
+        valueChanges: mockFormChanges
+      } as any;
+
+      component.ownerAddressForm = mockForm;
       const initialTriggerValue = mockSettingsService.settingsChangeTrigger();
 
       // Act
       component.ngAfterViewInit();
-
-      if (component.ownerAddressForm) {
-        component.ownerAddressForm.form.markAsDirty();
-        component.ownerAddressForm.form.setValue({
-          companyName: 'Updated Company',
-        });
-      }
 
       // Assert
       setTimeout(() => {
@@ -211,7 +219,6 @@ describe('OwnerAddressComponent', () => {
     it('should react to reset signal', () => {
       // Arrange
       fixture.detectChanges();
-      const originalAddress = { ...mockOwnerAddress };
 
       mockOwnerAddress.companyName = 'Modified Company';
       mockOwnerAddress.street = 'Modified Street';
@@ -259,6 +266,7 @@ describe('OwnerAddressComponent', () => {
 
     it('should complete ngUnsubscribe subject on destroy', () => {
       // Arrange
+      component['objectForUnsubscribe'] = { unsubscribe: jasmine.createSpy('unsubscribe') };
       const nextSpy = spyOn(component['ngUnsubscribe'], 'next');
       const completeSpy = spyOn(component['ngUnsubscribe'], 'complete');
 

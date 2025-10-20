@@ -402,7 +402,7 @@ describe('AllGroupListComponent', () => {
         depth: 0,
         clientsCount: 0
       };
-      (mockDataManagementGroupService.listWrapper as any).set({
+      const mockListWrapper = {
         groups: [mockGroup as any],
         editor: null,
         lastChange: null,
@@ -410,6 +410,10 @@ describe('AllGroupListComponent', () => {
         maxPages: 1,
         firstItem: 0,
         lastItem: 0
+      };
+      (mockDataManagementGroupService.listWrapper as any).set(mockListWrapper);
+      Object.defineProperty(mockDataManagementGroupService, 'listWrapper', {
+        get: () => mockListWrapper
       });
       const mockEvent = { currentTarget: { checked: true } };
       mockDataManagementGroupService.findCheckBoxValue.and.returnValue({ id: '1', checked: false });

@@ -46,7 +46,6 @@ export class ValidityPeriodRenderingService {
       return;
     }
 
-    const currentYear = this.calculationService.startDate.getFullYear();
     const maxColumns = this.calculationService.calcDaysPerYear();
 
     const grayRectangle = new Rectangle(

@@ -192,8 +192,14 @@ export class AbsenceGanttSurfaceComponent
       const totalRows = this.dataManagementBreak.totalAvailableRows;
 
       if (totalRows > 0 && loadedRows < totalRows) {
-        const maxAllowedPosition = Math.max(0, loadedRows - this.scroll.visibleRows);
-        this.scroll.verticalScrollPosition = Math.min(requestedPosition, maxAllowedPosition);
+        const maxAllowedPosition = Math.max(
+          0,
+          loadedRows - this.scroll.visibleRows
+        );
+        this.scroll.verticalScrollPosition = Math.min(
+          requestedPosition,
+          maxAllowedPosition
+        );
 
         if (requestedPosition > maxAllowedPosition) {
           this.valueVScrollbar.emit(this.scroll.verticalScrollPosition);
@@ -480,8 +486,6 @@ export class AbsenceGanttSurfaceComponent
   onSelectByMouse(event: MouseEvent): void {
     const x = event.offsetX;
     const y = event.offsetY;
-
-    console.log('👆 onSelectByMouse - Mouse:', { x, y });
 
     const dy = y - this.calendarSetting.cellHeaderHeight;
     const height = this.calendarSetting.cellHeight;
@@ -1056,9 +1060,10 @@ export class AbsenceGanttSurfaceComponent
   }
 
   private setRowsScrollValues(): void {
-    const totalRows = this.dataManagementBreak.totalAvailableRows > 0
-      ? this.dataManagementBreak.totalAvailableRows
-      : this.dataManagementBreak.rows;
+    const totalRows =
+      this.dataManagementBreak.totalAvailableRows > 0
+        ? this.dataManagementBreak.totalAvailableRows
+        : this.dataManagementBreak.rows;
 
     this.scroll.maxRows = totalRows;
     this.scroll.visibleRows = this.drawCalendarGantt.visibleRow();

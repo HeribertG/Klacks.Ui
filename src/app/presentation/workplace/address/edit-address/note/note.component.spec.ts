@@ -42,7 +42,7 @@ describe('NoteComponent', () => {
     };
 
     mockAuthorizationService = {
-      isAuthorised: true,
+      isAdmin: true,
     };
 
     await TestBed.configureTestingModule({
@@ -86,13 +86,13 @@ describe('NoteComponent', () => {
     });
 
     it('should return true when not authorized', () => {
-      mockAuthorizationService.isAuthorised = false;
+      mockAuthorizationService.isAdmin = false;
       expect(component.isDisabled()).toBe(true);
     });
 
     it('should return false when authorized and client not deleted', () => {
       editClientDeletedSignal.set(false);
-      mockAuthorizationService.isAuthorised = true;
+      mockAuthorizationService.isAdmin = true;
       expect(component.isDisabled()).toBe(false);
     });
   });
@@ -222,7 +222,7 @@ describe('NoteComponent', () => {
 
     it('should set currentAnnotationIndex when not disabled', () => {
       editClientDeletedSignal.set(false);
-      mockAuthorizationService.isAuthorised = true;
+      mockAuthorizationService.isAdmin = true;
       component.onFocus(1);
       expect(currentAnnotationIndexSignal()).toBe(1);
     });

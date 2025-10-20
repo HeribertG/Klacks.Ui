@@ -6,14 +6,11 @@ import {
   inject,
   TemplateRef,
   ViewChild,
-  EventEmitter,
-  Output,
-  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil, debounceTime, distinctUntilChanged, Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -39,7 +36,7 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],
 })
-export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
+export class LLMProvidersComponent implements OnInit, OnDestroy {
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
   @ViewChild('providerForm') providerForm!: NgForm;
@@ -64,9 +61,6 @@ export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.loadProviders();
     this.setupProviderSubscription();
-  }
-
-  ngAfterViewInit(): void {
   }
 
   private setupProviderSubscription(): void {
@@ -119,8 +113,10 @@ export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   async onSaveModal(modal: any): Promise<void> {
-    await this.saveProvider();
-    modal.close();
+    const success = await this.saveProvider();
+    if (success) {
+      modal.close();
+    }
   }
 
   onClickDelete(provider: ILLMProvider): void {
@@ -162,9 +158,9 @@ export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  private async saveProvider(): Promise<void> {
+  private async saveProvider(): Promise<boolean> {
     if (!this.editingProvider || !this.isFormValid() || this.isSaving) {
-      return;
+      return false;
     }
 
     this.isSaving = true;
@@ -186,10 +182,15 @@ export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
           this.llmService.reloadModels();
           this.isNewProvider = false;
           this.editingProvider = newProvider;
+          if (this.providerForm) {
+            this.providerForm.form.markAsPristine();
+          }
+          return true;
         }
+        return false;
       } else {
         if (!this.editingProvider.id) {
-          return;
+          return false;
         }
 
         const updateRequest = {
@@ -207,11 +208,12 @@ export class LLMProvidersComponent implements OnInit, OnDestroy, AfterViewInit {
 
         if (updatedProvider) {
           this.llmService.reloadModels();
+          if (this.providerForm) {
+            this.providerForm.form.markAsPristine();
+          }
+          return true;
         }
-      }
-
-      if (this.providerForm) {
-        this.providerForm.form.markAsPristine();
+        return false;
       }
     } finally {
       this.isSaving = false;

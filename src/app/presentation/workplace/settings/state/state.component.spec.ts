@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ElementRef } from '@angular/core';
@@ -6,7 +6,7 @@ import { signal } from '@angular/core';
 
 import { StateComponent } from './state.component';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-import { State, IState } from 'src/app/domain/models/client-class';
+import { IState } from 'src/app/domain/models/client-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
@@ -14,7 +14,7 @@ describe('StateComponent', () => {
   let component: StateComponent;
   let fixture: ComponentFixture<StateComponent>;
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockStates: IState[] = [
     {
@@ -56,10 +56,13 @@ describe('StateComponent', () => {
       'DataManagementSettingsService',
       ['loadSettings'],
       {
-        statesList: mockStates,
         countryStateService: mockCountryStateService,
       }
     );
+
+    Object.defineProperty(settingsServiceSpy, 'statesList', {
+      get: () => mockCountryStateService.statesList(),
+    });
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -80,7 +83,7 @@ describe('StateComponent', () => {
     mockSettingsService = TestBed.inject(
       DataManagementSettingsService
     ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 
@@ -136,13 +139,10 @@ describe('StateComponent', () => {
   describe('Delete State', () => {
     it('should remove newly added state from list', () => {
       // Arrange
-      const newState = new State();
-      newState.name = new MultiLanguage();
-      newState.name.de = 'New State';
-      newState.isDirty = CreateEntriesEnum.new;
+      component.onClickAdd();
 
-      const currentList = [...mockStates, newState];
-      mockSettingsService.countryStateService.statesList.set(currentList);
+      const currentList =
+        mockSettingsService.countryStateService.statesList();
       const indexToDelete = currentList.length - 1;
 
       // Act

@@ -245,7 +245,7 @@ describe('LLMProvidersComponent', () => {
         Promise.resolve(component.editingProvider)
       );
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockProviderService.createProvider).toHaveBeenCalled();
       expect(mockLLMService.reloadModels).toHaveBeenCalled();
@@ -260,7 +260,7 @@ describe('LLMProvidersComponent', () => {
         Promise.resolve(component.editingProvider)
       );
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockProviderService.updateProvider).toHaveBeenCalled();
       expect(mockLLMService.reloadModels).toHaveBeenCalled();
@@ -279,7 +279,7 @@ describe('LLMProvidersComponent', () => {
       };
       component.providerApiKey = '';
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockProviderService.createProvider).not.toHaveBeenCalled();
       expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
@@ -298,7 +298,7 @@ describe('LLMProvidersComponent', () => {
       };
       component.providerApiKey = 'key';
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
     });
@@ -319,7 +319,7 @@ describe('LLMProvidersComponent', () => {
         Promise.resolve(undefined)
       );
 
-      await component.onSave(mockModal);
+      await component.onSaveModal(mockModal);
 
       expect(mockModal.close).not.toHaveBeenCalled();
     });

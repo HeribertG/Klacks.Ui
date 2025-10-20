@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { signal } from '@angular/core';
@@ -11,10 +11,10 @@ import { DataManagementGroupVisibilityService } from 'src/app/domain/services/gr
 describe('GroupScopeComponent', () => {
   let component: GroupScopeComponent;
   let fixture: ComponentFixture<GroupScopeComponent>;
-  let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockGroupService: jasmine.SpyObj<DataManagementGroupService>;
-  let mockGroupVisibilityService: jasmine.SpyObj<DataManagementGroupVisibilityService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let _mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
+  let _mockGroupService: jasmine.SpyObj<DataManagementGroupService>;
+  let _mockGroupVisibilityService: jasmine.SpyObj<DataManagementGroupVisibilityService>;
+  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockGroups = [
     {
@@ -70,16 +70,16 @@ describe('GroupScopeComponent', () => {
       ],
     }).compileComponents();
 
-    mockSettingsService = TestBed.inject(
+    _mockSettingsService = TestBed.inject(
       DataManagementSettingsService
     ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockGroupService = TestBed.inject(
+    _mockGroupService = TestBed.inject(
       DataManagementGroupService
     ) as jasmine.SpyObj<DataManagementGroupService>;
-    mockGroupVisibilityService = TestBed.inject(
+    _mockGroupVisibilityService = TestBed.inject(
       DataManagementGroupVisibilityService
     ) as jasmine.SpyObj<DataManagementGroupVisibilityService>;
-    mockTranslateService = TestBed.inject(
+    _mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
 

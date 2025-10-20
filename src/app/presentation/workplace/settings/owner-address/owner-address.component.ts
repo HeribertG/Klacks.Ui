@@ -61,7 +61,9 @@ export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.objectForUnsubscribe.unsubscribe();
+    if (this.objectForUnsubscribe) {
+      this.objectForUnsubscribe.unsubscribe();
+    }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
 

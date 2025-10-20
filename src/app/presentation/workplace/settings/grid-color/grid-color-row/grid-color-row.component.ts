@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -18,7 +18,7 @@ export class GridColorRowComponent {
 
   public translate = inject(TranslateService);
   private gridColorService = inject(GridColorService);
-  private saveTimeout: any;
+  private saveTimeout: ReturnType<typeof setTimeout> | undefined;
 
   onChange(event: Event): void {
     if (this.data && event.target) {

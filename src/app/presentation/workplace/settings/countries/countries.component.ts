@@ -58,7 +58,9 @@ export class CountriesComponent {
         updatedList.splice(index, 1);
         this.dataManagementSettingsService.countryStateService.countriesList.set(updatedList);
       } else {
-        c.name!.de = c.name!.de + '--isDeleted';
+        if (c.name) {
+          c.name.de = c.name.de + '--isDeleted';
+        }
         c.isDirty = CreateEntriesEnum.delete;
         this.dataManagementSettingsService.countryStateService.countriesList.set([...currentList]);
       }

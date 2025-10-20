@@ -17,7 +17,7 @@ describe('UserAdministrationComponent', () => {
   let fixture: ComponentFixture<UserAdministrationComponent>;
   let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
   let mockUserAdminService: jasmine.SpyObj<UserAdministrationManagementService>;
-  let mockModalService: jasmine.SpyObj<ModalService>;
+  let mockModalService: any;
   let mockNgbModal: jasmine.SpyObj<NgbModal>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
@@ -92,21 +92,19 @@ describe('UserAdministrationComponent', () => {
       ],
       {
         accountsList: signal([...mockUsers]),
+        currentAccountId: signal('current-user-id'),
       }
     );
 
-    const modalServiceSpy = jasmine.createSpyObj(
-      'ModalService',
-      ['openModel'],
-      {
-        resultEvent: new Subject<ModalType>(),
-        Filing: '',
-        componentContext: '',
-        deleteMessageTitle: '',
-        deleteMessage: '',
-        deleteMessageOkButton: '',
-      }
-    );
+    const modalServiceSpy = {
+      openModel: jasmine.createSpy('openModel'),
+      resultEvent: new Subject<ModalType>(),
+      Filing: '',
+      componentContext: '',
+      deleteMessageTitle: '',
+      deleteMessage: '',
+      deleteMessageOkButton: '',
+    };
 
     const ngbModalSpy = jasmine.createSpyObj('NgbModal', ['open']);
 
@@ -138,9 +136,7 @@ describe('UserAdministrationComponent', () => {
     mockUserAdminService = TestBed.inject(
       UserAdministrationManagementService
     ) as jasmine.SpyObj<UserAdministrationManagementService>;
-    mockModalService = TestBed.inject(
-      ModalService
-    ) as jasmine.SpyObj<ModalService>;
+    mockModalService = TestBed.inject(ModalService);
     mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
     mockTranslateService = TestBed.inject(
       TranslateService
@@ -163,6 +159,7 @@ describe('UserAdministrationComponent', () => {
         close: jasmine.createSpy('close'),
         dismiss: jasmine.createSpy('dismiss'),
       };
+      (component as any).ngbModal = mockNgbModal;
       mockNgbModal.open.and.returnValue(mockModalRef);
     });
 
@@ -401,8 +398,8 @@ describe('UserAdministrationComponent', () => {
       // Arrange
       const userWithoutName: IAuthentication = {
         ...mockUsers[0],
-        firstName: undefined,
-        lastName: undefined,
+        firstName: '',
+        lastName: '',
       };
       mockUserAdminService.accountsList.set([userWithoutName]);
 
@@ -465,7 +462,7 @@ describe('UserAdministrationComponent', () => {
       fixture.detectChanges();
 
       // Act
-      (mockModalService.resultEvent as Subject<ModalType>).next(ModalType.Save as any);
+      (mockModalService.resultEvent as Subject<ModalType>).next(ModalType.Input);
 
       // Assert
       expect(mockUserAdminService.deleteAccount).not.toHaveBeenCalled();
@@ -481,6 +478,7 @@ describe('UserAdministrationComponent', () => {
         close: jasmine.createSpy('close'),
         dismiss: jasmine.createSpy('dismiss'),
       };
+      (component as any).ngbModal = mockNgbModal;
       mockNgbModal.open.and.returnValue(mockPasswordResetModalRef);
     });
 
