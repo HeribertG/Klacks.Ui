@@ -37,7 +37,7 @@ export class RenderRowHeaderService {
       0,
       0,
       this.rowHeaderCanvasManager.width,
-      this.rowHeaderCanvasManager.headerCanvas!.height
+      this.calendarSetting.cellHeaderHeight
     );
 
     this.ClearHeaderCanvasSurface(rec);
@@ -149,10 +149,19 @@ export class RenderRowHeaderService {
   }
 
   private ShapeRenderCanvasSurface(): void {
-    this.rowHeaderCanvasManager.renderCanvas!.height =
-      this.rowHeaderCanvasManager.height;
-    this.rowHeaderCanvasManager.renderCanvas!.width =
-      this.rowHeaderCanvasManager.width;
+    const dpr = DrawHelper.pixelRatio();
+    const canvas = this.rowHeaderCanvasManager.renderCanvas!;
+    const ctx = this.rowHeaderCanvasManager.renderCanvasCtx!;
+    const width = this.rowHeaderCanvasManager.width;
+    const height = this.rowHeaderCanvasManager.height;
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    DrawHelper.setAntiAliasing(ctx);
   }
 
   private ClearRenderCanvasSurface(): void {
@@ -166,10 +175,19 @@ export class RenderRowHeaderService {
   }
 
   private ShapeHeaderCanvasSurface(): void {
-    this.rowHeaderCanvasManager.headerCanvas!.height =
-      this.calendarSetting.cellHeaderHeight;
-    this.rowHeaderCanvasManager.headerCanvas!.width =
-      this.rowHeaderCanvasManager.width;
+    const dpr = DrawHelper.pixelRatio();
+    const canvas = this.rowHeaderCanvasManager.headerCanvas!;
+    const ctx = this.rowHeaderCanvasManager.headerCtx!;
+    const width = this.rowHeaderCanvasManager.width;
+    const height = this.calendarSetting.cellHeaderHeight;
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+    DrawHelper.setAntiAliasing(ctx);
   }
 
   private ClearHeaderCanvasSurface(rec: Rectangle): void {
