@@ -41,7 +41,7 @@ export class CalendarMonthRenderingService {
         leftDayCell,
         0,
         leftDayCell + sizeDayCell + this.calendarSetting.cellWidth,
-        this.ganttCanvasManager.backgroundRowCanvas!.height
+        this.calendarSetting.cellHeight
       );
       lastDays += actualDays;
 
@@ -96,7 +96,7 @@ export class CalendarMonthRenderingService {
         leftMonthCell,
         0,
         leftMonthCell + sizeMonthCell,
-        this.ganttCanvasManager.backgroundRowCanvas!.height
+        this.calendarSetting.cellHeight
       );
       lastDays += actualDays;
       DrawHelper.fillRectangle(

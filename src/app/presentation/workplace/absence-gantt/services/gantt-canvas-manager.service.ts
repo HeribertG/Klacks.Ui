@@ -43,15 +43,14 @@ export class GanttCanvasManagerService {
   }
 
   public resizeMainCanvas(): void {
-    if (this.canvas) {
-      this.canvas.width = this._width;
-      this.canvas.height = this._height;
-      this.canvas.style.width = `${this._width}px`;
-      this.canvas.style.height = `${this._height}px`;
-    }
-    if (this.ctx) {
-      this.ctx.canvas.width = this._width;
-      this.ctx.canvas.height = this._height;
+    if (this.canvas && this.ctx) {
+      this.ctx = DrawHelper.createHiDPICanvas(
+        this.canvas,
+        this._width,
+        this._height,
+        true
+      );
+      DrawHelper.setAntiAliasing(this.ctx);
     }
   }
 
@@ -109,25 +108,15 @@ export class GanttCanvasManagerService {
 
   public resizeBackgroundRowCanvas(width: number): void {
     if (this.backgroundRowCanvas && this.backgroundRowCtx) {
-      this.backgroundRowCtx = DrawHelper.createHiDPICanvas(
-        this.backgroundRowCanvas,
-        width,
-        this.calendarSetting.cellHeight,
-        true
-      );
-      DrawHelper.setAntiAliasing(this.backgroundRowCtx);
+      this.backgroundRowCanvas.width = width;
+      this.backgroundRowCanvas.height = this.calendarSetting.cellHeight;
     }
   }
 
   public resizeRowCanvas(width: number): void {
     if (this.rowCanvas && this.rowCtx) {
-      this.rowCtx = DrawHelper.createHiDPICanvas(
-        this.rowCanvas,
-        width,
-        this.calendarSetting.cellHeight,
-        true
-      );
-      DrawHelper.setAntiAliasing(this.rowCtx);
+      this.rowCanvas.width = width;
+      this.rowCanvas.height = this.calendarSetting.cellHeight;
     }
   }
 
@@ -156,12 +145,9 @@ export class GanttCanvasManagerService {
   private createRenderCanvas(): void {
     this.renderCanvas = document.createElement('canvas') as HTMLCanvasElement;
     try {
-      this.renderCanvasCtx = DrawHelper.createHiDPICanvas(
-        this.renderCanvas,
-        this.width,
-        this.height,
-        true
-      );
+      this.renderCanvas.width = this.width;
+      this.renderCanvas.height = this.height;
+      this.renderCanvasCtx = this.renderCanvas.getContext('2d', { willReadFrequently: true })!;
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
     } catch (error) {
       console.error('Error when creating the renderCanvas context:', error);
@@ -188,12 +174,9 @@ export class GanttCanvasManagerService {
       'canvas'
     ) as HTMLCanvasElement;
     try {
-      this.backgroundRowCtx = DrawHelper.createHiDPICanvas(
-        this.backgroundRowCanvas,
-        this.width,
-        this.calendarSetting.cellHeight,
-        true
-      );
+      this.backgroundRowCanvas.width = this.width;
+      this.backgroundRowCanvas.height = this.calendarSetting.cellHeight;
+      this.backgroundRowCtx = this.backgroundRowCanvas.getContext('2d', { willReadFrequently: true })!;
       DrawHelper.setAntiAliasing(this.backgroundRowCtx);
     } catch (error) {
       console.error(
@@ -206,12 +189,9 @@ export class GanttCanvasManagerService {
   private createRowCanvas(): void {
     this.rowCanvas = document.createElement('canvas') as HTMLCanvasElement;
     try {
-      this.rowCtx = DrawHelper.createHiDPICanvas(
-        this.rowCanvas,
-        this.width,
-        this.calendarSetting.cellHeight,
-        true
-      );
+      this.rowCanvas.width = this.width;
+      this.rowCanvas.height = this.calendarSetting.cellHeight;
+      this.rowCtx = this.rowCanvas.getContext('2d', { willReadFrequently: true })!;
       DrawHelper.setAntiAliasing(this.rowCtx);
     } catch (error) {
       console.error('Error when creating the rowCanvas context:', error);

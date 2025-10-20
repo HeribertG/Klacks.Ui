@@ -236,7 +236,8 @@ export class RenderRowHeaderService {
     const loadingProgress = this.dataManagementBreak.loadingProgress;
     if (loadingProgress > 0 && loadingProgress < 100) {
       const ctx = this.rowHeaderCanvasManager.headerCtx!;
-      const lineHeight = 2;
+      const dpr = DrawHelper.pixelRatio();
+      const lineHeight = 2 * dpr;
       const y = rec.height - lineHeight;
       const progressWidth = (rec.width * loadingProgress) / 100;
 

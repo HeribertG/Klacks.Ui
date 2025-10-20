@@ -46,10 +46,10 @@ export class CalendarCalculationService {
     dayRect: Rectangle,
     isSaturday: boolean
   ): Rectangle {
-    const rankTop = this.ganttCanvasManager.backgroundRowCanvas!.height;
+    const rankTop = this.calendarSetting.cellHeight;
     const rankHeight =
-      this.ganttCanvasManager.headerCanvas!.height -
-      this.ganttCanvasManager.backgroundRowCanvas!.height;
+      this.calendarSetting.cellHeaderHeight -
+      this.calendarSetting.cellHeight;
     return new Rectangle(
       isSaturday ? dayRect.right - this.MINCELLWITHFORDAYRANK : dayRect.left,
       rankTop,
