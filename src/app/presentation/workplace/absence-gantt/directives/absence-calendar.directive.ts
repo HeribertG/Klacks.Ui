@@ -25,6 +25,8 @@ export class AbsenceCalendarDirective {
   private hasCollection = false;
   private readonly SCROLL_THRESHOLD = 2;
   private readonly INDEX_CORRECTION = 1;
+  private readonly PAGE_DOWN_SCROLL_OFFSET = 3;
+  private readonly PAGE_UP_SCROLL_OFFSET = 0;
 
   // @HostListener('mouseenter', ['$event']) onMouseEnter(
   //   event: MouseEvent
@@ -186,10 +188,11 @@ export class AbsenceCalendarDirective {
         this.drawCalendarGanttService.selectedRow = nextRow;
 
         if (
-          this.drawCalendarGanttService.lastVisibleRow() <=
-          this.drawCalendarGanttService.selectedRow + this.SCROLL_THRESHOLD
+          this.drawCalendarGanttService.selectedRow >=
+          this.drawCalendarGanttService.lastVisibleRow() - this.SCROLL_THRESHOLD
         ) {
-          this.gridBody.valueVScrollbar.emit(nextRow);
+          const newScrollPosition = this.gridBody.scroll.verticalScrollPosition + this.INDEX_CORRECTION;
+          this.gridBody.valueVScrollbar.emit(newScrollPosition);
         }
       }
 
@@ -205,32 +208,24 @@ export class AbsenceCalendarDirective {
         }
       }
 
-      let nextVisibleRow: number =
-        this.gridBody.scroll.verticalScrollPosition +
-        this.gridBody.scroll.visibleRows -
-        1;
+      const visibleRows = this.gridBody.scroll.visibleRows;
+      const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
+      const maxRows = this.gridBody.drawCalendarGantt.rows - 1;
 
-      if (nextVisibleRow > this.gridBody.drawCalendarGantt.rows) {
-        nextVisibleRow = this.gridBody.drawCalendarGantt.rows - 1;
+      let newSelectedRow = currentSelectedRow + visibleRows;
+      if (newSelectedRow > maxRows) {
+        newSelectedRow = maxRows;
       }
 
-      if (this.gridBody.scroll.maxRows <= 1) {
-        this.gridBody.scroll.verticalScrollPosition = 0;
-      } else if (this.gridBody.scroll.maxRows >= nextVisibleRow) {
-        this.gridBody.scroll.verticalScrollPosition = nextVisibleRow;
-      } else {
-        this.gridBody.scroll.verticalScrollPosition =
-          this.gridBody.scroll.maxRows;
+      const firstVisible = this.drawCalendarGanttService.firstVisibleRow;
+      const lastVisible = this.drawCalendarGanttService.lastVisibleRow();
+
+      if (newSelectedRow >= lastVisible) {
+        const newScrollPosition = newSelectedRow - visibleRows + this.PAGE_DOWN_SCROLL_OFFSET;
+        this.gridBody.valueVScrollbar.emit(newScrollPosition);
       }
 
-      this.drawCalendarGanttService.selectedRow = nextVisibleRow;
-
-      this.gridBody.drawCalendarGantt.renderCalendar();
-
-      if (this.gridBody.absenceRowHeader) {
-        this.gridBody.drawRowHeader.createRuler();
-        this.gridBody.drawRowHeader.drawCalendar();
-      }
+      this.drawCalendarGanttService.selectedRow = newSelectedRow;
 
       this.stopEvent(event);
       return;
@@ -257,12 +252,15 @@ export class AbsenceCalendarDirective {
         this.drawCalendarGanttService.selectedRow = nextRow;
 
         if (
-          this.drawCalendarGanttService.firstVisibleColumn() >
-          this.drawCalendarGanttService.selectedRow - this.INDEX_CORRECTION
+          this.drawCalendarGanttService.firstVisibleRow >=
+          this.drawCalendarGanttService.selectedRow
         ) {
           this.gridBody.valueVScrollbar.emit(nextRow);
         }
       }
+
+      this.stopEvent(event);
+      return;
     }
 
     if (event.key === 'PageUp') {
@@ -272,6 +270,25 @@ export class AbsenceCalendarDirective {
           return;
         }
       }
+
+      const visibleRows = this.gridBody.scroll.visibleRows;
+      const currentSelectedRow = this.gridBody.drawCalendarGantt.selectedRow;
+
+      let newSelectedRow = currentSelectedRow - visibleRows;
+      if (newSelectedRow < 0) {
+        newSelectedRow = 0;
+      }
+
+      const firstVisible = this.drawCalendarGanttService.firstVisibleRow;
+
+      if (newSelectedRow < firstVisible) {
+        this.gridBody.valueVScrollbar.emit(newSelectedRow);
+      }
+
+      this.drawCalendarGanttService.selectedRow = newSelectedRow;
+
+      this.stopEvent(event);
+      return;
     }
 
     if (event.key === 'End') {

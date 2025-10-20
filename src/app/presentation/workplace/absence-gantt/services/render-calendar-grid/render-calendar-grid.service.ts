@@ -214,9 +214,11 @@ export class RenderCalendarGridService {
   }
 
   public set selectedRow(value: number) {
-    this.selectionService.selectedRow = value;
-    this.unDrawSelectionRow();
-    this.drawSelectionRow();
+    if (this.selectionService.selectedRow !== value) {
+      this.unDrawSelectionRow();
+      this.selectionService.selectedRow = value;
+      this.drawSelectionRow();
+    }
   }
 
   public get selectedRow(): number {

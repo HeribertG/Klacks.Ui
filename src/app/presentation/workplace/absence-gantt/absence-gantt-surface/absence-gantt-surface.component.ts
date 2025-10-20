@@ -310,25 +310,19 @@ export class AbsenceGanttSurfaceComponent
     const x = event.offsetX;
     const y = event.offsetY;
 
-    console.log('🖱️ onMouseDown - Mouse:', { x, y });
-    console.log('🖱️ selectedArea:', this.selectedArea);
-
     if (this.selectedArea !== SelectedArea.None) {
-      console.log('✅ Selected area is NOT None, proceeding...');
       this.currentCursor = CursorEnum.wResize;
       if (!this.mouseToBarAlpha && this.drawCalendarGantt.selectedBreakRec) {
         this.mouseToBarAlpha = {
           x: x - this.drawCalendarGantt.selectedBreakRec.left,
           y: y - this.drawCalendarGantt.selectedBreakRec.top,
         };
-        console.log('🖱️ mouseToBarAlpha set:', this.mouseToBarAlpha);
       }
 
       if (
         this.selectedArea === SelectedArea.AbsenceBar &&
         this.drawCalendarGantt.selectedBreak
       ) {
-        console.log('🖱️ Dragging AbsenceBar');
         this.dragStartMouseX = x;
         this.originalBreakPosition = {
           startColumn: Math.floor(
@@ -344,10 +338,7 @@ export class AbsenceGanttSurfaceComponent
             )
           ),
         };
-        console.log('🖱️ originalBreakPosition:', this.originalBreakPosition);
       }
-    } else {
-      console.log('❌ selectedArea is None, not doing anything');
     }
   }
 
@@ -499,19 +490,14 @@ export class AbsenceGanttSurfaceComponent
       const tmpRow = Math.floor(dy / height);
       const tmpSelectedRow = tmpRow + this.drawCalendarGantt.firstVisibleRow;
 
-      console.log('👆 Selected row:', tmpSelectedRow, 'Current row:', this.drawCalendarGantt.selectedRow);
-
       if (this.drawCalendarGantt.selectedRow !== tmpSelectedRow) {
-        console.log('👆 Row changed, updating selection');
         this.drawCalendarGantt.selectedRow = tmpSelectedRow;
         this.selectedArea = SelectedArea.None;
 
-        // Explizites Neuzeichnen der ausgewählten Zeile erzwingen
         this.drawCalendarGantt.unDrawSelectionRow();
         this.drawCalendarGantt.drawSelectionRow();
       }
 
-      console.log('👆 Calling existActiveSelection...');
       this.existActiveSelection(event);
       if (
         this.selectedArea === SelectedArea.LeftAnchor ||
@@ -610,14 +596,10 @@ export class AbsenceGanttSurfaceComponent
     const x = event.offsetX;
     const y = event.offsetY;
 
-    console.log('🔍 existActiveSelection - Mouse:', { x, y });
-    console.log('🔍 selectedBreakRec:', this.drawCalendarGantt.selectedBreakRec);
-
     if (
       this.drawCalendarGantt.selectedBreakRec &&
       this.drawCalendarGantt.selectedBreakRec!.pointInRect(x, y)
     ) {
-      console.log('✅ Mouse in AbsenceBar');
       this.selectedArea = SelectedArea.AbsenceBar;
       return;
     }
@@ -628,9 +610,7 @@ export class AbsenceGanttSurfaceComponent
       const left = this.drawCalendarGantt.calcLeftAnchorRectangle(
         this.drawCalendarGantt.selectedBreakRec!
       );
-      console.log('🔍 Left Anchor Rectangle:', left);
       if (left.pointInRect(x, y)) {
-        console.log('✅ Mouse in LeftAnchor');
         this.selectedArea = SelectedArea.LeftAnchor;
         return;
       }
@@ -638,14 +618,11 @@ export class AbsenceGanttSurfaceComponent
       const right = this.drawCalendarGantt.calcRightAnchorRectangle(
         this.drawCalendarGantt.selectedBreakRec!
       );
-      console.log('🔍 Right Anchor Rectangle:', right);
       if (right.pointInRect(x, y)) {
-        console.log('✅ Mouse in RightAnchor');
         this.selectedArea = SelectedArea.RightAnchor;
         return;
       }
     }
-    console.log('❌ Mouse in None area');
     this.selectedArea = SelectedArea.None;
   }
 
