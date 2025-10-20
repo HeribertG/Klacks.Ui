@@ -26,25 +26,22 @@ export abstract class DrawImageHelper {
     sWidth?: number,
     sHeight?: number
   ): void {
-    // Get the actual source dimensions
     const sourceWidth = sWidth || image.width;
     const sourceHeight = sHeight || image.height;
 
-    // Get the destination dimensions (default to source if not provided)
     const destWidth = dWidth || sourceWidth;
     const destHeight = dHeight || sourceHeight;
 
-    // Use the full drawImage signature for proper scaling
     ctx.drawImage(
       image,
       sx,
       sy,
       sourceWidth,
-      sourceHeight, // source rectangle
+      sourceHeight,
       dx,
       dy,
       destWidth,
-      destHeight // destination rectangle
+      destHeight
     );
   }
 
@@ -60,7 +57,6 @@ export abstract class DrawImageHelper {
     logicalWidth?: number,
     logicalHeight?: number
   ): void {
-    // Get logical dimensions from style if available, otherwise use provided dimensions
     let destWidth = logicalWidth;
     let destHeight = logicalHeight;
 
@@ -71,7 +67,6 @@ export abstract class DrawImageHelper {
       destHeight = parseInt(sourceCanvas.style.height);
     }
 
-    // Fallback to canvas dimensions if no logical size is available
     if (!destWidth) destWidth = sourceCanvas.width;
     if (!destHeight) destHeight = sourceCanvas.height;
 
@@ -98,7 +93,6 @@ export abstract class DrawImageHelper {
   } {
     const tempCanvas = document.createElement('canvas');
 
-    // Copy style dimensions if available
     if (sourceCanvas.style.width) {
       tempCanvas.style.width = sourceCanvas.style.width;
     }
@@ -106,13 +100,11 @@ export abstract class DrawImageHelper {
       tempCanvas.style.height = sourceCanvas.style.height;
     }
 
-    // Set physical dimensions to match source
     tempCanvas.width = sourceCanvas.width;
     tempCanvas.height = sourceCanvas.height;
 
     const tempCtx = tempCanvas.getContext('2d')!;
 
-    // Apply scaling if needed
     const dpr = DrawHelper.pixelRatio();
     tempCtx.scale(dpr, dpr);
 
