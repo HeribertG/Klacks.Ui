@@ -4,7 +4,16 @@ import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gan
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
 import { DrawCalendarGanttService } from '../services/draw-calendar-gantt.service';
 import { GanttCanvasManagerService } from '../services/gantt-canvas-manager.service';
-import { RenderCalendarGridService } from '../services/render-calendar-grid.service';
+import {
+  RenderCalendarGridService,
+  CalendarCalculationService,
+  CalendarDayRenderingService,
+  CalendarMonthRenderingService,
+  CalendarHeaderRenderingService,
+  ValidityPeriodRenderingService,
+  BreakRenderingService,
+  RowSelectionService
+} from '../services/render-calendar-grid';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
 import { RenderRowHeaderService } from '../services/render-row-header.service';
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
@@ -37,6 +46,13 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
     DrawCalendarGanttService,
     GanttCanvasManagerService,
     RenderCalendarGridService,
+    CalendarCalculationService,
+    CalendarDayRenderingService,
+    CalendarMonthRenderingService,
+    CalendarHeaderRenderingService,
+    ValidityPeriodRenderingService,
+    BreakRenderingService,
+    RowSelectionService,
     DrawRowHeaderService,
     RenderRowHeaderService,
     ScrollService,

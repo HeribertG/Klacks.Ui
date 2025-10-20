@@ -13,7 +13,7 @@ import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { Subject } from 'rxjs';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
-import { RenderCalendarGridService } from './render-calendar-grid.service';
+import { RenderCalendarGridService } from './render-calendar-grid';
 
 @Injectable()
 export class DrawCalendarGanttService {
@@ -297,23 +297,11 @@ export class DrawCalendarGanttService {
   }
 
   public calcLeftAnchorRectangle(rec: Rectangle): Rectangle {
-    const top = rec.top + rec.height / 2 - this.calendarSetting.anchorWidth / 2;
-    return new Rectangle(
-      rec.left - this.calendarSetting.anchorWidth,
-      top,
-      rec.left,
-      top + this.calendarSetting.anchorWidth
-    );
+    return this.renderCalendarGrid.calcLeftAnchorRectangle(rec);
   }
 
   public calcRightAnchorRectangle(rec: Rectangle): Rectangle {
-    const top = rec.top + rec.height / 2 - this.calendarSetting.anchorWidth / 2;
-    return new Rectangle(
-      rec.right,
-      top,
-      rec.right + this.calendarSetting.anchorWidth,
-      top + this.calendarSetting.anchorWidth
-    );
+    return this.renderCalendarGrid.calcRightAnchorRectangle(rec);
   }
 
   /* #endregion   calc */

@@ -101,8 +101,6 @@ export class DataManagementBreakService implements ILoadable {
             this.clients = this.processClientBreaks(response.clients);
             this._totalAvailableRows = response.totalCount;
 
-            console.log(`Initial load: ${this.clients.length} clients, Total available: ${this._totalAvailableRows}`);
-
             this.breakFilterDummy = cloneObject<IBreakFilter>(this.breakFilter);
             this._showProgressSpinner.set(false);
             this.isRead.set(true);
@@ -129,8 +127,6 @@ export class DataManagementBreakService implements ILoadable {
     this._isLoadingMore.set(true);
     this.breakFilter.startRow = this.clients.length;
     this.breakFilter.rowCount = this.LOAD_MORE_CHUNK_SIZE;
-
-    console.log(`Manual load triggered: startRow=${this.breakFilter.startRow}, rowCount=${this.LOAD_MORE_CHUNK_SIZE}`);
 
     this.dataBreakService
       .getClientList(this.breakFilter)
@@ -168,8 +164,6 @@ export class DataManagementBreakService implements ILoadable {
     this.breakFilter.startRow = this.clients.length;
     this.breakFilter.rowCount = this._currentChunkSize;
 
-    console.log(`Auto-loading chunk: startRow=${this.breakFilter.startRow}, rowCount=${this._currentChunkSize}`);
-
     this.dataBreakService
       .getClientList(this.breakFilter)
       .pipe(takeUntil(this.destroy$))
@@ -181,10 +175,8 @@ export class DataManagementBreakService implements ILoadable {
           if (newClients.length < this._currentChunkSize) {
             this._totalAvailableRows = this.clients.length;
             this._autoLoadEnabled = false;
-            console.log(`Auto-loading completed. Total rows: ${this.clients.length}`);
           } else {
             this._currentChunkSize = Math.min(this._currentChunkSize * 2, 800);
-            console.log(`Next chunk size will be: ${this._currentChunkSize}`);
           }
 
           this._isLoadingMore.set(false);
