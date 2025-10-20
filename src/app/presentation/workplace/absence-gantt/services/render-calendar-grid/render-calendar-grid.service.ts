@@ -356,16 +356,9 @@ export class RenderCalendarGridService {
 
   @CanvasAvailable('queue')
   private sizeCanvas(maxWidth: number): void {
-    const cellHeight = this.calendarSetting.cellHeight;
-    this.ganttCanvasManager.backgroundRowCanvas!.height = cellHeight;
-    this.ganttCanvasManager.rowCanvas!.height = cellHeight;
-    const headerHeight = this.calendarSetting.cellHeaderHeight;
-    this.ganttCanvasManager.headerCanvas!.height = headerHeight;
-
-    this.ganttCanvasManager.backgroundRowCanvas!.width = maxWidth;
-    this.ganttCanvasManager.rowCanvas!.width =
-      this.ganttCanvasManager.backgroundRowCanvas!.width;
-    this.ganttCanvasManager.headerCanvas!.width = maxWidth;
+    this.ganttCanvasManager.resizeBackgroundRowCanvas(maxWidth);
+    this.ganttCanvasManager.resizeRowCanvas(maxWidth);
+    this.ganttCanvasManager.resizeHeaderCanvas(maxWidth);
   }
 
   drawDaysBorderlineOnRuler(
