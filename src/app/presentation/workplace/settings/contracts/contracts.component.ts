@@ -41,7 +41,7 @@ import { cloneObject } from 'src/app/domain/helpers/object-helpers';
     DateInputComponent,
   ],
 })
-export class ContractsComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ContractsComponent implements OnInit, OnDestroy {
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
   @ViewChild('contractForm') contractForm!: NgForm;
@@ -150,7 +150,8 @@ export class ContractsComponent implements OnInit, OnDestroy, AfterViewInit {
           requestAnimationFrame(() => {
             setTimeout(() => {
               if (this.containerBox?.nativeElement) {
-                this.containerBox.nativeElement.scrollTop = this.containerBox.nativeElement.scrollHeight;
+                this.containerBox.nativeElement.scrollTop =
+                  this.containerBox.nativeElement.scrollHeight;
               }
             }, 100);
           });

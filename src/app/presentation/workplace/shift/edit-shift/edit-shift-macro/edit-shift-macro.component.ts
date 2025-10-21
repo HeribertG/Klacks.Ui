@@ -11,6 +11,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
+import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 
 @Component({
   selector: 'app-edit-shift-macro',
@@ -23,6 +24,7 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
     TranslateModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
+    RichTextEditorComponent,
   ],
 })
 export class EditShiftMacroComponent

@@ -53,13 +53,13 @@
               | translate
           }}</label>
           <div class="input-text">
-            <textarea
-              class="form-control"
-              [ngModel]="macroDescription"
-              name="description"
+            <app-rich-text-editor
+              [content]="macroDescription"
+              (contentChange)="macroDescription = $event"
               [disabled]="isFieldsDisabled"
-            >
-            </textarea>
+              [showToolbarOnlyOnFocus]="false"
+              [height]="'auto'"
+            ></app-rich-text-editor>
           </div>
         </div>
       </div>
