@@ -24,7 +24,8 @@ describe('SettingsGeneralComponent', () => {
         'upLoadFile',
         'downLoadIcon',
         'downLoadLogo',
-        'deleteFile',
+        'deleteIcon',
+        'deleteLogo',
         'calculateProportionalDimensions',
       ],
       {
@@ -236,10 +237,7 @@ describe('SettingsGeneralComponent', () => {
       component.onClickDeleteIcon();
 
       // Assert
-      expect(mockDataLoadFileService.deleteFile).toHaveBeenCalledWith(
-        'own-icon.ico'
-      );
-      expect(mockDataLoadFileService.iconImage).toBeUndefined();
+      expect(mockDataLoadFileService.deleteIcon).toHaveBeenCalled();
       expect(mockFavicon.href).toContain('favicon.ico');
 
       document.head.removeChild(mockFavicon);
@@ -318,10 +316,7 @@ describe('SettingsGeneralComponent', () => {
       component.onClickDeleteLogo();
 
       // Assert
-      expect(mockDataLoadFileService.deleteFile).toHaveBeenCalledWith(
-        'own-logo.png'
-      );
-      expect(mockDataLoadFileService.logoImage).toBeUndefined();
+      expect(mockDataLoadFileService.deleteLogo).toHaveBeenCalled();
     });
   });
 
