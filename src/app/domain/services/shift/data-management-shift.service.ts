@@ -75,6 +75,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
 
   public onSaveCompleted?: () => void;
   public onExternalFilterChange?: () => void;
+  public isSaveAndClose = false;
 
   public shifts: IShift[] = [];
   public editShift: Shift | undefined;
@@ -255,7 +256,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     return value;
   }
 
-  prepareShift(value: Shift, withoutUpdateDummy = false) {
+  prepareShift(value: Shift) {
     if (value == null) {
       return;
     }
@@ -264,14 +265,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     this.setTimeStruc(value);
 
     this.editShift = value;
-
-    if (!withoutUpdateDummy) {
-      this.editShiftDummy = cloneObject<Shift>(this.editShift);
-    }
-
-    if (this.editShift.id) {
-      setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
-    }
+    this.editShiftDummy = cloneObject<Shift>(this.editShift);
 
     setTimeout(() => {
       this.isReset.set(true);
@@ -289,6 +283,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         .pipe(takeUntil(this.destroy$))
         .subscribe((x) => {
           this.prepareShift(this.createShiftFromPlainObject(x));
+          if (this.editShift && this.editShift.id) {
+            setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
+          }
           if (this.editShift && this.editShift.fromDate && x.client) {
             const index = this.setCurrentAddressIndex(
               x.client,
@@ -347,7 +344,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     return result;
   }
 
-  private saveEditShift(withoutUpdateDummy = false) {
+  private saveEditShift() {
     this.editShift;
     if (this.editShift) {
       const action = this.editShift.id
@@ -358,10 +355,10 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (x) => {
-            this.prepareShift(
-              this.createShiftFromPlainObject(x),
-              withoutUpdateDummy
-            );
+            this.prepareShift(this.createShiftFromPlainObject(x));
+            if (!this.isSaveAndClose && this.editShift && this.editShift.id) {
+              setTimeout(() => history.pushState(null, '', this.createUrl()), 100);
+            }
             if (this.editShift && this.editShift.fromDate && x.client) {
               const index = this.setCurrentAddressIndex(
                 x.client,
@@ -376,6 +373,8 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
             if (this.onSaveCompleted) {
               this.onSaveCompleted();
             }
+
+            this.isSaveAndClose = false;
           },
           error: (error) => {
             if (this.editShift?.id) {
@@ -472,7 +471,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   }
 
   resetData() {
-    this.prepareShift(this.editShiftDummy!);
+    if (this.editShiftDummy) {
+      this.prepareShift(this.editShiftDummy);
+    }
   }
 
   private setDateStruc(value: Shift) {

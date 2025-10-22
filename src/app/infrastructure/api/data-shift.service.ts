@@ -48,7 +48,6 @@ export class DataShiftService {
 
   addShift(value: IShift) {
     delete value.id;
-    delete value.macroId;
     delete value.addressName;
     this.setCorrectDate(value);
     this.setCorrectTime(value);

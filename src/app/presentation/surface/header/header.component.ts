@@ -6,10 +6,8 @@ import {
   inject,
   signal,
   computed,
-  effect,
   EffectRef,
   Injector,
-  runInInjectionContext,
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { AuthService } from 'src/app/presentation/auth/auth.service';
@@ -22,6 +20,7 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
+import { IconLogoComponent } from '../../icons/icon-logo.component';
 
 @Component({
   selector: 'app-header',
@@ -35,6 +34,7 @@ import { IconMMLComponent } from '../../icons/icon-mml.component';
     IconSignOutComponent,
     FontAwesomeModule,
     IconMMLComponent,
+    IconLogoComponent,
   ],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
@@ -72,26 +72,10 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   public selectedName = signal<string>('new-address');
   public version = signal<string>('');
 
-  private currentTheme = signal<string>('light');
   private effectRefs: EffectRef[] = [];
   private ngUnsubscribe = new Subject<void>();
 
-  public imageName = computed(() => {
-    const theme = this.currentTheme();
-    return theme === 'dark' ? 'ok-symbol dark.png' : 'ok-symbol.png';
-  });
-
-  get ImageName(): string {
-    return this.imageName();
-  }
-
-  constructor() {
-    this.setupEffects();
-  }
-
   ngAfterViewInit(): void {
-    this.initializeTheme();
-    this.setupRxJSSubscriptions();
     this.initializeAuthState();
   }
 
@@ -100,22 +84,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.ngUnsubscribe.complete();
     this.effectRefs.forEach((ref) => ref.destroy());
     this.effectRefs = [];
-  }
-
-  private setupEffects(): void {
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        this.currentTheme.set(this.themeService.theme());
-      });
-    });
-  }
-
-  private setupRxJSSubscriptions(): void {
-    // No longer needed - using signals effect instead
-  }
-
-  private initializeTheme(): void {
-    // Initialization is handled by effect
   }
 
   private initializeAuthState(): void {
@@ -149,10 +117,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
 
   setVersion(versionString: string): void {
     this.version.set(versionString);
-  }
-
-  get currentThemeValue(): string {
-    return this.currentTheme();
   }
 
   get logoImageValue(): string | null {

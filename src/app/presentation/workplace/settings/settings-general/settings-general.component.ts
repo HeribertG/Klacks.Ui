@@ -135,15 +135,13 @@ export class SettingsGeneralComponent implements OnDestroy {
   }
 
   onClickDeleteIcon() {
-    this.dataLoadFileService.iconImage = undefined;
-    this.dataLoadFileService.deleteFile('own-icon.ico');
+    this.dataLoadFileService.deleteIcon();
     const favicon = document.getElementById('appIcon') as HTMLLinkElement;
     favicon.href = 'favicon.ico';
   }
 
   onClickDeleteLogo() {
-    this.dataLoadFileService.logoImage = undefined;
-    this.dataLoadFileService.deleteFile('own-logo.png');
+    this.dataLoadFileService.deleteLogo();
   }
 
   ngOnDestroy(): void {

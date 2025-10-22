@@ -208,9 +208,22 @@ export class WorkplaceStateService implements IEntityStateProvider {
   }
 
   onClickSave(): void {
+    this.saveInternal(false);
+  }
+
+  onClickSaveAndClose(): void {
+    this.saveInternal(true);
+  }
+
+  private saveInternal(isSaveAndClose: boolean): void {
     if (this.activeManager()) {
       const manager = this.activeManager()!;
       if (isSaveable(manager)) {
+        const managerAny = manager as any;
+        if (managerAny.isSaveAndClose !== undefined) {
+          managerAny.isSaveAndClose = isSaveAndClose;
+        }
+
         manager.onSaveCompleted = () => {
           this._isDisabled.set(false);
           this._isSavedOrReset.set(true);
