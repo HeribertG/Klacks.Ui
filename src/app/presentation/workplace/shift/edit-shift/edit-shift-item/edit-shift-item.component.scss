@@ -87,6 +87,7 @@ label {
 
 .container-bank-box {
   display: inline-flex;
+  margin-top: 8px;
 }
 
 .container-bank-value {
@@ -136,4 +137,8 @@ label {
   padding: 6px 12px;
   min-width: 50px;
   margin-top: 16px;
+}
+
+.endColumn .form-group label[for="description"] {
+  margin-top: 8px;
 }

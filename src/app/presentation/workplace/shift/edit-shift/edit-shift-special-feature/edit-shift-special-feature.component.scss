@@ -11,6 +11,12 @@
   height: 100%;
 }
 
+.firstColumContainer app-time-input,
+.secondColumnContainer app-time-input {
+  margin-bottom: 8px;
+  display: block;
+}
+
 .container-bank-box {
   width: 100%;
 

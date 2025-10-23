@@ -62,14 +62,13 @@
               required
               minlength="1"
               maxlength="6"
-              [disabled]="isEditableFieldsDisabled"
             />
           </div>
         </div>
 
         <div class="abbreviation-right">
           @if (dataManagementShiftService.editShift &&
-          dataManagementShiftService.editShift.status === ShiftStatus.Original)
+          dataManagementShiftService.editShift.status === ShiftStatus.OriginalOrder)
           {
           <button
             type="button"
@@ -106,9 +105,7 @@
           name="name"
           (input)="onNameInput($event)"
           #shiftName="ngModel"
-         
           required
-          [disabled]="isEditableFieldsDisabled"
         />
       </div>
 
@@ -180,13 +177,13 @@
                   ngbDatepicker
                   btn-dark
                   #validUntil="ngbDatepicker"
-                  [disabled]="isFieldsDisabled"
+                  [disabled]="isValidUntilDisabled"
                 />
                 <span
                   class="input-group-text"
                   style="width: 40px"
-                  (click)="!isFieldsDisabled && validUntil.toggle()"
-                  [class.disabled]="isFieldsDisabled"
+                  (click)="!isValidUntilDisabled && validUntil.toggle()"
+                  [class.disabled]="isValidUntilDisabled"
                 >
                   <fa-icon
                     [icon]="faCalendar"
@@ -199,7 +196,7 @@
         </div>
       </div>
 
-      @if (isChecked) {
+      @if (isChecked && isContainerVisible) {
       <div class="form-group is-container">
         <label class="checkbox-label" for="isContainer">
           <input
@@ -207,7 +204,6 @@
             [(ngModel)]="dataManagementShiftService.editShift.shiftType"
             id="isContainer"
             name="isContainer"
-            [disabled]="isFieldsDisabled"
           />
           {{ "shift.edit-shift.main.is-container" | translate }}
         </label>
@@ -223,7 +219,7 @@
           <div class="input-text">
             <app-rich-text-editor
               [content]="dataManagementShiftService.editShift.description || ''"
-              [disabled]="isEditableFieldsDisabled"
+              [disabled]="false"
               [showToolbar]="true"
               [showToolbarOnlyOnFocus]="false"
               [height]="'auto'"

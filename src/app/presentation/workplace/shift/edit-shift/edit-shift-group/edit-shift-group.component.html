@@ -37,6 +37,7 @@
           [required]="false"
           [(ngModel)]="selectedGroupId"
           (groupSelected)="onGroupSelected($event)"
+          [disabled]="isFieldsDisabled"
           name="groupSelect"
         ></app-simple-group-select>
       </div>
@@ -89,7 +90,7 @@
             </td>
             <td class="table-cell cell-right">
               <div>
-                <div class="icon" (click)="onDelete(group)">
+                <div class="icon" (click)="!isFieldsDisabled && onDelete(group)" [class.disabled]="isFieldsDisabled">
                   <app-icon-trash-red></app-icon-trash-red>
                 </div>
               </div>

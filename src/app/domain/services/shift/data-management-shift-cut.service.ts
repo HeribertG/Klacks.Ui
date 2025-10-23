@@ -203,7 +203,7 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
       );
 
       if (!existsInOriginal || !cut.id || (cut as any).isNew) {
-        cut.status = ShiftStatus.IsCut;
+        cut.status = ShiftStatus.SplitShift;
         this.newCuts.push(cut);
       } else {
         const originalCut = this.cutShiftsDummy.find(

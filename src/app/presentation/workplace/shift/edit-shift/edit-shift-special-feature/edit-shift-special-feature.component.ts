@@ -17,6 +17,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 @Component({
   selector: 'app-edit-shift-special-feature',
@@ -29,6 +30,7 @@ import { ShiftStatus } from 'src/app/domain/models/shift-class';
     TranslateModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
+    TimeInputComponent,
   ],
 })
 export class EditShiftSpecialFeatureComponent
@@ -133,16 +135,8 @@ export class EditShiftSpecialFeatureComponent
     }
   }
 
-  // Getter to determine if most fields should be disabled based on shift status
   get isFieldsDisabled(): boolean {
-    return (
-      this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut
-    );
-  }
-
-  // Getter for time fields that should remain enabled when IsCut
-  // Returns false for briefingTime, debriefingTime, travelTimeBefore, travelTimeAfter
-  get isTimeFieldsDisabled(): boolean {
-    return false; // Time fields should remain enabled when IsCut
+    const status = this.dataManagementShiftService.editShift?.status;
+    return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }
 }

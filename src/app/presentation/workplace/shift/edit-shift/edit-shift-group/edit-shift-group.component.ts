@@ -27,6 +27,7 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { SimpleGroupSelectComponent } from 'src/app/presentation/shared/simple-group-select/simple-group-select.component';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { AuthService } from 'src/app/presentation/auth/auth.service';
 
 @Component({
   selector: 'app-edit-shift-group',
@@ -54,6 +55,7 @@ export class EditShiftGroupComponent
 
   public dataManagementShiftService = inject(DataManagementShiftService);
   public translate = inject(TranslateService);
+  private authService = inject(AuthService);
   private injector = inject(Injector);
 
   visibleTable = 'inline';
@@ -147,8 +149,11 @@ export class EditShiftGroupComponent
     }
   }
 
-  // Getter for groups - should remain enabled when IsCut
-  get isGroupFieldsDisabled(): boolean {
-    return false; // Groups should always remain enabled
+  get isFieldsDisabled(): boolean {
+    const status = this.dataManagementShiftService.editShift?.status;
+    const isNotOriginal = status !== undefined && status !== ShiftStatus.OriginalOrder;
+    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
+
+    return isNotOriginal && isNotAuthorisedOrAdmin;
   }
 }

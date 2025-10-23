@@ -59,7 +59,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   // Getter to determine if nav should be hidden when shift status is IsCut
   get isNavVisible(): boolean {
     return (
-      this.dataManagementShiftService.editShift?.status !== ShiftStatus.IsCut
+      this.dataManagementShiftService.editShift?.status !== ShiftStatus.SplitShift
     );
   }
 

@@ -12,6 +12,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
+import { AuthService } from 'src/app/presentation/auth/auth.service';
 
 @Component({
   selector: 'app-edit-shift-macro',
@@ -32,6 +33,7 @@ export class EditShiftMacroComponent
 {
   dataManagementShiftService = inject(DataManagementShiftService);
   private translateService = inject(TranslateService);
+  private authService = inject(AuthService);
 
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
@@ -47,11 +49,6 @@ export class EditShiftMacroComponent
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
-    
-    // Auto-collapse when shift status is IsCut
-    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
-      this.visibleTable = 'none';
-    }
   }
   ngAfterViewInit(): void {
     this.objectForUnsubscribe = this.macroShiftForm!.valueChanges!.subscribe(
@@ -86,7 +83,11 @@ export class EditShiftMacroComponent
   }
 
   get isFieldsDisabled(): boolean {
-    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+    const status = this.dataManagementShiftService.editShift?.status;
+    const isNotOriginal = status !== undefined && status !== ShiftStatus.OriginalOrder;
+    const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
+
+    return isNotOriginal && isNotAuthorisedOrAdmin;
   }
 
   private readCorrectDescription() {

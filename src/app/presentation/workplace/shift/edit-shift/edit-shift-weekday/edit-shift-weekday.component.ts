@@ -23,6 +23,7 @@ import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-do
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ShiftStatus } from 'src/app/domain/models/shift-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
+import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 @Component({
   selector: 'app-edit-shift-weekday',
@@ -35,6 +36,7 @@ import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-ca
     TranslateModule,
     IconAngleDownComponent,
     IconAngleRightComponent,
+    TimeInputComponent,
   ],
 })
 export class EditShiftWeekdayComponent
@@ -61,11 +63,6 @@ export class EditShiftWeekdayComponent
 
   ngOnInit(): void {
     this.readSignals();
-    
-    // Auto-collapse when shift status is IsCut
-    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
-      this.visibleTable = 'none';
-    }
   }
 
   ngAfterViewInit(): void {
@@ -218,8 +215,8 @@ export class EditShiftWeekdayComponent
     this.isChangingEvent.emit(true);
   }
 
-  // Getter to determine if fields should be disabled based on shift status
   get isFieldsDisabled(): boolean {
-    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+    const status = this.dataManagementShiftService.editShift?.status;
+    return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }
 }

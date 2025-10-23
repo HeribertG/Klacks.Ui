@@ -4,10 +4,10 @@ import { Group } from './group-class';
 import { IClient } from './client-class';
 
 export enum ShiftStatus {
-  Original = 0,
-  ReadyToCut = 1,
-  IsCutOriginal = 2,
-  IsCut = 3,
+  OriginalOrder = 0,
+  SealedOrder = 1,
+  OriginalShift = 2,
+  SplitShift = 3,
 }
 
 export enum ShiftType {
@@ -93,7 +93,7 @@ export class Shift implements IShift {
   lft: number | undefined = undefined;
   rgt: number | undefined = undefined;
   originalId?: string;
-  status: ShiftStatus = ShiftStatus.Original;
+  status: ShiftStatus = ShiftStatus.OriginalOrder;
   afterShift = '';
   internalAfterShift = OwnTime.forTime('0', '0');
   beforeShift = '';

@@ -59,16 +59,11 @@ export class EditShiftAddressComponent implements OnInit {
 
   ngOnInit(): void {
     this.setFilter();
-    
-    // Auto-collapse when shift status is IsCut
-    if (this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut) {
-      this.visibleTable = 'none';
-    }
   }
 
-  // Getter to determine if most fields should be disabled based on shift status
   get isFieldsDisabled(): boolean {
-    return this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut;
+    const status = this.dataManagementShiftService.editShift?.status;
+    return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }
 
   onClickVisibleTable() {

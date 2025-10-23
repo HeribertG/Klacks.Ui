@@ -107,7 +107,7 @@ export class EditShiftItemComponent
 
   onLockClick(): void {
     if (this.dataManagementShiftService.editShift) {
-      this.dataManagementShiftService.editShift.status = ShiftStatus.ReadyToCut;
+      this.dataManagementShiftService.editShift.status = ShiftStatus.SealedOrder;
       this.isChangingEvent.emit(true);
     }
   }
@@ -282,16 +282,24 @@ export class EditShiftItemComponent
     );
   }
 
-  // Getter to determine if most fields should be disabled based on shift status
   get isFieldsDisabled(): boolean {
-    return (
-      this.dataManagementShiftService.editShift?.status === ShiftStatus.IsCut
-    );
+    const status = this.dataManagementShiftService.editShift?.status;
+    return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }
 
-  // Getter for fields that should remain enabled even when IsCut
-  // Returns false because these specific fields (abbreviation, name, description) should stay enabled
-  get isEditableFieldsDisabled(): boolean {
-    return false; // abbreviation, name, description always remain enabled
+  get isValidUntilDisabled(): boolean {
+    const shift = this.dataManagementShiftService.editShift;
+    if (!shift) return false;
+
+    const hasValidUntil = shift.internalUntilDate !== undefined &&
+                          shift.internalUntilDate !== null &&
+                          Object.keys(shift.internalUntilDate).length > 0;
+
+    return this.isFieldsDisabled && hasValidUntil;
+  }
+
+  get isContainerVisible(): boolean {
+    const status = this.dataManagementShiftService.editShift?.status;
+    return status === ShiftStatus.OriginalOrder;
   }
 }

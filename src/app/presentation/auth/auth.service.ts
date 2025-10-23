@@ -180,6 +180,30 @@ export class AuthService {
     return admin;
   }
 
+  public isAdminUser(): boolean {
+    return this.isAdmin();
+  }
+
+  public isAuthorisedUser(): boolean {
+    let authorised = false;
+
+    if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
+      let tmp: string | null = this.localStorageService.get(
+        MessageLibrary.TOKEN_AUTHORISED
+      );
+      if (!tmp) {
+        tmp = 'false';
+      }
+      authorised = JSON.parse(tmp);
+    }
+
+    return authorised;
+  }
+
+  public isAuthorisedOrAdmin(): boolean {
+    return this.isAuthorisedUser() || this.isAdminUser();
+  }
+
   errorMessage(error: string, message?: string) {
     console.log(error);
 

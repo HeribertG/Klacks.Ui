@@ -5,7 +5,6 @@ import {
   inject,
   OnInit,
   OnDestroy,
-  AfterViewInit,
   ViewChild,
   TemplateRef,
 } from '@angular/core';

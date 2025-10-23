@@ -513,7 +513,7 @@ export class CutShiftListComponent implements OnInit {
       internalFromDate: transformDateToNgbDateStruct(cutDateAsDate),
     });
 
-    this.selectedShift.status = ShiftStatus.IsCut;
+    this.selectedShift.status = ShiftStatus.SplitShift;
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
 
@@ -580,7 +580,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.prepareCutShift(copiedShift, cutTimeProps);
 
-    this.selectedShift.status = ShiftStatus.IsCut;
+    this.selectedShift.status = ShiftStatus.SplitShift;
 
     this.selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
       this.selectedShift.internalStartShift,
@@ -644,7 +644,7 @@ export class CutShiftListComponent implements OnInit {
 
     this.prepareCutShift(copiedShift);
 
-    this.selectedShift.status = ShiftStatus.IsCut;
+    this.selectedShift.status = ShiftStatus.SplitShift;
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
 
@@ -702,7 +702,7 @@ export class CutShiftListComponent implements OnInit {
       sumEmployees: copiedStaffCount,
     });
 
-    this.selectedShift.status = ShiftStatus.IsCut;
+    this.selectedShift.status = ShiftStatus.SplitShift;
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
 
@@ -732,7 +732,7 @@ export class CutShiftListComponent implements OnInit {
       quantity: copiedTaskCount,
     });
 
-    this.selectedShift.status = ShiftStatus.IsCut;
+    this.selectedShift.status = ShiftStatus.SplitShift;
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
 
