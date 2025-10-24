@@ -8,33 +8,43 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
-import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
+import {
+  ILoadable,
+  IResettable,
+  ISaveable,
+  INavigable,
+} from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { CutOperation } from 'src/app/domain/models/cut-operation';
+import { newGuid } from '../../helpers/format-helper';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementShiftCutService implements ISaveable, IResettable, ILoadable, INavigable {
+export class DataManagementShiftCutService
+  implements ISaveable, IResettable, ILoadable, INavigable
+{
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataShiftCutsService = inject(DataShiftCutsService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
-  private newCuts: Shift[] = [];
-  private existingCuts: Shift[] = [];
+  private originalShiftId = '';
+
+  private shiftIdToTempId = new Map<string, string>();
+  private tempIdToShiftId = new Map<string, string>();
 
   constructor() {
-    this.registry.register(
-      RouteName.CUT_SHIFT,
-      DataManagementShiftCutService
-    );
+    this.registry.register(RouteName.CUT_SHIFT, DataManagementShiftCutService);
   }
 
   private _showProgressSpinner = signal(false);
-  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+  get showProgressSpinner(): boolean {
+    return this._showProgressSpinner();
+  }
 
   public isReset = signal(false);
   public isRead = signal(false);
@@ -48,47 +58,31 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
 
   readCutShiftList(id: string): void {
     if (id !== '') {
+      this.originalShiftId = id;
       this._showProgressSpinner.set(true);
-      this.dataShiftCutsService.getCutShiftList(id).pipe(takeUntil(this.destroy$)).subscribe((x) => {
-        this.cutShifts = x;
-        this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
+      this.dataShiftCutsService
+        .getCutShiftList(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((x) => {
+          this.cutShifts = x;
+          this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
 
-        setTimeout(
-          () => history.pushState(null, '', this.createCutShiftUrl(id)),
-          100
-        );
+          setTimeout(
+            () => history.pushState(null, '', this.createCutShiftUrl(id)),
+            100
+          );
 
-        this.fireIsReadEvent();
-        this._showProgressSpinner.set(false);
-      });
+          this.fireIsReadEvent();
+          this._showProgressSpinner.set(false);
+        });
     }
   }
 
   addCutShift(shift: Shift): void {
-    this.cutShifts.push(shift);
-  }
-
-  calculateNestedSetValues(insertAfterShift: Shift, newShift: Shift): void {
-    const insertPosition = insertAfterShift.rgt || 2;
-
-    this.cutShifts.forEach((shift) => {
-      if (shift.lft && shift.lft >= insertPosition) shift.lft += 2;
-      if (shift.rgt && shift.rgt >= insertPosition) shift.rgt += 2;
-    });
-
-    newShift.lft = insertPosition;
-    newShift.rgt = insertPosition + 1;
-
-    const hasChildren =
-      (insertAfterShift.rgt || 2) - (insertAfterShift.lft || 1) > 1;
-
-    if (hasChildren) {
-      newShift.parentId = insertAfterShift.parentId;
-      newShift.rootId = insertAfterShift.rootId;
-    } else {
-      newShift.parentId = insertAfterShift.id;
-      newShift.rootId = insertAfterShift.rootId || insertAfterShift.id;
+    if (!shift.id || (shift as any).isNew) {
+      (shift as any).__tempId = newGuid();
     }
+    this.cutShifts.push(shift);
   }
 
   areObjectsDirty(): boolean {
@@ -135,67 +129,66 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
   private saveCuts(): void {
     this._showProgressSpinner.set(true);
 
-    this.separateNewAndExistingCuts();
+    const operations = this.buildCutOperations();
 
-    this.operationsCompleted = 0;
-    this.totalOperations = 0;
-    if (this.newCuts.length > 0) this.totalOperations++;
-    if (this.existingCuts.length > 0) this.totalOperations++;
-
-    if (this.newCuts.length > 0) {
-      this.dataShiftCutsService.addCuts(this.newCuts).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (createdCuts) => {
-          this.updateCutsAfterSave(createdCuts, true);
-          this.checkAndCallSaveCompleted();
-        },
-        error: (error) => {
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'Cut Create Error',
-            context: 'DataManagementShiftCutService.saveCuts'
-          });
-          this._showProgressSpinner.set(false);
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-      });
-    }
-
-    if (this.existingCuts.length > 0) {
-      this.dataShiftCutsService.updateCuts(this.existingCuts).pipe(takeUntil(this.destroy$)).subscribe({
-        next: (updatedCuts) => {
-          this.updateCutsAfterSave(updatedCuts, false);
-          this.checkAndCallSaveCompleted();
-        },
-        error: (error) => {
-          this.eventBus.emit(DomainEventType.ERROR, {
-            message: error,
-            code: 'Cut Update Error',
-            context: 'DataManagementShiftCutService.saveCuts'
-          });
-          this._showProgressSpinner.set(false);
-          if (this.onSaveCompleted) {
-            this.onSaveCompleted();
-          }
-        },
-        complete: () => {
-          this._showProgressSpinner.set(false);
-        },
-      });
-    }
-
-    if (this.newCuts.length === 0 && this.existingCuts.length === 0) {
+    if (operations.length === 0) {
       this._showProgressSpinner.set(false);
       if (this.onSaveCompleted) {
         this.onSaveCompleted();
       }
+      return;
     }
+
+    this.dataShiftCutsService
+      .batchCuts(operations)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (savedShifts) => {
+          savedShifts.forEach((savedShift) => {
+            const tempId = (savedShift as any).__tempId;
+            if (tempId && savedShift.id) {
+              this.shiftIdToTempId.set(savedShift.id, tempId);
+            }
+
+            const index = this.cutShifts.findIndex((cut) => {
+              const cutTempId = (cut as any).__tempId;
+              if (cutTempId && cutTempId === tempId) {
+                return true;
+              }
+              return cut.id === savedShift.id;
+            });
+
+            if (index !== -1) {
+              this.cutShifts[index] = savedShift;
+            }
+          });
+
+          this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
+
+          this.shiftIdToTempId.clear();
+          this.tempIdToShiftId.clear();
+
+          this._showProgressSpinner.set(false);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        },
+        error: (error) => {
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'Batch Cut Error',
+            context: 'DataManagementShiftCutService.saveCuts',
+          });
+          this._showProgressSpinner.set(false);
+          if (this.onSaveCompleted) {
+            this.onSaveCompleted();
+          }
+        },
+      });
   }
 
-  private separateNewAndExistingCuts(): void {
-    this.newCuts = [];
-    this.existingCuts = [];
+  private buildCutOperations(): CutOperation[] {
+    const operations: CutOperation[] = [];
 
     this.cutShifts.forEach((cut) => {
       const existsInOriginal = this.cutShiftsDummy.some(
@@ -204,41 +197,51 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
 
       if (!existsInOriginal || !cut.id || (cut as any).isNew) {
         cut.status = ShiftStatus.SplitShift;
-        this.newCuts.push(cut);
+
+        const parentId = this.determineParentIdForCut(cut);
+
+        operations.push({
+          type: 'CREATE',
+          parentId: parentId,
+          data: cut,
+        });
       } else {
         const originalCut = this.cutShiftsDummy.find(
           (dummy) => dummy.id === cut.id
         );
         if (originalCut && !compareComplexObjects(cut, originalCut)) {
-          this.existingCuts.push(cut);
+          const parentId = this.determineParentIdForCut(cut);
+
+          operations.push({
+            type: 'UPDATE',
+            parentId: parentId,
+            data: cut,
+          });
         }
       }
     });
+
+    return operations;
   }
 
-  private updateCutsAfterSave(savedCuts: Shift[], isNew: boolean): void {
-    if (isNew) {
-      savedCuts.forEach((savedCut) => {
-        const index = this.cutShifts.findIndex(
-          (cut) =>
-            cut.parentId === savedCut.parentId &&
-            cut.lft === savedCut.lft &&
-            cut.rgt === savedCut.rgt
-        );
-        if (index !== -1) {
-          this.cutShifts[index] = savedCut;
-        }
-      });
-    } else {
-      savedCuts.forEach((savedCut) => {
-        const index = this.cutShifts.findIndex((cut) => cut.id === savedCut.id);
-        if (index !== -1) {
-          this.cutShifts[index] = savedCut;
-        }
-      });
+  private determineParentIdForCut(cut: Shift): string {
+    if (cut.parentId) {
+      const parentTempId = this.shiftIdToTempId.get(cut.parentId);
+      if (parentTempId) {
+        return parentTempId;
+      }
+      return cut.parentId;
     }
 
-    this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
+    if (cut.originalId) {
+      return cut.originalId;
+    }
+
+    if (this.originalShiftId) {
+      return this.originalShiftId;
+    }
+
+    return '';
   }
 
   resetData(): void {
@@ -253,22 +256,6 @@ export class DataManagementShiftCutService implements ISaveable, IResettable, IL
 
   goBack(): string {
     return '/workplace/shift';
-  }
-
-  private operationsCompleted = 0;
-  private totalOperations = 0;
-
-  private checkAndCallSaveCompleted(): void {
-    this.operationsCompleted++;
-    if (this.operationsCompleted >= this.totalOperations) {
-      this._showProgressSpinner.set(false);
-      if (this.onSaveCompleted) {
-        this.onSaveCompleted();
-      }
-
-      this.operationsCompleted = 0;
-      this.totalOperations = 0;
-    }
   }
 
   public destroy(): void {

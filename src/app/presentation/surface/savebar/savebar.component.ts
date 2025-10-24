@@ -44,6 +44,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
       </span>
       } @if (savebarService.savebarConfig().showSaveButtons) {
       <button
+        id="shift-save-btn"
         type="button"
         class="btn save-btn"
         tabindex="0"
@@ -55,6 +56,7 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
       </button>
       } @if (savebarService.savebarConfig().showSaveAndCloseButton) {
       <button
+        id="shift-save-and-close-btn"
         type="button"
         class="btn save-btn"
         tabindex="0"

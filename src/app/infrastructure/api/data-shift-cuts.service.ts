@@ -11,6 +11,7 @@ import {
   transformOwnTimeToString,
 } from 'src/app/domain/helpers/format-helper';
 import { IShift } from 'src/app/domain/models/shift-class';
+import { CutOperation } from 'src/app/domain/models/cut-operation';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 @Injectable({
@@ -26,31 +27,24 @@ export class DataShiftCutsService {
       .pipe(retry(3));
   }
 
-  addCuts(cuts: IShift[]) {
-    const processedCuts = cuts.map((cut) => {
-      const processedCut = { ...cut };
-      delete processedCut.addressName;
-      this.setCorrectDate(processedCut);
-      this.setCorrectTime(processedCut);
-      return processedCut;
+  batchCuts(operations: CutOperation[]) {
+    const processedOperations = operations.map((op) => {
+      const processedData = { ...op.data };
+      delete processedData.addressName;
+      this.setCorrectDate(processedData);
+      this.setCorrectTime(processedData);
+
+      return {
+        type: op.type,
+        parentId: op.parentId,
+        data: processedData,
+      };
     });
 
     return this.httpClient
-      .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts`, processedCuts)
-      .pipe(retry(3));
-  }
-
-  updateCuts(cuts: IShift[]) {
-    const processedCuts = cuts.map((cut) => {
-      const processedCut = { ...cut };
-      delete processedCut.addressName;
-      this.setCorrectDate(processedCut);
-      this.setCorrectTime(processedCut);
-      return processedCut;
-    });
-
-    return this.httpClient
-      .put<IShift[]>(`${environment.baseUrl}Shifts/Cuts`, processedCuts)
+      .post<IShift[]>(`${environment.baseUrl}Shifts/Cuts/Batch`, {
+        operations: processedOperations,
+      })
       .pipe(retry(3));
   }
 

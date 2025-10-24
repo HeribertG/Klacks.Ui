@@ -62,6 +62,7 @@
         <div class="radio-container">
           <label class="radio-label">
             <input
+              id="shift-filter-original"
               type="radio"
               name="shiftType"
               [value]="true"
@@ -71,9 +72,10 @@
             />
             {{ "shift.all-shift.nav.original" | translate }}
           </label>
-          
+
           <label class="radio-label">
             <input
+              id="shift-filter-planbar"
               type="radio"
               name="shiftType"
               [value]="false"

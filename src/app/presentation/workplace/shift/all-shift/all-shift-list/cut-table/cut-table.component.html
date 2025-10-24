@@ -93,11 +93,13 @@
       <td rowspan="2" class="table-cell-small-border cell-right">
         <div class="icon icon-padding">
           <app-icon-scissor
+            [id]="'shift-cut-btn-' + data.id"
             (click)="onClickCut(data, $event)"
           ></app-icon-scissor>
         </div>
         <div class="icon icon">
           <app-icon-pencil-icon-grey
+            [id]="'shift-edit-btn-' + data.id"
             (click)="onClickEdit(data, $event)"
           ></app-icon-pencil-icon-grey>
         </div>

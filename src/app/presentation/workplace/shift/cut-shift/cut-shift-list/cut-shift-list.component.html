@@ -118,62 +118,57 @@
     <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
-          <div class="form-group">
+          <div class="form-group" *ngIf="isMondayEnabled">
             <label class="checkbox-label" for="isMonday">
               <input
                 type="checkbox"
                 [(ngModel)]="weekdays.isMonday"
                 name="isMonday"
                 id="isMonday"
-                [disabled]="!isMondayEnabled"
               />
               {{ "monday" | translate }}
             </label>
           </div>
-          <div class="form-group top-margin5">
+          <div class="form-group top-margin5" *ngIf="isTuesdayEnabled">
             <label class="checkbox-label" for="isTuesday">
               <input
                 type="checkbox"
                 [(ngModel)]="weekdays.isTuesday"
                 name="isTuesday"
                 id="isTuesday"
-                [disabled]="!isTuesdayEnabled"
               />
               {{ "tuesday" | translate }}
             </label>
           </div>
-          <div class="form-group top-margin5">
+          <div class="form-group top-margin5" *ngIf="isWednesdayEnabled">
             <label class="checkbox-label" for="isWednesday">
               <input
                 type="checkbox"
                 [(ngModel)]="weekdays.isWednesday"
                 name="isWednesday"
                 id="isWednesday"
-                [disabled]="!isWednesdayEnabled"
               />
               {{ "wednesday" | translate }}
             </label>
           </div>
-          <div class="form-group top-margin5">
+          <div class="form-group top-margin5" *ngIf="isThursdayEnabled">
             <label class="checkbox-label" for="isThursday">
               <input
                 type="checkbox"
                 [(ngModel)]="weekdays.isThursday"
                 name="isThursday"
                 id="isThursday"
-                [disabled]="!isThursdayEnabled"
               />
               {{ "thursday" | translate }}
             </label>
           </div>
-          <div class="form-group top-margin5">
+          <div class="form-group top-margin5" *ngIf="isFridayEnabled">
             <label class="checkbox-label" for="isFriday">
               <input
                 type="checkbox"
                 [(ngModel)]="weekdays.isFriday"
                 name="isFriday"
                 id="isFriday"
-                [disabled]="!isFridayEnabled"
               />
               {{ "friday" | translate }}
             </label>
@@ -181,53 +176,26 @@
         </div>
       </div>
       <div class="secondColumnContainer">
-        <div class="form-group">
+        <div class="form-group" *ngIf="isSaturdayEnabled">
           <label class="checkbox-label" for="isSaturday">
             <input
               type="checkbox"
               [(ngModel)]="weekdays.isSaturday"
               name="isSaturday"
               id="isSaturday"
-              [disabled]="!isSaturdayEnabled"
             />
             {{ "saturday" | translate }}
           </label>
         </div>
-        <div class="form-group top-margin5">
+        <div class="form-group top-margin5" *ngIf="isSundayEnabled">
           <label class="checkbox-label" for="isSunday">
             <input
               type="checkbox"
               [(ngModel)]="weekdays.isSunday"
               name="isSunday"
               id="isSunday"
-              [disabled]="!isSundayEnabled"
             />
             {{ "sunday" | translate }}
-          </label>
-        </div>
-        <div class="bottom-border-space"></div>
-        <div class="form-group top-margin5">
-          <label class="checkbox-label" for="isHoliday">
-            <input
-              type="checkbox"
-              [(ngModel)]="weekdays.isHoliday"
-              name="isHoliday"
-              id="isHoliday"
-              [disabled]="!isHolidayEnabled"
-            />
-            {{ "holiday" | translate }}
-          </label>
-        </div>
-        <div class="form-group top-margin5">
-          <label class="checkbox-label" for="isWeekdayOrHoliday">
-            <input
-              type="checkbox"
-              [(ngModel)]="weekdays.isWeekdayOrHoliday"
-              name="isWeekdayOrHoliday"
-              id="isWeekdayOrHoliday"
-              [disabled]="!isWeekdayOrHolidayEnabled"
-            />
-            {{ "weekday-or-holiday" | translate }}
           </label>
         </div>
       </div>
@@ -242,6 +210,62 @@
       {{ "cancel" | translate }}
     </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- Cut Holidays Modal -->
+<ng-template #cutHolidaysModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.cut-holidays" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="container-bank-box">
+      <div class="firstColumContainer">
+        <div class="firstColumn">
+          <div class="form-group" *ngIf="isHolidayEnabledForCut">
+            <label class="checkbox-label" for="isHolidayForCut">
+              <input
+                type="checkbox"
+                [(ngModel)]="holidays.isHoliday"
+                name="isHolidayForCut"
+                id="isHolidayForCut"
+              />
+              {{ "holiday" | translate }}
+            </label>
+          </div>
+          <div class="form-group top-margin5" *ngIf="isWeekdayOrHolidayEnabledForCut">
+            <label class="checkbox-label" for="isWeekdayOrHolidayForCut">
+              <input
+                type="checkbox"
+                [(ngModel)]="holidays.isWeekdayOrHoliday"
+                name="isWeekdayOrHolidayForCut"
+                id="isWeekdayOrHolidayForCut"
+              />
+              {{ "weekday-or-holiday" | translate }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
+      {{ "cancel" | translate }}
+    </div>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="modal.close()"
+      [disabled]="!isHolidayCutValid()"
+    >
       {{ "save" | translate }}
     </button>
   </div>
@@ -279,7 +303,12 @@
     >
       {{ "cancel" | translate }}
     </div>
-    <button type="button" class="btn btn-primary" (click)="modal.close()">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="modal.close()"
+      [disabled]="!staffCount || staffCount < minStaffCount || staffCount > maxStaffCount"
+    >
       {{ "save" | translate }}
     </button>
   </div>
@@ -317,7 +346,12 @@
     >
       {{ "cancel" | translate }}
     </div>
-    <button type="button" class="btn btn-primary" (click)="modal.close()">
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="modal.close()"
+      [disabled]="!taskCount || taskCount < minTaskCount || taskCount > maxTaskCount"
+    >
       {{ "save" | translate }}
     </button>
   </div>
@@ -352,6 +386,14 @@
       [disabled]="!isCutWeekdaysEnabled"
     >
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-primary"
+      (click)="onCutHolidays()"
+      [disabled]="!isCutHolidaysEnabled"
+    >
+      {{ "shift.cut-shift.buttons.cut-holidays" | translate }}
     </button>
     <button
       type="button"

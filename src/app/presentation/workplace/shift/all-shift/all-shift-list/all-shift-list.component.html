@@ -5,7 +5,7 @@
     <span class="filler"></span>
     @if (authorizationService.isAdmin && dataManagementShiftService.currentFilter.isOriginal){
     <div class="actions">
-      <button class="btn new-btn" (click)="onAddShift()">
+      <button id="shift-create-btn" class="btn new-btn" (click)="onAddShift()">
         {{ "new-work" | translate }}
       </button>
     </div>
