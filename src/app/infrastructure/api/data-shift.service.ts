@@ -93,24 +93,20 @@ export class DataShiftService {
 
   private setCorrectTime(value: IShift) {
     const nullTime = '00:00:00';
-    value.afterShift = nullTime;
-    value.beforeShift = nullTime;
-    value.endShift = nullTime;
-    value.startShift = nullTime;
-    value.travelTimeAfter = nullTime;
-    value.travelTimeBefore = nullTime;
-    value.briefingTime = nullTime;
-    value.debriefingTime = nullTime;
 
     if (
       value!.internalStartShift &&
       isOwnTimeStructOk(value!.internalStartShift)
     ) {
       value.startShift = transformOwnTimeToString(value!.internalStartShift);
+    } else if (!value.startShift) {
+      value.startShift = nullTime;
     }
 
     if (value!.internalEndShift && isOwnTimeStructOk(value!.internalEndShift)) {
       value.endShift = transformOwnTimeToString(value!.internalEndShift);
+    } else if (!value.endShift) {
+      value.endShift = nullTime;
     }
 
     if (
@@ -118,6 +114,8 @@ export class DataShiftService {
       isOwnTimeStructOk(value!.internalAfterShift)
     ) {
       value.afterShift = transformOwnTimeToString(value!.internalAfterShift);
+    } else if (!value.afterShift) {
+      value.afterShift = nullTime;
     }
 
     if (
@@ -125,17 +123,8 @@ export class DataShiftService {
       isOwnTimeStructOk(value!.internalBeforeShift)
     ) {
       value.beforeShift = transformOwnTimeToString(value!.internalBeforeShift);
-    }
-
-    if (value!.internalEndShift && isOwnTimeStructOk(value!.internalEndShift)) {
-      value.endShift = transformOwnTimeToString(value!.internalEndShift);
-    }
-
-    if (
-      value!.internalStartShift &&
-      isOwnTimeStructOk(value!.internalStartShift)
-    ) {
-      value.startShift = transformOwnTimeToString(value!.internalStartShift);
+    } else if (!value.beforeShift) {
+      value.beforeShift = nullTime;
     }
 
     if (
@@ -145,6 +134,8 @@ export class DataShiftService {
       value.travelTimeAfter = transformOwnTimeToString(
         value!.internalTravelTimeAfter
       );
+    } else if (!value.travelTimeAfter) {
+      value.travelTimeAfter = nullTime;
     }
 
     if (
@@ -154,9 +145,10 @@ export class DataShiftService {
       value.travelTimeBefore = transformOwnTimeToString(
         value!.internalTravelTimeBefore
       );
+    } else if (!value.travelTimeBefore) {
+      value.travelTimeBefore = nullTime;
     }
 
-    // Berechne workTime mit dem WorkTimeCalculationService
     value.workTime = this.workTimeCalculationService.calculateWorkTimeWithFallback(
       value!.internalStartShift,
       value!.internalEndShift,
@@ -170,6 +162,8 @@ export class DataShiftService {
       value.briefingTime = transformOwnTimeToString(
         value!.internalBriefingTime
       );
+    } else if (!value.briefingTime) {
+      value.briefingTime = nullTime;
     }
 
     if (
@@ -179,6 +173,8 @@ export class DataShiftService {
       value.debriefingTime = transformOwnTimeToString(
         value!.internalDebriefingTime
       );
+    } else if (!value.debriefingTime) {
+      value.debriefingTime = nullTime;
     }
   }
 }

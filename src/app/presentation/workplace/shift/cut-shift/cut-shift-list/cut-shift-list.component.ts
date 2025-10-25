@@ -18,10 +18,11 @@ import {
   NgbModal,
   NgbCalendar,
   NgbDate,
+  NgbDateStruct,
   NgbDatepickerModule,
   NgbModalRef,
 } from '@ng-bootstrap/ng-bootstrap';
-import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
@@ -38,6 +39,7 @@ import {
   compareComplexObjects,
 } from 'src/app/domain/helpers/object-helpers';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
+import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -57,6 +59,7 @@ export class CutShiftListComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
+  private shiftCutOperationService = inject(ShiftCutOperationService);
   private workTimeCalculator = inject(WorkTimeCalculationService);
   private modalService = inject(NgbModal);
   private calendar = inject(NgbCalendar);
@@ -65,16 +68,18 @@ export class CutShiftListComponent implements OnInit {
   @ViewChild('cutTimeModal', { static: true }) cutTimeModal!: TemplateRef<any>;
   @ViewChild('cutWeekdaysModal', { static: true })
   cutWeekdaysModal!: TemplateRef<any>;
-  @ViewChild('cutHolidaysModal', { static: true })
-  cutHolidaysModal!: TemplateRef<any>;
   @ViewChild('cutStaffModal', { static: true })
   cutStaffModal!: TemplateRef<any>;
   @ViewChild('cutTaskModal', { static: true }) cutTaskModal!: TemplateRef<any>;
+  @ViewChild('resetCutsModal', { static: true })
+  resetCutsModal!: TemplateRef<any>;
 
-  cutDate: NgbDate | null = null;
+  cutDate: NgbDateStruct | null = null;
+  resetDate: NgbDateStruct | null = null;
   minDate!: NgbDate;
   maxDate!: NgbDate;
   faCalendar = faCalendar;
+  faRotateLeft = faRotateLeft;
   cutTimeShift = OwnTime.forTime();
   minTimeShift: OwnTime | null = null;
   maxTimeShift: OwnTime | null = null;
@@ -91,11 +96,6 @@ export class CutShiftListComponent implements OnInit {
     isSunday: false,
   };
 
-  holidays = {
-    isHoliday: false,
-    isWeekdayOrHoliday: false,
-  };
-
   staffCount = 1;
   taskCount = 1;
   minStaffCount = 1;
@@ -106,7 +106,6 @@ export class CutShiftListComponent implements OnInit {
   @Input() isCutDateEnabled = true;
   @Input() isCutTimeEnabled = true;
   @Input() isCutWeekdaysEnabled = true;
-  @Input() isCutHolidaysEnabled = true;
   @Input() isCutStaffEnabled = true;
   @Input() isCutTaskEnabled = false;
   @Input() isMondayEnabled = true;
@@ -116,8 +115,7 @@ export class CutShiftListComponent implements OnInit {
   @Input() isFridayEnabled = true;
   @Input() isSaturdayEnabled = false;
   @Input() isSundayEnabled = false;
-  @Input() isHolidayEnabledForCut = true;
-  @Input() isWeekdayOrHolidayEnabledForCut = true;
+  public isResetCutsEnabled = false;
 
   @Input() shifts: IShift[] = [];
 
@@ -126,6 +124,12 @@ export class CutShiftListComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetAllParameters();
+    this.dataManagementShiftCutService.onResetCompleted = () => {
+      this.analyzeResetCuts();
+    };
+    this.dataManagementShiftCutService.onReadCompleted = () => {
+      this.analyzeResetCuts();
+    };
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -207,6 +211,7 @@ export class CutShiftListComponent implements OnInit {
     if (!this.isCutDateEnabled) {
       return;
     }
+
     this.activeModal = this.modalService.open(this.cutDateModal, {
       size: 'sm',
       centered: true,
@@ -263,24 +268,6 @@ export class CutShiftListComponent implements OnInit {
     );
   }
 
-  onCutHolidays(): void {
-    this.activeModal = this.modalService.open(this.cutHolidaysModal, {
-      size: 'md',
-      centered: true,
-      windowClass: 'modal-window',
-    });
-
-    this.activeModal.result.then(
-      () => {
-        this.performCutByHolidays();
-        this.activeModal = null;
-      },
-      () => {
-        this.activeModal = null;
-      }
-    );
-  }
-
   onCutStaff(): void {
     this.activeModal = this.modalService.open(this.cutStaffModal, {
       size: 'sm',
@@ -325,10 +312,18 @@ export class CutShiftListComponent implements OnInit {
       this.analyzeCutByDate(shift);
       this.analyzeCutByTime(shift);
       this.analyzeCutByWeekdays(shift);
-      this.analyzeCutByHolidays(shift);
       this.analyzeCutByStaff(shift);
       this.analyzeCutByTask(shift);
+      this.analyzeResetCuts();
     }
+  }
+
+  private analyzeResetCuts(): void {
+    const hasSplitShifts = this.dataManagementShiftCutService.cutShifts.some(
+      (s) => s.status === ShiftStatus.SplitShift
+    );
+    const isSaved = !this.dataManagementShiftCutService.areObjectsDirty();
+    this.isResetCutsEnabled = hasSplitShifts && isSaved;
   }
 
   onCellUpdated(event: { shift: Shift; field: string; value: string }): void {
@@ -345,6 +340,7 @@ export class CutShiftListComponent implements OnInit {
     }
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private analyzeCutByDate(shift: Shift): void {
@@ -483,68 +479,6 @@ export class CutShiftListComponent implements OnInit {
     }
   }
 
-  private analyzeCutByHolidays(shift: Shift): void {
-    let holidayCount = 0;
-    if (shift.isHoliday) holidayCount++;
-    if (shift.isWeekdayOrHoliday) holidayCount++;
-
-    if (holidayCount >= 1) {
-      const wouldCreateDuplicate = this.wouldHolidayCutCreateDuplicate(shift);
-
-      if (!wouldCreateDuplicate) {
-        this.isCutHolidaysEnabled = true;
-
-        this.holidays.isHoliday = false;
-        this.holidays.isWeekdayOrHoliday = false;
-
-        this.isHolidayEnabledForCut = shift.isHoliday;
-        this.isWeekdayOrHolidayEnabledForCut = shift.isWeekdayOrHoliday;
-      }
-    }
-  }
-
-  private wouldHolidayCutCreateDuplicate(selectedShift: Shift): boolean {
-    for (const existingShift of this.dataManagementShiftCutService.cutShifts) {
-      if (existingShift.id === selectedShift.id) {
-        continue;
-      }
-
-      if (
-        selectedShift.isWeekdayOrHoliday &&
-        compareComplexObjects(selectedShift, existingShift, [
-          'isWeekdayOrHoliday',
-          'id',
-          'parentId',
-          'name',
-          'description',
-          'abbreviation',
-          'lft',
-          'rgt',
-        ])
-      ) {
-        return true;
-      }
-
-      if (
-        selectedShift.isHoliday &&
-        compareComplexObjects(selectedShift, existingShift, [
-          'isHoliday',
-          'id',
-          'parentId',
-          'name',
-          'description',
-          'abbreviation',
-          'lft',
-          'rgt',
-        ])
-      ) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   private analyzeCutByStaff(shift: Shift): void {
     if (shift.sumEmployees && shift.sumEmployees > 1) {
       this.isCutStaffEnabled = true;
@@ -573,28 +507,16 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
-
-    this.restoreOwnTimeObjects(copiedShift);
-
-    const dayBeforeCut = new Date(cutDateAsDate);
-    dayBeforeCut.setDate(dayBeforeCut.getDate() - 1);
-    this.selectedShift.untilDate = dayBeforeCut;
-    this.selectedShift.internalUntilDate =
-      transformDateToNgbDateStruct(dayBeforeCut);
-
-    this.prepareCutShift(copiedShift, {
-      fromDate: cutDateAsDate,
-      internalFromDate: transformDateToNgbDateStruct(cutDateAsDate),
+    const result = this.shiftCutOperationService.cutByDate({
+      selectedShift: this.selectedShift,
+      cutDate: cutDateAsDate,
     });
 
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
-
-    this.selectNewChildCut(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(result.newShift);
+    this.selectNewChildCut(result.newShift);
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private performCutByTime(): void {
@@ -602,7 +524,7 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
+    const copiedShift = this.copyShift(this.selectedShift);
 
     this.restoreOwnTimeObjects(copiedShift);
 
@@ -692,6 +614,7 @@ export class CutShiftListComponent implements OnInit {
     this.selectNewChildCut(copiedShift);
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private performCutByWeekdays(): void {
@@ -699,23 +622,16 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
+    const result = this.shiftCutOperationService.cutByWeekdays({
+      selectedShift: this.selectedShift,
+      weekdays: this.weekdays,
+    });
 
-    this.restoreOwnTimeObjects(copiedShift);
-
-    this.updateOriginalShiftWeekdays(this.selectedShift);
-
-    this.updateCopiedShiftWeekdays(copiedShift);
-
-    this.prepareCutShift(copiedShift);
-
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
-
-    this.selectNewChildCut(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(result.newShift);
+    this.selectNewChildCut(result.newShift);
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private updateOriginalShiftWeekdays(originalShift: Shift): void {
@@ -738,74 +654,21 @@ export class CutShiftListComponent implements OnInit {
     copiedShift.isSunday = this.weekdays.isSunday;
   }
 
-  private performCutByHolidays(): void {
-    if (!this.selectedShift) {
-      return;
-    }
-
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
-
-    this.restoreOwnTimeObjects(copiedShift);
-
-    this.updateOriginalShiftHolidays(this.selectedShift);
-
-    this.updateCopiedShiftHolidays(copiedShift);
-
-    this.prepareCutShift(copiedShift);
-
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
-
-    this.selectNewChildCut(copiedShift);
-
-    this.isChangingEvent.emit(true);
-  }
-
-  private updateOriginalShiftHolidays(originalShift: Shift): void {
-    if (this.holidays.isHoliday) originalShift.isHoliday = false;
-    if (this.holidays.isWeekdayOrHoliday)
-      originalShift.isWeekdayOrHoliday = false;
-  }
-
-  private updateCopiedShiftHolidays(copiedShift: Shift): void {
-    copiedShift.isHoliday = this.holidays.isHoliday;
-    copiedShift.isWeekdayOrHoliday = this.holidays.isWeekdayOrHoliday;
-  }
-
-  isHolidayCutValid(): boolean {
-    const selectedCount =
-      (this.holidays.isHoliday ? 1 : 0) +
-      (this.holidays.isWeekdayOrHoliday ? 1 : 0);
-    return selectedCount === 1;
-  }
-
   private performCutByStaff(): void {
     if (!this.selectedShift) {
       return;
     }
 
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
-
-    this.restoreOwnTimeObjects(copiedShift);
-
-    const originalStaffCount =
-      this.selectedShift.sumEmployees - this.staffCount;
-    const copiedStaffCount = this.staffCount;
-
-    this.selectedShift.sumEmployees = originalStaffCount;
-
-    this.prepareCutShift(copiedShift, {
-      sumEmployees: copiedStaffCount,
+    const result = this.shiftCutOperationService.cutByStaff({
+      selectedShift: this.selectedShift,
+      staffCount: this.staffCount,
     });
 
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
-
-    this.selectNewChildCut(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(result.newShift);
+    this.selectNewChildCut(result.newShift);
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private performCutByTask(): void {
@@ -813,24 +676,16 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
-    const copiedShift = cloneObject<Shift>(this.selectedShift);
-
-    const originalTaskCount = this.selectedShift.quantity - this.taskCount;
-    const copiedTaskCount = this.taskCount;
-
-    this.selectedShift.quantity = originalTaskCount;
-
-    this.prepareCutShift(copiedShift, {
-      quantity: copiedTaskCount,
+    const result = this.shiftCutOperationService.cutByTask({
+      selectedShift: this.selectedShift,
+      taskCount: this.taskCount,
     });
 
-    this.selectedShift.status = ShiftStatus.SplitShift;
-
-    this.dataManagementShiftCutService.addCutShift(copiedShift);
-
-    this.selectNewChildCut(copiedShift);
+    this.dataManagementShiftCutService.addCutShift(result.newShift);
+    this.selectNewChildCut(result.newShift);
 
     this.isChangingEvent.emit(true);
+    this.analyzeResetCuts();
   }
 
   private restoreOwnTimeObjects(shift: Shift): void {
@@ -888,7 +743,6 @@ export class CutShiftListComponent implements OnInit {
       this.analyzeCutByDate(newChildCut);
       this.analyzeCutByTime(newChildCut);
       this.analyzeCutByWeekdays(newChildCut);
-      this.analyzeCutByHolidays(newChildCut);
       this.analyzeCutByStaff(newChildCut);
       this.analyzeCutByTask(newChildCut);
     }
@@ -915,8 +769,50 @@ export class CutShiftListComponent implements OnInit {
     }
   }
 
+  onResetCuts(): void {
+    this.activeModal = this.modalService.open(this.resetCutsModal, {
+      size: 'md',
+      centered: true,
+      windowClass: 'modal-window',
+    });
+
+    this.activeModal.result.then(
+      () => {
+        this.performResetCuts();
+        this.activeModal = null;
+      },
+      () => {
+        this.activeModal = null;
+      }
+    );
+  }
+
+  private performResetCuts(): void {
+    if (!this.resetDate) {
+      return;
+    }
+
+    const newStartDate = transformNgbDateStructToDate(this.resetDate);
+    if (!newStartDate) {
+      return;
+    }
+
+    const firstShift = this.dataManagementShiftCutService.cutShifts[0];
+
+    if (!firstShift || !firstShift.originalId) {
+      return;
+    }
+
+    this.dataManagementShiftCutService.resetCuts(
+      firstShift.originalId,
+      newStartDate
+    );
+    this.resetDate = null;
+  }
+
   private resetAllParameters(): void {
     this.cutDate = null;
+    this.resetDate = null;
 
     this.cutTimeShift = OwnTime.forTime();
     this.minTimeShift = null;
@@ -934,11 +830,6 @@ export class CutShiftListComponent implements OnInit {
       isSunday: false,
     };
 
-    this.holidays = {
-      isHoliday: false,
-      isWeekdayOrHoliday: false,
-    };
-
     this.staffCount = 1;
     this.minStaffCount = 1;
     this.maxStaffCount = 100;
@@ -950,9 +841,9 @@ export class CutShiftListComponent implements OnInit {
     this.isCutDateEnabled = false;
     this.isCutTimeEnabled = false;
     this.isCutWeekdaysEnabled = false;
-    this.isCutHolidaysEnabled = false;
     this.isCutStaffEnabled = false;
     this.isCutTaskEnabled = false;
+    this.isResetCutsEnabled = false;
 
     this.isMondayEnabled = false;
     this.isTuesdayEnabled = false;
@@ -961,7 +852,19 @@ export class CutShiftListComponent implements OnInit {
     this.isFridayEnabled = false;
     this.isSaturdayEnabled = false;
     this.isSundayEnabled = false;
-    this.isHolidayEnabledForCut = false;
-    this.isWeekdayOrHolidayEnabledForCut = false;
+  }
+
+  private copyShift(shift: Shift): Shift {
+    const value = cloneObject<Shift>(shift);
+    if (value) {
+      if (value.fromDate) {
+        value.internalFromDate = transformDateToNgbDateStruct(value.fromDate);
+      }
+
+      if (value.untilDate) {
+        value.internalUntilDate = transformDateToNgbDateStruct(value.untilDate);
+      }
+    }
+    return value;
   }
 }

@@ -215,62 +215,6 @@
   </div>
 </ng-template>
 
-<!-- Cut Holidays Modal -->
-<ng-template #cutHolidaysModal let-modal role="dialog" class="modal-window">
-  <div class="modal-header">
-    <div class="container-header-modal modal-title">
-      {{ "shift.cut-shift.buttons.cut-holidays" | translate }}
-    </div>
-  </div>
-  <div class="modal-body first-modal">
-    <div class="container-bank-box">
-      <div class="firstColumContainer">
-        <div class="firstColumn">
-          <div class="form-group" *ngIf="isHolidayEnabledForCut">
-            <label class="checkbox-label" for="isHolidayForCut">
-              <input
-                type="checkbox"
-                [(ngModel)]="holidays.isHoliday"
-                name="isHolidayForCut"
-                id="isHolidayForCut"
-              />
-              {{ "holiday" | translate }}
-            </label>
-          </div>
-          <div class="form-group top-margin5" *ngIf="isWeekdayOrHolidayEnabledForCut">
-            <label class="checkbox-label" for="isWeekdayOrHolidayForCut">
-              <input
-                type="checkbox"
-                [(ngModel)]="holidays.isWeekdayOrHoliday"
-                name="isWeekdayOrHolidayForCut"
-                id="isWeekdayOrHolidayForCut"
-              />
-              {{ "weekday-or-holiday" | translate }}
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <div
-      type="button"
-      class="link-button darkgrey-font font-underline"
-      (click)="modal.dismiss()"
-    >
-      {{ "cancel" | translate }}
-    </div>
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="modal.close()"
-      [disabled]="!isHolidayCutValid()"
-    >
-      {{ "save" | translate }}
-    </button>
-  </div>
-</ng-template>
-
 <!-- Cut Staff Modal -->
 <ng-template #cutStaffModal let-modal role="dialog" class="modal-window">
   <div class="modal-header">
@@ -357,6 +301,62 @@
   </div>
 </ng-template>
 
+<!-- Reset Cuts Modal -->
+<ng-template #resetCutsModal let-modal role="dialog" class="modal-window">
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.cut-shift.buttons.reset-cuts" | translate }}
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    <div class="form-group">
+      <label for="resetDateInput">
+        {{ "shift.cut-shift.reset-date-label" | translate }}
+      </label>
+      <div class="input-group cut-date-width">
+        <input
+          class="form-control"
+          name="resetDate"
+          id="resetDateInput"
+          [(ngModel)]="resetDate"
+          [minDate]="minDate"
+          [maxDate]="maxDate"
+          ngbDatepicker
+          #resetDatePicker="ngbDatepicker"
+          readonly
+        />
+        <span
+          class="input-group-text"
+          style="width: 40px"
+          (click)="resetDatePicker.toggle()"
+        >
+          <fa-icon
+            [icon]="faCalendar"
+            [style]="{ 'font-size': '16px', color: '#464e5f' }"
+          ></fa-icon>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div
+      type="button"
+      class="link-button darkgrey-font font-underline"
+      (click)="modal.dismiss()"
+    >
+      {{ "cancel" | translate }}
+    </div>
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="modal.close()"
+      [disabled]="!resetDate"
+    >
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>
+
 <form #cutShiftForm="ngForm" id="cutShiftForm" class="container-card">
   <div class="container-header header-container">
     {{ "shift.cut-shift.list.title" | translate }}
@@ -390,14 +390,6 @@
     <button
       type="button"
       class="btn btn-sm btn-primary"
-      (click)="onCutHolidays()"
-      [disabled]="!isCutHolidaysEnabled"
-    >
-      {{ "shift.cut-shift.buttons.cut-holidays" | translate }}
-    </button>
-    <button
-      type="button"
-      class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
       [disabled]="!isCutStaffEnabled"
     >
@@ -410,6 +402,15 @@
       [disabled]="!isCutTaskEnabled"
     >
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-sm btn-warning"
+      (click)="onResetCuts()"
+      [disabled]="!isResetCutsEnabled"
+    >
+      <fa-icon [icon]="faRotateLeft"></fa-icon>
+      {{ "shift.cut-shift.buttons.reset-cuts" | translate }}
     </button>
   </div>
   <div class="container-table">

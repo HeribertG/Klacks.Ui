@@ -53,6 +53,8 @@ export class DataManagementShiftCutService
   public cutShiftsDummy: Shift[] = [];
 
   public onSaveCompleted?: () => void;
+  public onResetCompleted?: () => void;
+  public onReadCompleted?: () => void;
 
   /* #region Cut Shift Methods */
 
@@ -74,6 +76,10 @@ export class DataManagementShiftCutService
 
           this.fireIsReadEvent();
           this._showProgressSpinner.set(false);
+
+          if (this.onReadCompleted) {
+            this.onReadCompleted();
+          }
         });
     }
   }
@@ -183,6 +189,40 @@ export class DataManagementShiftCutService
           if (this.onSaveCompleted) {
             this.onSaveCompleted();
           }
+        },
+      });
+  }
+
+  resetCuts(originalId: string, newStartDate: Date): void {
+    this._showProgressSpinner.set(true);
+
+    this.dataShiftCutsService
+      .resetCuts(originalId, newStartDate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedShifts) => {
+          this.cutShifts = updatedShifts;
+          this.cutShiftsDummy = cloneObject<Shift[]>(this.cutShifts);
+
+          this._showProgressSpinner.set(false);
+
+          this.eventBus.emit(DomainEventType.INFO, {
+            message: 'Cuts successfully reset',
+            code: 'Reset Success',
+            context: 'DataManagementShiftCutService.resetCuts',
+          });
+
+          if (this.onResetCompleted) {
+            this.onResetCompleted();
+          }
+        },
+        error: (error) => {
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'Reset Cut Error',
+            context: 'DataManagementShiftCutService.resetCuts',
+          });
+          this._showProgressSpinner.set(false);
         },
       });
   }
