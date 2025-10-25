@@ -319,9 +319,9 @@ export class CutShiftListComponent implements OnInit {
   }
 
   private analyzeResetCuts(): void {
-    const hasSplitShifts = this.dataManagementShiftCutService.cutShifts.some(
+    const hasSplitShifts = this.dataManagementShiftCutService.cutShifts?.some(
       (s) => s.status === ShiftStatus.SplitShift
-    );
+    ) ?? false;
     const isSaved = !this.dataManagementShiftCutService.areObjectsDirty();
     this.isResetCutsEnabled = hasSplitShifts && isSaved;
   }
