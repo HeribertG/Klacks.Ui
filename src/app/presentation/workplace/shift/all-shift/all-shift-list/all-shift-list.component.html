@@ -3,7 +3,7 @@
     {{ translate.instant("shift.all-shift.list.title") }}
 
     <span class="filler"></span>
-    @if (authorizationService.isAdmin && dataManagementShiftService.currentFilter.isOriginal){
+    @if (authorizationService.isAdmin && dataManagementShiftService.currentFilter.filterType === 0){
     <div class="actions">
       <button id="shift-create-btn" class="btn new-btn" (click)="onAddShift()">
         {{ "new-work" | translate }}
@@ -13,7 +13,7 @@
   </div>
   <div class="container-line"></div>
   <div class="container-table" #shiftTableContainer>
-    @if (dataManagementShiftService.currentFilter.isOriginal) {
+    @if (dataManagementShiftService.currentFilter.filterType === 0) {
       <app-original-table
         [shifts]="dataManagementShiftService.shifts"
         [sortingService]="sortingService"
@@ -21,7 +21,7 @@
         (deleteClicked)="onClickDelete($event)"
         (headerClicked)="onClickHeader($event)"
       ></app-original-table>
-    } @else {
+    } @else if (dataManagementShiftService.currentFilter.filterType === 1) {
       <app-cut-table
         [shifts]="dataManagementShiftService.shifts"
         [sortingService]="sortingService"
@@ -29,6 +29,14 @@
         (cutClicked)="onClickCut($event)"
         (headerClicked)="onClickHeader($event)"
       ></app-cut-table>
+    } @else if (dataManagementShiftService.currentFilter.filterType === 2) {
+      <app-container-table
+        [shifts]="dataManagementShiftService.shifts"
+        [sortingService]="sortingService"
+        (editClicked)="onClickEdit($event)"
+        (cutClicked)="onClickCut($event)"
+        (headerClicked)="onClickHeader($event)"
+      ></app-container-table>
     }
     @if (paginationDataService) {
     <app-pagination

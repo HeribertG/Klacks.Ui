@@ -23,6 +23,7 @@ import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/domain/models/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
+import { ContainerTableComponent } from './container-table/container-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
@@ -45,6 +46,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     TranslateModule,
     OriginalTableComponent,
     CutTableComponent,
+    ContainerTableComponent,
     PaginationComponent,
   ],
   providers: [TableResizeService, AllShiftStateService, TableSortingService],

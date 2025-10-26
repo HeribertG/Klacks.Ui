@@ -32,6 +32,6 @@ export class AllShiftStateService extends BaseStateService<
   }
 
   setIsOriginal(isOriginal: boolean): void {
-    this.dataManagementService.currentFilter.isOriginal = isOriginal;
+    this.dataManagementService.currentFilter.filterType = isOriginal ? 0 : 1;
   }
 }

@@ -65,8 +65,8 @@
               id="shift-filter-original"
               type="radio"
               name="shiftType"
-              [value]="true"
-              [(ngModel)]="dataManagementShiftService.currentFilter.isOriginal"
+              [value]="0"
+              [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
               [disabled]="!authorizationService.isAdmin"
               (change)="onSelect()"
             />
@@ -75,15 +75,41 @@
 
           <label class="radio-label">
             <input
-              id="shift-filter-planbar"
+              id="shift-filter-shift"
               type="radio"
               name="shiftType"
-              [value]="false"
-              [(ngModel)]="dataManagementShiftService.currentFilter.isOriginal"
+              [value]="1"
+              [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
               [disabled]="!authorizationService.isAdmin"
               (change)="onSelect()"
             />
             {{ "shift.all-shift.nav.planbar" | translate }}
+          </label>
+
+          <label class="radio-label">
+            <input
+              id="shift-filter-container"
+              type="radio"
+              name="shiftType"
+              [value]="2"
+              [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+            />
+            Container
+          </label>
+
+          <label class="radio-label">
+            <input
+              id="shift-filter-absence"
+              type="radio"
+              name="shiftType"
+              [value]="3"
+              [(ngModel)]="dataManagementShiftService.currentFilter.filterType"
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+            />
+            Absence
           </label>
         </div>
       </div>

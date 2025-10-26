@@ -1,0 +1,108 @@
+@use "../../../../../../../assets/standard-styles/standard-grid.scss";
+
+.col-index {
+  width: 8%;
+}
+
+.col-time {
+  width: 17%;
+}
+.col-day {
+  width: 5.2%;
+}
+.col-action {
+  width: 7.5%;
+}
+
+p {
+  margin-left: 5px;
+  padding-top: 8px;
+  margin-bottom: 3px;
+}
+
+tr:nth-child(4n + 1),
+tr:nth-child(4n + 2) {
+  background-color: transparent !important;
+}
+
+tr:nth-child(4n + 3),
+tr:nth-child(4n + 4) {
+  background-color: var(--backgroundColorWorkplace);
+}
+
+.table-cell-small-border,
+.table-cell-small-border-with-bottom,
+.table-cell {
+  background-color: inherit;
+}
+
+.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+.active.hover-row {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.hover-row {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.hover-row td {
+  background-color: var(--gridBackgroundColorRowHover) !important;
+}
+
+tr.selected-row,
+tr.selected-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+tr.selected-row.hover-row,
+tr.selected-row.hover-row td {
+  background-color: var(--backgroundColorFocus) !important;
+}
+
+thead {
+  th {
+    padding: 6px 8px;
+
+    text-align: center;
+    border: 1px solid var(--colorLine);
+    background: var(--backgroundColorHeaderNav);
+    top: 0;
+    z-index: 10;
+  }
+
+  tr:first-child th {
+    border-bottom: 1px solid var(--colorLine);
+  }
+}
+
+table input[type="checkbox"]:disabled,
+td input[type="checkbox"]:disabled,
+.table input[type="checkbox"]:disabled {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  width: 16px !important;
+  height: 16px !important;
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  &:checked::after {
+    content: "✔" !important;
+    display: block !important;
+    color: var(--colorText) !important;
+    font-size: 12px !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    line-height: 16px !important;
+  }
+
+  &:not(:checked)::after {
+    content: "" !important;
+  }
+}

@@ -67,7 +67,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private checkAdminPermissions(): void {
     if (!this.authorizationService.isAdmin) {
-      this.dataManagementShiftService.currentFilter.isOriginal = false;
+      this.dataManagementShiftService.currentFilter.filterType = 1;
     }
   }
 

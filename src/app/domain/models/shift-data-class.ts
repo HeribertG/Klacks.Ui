@@ -6,6 +6,7 @@ import {
   IBaseTruncated,
 } from './general-class';
 import { IShift } from './shift-class';
+import { ShiftFilterType } from '../enums/shift-filter-type.enum';
 
 export enum MacroShiftType {
   DayShift = 0,
@@ -89,7 +90,7 @@ export interface IShiftFilter extends IBaseFilter {
   formerDateRange: boolean;
   futureDateRange: boolean;
   selectedGroup: string | undefined;
-  isOriginal: boolean;
+  filterType: ShiftFilterType;
   includeClientName: boolean;
 }
 
@@ -104,7 +105,7 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   activeDateRange = true;
   formerDateRange = false;
   futureDateRange = false;
-  isOriginal = false;
+  filterType = ShiftFilterType.Original;
   includeClientName = false;
 
   override orderBy = 'name';
