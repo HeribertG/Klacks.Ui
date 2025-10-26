@@ -277,6 +277,7 @@ export class ShiftCutOperationService {
   }
 
   private prepareCutShift(copiedShift: Shift, specificProperties?: any): void {
+    copiedShift.parentId = copiedShift.id;
     copiedShift.id = newGuid();
     copiedShift.isNew = true;
 

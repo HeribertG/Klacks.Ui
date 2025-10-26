@@ -14,6 +14,11 @@ import { IShift } from 'src/app/domain/models/shift-class';
 import { CutOperation } from 'src/app/domain/models/cut-operation';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
+export interface ResetDateRangeResponse {
+  earliestResetDate: string;
+  untilDate: string | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -54,6 +59,14 @@ export class DataShiftCutsService {
         originalId: originalId,
         newStartDate: newStartDate,
       })
+      .pipe(retry(3));
+  }
+
+  getResetDateRange(originalId: string) {
+    return this.httpClient
+      .get<ResetDateRangeResponse>(
+        `${environment.baseUrl}Shifts/Cuts/Reset/DateRange/${originalId}`
+      )
       .pipe(retry(3));
   }
 

@@ -40,6 +40,7 @@ import {
 } from 'src/app/domain/helpers/object-helpers';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
+import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
 
 @Component({
   selector: 'app-cut-shift-list',
@@ -59,6 +60,7 @@ export class CutShiftListComponent implements OnInit {
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public dataManagementShiftCutService = inject(DataManagementShiftCutService);
+  private dataShiftCutsService = inject(DataShiftCutsService);
   private shiftCutOperationService = inject(ShiftCutOperationService);
   private workTimeCalculator = inject(WorkTimeCalculationService);
   private modalService = inject(NgbModal);
@@ -322,7 +324,7 @@ export class CutShiftListComponent implements OnInit {
     const hasSplitShifts = this.dataManagementShiftCutService.cutShifts?.some(
       (s) => s.status === ShiftStatus.SplitShift
     ) ?? false;
-    const isSaved = !this.dataManagementShiftCutService.areObjectsDirty();
+    const isSaved = !(this.dataManagementShiftCutService.areObjectsDirty?.() ?? false);
     this.isResetCutsEnabled = hasSplitShifts && isSaved;
   }
 
@@ -753,15 +755,12 @@ export class CutShiftListComponent implements OnInit {
       return;
     }
 
+    copiedShift.parentId = this.selectedShift.id;
     copiedShift.id = newGuid();
     copiedShift.isNew = true;
 
     if (this.selectedShift.cuttingAfterMidnight) {
       copiedShift.cuttingAfterMidnight = true;
-    }
-
-    if (this.selectedShift.status === ShiftStatus.SplitShift) {
-      copiedShift.parentId = this.selectedShift.id;
     }
 
     if (specificProperties) {
@@ -770,21 +769,76 @@ export class CutShiftListComponent implements OnInit {
   }
 
   onResetCuts(): void {
-    this.activeModal = this.modalService.open(this.resetCutsModal, {
-      size: 'md',
-      centered: true,
-      windowClass: 'modal-window',
-    });
+    const firstShift = this.dataManagementShiftCutService.cutShifts[0];
 
-    this.activeModal.result.then(
-      () => {
-        this.performResetCuts();
-        this.activeModal = null;
+    if (!firstShift || !firstShift.originalId) {
+      return;
+    }
+
+    this.dataShiftCutsService.getResetDateRange(firstShift.originalId).subscribe({
+      next: (response) => {
+        const earliestDate = new Date(response.earliestResetDate);
+        const earliestNgbDate = this.calendar.getNext(
+          new NgbDate(
+            earliestDate.getFullYear(),
+            earliestDate.getMonth() + 1,
+            earliestDate.getDate()
+          ),
+          'd',
+          0
+        );
+        this.minDate = earliestNgbDate;
+
+        if (response.untilDate) {
+          const untilDate = new Date(response.untilDate);
+          const untilNgbDate = new NgbDate(
+            untilDate.getFullYear(),
+            untilDate.getMonth() + 1,
+            untilDate.getDate()
+          );
+          this.maxDate = untilNgbDate;
+        } else {
+          this.maxDate = this.calendar.getNext(earliestNgbDate, 'y', 1);
+        }
+
+        const today = new Date();
+        const todayNgbDate = new NgbDate(
+          today.getFullYear(),
+          today.getMonth() + 1,
+          today.getDate()
+        );
+
+        const todayCompare = todayNgbDate.after(this.minDate) || todayNgbDate.equals(this.minDate);
+        const todayInRange = todayCompare && (todayNgbDate.before(this.maxDate) || todayNgbDate.equals(this.maxDate));
+
+        if (todayInRange) {
+          this.resetDate = todayNgbDate;
+        } else if (todayNgbDate.before(this.minDate)) {
+          this.resetDate = this.minDate;
+        } else {
+          this.resetDate = this.maxDate;
+        }
+
+        this.activeModal = this.modalService.open(this.resetCutsModal, {
+          size: 'md',
+          centered: true,
+          windowClass: 'modal-window',
+        });
+
+        this.activeModal.result.then(
+          () => {
+            this.performResetCuts();
+            this.activeModal = null;
+          },
+          () => {
+            this.activeModal = null;
+          }
+        );
       },
-      () => {
-        this.activeModal = null;
-      }
-    );
+      error: (error) => {
+        console.error('Error fetching reset date range:', error);
+      },
+    });
   }
 
   private performResetCuts(): void {
