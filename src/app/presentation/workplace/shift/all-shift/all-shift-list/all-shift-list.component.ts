@@ -30,6 +30,7 @@ import { TableResizeService } from 'src/app/presentation/services/table-resize.s
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { AllShiftStateService } from '../services/all-shift-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-all-shift-list',
@@ -46,7 +47,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
     CutTableComponent,
     PaginationComponent,
   ],
-  providers: [TableResizeService, AllShiftStateService],
+  providers: [TableResizeService, AllShiftStateService, TableSortingService],
 })
 export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('shiftTableContainer', { static: false })
@@ -55,6 +56,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementShiftService = inject(DataManagementShiftService);
   private dataManagementShiftCutService = inject(DataManagementShiftCutService);
   public authorizationService = inject(AuthorizationService);
+  public sortingService = inject(TableSortingService);
   private tableResizeService = inject(TableResizeService);
   private allShiftStateService = inject(AllShiftStateService);
   private localStorageService = inject(LocalStorageService);
@@ -81,6 +83,13 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     await this.allShiftStateService.initializeWorkplaceState();
     this.visibleRow = visibleRow(true);
 
+    this.sortingService.initialize({
+      columns: ['abbreviation', 'name', 'description', 'valid_from', 'valid_until'],
+      defaultOrderBy: 'name',
+      defaultSortOrder: 'asc',
+      useThreeWaySort: true
+    });
+
     const wasRestored =
       await this.allShiftStateService.restoreFilterFromStorage();
     if (wasRestored) {
@@ -98,6 +107,10 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAddShift(): void {
     this.navigationService.navigateToNewShift();
+  }
+
+  onClickHeader(orderBy: string): void {
+    this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
   onLostFocus(): void {}
@@ -244,8 +257,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readPage(): void {
     this.allShiftStateService.prepareFilterForRequest(
-      this.dataManagementShiftService.currentFilter.orderBy,
-      this.dataManagementShiftService.currentFilter.sortOrder,
+      this.sortingService.getCurrentOrderBy(),
+      this.sortingService.getCurrentSortOrder(),
       this.page,
       this.firstItemOnLastPage,
       this.isPreviousPage,

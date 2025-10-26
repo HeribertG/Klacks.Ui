@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-original-table',
@@ -22,8 +23,10 @@ import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red
 export class OriginalTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
+  @Input() sortingService!: TableSortingService;
   @Output() editClicked = new EventEmitter<Shift>();
   @Output() deleteClicked = new EventEmitter<Shift>();
+  @Output() headerClicked = new EventEmitter<string>();
 
   highlightRowId?: string;
   selectedRowId?: string;
@@ -45,5 +48,8 @@ export class OriginalTableComponent {
   onClickDelete(s: Shift, $event: MouseEvent) {
     $event.stopPropagation();
     this.deleteClicked.emit(s);
+  }
+  onClickHeader(columnKey: string): void {
+    this.headerClicked.emit(columnKey);
   }
 }

@@ -1,19 +1,23 @@
 <table style="width: 100%">
   <thead>
     <tr>
-      <th class="table-header-border" colspan="2">
+      <th class="table-header-border" colspan="2" (click)="onClickHeader('name')">
         {{ translate.instant("list.all-list.all-shift-list.table.name") }}
+        {{ sortingService.getArrow('name') }}
       </th>
-      <th class="table-header-border" colspan="5">
+      <th class="table-header-border" colspan="5" (click)="onClickHeader('description')">
         {{
           translate.instant("list.all-list.all-shift-list.table.description")
         }}
+        {{ sortingService.getArrow('description') }}
       </th>
-      <th class="table-header-border cell-center" colspan="2">
+      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_from')">
         {{ translate.instant("list.all-list.all-shift-list.table.from") }}
+        {{ sortingService.getArrow('valid_from') }}
       </th>
-      <th class="table-header-border cell-center" colspan="2">
+      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_until')">
         {{ translate.instant("list.all-list.all-shift-list.table.until") }}
+        {{ sortingService.getArrow('valid_until') }}
       </th>
       <th class="col-action table-header-border" rowspan="2"></th>
     </tr>

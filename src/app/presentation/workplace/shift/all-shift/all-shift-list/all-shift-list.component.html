@@ -16,14 +16,18 @@
     @if (dataManagementShiftService.currentFilter.isOriginal) {
       <app-original-table
         [shifts]="dataManagementShiftService.shifts"
+        [sortingService]="sortingService"
         (editClicked)="onClickEdit($event)"
         (deleteClicked)="onClickDelete($event)"
+        (headerClicked)="onClickHeader($event)"
       ></app-original-table>
     } @else {
       <app-cut-table
         [shifts]="dataManagementShiftService.shifts"
+        [sortingService]="sortingService"
         (editClicked)="onClickEdit($event)"
         (cutClicked)="onClickCut($event)"
+        (headerClicked)="onClickHeader($event)"
       ></app-cut-table>
     }
     @if (paginationDataService) {

@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { IconScissorComponent } from 'src/app/presentation/icons/icon-scissor.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
+import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
   selector: 'app-cut-table',
@@ -22,9 +23,11 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 export class CutTableComponent {
   public translate = inject(TranslateService);
   @Input() shifts: IShift[] | undefined;
+  @Input() sortingService!: TableSortingService;
   @Output() editClicked = new EventEmitter<Shift>();
   @Output() cutClicked = new EventEmitter<Shift>();
   @Output() rowClicked = new EventEmitter<Shift>();
+  @Output() headerClicked = new EventEmitter<string>();
 
   highlightRowId?: string;
   selectedRowId?: string;
@@ -47,5 +50,8 @@ export class CutTableComponent {
   onClickCut(s: Shift, $event: MouseEvent) {
     $event.stopPropagation();
     this.cutClicked.emit(s);
+  }
+  onClickHeader(columnKey: string): void {
+    this.headerClicked.emit(columnKey);
   }
 }
