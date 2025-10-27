@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/class-literal-property-style */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -151,7 +149,8 @@ export class EditShiftGroupComponent
 
   get isFieldsDisabled(): boolean {
     const status = this.dataManagementShiftService.editShift?.status;
-    const isNotOriginal = status !== undefined && status !== ShiftStatus.OriginalOrder;
+    const isNotOriginal =
+      status !== undefined && status !== ShiftStatus.OriginalOrder;
     const isNotAuthorisedOrAdmin = !this.authService.isAuthorisedOrAdmin();
 
     return isNotOriginal && isNotAuthorisedOrAdmin;

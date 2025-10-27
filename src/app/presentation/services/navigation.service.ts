@@ -27,6 +27,10 @@ export class NavigationService {
     this.router.navigate(['/workplace/cut-shift', id]);
   }
 
+  navigateToContainerTemplateShift(id: string): void {
+    this.router.navigate(['/workplace/container-template', id]);
+  }
+
   navigateToSchedule(): void {
     this.router.navigate(['/workplace/schedule']);
   }

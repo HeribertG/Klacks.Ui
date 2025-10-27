@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/class-literal-property-style */
 import {
   AfterViewInit,
   Component,
@@ -107,7 +106,8 @@ export class EditShiftItemComponent
 
   onLockClick(): void {
     if (this.dataManagementShiftService.editShift) {
-      this.dataManagementShiftService.editShift.status = ShiftStatus.SealedOrder;
+      this.dataManagementShiftService.editShift.status =
+        ShiftStatus.SealedOrder;
       this.isChangingEvent.emit(true);
     }
   }
@@ -291,9 +291,10 @@ export class EditShiftItemComponent
     const shift = this.dataManagementShiftService.editShift;
     if (!shift) return false;
 
-    const hasValidUntil = shift.internalUntilDate !== undefined &&
-                          shift.internalUntilDate !== null &&
-                          Object.keys(shift.internalUntilDate).length > 0;
+    const hasValidUntil =
+      shift.internalUntilDate !== undefined &&
+      shift.internalUntilDate !== null &&
+      Object.keys(shift.internalUntilDate).length > 0;
 
     return this.isFieldsDisabled && hasValidUntil;
   }
@@ -305,7 +306,8 @@ export class EditShiftItemComponent
 
   get isContainer(): boolean {
     return (
-      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
+      this.dataManagementShiftService.editShift?.shiftType ===
+      ShiftType.IsContainer
     );
   }
 

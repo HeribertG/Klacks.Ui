@@ -17,7 +17,10 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
@@ -92,10 +95,16 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.visibleRow = visibleRow(true);
 
     this.sortingService.initialize({
-      columns: ['abbreviation', 'name', 'description', 'valid_from', 'valid_until'],
+      columns: [
+        'abbreviation',
+        'name',
+        'description',
+        'valid_from',
+        'valid_until',
+      ],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
-      useThreeWaySort: true
+      useThreeWaySort: true,
     });
 
     this.modalService.resultEvent
@@ -179,9 +188,9 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onClickCut(data: Shift) {
+  onContainerTemplateClicked(data: Shift) {
     if (data && data.originalId) {
-      this.navigationService.navigateToCutShift(data.originalId);
+      this.navigationService.navigateToContainerTemplateShift(data.originalId);
     }
   }
 

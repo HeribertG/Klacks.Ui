@@ -36,7 +36,7 @@
       [shifts]="dataManagementShiftService.shifts"
       [sortingService]="sortingService"
       (editClicked)="onClickEdit($event)"
-      (cutClicked)="onClickCut($event)"
+      (containerClicked)="onContainerTemplateClicked($event)"
       (headerClicked)="onClickHeader($event)"
     ></app-container-table>
     } @if (paginationDataService) {

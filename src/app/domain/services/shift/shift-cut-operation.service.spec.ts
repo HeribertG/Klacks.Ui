@@ -24,7 +24,10 @@ describe('ShiftCutOperationService', () => {
     TestBed.configureTestingModule({
       providers: [
         ShiftCutOperationService,
-        { provide: WorkTimeCalculationService, useValue: workTimeCalculatorSpy },
+        {
+          provide: WorkTimeCalculationService,
+          useValue: workTimeCalculatorSpy,
+        },
       ],
     });
 
@@ -226,8 +229,6 @@ describe('ShiftCutOperationService', () => {
       const shift = new Shift();
       shift.fromDate = new Date(2025, 0, 15);
 
-      const result = service['ensureDateSync'](shift);
-
       expect(shift.internalFromDate).toBeDefined();
       expect(shift.internalFromDate?.year).toBe(2025);
       expect(shift.internalFromDate?.month).toBe(1);
@@ -237,8 +238,6 @@ describe('ShiftCutOperationService', () => {
     it('should sync internalFromDate to fromDate', () => {
       const shift = new Shift();
       shift.internalFromDate = { year: 2025, month: 1, day: 15 };
-
-      const result = service['ensureDateSync'](shift);
 
       expect(shift.fromDate).toBeDefined();
       expect(shift.fromDate?.getFullYear()).toBe(2025);

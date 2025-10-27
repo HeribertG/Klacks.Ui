@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/class-literal-property-style */
 import { CommonModule } from '@angular/common';
 import {
   AfterViewInit,
@@ -142,7 +141,8 @@ export class EditShiftSpecialFeatureComponent
 
   get isContainer(): boolean {
     return (
-      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
+      this.dataManagementShiftService.editShift?.shiftType ===
+      ShiftType.IsContainer
     );
   }
 }

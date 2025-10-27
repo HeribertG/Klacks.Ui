@@ -127,12 +127,14 @@ describe('StateComponent', () => {
       component.onClickAdd();
 
       // Assert
-      setTimeout(() => {
-        expect(mockContainer.nativeElement.scrollTop).toBe(
-          mockContainer.nativeElement.scrollHeight
-        );
-        done();
-      }, 150);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          expect(mockContainer.nativeElement.scrollTop).toBe(
+            mockContainer.nativeElement.scrollHeight
+          );
+          done();
+        }, 100);
+      });
     });
   });
 

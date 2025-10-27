@@ -1,29 +1,49 @@
 <table style="width: 100%">
   <thead>
     <tr>
-      <th class="table-header-border col-index cell-center" rowspan="2" (click)="onClickHeader('abbreviation')">
+      <th
+        class="table-header-border col-index cell-center"
+        rowspan="2"
+        (click)="onClickHeader('abbreviation')"
+      >
         {{
           translate.instant("list.all-list.all-shift-list.table.Abbreviation")
         }}
-        {{ sortingService.getArrow('abbreviation') }}
+        {{ sortingService.getArrow("abbreviation") }}
       </th>
-      <th class="table-header-border" colspan="2" (click)="onClickHeader('name')">
+      <th
+        class="table-header-border"
+        colspan="2"
+        (click)="onClickHeader('name')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.name") }}
-        {{ sortingService.getArrow('name') }}
+        {{ sortingService.getArrow("name") }}
       </th>
-      <th class="table-header-border" colspan="5" (click)="onClickHeader('description')">
+      <th
+        class="table-header-border"
+        colspan="5"
+        (click)="onClickHeader('description')"
+      >
         {{
           translate.instant("list.all-list.all-shift-list.table.description")
         }}
-        {{ sortingService.getArrow('description') }}
+        {{ sortingService.getArrow("description") }}
       </th>
-      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_from')">
+      <th
+        class="table-header-border cell-center"
+        colspan="2"
+        (click)="onClickHeader('valid_from')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.from") }}
-        {{ sortingService.getArrow('valid_from') }}
+        {{ sortingService.getArrow("valid_from") }}
       </th>
-      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_until')">
+      <th
+        class="table-header-border cell-center"
+        colspan="2"
+        (click)="onClickHeader('valid_until')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.until") }}
-        {{ sortingService.getArrow('valid_until') }}
+        {{ sortingService.getArrow("valid_until") }}
       </th>
       <th class="col-action table-header-border" rowspan="2"></th>
     </tr>
@@ -97,10 +117,10 @@
 
       <td rowspan="2" class="table-cell-small-border cell-right">
         <div class="icon icon-padding">
-          <app-icon-scissor
+          <app-icon-box
             [id]="'shift-cut-btn-' + data.id"
-            (click)="onClickCut(data, $event)"
-          ></app-icon-scissor>
+            (click)="onClickContainer(data, $event)"
+          ></app-icon-box>
         </div>
         <div class="icon icon">
           <app-icon-pencil-icon-grey

@@ -152,21 +152,6 @@ describe('ContainerTableComponent', () => {
       expect(component.editClicked.emit).toHaveBeenCalledWith(testShift);
     });
 
-    it('should emit cutClicked and stop propagation on cut click', () => {
-      // Arrange
-      const testShift = createTestShift('cut-id', 'Cut Shift');
-      const mockEvent = new MouseEvent('click');
-      spyOn(mockEvent, 'stopPropagation');
-      spyOn(component.cutClicked, 'emit');
-
-      // Act
-      component.onClickCut(testShift, mockEvent);
-
-      // Assert
-      expect(mockEvent.stopPropagation).toHaveBeenCalled();
-      expect(component.cutClicked.emit).toHaveBeenCalledWith(testShift);
-    });
-
     it('should emit headerClicked on header click', () => {
       // Arrange
       const columnKey = 'name';
@@ -183,10 +168,6 @@ describe('ContainerTableComponent', () => {
   describe('Event Emitters', () => {
     it('should have editClicked emitter defined', () => {
       expect(component.editClicked).toBeDefined();
-    });
-
-    it('should have cutClicked emitter defined', () => {
-      expect(component.cutClicked).toBeDefined();
     });
 
     it('should have rowClicked emitter defined', () => {
