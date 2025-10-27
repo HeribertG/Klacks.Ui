@@ -3,9 +3,11 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
+import { InfoIconComponent } from 'src/app/presentation/icons/icon-info.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
+import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 
 @Component({
   selector: 'app-original-table',
@@ -18,11 +20,14 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     TranslateModule,
     PencilIconGreyComponent,
     TrashIconRedComponent,
+    InfoIconComponent,
   ],
 })
 export class OriginalTableComponent {
   public translate = inject(TranslateService);
+  private textFormatterService = inject(TextFormatterService);
   @Input() shifts: IShift[] | undefined;
+  @Input() isSealedOrder = false;
   @Input() sortingService!: TableSortingService;
   @Output() editClicked = new EventEmitter<Shift>();
   @Output() deleteClicked = new EventEmitter<Shift>();
@@ -49,7 +54,17 @@ export class OriginalTableComponent {
     $event.stopPropagation();
     this.deleteClicked.emit(s);
   }
+  onShowInfo(s: Shift, $event: MouseEvent) {
+    $event.stopPropagation();
+  }
   onClickHeader(columnKey: string): void {
     this.headerClicked.emit(columnKey);
+  }
+
+  getPlainTextDescription(shift: IShift): string {
+    if (!shift?.description) {
+      return '';
+    }
+    return this.textFormatterService.stripFormatting(shift.description);
   }
 }

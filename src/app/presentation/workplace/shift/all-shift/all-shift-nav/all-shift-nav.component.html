@@ -55,7 +55,7 @@
         </div>
       </div>
     </li>
-    
+
     <!-- Original/Planbar Options -->
     <li class="list-group-item-action">
       <div class="form-group">
@@ -73,6 +73,20 @@
             {{ "shift.all-shift.nav.original" | translate }}
           </label>
 
+          @if (dataManagementShiftService.currentFilter.filterType === 0) {
+          <label class="checkbox-label info-box">
+            <input
+              type="checkbox"
+              [(ngModel)]="
+                dataManagementShiftService.currentFilter.isSealedOrder
+              "
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+              name="formerDateRange"
+            />
+            {{ "show-sealed-orders" | translate }}
+          </label>
+          }
           <label class="radio-label">
             <input
               id="shift-filter-shift"

@@ -3,6 +3,7 @@ import { Component, EventEmitter, inject, Input, Output, OnChanges, SimpleChange
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
+import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 
 @Component({
   selector: 'app-cut-shift-table',
@@ -13,6 +14,7 @@ import { IShift, Shift } from 'src/app/domain/models/shift-class';
 })
 export class CutTableComponent implements OnChanges {
   public translate = inject(TranslateService);
+  private textFormatterService = inject(TextFormatterService);
   @Input() shifts: IShift[] | undefined;
   @Input() selectedShiftId?: string; // Input für externe Selektion
   @Output() rowClicked = new EventEmitter<Shift>();
@@ -134,5 +136,12 @@ export class CutTableComponent implements OnChanges {
     return (
       this.editingCell?.rowId === rowId && this.editingCell?.field === field
     );
+  }
+
+  getPlainTextDescription(shift: IShift): string {
+    if (!shift?.description) {
+      return '';
+    }
+    return this.textFormatterService.stripFormatting(shift.description);
   }
 }

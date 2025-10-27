@@ -92,6 +92,7 @@ export interface IShiftFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   filterType: ShiftFilterType;
   includeClientName: boolean;
+  isSealedOrder: boolean;
 }
 
 export class ShiftFilter extends BaseFilter implements IShiftFilter {
@@ -107,6 +108,7 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   futureDateRange = false;
   filterType = ShiftFilterType.Original;
   includeClientName = false;
+  isSealedOrder = false;
 
   override orderBy = 'name';
   override sortOrder = 'asc';

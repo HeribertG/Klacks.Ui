@@ -17,6 +17,9 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
@@ -63,6 +66,9 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   private allShiftStateService = inject(AllShiftStateService);
   private localStorageService = inject(LocalStorageService);
   private navigationService = inject(NavigationService);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastShowService);
+  private dataShiftService = inject(DataShiftService);
 
   selectedRowId?: string;
 
@@ -91,6 +97,20 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
       defaultSortOrder: 'asc',
       useThreeWaySort: true
     });
+
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result: ModalType) => {
+        if (
+          result === ModalType.Delete &&
+          this.modalService.componentContext === 'all-shift-list' &&
+          this.modalService.Filing
+        ) {
+          this.deleteShift(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
 
     const wasRestored =
       await this.allShiftStateService.restoreFilterFromStorage();
@@ -128,7 +148,36 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     this.hoveredRowId = data.id;
   }
 
-  onClickDelete(s: Shift) {}
+  onClickDelete(s: Shift) {
+    if (!s?.id) {
+      return;
+    }
+
+    this.modalService.Filing = s.id;
+    this.modalService.componentContext = 'all-shift-list';
+    this.modalService.deleteMessage = this.translate.instant(
+      'shift.all-shift.confirm-delete',
+      { name: s.name }
+    );
+    this.modalService.setDefault(ModalType.Delete);
+    this.modalService.openModel(ModalType.Delete);
+  }
+
+  private async deleteShift(id: string) {
+    try {
+      await this.dataShiftService.deleteShift(id).toPromise();
+      this.toastService.showSuccess(
+        this.translate.instant('shift.all-shift.delete-success'),
+        ''
+      );
+      this.readPage();
+    } catch (error) {
+      this.toastService.showError(
+        this.translate.instant('shift.all-shift.delete-error'),
+        ''
+      );
+    }
+  }
 
   onClickCut(data: Shift) {
     if (data && data.originalId) {

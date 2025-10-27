@@ -3,7 +3,8 @@
     {{ translate.instant("shift.all-shift.list.title") }}
 
     <span class="filler"></span>
-    @if (authorizationService.isAdmin && dataManagementShiftService.currentFilter.filterType === 0){
+    @if (authorizationService.isAdmin &&
+    dataManagementShiftService.currentFilter.filterType === 0){
     <div class="actions">
       <button id="shift-create-btn" class="btn new-btn" (click)="onAddShift()">
         {{ "new-work" | translate }}
@@ -14,35 +15,37 @@
   <div class="container-line"></div>
   <div class="container-table" #shiftTableContainer>
     @if (dataManagementShiftService.currentFilter.filterType === 0) {
-      <app-original-table
-        [shifts]="dataManagementShiftService.shifts"
-        [sortingService]="sortingService"
-        (editClicked)="onClickEdit($event)"
-        (deleteClicked)="onClickDelete($event)"
-        (headerClicked)="onClickHeader($event)"
-      ></app-original-table>
+    <app-original-table
+      [shifts]="dataManagementShiftService.shifts"
+      [isSealedOrder]="dataManagementShiftService.currentFilter.isSealedOrder"
+      [sortingService]="sortingService"
+      (editClicked)="onClickEdit($event)"
+      (deleteClicked)="onClickDelete($event)"
+      (headerClicked)="onClickHeader($event)"
+    ></app-original-table>
     } @else if (dataManagementShiftService.currentFilter.filterType === 1) {
-      <app-cut-table
-        [shifts]="dataManagementShiftService.shifts"
-        [sortingService]="sortingService"
-        (editClicked)="onClickEdit($event)"
-        (cutClicked)="onClickCut($event)"
-        (headerClicked)="onClickHeader($event)"
-      ></app-cut-table>
+    <app-cut-table
+      [shifts]="dataManagementShiftService.shifts"
+      [sortingService]="sortingService"
+      (editClicked)="onClickEdit($event)"
+      (cutClicked)="onClickCut($event)"
+      (headerClicked)="onClickHeader($event)"
+    ></app-cut-table>
     } @else if (dataManagementShiftService.currentFilter.filterType === 2) {
-      <app-container-table
-        [shifts]="dataManagementShiftService.shifts"
-        [sortingService]="sortingService"
-        (editClicked)="onClickEdit($event)"
-        (cutClicked)="onClickCut($event)"
-        (headerClicked)="onClickHeader($event)"
-      ></app-container-table>
-    }
-    @if (paginationDataService) {
+    <app-container-table
+      [shifts]="dataManagementShiftService.shifts"
+      [sortingService]="sortingService"
+      (editClicked)="onClickEdit($event)"
+      (cutClicked)="onClickCut($event)"
+      (headerClicked)="onClickHeader($event)"
+    ></app-container-table>
+    } @if (paginationDataService) {
     <app-pagination
       [dataService]="paginationDataService"
       [(page)]="page"
-      [numberOfItemsPerPage]="dataManagementShiftService.currentFilter.numberOfItemsPerPage"
+      [numberOfItemsPerPage]="
+        dataManagementShiftService.currentFilter.numberOfItemsPerPage
+      "
       (pageChange)="onPageChange($event)"
       (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
       (rowSizeChange)="onChangeRowSize($event)"

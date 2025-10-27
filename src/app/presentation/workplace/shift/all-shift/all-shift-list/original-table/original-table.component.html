@@ -1,23 +1,39 @@
 <table style="width: 100%">
   <thead>
     <tr>
-      <th class="table-header-border" colspan="2" (click)="onClickHeader('name')">
+      <th
+        class="table-header-border"
+        colspan="2"
+        (click)="onClickHeader('name')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.name") }}
-        {{ sortingService.getArrow('name') }}
+        {{ sortingService.getArrow("name") }}
       </th>
-      <th class="table-header-border" colspan="5" (click)="onClickHeader('description')">
+      <th
+        class="table-header-border"
+        colspan="5"
+        (click)="onClickHeader('description')"
+      >
         {{
           translate.instant("list.all-list.all-shift-list.table.description")
         }}
-        {{ sortingService.getArrow('description') }}
+        {{ sortingService.getArrow("description") }}
       </th>
-      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_from')">
+      <th
+        class="table-header-border cell-center"
+        colspan="2"
+        (click)="onClickHeader('valid_from')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.from") }}
-        {{ sortingService.getArrow('valid_from') }}
+        {{ sortingService.getArrow("valid_from") }}
       </th>
-      <th class="table-header-border cell-center" colspan="2" (click)="onClickHeader('valid_until')">
+      <th
+        class="table-header-border cell-center"
+        colspan="2"
+        (click)="onClickHeader('valid_until')"
+      >
         {{ translate.instant("list.all-list.all-shift-list.table.until") }}
-        {{ sortingService.getArrow('valid_until') }}
+        {{ sortingService.getArrow("valid_until") }}
       </th>
       <th class="col-action table-header-border" rowspan="2"></th>
     </tr>
@@ -71,7 +87,7 @@
       </td>
 
       <td colspan="5" class="table-cell-small-border">
-        <p>{{ data.description }}</p>
+        <p>{{ getPlainTextDescription(data) }}</p>
       </td>
 
       <td colspan="2" class="table-cell-small-border">
@@ -87,14 +103,23 @@
       </td>
 
       <td rowspan="2" class="table-cell-small-border cell-right">
+        @if(!isSealedOrder){
         <div class="icon icon-padding">
           <app-icon-pencil-icon-grey
             (click)="onClickEdit(data, $event)"
           ></app-icon-pencil-icon-grey>
         </div>
         <div class="icon">
-          <app-icon-trash-red></app-icon-trash-red>
+          <app-icon-trash-red
+            (click)="onClickDelete(data, $event)"
+          ></app-icon-trash-red>
         </div>
+        } @else {
+        <div class="info-icon">
+          <app-icon-info (click)="onShowInfo(data, $event)"></app-icon-info>
+        </div>
+
+        }
       </td>
     </tr>
 
