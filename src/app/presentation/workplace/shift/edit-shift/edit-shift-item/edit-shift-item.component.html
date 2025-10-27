@@ -8,6 +8,7 @@
 
     <span class="filler"></span>
 
+    @if (!isContainer) {
     <div class="main-switch-wrapper">
       <label class="main-switch" for="checkbox">
         <input
@@ -23,6 +24,7 @@
       </label>
       <em>{{ "shift.edit-shift.main.complex-mode" | translate }}</em>
     </div>
+    }
 
     <div class="expand-button" (click)="onClickVisibleTable()">
       @if (visibleTable === 'inline') {
@@ -202,7 +204,7 @@
         <label class="checkbox-label" for="isContainer">
           <input
             type="checkbox"
-            [(ngModel)]="dataManagementShiftService.editShift.shiftType"
+            [(ngModel)]="isContainerChecked"
             id="isContainer"
             name="isContainer"
           />

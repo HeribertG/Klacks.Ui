@@ -21,7 +21,7 @@ import { EditShiftNavComponent } from '../edit-shift-nav/edit-shift-nav.componen
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { EditShiftGroupComponent } from '../edit-shift-group/edit-shift-group.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 
@@ -59,7 +59,14 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   // Getter to determine if nav should be hidden when shift status is IsCut
   get isNavVisible(): boolean {
     return (
-      this.dataManagementShiftService.editShift?.status !== ShiftStatus.SplitShift
+      this.dataManagementShiftService.editShift?.status !== ShiftStatus.SplitShift &&
+      !this.isContainer
+    );
+  }
+
+  get isContainer(): boolean {
+    return (
+      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
     );
   }
 

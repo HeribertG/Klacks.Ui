@@ -30,7 +30,7 @@ import {
 import { createSmartAbbreviation } from 'src/app/domain/helpers/format-helper';
 import { LockComponent } from 'src/app/presentation/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/presentation/icons/icon-unlock.component';
-import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
 
 @Component({
@@ -301,5 +301,29 @@ export class EditShiftItemComponent
   get isContainerVisible(): boolean {
     const status = this.dataManagementShiftService.editShift?.status;
     return status === ShiftStatus.OriginalOrder;
+  }
+
+  get isContainer(): boolean {
+    return (
+      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
+    );
+  }
+
+  get isContainerChecked(): boolean {
+    return this.isContainer;
+  }
+
+  set isContainerChecked(value: boolean) {
+    if (this.dataManagementShiftService.editShift) {
+      this.dataManagementShiftService.editShift.shiftType = value
+        ? ShiftType.IsContainer
+        : ShiftType.IsTask;
+
+      if (value) {
+        this.dataManagementShiftService.editShift.clientId = undefined;
+        this.dataManagementShiftService.editShift.addressName = undefined;
+        this.dataManagementShiftService.editShift.isTimeRange = false;
+      }
+    }
   }
 }

@@ -727,7 +727,7 @@
   "shift.all-shift.confirm-delete": "Möchten Sie '{{name}}' wirklich löschen?",
   "shift.all-shift.delete-success": "Dienst erfolgreich gelöscht",
   "shift.all-shift.delete-error": "Fehler beim Löschen des Dienstes",
-  "show-sealed-orders": "Versiegelte Bestellungen anzeigen",
+  "show-sealed-orders": "Nur versiegelte Bestellungen anzeigen",
   "shift.cut-shift.buttons.cut-date": "Nach Datum trennen",
   "shift.cut-shift.buttons.cut-staff": "Nach Personal trennen",
   "shift.cut-shift.buttons.cut-task": "Nach Aufgabe trennen",

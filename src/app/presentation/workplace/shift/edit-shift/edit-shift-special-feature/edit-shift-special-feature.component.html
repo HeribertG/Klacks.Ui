@@ -41,6 +41,7 @@
             </label>
           </div>
         </div>
+        @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.briefing' | translate"
           [(value)]="dataManagementShiftService.editShift.internalBriefingTime"
@@ -49,7 +50,9 @@
           [forDuration]="true"
           labelAlign="left"
         ></app-time-input>
+        }
 
+        @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.travel-time-before' | translate"
           [(value)]="dataManagementShiftService.editShift.internalTravelTimeBefore"
@@ -58,8 +61,10 @@
           [forDuration]="true"
           labelAlign="left"
         ></app-time-input>
+        }
 
         <!-- Anzahl Mitarbeiter pro Schicht -->
+        @if (!isContainer) {
         <div class="field-group">
           <label class="field-label">
             {{
@@ -82,6 +87,7 @@
             />
           </div>
         </div>
+        }
       </div>
 
       <!-- Rechte Spalte -->
@@ -122,6 +128,7 @@
             }
           </div>
         </div>
+        @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.debriefing' | translate"
           [(value)]="dataManagementShiftService.editShift.internalDebriefingTime"
@@ -130,7 +137,9 @@
           [forDuration]="true"
           labelAlign="left"
         ></app-time-input>
+        }
 
+        @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.travel-time-after' | translate"
           [(value)]="dataManagementShiftService.editShift.internalTravelTimeAfter"
@@ -139,7 +148,9 @@
           [forDuration]="true"
           labelAlign="left"
         ></app-time-input>
+        }
         <!-- Anzahl Aufgabe pro Schicht -->
+        @if (!isContainer) {
         <div class="field-group">
           <label class="field-label">
             {{
@@ -162,6 +173,7 @@
             />
           </div>
         </div>
+        }
       </div>
     </div>
     }

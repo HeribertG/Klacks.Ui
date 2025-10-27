@@ -16,7 +16,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/shift/data-m
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
 @Component({
@@ -138,5 +138,11 @@ export class EditShiftSpecialFeatureComponent
   get isFieldsDisabled(): boolean {
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
+  }
+
+  get isContainer(): boolean {
+    return (
+      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
+    );
   }
 }

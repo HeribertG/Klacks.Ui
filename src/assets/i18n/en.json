@@ -742,7 +742,7 @@
   "shift.all-shift.confirm-delete": "Do you really want to delete '{{name}}'?",
   "shift.all-shift.delete-success": "Service deleted successfully",
   "shift.all-shift.delete-error": "Error deleting service",
-  "show-sealed-orders": "Show Sealed Orders",
+  "show-sealed-orders": "Show Only Sealed Orders",
   "shift.cut-shift.buttons.cut-date": "Cut Date",
   "shift.cut-shift.buttons.cut-staff": "Cut Staff",
   "shift.cut-shift.buttons.cut-task": "Cut Task",

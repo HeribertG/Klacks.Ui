@@ -21,7 +21,7 @@ import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
-import { ShiftStatus } from 'src/app/domain/models/shift-class';
+import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 
@@ -147,6 +147,14 @@ export class EditShiftWeekdayComponent
           this.validateWeekdays();
         });
         this.effects.push(effect1);
+
+        const effect2 = effect(() => {
+          const shift = this.dataManagementShiftService.editShift;
+          if (shift && this.isContainer && shift.isTimeRange) {
+            shift.isTimeRange = false;
+          }
+        });
+        this.effects.push(effect2);
       });
     } catch (error) {
       console.error('Error when setting up the effect:', error);
@@ -218,5 +226,11 @@ export class EditShiftWeekdayComponent
   get isFieldsDisabled(): boolean {
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
+  }
+
+  get isContainer(): boolean {
+    return (
+      this.dataManagementShiftService.editShift?.shiftType === ShiftType.IsContainer
+    );
   }
 }

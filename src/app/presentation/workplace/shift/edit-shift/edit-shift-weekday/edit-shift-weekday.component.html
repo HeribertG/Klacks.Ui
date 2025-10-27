@@ -62,7 +62,7 @@
     </div>
     } @if (dataManagementShiftService.editShift !== undefined) {
     <div class="firstColumn endColumn">
-      @if (isComplex) {
+      @if (isComplex && !isContainer) {
       <div class="form-group">
         <label class="checkbox-label" for="isTimeRange">
           <input
