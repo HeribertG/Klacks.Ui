@@ -1,0 +1,99 @@
+<div class="shift-template-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-content">
+      <h2>{{ "shift.shift-template.header" | translate }}</h2>
+
+      <div class="time-controls">
+        <app-time-input
+          [label]="'shift.shift-template.from' | translate"
+          [value]="timeFrom"
+          (valueChange)="onTimeFromChange($event)"
+          [showLabel]="true"
+          [forDuration]="false"
+        ></app-time-input>
+
+        <app-time-input
+          [label]="'shift.shift-template.until' | translate"
+          [value]="timeTo"
+          (valueChange)="onTimeToChange($event)"
+          [showLabel]="true"
+          [forDuration]="false"
+        ></app-time-input>
+
+        <app-time-input
+          [label]="'shift.shift-template.duration' | translate"
+          [value]="duration"
+          [showLabel]="true"
+          [forDuration]="true"
+          [disabled]="true"
+        ></app-time-input>
+      </div>
+
+      <div class="weekday-buttons">
+        @for (day of weekdays; track day.value) {
+          <label class="weekday-button" [class.active]="selectedWeekday === day.value">
+            <input
+              type="radio"
+              name="weekday"
+              [value]="day.value"
+              [(ngModel)]="selectedWeekday"
+            />
+            <span>{{ day.labelKey | translate }}</span>
+          </label>
+        }
+      </div>
+
+      <div class="holiday-checkboxes">
+        <label class="holiday-checkbox">
+          <input
+            type="checkbox"
+            [(ngModel)]="isHoliday"
+          />
+          <span>{{ 'shift.shift-template.weekday.holiday' | translate }}</span>
+        </label>
+
+        <label class="holiday-checkbox">
+          <input
+            type="checkbox"
+            [(ngModel)]="isWeekdayOrHoliday"
+          />
+          <span>{{ 'shift.shift-template.weekday.holiday-plus' | translate }}</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area with 3 Split Zones -->
+  <div class="content">
+    <as-split direction="horizontal" [gutterSize]="6" unit="percent">
+      <!-- Zone 1: Left -->
+      <as-split-area [size]="30" [minSize]="15" [maxSize]="50">
+        <div class="zone zone-left">
+          <app-time-ruler [fromTime]="timeFrom" [untilTime]="timeTo"></app-time-ruler>
+        </div>
+      </as-split-area>
+
+      <!-- Right side: Zone 2 and Zone 3 stacked vertically -->
+      <as-split-area [size]="70" [minSize]="30">
+        <as-split direction="vertical" [gutterSize]="6" unit="percent">
+          <!-- Zone 2: Top -->
+          <as-split-area [size]="50" [minSize]="20">
+            <div class="zone zone-center">
+              <h3>Zone 2</h3>
+              <p>Top right panel content</p>
+            </div>
+          </as-split-area>
+
+          <!-- Zone 3: Bottom -->
+          <as-split-area [size]="50" [minSize]="20">
+            <div class="zone zone-right">
+              <h3>Zone 3</h3>
+              <p>Bottom right panel content</p>
+            </div>
+          </as-split-area>
+        </as-split>
+      </as-split-area>
+    </as-split>
+  </div>
+</div>

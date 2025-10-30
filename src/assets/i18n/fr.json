@@ -810,5 +810,19 @@
   "llm-chat.welcome.suggestion-1": "Créer un nouvel employé",
   "llm-chat.welcome.suggestion-2": "Chercher des personnes de Zurich",
   "llm-chat.welcome.suggestion-3": "Montrez-moi l'aide",
-  "llm-chat.welcome.suggestion-4": "Que pouvez-vous faire?"
+  "llm-chat.welcome.suggestion-4": "Que pouvez-vous faire?",
+
+  "shift.shift-template.header": "Modèle de service",
+  "shift.shift-template.from": "De",
+  "shift.shift-template.until": "À",
+  "shift.shift-template.duration": "Durée",
+  "shift.shift-template.weekday.monday": "Lu",
+  "shift.shift-template.weekday.tuesday": "Ma",
+  "shift.shift-template.weekday.wednesday": "Me",
+  "shift.shift-template.weekday.thursday": "Je",
+  "shift.shift-template.weekday.friday": "Ve",
+  "shift.shift-template.weekday.saturday": "Sa",
+  "shift.shift-template.weekday.sunday": "Di",
+  "shift.shift-template.weekday.holiday": "JF",
+  "shift.shift-template.weekday.holiday-plus": "+JF"
 }

@@ -803,5 +803,19 @@
   "llm-chat.welcome.suggestion-1": "Erstelle einen neuen Mitarbeiter",
   "llm-chat.welcome.suggestion-2": "Suche nach Personen aus Zürich",
   "llm-chat.welcome.suggestion-3": "Zeige mir die Hilfe",
-  "llm-chat.welcome.suggestion-4": "Was kannst du alles?"
+  "llm-chat.welcome.suggestion-4": "Was kannst du alles?",
+
+  "shift.shift-template.header": "Schichtvorlage",
+  "shift.shift-template.from": "Von",
+  "shift.shift-template.until": "Bis",
+  "shift.shift-template.duration": "Dauer",
+  "shift.shift-template.weekday.monday": "Mo",
+  "shift.shift-template.weekday.tuesday": "Di",
+  "shift.shift-template.weekday.wednesday": "Mi",
+  "shift.shift-template.weekday.thursday": "Do",
+  "shift.shift-template.weekday.friday": "Fr",
+  "shift.shift-template.weekday.saturday": "Sa",
+  "shift.shift-template.weekday.sunday": "So",
+  "shift.shift-template.weekday.holiday": "Ft",
+  "shift.shift-template.weekday.holiday-plus": "+Ft"
 }

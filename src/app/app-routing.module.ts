@@ -98,6 +98,10 @@ const routes: Routes = [
       {
         path: 'cut-shift/:id',
         loadComponent: () => import('./presentation/workplace/shift/cut-shift/cut-shift-home/cut-shift-home.component').then(m => m.CutShiftHomeComponent)
+      },
+      {
+        path: 'container-template/:id',
+        loadComponent: () => import('./presentation/workplace/shift/shift-template/shift-template.component').then(m => m.ShiftTemplateComponent)
       }
     ]
   }

@@ -810,5 +810,19 @@
   "llm-chat.welcome.suggestion-1": "Crea un nuovo dipendente",
   "llm-chat.welcome.suggestion-2": "Cerca persone da Zurigo",
   "llm-chat.welcome.suggestion-3": "Mostrami l'aiuto",
-  "llm-chat.welcome.suggestion-4": "Cosa puoi fare?"
+  "llm-chat.welcome.suggestion-4": "Cosa puoi fare?",
+
+  "shift.shift-template.header": "Modello di turno",
+  "shift.shift-template.from": "Da",
+  "shift.shift-template.until": "A",
+  "shift.shift-template.duration": "Durata",
+  "shift.shift-template.weekday.monday": "Lun",
+  "shift.shift-template.weekday.tuesday": "Mar",
+  "shift.shift-template.weekday.wednesday": "Mer",
+  "shift.shift-template.weekday.thursday": "Gio",
+  "shift.shift-template.weekday.friday": "Ven",
+  "shift.shift-template.weekday.saturday": "Sab",
+  "shift.shift-template.weekday.sunday": "Dom",
+  "shift.shift-template.weekday.holiday": "Fer",
+  "shift.shift-template.weekday.holiday-plus": "+Fer"
 }
