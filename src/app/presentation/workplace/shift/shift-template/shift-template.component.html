@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="header">
     <div class="header-content">
-      <h2>{{ "shift.shift-template.header" | translate }}</h2>
+      <h2>{{ containerShift?.name || ('shift.shift-template.header' | translate) }}</h2>
 
       <div class="time-controls">
         <app-time-input
@@ -38,6 +38,7 @@
               name="weekday"
               [value]="day.value"
               [(ngModel)]="selectedWeekday"
+              (change)="onWeekdayChange()"
             />
             <span>{{ day.labelKey | translate }}</span>
           </label>
@@ -88,8 +89,62 @@
           <!-- Zone 3: Bottom -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-right">
-              <h3>Zone 3</h3>
-              <p>Bottom right panel content</p>
+              @if (isLoading) {
+                <div class="loading-indicator">
+                  <p>{{ 'common.loading' | translate }}</p>
+                </div>
+              } @else if (templateGrid) {
+                <!-- Tabs -->
+                <div class="tabs-container">
+                  <div class="tabs">
+                    @for (row of getFilteredRowsForSelectedWeekday(); track $index) {
+                      <button
+                        class="tab"
+                        [class.active]="selectedTabIndex === $index"
+                        (click)="selectTab($index)"
+                      >
+                        {{ getTabLabel($index) }}
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                <!-- Shifts Grid -->
+                <div class="shifts-grid-container">
+                  <div class="shifts-grid">
+                    @if (getAvailableShiftsForSelectedTab().length > 0) {
+                      <table class="shifts-table">
+                        <thead>
+                          <tr>
+                            <th>{{ 'shift.shift-template.grid.name' | translate }}</th>
+                            <th>{{ 'shift.shift-template.grid.abbreviation' | translate }}</th>
+                            <th>{{ 'shift.shift-template.grid.time' | translate }}</th>
+                            <th>{{ 'shift.shift-template.grid.client' | translate }}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (shift of getAvailableShiftsForSelectedTab(); track shift.id) {
+                            <tr>
+                              <td>{{ shift.name }}</td>
+                              <td>{{ shift.abbreviation }}</td>
+                              <td>{{ shift.startShift }} - {{ shift.endShift }}</td>
+                              <td>{{ shift.client?.name || '-' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    } @else {
+                      <div class="no-shifts">
+                        <p>{{ 'shift.shift-template.grid.no-shifts' | translate }}</p>
+                      </div>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <div class="no-data">
+                  <p>{{ 'shift.shift-template.no-container-selected' | translate }}</p>
+                </div>
+              }
             </div>
           </as-split-area>
         </as-split>

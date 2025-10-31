@@ -2,10 +2,9 @@ import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TimeRangeService {
-
   toMinutes(time: OwnTime): number {
     return parseInt(time.hours) * 60 + parseInt(time.minutes);
   }
@@ -32,14 +31,18 @@ export class TimeRangeService {
     );
   }
 
-  calculateDisplayRange(from: OwnTime, until: OwnTime, paddingMinutes: number): {
+  calculateDisplayRange(
+    from: OwnTime,
+    until: OwnTime,
+    paddingMinutes: number
+  ): {
     originalFromMinutes: number;
     originalUntilMinutes: number;
     displayFromMinutes: number;
     displayUntilMinutes: number;
     totalMinutes: number;
   } {
-    let originalFromMinutes = this.toMinutes(from);
+    const originalFromMinutes = this.toMinutes(from);
     let originalUntilMinutes = this.toMinutes(until);
 
     if (originalUntilMinutes <= originalFromMinutes) {
@@ -55,7 +58,7 @@ export class TimeRangeService {
       originalUntilMinutes,
       displayFromMinutes,
       displayUntilMinutes,
-      totalMinutes
+      totalMinutes,
     };
   }
 
@@ -72,7 +75,9 @@ export class TimeRangeService {
   formatTime(totalMinutes: number): string {
     const hours = Math.floor(totalMinutes / 60) % 24;
     const minutes = totalMinutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
   }
 
   calculateOptimalIncrement(pixelsPerMinute: number): {
