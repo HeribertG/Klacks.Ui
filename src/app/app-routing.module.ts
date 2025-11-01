@@ -101,7 +101,7 @@ const routes: Routes = [
       },
       {
         path: 'container-template/:id',
-        loadComponent: () => import('./presentation/workplace/shift/shift-template/shift-template.component').then(m => m.ShiftTemplateComponent)
+        loadComponent: () => import('./presentation/workplace/shift/container-template/container-template.component').then(m => m.ContainerTemplateComponent)
       }
     ]
   }

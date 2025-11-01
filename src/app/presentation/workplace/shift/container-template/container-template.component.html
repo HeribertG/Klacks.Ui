@@ -1,12 +1,12 @@
-<div class="shift-template-container">
+<div class="container-template-container">
   <!-- Header -->
   <div class="header">
     <div class="header-content">
-      <h2>{{ containerShift?.name || ('shift.shift-template.header' | translate) }}</h2>
+      <h2>{{ containerShift?.name || ('shift.container-template.header' | translate) }}</h2>
 
       <div class="time-controls">
         <app-time-input
-          [label]="'shift.shift-template.from' | translate"
+          [label]="'shift.container-template.from' | translate"
           [value]="timeFrom"
           (valueChange)="onTimeFromChange($event)"
           [showLabel]="true"
@@ -14,7 +14,7 @@
         ></app-time-input>
 
         <app-time-input
-          [label]="'shift.shift-template.until' | translate"
+          [label]="'shift.container-template.until' | translate"
           [value]="timeTo"
           (valueChange)="onTimeToChange($event)"
           [showLabel]="true"
@@ -22,7 +22,7 @@
         ></app-time-input>
 
         <app-time-input
-          [label]="'shift.shift-template.duration' | translate"
+          [label]="'shift.container-template.duration' | translate"
           [value]="duration"
           [showLabel]="true"
           [forDuration]="true"
@@ -51,7 +51,7 @@
             type="checkbox"
             [(ngModel)]="isHoliday"
           />
-          <span>{{ 'shift.shift-template.weekday.holiday' | translate }}</span>
+          <span>{{ 'shift.container-template.weekday.holiday' | translate }}</span>
         </label>
 
         <label class="holiday-checkbox">
@@ -59,7 +59,7 @@
             type="checkbox"
             [(ngModel)]="isWeekdayOrHoliday"
           />
-          <span>{{ 'shift.shift-template.weekday.holiday-plus' | translate }}</span>
+          <span>{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
         </label>
       </div>
     </div>
@@ -116,10 +116,10 @@
                       <table class="shifts-table">
                         <thead>
                           <tr>
-                            <th>{{ 'shift.shift-template.grid.name' | translate }}</th>
-                            <th>{{ 'shift.shift-template.grid.abbreviation' | translate }}</th>
-                            <th>{{ 'shift.shift-template.grid.time' | translate }}</th>
-                            <th>{{ 'shift.shift-template.grid.client' | translate }}</th>
+                            <th>{{ 'shift.container-template.grid.name' | translate }}</th>
+                            <th>{{ 'shift.container-template.grid.abbreviation' | translate }}</th>
+                            <th>{{ 'shift.container-template.grid.time' | translate }}</th>
+                            <th>{{ 'shift.container-template.grid.client' | translate }}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -135,14 +135,14 @@
                       </table>
                     } @else {
                       <div class="no-shifts">
-                        <p>{{ 'shift.shift-template.grid.no-shifts' | translate }}</p>
+                        <p>{{ 'shift.container-template.grid.no-shifts' | translate }}</p>
                       </div>
                     }
                   </div>
                 </div>
               } @else {
                 <div class="no-data">
-                  <p>{{ 'shift.shift-template.no-container-selected' | translate }}</p>
+                  <p>{{ 'shift.container-template.no-container-selected' | translate }}</p>
                 </div>
               }
             </div>

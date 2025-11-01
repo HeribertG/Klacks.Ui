@@ -19,7 +19,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service'
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 
 @Component({
-  selector: 'app-shift-template',
+  selector: 'app-container-template',
   imports: [
     CommonModule,
     FormsModule,
@@ -28,11 +28,11 @@ import { DataManagementContainerService } from 'src/app/domain/services/containe
     TimeInputComponent,
     TimeRulerComponent,
   ],
-  templateUrl: './shift-template.component.html',
-  styleUrl: './shift-template.component.scss',
+  templateUrl: './container-template.component.html',
+  styleUrl: './container-template.component.scss',
   standalone: true,
 })
-export class ShiftTemplateComponent implements OnInit, OnDestroy {
+export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private _timeFrom = OwnTime.forTime('06', '00');
   private _timeTo = OwnTime.forTime('18', '00');
 
@@ -56,13 +56,13 @@ export class ShiftTemplateComponent implements OnInit, OnDestroy {
   public duration: OwnTime = OwnTime.forDuration('00', '00');
 
   public weekdays = [
-    { value: 'monday', labelKey: 'shift.shift-template.weekday.monday' },
-    { value: 'tuesday', labelKey: 'shift.shift-template.weekday.tuesday' },
-    { value: 'wednesday', labelKey: 'shift.shift-template.weekday.wednesday' },
-    { value: 'thursday', labelKey: 'shift.shift-template.weekday.thursday' },
-    { value: 'friday', labelKey: 'shift.shift-template.weekday.friday' },
-    { value: 'saturday', labelKey: 'shift.shift-template.weekday.saturday' },
-    { value: 'sunday', labelKey: 'shift.shift-template.weekday.sunday' },
+    { value: 'monday', labelKey: 'shift.container-template.weekday.monday' },
+    { value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' },
+    { value: 'wednesday', labelKey: 'shift.container-template.weekday.wednesday' },
+    { value: 'thursday', labelKey: 'shift.container-template.weekday.thursday' },
+    { value: 'friday', labelKey: 'shift.container-template.weekday.friday' },
+    { value: 'saturday', labelKey: 'shift.container-template.weekday.saturday' },
+    { value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' },
   ];
 
   private savebarService = inject(SavebarService);
@@ -148,25 +148,25 @@ export class ShiftTemplateComponent implements OnInit, OnDestroy {
     const activeWeekdays: typeof this.weekdays = [];
 
     if (shift.isSunday) {
-      activeWeekdays.push({ value: 'sunday', labelKey: 'shift.shift-template.weekday.sunday' });
+      activeWeekdays.push({ value: 'sunday', labelKey: 'shift.container-template.weekday.sunday' });
     }
     if (shift.isMonday) {
-      activeWeekdays.push({ value: 'monday', labelKey: 'shift.shift-template.weekday.monday' });
+      activeWeekdays.push({ value: 'monday', labelKey: 'shift.container-template.weekday.monday' });
     }
     if (shift.isTuesday) {
-      activeWeekdays.push({ value: 'tuesday', labelKey: 'shift.shift-template.weekday.tuesday' });
+      activeWeekdays.push({ value: 'tuesday', labelKey: 'shift.container-template.weekday.tuesday' });
     }
     if (shift.isWednesday) {
-      activeWeekdays.push({ value: 'wednesday', labelKey: 'shift.shift-template.weekday.wednesday' });
+      activeWeekdays.push({ value: 'wednesday', labelKey: 'shift.container-template.weekday.wednesday' });
     }
     if (shift.isThursday) {
-      activeWeekdays.push({ value: 'thursday', labelKey: 'shift.shift-template.weekday.thursday' });
+      activeWeekdays.push({ value: 'thursday', labelKey: 'shift.container-template.weekday.thursday' });
     }
     if (shift.isFriday) {
-      activeWeekdays.push({ value: 'friday', labelKey: 'shift.shift-template.weekday.friday' });
+      activeWeekdays.push({ value: 'friday', labelKey: 'shift.container-template.weekday.friday' });
     }
     if (shift.isSaturday) {
-      activeWeekdays.push({ value: 'saturday', labelKey: 'shift.shift-template.weekday.saturday' });
+      activeWeekdays.push({ value: 'saturday', labelKey: 'shift.container-template.weekday.saturday' });
     }
 
     this.weekdays = activeWeekdays;
