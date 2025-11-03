@@ -1,5 +1,6 @@
 @use "../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-grid.scss";
 
 :host {
   display: block;
@@ -80,8 +81,9 @@
 
     .holiday-checkboxes {
       display: flex;
-      gap: 1rem;
-      align-items: center;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: flex-start;
       margin-top: 0.5rem;
     }
 
@@ -141,6 +143,153 @@
 
   .zone-center {
     background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+
+    h3 {
+      padding: 1rem;
+      margin: 0;
+      border-bottom: 1px solid var(--paginationBorderColor);
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .slots-grid-container {
+      flex: 1;
+      overflow: auto;
+      padding: 1rem;
+
+      .slots-grid {
+        .slots-table {
+          width: 100%;
+          border-collapse: collapse;
+
+          thead {
+            th {
+              @extend .table-header;
+              padding: 0.75rem 1rem;
+              text-align: left;
+              white-space: nowrap;
+              text-transform: uppercase;
+
+              &:first-child {
+                width: 30%;
+              }
+            }
+          }
+
+          tbody {
+            tr {
+              border-bottom: 1px solid var(--colorLine);
+
+              td {
+                padding: 0.75rem 1rem;
+                vertical-align: top;
+
+                &.slot-label {
+                  .slot-time {
+                    font-weight: 500;
+                    color: var(--gridColorText);
+                    font-size: 13px;
+                    margin-bottom: 0.25rem;
+                  }
+
+                  .slot-badge {
+                    display: inline-block;
+                    padding: 0.125rem 0.5rem;
+                    background-color: var(--backgroundColoPagination);
+                    border: 1px solid var(--paginationBorderColor);
+                    border-radius: 3px;
+                    font-size: 11px;
+                    color: var(--colorLabel);
+                    margin-top: 0.25rem;
+                  }
+                }
+
+                &.slot-tasks {
+                  .slot-drop-zone {
+                    min-height: 60px;
+                    border: 2px dashed var(--paginationBorderColor);
+                    border-radius: 4px;
+                    padding: 0.5rem;
+                    background-color: #fafafa;
+                    transition: all 0.2s ease;
+
+                    &.cdk-drop-list-dragging {
+                      border-color: var(--paginationBorderColorSelected);
+                      background-color: #e3f2fd;
+                    }
+
+                    .slot-placeholder {
+                      text-align: center;
+                      color: var(--colorLabel);
+                      font-size: 12px;
+                      padding: 1rem;
+                    }
+
+                    .assigned-task-chip {
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      padding: 0.375rem 0.75rem;
+                      background-color: white;
+                      border: 1px solid var(--paginationBorderColor);
+                      border-radius: 16px;
+                      margin: 0.25rem;
+                      cursor: move;
+                      transition: all 0.2s ease;
+
+                      &:hover {
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      }
+
+                      &.cdk-drag-preview {
+                        opacity: 0.8;
+                        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+                      }
+
+                      .chip-name {
+                        font-weight: 500;
+                        font-size: 12px;
+                        color: var(--standartTextColor);
+                      }
+
+                      .chip-time {
+                        font-size: 11px;
+                        color: var(--colorLabel);
+                      }
+
+                      .chip-remove {
+                        background: none;
+                        border: none;
+                        color: var(--colorLabel);
+                        font-size: 18px;
+                        line-height: 1;
+                        cursor: pointer;
+                        padding: 0;
+                        width: 16px;
+                        height: 16px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+                        transition: all 0.2s ease;
+
+                        &:hover {
+                          background-color: #f44336;
+                          color: white;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   .zone-right {
@@ -208,38 +357,34 @@
         .shifts-table {
           width: 100%;
           border-collapse: collapse;
-          background-color: white;
 
           thead {
-            tr {
-              background-color: var(--backgroundColorWorkplace);
-              border-bottom: 2px solid var(--paginationBorderColor);
-
-              th {
-                padding: 0.75rem 1rem;
-                text-align: left;
-                font-weight: 600;
-                color: var(--colorLabel);
-                font-size: 13px;
-                white-space: nowrap;
-              }
+            th {
+              @extend .table-header;
+              padding: 0.75rem 1rem;
+              text-align: left;
+              white-space: nowrap;
+              text-transform: uppercase;
             }
           }
 
           tbody {
             tr {
-              border-bottom: 1px solid var(--paginationBorderColor);
-              transition: background-color 0.2s ease;
+              @extend .table-row;
+              cursor: move;
 
-              &:hover {
-                background-color: var(--backgroundColoPaginationSelected);
-                cursor: pointer;
+              &.cdk-drag-preview {
+                opacity: 0.8;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+              }
+
+              &.cdk-drag-placeholder {
+                opacity: 0.3;
               }
 
               td {
+                @extend .table-cell;
                 padding: 0.75rem 1rem;
-                color: var(--standartTextColor);
-                font-size: 13px;
 
                 &:first-child {
                   font-weight: 500;

@@ -3,9 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, debounceTime } from 'rxjs/operators';
 import { AngularSplitModule } from 'angular-split';
 import { TranslateModule } from '@ngx-translate/core';
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { SearchService } from 'src/app/application/services/search.service';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -25,6 +26,7 @@ import { DataManagementContainerService } from 'src/app/domain/services/containe
     FormsModule,
     AngularSplitModule,
     TranslateModule,
+    DragDropModule,
     TimeInputComponent,
     TimeRulerComponent,
   ],
@@ -73,6 +75,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private dataShiftService = inject(DataShiftService);
   private containerService = inject(DataManagementContainerService);
   private destroy$ = new Subject<void>();
+  private timeChange$ = new Subject<void>();
 
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
@@ -94,10 +97,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     this.containerService.templateGrid$.pipe(takeUntil(this.destroy$)).subscribe(grid => {
       this.templateGrid = grid;
+      console.log('[GRID] Template grid updated:', grid);
     });
 
     this.containerService.loading$.pipe(takeUntil(this.destroy$)).subscribe(loading => {
       this.isLoading = loading;
+    });
+
+    this.timeChange$.pipe(
+      debounceTime(500),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.executeGridRefresh();
     });
   }
 
@@ -118,16 +129,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
         this.containerService.initializeTemplateGrid(shift).subscribe({
           next: (grid) => {
-            console.log('Template grid initialized:', grid);
+            this.isLoading = false;
+            if (this.selectedWeekday) {
+              const weekdayNumber = this.getWeekdayNumber(this.selectedWeekday);
+              this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
+            }
           },
           error: (error) => {
-            console.error('Error initializing template grid:', error);
             this.isLoading = false;
           }
         });
       },
       error: (error) => {
-        console.error('Error loading container shift:', error);
         this.isLoading = false;
       }
     });
@@ -179,11 +192,36 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   onTimeFromChange(time: OwnTime): void {
     this.timeFrom = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+    this.timeChange$.next();
   }
 
   onTimeToChange(time: OwnTime): void {
     this.timeTo = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+    this.timeChange$.next();
+  }
+
+  private executeGridRefresh(): void {
+    if (!this.containerShift) {
+      return;
+    }
+
+    const updatedShift: IShift = {
+      ...this.containerShift,
+      startShift: `${this.timeFrom.hours}:${this.timeFrom.minutes}:00`,
+      endShift: `${this.timeTo.hours}:${this.timeTo.minutes}:00`
+    };
+
+    this.containerService.initializeTemplateGrid(updatedShift).subscribe({
+      next: (grid) => {
+        if (this.selectedWeekday) {
+          const weekdayNumber = this.getWeekdayNumber(this.selectedWeekday);
+          this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
+        }
+      },
+      error: (error) => {
+      }
+    });
   }
 
   private calculateDuration(): void {
@@ -194,10 +232,17 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   onWeekdayChange(): void {
+    console.log('[WEEKDAY] Weekday changed:', this.selectedWeekday);
     this.selectedTabIndex = 0;
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.getWeekdayNumber(this.selectedWeekday);
+      console.log('[WEEKDAY] Loading tasks for weekday:', weekdayNumber);
+      this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
+    }
   }
 
   selectTab(index: number): void {
+    console.log('[TAB] Tab selected:', index);
     this.selectedTabIndex = index;
   }
 
@@ -208,6 +253,30 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     const weekdayNumber = this.getWeekdayNumber(this.selectedWeekday);
     return this.templateGrid.slots.filter(row => row[0].weekday === weekdayNumber);
+  }
+
+  getSlotsForSelectedTab(): IContainerTemplateSlot[] {
+    const filteredRows = this.getFilteredRowsForSelectedWeekday();
+    if (filteredRows.length === 0 || this.selectedTabIndex >= filteredRows.length) {
+      return [];
+    }
+
+    const slots = filteredRows[this.selectedTabIndex];
+    console.log('[SLOTS] Slots for selected tab:', slots.length, slots);
+    return slots;
+  }
+
+  getSlotDropListIds(): string[] {
+    const slots = this.getSlotsForSelectedTab();
+    const ids = slots.map((_, index) => `slot-${index}`);
+    console.log('[DROP-LISTS] Slot drop list IDs:', ids);
+    return ids;
+  }
+
+  getConnectedDropLists(): string[] {
+    const connected = ['available-tasks-list', ...this.getSlotDropListIds()];
+    console.log('[DROP-LISTS] Connected drop lists:', connected);
+    return connected;
   }
 
   getAvailableShiftsForSelectedTab(): IShift[] {
@@ -229,7 +298,17 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       index === self.findIndex(s => s.id === shift.id)
     );
 
+    console.log('[AVAILABLE-TASKS] Available shifts for tab:', uniqueShifts.length, uniqueShifts);
+
     return uniqueShifts;
+  }
+
+  onDragStarted(event: any): void {
+    console.log('[DRAG] Drag started:', event);
+  }
+
+  onDragEnded(event: any): void {
+    console.log('[DRAG] Drag ended:', event);
   }
 
   getTabLabel(rowIndex: number): string {
@@ -253,5 +332,56 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       'saturday': 6
     };
     return weekdayMap[weekdayValue] ?? -1;
+  }
+
+  formatTime(time: string | undefined): string {
+    if (!time) {
+      return '';
+    }
+    return time.substring(0, 5);
+  }
+
+  onTaskDropToSlot(event: CdkDragDrop<IShift[]>, slot: IContainerTemplateSlot): void {
+    console.log('[DROP] onTaskDropToSlot triggered', {
+      previousContainer: event.previousContainer.id,
+      currentContainer: event.container.id,
+      previousIndex: event.previousIndex,
+      currentIndex: event.currentIndex,
+      slotLabel: slot.label,
+      previousData: event.previousContainer.data,
+      currentData: event.container.data
+    });
+
+    if (event.previousContainer === event.container) {
+      console.log('[DROP] Same container - reordering');
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      const task = event.previousContainer.data[event.previousIndex];
+      console.log('[DROP] Different container - transferring task:', task);
+
+      if (!slot.assignedTasks) {
+        slot.assignedTasks = [];
+        console.log('[DROP] Initialized assignedTasks array');
+      }
+
+      const alreadyExists = slot.assignedTasks.some(t => t.id === task.id);
+      console.log('[DROP] Task already exists?', alreadyExists);
+
+      if (!alreadyExists) {
+        slot.assignedTasks.splice(event.currentIndex, 0, task);
+        console.log('[DROP] Task added. Total assigned tasks:', slot.assignedTasks.length);
+      }
+    }
+  }
+
+  removeTaskFromSlot(task: IShift, slot: IContainerTemplateSlot): void {
+    if (!slot.assignedTasks) {
+      return;
+    }
+
+    const index = slot.assignedTasks.findIndex(t => t.id === task.id);
+    if (index !== -1) {
+      slot.assignedTasks.splice(index, 1);
+    }
   }
 }

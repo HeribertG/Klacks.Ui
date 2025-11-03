@@ -46,21 +46,25 @@
       </div>
 
       <div class="holiday-checkboxes">
-        <label class="holiday-checkbox">
-          <input
-            type="checkbox"
-            [(ngModel)]="isHoliday"
-          />
-          <span>{{ 'shift.container-template.weekday.holiday' | translate }}</span>
-        </label>
+        @if (containerShift?.isHoliday) {
+          <label class="holiday-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="isHoliday"
+            />
+            <span>{{ 'shift.container-template.weekday.holiday' | translate }}</span>
+          </label>
+        }
 
-        <label class="holiday-checkbox">
-          <input
-            type="checkbox"
-            [(ngModel)]="isWeekdayOrHoliday"
-          />
-          <span>{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
-        </label>
+        @if (containerShift?.isWeekdayOrHoliday) {
+          <label class="holiday-checkbox">
+            <input
+              type="checkbox"
+              [(ngModel)]="isWeekdayOrHoliday"
+            />
+            <span>{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
+          </label>
+        }
       </div>
     </div>
   </div>
@@ -81,8 +85,60 @@
           <!-- Zone 2: Top -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-center">
-              <h3>Zone 2</h3>
-              <p>Top right panel content</p>
+              <h3>{{ 'shift.container-template.slots.title' | translate }}</h3>
+              <div class="slots-grid-container">
+                <div class="slots-grid">
+                  @if (getSlotsForSelectedTab().length > 0) {
+                    <table class="slots-table">
+                      <thead>
+                        <tr>
+                          <th>{{ 'shift.container-template.slots.label' | translate }}</th>
+                          <th>{{ 'shift.container-template.slots.tasks' | translate }}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (slot of getSlotsForSelectedTab(); track slot.label; let i = $index) {
+                          <tr>
+                            <td class="slot-label">
+                              <div class="slot-time">{{ formatTime(slot.fromTime) }} - {{ formatTime(slot.untilTime) }}</div>
+                              @if (slot.isHoliday) {
+                                <span class="slot-badge">{{ 'shift.container-template.weekday.holiday' | translate }}</span>
+                              }
+                              @if (slot.isWeekdayOrHoliday) {
+                                <span class="slot-badge">{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
+                              }
+                            </td>
+                            <td class="slot-tasks">
+                              <div
+                                class="slot-drop-zone"
+                                cdkDropList
+                                [id]="'slot-' + i"
+                                [cdkDropListData]="slot.assignedTasks || []"
+                                [cdkDropListConnectedTo]="getConnectedDropLists()"
+                                (cdkDropListDropped)="onTaskDropToSlot($event, slot)"
+                              >
+                                @if (!slot.assignedTasks || slot.assignedTasks.length === 0) {
+                                  <div class="slot-placeholder">
+                                    {{ 'shift.container-template.selected-tasks.placeholder' | translate }}
+                                  </div>
+                                } @else {
+                                  @for (task of slot.assignedTasks; track task.id) {
+                                    <div class="assigned-task-chip" cdkDrag>
+                                      <span class="chip-name">{{ task.name }}</span>
+                                      <span class="chip-time">{{ formatTime(task.startShift) }} - {{ formatTime(task.endShift) }}</span>
+                                      <button class="chip-remove" (click)="removeTaskFromSlot(task, slot)">×</button>
+                                    </div>
+                                  }
+                                }
+                              </div>
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  }
+                </div>
+              </div>
             </div>
           </as-split-area>
 
@@ -122,12 +178,17 @@
                             <th>{{ 'shift.container-template.grid.client' | translate }}</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody
+                          cdkDropList
+                          id="available-tasks-list"
+                          [cdkDropListData]="getAvailableShiftsForSelectedTab()"
+                          [cdkDropListConnectedTo]="getSlotDropListIds()"
+                        >
                           @for (shift of getAvailableShiftsForSelectedTab(); track shift.id) {
-                            <tr>
+                            <tr cdkDrag (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
                               <td>{{ shift.name }}</td>
                               <td>{{ shift.abbreviation }}</td>
-                              <td>{{ shift.startShift }} - {{ shift.endShift }}</td>
+                              <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
                               <td>{{ shift.client?.name || '-' }}</td>
                             </tr>
                           }

@@ -13,7 +13,7 @@ export class DataContainerTemplateService {
 
   getAvailableTasks(
     containerId: string,
-    weekdays: number[],
+    weekday: number,
     fromTime: string,
     untilTime: string,
     searchString?: string,
@@ -23,9 +23,7 @@ export class DataContainerTemplateService {
   ) {
     let params = new HttpParams();
     params = params.append('containerId', containerId);
-    weekdays.forEach(day => {
-      params = params.append('weekdays', day.toString());
-    });
+    params = params.append('weekday', weekday.toString());
     params = params.append('fromTime', fromTime);
     params = params.append('untilTime', untilTime);
     if (searchString) {

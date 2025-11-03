@@ -195,8 +195,8 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onContainerTemplateClicked(data: Shift) {
-    if (data && data.originalId) {
-      this.navigationService.navigateToContainerTemplateShift(data.originalId);
+    if (data && data.id) {
+      this.navigationService.navigateToContainerTemplateShift(data.id);
     }
   }
 

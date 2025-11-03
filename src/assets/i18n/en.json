@@ -833,6 +833,6 @@
   "shift.container-template.weekday.friday": "Fri",
   "shift.container-template.weekday.saturday": "Sat",
   "shift.container-template.weekday.sunday": "Sun",
-  "shift.container-template.weekday.holiday": "Hol",
-  "shift.container-template.weekday.holiday-plus": "+Hol"
+  "shift.container-template.weekday.holiday": "Holiday",
+  "shift.container-template.weekday.holiday-plus": "Weekday or Holiday"
 }

@@ -816,12 +816,17 @@
   "shift.container-template.weekday.friday": "Fr",
   "shift.container-template.weekday.saturday": "Sa",
   "shift.container-template.weekday.sunday": "So",
-  "shift.container-template.weekday.holiday": "Ft",
-  "shift.container-template.weekday.holiday-plus": "+Ft",
+  "shift.container-template.weekday.holiday": "Feiertag",
+  "shift.container-template.weekday.holiday-plus": "Wochentag oder Feiertag",
   "shift.container-template.grid.name": "Name",
   "shift.container-template.grid.abbreviation": "Abkürzung",
   "shift.container-template.grid.time": "Zeit",
   "shift.container-template.grid.client": "Kunde",
   "shift.container-template.grid.no-shifts": "Keine Schichten verfügbar",
-  "shift.container-template.no-container-selected": "Kein Container ausgewählt"
+  "shift.container-template.no-container-selected": "Kein Container ausgewählt",
+  "shift.container-template.selected-tasks.title": "Zugewiesene Aufgaben",
+  "shift.container-template.selected-tasks.placeholder": "Ziehen Sie Aufgaben hierher",
+  "shift.container-template.slots.title": "Zeitfenster",
+  "shift.container-template.slots.label": "Zeitfenster",
+  "shift.container-template.slots.tasks": "Aufgaben"
 }

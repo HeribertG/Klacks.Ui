@@ -10,6 +10,7 @@ export interface IContainerTemplateSlot {
   fromTime: string;
   untilTime: string;
   availableTasks?: IShift[];
+  assignedTasks?: IShift[];
 }
 
 export interface IContainerTemplateGrid {

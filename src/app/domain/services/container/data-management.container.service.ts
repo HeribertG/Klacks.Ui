@@ -29,29 +29,40 @@ export class DataManagementContainerService {
     const grid = this.slotCalculationService.calculateTemplateGrid(containerShift);
     this.templateGridSubject.next(grid);
 
-    return this.loadAvailableTasksForAllSlots(grid).pipe(
-      tap(() => this.loadingSubject.next(false)),
-      catchError(error => {
-        console.error('Error initializing template grid:', error);
-        this.loadingSubject.next(false);
-        return of(grid);
-      })
-    );
+    this.loadingSubject.next(false);
+    return of(grid);
   }
 
-  private loadAvailableTasksForAllSlots(grid: IContainerTemplateGrid): Observable<IContainerTemplateGrid> {
-    if (!grid.containerShift.id) {
-      return of(grid);
+  loadTasksForWeekday(weekday: number): Observable<void> {
+    const grid = this.templateGridSubject.value;
+    if (!grid || !grid.containerShift.id) {
+      return of(void 0);
     }
 
-    const loadTasks$ = grid.slots.flat().map(slot =>
+    this.loadingSubject.next(true);
+
+    const slotsForWeekday = grid.slots
+      .flat()
+      .filter(slot => slot.weekday === weekday);
+
+    if (slotsForWeekday.length === 0) {
+      this.loadingSubject.next(false);
+      return of(void 0);
+    }
+
+    const loadTasks$ = slotsForWeekday.map(slot =>
       this.loadAvailableTasksForSlot(grid.containerShift.id!, slot)
     );
 
     return forkJoin(loadTasks$).pipe(
       map(() => {
         this.templateGridSubject.next(grid);
-        return grid;
+        this.loadingSubject.next(false);
+        return void 0;
+      }),
+      catchError(error => {
+        this.loadingSubject.next(false);
+        return of(void 0);
       })
     );
   }
@@ -59,7 +70,7 @@ export class DataManagementContainerService {
   private loadAvailableTasksForSlot(containerId: string, slot: IContainerTemplateSlot): Observable<IShift[]> {
     return this.dataService.getAvailableTasks(
       containerId,
-      [slot.weekday],
+      slot.weekday,
       slot.fromTime,
       slot.untilTime,
       undefined,
@@ -71,7 +82,6 @@ export class DataManagementContainerService {
         slot.availableTasks = tasks;
       }),
       catchError(error => {
-        console.error(`Error loading tasks for slot ${slot.label}:`, error);
         slot.availableTasks = [];
         return of([]);
       })
@@ -91,33 +101,15 @@ export class DataManagementContainerService {
   }
 
   addTemplates(containerId: string, templates: IContainerTemplate[]): Observable<IContainerTemplate[]> {
-    return this.dataService.addTemplates(containerId, templates).pipe(
-      tap(() => {
-        if (this.currentContainerShift) {
-          this.initializeTemplateGrid(this.currentContainerShift).subscribe();
-        }
-      })
-    );
+    return this.dataService.addTemplates(containerId, templates);
   }
 
   updateTemplates(containerId: string, templates: IContainerTemplate[]): Observable<IContainerTemplate[]> {
-    return this.dataService.updateTemplates(containerId, templates).pipe(
-      tap(() => {
-        if (this.currentContainerShift) {
-          this.initializeTemplateGrid(this.currentContainerShift).subscribe();
-        }
-      })
-    );
+    return this.dataService.updateTemplates(containerId, templates);
   }
 
   deleteTemplates(containerId: string): Observable<IContainerTemplate[]> {
-    return this.dataService.deleteTemplates(containerId).pipe(
-      tap(() => {
-        if (this.currentContainerShift) {
-          this.initializeTemplateGrid(this.currentContainerShift).subscribe();
-        }
-      })
-    );
+    return this.dataService.deleteTemplates(containerId);
   }
 
   getCurrentGrid(): IContainerTemplateGrid | null {
