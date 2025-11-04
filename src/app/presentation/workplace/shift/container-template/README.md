@@ -1,12 +1,56 @@
-# Shift Template
+# Shift Template & Container Template
 
-Modul zur Verwaltung und Visualisierung von Schichtvorlagen mit zeitbasierter Darstellung.
+Modul zur Verwaltung und Visualisierung von Schichtvorlagen mit zeitbasierter Darstellung, sowie Container-Template-Verwaltung mit Drag & Drop und visueller Shift-Zuweisung.
 
 ## Übersicht
 
-Das Shift Template Modul ermöglicht die Erstellung und Bearbeitung von Schichtvorlagen für verschiedene Wochentage. Es bietet eine visuelle Zeitachse (Time Ruler) zur präzisen Darstellung von Zeitbereichen.
+Das Modul bietet zwei Hauptfunktionen:
+1. **Shift Template** - Erstellung und Bearbeitung von Schichtvorlagen für Wochentage
+2. **Container Template** - Visuelle Planung und Zuweisung von Shifts zu Container-Vorlagen
+
+Beide nutzen die visuelle Zeitachse (Time Ruler) zur präzisen Darstellung von Zeitbereichen.
 
 ## Komponenten
+
+### ContainerTemplateComponent (NEU)
+
+Hauptkomponente für die Zuweisung von Shifts zu Container-Vorlagen.
+
+**Pfad:** `src/app/presentation/workplace/shift/container-template/`
+
+**Features:**
+- Wochentagsauswahl (Monday bis Sunday) basierend auf Container-Konfiguration
+- Drag & Drop Zuweisung von verfügbaren Shifts
+- Visuelle Darstellung zugewiesener Shifts im Time Ruler
+- Shift-Selektion mit Hervorhebung
+- Dynamische Zeitbereichsanpassung
+
+**State Management:**
+- Verwendet Angular Signals (nicht Observables) via `ContainerTemplateShiftService`
+- `selectedTasksSignal()` - Zugewiesene Shifts
+- `selectedShiftSignal()` - Aktuell selektierter Shift
+
+**Drag & Drop Integration:**
+```typescript
+// Angular CDK Drag & Drop
+<tr cdkDrag (click)="onShiftRowClick(shift)">
+```
+- Available Tasks → Selected Tasks via `transferArrayItem()`
+- Reordering via `moveItemInArray()`
+
+**Table Sorting (NEU):**
+- Client-Side Sortierung der Available Tasks (Zone 3)
+- Sortierbare Spalten: Name, Abkürzung, Zeit, Kunde
+- Two-Way Sorting (asc ↔ desc)
+- Keine Backend-Integration erforderlich
+
+**Search Integration (NEU):**
+- Backend-Filterung über `getAvailableTasks` API
+- Suchfeld sichtbar und aktiv
+- Verwendet `ContainerTemplateSearchStrategy` für Search-Pattern
+- Signal-basierte Kommunikation via `SearchStateService.containerTemplateSearch`
+- Automatische Aktualisierung der Available Tasks bei Sucheingabe
+- EntityName: `SHIFT_CONTAINER_TEMPLATE`
 
 ### ShiftTemplateComponent
 
@@ -49,6 +93,14 @@ Visualisiert Zeitbereiche als Lineal mit adaptiver Skalierung.
 - Rote Begrenzungslinien bei gewählten Zeiten
 - Unterstützung für Mitternachtsüberschreitung (z.B. 23:00 - 07:00)
 - Responsive Resize-Handling
+
+**Container Template Erweiterungen (NEU):**
+- Shift-Boxen-Darstellung mit 3D-Border-Effekt
+- Shift-Selektion mit transparentem Overlay (opacity 0.2)
+- Z-Ordering: Selektierte Shifts werden zuletzt (oberst) gezeichnet
+- Rectangle Single Source of Truth für kongruente Darstellung
+- Dynamische Zeitbereichsberechnung basierend auf Shift-Zeiten
+- Angular Signals Integration für reaktive Updates
 
 **Inputs:**
 - `@Input() fromTime: OwnTime` - Startzeit
@@ -164,6 +216,99 @@ Normalisiert Stunden auf den Bereich 0-23.
 normalizeHours(25) // => 1
 normalizeHours(-2) // => 22
 ```
+
+## Container Template - Technische Details
+
+### Rectangle Single Source of Truth
+
+Um perfekte Kongruenz zwischen den drei Zeichenoperationen (Background, Selection, Border) zu gewährleisten, wird ein einziges `Rectangle`-Objekt verwendet:
+
+```typescript
+// Einzige Source of Truth für Box-Dimensionen
+const rect = new Rectangle(
+  marginLeftRight,
+  startY,
+  boxWidth + 4,
+  boxHeight - 1
+);
+
+// Background Fill - verwendet rect
+DrawHelper.fillRectangle(ctx, backgroundColor, rect);
+
+// Selection Overlay - verwendet dasselbe rect
+if (isSelected) {
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  DrawHelper.fillRectangle(ctx, focusBorderColor, rect);
+  ctx.restore();
+}
+
+// Border - verwendet Basis-Dimensionen (ohne +4/-1)
+DrawHelper.drawBorder(ctx, marginLeftRight, startY, boxWidth, boxHeight, ...);
+```
+
+**Wichtig:**
+- `rect` verwendet `boxWidth + 4` und `boxHeight - 1` für Fill-Operationen
+- `drawBorder` verwendet `boxWidth` und `boxHeight` ohne Offsets
+- Dies kompensiert für den 3D-Border-Effekt (`deep=4`), der nach innen gezeichnet wird
+
+### Z-Ordering für Selektion
+
+Selektierte Shifts werden immer oberst dargestellt durch strategisches Rendering:
+
+```typescript
+// 1. Alle nicht-selektierten Shifts zeichnen
+this.shifts.forEach((shift) => {
+  if (shift === this.selectedShift) return; // Skip!
+  this.drawSingleShiftBox(ctx, shift, ..., false);
+});
+
+// 2. Selektierten Shift zuletzt (oberst) zeichnen
+if (this.selectedShift) {
+  this.drawSingleShiftBox(ctx, this.selectedShift, ..., true);
+}
+```
+
+### Angular Signals Integration
+
+State Management erfolgt ausschließlich über Signals (nicht Observables):
+
+```typescript
+// ContainerTemplateShiftService
+public selectedTasksSignal: WritableSignal<IShift[]> = signal([]);
+public selectedShiftSignal: WritableSignal<IShift | null> = signal(null);
+
+// TimeRulerComponent - Effect für reaktive Updates
+constructor() {
+  effect(() => {
+    this.shifts = this.shiftService.selectedTasksSignal();
+    this.selectedShift = this.shiftService.selectedShiftSignal();
+    if (this.inboxCanvasRef) {
+      this.setupCanvas(); // Auto-Redraw bei Änderungen
+    }
+  }, { injector: this.injector });
+}
+```
+
+**Vorteile:**
+- Einfachere Syntax als Observables
+- Automatische Cleanup (kein `ngOnDestroy` für Subscriptions)
+- Bessere Performance durch feinere Change Detection
+
+### Shift-Selektion Visualisierung
+
+```typescript
+if (isSelected) {
+  ctx.save();
+  ctx.globalAlpha = 0.2; // 20% Transparenz
+  DrawHelper.fillRectangle(ctx, this.gridColorService.focusBorderColor, rect);
+  ctx.restore(); // Alpha zurücksetzen
+}
+```
+
+- Nutzt `focusBorderColor` aus Grid-Color-Service
+- 20% Transparenz für subtile Hervorhebung
+- Wird VOR Border und Text gezeichnet (Reihenfolge: Background → Selection → Border → Text)
 
 ## Besondere Features
 

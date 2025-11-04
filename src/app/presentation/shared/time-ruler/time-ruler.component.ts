@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   ElementRef,
@@ -8,12 +9,22 @@ import {
   SimpleChanges,
   Input,
   inject,
+  effect,
+  Injector,
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { IShift } from 'src/app/domain/models/shift-class';
+import { Rectangle } from 'src/app/domain/helpers/geometry';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
+import { Gradient3DBorderStyleEnum } from '../grid/enums/gradient-3d-border-style';
+import {
+  TextAlignmentEnum,
+  BaselineAlignmentEnum,
+} from '../grid/enums/cell-settings.enum';
 import { TimeRangeService } from './services/time-range.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 
 @Component({
   selector: 'app-time-ruler',
@@ -24,6 +35,9 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
   @Input() untilTime: OwnTime = OwnTime.forTime('24', '00');
+
+  private shifts: IShift[] = [];
+  private selectedShift: IShift | null = null;
 
   private readonly PADDING_MINUTES_DEFAULT = 30;
   private readonly PADDING_MINUTES_SHORT = 15;
@@ -52,6 +66,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private readonly TIME_MARK_TEXT_ALIGN: CanvasTextAlign = 'left';
   private readonly TIME_MARK_TEXT_BASELINE: CanvasTextBaseline = 'middle';
 
+  private readonly SHIFT_TEXT_FONT_SIZE = 12;
+  private readonly SHIFT_TEXT_FONT = '12px Arial';
+
   private readonly BOUNDARY_LINE_WIDTH = 2;
 
   private _lastFromTimeString = '';
@@ -64,7 +81,22 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private timeRangeService = inject(TimeRangeService);
   private gridColorService = inject(GridColorService);
+  private shiftService = inject(ContainerTemplateShiftService);
+  private injector = inject(Injector);
   private resizeObserver?: ResizeObserver;
+
+  constructor() {
+    effect(
+      () => {
+        this.shifts = this.shiftService.selectedTasksSignal();
+        this.selectedShift = this.shiftService.selectedShiftSignal();
+        if (this.inboxCanvasRef) {
+          this.setupCanvas();
+        }
+      },
+      { injector: this.injector }
+    );
+  }
 
   ngAfterViewInit(): void {
     this.setupCanvas();
@@ -130,7 +162,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       height
     );
 
-    inboxCtx.fillStyle = this.gridColorService.controlBackGroundColor;
+    inboxCtx.fillStyle = this.gridColorService.backGroundColor;
     inboxCtx.fillRect(0, 0, boundaryWidth, height);
 
     rulerCtx.fillStyle = this.gridColorService.toolTipBackGroundColor;
@@ -138,6 +170,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     this.drawTimeRuler(rulerCtx, height);
     this.drawBoundaryLines(inboxCtx, boundaryWidth, height);
+    this.drawShiftBoxes(inboxCtx, boundaryWidth, height);
 
     DrawImageHelper.drawCanvasLogical(
       inboxCtx,
@@ -261,6 +294,157 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     ctx.moveTo(0, untilY);
     ctx.lineTo(width, untilY);
     ctx.stroke();
+  }
+
+  private calculateShiftBoxParameters(width: number, height: number) {
+    const paddingMinutes = this.calculatePaddingMinutes();
+    const range = this.timeRangeService.calculateDisplayRange(
+      this.fromTime,
+      this.untilTime,
+      paddingMinutes
+    );
+
+    const marginLeftRight = 8;
+    const boxWidth = width - 2 * marginLeftRight;
+
+    return { range, boxWidth, marginLeftRight };
+  }
+
+  private drawSingleShiftBox(
+    ctx: CanvasRenderingContext2D,
+    shift: IShift,
+    range: any,
+    boxWidth: number,
+    marginLeftRight: number,
+    height: number,
+    isSelected = false
+  ): void {
+    if (!shift.startShift || !shift.endShift) return;
+
+    const startTime = this.parseTimeString(shift.startShift);
+    const endTime = this.parseTimeString(shift.endShift);
+
+    if (!startTime || !endTime) return;
+
+    const startMinutes = startTime.hours * 60 + startTime.minutes;
+    let endMinutes = endTime.hours * 60 + endTime.minutes;
+
+    if (endMinutes < startMinutes) {
+      endMinutes += 24 * 60;
+    }
+
+    const startY =
+      ((startMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+    const endY =
+      ((endMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+
+    const boxHeight = endY - startY;
+
+    const rect = new Rectangle(
+      marginLeftRight,
+      startY,
+      boxWidth + 4,
+      boxHeight - 1
+    );
+
+    DrawHelper.fillRectangle(
+      ctx,
+      this.gridColorService.controlBackGroundColor,
+      rect
+    );
+
+    if (isSelected) {
+      ctx.save();
+
+      ctx.globalAlpha = 0.2;
+      DrawHelper.fillRectangle(
+        ctx,
+        this.gridColorService.focusBorderColor,
+        rect
+      );
+
+      ctx.restore();
+    }
+
+    DrawHelper.drawBorder(
+      ctx,
+      marginLeftRight,
+      startY,
+      boxWidth,
+      boxHeight,
+      this.gridColorService.controlBackGroundColor,
+      4,
+      Gradient3DBorderStyleEnum.Raised
+    );
+
+    const abbreviation = shift.abbreviation || '';
+    const name = shift.name || '';
+    const displayText = abbreviation ? `${abbreviation} - ${name}` : name;
+
+    DrawHelper.drawText(
+      ctx,
+      displayText,
+      rect.left,
+      rect.top,
+      rect.width,
+      rect.height,
+      this.SHIFT_TEXT_FONT,
+      this.SHIFT_TEXT_FONT_SIZE,
+      this.gridColorService.mainFontColor,
+      TextAlignmentEnum.Center,
+      BaselineAlignmentEnum.Center
+    );
+  }
+
+  private drawShiftBoxes(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number
+  ): void {
+    if (!this.shifts || this.shifts.length === 0) return;
+
+    const { range, boxWidth, marginLeftRight } =
+      this.calculateShiftBoxParameters(width, height);
+
+    this.shifts.forEach((shift) => {
+      if (shift === this.selectedShift) {
+        return;
+      }
+      this.drawSingleShiftBox(
+        ctx,
+        shift,
+        range,
+        boxWidth,
+        marginLeftRight,
+        height
+      );
+    });
+
+    if (this.selectedShift) {
+      this.drawSingleShiftBox(
+        ctx,
+        this.selectedShift,
+        range,
+        boxWidth,
+        marginLeftRight,
+        height,
+        true
+      );
+    }
+  }
+
+  private parseTimeString(
+    timeString: string
+  ): { hours: number; minutes: number } | null {
+    const parts = timeString.split(':');
+    if (parts.length < 2) return null;
+
+    const hours = parseInt(parts[0], 10);
+    const minutes = parseInt(parts[1], 10);
+
+    if (isNaN(hours) || isNaN(minutes)) return null;
+
+    return { hours, minutes };
   }
 
   private setupResizeObserver(): void {

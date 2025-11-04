@@ -8,6 +8,7 @@ import { GroupSearchStrategy } from './strategies/group-search.strategy';
 import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';
 import { ScheduleSearchStrategy } from './strategies/schedule-search.strategy';
 import { ShiftSearchStrategy } from './strategies/shift-search.strategy';
+import { ContainerTemplateSearchStrategy } from './strategies/container-template-search.strategy';
 
 @Injectable({
   providedIn: 'root',
@@ -23,13 +24,15 @@ export class SearchStrategyService {
     const absenceStrategy = inject(AbsenceSearchStrategy);
     const scheduleStrategy = inject(ScheduleSearchStrategy);
     const shiftStrategy = inject(ShiftSearchStrategy);
+    const containerTemplateStrategy = inject(ContainerTemplateSearchStrategy);
 
     this.initializeStrategies([
       clientStrategy,
-      groupStrategy, 
+      groupStrategy,
       absenceStrategy,
       scheduleStrategy,
-      shiftStrategy
+      shiftStrategy,
+      containerTemplateStrategy
     ]);
   }
 

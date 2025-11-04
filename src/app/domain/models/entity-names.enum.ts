@@ -9,6 +9,7 @@ export enum EntityName {
   SHIFT = 'DataManagementShiftService',
   SHIFT_EDIT = 'DataManagementShiftService_Edit',
   SHIFT_CUT = 'DataManagementShiftService_Cut',
+  SHIFT_CONTAINER_TEMPLATE = 'DataManagementContainerService',
   SCHEDULE = 'DataManagementScheduleService',
   ABSENCE = 'DataManagementAbsenceService',
 }

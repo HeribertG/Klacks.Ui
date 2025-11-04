@@ -52,6 +52,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
 
   public activeManager = signal<ILoadable | null>(null);
   private activeRoute = signal<RouteName | string>('');
+  private manualEntityName = signal<EntityName | string>('');
 
   private static readonly ROUTE_ENTITY_MAP: Record<RouteName, EntityName> = {
     [RouteName.CLIENT]: EntityName.CLIENT,
@@ -113,6 +114,10 @@ export class WorkplaceStateService implements IEntityStateProvider {
   }
 
   public nameOfVisibleEntity = computed(() => {
+    const manual = this.manualEntityName();
+    if (manual) {
+      return manual;
+    }
     const route = this.activeRoute();
     const result = isValidRouteName(route)
       ? WorkplaceStateService.ROUTE_ENTITY_MAP[route]
@@ -146,6 +151,11 @@ export class WorkplaceStateService implements IEntityStateProvider {
     const manager = this.manageableServiceFactory.getService(routeId);
     this.activeManager.set(manager);
     this.activeRoute.set(routeId);
+    this.manualEntityName.set('');
+  }
+
+  public setNameOfVisibleEntity(entityName: EntityName): void {
+    this.manualEntityName.set(entityName);
   }
 
   public showProgressSpinner(value: boolean): void {

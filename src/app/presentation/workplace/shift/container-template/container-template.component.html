@@ -85,58 +85,44 @@
           <!-- Zone 2: Top -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-center">
-              <h3>{{ 'shift.container-template.slots.title' | translate }}</h3>
-              <div class="slots-grid-container">
-                <div class="slots-grid">
-                  @if (getSlotsForSelectedTab().length > 0) {
-                    <table class="slots-table">
-                      <thead>
-                        <tr>
-                          <th>{{ 'shift.container-template.slots.label' | translate }}</th>
-                          <th>{{ 'shift.container-template.slots.tasks' | translate }}</th>
+              <h3>{{ 'shift.container-template.selected-tasks.title' | translate }}</h3>
+              <div class="shifts-grid-container">
+                <div class="shifts-grid">
+                  <table class="shifts-table">
+                    <thead>
+                      <tr>
+                        <th>{{ 'shift.container-template.grid.name' | translate }}</th>
+                        <th>{{ 'shift.container-template.grid.abbreviation' | translate }}</th>
+                        <th>{{ 'shift.container-template.grid.time' | translate }}</th>
+                        <th>{{ 'shift.container-template.grid.client' | translate }}</th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      cdkDropList
+                      id="selected-tasks-list"
+                      [cdkDropListData]="selectedTasks"
+                      [cdkDropListConnectedTo]="getConnectedDropLists()"
+                      (cdkDropListDropped)="onTaskDrop($event)"
+                    >
+                      @if (selectedTasks.length === 0) {
+                        <tr class="empty-drop-zone">
+                          <td colspan="4">
+                            <div class="no-shifts">
+                              <p>{{ 'shift.container-template.selected-tasks.placeholder' | translate }}</p>
+                            </div>
+                          </td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        @for (slot of getSlotsForSelectedTab(); track slot.label; let i = $index) {
-                          <tr>
-                            <td class="slot-label">
-                              <div class="slot-time">{{ formatTime(slot.fromTime) }} - {{ formatTime(slot.untilTime) }}</div>
-                              @if (slot.isHoliday) {
-                                <span class="slot-badge">{{ 'shift.container-template.weekday.holiday' | translate }}</span>
-                              }
-                              @if (slot.isWeekdayOrHoliday) {
-                                <span class="slot-badge">{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
-                              }
-                            </td>
-                            <td class="slot-tasks">
-                              <div
-                                class="slot-drop-zone"
-                                cdkDropList
-                                [id]="'slot-' + i"
-                                [cdkDropListData]="slot.assignedTasks || []"
-                                [cdkDropListConnectedTo]="getConnectedDropLists()"
-                                (cdkDropListDropped)="onTaskDropToSlot($event, slot)"
-                              >
-                                @if (!slot.assignedTasks || slot.assignedTasks.length === 0) {
-                                  <div class="slot-placeholder">
-                                    {{ 'shift.container-template.selected-tasks.placeholder' | translate }}
-                                  </div>
-                                } @else {
-                                  @for (task of slot.assignedTasks; track task.id) {
-                                    <div class="assigned-task-chip" cdkDrag>
-                                      <span class="chip-name">{{ task.name }}</span>
-                                      <span class="chip-time">{{ formatTime(task.startShift) }} - {{ formatTime(task.endShift) }}</span>
-                                      <button class="chip-remove" (click)="removeTaskFromSlot(task, slot)">×</button>
-                                    </div>
-                                  }
-                                }
-                              </div>
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                    </table>
-                  }
+                      }
+                      @for (shift of selectedTasks; track shift.id) {
+                        <tr cdkDrag (click)="onShiftRowClick(shift)" (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
+                          <td>{{ shift.name }}</td>
+                          <td>{{ shift.abbreviation }}</td>
+                          <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
+                          <td>{{ shift.client?.name || '-' }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -168,23 +154,36 @@
                 <!-- Shifts Grid -->
                 <div class="shifts-grid-container">
                   <div class="shifts-grid">
-                    @if (getAvailableShiftsForSelectedTab().length > 0) {
+                    @if (availableTasks.length > 0) {
                       <table class="shifts-table">
                         <thead>
                           <tr>
-                            <th>{{ 'shift.container-template.grid.name' | translate }}</th>
-                            <th>{{ 'shift.container-template.grid.abbreviation' | translate }}</th>
-                            <th>{{ 'shift.container-template.grid.time' | translate }}</th>
-                            <th>{{ 'shift.container-template.grid.client' | translate }}</th>
+                            <th (click)="onHeaderClick('name')" style="cursor: pointer;">
+                              {{ 'shift.container-template.grid.name' | translate }}
+                              {{ sortingService.getArrow('name') }}
+                            </th>
+                            <th (click)="onHeaderClick('abbreviation')" style="cursor: pointer;">
+                              {{ 'shift.container-template.grid.abbreviation' | translate }}
+                              {{ sortingService.getArrow('abbreviation') }}
+                            </th>
+                            <th (click)="onHeaderClick('startShift')" style="cursor: pointer;">
+                              {{ 'shift.container-template.grid.time' | translate }}
+                              {{ sortingService.getArrow('startShift') }}
+                            </th>
+                            <th (click)="onHeaderClick('client')" style="cursor: pointer;">
+                              {{ 'shift.container-template.grid.client' | translate }}
+                              {{ sortingService.getArrow('client') }}
+                            </th>
                           </tr>
                         </thead>
                         <tbody
                           cdkDropList
                           id="available-tasks-list"
-                          [cdkDropListData]="getAvailableShiftsForSelectedTab()"
-                          [cdkDropListConnectedTo]="getSlotDropListIds()"
+                          [cdkDropListData]="availableTasks"
+                          [cdkDropListConnectedTo]="getConnectedDropLists()"
+                          (cdkDropListDropped)="onTaskDrop($event)"
                         >
-                          @for (shift of getAvailableShiftsForSelectedTab(); track shift.id) {
+                          @for (shift of availableTasks; track shift.id) {
                             <tr cdkDrag (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
                               <td>{{ shift.name }}</td>
                               <td>{{ shift.abbreviation }}</td>

@@ -49,8 +49,9 @@ export class SearchService {
     EntityName.CLIENT,
     EntityName.CLIENT_EDIT,
     EntityName.ABSENCE,
-    EntityName.SCHEDULE, 
+    EntityName.SCHEDULE,
     EntityName.SHIFT,
+    EntityName.SHIFT_CONTAINER_TEMPLATE,
     EntityName.GROUP
   ];
   
