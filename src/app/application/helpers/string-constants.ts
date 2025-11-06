@@ -71,6 +71,7 @@ export class MessageLibrary {
   public static ERROR_LOADFILE_HTTP500 = DomainMessages.ERROR_LOADFILE_HTTP500;
 
   public static SELECTED_ROW_ORDER = DomainMessages.SELECTED_ROW_ORDER;
+  public static SELECTED_ROW_ORDER_SHIFT = DomainMessages.SELECTED_ROW_ORDER_SHIFT;
 
   public static CLIENTLIST_ERROR_500 = DomainMessages.CLIENTLIST_ERROR_500;
 

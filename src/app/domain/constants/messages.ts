@@ -80,6 +80,7 @@ export class DomainMessages {
     'Datei konnte auf dem Server nicht gefunden werden';
 
   public static SELECTED_ROW_ORDER = 'SELECTED_ROW_ORDER';
+  public static SELECTED_ROW_ORDER_SHIFT = 'SELECTED_ROW_ORDER_SHIFT';
 
   public static CLIENTLIST_ERROR_500 =
     'Internal Server Error. Beim Lesen der Mitgliederliste ist ein Fehler aufgetaucht. Bitte versuchen sie es erneut ';

@@ -739,6 +739,8 @@
   "shift.all-shift.list.used": "Editable Services",
   "shift.all-shift.nav.original": "Orders",
   "shift.all-shift.nav.planbar": "Plannable Services",
+  "shift.all-shift.nav.time-range": "Time Range",
+  "shift.all-shift.nav.sporadic": "Sporadic",
   "shift.all-shift.confirm-delete": "Do you really want to delete '{{name}}'?",
   "shift.all-shift.delete-success": "Service deleted successfully",
   "shift.all-shift.delete-error": "Error deleting service",

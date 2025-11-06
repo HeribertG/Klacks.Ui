@@ -40,7 +40,7 @@
       (headerClicked)="onClickHeader($event)"
     ></app-container-table>
     } @if (paginationDataService) {
-    <app-pagination
+    <app-shift-pagination
       [dataService]="paginationDataService"
       [(page)]="page"
       [numberOfItemsPerPage]="
@@ -50,7 +50,7 @@
       (numberOfItemsPerPageChange)="onItemsPerPageChange($event)"
       (rowSizeChange)="onChangeRowSize($event)"
     >
-    </app-pagination>
+    </app-shift-pagination>
     }
   </div>
 </form>

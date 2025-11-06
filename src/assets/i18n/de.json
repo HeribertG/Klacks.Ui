@@ -724,6 +724,8 @@
   "shift.all-shift.list.used": "Editierbare Dienste",
   "shift.all-shift.nav.original": "Bestellungen",
   "shift.all-shift.nav.planbar": "Planbare Dienste",
+  "shift.all-shift.nav.time-range": "Zeitbereich",
+  "shift.all-shift.nav.sporadic": "Sporadisch",
   "shift.all-shift.confirm-delete": "Möchten Sie '{{name}}' wirklich löschen?",
   "shift.all-shift.delete-success": "Dienst erfolgreich gelöscht",
   "shift.all-shift.delete-error": "Fehler beim Löschen des Dienstes",

@@ -100,6 +100,33 @@
             {{ "shift.all-shift.nav.planbar" | translate }}
           </label>
 
+          @if (dataManagementShiftService.currentFilter.filterType === 1) {
+          <label class="checkbox-label info-box">
+            <input
+              type="checkbox"
+              [(ngModel)]="
+                dataManagementShiftService.currentFilter.isTimeRange
+              "
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+              name="isTimeRange"
+            />
+            {{ "shift.all-shift.nav.time-range" | translate }}
+          </label>
+          <label class="checkbox-label info-box">
+            <input
+              type="checkbox"
+              [(ngModel)]="
+                dataManagementShiftService.currentFilter.isSporadic
+              "
+              [disabled]="!authorizationService.isAdmin"
+              (change)="onSelect()"
+              name="isSporadic"
+            />
+            {{ "shift.all-shift.nav.sporadic" | translate }}
+          </label>
+          }
+
           <label class="radio-label">
             <input
               id="shift-filter-container"

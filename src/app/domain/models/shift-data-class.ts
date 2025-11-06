@@ -93,6 +93,8 @@ export interface IShiftFilter extends IBaseFilter {
   filterType: ShiftFilterType;
   includeClientName: boolean;
   isSealedOrder: boolean;
+  isTimeRange: boolean;
+  isSporadic: boolean;
 }
 
 export class ShiftFilter extends BaseFilter implements IShiftFilter {
@@ -109,6 +111,8 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   filterType = ShiftFilterType.Original;
   includeClientName = false;
   isSealedOrder = false;
+  isTimeRange = true;
+  isSporadic = true;
 
   override orderBy = 'name';
   override sortOrder = 'asc';

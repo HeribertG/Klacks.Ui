@@ -739,6 +739,8 @@
   "shift.all-shift.list.used": "Services modifiables",
   "shift.all-shift.nav.original": "Commandes",
   "shift.all-shift.nav.planbar": "Services planifiables",
+  "shift.all-shift.nav.time-range": "Plage horaire",
+  "shift.all-shift.nav.sporadic": "Sporadique",
   "shift.all-shift.confirm-delete": "Voulez-vous vraiment supprimer '{{name}}'?",
   "shift.all-shift.delete-success": "Service supprimé avec succès",
   "shift.all-shift.delete-error": "Erreur lors de la suppression du service",
