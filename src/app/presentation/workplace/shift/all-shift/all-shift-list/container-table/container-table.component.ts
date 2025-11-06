@@ -7,6 +7,7 @@ import { IconBoxComponent } from 'src/app/presentation/icons/icon-box.component'
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 
 @Component({
   selector: 'app-container-table',
@@ -34,6 +35,8 @@ export class ContainerTableComponent {
   highlightRowId?: string;
   selectedRowId?: string;
   hoveredRowId?: string;
+
+  formatTime = formatTime;
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;

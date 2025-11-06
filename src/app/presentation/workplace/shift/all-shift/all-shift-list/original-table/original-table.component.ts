@@ -8,6 +8,7 @@ import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 
 @Component({
   selector: 'app-original-table',
@@ -36,6 +37,8 @@ export class OriginalTableComponent {
   highlightRowId?: string;
   selectedRowId?: string;
   hoveredRowId?: string;
+
+  formatTime = formatTime;
 
   onMouseEnter(data: Shift): void {
     this.hoveredRowId = data.id;

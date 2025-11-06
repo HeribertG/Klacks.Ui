@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 
 @Component({
   selector: 'app-cut-shift-table',
@@ -31,6 +32,8 @@ export class CutTableComponent implements OnChanges {
   // Inline editing properties
   editingCell: { rowId: string; field: string } | null = null;
   editingValue = '';
+
+  formatTime = formatTime;
 
   ngOnChanges(changes: SimpleChanges): void {
     // Reagiere auf Änderungen der selectedShiftId von außen
