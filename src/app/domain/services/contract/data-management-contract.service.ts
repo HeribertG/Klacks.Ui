@@ -13,15 +13,17 @@ import { DomainMessages } from 'src/app/domain/constants/messages';
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+} from 'src/app/shared/helpers/object.helper';
 import {
   transformDateToNgbDateStruct,
-  transformNumberToOwnTime,
   transformNgbDateStructToDate,
   isNgbDateStructOk,
+} from '../../../shared/helpers/ngb-date.helper';
+import {
+  transformNumberToOwnTime,
   transformOwnTimeToNumber,
   isOwnTimeStructOk,
-} from '../../helpers/format-helper';
+} from '../../helpers/own-time.helper';
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule-class';
 

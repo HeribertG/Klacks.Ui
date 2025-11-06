@@ -4,7 +4,7 @@ import {
   IClientContract,
   ClientContract,
 } from 'src/app/domain/models/client-class';
-import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Injectable({
   providedIn: 'root',

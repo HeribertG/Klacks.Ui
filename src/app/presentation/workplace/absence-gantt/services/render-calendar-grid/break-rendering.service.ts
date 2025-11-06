@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';

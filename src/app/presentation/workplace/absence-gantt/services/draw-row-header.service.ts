@@ -4,7 +4,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';

@@ -3,7 +3,7 @@ import { Subject, forkJoin, debounceTime } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
-import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 

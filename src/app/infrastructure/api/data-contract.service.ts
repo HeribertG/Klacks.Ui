@@ -6,10 +6,12 @@ import { retry } from 'rxjs';
 import {
   transformNgbDateStructToDate,
   isNgbDateStructOk,
+} from 'src/app/shared/helpers/ngb-date.helper';
+import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import {
   isOwnTimeStructOk,
   transformOwnTimeToNumber,
-  dateWithLocalTimeCorrection,
-} from 'src/app/domain/helpers/format-helper';
+} from 'src/app/domain/helpers/own-time.helper';
 
 @Injectable({
   providedIn: 'root',

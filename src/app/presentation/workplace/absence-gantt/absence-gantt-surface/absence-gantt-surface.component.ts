@@ -18,13 +18,8 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
-import {
-  EqualDate,
-  addDays,
-  daysBetweenDates,
-  equalDate,
-  transformDateToNgbDateStruct,
-} from 'src/app/domain/helpers/format-helper';
+import { EqualDate, addDays, daysBetweenDates, equalDate } from 'src/app/shared/helpers/date.helper';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
@@ -37,7 +32,7 @@ import { DataManagementBreakService } from 'src/app/domain/services/absence/data
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { TranslateService } from '@ngx-translate/core';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';

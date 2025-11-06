@@ -10,7 +10,7 @@ import {
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 

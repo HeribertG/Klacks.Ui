@@ -9,10 +9,10 @@ import {
   ITruncatedGroup,
 } from 'src/app/domain/models/group-class';
 import {
-  dateWithLocalTimeCorrection,
   isNgbDateStructOk,
   transformNgbDateStructToDate,
-} from 'src/app/domain/helpers/format-helper';
+} from 'src/app/shared/helpers/ngb-date.helper';
+import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { Observable } from 'rxjs';
 
 @Injectable({

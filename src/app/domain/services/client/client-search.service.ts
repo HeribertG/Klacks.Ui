@@ -2,7 +2,7 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { IClient } from 'src/app/domain/models/client-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 

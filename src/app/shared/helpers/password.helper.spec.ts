@@ -2,9 +2,9 @@ import {
   PasswordCheckStrength,
   checkPasswordStrength,
   generatePassword,
-} from './password';
+} from './password.helper';
 
-describe('Password Utilities', () => {
+describe('Password Helper Functions', () => {
   describe('generatePassword', () => {
     it('should generate a password of correct length', () => {
       const length = 10;
@@ -14,10 +14,10 @@ describe('Password Utilities', () => {
 
     it('should contain at least one lowercase, uppercase, digit, and special character', () => {
       const password = generatePassword(8);
-      expect(password).toMatch(/[a-z]/); // lowercase
-      expect(password).toMatch(/[A-Z]/); // uppercase
-      expect(password).toMatch(/[0-9]/); // digit
-      expect(password).toMatch(/[@#?!]/); // special character
+      expect(password).toMatch(/[a-z]/);
+      expect(password).toMatch(/[A-Z]/);
+      expect(password).toMatch(/[0-9]/);
+      expect(password).toMatch(/[@#?!]/);
     });
   });
 

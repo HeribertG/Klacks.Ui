@@ -8,7 +8,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { getFileExtension } from 'src/app/domain/helpers/format-helper';
+import { getFileExtension } from 'src/app/shared/helpers/string.helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { Subject } from 'rxjs';

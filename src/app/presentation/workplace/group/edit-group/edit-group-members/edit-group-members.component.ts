@@ -19,7 +19,7 @@ import { IGroupItem } from 'src/app/domain/models/group-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';

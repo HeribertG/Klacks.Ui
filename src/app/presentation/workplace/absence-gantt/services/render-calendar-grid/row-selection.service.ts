@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
@@ -7,7 +7,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { IBreak, Break } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
 

@@ -12,12 +12,12 @@ import {
   IAddress,
 } from 'src/app/domain/models/client-class';
 
+import { unformatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import {
-  unformatPhoneNumber,
   transformNgbDateStructToDate,
   isNgbDateStructOk,
-  dateWithLocalTimeCorrection,
-} from 'src/app/domain/helpers/format-helper';
+} from 'src/app/shared/helpers/ngb-date.helper';
+import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
 @Injectable({

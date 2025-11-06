@@ -8,10 +8,7 @@ import {
   ICalendarRule,
   TruncatedCalendarRule,
 } from 'src/app/domain/models/calendar-rule-class';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';

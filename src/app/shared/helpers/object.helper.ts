@@ -1,26 +1,38 @@
+/**
+ * Object Helper
+ *
+ * Pure functions for object manipulation and comparison.
+ */
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/// <summary>
-/// Erzeugt ein tiefes Klon eines Objekts, indem es in JSON konvertiert und anschließend wieder geparst wird.
-/// Achtung: Funktioniert nur mit JSON-kompatiblen Objekten; Funktionen, Date-Objekte, undefined oder spezielle Klassen gehen verloren.
-/// </summary>
-/// <param name="o">Das zu klonende Objekt.</param>
-/// <returns>Ein tief geklontes Objekt.</returns>
+
+/**
+ * Creates a deep clone of an object using JSON serialization.
+ * Note: Only works with JSON-compatible objects; functions, Date objects, undefined or special classes will be lost.
+ *
+ * @param o - Object to clone
+ * @returns Deep cloned object
+ */
 export function cloneObject<T>(o: T): T {
   return JSON.parse(JSON.stringify(o));
 }
 
+/**
+ * Compares a specific property between two objects.
+ *
+ * @param o1 - First object
+ * @param o2 - Second object
+ * @param property - Property name to compare
+ * @returns true if property values match, false otherwise
+ */
 export function compareProperty(o1: any, o2: any, property: string): boolean {
-  // Helper function to log mismatches and return false
   function logMismatch(reason: string) {
-    // console.info(`Property "${property}" does not match: ${reason}`);
     return false;
   }
 
-  // Check if the property exists in o1
   if (o1.hasOwnProperty(property)) {
-    // Check for falsy/truthy mismatches
     if (!o1[property] && o2[property]) {
       return logMismatch(
         `o1[${property}] is falsy, but o2[${property}] is truthy`
@@ -31,46 +43,44 @@ export function compareProperty(o1: any, o2: any, property: string): boolean {
         `o1[${property}] is truthy, but o2[${property}] is falsy`
       );
     }
-    // Check for value inequality
     if (o1[property] !== o2[property]) {
       return logMismatch(
         `o1[${property}] (${o1[property]}) is not equal to o2[${property}] (${o2[property]})`
       );
     }
   } else if (o2.hasOwnProperty(property)) {
-    // Property exists in o2 but not in o1
     return logMismatch(`Property exists in o2, but not in o1`);
   }
 
-  // Additional check for inequality when property exists in o2
-  // This might catch edge cases not covered by the above checks
   if (o2.hasOwnProperty(property) && o1[property] !== o2[property]) {
     return logMismatch(
       `o1[${property}] (${o1[property]}) is not equal to o2[${property}] (${o2[property]})`
     );
   }
 
-  // If we've made it this far, the properties match
   return true;
 }
 
+/**
+ * Compares two objects for deep equality.
+ *
+ * @param o1 - First object
+ * @param o2 - Second object
+ * @returns true if objects are equal, false otherwise
+ */
 export function compareObjects(o1: any, o2: any): boolean {
-  // Helper function to log mismatches
   function logMismatch(prop: string, val1: any, val2: any) {
     console.info(`Objects differ at property "${prop}": ${val1} !== ${val2}`);
   }
 
-  // Get all keys from both objects
   const allKeys = new Set([...Object.keys(o1), ...Object.keys(o2)]);
 
   for (const key of allKeys) {
-    // Check if the property exists in both objects
     if (!(key in o1) || !(key in o2)) {
       logMismatch(key, o1[key], o2[key]);
       return false;
     }
 
-    // If both values are objects, recursively compare them
     if (
       typeof o1[key] === 'object' &&
       o1[key] !== null &&
@@ -80,18 +90,23 @@ export function compareObjects(o1: any, o2: any): boolean {
       if (!compareObjects(o1[key], o2[key])) {
         return false;
       }
-    }
-    // For non-object types, do a simple comparison
-    else if (o1[key] !== o2[key]) {
+    } else if (o1[key] !== o2[key]) {
       logMismatch(key, o1[key], o2[key]);
       return false;
     }
   }
 
-  // If we've made it this far, the objects are equal
   return true;
 }
 
+/**
+ * Compares two complex objects with support for excluding specific properties.
+ *
+ * @param o1 - First object
+ * @param o2 - Second object
+ * @param listOfExcludedObject - Optional list of property names to exclude from comparison
+ * @returns true if objects are equal (excluding specified properties), false otherwise
+ */
 export function compareComplexObjects(
   o1: any,
   o2: any,
@@ -129,16 +144,13 @@ export function compareComplexObjects(
       return false;
     }
 
-    // Normalize null to undefined
     obj1 = obj1 === null ? undefined : obj1;
     obj2 = obj2 === null ? undefined : obj2;
 
-    // Check if either object is undefined
     if (!obj1 || !obj2) {
       return obj1 === obj2 || logMismatch('One object is undefined');
     }
 
-    // Check if the property should be excluded
     if (isObjectExcluded1(p, listExcludedObject)) {
       return true;
     }
@@ -146,19 +158,16 @@ export function compareComplexObjects(
     const value1 = obj1[p];
     const value2 = obj2[p];
 
-    // Handle case where one value is undefined
     if (value1 === undefined || value2 === undefined) {
       return value1 === value2 || logMismatch('One value is undefined');
     }
 
-    // Handle null values
     if (value1 === null || value2 === null) {
       return (
         value1 === value2 || logMismatch("Values don't match (null check)")
       );
     }
 
-    // Compare arrays
     if (Array.isArray(value1)) {
       return (
         (Array.isArray(value2) &&
@@ -167,7 +176,6 @@ export function compareComplexObjects(
       );
     }
 
-    // Compare objects
     if (typeof value1 === 'object') {
       return (
         (typeof value2 === 'object' &&
@@ -176,32 +184,16 @@ export function compareComplexObjects(
       );
     }
 
-    // Compare primitive values
     return (
       compareProperty(obj1, obj2, p) ||
       logMismatch(`Values don't match: ${value1} !== ${value2}`)
     );
   }
 
-  /**
-   * Checks if the given value is an array.
-   *
-   * @param value - The value to check.
-   * @returns True if the value is an array, false otherwise.
-   */
   function isArray(value: any): boolean {
-    // Use the built-in Array.isArray method
     return Array.isArray(value);
   }
 
-  /**
-   * Compares two arrays for equality, with support for nested objects and arrays.
-   *
-   * @param arr1 - The first array to compare.
-   * @param arr2 - The second array to compare.
-   * @param listExcludedObject - Optional list of object types to exclude from comparison.
-   * @returns True if the arrays are equal, false otherwise.
-   */
   function compareArray(
     arr1: any[],
     arr2: any[],
@@ -211,17 +203,14 @@ export function compareComplexObjects(
       return false;
     }
 
-    // Check if both inputs are actually arrays
     if (!Array.isArray(arr1) || !Array.isArray(arr2)) {
       return logMismatch('One or both inputs are not arrays');
     }
 
-    // Check for length equality
     if (arr1.length !== arr2.length) {
       return logMismatch(`Length mismatch: ${arr1.length} !== ${arr2.length}`);
     }
 
-    // Compare array elements
     for (let i = 0; i < arr1.length; i++) {
       const elem1 = arr1[i];
       const elem2 = arr2[i];
@@ -264,9 +253,9 @@ export function compareComplexObjects(
     }
     return false;
   }
+
   function isObjectExcluded1(
     objectName: string,
-
     listOfExcludedObject?: string[]
   ): boolean {
     if (listOfExcludedObject !== undefined) {
@@ -283,27 +272,23 @@ export function compareComplexObjects(
 /**
  * Checks if a value can be interpreted as a number.
  *
- * @param val - The value to check.
- * @returns True if the value can be interpreted as a number, false otherwise.
+ * @param val - Value to check
+ * @returns true if value is number-like, false otherwise
  */
 export function isNumberLike(val: any): boolean {
-  // Check if the value is already a number
   if (typeof val === 'number') {
     return !isNaN(val) && isFinite(val);
   }
 
-  // If it's not a string, it can't be converted to a number
   if (typeof val !== 'string') {
     return false;
   }
 
-  // Trim the string and check if it's empty
   const trimmed = val.trim();
   if (trimmed.length === 0) {
     return false;
   }
 
-  // Try to convert to a number and check the result
   const num = Number(trimmed);
   return !isNaN(num) && isFinite(num);
 }
@@ -311,66 +296,23 @@ export function isNumberLike(val: any): boolean {
 /**
  * Validates if the pressed key is a single letter (A-Z or a-z).
  *
- * @param event - The KeyboardEvent to validate.
- * @returns True if the key is a single letter, false otherwise.
+ * @param event - KeyboardEvent to validate
+ * @returns true if key is a letter, false otherwise
  */
 export function lettersOnly(event: KeyboardEvent): boolean {
-  // Check if the key is 'Process' (for IME composition)
   if (event.key === 'Process') {
     return true;
   }
 
-  // Test if the key is a single letter
   return /^[A-Za-z]$/.test(event.key);
 }
 
-function isLocalStorageAvailable(): boolean {
-  try {
-    const test = '__test__';
-    localStorage.setItem(test, test);
-    localStorage.removeItem(test);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-export function saveFilter(value: any, token: string): boolean {
-  if (!isLocalStorageAvailable()) {
-    console.warn('localStorage is not available. Filter could not be saved.');
-    return false;
-  }
-
-  try {
-    const serializedValue = JSON.stringify(value);
-    localStorage.setItem(token, serializedValue);
-    return true;
-  } catch (error) {
-    console.error('Error when saving the filter:', error);
-    return false;
-  }
-}
-
-export function restoreFilter(token: string): any | null {
-  if (!isLocalStorageAvailable()) {
-    console.warn(
-      'localStorage is not available. Filter could not be restored.'
-    );
-    return null;
-  }
-
-  try {
-    const serializedValue = localStorage.getItem(token);
-    if (serializedValue === null) {
-      return null;
-    }
-    return JSON.parse(serializedValue);
-  } catch (error) {
-    console.error('Error when restoring the filter:', error);
-    return null;
-  }
-}
-
+/**
+ * Copies all matching property values from o2 to o1.
+ *
+ * @param o1 - Target object
+ * @param o2 - Source object
+ */
 export function copyObjectValues(o1: any, o2: any) {
   for (const p in o1) {
     if (o1.hasOwnProperty(p)) {
@@ -381,17 +323,15 @@ export function copyObjectValues(o1: any, o2: any) {
   }
 }
 
-export function createStringId(): string {
-  return (
-    Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
-  ).toUpperCase();
-}
-
 /**
  * Creates a sorting function for multiple fields with support for ascending and descending order.
  *
- * @param fields - An array of field names to sort by. Prefix a field with '-' for descending order.
- * @returns A comparison function to be used with Array.sort().
+ * @param fields - Array of field names to sort by. Prefix a field with '-' for descending order.
+ * @returns Comparison function to be used with Array.sort()
+ *
+ * @example
+ * const sortFn = sortMultiFields(['name', '-age']);
+ * array.sort(sortFn);
  */
 export function sortMultiFields(fields: string[]): (a: any, b: any) => number {
   return (a: any, b: any): number => {
@@ -399,7 +339,6 @@ export function sortMultiFields(fields: string[]): (a: any, b: any) => number {
       let isDescending = false;
       let fieldName = field;
 
-      // Check if the field should be sorted in descending order
       if (field.startsWith('-')) {
         isDescending = true;
         fieldName = field.slice(1);
@@ -408,14 +347,12 @@ export function sortMultiFields(fields: string[]): (a: any, b: any) => number {
       const valueA = a[fieldName];
       const valueB = b[fieldName];
 
-      // Handle cases where the property doesn't exist
       if (valueA === undefined && valueB === undefined) continue;
       if (valueA === undefined) return 1;
       if (valueB === undefined) return -1;
 
       let comparison = 0;
 
-      // Compare values based on their type
       if (typeof valueA === 'string' && typeof valueB === 'string') {
         comparison = valueA.localeCompare(valueB);
       } else {
@@ -428,7 +365,6 @@ export function sortMultiFields(fields: string[]): (a: any, b: any) => number {
         }
       }
 
-      // Adjust comparison for descending order
       if (isDescending) comparison = -comparison;
 
       if (comparison !== 0) return comparison;

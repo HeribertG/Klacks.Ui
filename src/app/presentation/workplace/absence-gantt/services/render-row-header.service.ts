@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';

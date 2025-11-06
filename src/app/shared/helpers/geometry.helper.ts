@@ -1,3 +1,9 @@
+/**
+ * Geometry Helper
+ *
+ * Classes for geometric calculations (Rectangle, Size).
+ */
+
 export class Rectangle {
   left = 0;
   right = 0;

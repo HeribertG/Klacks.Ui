@@ -19,7 +19,7 @@ import { IAbsence } from 'src/app/domain/models/absence-class';
 import { IBreak } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
-import { daysBetweenDates } from 'src/app/domain/helpers/format-helper';
+import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { PdfExportService } from '../../services/pdf-export.service';

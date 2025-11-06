@@ -29,12 +29,12 @@ import {
   IClient,
 } from 'src/app/domain/models/client-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
+import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import {
-  formatPhoneNumber,
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
-} from 'src/app/domain/helpers/format-helper';
-import { createStringId } from 'src/app/domain/helpers/object-helpers';
+} from 'src/app/shared/helpers/ngb-date.helper';
+import { createStringId } from 'src/app/shared/helpers/guid.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {

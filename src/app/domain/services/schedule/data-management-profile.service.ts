@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { ChangePassword } from 'src/app/domain/models/authentification-class';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { DomainMessages } from 'src/app/domain/constants/messages';
 import { StorageKeys } from 'src/app/infrastructure/constants/storage-keys';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

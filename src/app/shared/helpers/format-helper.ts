@@ -3,8 +3,7 @@
 import { format } from 'date-fns';
 import { de, enUS } from 'date-fns/locale';
 import { NgbDate, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { MessageLibrary } from '../constants/message-library';
-import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { MessageLibrary } from '../../domain/constants/message-library';
 
 export function EqualDate(
   firstDate: Date | string,
@@ -431,74 +430,6 @@ export function isNgbDateStructOk(event: NgbDateStruct | undefined): boolean {
   return false;
 }
 
-export function isOwnTimeStructOk(event: OwnTime | undefined): boolean {
-  if (event) {
-    if (
-      typeof event === 'object' &&
-      event !== null &&
-      'hours' in event &&
-      'minutes' in event
-    ) {
-      return true;
-    }
-  }
-  return false;
-}
-
-export function transformStringToOwnTimeStruct(
-  value: string,
-  isDuration = false
-): OwnTime {
-  if (value) {
-    let hours = 0;
-    let minutes = 0;
-    const split = value.split(':');
-    if (split.length < 2) return new OwnTime('00', '00', isDuration);
-
-    if (isNumeric(split[0])) {
-      hours = parseInt(split[0], 10);
-      if (!isDuration && hours > 23) {
-        hours = 0;
-      }
-    }
-    if (isNumeric(split[1])) {
-      minutes = parseInt(split[1], 10);
-      if (minutes > 59) {
-        minutes = 0;
-      }
-    }
-
-    return new OwnTime(hours.toString(), minutes.toString(), isDuration);
-  }
-  return new OwnTime('00', '00', isDuration);
-}
-
-export function transformOwnTimeToString(value: OwnTime): string {
-  if (value) {
-    return +value.hours + ':' + value.minutes + ':00';
-  }
-  return '00:00:00';
-}
-
-export function transformOwnTimeToNumber(value: OwnTime): number {
-  if (value) {
-    return +value.hours + +value.minutes / 60;
-  }
-  return 0;
-}
-
-export function transformNumberToOwnTime(
-  value: number,
-  isDuration = false
-): OwnTime {
-  if (value) {
-    const hours = Math.floor(value);
-    const minutes = Math.round((value - hours) * 60);
-    return new OwnTime(hours.toString(), minutes.toString(), isDuration);
-  }
-  return new OwnTime('00', '00', isDuration);
-}
-
 function isYearOk(value: number): boolean {
   if (value.toString().length < 2 || value.toString().length > 4) {
     return false;
@@ -588,7 +519,6 @@ export function invertColor(hex: string) {
   if (hex.indexOf('#') === 0) {
     hex = hex.slice(1);
   }
-  // convert 3-digit hex to 6-digits.
   if (hex.length === 3) {
     hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
   }
@@ -599,7 +529,6 @@ export function invertColor(hex: string) {
     g = parseInt(hex.slice(2, 4), 16),
     b = parseInt(hex.slice(4, 6), 16);
 
-  // https://stackoverflow.com/a/3943023/112731
   return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
 }
 

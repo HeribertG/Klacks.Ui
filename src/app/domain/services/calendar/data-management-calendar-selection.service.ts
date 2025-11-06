@@ -11,10 +11,7 @@ import { DataCalendarSelectionService } from 'src/app/infrastructure/api/data-ca
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 

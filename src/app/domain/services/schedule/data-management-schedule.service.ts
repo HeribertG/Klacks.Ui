@@ -10,7 +10,7 @@ import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.se
 import {
   cloneObject,
   compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+} from 'src/app/shared/helpers/object.helper';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';

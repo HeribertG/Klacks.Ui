@@ -7,10 +7,7 @@ import {
 } from 'src/app/domain/models/break-class';
 import { IClientBreak } from 'src/app/domain/models/client-class';
 import { DataBreakService } from 'src/app/infrastructure/api/data-break.service';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../models/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';

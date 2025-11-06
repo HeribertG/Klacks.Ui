@@ -38,7 +38,7 @@ import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.componen
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
 import { IconCopyGreyComponent } from 'src/app/presentation/icons/icon-copy-grey.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import {
   ModalService,
   ModalType,

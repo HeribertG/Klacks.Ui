@@ -7,7 +7,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 
 describe('CalendarMonthRenderingService', () => {
   let service: CalendarMonthRenderingService;

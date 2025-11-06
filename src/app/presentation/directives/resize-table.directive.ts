@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { measureTableHeight } from 'src/app/presentation/helpers/tableResize';
-import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Directive({

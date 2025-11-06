@@ -8,14 +8,8 @@ import {
   Membership,
   Annotation,
 } from 'src/app/domain/models/client-class';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
-import {
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-} from 'src/app/domain/helpers/format-helper';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';

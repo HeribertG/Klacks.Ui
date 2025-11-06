@@ -9,7 +9,7 @@ import {
   AppContactSettings,
   EmailServerSettings
 } from 'src/app/domain/models/app-settings.model';
-import { cloneObject, compareComplexObjects } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
 @Injectable({
   providedIn: 'root',

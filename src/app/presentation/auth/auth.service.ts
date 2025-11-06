@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
-import { EqualDate } from 'src/app/domain/helpers/format-helper';
+import { EqualDate } from 'src/app/shared/helpers/date.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';

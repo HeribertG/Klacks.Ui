@@ -29,7 +29,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
+import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({

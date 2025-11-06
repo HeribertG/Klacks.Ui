@@ -28,16 +28,10 @@ import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { CutTableComponent } from '../cut-table/cut-table.component';
 import { IShift, Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
-import {
-  transformStringToOwnTimeStruct,
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-  newGuid,
-} from 'src/app/domain/helpers/format-helper';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 import { ShiftCutOperationService } from 'src/app/domain/services/shift/shift-cut-operation.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';

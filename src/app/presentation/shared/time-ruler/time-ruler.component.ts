@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
 import { Gradient3DBorderStyleEnum } from '../grid/enums/gradient-3d-border-style';

@@ -1,4 +1,4 @@
-import { Rectangle } from '../helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import {
   BaseFilter,
   BaseTruncated,

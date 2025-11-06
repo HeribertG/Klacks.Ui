@@ -7,10 +7,7 @@ import {
   IAbsence,
   TruncatedAbsence,
 } from 'src/app/domain/models/absence-class';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';

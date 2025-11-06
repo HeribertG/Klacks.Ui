@@ -1,6 +1,6 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
-import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
 import { IBreak } from 'src/app/domain/models/break-class';

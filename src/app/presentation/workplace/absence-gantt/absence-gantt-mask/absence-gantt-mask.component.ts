@@ -18,16 +18,9 @@ import { IAbsence } from 'src/app/domain/models/absence-class';
 import { Break, IBreak } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
-import {
-  addDays,
-  isNgbDateStructOk,
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-} from 'src/app/domain/helpers/format-helper';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { addDays } from 'src/app/shared/helpers/date.helper';
+import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';

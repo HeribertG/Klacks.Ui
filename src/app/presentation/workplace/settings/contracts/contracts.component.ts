@@ -21,7 +21,7 @@ import { DataManagementContractService } from 'src/app/domain/services/contract/
 import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 
 @Component({
   selector: 'app-contracts',

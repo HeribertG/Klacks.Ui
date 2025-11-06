@@ -1,3 +1,15 @@
+/**
+ * Password Helper
+ *
+ * Pure functions for password generation and validation.
+ */
+
+/**
+ * Generates a secure random password.
+ *
+ * @param length - Length of password (minimum 8, default 8)
+ * @returns Generated password string
+ */
 export function generatePassword(length = 8): string {
   if (length < 8) {
     length = 8;
@@ -34,6 +46,9 @@ export function generatePassword(length = 8): string {
   return password;
 }
 
+/**
+ * Password strength levels.
+ */
 export const enum PasswordCheckStrength {
   Short,
   Common,
@@ -42,6 +57,12 @@ export const enum PasswordCheckStrength {
   Strong,
 }
 
+/**
+ * Checks password strength.
+ *
+ * @param password - Password to check
+ * @returns PasswordCheckStrength enum value
+ */
 export function checkPasswordStrength(password: string): PasswordCheckStrength {
   function isPasswordCommon(pwd: string): boolean {
     const commonPasswordPatterns =
@@ -60,10 +81,10 @@ export function checkPasswordStrength(password: string): PasswordCheckStrength {
   }
 
   let numberOfElements = 0;
-  numberOfElements += /[a-z]/.test(password) ? 1 : 0; // Lowercase letters
-  numberOfElements += /[A-Z]/.test(password) ? 1 : 0; // Uppercase letters
-  numberOfElements += /[0-9]/.test(password) ? 1 : 0; // Numbers
-  numberOfElements += /[^a-zA-Z0-9]/.test(password) ? 1 : 0; // Special characters (inc. space)
+  numberOfElements += /[a-z]/.test(password) ? 1 : 0;
+  numberOfElements += /[A-Z]/.test(password) ? 1 : 0;
+  numberOfElements += /[0-9]/.test(password) ? 1 : 0;
+  numberOfElements += /[^a-zA-Z0-9]/.test(password) ? 1 : 0;
 
   if (numberOfElements === 0 || numberOfElements === 1) {
     return PasswordCheckStrength.Weak;

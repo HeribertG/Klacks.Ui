@@ -17,7 +17,7 @@ import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absen
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { invertColor } from 'src/app/domain/helpers/format-helper';
+import { invertColor } from 'src/app/shared/helpers/number.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';

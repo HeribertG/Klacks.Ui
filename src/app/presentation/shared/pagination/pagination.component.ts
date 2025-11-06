@@ -14,7 +14,7 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
 @Component({

@@ -3,13 +3,10 @@ import { Injectable, inject } from '@angular/core';
 import { Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
-import {
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-  transformStringToOwnTimeStruct,
-  newGuid,
-} from 'src/app/domain/helpers/format-helper';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 
 export interface CutByDateParams {
   selectedShift: Shift;

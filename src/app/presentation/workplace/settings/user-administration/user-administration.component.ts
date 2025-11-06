@@ -20,7 +20,7 @@ import {
 } from 'src/app/domain/models/authentification-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { UserAdministrationManagementService } from 'src/app/domain/services/settings/user-administration-management.service';
-import { generatePassword } from 'src/app/domain/helpers/password';
+import { generatePassword } from 'src/app/shared/helpers/password.helper';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
   ModalService,

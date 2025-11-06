@@ -22,7 +22,7 @@ import { Absence, IAbsence } from 'src/app/domain/models/absence-class';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementAbsenceService } from 'src/app/domain/services/absence/data-management-absence.service';
-import { cloneObject } from 'src/app/domain/helpers/object-helpers';
+import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {

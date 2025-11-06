@@ -4,8 +4,8 @@ import {
   IClient,
   Communication,
 } from 'src/app/domain/models/client-class';
-import { createStringId } from 'src/app/domain/helpers/object-helpers';
-import { formatPhoneNumber } from 'src/app/domain/helpers/format-helper';
+import { createStringId } from 'src/app/shared/helpers/guid.helper';
+import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import { ClientConfigService } from './client-config.service';
 
 @Injectable({

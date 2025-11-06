@@ -27,7 +27,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
   checkPasswordStrength,
   PasswordCheckStrength,
-} from 'src/app/domain/helpers/password';
+} from 'src/app/shared/helpers/password.helper';
 
 @Component({
   selector: 'app-profile-data-edit',

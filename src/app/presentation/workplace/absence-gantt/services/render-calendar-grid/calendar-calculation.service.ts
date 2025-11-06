@@ -1,10 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { daysBetweenDates, isLeapYear } from 'src/app/domain/helpers/format-helper';
+import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 
 @Injectable()

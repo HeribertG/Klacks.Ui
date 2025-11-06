@@ -1,13 +1,7 @@
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  transformDateToNgbDateStruct,
-  transformNumberToOwnTime,
-  transformStringToOwnTimeStruct,
-} from 'src/app/domain/helpers/format-helper';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNumberToOwnTime, transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';

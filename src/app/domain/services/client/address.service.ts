@@ -9,7 +9,7 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/data-country
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DomainMessages } from 'src/app/domain/constants/messages';
-import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { isNumeric } from 'src/app/shared/helpers/number.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
 @Injectable({

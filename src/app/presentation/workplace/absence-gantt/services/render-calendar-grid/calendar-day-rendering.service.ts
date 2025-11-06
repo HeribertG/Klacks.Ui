@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CalendarHeaderDayRank } from 'src/app/domain/models/absence-class';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { EqualDate } from 'src/app/domain/helpers/format-helper';
+import { EqualDate } from 'src/app/shared/helpers/date.helper';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { CalendarCalculationService } from './calendar-calculation.service';
 

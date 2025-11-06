@@ -2,7 +2,7 @@ import {
   TextAlignmentEnum,
   BaselineAlignmentEnum,
 } from '../shared/grid/enums/cell-settings.enum';
-import { Rectangle, Size } from 'src/app/domain/helpers/geometry';
+import { Rectangle, Size } from 'src/app/shared/helpers/geometry.helper';
 import { Color } from '../shared/grid/classes/color';
 import { Gradient3DBorderStyleEnum } from '../shared/grid/enums/gradient-3d-border-style';
 

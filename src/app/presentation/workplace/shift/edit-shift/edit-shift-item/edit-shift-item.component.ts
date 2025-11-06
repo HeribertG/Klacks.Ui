@@ -26,7 +26,7 @@ import {
   NgbDatepickerModule,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { createSmartAbbreviation } from 'src/app/domain/helpers/format-helper';
+import { createSmartAbbreviation } from 'src/app/shared/helpers/string.helper';
 import { LockComponent } from 'src/app/presentation/icons/icon-lock.component';
 import { UnlockComponent } from 'src/app/presentation/icons/icon-unlock.component';
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';

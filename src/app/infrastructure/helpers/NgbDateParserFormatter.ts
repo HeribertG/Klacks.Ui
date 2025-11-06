@@ -3,7 +3,7 @@ import {
   NgbDateStruct,
   NgbDateParserFormatter,
 } from '@ng-bootstrap/ng-bootstrap';
-import { isNumeric } from '../../domain/helpers/format-helper';
+import { isNumeric } from '../../shared/helpers/number.helper';
 
 @Injectable()
 export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {

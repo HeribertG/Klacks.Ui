@@ -33,6 +33,10 @@ import {
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import {
+  formatTime,
+  timeToString,
+} from 'src/app/shared/helpers/time-format.helper';
 
 @Component({
   selector: 'app-container-template',
@@ -113,6 +117,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public selectedTabIndex = 0;
   public availableTasks: IShift[] = [];
   private currentSearchString = '';
+
+  formatTime = formatTime;
 
   get selectedTasks(): IShift[] {
     return this.shiftService.selectedTasksSignal();
@@ -253,8 +259,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     const updatedShift: IShift = {
       ...this.containerShift,
-      startShift: `${this.timeFrom.hours}:${this.timeFrom.minutes}:00`,
-      endShift: `${this.timeTo.hours}:${this.timeTo.minutes}:00`,
+      startShift: timeToString(
+        parseInt(this.timeFrom.hours),
+        parseInt(this.timeFrom.minutes)
+      ),
+      endShift: timeToString(
+        parseInt(this.timeTo.hours),
+        parseInt(this.timeTo.minutes)
+      ),
     };
 
     this.containerService.initializeTemplateGrid(updatedShift).subscribe({
@@ -436,13 +448,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       default:
         return 'normal';
     }
-  }
-
-  formatTime(time: string | undefined): string {
-    if (!time) {
-      return '';
-    }
-    return time.substring(0, 5);
   }
 
   onShiftRowClick(shift: IShift): void {

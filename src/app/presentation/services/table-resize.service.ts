@@ -3,7 +3,7 @@ import { Observable, fromEvent, merge } from 'rxjs';
 import { map, debounceTime, startWith } from 'rxjs/operators';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { isNumeric } from 'src/app/domain/helpers/format-helper';
+import { isNumeric } from 'src/app/shared/helpers/number.helper';
 
 @Injectable()
 export class TableResizeService {

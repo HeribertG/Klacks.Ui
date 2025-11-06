@@ -26,7 +26,7 @@ import { IClientContract } from 'src/app/domain/models/client-class';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { transformNgbDateStructToDate } from 'src/app/domain/helpers/format-helper';
+import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';

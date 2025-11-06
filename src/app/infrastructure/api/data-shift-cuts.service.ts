@@ -3,13 +3,9 @@ import { inject, Injectable } from '@angular/core';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-import {
-  dateWithLocalTimeCorrection,
-  isNgbDateStructOk,
-  isOwnTimeStructOk,
-  transformNgbDateStructToDate,
-  transformOwnTimeToString,
-} from 'src/app/domain/helpers/format-helper';
+import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
+import { isNgbDateStructOk, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { isOwnTimeStructOk, transformOwnTimeToString } from 'src/app/domain/helpers/own-time.helper';
 import { IShift } from 'src/app/domain/models/shift-class';
 import { CutOperation } from 'src/app/domain/models/cut-operation';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';

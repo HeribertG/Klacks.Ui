@@ -3,7 +3,7 @@ import { OwnTime } from 'src/app/domain/models/schedule-class';
 import {
   isOwnTimeStructOk,
   transformOwnTimeToNumber,
-} from 'src/app/domain/helpers/format-helper';
+} from 'src/app/domain/helpers/own-time.helper';
 
 @Injectable({
   providedIn: 'root',

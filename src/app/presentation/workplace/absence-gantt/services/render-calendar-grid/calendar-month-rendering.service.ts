@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Rectangle } from 'src/app/domain/helpers/geometry';
+import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from '../calendar-setting.service';
@@ -8,7 +8,7 @@ import { GridFontsService } from '../../../../shared/grid/services/grid-fonts.se
 import { TranslateService } from '@ngx-translate/core';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { getDaysInMonth } from 'src/app/domain/helpers/format-helper';
+import { getDaysInMonth } from 'src/app/shared/helpers/date.helper';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,

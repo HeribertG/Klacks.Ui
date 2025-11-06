@@ -1,4 +1,4 @@
-export { Rectangle, Size, ISize } from 'src/app/domain/helpers/geometry';
+export { Rectangle, Size, ISize } from 'src/app/shared/helpers/geometry.helper';
 export interface ClientRect {
   bottom: number;
   readonly height: number;

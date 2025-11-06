@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable, signal } from '@angular/core';
-import {
-  cloneObject,
-  compareComplexObjects,
-} from 'src/app/domain/helpers/object-helpers';
+import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
@@ -19,7 +16,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CutOperation } from 'src/app/domain/models/cut-operation';
-import { newGuid } from '../../helpers/format-helper';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
 
 @Injectable({
   providedIn: 'root',

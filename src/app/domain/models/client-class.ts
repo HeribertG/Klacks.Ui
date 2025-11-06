@@ -7,7 +7,7 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
-import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { IContract } from './contract-class';
 import { IBreak } from './break-class';
 import { MultiLanguage } from './multi-language-class';

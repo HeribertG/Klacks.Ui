@@ -3,7 +3,7 @@ import {
   IClientGroupItem,
   ClientGroupItem,
 } from 'src/app/domain/models/client-group-item-class';
-import { transformDateToNgbDateStruct } from 'src/app/domain/helpers/format-helper';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { IClient } from 'src/app/domain/models/client-class';
 
 @Injectable({
