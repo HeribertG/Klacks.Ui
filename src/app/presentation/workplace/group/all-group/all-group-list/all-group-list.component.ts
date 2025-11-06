@@ -25,14 +25,9 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { CheckBoxValue } from 'src/app/domain/models/client-class';
-import { IGroup, IGroupFilter } from 'src/app/domain/models/group-class';
-import {
-  HeaderDirection,
-  HeaderProperties,
-} from 'src/app/domain/models/headerProperties';
+import { IGroup } from 'src/app/domain/models/group-class';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ResizeTableDirective } from 'src/app/presentation/directives/resize-table.directive';
-
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { IconTreeComponent } from 'src/app/presentation/icons/icon-tree.component';
 import { PencilIconGreyComponent } from 'src/app/presentation/icons/pencil-icon-grey.component';
@@ -117,7 +112,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       columns: ['name', 'description', 'valid_from', 'valid_until'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
-      useThreeWaySort: true
+      useThreeWaySort: true,
     });
 
     this.readSignals();
@@ -182,7 +177,6 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
   onClickToggle() {
     this.switchToTree.emit();
   }
-
 
   /* #endregion   header */
 
@@ -299,7 +293,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     copiedGroup.name = `${copiedGroup.name}-copy`;
 
     if (copiedGroup.groupItems) {
-      copiedGroup.groupItems.forEach(item => {
+      copiedGroup.groupItems.forEach((item) => {
         item.id = undefined;
         item.groupId = undefined;
       });
