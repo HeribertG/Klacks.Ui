@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/consistent-indexed-object-style */
 import { Component, inject, OnDestroy, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -130,7 +130,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
-    this.workplaceStateService.setNameOfVisibleEntity(EntityName.SHIFT_CONTAINER_TEMPLATE);
+    this.workplaceStateService.setNameOfVisibleEntity(
+      EntityName.SHIFT_CONTAINER_TEMPLATE
+    );
     this.searchService.setSearchVisibility(true);
     this.savebarService.setSavebarVisibility(true);
     this.calculateDuration();
@@ -258,10 +260,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.containerService.initializeTemplateGrid(updatedShift).subscribe({
       next: () => {
         if (this.selectedWeekday) {
-          const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-          this.containerService
-            .loadTasksForWeekday(weekdayNumber)
-            .subscribe();
+          const weekdayNumber = this.containerService.getWeekdayNumber(
+            this.selectedWeekday
+          );
+          this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
         }
       },
       error: () => {},
@@ -281,10 +283,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.shiftService.setSelectedShift(null);
     this.updateAvailableTasks();
     if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-      this.containerService
-        .loadTasksForWeekday(weekdayNumber)
-        .subscribe();
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
     }
   }
 
@@ -318,7 +320,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const orderBy = this.sortingService.getCurrentOrderBy();
     const sortOrder = this.sortingService.getCurrentSortOrder();
 
-    this.availableTasks = this.containerService.sortShifts(uniqueShifts, orderBy || '', sortOrder);
+    this.availableTasks = this.containerService.sortShifts(
+      uniqueShifts,
+      orderBy || '',
+      sortOrder
+    );
   }
 
   getFilteredRowsForSelectedWeekday(): IContainerTemplateSlot[][] {
@@ -326,8 +332,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       return [];
     }
 
-    const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-    return this.containerService.getFilteredRowsForWeekday(this.templateGrid, weekdayNumber);
+    const weekdayNumber = this.containerService.getWeekdayNumber(
+      this.selectedWeekday
+    );
+    return this.containerService.getFilteredRowsForWeekday(
+      this.templateGrid,
+      weekdayNumber
+    );
   }
 
   getSlotsForSelectedTab(): IContainerTemplateSlot[] {
@@ -346,11 +357,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return ['available-tasks-list', 'selected-tasks-list'];
   }
 
-  onDragStarted(event: any): void {
-  }
+  onDragStarted(event: any): void {}
 
-  onDragEnded(event: any): void {
-  }
+  onDragEnded(event: any): void {}
 
   onTaskDrop(event: CdkDragDrop<IShift[]>): void {
     if (event.previousContainer === event.container) {
@@ -402,7 +411,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const weekdayKey = `shift.container-template.weekday-full.${weekdayEn.toLowerCase()}`;
     const weekdayTranslated = this.translateService.instant(weekdayKey);
 
-    const holidayKey = `shift.container-template.holiday-label.${this.getHolidayLabelKey(holidayLabelEn)}`;
+    const holidayKey = `shift.container-template.holiday-label.${this.getHolidayLabelKey(
+      holidayLabelEn
+    )}`;
     const holidayTranslated = this.translateService.instant(holidayKey);
 
     if (holidayTranslated) {
@@ -446,8 +457,12 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   private onSearchChanged(): void {
     if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-      this.containerService.loadTasksForWeekday(weekdayNumber, this.currentSearchString).subscribe();
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService
+        .loadTasksForWeekday(weekdayNumber, this.currentSearchString)
+        .subscribe();
     }
   }
 }

@@ -85,7 +85,6 @@ export class TimeRangeService {
     showHalfHourLabels: boolean;
   } {
     const minPixelsPerLabel = 25;
-    const pixelsPerHour = pixelsPerMinute * 60;
     const pixelsPerHalfHour = pixelsPerMinute * 30;
     const pixelsPerQuarterHour = pixelsPerMinute * 15;
 

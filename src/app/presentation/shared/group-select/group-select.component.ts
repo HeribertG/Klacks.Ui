@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CommonModule } from '@angular/common';
 import {
@@ -25,6 +26,7 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { IconAngleUpComponent } from 'src/app/presentation/icons/icon-angle-up.component';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
+import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 
 interface VirtualGroup {
   id: string | null;
@@ -89,6 +91,7 @@ export class GroupSelectComponent
   // Private injected services
   private cdr = inject(ChangeDetectorRef);
   private dataManagementSwitchboard = inject(WorkplaceStateService);
+  private dataManagementShiftService = inject(DataManagementShiftService);
   private injector = inject(Injector);
 
   // Public properties (used in templates)
@@ -391,6 +394,9 @@ export class GroupSelectComponent
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
         return true;
+      case EntityName.SHIFT:
+        const filter = this.dataManagementShiftService.currentFilter;
+        return !(filter.filterType === 0 && filter.isSealedOrder === false);
     }
 
     return false;

@@ -16,6 +16,7 @@ import { DataManagementShiftService } from 'src/app/domain/services/shift/data-m
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 
 @Component({
   selector: 'app-all-shift-nav',
@@ -33,6 +34,7 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public dataManagementShiftService = inject(DataManagementShiftService);
   public authorizationService = inject(AuthorizationService);
   private translateService = inject(TranslateService);
+  private workplaceStateService = inject(WorkplaceStateService);
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
@@ -73,5 +75,6 @@ export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onSelect(): void {
     this.dataManagementShiftService.readPage();
+    this.workplaceStateService.isFocusChanged.set(true);
   }
 }

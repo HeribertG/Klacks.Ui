@@ -4,6 +4,7 @@ import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
 import { DataManagementBreakService } from '../absence/data-management-break.service';
 import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
+import { DataManagementShiftService } from '../shift/data-management-shift.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,30 +13,25 @@ export class GroupSelectionService {
   private dataManagementSwitchboard = inject(ENTITY_STATE_PROVIDER_TOKEN);
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementScheduleService = inject(DataManagementScheduleService);
+  private dataManagementShiftService = inject(DataManagementShiftService);
 
-  // Signal für den aktuell ausgewählten Knoten
   private _selectedGroup = signal<Group | undefined>(undefined);
 
-  // Getter für den ausgewählten Knoten
   public get selectedGroup(): Group | undefined {
     return this._selectedGroup();
   }
 
-  // Setter für den ausgewählten Knoten
   public set selectedGroup(group: Group | undefined) {
     this._selectedGroup.set(group);
   }
 
-  // Signal, das ausgelöst wird, wenn sich der ausgewählte Knoten ändert
   public selectedGroupChanged = signal(false);
 
-  // Methode zum Setzen des ausgewählten Knotens
   public selectGroup(group: Group): void {
     this._selectedGroup.set(group);
     this.triggerSelectedGroupChanged();
   }
 
-  // Methode zum Zurücksetzen des ausgewählten Knotens
   public clearSelection(): void {
     this._selectedGroup.set(undefined);
     this.triggerSelectedGroupChanged();
@@ -55,6 +51,11 @@ export class GroupSelectionService {
         this.dataManagementScheduleService.workFilter.selectedGroup =
           this.selectedGroupId;
         this.dataManagementScheduleService.readDatas();
+        break;
+      case EntityName.SHIFT:
+        this.dataManagementShiftService.currentFilter.selectedGroup =
+          this.selectedGroupId;
+        this.dataManagementShiftService.readPage();
         break;
     }
   }

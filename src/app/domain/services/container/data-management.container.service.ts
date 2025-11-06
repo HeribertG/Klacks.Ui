@@ -205,8 +205,8 @@ export class DataManagementContainerService {
 
   getActiveWeekdays(
     shift: IShift
-  ): Array<{ value: string; labelKey: string }> {
-    const activeWeekdays: Array<{ value: string; labelKey: string }> = [];
+  ): { value: string; labelKey: string }[] {
+    const activeWeekdays: { value: string; labelKey: string }[] = [];
 
     if (shift.isSunday) {
       activeWeekdays.push({
@@ -255,7 +255,7 @@ export class DataManagementContainerService {
   }
 
   getWeekdayNumber(weekdayValue: string): number {
-    const weekdayMap: { [key: string]: number } = {
+    const weekdayMap: Record<string, number> = {
       sunday: 0,
       monday: 1,
       tuesday: 2,
