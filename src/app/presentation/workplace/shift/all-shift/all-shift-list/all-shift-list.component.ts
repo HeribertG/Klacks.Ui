@@ -31,7 +31,7 @@ import { Shift } from 'src/app/domain/models/shift-class';
 import { CutTableComponent } from './cut-table/cut-table.component';
 import { ContainerTableComponent } from './container-table/container-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { ShiftPaginationComponent } from 'src/app/presentation/shared/pagination/shift-pagination.component';
+import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 import { ShiftTableResizeService } from 'src/app/presentation/services/shift-table-resize.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -53,7 +53,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     OriginalTableComponent,
     CutTableComponent,
     ContainerTableComponent,
-    ShiftPaginationComponent,
+    PaginationComponent,
   ],
   providers: [ShiftTableResizeService, AllShiftStateService, TableSortingService],
 })

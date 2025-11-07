@@ -1,75 +1,48 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, fromEvent, merge } from 'rxjs';
-import { map, debounceTime, startWith } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { debounceTime, startWith } from 'rxjs/operators';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { isNumeric } from 'src/app/shared/helpers/number.helper';
+import { BaseTableResizeService } from './base-table-resize.service';
 
 @Injectable()
-export class ShiftTableResizeService {
-  private localStorageService = inject(LocalStorageService);
-
-  private defaultRowHeight = 90;
-  private minRowHeight = 82;
-  private readonly UI_OFFSET = 234;
+export class ShiftTableResizeService extends BaseTableResizeService {
   private readonly MIN_ITEMS_PER_PAGE = 3;
   private readonly ROWS_PER_DATA_ITEM = 2;
 
-  setRowHeights(defaultHeight?: number, minHeight?: number): void {
-    if (defaultHeight !== undefined) {
-      this.defaultRowHeight = defaultHeight;
-    }
-    if (minHeight !== undefined) {
-      this.minRowHeight = minHeight;
-    }
+  constructor() {
+    super(inject(LocalStorageService));
   }
 
-  calculateOptimalRowCount(
-    tableElement: HTMLElement,
-    maxItems?: number
-  ): number {
-    const availableHeight = this.calculateAvailableHeight(tableElement);
-    const rowHeight = this.getConsistentRowHeight(tableElement);
-
-    let optimalRows = Math.floor(availableHeight / rowHeight);
-
-    optimalRows = Math.max(optimalRows, this.MIN_ITEMS_PER_PAGE);
-
-    if (maxItems && optimalRows > maxItems) {
-      optimalRows = maxItems;
-    }
-
-    return optimalRows;
+  protected getMinItemsPerPage(): number {
+    return this.MIN_ITEMS_PER_PAGE;
   }
 
-  private getConsistentRowHeight(tableElement: HTMLElement): number {
-    const tbody = tableElement.querySelector('tbody');
-
-    if (!tbody || tbody.rows.length < this.ROWS_PER_DATA_ITEM) {
-      return this.defaultRowHeight;
-    }
-
-    const measuredHeight = this.measureAverageShiftRowHeight(tableElement);
-
-    if (measuredHeight > 0) {
-      return measuredHeight;
-    }
-
-    return this.defaultRowHeight;
+  protected getDefaultRowHeight(): number {
+    return 90;
   }
 
-  private calculateAvailableHeight(tableElement: HTMLElement): number {
-    const windowHeight = window.innerHeight;
-    const tableTop = tableElement.offsetTop;
-
-    return windowHeight - (tableTop + this.UI_OFFSET);
+  protected getMinRowHeight(): number {
+    return 82;
   }
 
-  private measureAverageShiftRowHeight(tableElement: HTMLElement): number {
+  protected getRowsPerDataItem(): number {
+    return this.ROWS_PER_DATA_ITEM;
+  }
+
+  protected getStorageKey(): string {
+    return MessageLibrary.SELECTED_ROW_ORDER_SHIFT;
+  }
+
+  protected measureAverageRowHeight(tableElement: HTMLElement): number {
     const table = tableElement.querySelector('table') || tableElement;
     const tbody = table.querySelector('tbody');
 
     if (!tbody || tbody.rows.length === 0) {
+      return this.defaultRowHeight;
+    }
+
+    if (tbody.rows.length < this.ROWS_PER_DATA_ITEM) {
       return this.defaultRowHeight;
     }
 
@@ -101,72 +74,6 @@ export class ShiftTableResizeService {
     const averageHeight = Math.round(totalHeight / dataItemCount);
 
     return Math.max(averageHeight, this.minRowHeight);
-  }
-
-  createWindowResizeObservable(): Observable<Event> {
-    return fromEvent(window, 'resize').pipe(debounceTime(150));
-  }
-
-  createTableResizeObservable(
-    tableElement: HTMLElement
-  ): Observable<ResizeObserverEntry[]> {
-    return new Observable<ResizeObserverEntry[]>((subscriber) => {
-      const resizeObserver = new ResizeObserver((entries) => {
-        subscriber.next(entries);
-      });
-
-      resizeObserver.observe(tableElement);
-
-      return () => {
-        resizeObserver.disconnect();
-      };
-    }).pipe(debounceTime(100));
-  }
-
-  createResizeObservable(
-    tableElement: HTMLElement,
-    maxItems?: number
-  ): Observable<number> {
-    const windowResize$ = this.createWindowResizeObservable();
-    const tableResize$ = this.createTableResizeObservable(tableElement);
-
-    return merge(windowResize$, tableResize$).pipe(
-      startWith(null),
-      map(() => this.calculateOptimalRowCount(tableElement, maxItems)),
-      debounceTime(50)
-    );
-  }
-
-  getSavedRowSize(): number | null {
-    const saved = this.localStorageService.get(
-      MessageLibrary.SELECTED_ROW_ORDER_SHIFT
-    );
-    if (saved && isNumeric(saved)) {
-      return +saved;
-    }
-    return null;
-  }
-
-  saveRowSize(value: number): void {
-    this.localStorageService.set(
-      MessageLibrary.SELECTED_ROW_ORDER_SHIFT,
-      value.toString()
-    );
-  }
-
-  isAutoMode(rowSize?: number | null): boolean {
-    const saved = rowSize ?? this.getSavedRowSize();
-    return saved === -1 || saved === null;
-  }
-
-  getEffectiveRowSize(tableElement: HTMLElement, maxItems?: number): number {
-    const savedRowSize = this.getSavedRowSize();
-
-    if (this.isAutoMode(savedRowSize)) {
-      return this.calculateOptimalRowCount(tableElement, maxItems);
-    }
-
-    return savedRowSize ?? this.MIN_ITEMS_PER_PAGE;
   }
 
   createScrollbarVisibilityObservable(): Observable<boolean> {

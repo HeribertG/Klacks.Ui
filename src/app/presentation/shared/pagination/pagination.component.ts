@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { visibleRow } from 'src/app/application/helpers/sharedItems';
+import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { isNumeric } from 'src/app/shared/helpers/number.helper';
@@ -25,11 +26,10 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
   imports: [CommonModule, FormsModule, NgbPaginationModule, TranslateModule],
 })
 export class PaginationComponent implements OnInit {
+  @Input() paginationType: 'standard' | 'shift' = 'standard';
   @Input() dataService!: IPaginationDataService;
   @Input() page = 1;
-
-  
-  @Input() numberOfItemsPerPage = 5;
+  @Input() numberOfItemsPerPage?: number;
   @Input() showRowSelector = true;
   @Input() maxSize = 5;
   @Input() rotate = true;
@@ -45,35 +45,45 @@ export class PaginationComponent implements OnInit {
   isNextPage: boolean | undefined = undefined;
   numberOfItemsPerPageMap = new Map<number, number>();
   realRow = -1;
-  visibleRow = visibleRow();
+  visibleRow: { text: string; value: number }[] = [];
 
   public translate = inject(TranslateService);
   private localStorageService = inject(LocalStorageService);
 
   ngOnInit(): void {
-    const tmpRow = this.localStorageService.get(MessageLibrary.SELECTED_ROW_ORDER);
-    
-    
+    if (this.numberOfItemsPerPage === undefined) {
+      this.numberOfItemsPerPage = this.paginationType === 'shift' ? 3 : 5;
+    }
+
+    const storageKey = this.paginationType === 'shift'
+      ? MessageLibrary.SELECTED_ROW_ORDER_SHIFT
+      : MessageLibrary.SELECTED_ROW_ORDER;
+
+    this.visibleRow = this.paginationType === 'shift'
+      ? visibleShiftRow()
+      : visibleRow();
+
+    const fallbackDefault = this.paginationType === 'shift' ? 3 : 10;
+
+    const tmpRow = this.localStorageService.get(storageKey);
+
     if (tmpRow && isNumeric(tmpRow)) {
       this.realRow = +tmpRow;
       if (+tmpRow !== -1) {
         this.numberOfItemsPerPage = +tmpRow;
         setTimeout(() => this.numberOfItemsPerPageChange.emit(+tmpRow), 0);
       } else {
-        // Auto mode - don't emit numberOfItemsPerPageChange, let the parent manage the value
         this.realRow = -1;
         if (this.numberOfItemsPerPage === 0) {
-          this.numberOfItemsPerPage = 10;
+          this.numberOfItemsPerPage = fallbackDefault;
         }
       }
     } else {
-      // No value in localStorage, default to auto mode (-1)
       this.realRow = -1;
       if (this.numberOfItemsPerPage === 0) {
-        this.numberOfItemsPerPage = 10;
+        this.numberOfItemsPerPage = fallbackDefault;
       }
-      // Save the default auto mode to localStorage
-      this.localStorageService.set(MessageLibrary.SELECTED_ROW_ORDER, '-1');
+      this.localStorageService.set(storageKey, '-1');
     }
   }
 
@@ -85,7 +95,7 @@ export class PaginationComponent implements OnInit {
     if (event === this.page + 1) {
       this.isNextPage = true;
       if (!this.numberOfItemsPerPageMap.get(this.page)) {
-        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage);
+        this.numberOfItemsPerPageMap.set(this.page, this.numberOfItemsPerPage!);
       }
       this.firstItemOnLastPage = this.dataService.firstItem;
     } else if (event === this.page - 1) {
@@ -99,14 +109,15 @@ export class PaginationComponent implements OnInit {
 
   onChangeRowSize(event: any): void {
     const value = +event.srcElement.value;
-    
-    
+    const storageKey = this.paginationType === 'shift'
+      ? MessageLibrary.SELECTED_ROW_ORDER_SHIFT
+      : MessageLibrary.SELECTED_ROW_ORDER;
+
     this.realRow = value;
     this.page = 1;
     this.pageChange.emit(1);
+    this.localStorageService.set(storageKey, value.toString());
 
-    this.localStorageService.set(MessageLibrary.SELECTED_ROW_ORDER, value.toString());
-    
     if (value !== -1) {
       this.numberOfItemsPerPage = value;
       this.numberOfItemsPerPageChange.emit(value);
