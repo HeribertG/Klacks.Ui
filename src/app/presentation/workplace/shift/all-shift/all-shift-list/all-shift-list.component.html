@@ -24,21 +24,23 @@
       (headerClicked)="onClickHeader($event)"
     ></app-original-table>
     } @else if (dataManagementShiftService.currentFilter.filterType === 1) {
-    <app-cut-table
+    <app-shift-table
       [shifts]="dataManagementShiftService.shifts"
       [sortingService]="sortingService"
+      [tableMode]="'cut'"
       (editClicked)="onClickEdit($event)"
-      (cutClicked)="onClickCut($event)"
+      (actionClicked)="onClickCut($event)"
       (headerClicked)="onClickHeader($event)"
-    ></app-cut-table>
+    ></app-shift-table>
     } @else if (dataManagementShiftService.currentFilter.filterType === 2) {
-    <app-container-table
+    <app-shift-table
       [shifts]="dataManagementShiftService.shifts"
       [sortingService]="sortingService"
+      [tableMode]="'container'"
       (editClicked)="onClickEdit($event)"
-      (containerClicked)="onContainerTemplateClicked($event)"
+      (actionClicked)="onContainerTemplateClicked($event)"
       (headerClicked)="onClickHeader($event)"
-    ></app-container-table>
+    ></app-shift-table>
     } @if (paginationDataService) {
     <app-pagination
       paginationType="shift"

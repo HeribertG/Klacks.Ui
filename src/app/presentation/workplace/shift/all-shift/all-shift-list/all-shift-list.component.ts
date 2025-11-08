@@ -28,8 +28,7 @@ import { DataManagementShiftCutService } from 'src/app/domain/services/shift/dat
 import { visibleShiftRow } from 'src/app/application/helpers/shift-visible-row';
 import { OriginalTableComponent } from './original-table/original-table.component';
 import { Shift } from 'src/app/domain/models/shift-class';
-import { CutTableComponent } from './cut-table/cut-table.component';
-import { ContainerTableComponent } from './container-table/container-table.component';
+import { ShiftTableComponent } from './shift-table/shift-table.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { PaginationComponent } from 'src/app/presentation/shared/pagination/pagination.component';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
@@ -51,8 +50,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
     NgbPaginationModule,
     TranslateModule,
     OriginalTableComponent,
-    CutTableComponent,
-    ContainerTableComponent,
+    ShiftTableComponent,
     PaginationComponent,
   ],
   providers: [ShiftTableResizeService, AllShiftStateService, TableSortingService],
