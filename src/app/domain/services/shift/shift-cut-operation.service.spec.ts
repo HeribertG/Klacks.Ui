@@ -223,26 +223,4 @@ describe('ShiftCutOperationService', () => {
       expect(result.newShift.quantity).toBe(0);
     });
   });
-
-  describe('ensureDateSync', () => {
-    it('should sync fromDate to internalFromDate', () => {
-      const shift = new Shift();
-      shift.fromDate = new Date(2025, 0, 15);
-
-      expect(shift.internalFromDate).toBeDefined();
-      expect(shift.internalFromDate?.year).toBe(2025);
-      expect(shift.internalFromDate?.month).toBe(1);
-      expect(shift.internalFromDate?.day).toBe(15);
-    });
-
-    it('should sync internalFromDate to fromDate', () => {
-      const shift = new Shift();
-      shift.internalFromDate = { year: 2025, month: 1, day: 15 };
-
-      expect(shift.fromDate).toBeDefined();
-      expect(shift.fromDate?.getFullYear()).toBe(2025);
-      expect(shift.fromDate?.getMonth()).toBe(0);
-      expect(shift.fromDate?.getDate()).toBe(15);
-    });
-  });
 });

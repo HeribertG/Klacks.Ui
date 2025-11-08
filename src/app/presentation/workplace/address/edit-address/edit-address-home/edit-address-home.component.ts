@@ -9,6 +9,7 @@ import {
   Output,
 } from '@angular/core';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { EditAddressNavComponent } from '../edit-address-nav/edit-address-nav.component';
 import { NoteComponent } from '../note/note.component';
@@ -59,6 +60,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
   private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementClientService = inject(DataManagementClientService);
+  public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   private urlParameterService = inject(UrlParameterService);
   private savebarService = inject(SavebarService);

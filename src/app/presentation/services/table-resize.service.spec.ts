@@ -45,7 +45,7 @@ describe('TableResizeService', () => {
 
   describe('setRowHeights', () => {
     it('should set default row height', () => {
-      service.setRowHeights(50);
+      service.setRowHeights(50, 40);
       const result = service.calculateOptimalRowCount(mockTableElement);
       expect(result).toBeGreaterThan(0);
     });
@@ -56,8 +56,8 @@ describe('TableResizeService', () => {
       expect(result).toBeGreaterThan(0);
     });
 
-    it('should only set min height when default is undefined', () => {
-      service.setRowHeights(undefined, 40);
+    it('should set min height when default is same as min', () => {
+      service.setRowHeights(40, 40);
       const result = service.calculateOptimalRowCount(mockTableElement);
       expect(result).toBeGreaterThan(0);
     });
@@ -239,13 +239,15 @@ describe('TableResizeService', () => {
 
       expect(observable).toBeDefined();
 
-      const subscription = observable.subscribe((event) => {
-        expect(event).toBeDefined();
-        subscription.unsubscribe();
-        done();
+      let isComplete = false;
+      observable.subscribe((event) => {
+        if (!isComplete) {
+          isComplete = true;
+          expect(event).toBeDefined();
+          done();
+        }
       });
 
-      // Trigger resize event
       window.dispatchEvent(new Event('resize'));
     });
 

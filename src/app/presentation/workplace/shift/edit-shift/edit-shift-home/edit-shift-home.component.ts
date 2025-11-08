@@ -10,6 +10,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { EditShiftItemComponent } from '../edit-shift-item/edit-shift-item.component';
@@ -46,6 +47,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
   private workplaceStateService = inject(WorkplaceStateService);
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public dataManagementGroupService = inject(DataManagementGroupService);
   public authorizationService = inject(AuthorizationService);
   private activatedRoute = inject(ActivatedRoute);
   private localStorageService = inject(LocalStorageService);

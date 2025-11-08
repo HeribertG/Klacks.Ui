@@ -4,12 +4,6 @@
 <div class="header-container">
   @if (!hasLogoImage()) {
   <div class="icon" (click)="onClickDashboard()">
-    <!-- <img
-      [src]="'/assets/png/' + imageName()"
-      width="35"
-      height="35"
-      alt="image"
-    /> -->
     <app-icon-logo></app-icon-logo>
   </div>
   } @if (hasLogoImage()) {
@@ -29,7 +23,9 @@
 
   <span class="filler"></span>
 
+  @if (dataManagementGroupService.hasGroups()) {
   <app-group-select></app-group-select>
+  }
 
   <app-icon-mml
     class="assistant-btn"

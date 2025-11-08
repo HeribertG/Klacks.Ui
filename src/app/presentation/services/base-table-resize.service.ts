@@ -36,13 +36,16 @@ export abstract class BaseTableResizeService {
     const rowHeight = this.getConsistentRowHeight(tableElement);
 
     if (!rowHeight || rowHeight < this.minRowHeight) {
-      return this.getMinItemsPerPage();
+      return maxItems !== undefined
+        ? Math.min(this.getMinItemsPerPage(), maxItems)
+        : this.getMinItemsPerPage();
     }
 
     let optimalCount = Math.floor(availableHeight / rowHeight);
 
     if (maxItems !== undefined) {
       optimalCount = Math.min(optimalCount, maxItems);
+      return Math.max(Math.min(this.getMinItemsPerPage(), maxItems), optimalCount);
     }
 
     return Math.max(this.getMinItemsPerPage(), optimalCount);

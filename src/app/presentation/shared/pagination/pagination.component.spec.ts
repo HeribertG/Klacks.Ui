@@ -63,6 +63,10 @@ describe('PaginationComponent', () => {
     });
 
     it('should initialize with default values', () => {
+      // Arrange
+      component.ngOnInit();
+
+      // Assert
       expect(component.page).toBe(1);
       expect(component.numberOfItemsPerPage).toBe(5);
       expect(component.showRowSelector).toBe(true);
@@ -73,6 +77,10 @@ describe('PaginationComponent', () => {
     });
 
     it('should initialize visibleRow options', () => {
+      // Arrange
+      component.ngOnInit();
+
+      // Assert
       expect(component.visibleRow).toBeDefined();
       expect(component.visibleRow.length).toBeGreaterThan(0);
       expect(component.visibleRow[0].text).toBe('auto');

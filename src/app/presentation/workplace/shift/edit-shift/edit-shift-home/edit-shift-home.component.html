@@ -11,6 +11,7 @@
     ></app-edit-shift-item>
   </div>
 
+  @if (dataManagementGroupService.hasGroups()) {
   <div class="container-profilline">
     <app-edit-shift-group
       (isChangingEvent)="onIsChanging($event)"
@@ -18,6 +19,7 @@
     >
     </app-edit-shift-group>
   </div>
+  }
 
   <div class="container-profilline">
     <app-edit-shift-weekday

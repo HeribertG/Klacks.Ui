@@ -18,6 +18,7 @@ import { SearchComponent } from 'src/app/presentation/search/search.component';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { ThemeService } from 'src/app/presentation/services/theme.service';
 import { AsideService } from '../../aside/aside.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconLogoComponent } from '../../icons/icon-logo.component';
@@ -39,6 +40,7 @@ import { IconLogoComponent } from '../../icons/icon-logo.component';
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
   public dataLoadFileService = inject(DataLoadFileService);
+  public dataManagementGroupService = inject(DataManagementGroupService);
 
   private auth = inject(AuthService);
   private injector = inject(Injector);

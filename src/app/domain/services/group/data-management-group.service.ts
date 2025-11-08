@@ -99,6 +99,10 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public selectedNode: Group | undefined;
   public expandedNodes = new Set<string>();
 
+  public hasGroups(): boolean {
+    return (this.flatNodeList?.length ?? 0) > 0;
+  }
+
   private currentFilterDummy: GroupFilter | undefined;
   private editGroupDummy: IGroup | undefined;
   private temporaryGroupFilterDummy: GroupFilter | undefined;
