@@ -19,6 +19,7 @@ import { IShift, Shift } from 'src/app/domain/models/shift-class';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { DataClientService } from 'src/app/infrastructure/api/data-client.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
@@ -34,6 +35,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   private dataMacroService = inject(DataMacroService);
   public dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+  private dataManagementGroupService = inject(DataManagementGroupService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -429,7 +431,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
         isActive = false;
       }
     }
-    if (isActive && d) {
+    if (isActive && d && this.dataManagementGroupService.hasRootGroups()) {
       if (d.groups.length === 0 || d.groups == null) {
         isActive = false;
       }

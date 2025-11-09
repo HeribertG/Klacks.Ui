@@ -10,7 +10,8 @@ import { IClient } from 'src/app/domain/models/client-class';
   providedIn: 'root',
 })
 export class ClientGroupItemService {
-  public setDateStructs(groupItems: IClientGroupItem[]): void {
+  public setDateStructs(groupItems: IClientGroupItem[] | undefined): void {
+    if (!groupItems) return;
     groupItems.forEach((groupItem) => {
       if (groupItem.validFrom) {
         groupItem.internalValidFrom = transformDateToNgbDateStruct(

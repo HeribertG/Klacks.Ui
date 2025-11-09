@@ -66,6 +66,7 @@ export class WorkplaceStateService implements IEntityStateProvider {
     [RouteName.NEW_SHIFT]: EntityName.SHIFT_EDIT,
     [RouteName.EDIT_SHIFT]: EntityName.SHIFT_EDIT,
     [RouteName.CUT_SHIFT]: EntityName.SHIFT_CUT,
+    [RouteName.CONTAINER_TEMPLATE]: EntityName.SHIFT_CONTAINER_TEMPLATE,
     [RouteName.SCHEDULE]: EntityName.SCHEDULE,
     [RouteName.ABSENCE]: EntityName.ABSENCE,
   };

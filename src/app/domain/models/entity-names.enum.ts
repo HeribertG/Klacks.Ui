@@ -26,6 +26,7 @@ export enum RouteName {
   NEW_SHIFT = 'new-shift',
   EDIT_SHIFT = 'edit-shift',
   CUT_SHIFT = 'cut-shift',
+  CONTAINER_TEMPLATE = 'container-template',
   SCHEDULE = 'schedule',
   ABSENCE = 'absence',
 }

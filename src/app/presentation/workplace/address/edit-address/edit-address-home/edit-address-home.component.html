@@ -27,8 +27,9 @@
     >
     </app-client-contracts>
   </div>
+  }
 
-  @if (dataManagementGroupService.hasGroups()) {
+  @if (dataManagementClientService.hasRootGroups()) {
   <div class="container-profilline">
     <app-client-groups
       (isChangingEvent)="onIsChanging($event)"
@@ -36,7 +37,6 @@
     >
     </app-client-groups>
   </div>
-  }
   }
 
   <div class="container-profilline">

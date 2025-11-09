@@ -7,6 +7,7 @@ import {
   CommunicationPrefix,
 } from 'src/app/domain/models/client-class';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
 import { CommunicationTypeDefaultIndexEnum } from 'src/app/domain/enums/client-enum';
 import { EMPTY, forkJoin, Subject, tap, catchError } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -18,6 +19,7 @@ import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 export class ClientConfigService {
   private dataClientService = inject(DataClientService);
   private dataCountryStateService = inject(DataCountryStateService);
+  private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private destroy$ = new Subject<void>();
 
   public stateList = signal<StateCountryToken[]>([]);
@@ -25,6 +27,7 @@ export class ClientConfigService {
   public communicationTypePhoneList = signal<ICommunicationType[]>([]);
   public communicationTypeEmailList = signal<ICommunicationType[]>([]);
   public communicationPrefixList = signal<ICommunicationPrefix[]>([]);
+  public hasRootGroups = signal(false);
 
   public isSwissAbbreviation = 'CH';
   public isSwissPrefixId = signal('');
@@ -46,12 +49,14 @@ export class ClientConfigService {
       stateTokens: this.dataClientService.getStateTokenList(true),
       countries: this.dataCountryStateService.getCountryList(),
       communicationTypes: this.dataClientService.readCommunicationTypeList(),
+      rootGroups: this.dataGroupVisibilityService.getRoots(),
     })
       .pipe(
         tap((results) => {
           this.processStateTokens(results.stateTokens);
           this.processCountries(results.countries);
           this.processCommunicationTypes(results.communicationTypes);
+          this.hasRootGroups.set(results.rootGroups.length > 0);
         }),
         catchError((error) => {
           console.error('Error initializing data:', error);

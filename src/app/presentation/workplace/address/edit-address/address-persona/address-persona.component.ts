@@ -130,7 +130,6 @@ export class AddressPersonaComponent
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
     this.currentLang = this.translateService.currentLang as Language;
-    this.dataManagementClientService.init();
     this.message = MessageLibrary.DEACTIVE_ADDRESS;
     this.title = MessageLibrary.DEACTIVE_ADDRESS_TITLE;
     this.newAddressString = MessageLibrary.NEW_ADDRESS;

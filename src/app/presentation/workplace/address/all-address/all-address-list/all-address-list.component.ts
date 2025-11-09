@@ -100,7 +100,6 @@ export class AllAddressListComponent
 
   // Lifecycle hooks
   ngOnInit(): void {
-    this.dataManagementClientService.init();
     if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
       this.isAuthorised = JSON.parse(
         this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)!

@@ -391,6 +391,8 @@ export class GroupSelectComponent
     }
 
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity()) {
+      case EntityName.CLIENT:
+        return this.dataManagementGroupService.hasRootGroups();
       case EntityName.ABSENCE:
       case EntityName.SCHEDULE:
         return true;

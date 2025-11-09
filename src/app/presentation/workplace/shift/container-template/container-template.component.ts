@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, inject, OnDestroy, OnInit, effect } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -17,7 +17,7 @@ import {
 import { SearchService } from 'src/app/application/services/search.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { EntityName, RouteName } from 'src/app/domain/models/entity-names.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -30,6 +30,7 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container-template-slot';
+import { IContainerTemplate } from 'src/app/domain/models/container-template-class';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -124,6 +125,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return this.shiftService.selectedTasksSignal();
   }
 
+  private isDirty = computed(() => {
+    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
+    const hasTemplateChanges = this.containerService.areObjectsDirty();
+    return hasSelectedTasks || hasTemplateChanges;
+  });
+
+  private canSaveComputed = computed(() => {
+    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
+    const canSaveTemplates = this.containerService.canSave();
+    return hasSelectedTasks || canSaveTemplates;
+  });
+
   constructor() {
     effect(() => {
       const searchString = this.searchStateService.containerTemplateSearch();
@@ -132,15 +145,45 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         this.onSearchChanged();
       }
     });
+
+    effect(() => {
+      const dirty = this.isDirty();
+      const canSave = this.canSaveComputed();
+      this.workplaceStateService.areObjectsDirty();
+    });
+
+    effect(() => {
+      this.templateGrid = this.containerService.templateGrid();
+    });
+
+    effect(() => {
+      this.isLoading = this.containerService.loading();
+    });
+
+    effect(() => {
+      if (this.containerService.isReset()) {
+        this.updateAvailableTasks();
+      }
+    });
   }
 
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
+    this.workplaceStateService.setActiveManagerByRoute(
+      RouteName.CONTAINER_TEMPLATE
+    );
     this.workplaceStateService.setNameOfVisibleEntity(
       EntityName.SHIFT_CONTAINER_TEMPLATE
     );
     this.searchService.setSearchVisibility(true);
     this.savebarService.setSavebarVisibility(true);
+
+    this.containerService.onSaveCompleted = () => {
+      if (this.containerShift?.id) {
+        this.containerService.loadTemplates(this.containerShift.id);
+      }
+    };
+
     this.calculateDuration();
 
     this.sortingService.initialize({
@@ -156,20 +199,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         const id = params['id'];
         if (id) {
           this.loadContainerShift(id);
+          this.containerService.loadTemplates(id);
         }
-      });
-
-    this.containerService.templateGrid$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((grid) => {
-        this.templateGrid = grid;
-        this.updateAvailableTasks();
-      });
-
-    this.containerService.loading$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((loading) => {
-        this.isLoading = loading;
       });
 
     this.timeChange$
@@ -182,7 +213,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.containerService.reset();
+    this.containerService.destroy();
   }
 
   private loadContainerShift(id: string): void {
@@ -206,7 +237,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
                 );
                 this.containerService
                   .loadTasksForWeekday(weekdayNumber)
-                  .subscribe();
+                  .subscribe(() => {
+                    this.updateAvailableTasks();
+                  });
               }
             },
             error: () => {
@@ -275,7 +308,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           const weekdayNumber = this.containerService.getWeekdayNumber(
             this.selectedWeekday
           );
-          this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
+          this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
+            this.updateAvailableTasks();
+          });
         }
       },
       error: () => {},
@@ -293,12 +328,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.selectedTabIndex = 0;
     this.shiftService.clearTasks();
     this.shiftService.setSelectedShift(null);
-    this.updateAvailableTasks();
     if (this.selectedWeekday) {
       const weekdayNumber = this.containerService.getWeekdayNumber(
         this.selectedWeekday
       );
-      this.containerService.loadTasksForWeekday(weekdayNumber).subscribe();
+      this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
+        this.updateAvailableTasks();
+        this.updateCurrentWeekdayAndSlot();
+      });
     }
   }
 
@@ -307,6 +344,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.shiftService.clearTasks();
     this.shiftService.setSelectedShift(null);
     this.updateAvailableTasks();
+    this.updateCurrentWeekdayAndSlot();
   }
 
   private updateAvailableTasks(): void {
@@ -467,7 +505,26 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       );
       this.containerService
         .loadTasksForWeekday(weekdayNumber, this.currentSearchString)
-        .subscribe();
+        .subscribe(() => {
+          this.updateAvailableTasks();
+        });
     }
+  }
+
+  private updateCurrentWeekdayAndSlot(): void {
+    if (!this.selectedWeekday) return;
+
+    const weekdayNumber = this.containerService.getWeekdayNumber(
+      this.selectedWeekday
+    );
+    const slots = this.getSlotsForSelectedTab();
+
+    if (slots.length > 0) {
+      this.containerService.setCurrentWeekdayAndSlot(weekdayNumber, slots[0]);
+    }
+  }
+
+  get currentTemplates(): IContainerTemplate[] {
+    return this.containerService.getCurrentTemplates();
   }
 }

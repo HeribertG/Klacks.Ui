@@ -95,6 +95,9 @@ export class DataManagementClientService
     this.clientConfigService.communicationTypePhoneList;
   public readonly communicationTypeEmailList =
     this.clientConfigService.communicationTypeEmailList;
+  public readonly hasRootGroups = computed(() =>
+    this.clientConfigService.hasRootGroups()
+  );
 
   public editClientDeleted = signal(false);
   public lastCountries = signal<any[]>([]);
@@ -173,9 +176,22 @@ export class DataManagementClientService
   public readActualSortedClientPage = () =>
     this.clientSearchService.readActualSortedClientPage();
   public replaceClient = (id: string) => {
+    if (this.editClient()) {
+      this.clientSearchService.saveBackup(
+        this.editClient(),
+        this.clientEditService.editClientDummy,
+        this.findClient()
+      );
+    }
     this.readClient(id);
   };
-  public resetFindClient = () => {};
+
+  public resetFindClient = () => {
+    const result = this.clientSearchService.restoreBackup();
+    this.clientEditService.editClient.set(result.editClient ?? undefined);
+    this.clientEditService.editClientDummy = result.editClientDummy;
+    this.clientSearchService.findClient.set(result.findClient);
+  };
 
   public addPhone = () => {
     if (this.editClient()) {
@@ -274,8 +290,6 @@ export class DataManagementClientService
       this.clientEditService.currentAddressIndex.set(currentAddressIndex);
     }
   };
-
-  init() {}
 
   save(): void {
     this.clientEditService.saveEditClient();

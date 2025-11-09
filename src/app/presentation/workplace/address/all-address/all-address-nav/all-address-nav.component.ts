@@ -75,7 +75,6 @@ export class AllAddressNavComponent
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
-    this.dataManagementClientService.init();
     this.setEntityName(
       this.dataManagementClientService.currentFilter.clientType
     );

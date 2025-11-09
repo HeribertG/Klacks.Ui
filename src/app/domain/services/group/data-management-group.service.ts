@@ -31,6 +31,7 @@ import {
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
+import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
@@ -49,6 +50,7 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   public dataGroupService = inject(DataGroupService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataCountryStateService = inject(DataCountryStateService);
+  private dataGroupVisibilityService = inject(DataGroupVisibilityService);
   private httpClient = inject(HttpClient);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
@@ -103,6 +105,8 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     return (this.flatNodeList?.length ?? 0) > 0;
   }
 
+  public hasRootGroups = signal(false);
+
   private currentFilterDummy: GroupFilter | undefined;
   private editGroupDummy: IGroup | undefined;
   private temporaryGroupFilterDummy: GroupFilter | undefined;
@@ -131,6 +135,13 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
           this.currentClientFilter.countriesHaveBeenReadIn = x.length > 0;
         }
       });
+
+    this.dataGroupVisibilityService.getRoots()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((rootGroups: IGroup[]) => {
+        this.hasRootGroups.set(rootGroups.length > 0);
+      });
+
     this.readPage();
   }
 

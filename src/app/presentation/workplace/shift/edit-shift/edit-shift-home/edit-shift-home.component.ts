@@ -91,6 +91,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
 
     this.onIsChangingMode();
     this.dataManagementShiftService.init();
+    this.dataManagementGroupService.init();
   }
 
   ngOnDestroy(): void {

@@ -128,6 +128,33 @@ export class ClientSearchService {
     return this.backupFindClient !== undefined;
   }
 
+  public saveBackup(
+    editClient: IClient | undefined,
+    editClientDummy: IClient | undefined,
+    findClientList: IClient[]
+  ): void {
+    this.backupFindClient = cloneObject(editClient);
+    this.backupFindClientDummy = cloneObject(editClientDummy);
+    this.backupFindClientList = cloneObject(findClientList);
+  }
+
+  public restoreBackup(): {
+    editClient: IClient | undefined;
+    editClientDummy: IClient | undefined;
+    findClient: IClient[];
+  } {
+    const result = this.resetFindClient(
+      this.backupFindClient,
+      this.backupFindClientDummy,
+      this.backupFindClientList
+    );
+    return {
+      editClient: result.editClient,
+      editClientDummy: result.editClientDummy,
+      findClient: result.findClient ?? []
+    };
+  }
+
   public destroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

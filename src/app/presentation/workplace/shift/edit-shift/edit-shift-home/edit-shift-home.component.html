@@ -11,7 +11,7 @@
     ></app-edit-shift-item>
   </div>
 
-  @if (dataManagementGroupService.hasGroups()) {
+  @if (dataManagementGroupService.hasRootGroups()) {
   <div class="container-profilline">
     <app-edit-shift-group
       (isChangingEvent)="onIsChanging($event)"

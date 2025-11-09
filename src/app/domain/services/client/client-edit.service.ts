@@ -31,7 +31,7 @@ export class ClientEditService {
   private communicationService = inject(CommunicationService);
   private clientContractService = inject(ClientContractService);
   private clientGroupItemService = inject(ClientGroupItemService);
-  private clientConfigService = inject(ClientConfigService);
+  public clientConfigService = inject(ClientConfigService);
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private destroy$ = new Subject<void>();
@@ -120,6 +120,7 @@ export class ClientEditService {
       .pipe(takeUntil(this.destroy$))
       .subscribe((x) => {
         const c = new Client();
+        c.type = 0;
         c.membership = new Membership();
         c.membership.validFrom = new Date();
         c.idNumber = x + 1;
@@ -257,6 +258,9 @@ export class ClientEditService {
       client.membership!.validUntil!
     );
 
+    if (!client.groupItems) {
+      client.groupItems = [];
+    }
     this.clientContractService.setDateStructs(client.clientContracts);
     this.clientGroupItemService.setDateStructs(client.groupItems);
   }
@@ -390,6 +394,10 @@ export class ClientEditService {
   }
 
   private isValidGroupItems(client: IClient): boolean {
+    if (!this.clientConfigService.hasRootGroups()) {
+      return true;
+    }
+
     if (!client.groupItems || client.groupItems.length === 0) {
       return true;
     }

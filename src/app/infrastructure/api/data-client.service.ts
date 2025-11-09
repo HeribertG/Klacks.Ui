@@ -225,6 +225,15 @@ export class DataClientService {
       delete x.id;
       delete x.clientId;
     });
+
+    value.clientContracts.forEach((x) => {
+      delete x.id;
+      delete x.clientId;
+    });
+
+    value.groupItems.forEach((x) => {
+      delete x.clientId;
+    });
   }
   private deleteUnnecessaryIds(value: IClient) {
     value.addresses.forEach((x) => {
