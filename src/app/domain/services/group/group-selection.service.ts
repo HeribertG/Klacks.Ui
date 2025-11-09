@@ -5,6 +5,7 @@ import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-st
 import { DataManagementBreakService } from '../absence/data-management-break.service';
 import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
 import { DataManagementShiftService } from '../shift/data-management-shift.service';
+import { DataManagementClientService } from '../client/data-management-client.service';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +15,7 @@ export class GroupSelectionService {
   private dataManagementBreak = inject(DataManagementBreakService);
   private dataManagementScheduleService = inject(DataManagementScheduleService);
   private dataManagementShiftService = inject(DataManagementShiftService);
+  private dataManagementClientService = inject(DataManagementClientService);
 
   private _selectedGroup = signal<Group | undefined>(undefined);
 
@@ -42,6 +44,11 @@ export class GroupSelectionService {
     setTimeout(() => this.selectedGroupChanged.set(false), 100);
 
     switch (this.dataManagementSwitchboard.nameOfVisibleEntity() as EntityName) {
+      case EntityName.CLIENT:
+        this.dataManagementClientService.currentFilter.selectedGroup =
+          this.selectedGroupId;
+        this.dataManagementClientService.readPage();
+        break;
       case EntityName.ABSENCE:
         this.dataManagementBreak.breakFilter.selectedGroup =
           this.selectedGroupId;
