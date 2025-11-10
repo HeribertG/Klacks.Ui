@@ -19,6 +19,7 @@
       @if (!isDisabled()) {
       <div class="row">
         <span
+          id="delete-client-image-button"
           class="delete-button delete-button-icon"
           type="button"
           (click)="onClickDeleteImage()"
@@ -43,6 +44,7 @@
       </label>
 
       <div
+        id="upload-client-image-area"
         class="fileupload-image"
         [class.disabled]="isDisabled()"
         appDragDropFileUpload
@@ -53,6 +55,7 @@
           {{ translate.instant("address.edit-address.client-image.info") }}
         </span>
         <input
+          id="clientImage"
           type="file"
           name="clientImage"
           #fileField

@@ -10,6 +10,7 @@
       <div>
         @if (dataManagementClientService.editClientDeleted() === false) {
         <app-button-new
+          id="new-note-button"
           placement="top"
           (click)="newAnnotation()"
           ngbTooltip="{{ note_new }}"
@@ -17,6 +18,7 @@
         </app-button-new>
         } @if (dataManagementClientService.editClientDeleted() === false) {
         <div
+          id="note-options-button"
           class="btn dropdown-toggle ownStyle-button"
           role="button"
           data-bs-toggle="dropdown"
@@ -33,7 +35,7 @@
           <li>
             @if (dataManagementClientService.editClient() !== undefined &&
             dataManagementClientService.currentAnnotationIndex() > -1) {
-            <a class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
+            <a id="delete-current-note-link" class="dropdown-item" (click)="onDeleteCurrentAnnotation()">
               <div class="custom-control-inline" style="height: 25px">
                 <app-icon-trash-red></app-icon-trash-red>
                 <p style="margin-left: 10px; font-size: 13px; color: #f64e60">
@@ -68,6 +70,7 @@
       {
       <div class="row-line">
         <button
+          id="note-{{ i }}"
           [ngClass]="{
             'container-box':
               dataManagementClientService.currentAnnotationIndex() !== i,
@@ -80,6 +83,7 @@
             <label>{{ "address.edit-address.note.notepad" | translate }}</label>
             <span class="filler"></span>
             <button
+              id="toggle-note-{{ i }}"
               class="toggle-note-button"
               (click)="toggleNoteExpansion(i, $event)"
               (keydown.enter)="handleKeyDown(i, $event)"

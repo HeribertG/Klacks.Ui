@@ -17,6 +17,7 @@
         $index) { @if (c.isScoped) {
         <div>
           <button
+            id="active-address-{{ i }}"
             type="button"
             class="btn btn-sm max-width"
             [ngClass]="{
@@ -49,6 +50,7 @@
         $index) { @if (c.isFuture) {
         <div>
           <button
+            id="future-address-{{ i }}"
             class="btn btn-sm btn-outline-info max-width"
             [ngClass]="{
               'btn-info': i === dataManagementClientService.currentAddressIndex()
@@ -80,6 +82,7 @@
         c.isFuture === false) {
         <div>
           <button
+            id="past-address-{{ i }}"
             class="btn btn-sm btn-outline-warning max-width"
             [ngClass]="{
               'btn-warning':
@@ -111,6 +114,7 @@
           @for (c of dataManagementClientService.sortedFindClient(); track c.id;
           let i = $index) {
           <li
+            id="find-client-{{ i }}"
             type="button"
             class="onwListButton"
             (click)="onClickFindClient(c)"
@@ -124,17 +128,19 @@
       dataManagementClientService.findClientMaxVisiblePage) {
       <div class="form-group onwPaginationContainer">
         <div
+          id="pagination-prev-button"
           type="button"
           class="onwPaginationblock onwPaginationblockLeft"
           (click)="onClickPaginationButton(-1)"
         >
           <i class="fas fa-angle-left"></i>
         </div>
-        <div class="onwPaginationblock">
+        <div id="pagination-info" class="onwPaginationblock">
           {{ dataManagementClientService.findClientPage() }} /
           {{ dataManagementClientService.findClientMaxPages() }}
         </div>
         <div
+          id="pagination-next-button"
           type="button"
           class="onwPaginationblock onwPaginationblockRight"
           (click)="onClickPaginationButton(1)"
@@ -146,7 +152,7 @@
     </li>
     } @if (isRestPossible()) {
     <li class="list-group-item-action">
-      <button class="btn btn-sm btn-info max-width" (click)="onClickReset()">
+      <button id="reset-address-button" class="btn btn-sm btn-info max-width" (click)="onClickReset()">
         {{ "address.edit-address.nav.back" | translate }}
       </button>
     </li>

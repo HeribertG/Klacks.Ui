@@ -7,6 +7,7 @@
     <div headerActions>
       @if (!isDisabled()) {
       <app-button-new
+        id="add-contract-button"
         placement="top"
         type="button"
         (click)="addContract()"
@@ -24,19 +25,19 @@
       <table class="table table-borderless">
         <thead>
           <tr>
-            <th class="table-header clickable" style="width: 360px" (click)="onClickHeader('contract')">
+            <th id="sort-contract-header" class="table-header clickable" style="width: 360px" (click)="onClickHeader('contract')">
               {{ "address.edit-address.contracts.contract" | translate }}
               <span class="sort-arrow">{{ sortingService.getArrow('contract') }}</span>
             </th>
-            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('fromDate')">
+            <th id="sort-fromDate-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('fromDate')">
               {{ "address.edit-address.contracts.from-date" | translate }}
               <span class="sort-arrow">{{ sortingService.getArrow('fromDate') }}</span>
             </th>
-            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('untilDate')">
+            <th id="sort-untilDate-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('untilDate')">
               {{ "address.edit-address.contracts.until-date" | translate }}
               <span class="sort-arrow">{{ sortingService.getArrow('untilDate') }}</span>
             </th>
-            <th class="table-header clickable" style="width: 50px" (click)="onClickHeader('active')">
+            <th id="sort-active-header" class="table-header clickable" style="width: 50px" (click)="onClickHeader('active')">
               {{ "address.edit-address.contracts.active" | translate }}
               <span class="sort-arrow">{{ sortingService.getArrow('active') }}</span>
             </th>
@@ -144,7 +145,7 @@
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
-              <div class="icon" (click)="removeContract(contract)">
+              <div id="delete-contract-{{ $index }}" class="icon" (click)="removeContract(contract)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }

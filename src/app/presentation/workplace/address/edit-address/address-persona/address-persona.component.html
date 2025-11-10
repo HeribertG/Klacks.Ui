@@ -22,6 +22,7 @@
 
             <div class="input-group">
               <input
+                id="addressValidFrom"
                 class="form-control"
                 name="addressValidFrom"
                 [ngModel]="addressValidFrom"
@@ -55,6 +56,7 @@
               | translate
           }}</label>
           <select
+            id="editClientType"
             class="form-select"
             [(ngModel)]="editClientType"
             name="editClient.type"
@@ -80,12 +82,13 @@
 
   <div class="modal-footer">
     <span
+      id="modal-cancel-address-type"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ "cancel" | translate }}</span
     >
-    <button type="button" class="btn save-btn" (click)="modal.close()">
+    <button id="modal-save-address-type" type="button" class="btn save-btn" (click)="modal.close()">
       {{
         "address.edit-address.address-persona.modal-address-typ.add" | translate
       }}
@@ -113,6 +116,7 @@
 
           <div class="input-group">
             <input
+              id="newAddressValidFrom"
               class="form-control"
               name="newAddressValidFrom"
               [ngModel]="newAddressValidFrom"
@@ -142,6 +146,7 @@
               | translate
           }}</label>
           <select
+            id="newAddressType"
             class="form-select"
             [(ngModel)]="newAddressType"
             name="newAddressType"
@@ -164,12 +169,13 @@
 
   <div class="modal-footer">
     <span
+      id="modal-cancel-new-address"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ "cancel" | translate }}</span
     >
-    <button type="button" class="btn ownStyle-add" (click)="modal.close()">
+    <button id="modal-save-new-address" type="button" class="btn ownStyle-add" (click)="modal.close()">
       {{
         "address.edit-address.address-persona.modal-new-address-typ.add"
           | translate
@@ -185,11 +191,13 @@
       @if (!isDisabled()) {
 
       <app-button-new
+        id="new-address-button"
         (click)="openNewAddress(newAddress)"
         ngbTooltip="{{ newAddressString }}"
       ></app-button-new>
 
       <button
+        id="address-persona-options-button"
         class="btn dropdown-toggle ownStyle-button"
         role="button"
         data-bs-toggle="dropdown"
@@ -201,7 +209,7 @@
       <ul class="dropdown-menu dropdown-menu-lg-end">
         <li>
           @if (dataManagementClientService.editClientDeleted() === false) {
-          <a class="dropdown-item" (click)="openAddressType(addressTypeModal)">
+          <a id="change-address-type-link" class="dropdown-item" (click)="openAddressType(addressTypeModal)">
             <div class="custom-control-inline" style="height: 25px">
               <i class="far fa-address-book"></i>
               <p style="margin-left: 10px; font-size: 13px">
@@ -216,7 +224,7 @@
 
         <li>
           @if (dataManagementClientService.editClient() !== undefined) {
-          <a class="dropdown-item" (click)="openDeleteAddress()">
+          <a id="delete-address-link" class="dropdown-item" (click)="openDeleteAddress()">
             <div class="custom-control-inline" style="height: 25px">
               <i
                 class="fas fa-trash"
@@ -333,6 +341,7 @@
             </div>
             <label class="checkbox-label legal-entity">
               <input
+                id="legalEntity"
                 type="checkbox"
                 [(ngModel)]="
                   dataManagementClientService.editClient()!.legalEntity
@@ -397,6 +406,7 @@
                 />
                 @if (!addFirstNameLine2 === true && !isDisabled()) {
                 <span
+                  id="add-firstname2-button"
                   class="add-button"
                   type="button"
                   (click)="addFirstNameLine2 = true"
@@ -428,6 +438,7 @@
                 />
                 @if (addFirstNameLine2 === true && !isDisabled()) {
                 <span
+                  id="del-firstname2-button"
                   class="del-button"
                   type="button"
                   (click)="addFirstNameLine2 = false"
@@ -466,6 +477,7 @@
                 />
                 @if (!addNameLine2 === true && !isDisabled()) {
                 <span
+                  id="add-maidenname-button"
                   class="add-button"
                   type="button"
                   (click)="addNameLine2 = true"
@@ -497,6 +509,7 @@
                 />
                 @if (addNameLine2 === true && !isDisabled()) {
                 <span
+                  id="del-maidenname-button"
                   class="del-button"
                   type="button"
                   (click)="addNameLine2 = false"
@@ -574,6 +587,7 @@
                 />
                 @if (!addStreetLine2 === true && !isDisabled()) {
                 <span
+                  id="add-street2-button"
                   class="add-button"
                   type="button"
                   (click)="addStreetLine2 = true"
@@ -605,6 +619,7 @@
                 />
                 @if (!addStreetLine3 && !isDisabled()) {
                 <span
+                  id="add-street3-button"
                   class="add-button"
                   type="button"
                   (click)="addStreetLine3 = true"
@@ -612,6 +627,7 @@
                 >
                 } @if (addStreetLine2 && !isDisabled()) {
                 <span
+                  id="del-street2-button"
                   class="del-button"
                   type="button"
                   (click)="addStreetLine2 = false"
@@ -642,6 +658,7 @@
                 />
                 @if (addStreetLine3 && !isDisabled()) {
                 <span
+                  id="del-street3-button"
                   class="del-button"
                   type="button"
                   (click)="addStreetLine3 = false"
@@ -827,6 +844,7 @@
               >
               <div class="custom-control-inline">
                 <select
+                  id="phonePrefix-{{ ii }}"
                   class="form-select gap-prefix"
                   [(ngModel)]="phoneData.prefix"
                   name="phonePrefix-{{ ii }}"
@@ -848,6 +866,7 @@
                 </select>
 
                 <input
+                  id="phoneValue-{{ ii }}"
                   type="text"
                   class="form-control medium-width-tel"
                   [(ngModel)]="phoneData.value"
@@ -858,6 +877,7 @@
                 />
 
                 <select
+                  id="phoneType-{{ ii }}"
                   class="form-select gap"
                   [(ngModel)]="phoneData.type"
                   name="phoneType-{{ ii }}"
@@ -879,6 +899,7 @@
                 dataManagementClientService.communicationPhoneList().length - 1
                 && !isDisabled()) {
                 <span
+                  id="add-phone-button"
                   class="add-button"
                   type="button"
                   (click)="onClickAddPhone()"
@@ -886,6 +907,7 @@
                 >
                 } @if (ii !== 0) {
                 <span
+                  id="del-phone-button-{{ ii }}"
                   class="del-button"
                   type="button"
                   (click)="onClickDelPhone(phoneData)"
@@ -905,7 +927,7 @@
               }}</label>
               <div class="custom-control-inline">
                 <input
-                  id="mail"
+                  id="emailValue-{{ i }}"
                   type="email"
                   class="form-control medium-width"
                   [(ngModel)]="emailData.value"
@@ -915,6 +937,7 @@
                 />
 
                 <select
+                  id="emailType-{{ i }}"
                   class="form-select gap"
                   [(ngModel)]="emailData.type"
                   name="emailType-{{ i }}"
@@ -936,6 +959,7 @@
                 dataManagementClientService.communicationEmailList().length - 1
                 && !isDisabled()) {
                 <span
+                  id="add-email-button"
                   class="add-button"
                   type="button"
                   (click)="onClickAddEmail()"
@@ -943,6 +967,7 @@
                 >
                 } @if (i !== 0 && !isDisabled()) {
                 <span
+                  id="del-email-button-{{ i }}"
                   class="del-button"
                   type="button"
                   (click)="onClickDelEmail(emailData)"

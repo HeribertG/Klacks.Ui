@@ -7,6 +7,7 @@
     <div headerActions>
       @if (!isDisabled()) {
       <app-button-new
+        id="add-group-button"
         placement="top"
         type="button"
         (click)="addGroup()"
@@ -24,7 +25,7 @@
       <table class="table table-borderless">
         <thead>
           <tr>
-            <th class="table-header clickable" style="width: 360px" (click)="onClickHeader('name')">
+            <th id="sort-name-header" class="table-header clickable" style="width: 360px" (click)="onClickHeader('name')">
               {{
                 translate.instant(
                   "address.edit-address.client-groups.table.name"
@@ -32,7 +33,7 @@
               }}
               <span class="sort-arrow">{{ sortingService.getArrow('name') }}</span>
             </th>
-            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validFrom')">
+            <th id="sort-validFrom-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('validFrom')">
               {{
                 translate.instant(
                   "address.edit-address.client-groups.table.valid-from"
@@ -40,7 +41,7 @@
               }}
               <span class="sort-arrow">{{ sortingService.getArrow('validFrom') }}</span>
             </th>
-            <th class="table-header clickable" style="width: 140px" (click)="onClickHeader('validUntil')">
+            <th id="sort-validUntil-header" class="table-header clickable" style="width: 140px" (click)="onClickHeader('validUntil')">
               {{
                 translate.instant(
                   "address.edit-address.client-groups.table.valid-until"
@@ -59,6 +60,7 @@
           <tr class="table-row">
             <td class="table-cell cell-center-vertical">
               <app-group-select
+                id="groupId-{{ $index }}"
                 [showAllGroupsOption]="false"
                 [useGlobalSelection]="false"
                 [disabled]="isDisabled()"
@@ -125,7 +127,7 @@
             </td>
             <td class="table-cell cell-right cell-center-vertical">
               @if (!isDisabled()) {
-              <div class="icon" (click)="removeGroup($index)">
+              <div id="delete-group-{{ $index }}" class="icon" (click)="removeGroup($index)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }
