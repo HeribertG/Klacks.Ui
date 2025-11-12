@@ -202,6 +202,13 @@ export class AllAddressNavComponent
     );
   }
 
+  onTypeFilterChange() {
+    setTimeout(() => {
+      this.allAddressStateService.updateFilterState();
+      this.dataManagementClientService.readPage();
+    }, 100);
+  }
+
   private readSignals(): void {
     this.effectRef = runInInjectionContext(this.injector, () => {
       return effect(() => {

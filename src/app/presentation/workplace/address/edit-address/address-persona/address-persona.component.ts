@@ -234,6 +234,37 @@ export class AddressPersonaComponent
     this.calcValidation();
   }
 
+  onStateChange(): void {
+    this.calcValidation();
+  }
+
+  getCurrentStateName(): string {
+    if (!this.dataManagementClientService.editClient()) {
+      return '';
+    }
+
+    const currentState =
+      this.dataManagementClientService.editClient()!.addresses[
+        this.dataManagementClientService.currentAddressIndex()
+      ].state;
+
+    if (!currentState) {
+      return '';
+    }
+
+    const stateToken = this.dataManagementClientService
+      .filteredStateList()
+      .find((s) => s.state === currentState);
+
+    if (!stateToken || !stateToken.stateName) {
+      return '';
+    }
+
+    const stateName = stateToken.stateName as Record<string, string>;
+    const currentLang = this.translateService.currentLang as Language;
+    return stateName[currentLang] || stateName['de'] || currentState;
+  }
+
   isWeekend(date: NgbDateStruct) {
     const d = new Date(date.year!, date.month! - 1, date.day!);
     return d.getDay() === 0 || d.getDay() === 6;
@@ -584,6 +615,7 @@ export class AddressPersonaComponent
 
     return 'address.edit-address.address-persona.state';
   }
+
 
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {

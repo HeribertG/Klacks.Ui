@@ -266,6 +266,13 @@ export class DataManagementClientService
         this.clientConfigService.stateList()
       );
       this.filteredStateList.set(filteredStates);
+
+      if (address.state && filteredStates.length > 0) {
+        const stateExists = filteredStates.some(s => s.state === address.state);
+        if (!stateExists) {
+          address.state = '';
+        }
+      }
     }
   };
 

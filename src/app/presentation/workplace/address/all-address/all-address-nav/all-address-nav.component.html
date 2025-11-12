@@ -5,6 +5,7 @@
     <li class="list-group-item-action">
       <label class="checkbox-label">
         <input
+          id="filter-female"
           type="checkbox"
           [(ngModel)]="dataManagementClientService.currentFilter.female"
           name="female"
@@ -14,6 +15,7 @@
 
       <label class="checkbox-label">
         <input
+          id="filter-male"
           type="checkbox"
           [(ngModel)]="dataManagementClientService.currentFilter.male"
           name="male"
@@ -23,6 +25,7 @@
 
       <label class="checkbox-label">
         <input
+          id="filter-intersexuality"
           type="checkbox"
           [(ngModel)]="dataManagementClientService.currentFilter.intersexuality"
           name="intersexuality"
@@ -32,6 +35,7 @@
 
       <label class="checkbox-label">
         <input
+          id="filter-legal-entity"
           type="checkbox"
           [(ngModel)]="dataManagementClientService.currentFilter.legalEntity"
           name="legalEntity"
@@ -56,11 +60,13 @@
             <div class="checkbox-container-default">
               <label class="checkbox-label">
                 <input
+                  id="filter-type-employee"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.employee
                   "
                   name="typeEmployee"
+                  (change)="onTypeFilterChange()"
                 />
                 {{
                   "address.edit-address.membership.type.employee" | translate
@@ -69,11 +75,13 @@
 
               <label class="checkbox-label">
                 <input
+                  id="filter-type-extern-emp"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.externEmp
                   "
                   name="typeExternEmp"
+                  (change)="onTypeFilterChange()"
                 />
                 {{
                   "address.edit-address.membership.type.externEmp" | translate
@@ -82,11 +90,13 @@
 
               <label class="checkbox-label">
                 <input
+                  id="filter-type-customer"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.customer
                   "
                   name="typeCustomer"
+                  (change)="onTypeFilterChange()"
                 />
                 {{
                   "address.edit-address.membership.type.customer" | translate
@@ -95,7 +105,7 @@
             </div>
           </div>
           <div class="dropdown-divider"></div>
-          <button ngbDropdownItem>{{ "close" | translate }}</button>
+          <button id="close-type-dropdown" ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
@@ -116,6 +126,7 @@
             <div class="checkbox-container-default">
               <label class="checkbox-label">
                 <input
+                  id="filter-active-membership"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.activeMembership
@@ -127,6 +138,7 @@
 
               <label class="checkbox-label">
                 <input
+                  id="filter-former-membership"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.formerMembership
@@ -138,6 +150,7 @@
 
               <label class="checkbox-label">
                 <input
+                  id="filter-future-membership"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementClientService.currentFilter.futureMembership
@@ -149,7 +162,7 @@
             </div>
           </div>
           <div class="dropdown-divider"></div>
-          <button ngbDropdownItem>{{ "close" | translate }}</button>
+          <button id="close-validity-dropdown" ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
@@ -171,6 +184,7 @@
           <div class="px-4 py-3">
             <div class="form-group">
               <button
+                id="filter-select-all-countries"
                 type="button"
                 class="btn btn-secondary btn-sm max-width2"
                 (click)="
@@ -183,6 +197,7 @@
               </button>
               <p></p>
               <button
+                id="filter-deselect-all-countries"
                 type="button"
                 class="btn btn-secondary btn-sm max-width2"
                 (click)="
@@ -216,7 +231,7 @@
             </div>
           </div>
           <div class="dropdown-divider"></div>
-          <button ngbDropdownItem>{{ "close" | translate }}</button>
+          <button id="close-countries-dropdown" ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
@@ -236,6 +251,7 @@
           <div class="px-4 py-3">
             <div class="form-group">
               <button
+                id="filter-select-all-states"
                 type="button"
                 class="btn btn-secondary btn-sm max-width"
                 (click)="
@@ -246,6 +262,7 @@
               </button>
               <p></p>
               <button
+                id="filter-deselect-all-states"
                 type="button"
                 class="btn btn-secondary btn-sm max-width"
                 (click)="
@@ -286,7 +303,7 @@
           }
 
           <div class="dropdown-divider"></div>
-          <button ngbDropdownItem>{{ "close" | translate }}</button>
+          <button id="close-states-dropdown" ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
@@ -339,6 +356,7 @@
                 }}</label>
                 <div class="input-group my-datepicker">
                   <input
+                    id="filter-date-from"
                     class="form-control"
                     name="from"
                     aria-label="from"
@@ -370,6 +388,7 @@
                 }}</label>
                 <div class="input-group my-datepicker">
                   <input
+                    id="filter-date-until"
                     class="form-control"
                     name="until"
                     aria-label="until"
@@ -400,7 +419,7 @@
           </div>
 
           <div class="dropdown-divider"></div>
-          <button ngbDropdownItem>{{ "close" | translate }}</button>
+          <button id="close-scope-dropdown" ngbDropdownItem>{{ "close" | translate }}</button>
         </div>
       </div>
     </li>
@@ -409,6 +428,7 @@
     <li class="list-group-item-action" (click)="onClickShowDeleteEntries()">
       <label class="checkbox-label">
         <input
+          id="filter-show-deleted"
           type="checkbox"
           [(ngModel)]="
             dataManagementClientService.currentFilter.showDeleteEntries
@@ -422,6 +442,7 @@
 
     <li class="list-group-item-action">
       <button
+        id="filter-reset-button"
         class="btn btn btn-sm max-width place-around"
         (click)="onClickSetEmpty()"
         [disabled]="

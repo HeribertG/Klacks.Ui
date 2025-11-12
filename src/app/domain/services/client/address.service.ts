@@ -44,7 +44,7 @@ export class AddressService {
               address.state = res![0].state;
               address.country = 'CH';
             } else if (res!.length > 1) {
-              address.city = '';
+              address.city = res![0].city;
               lastCountries = res!;
               address.state = res![0].state;
               address.country = 'CH';

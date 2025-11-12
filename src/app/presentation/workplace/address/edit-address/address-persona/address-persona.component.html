@@ -760,6 +760,9 @@
                   ].state
                 "
                 name="state"
+                (ngModelChange)="onStateChange()"
+                [ngbTooltip]="getCurrentStateName()"
+                placement="top"
               >
                 @for (c of dataManagementClientService.filteredStateList();
                 track c.state) {
@@ -770,8 +773,6 @@
                       dataManagementClientService.currentAddressIndex()
                     ].state === c.state
                   "
-                  data-toggle="tooltip"
-                  title="{{ c.stateName | fallback : currentLang }}"
                 >
                   {{ c.state }}
                 </option>

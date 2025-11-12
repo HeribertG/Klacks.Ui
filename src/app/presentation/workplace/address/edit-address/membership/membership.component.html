@@ -19,9 +19,7 @@
               id="client-type"
               [disabled]="isDisabled()"
               [ngModel]="dataManagementClientService.editClient()?.type"
-              (ngModelChange)="
-                dataManagementClientService.editClient()!.type = $event
-              "
+              (ngModelChange)="onClientTypeChange($event)"
             >
               <option value="0">
                 {{

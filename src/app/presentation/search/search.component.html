@@ -13,6 +13,7 @@
     />
 
     <button
+      id="search-button"
       class="btn btn-outline-secondary container-search-button input-group-text"
       type="button"
       (click)="onClickSearch()"
@@ -25,6 +26,7 @@
   <div class="include-address">
     <label class="checkbox-label">
       <input
+        id="search-include-address"
         type="checkbox"
         name="includeAddress"
         [(ngModel)]="includeAddress"
@@ -35,7 +37,7 @@
   } @if (searchService.showIncludeClient()) {
   <div class="include-address">
     <label class="checkbox-label">
-      <input type="checkbox" name="includeClient" [(ngModel)]="includeClient" />
+      <input id="search-include-client" type="checkbox" name="includeClient" [(ngModel)]="includeClient" />
       {{ "search.inc.client" | translate }}
     </label>
   </div>

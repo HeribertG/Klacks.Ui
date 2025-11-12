@@ -21,6 +21,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { toNumber } from 'src/app/shared/helpers/number.helper';
 
 @Component({
   selector: 'app-membership',
@@ -81,6 +82,15 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );
+  }
+
+  onClientTypeChange(newType: number | string): void {
+    this.dataManagementClientService.clientEditService.editClient.update(client => {
+      if (client) {
+        return { ...client, type: toNumber(newType) };
+      }
+      return client;
+    });
   }
 
   public calcValidation(): void {

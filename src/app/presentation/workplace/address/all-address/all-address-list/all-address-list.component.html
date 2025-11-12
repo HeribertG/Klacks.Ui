@@ -153,6 +153,7 @@
         @for (data of dataManagementClientService.listWrapper()?.clients; track
         data.id; let i = $index) {
         <tr
+          [id]="'client-row-' + i"
           class="table-row"
           (click)="onClickedRow(data)"
           [class.active]="data.id === highlightRowId"
@@ -185,6 +186,7 @@
             {{ data.company }}
           </td>
           <td
+            [id]="'client-firstname-' + i"
             [ngClass]="{
               'table-cell': data.isDeleted === false,
               'table-cell-delete': data.isDeleted === true
@@ -193,6 +195,7 @@
             {{ data.firstName }}
           </td>
           <td
+            [id]="'client-lastname-' + i"
             [ngClass]="{
               'table-cell': data.isDeleted === false,
               'table-cell-delete': data.isDeleted === true
@@ -204,19 +207,19 @@
           <td class="table-cell cell-right">
             @if (authorizationService.isAdmin) {
             <div>
-              <div class="icon icon-padding" (click)="onClickEdit(data)">
+              <div [id]="'client-edit-button-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>
 
               @if (!data.isDeleted) {
-              <div class="icon" (click)="open(data)">
+              <div [id]="'client-delete-button-' + i" class="icon" (click)="open(data)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }
             </div>
             } @if (!authorizationService.isAdmin) {
             <div>
-              <div class="icon icon-padding" (click)="onClickEdit(data)">
+              <div [id]="'client-view-button-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-eye-grey></app-icon-eye-grey>
               </div>
             </div>

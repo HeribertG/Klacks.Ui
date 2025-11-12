@@ -17,6 +17,24 @@ export function isNumeric(value: any): boolean {
 }
 
 /**
+ * Converts a string or number to a number (integer).
+ *
+ * @param value - Value to convert
+ * @returns Converted number
+ *
+ * @example
+ * toNumber("42") // 42
+ * toNumber(42) // 42
+ * toNumber("42.5") // 42
+ */
+export function toNumber(value: string | number): number {
+  if (typeof value === 'string') {
+    return parseInt(value, 10);
+  }
+  return value;
+}
+
+/**
  * Inverts a hex color to black or white for contrast.
  *
  * @param hex - Hex color code

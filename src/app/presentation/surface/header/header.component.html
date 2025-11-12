@@ -3,11 +3,11 @@
 
 <div class="header-container">
   @if (!hasLogoImage()) {
-  <div class="icon" (click)="onClickDashboard()">
+  <div id="header-logo-icon" class="icon" (click)="onClickDashboard()">
     <app-icon-logo></app-icon-logo>
   </div>
   } @if (hasLogoImage()) {
-  <div (click)="onClickDashboard()" class="icon1">
+  <div id="header-logo-image" (click)="onClickDashboard()" class="icon1">
     <img
       [src]="logoImage()"
       [width]="logoDisplayDimensions().width"
@@ -19,18 +19,20 @@
 
   <app-search></app-search>
 
-  <span class="version">{{ version() }}</span>
+  <span id="header-version" class="version">{{ version() }}</span>
 
   <span class="filler"></span>
 
   <app-group-select></app-group-select>
 
   <app-icon-mml
+    id="header-assistant-button"
     class="assistant-btn"
     (click)="onToggleAssistant()"
   ></app-icon-mml>
 
   <app-icon-sign-out
+    id="header-logout-button"
     class="icon-logOut"
     (click)="onClickLogOut()"
   ></app-icon-sign-out>
