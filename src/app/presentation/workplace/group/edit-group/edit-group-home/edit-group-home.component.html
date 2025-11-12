@@ -1,26 +1,29 @@
-<div class="container-dashboard">
-  <div class="container-headline">
+<div id="edit-group-home-container" class="container-dashboard">
+  <div id="edit-group-home-headline" class="container-headline">
     {{ "group.edit-group.edit-group-home.header" | translate }}
   </div>
 
-  <div class="container-profilline">
+  <div id="edit-group-item-container" class="container-profilline">
     <app-edit-group-item
+      id="edit-group-item"
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-group-item>
   </div>
 
-  <div class="container-profilline">
+  <div id="edit-group-parent-container" class="container-profilline">
     <app-edit-group-parent
+      id="edit-group-parent"
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-group-parent>
   </div>
 
-  <div class="container-profilline">
+  <div id="edit-group-members-container" class="container-profilline">
     <app-edit-group-members
+      id="edit-group-members"
       (isChangingEvent)="onIsChanging($event)"
       class="container-profile first border-right-card border-bottom-card"
     >
@@ -28,10 +31,10 @@
   </div>
 
   <div
-    id="group-nav"
+    id="edit-group-nav-container"
     class="container-address-nav border-right-card border-bottom-card"
   >
-    <app-edit-group-nav></app-edit-group-nav>
+    <app-edit-group-nav id="edit-group-nav"></app-edit-group-nav>
   </div>
 
   <div class="bottom-border-space"></div>

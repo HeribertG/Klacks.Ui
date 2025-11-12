@@ -1,18 +1,19 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="allGroupForm">
-  <div class="container-header header-container">
+<form id="all-group-list-form">
+  <div id="all-group-list-header" class="container-header header-container">
     {{ translate.instant("group.all-group.all-group-list.header") }}
 
     <span class="filler"></span>
 
     <div class="tree-actions">
-      <button class="btn new-btn" (click)="onAddGroup()">
+      <button id="all-group-list-new-button" class="btn new-btn" (click)="onAddGroup()">
         {{ "new-group" | translate }}
       </button>
     </div>
 
     <div
+      id="all-group-list-tree-toggle"
       class="btn ownStyle-button"
       role="button"
       aria-label="tree"
@@ -25,12 +26,12 @@
     </div>
   </div>
   <div class="container-line"></div>
-  <div class="container-table">
+  <div id="all-group-list-table-container" class="container-table">
     <table
       class="table table-borderless"
       (blur)="onLostFocus()"
       #myGridTable
-      id="myGridTable"
+      id="all-group-list-table"
       appResizeTable
       #resizeDirective="resizeTable"
       [defaultItemsPerPage]="
@@ -43,10 +44,11 @@
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (recalculateRequired)="onRecalculateRequired($event)"
     >
-      <thead>
-        <tr>
-          <th class="table-header" style="width: 60px; max-width: 60px">
+      <thead id="all-group-list-thead">
+        <tr id="all-group-list-header-row">
+          <th id="all-group-list-header-checkbox" class="table-header" style="width: 60px; max-width: 60px">
             <input
+              id="all-group-list-header-checkbox-input"
               type="checkbox"
               [(ngModel)]="dataManagementGroupService.headerCheckBoxValue"
               (change)="onChangeHeaderCheckBox()"
@@ -58,6 +60,7 @@
           </th>
 
           <th
+            id="all-group-list-header-name"
             class="table-header"
             (click)="onClickHeader('name')"
             style="width: 180px"
@@ -73,6 +76,7 @@
           </th>
 
           <th
+            id="all-group-list-header-description"
             class="table-header"
             (click)="onClickHeader('description')"
             style="width: 280px"
@@ -92,6 +96,7 @@
           </th>
 
           <th
+            id="all-group-list-header-from"
             class="table-header cell-center"
             (click)="onClickHeader('valid_from')"
             style="width: 100px"
@@ -109,6 +114,7 @@
           </th>
 
           <th
+            id="all-group-list-header-until"
             class="table-header cell-center"
             (click)="onClickHeader('valid_until')"
             style="width: 100px"
@@ -128,6 +134,7 @@
           </th>
 
           <th
+            id="all-group-list-header-actions"
             class="table-header action cell-right"
             style="width: 130px; max-width: 130px; min-width: 130px"
           >
@@ -135,16 +142,18 @@
           </th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="all-group-list-tbody">
         @for (data of dataManagementGroupService.listWrapper?.groups; track
         data.id; let i = $index) {
         <tr
+          [id]="'all-group-list-row-' + i"
           class="table-row"
           (click)="onClickedRow(data)"
           [class.active]="data.id === highlightRowId"
         >
-          <td class="table-cell">
+          <td [id]="'all-group-list-cell-checkbox-' + i" class="table-cell">
             <input
+              [id]="'all-group-list-checkbox-' + i"
               type="checkbox"
               [checked]="checkBoxValue(i)"
               (change)="onChangeCheckBox(i, $event)"
@@ -153,17 +162,17 @@
               aria-label="checkbox"
             />
           </td>
-          <td class="table-cell">
+          <td [id]="'all-group-list-cell-name-' + i" class="table-cell">
             {{ data.name }}
           </td>
-          <td class="table-cell">
+          <td [id]="'all-group-list-cell-description-' + i" class="table-cell">
             {{ data.description }}
           </td>
 
-          <td class="table-cell">
+          <td [id]="'all-group-list-cell-from-' + i" class="table-cell">
             {{ data.validFrom | date : "dd.MM.yyyy" }}
           </td>
-          <td class="table-cell">
+          <td [id]="'all-group-list-cell-until-' + i" class="table-cell">
             @if (data.validUntil) {
             <p>
               {{ data.validUntil | date : "dd.MM.yyyy" }}
@@ -171,17 +180,17 @@
             }
           </td>
 
-          <td class="table-cell cell-right">
+          <td [id]="'all-group-list-cell-actions-' + i" class="table-cell cell-right">
             <div>
-              <div class="icon icon-padding" (click)="onClickEdit(data)">
+              <div [id]="'all-group-list-edit-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>
 
-              <div class="icon icon-padding" (click)="onCopyGroup(data)">
+              <div [id]="'all-group-list-copy-' + i" class="icon icon-padding" (click)="onCopyGroup(data)">
                 <app-icon-copy-grey></app-icon-copy-grey>
               </div>
 
-              <div class="icon" (click)="open(data)">
+              <div [id]="'all-group-list-delete-' + i" class="icon" (click)="open(data)">
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
             </div>
@@ -194,6 +203,7 @@
 
   @if (dataManagementGroupService.paginationDataService) {
   <app-pagination
+    id="all-group-list-pagination"
     [dataService]="dataManagementGroupService.paginationDataService"
     [(page)]="page"
     [numberOfItemsPerPage]="

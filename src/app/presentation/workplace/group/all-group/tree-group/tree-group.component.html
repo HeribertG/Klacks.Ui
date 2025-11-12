@@ -1,9 +1,10 @@
-<div class="container-card">
-  <div class="container-header header-container">
+<div id="tree-group-container" class="container-card">
+  <div id="tree-group-header" class="container-header header-container">
     {{ "group.tree.headline" | translate }}
     <span class="filler"></span>
 
     <div
+      id="tree-group-expand-button"
       class="btn ownStyle-button2"
       role="button"
       aria-label="refresh"
@@ -19,6 +20,7 @@
     </div>
 
     <div
+      id="tree-group-collapse-button"
       class="btn ownStyle-button2"
       role="button"
       aria-label="refresh"
@@ -34,6 +36,7 @@
     </div>
 
     <div
+      id="tree-group-refresh-button"
       class="btn ownStyle-button2 extra-margin-right"
       role="button"
       aria-label="refresh"
@@ -49,11 +52,12 @@
     </div>
 
     <div class="tree-actions">
-      <button class="btn new-btn" (click)="onAddRootGroup()">
+      <button id="tree-group-add-root-button" class="btn new-btn" (click)="onAddRootGroup()">
         {{ "group.tree.add-root" | translate }}
       </button>
     </div>
     <div
+      id="tree-group-grid-toggle"
       class="btn ownStyle-button"
       role="button"
       aria-label="grid"
@@ -73,11 +77,11 @@
 
   @if (dataManagementGroupService.showTree()) {
   <!-- tree view -->
-  <div class="tree-container" cdkDropListGroup>
+  <div id="tree-group-tree-container" class="tree-container" cdkDropListGroup>
     @if (hierarchicalTree && hierarchicalTree.length > 0) {
-    <ul class="tree-root">
+    <ul id="tree-group-tree-root" class="tree-root">
       @for (node of hierarchicalTree; track node.id) {
-      <li class="tree-node">
+      <li [id]="'tree-group-node-' + node.id" class="tree-node">
         <ng-container
           *ngTemplateOutlet="recursiveTree; context: { $implicit: node }"
         ></ng-container>
@@ -85,7 +89,7 @@
       }
     </ul>
     } @else {
-    <div class="no-tree-message">
+    <div id="tree-group-no-tree-message" class="no-tree-message">
       {{ "group.tree.no-groups" | translate }}
     </div>
     }
