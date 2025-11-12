@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ApplicationInitService } from 'src/app/application/services/application-init.service';
 import { ToastsContainerComponent } from './presentation/toast/toast.component';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
@@ -12,6 +13,7 @@ import { AsideComponent } from './presentation/aside/aside.component';
   standalone: true,
   imports: [
     RouterModule,
+    TranslateModule,
     ToastsContainerComponent,
     KeyboardShortcutDirective,
     AsideComponent,

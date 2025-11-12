@@ -1,11 +1,30 @@
-<div class="aside-panel">
+<div
+  class="aside-panel"
+  role="dialog"
+  [attr.aria-modal]="isVisible()"
+  [attr.aria-label]="'aside.header.title' | translate"
+  appFocusTrap
+  (keydown.escape)="close()"
+>
   <div class="aside-header">
-    <h3>{{ "aside.header.title" | translate }}</h3>
+    <h3 id="aside-title">{{ "aside.header.title" | translate }}</h3>
     <div class="header-buttons">
-      <button class="delete-btn" (click)="clearChat()">
-        <app-icon-trash-red></app-icon-trash-red>
+      <button
+        type="button"
+        class="delete-btn"
+        (click)="clearChat()"
+        [attr.aria-label]="'aside.header.clear-chat' | translate"
+      >
+        <app-icon-trash-red aria-hidden="true"></app-icon-trash-red>
       </button>
-      <button class="close-btn" (click)="close()">×</button>
+      <button
+        type="button"
+        class="close-btn"
+        (click)="close()"
+        [attr.aria-label]="'aside.header.close' | translate"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
     </div>
   </div>
   <div class="aside-content">

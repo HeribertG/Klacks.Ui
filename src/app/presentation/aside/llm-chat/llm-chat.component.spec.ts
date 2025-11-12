@@ -20,6 +20,8 @@ import { SpeechRecognitionService } from './services/speech-recognition.service'
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.component';
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
+import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
+import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -32,6 +34,7 @@ describe('LLMChatComponent', () => {
   let component: LLMChatComponent;
   let fixture: ComponentFixture<LLMChatComponent>;
   let mockLlmService: jasmine.SpyObj<DataManagementLLMService>;
+  let mockLlmProviderService: jasmine.SpyObj<DataManagementLLMProviderService>;
   let mockSpeechService: jasmine.SpyObj<SpeechRecognitionService>;
   let mockTranslateService: TranslateService;
   let mockRouter: jasmine.SpyObj<Router>;
@@ -65,6 +68,27 @@ describe('LLMChatComponent', () => {
     },
   ];
 
+  const mockProviders: ILLMProvider[] = [
+    {
+      id: '1',
+      providerId: 'openai',
+      providerName: 'OpenAI',
+      isEnabled: true,
+      apiKey: 'sk-test-key-123',
+      baseUrl: 'https://api.openai.com/v1',
+      priority: 1,
+    },
+    {
+      id: '2',
+      providerId: 'anthropic',
+      providerName: 'Anthropic',
+      isEnabled: true,
+      apiKey: '',
+      baseUrl: 'https://api.anthropic.com',
+      priority: 2,
+    },
+  ];
+
   beforeEach(async () => {
     const llmServiceSpy = jasmine.createSpyObj('DataManagementLLMService', [
       'getAvailableModels',
@@ -75,6 +99,11 @@ describe('LLMChatComponent', () => {
       'setLanguage',
       'clearConversation',
     ]);
+
+    const llmProviderServiceSpy = jasmine.createSpyObj(
+      'DataManagementLLMProviderService',
+      ['loadProviders', 'getCurrentProviders']
+    );
 
     const speechServiceSpy = jasmine.createSpyObj(
       'SpeechRecognitionService',
@@ -102,6 +131,7 @@ describe('LLMChatComponent', () => {
       ],
       providers: [
         { provide: DataManagementLLMService, useValue: llmServiceSpy },
+        { provide: DataManagementLLMProviderService, useValue: llmProviderServiceSpy },
         { provide: SpeechRecognitionService, useValue: speechServiceSpy },
         { provide: Router, useValue: routerSpy },
       ],
@@ -123,6 +153,9 @@ describe('LLMChatComponent', () => {
     mockLlmService = TestBed.inject(
       DataManagementLLMService
     ) as jasmine.SpyObj<DataManagementLLMService>;
+    mockLlmProviderService = TestBed.inject(
+      DataManagementLLMProviderService
+    ) as jasmine.SpyObj<DataManagementLLMProviderService>;
     mockSpeechService = TestBed.inject(
       SpeechRecognitionService
     ) as jasmine.SpyObj<SpeechRecognitionService>;
@@ -145,6 +178,9 @@ describe('LLMChatComponent', () => {
     mockLlmService.setLanguage.and.stub();
     mockLlmService.getModelInfo.and.returnValue(mockModels[0]);
 
+    mockLlmProviderService.loadProviders.and.returnValue(Promise.resolve(mockProviders));
+    mockLlmProviderService.getCurrentProviders.and.returnValue(mockProviders);
+
     fixture = TestBed.createComponent(LLMChatComponent);
     component = fixture.componentInstance;
   });
@@ -164,24 +200,26 @@ describe('LLMChatComponent', () => {
     expect(component.messages[0].content).toContain('👋');
   });
 
-  it('should load available models on init', () => {
+  it('should load available models on init', fakeAsync(() => {
     // Act
     fixture.detectChanges();
+    tick();
 
     // Assert
     expect(mockLlmService.getAvailableModels).toHaveBeenCalled();
     expect(component.availableModels.length).toBe(1);
     expect(component.availableModels[0].modelId).toBe('gpt-4');
-  });
+  }));
 
-  it('should set current model on init', () => {
+  it('should set current model on init', fakeAsync(() => {
     // Act
     fixture.detectChanges();
+    tick();
 
     // Assert
     expect(mockLlmService.getCurrentModelId).toHaveBeenCalled();
     expect(component.currentModel).toBe('gpt-4');
-  });
+  }));
 
   describe('sendMessage', () => {
     beforeEach(() => {
@@ -462,6 +500,178 @@ describe('LLMChatComponent', () => {
       expect(component.conversationId).not.toBe(oldConversationId);
       expect(component.messages.length).toBe(1); // Only welcome message
       expect(component.messages[0].sender).toBe('assistant');
+    });
+  });
+
+  describe('hasNoApiKey', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should return true when no models available', () => {
+      // Arrange
+      component.availableModels = [];
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when currentModel is empty string', () => {
+      // Arrange
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = '';
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when currentModel is not set', () => {
+      // Arrange
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = null as any;
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when currentModel not found in availableModels', () => {
+      // Arrange
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = 'non-existent-model';
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when provider not found for current model', () => {
+      // Arrange
+      component.availableModels = [
+        {
+          ...mockModels[0],
+          providerId: 'unknown-provider',
+        },
+      ];
+      component.currentModel = mockModels[0].modelId;
+      mockLlmProviderService.getCurrentProviders.and.returnValue([]);
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when provider has no apiKey', () => {
+      // Arrange
+      const providersWithoutKey: ILLMProvider[] = [
+        {
+          ...mockProviders[0],
+          apiKey: undefined,
+        },
+      ];
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = 'gpt-4';
+      mockLlmProviderService.getCurrentProviders.and.returnValue(providersWithoutKey);
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when provider apiKey is empty string', () => {
+      // Arrange
+      const providersWithEmptyKey: ILLMProvider[] = [
+        {
+          ...mockProviders[0],
+          apiKey: '',
+        },
+      ];
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = 'gpt-4';
+      mockLlmProviderService.getCurrentProviders.and.returnValue(providersWithEmptyKey);
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return true when provider apiKey is whitespace only', () => {
+      // Arrange
+      const providersWithWhitespaceKey: ILLMProvider[] = [
+        {
+          ...mockProviders[0],
+          apiKey: '   ',
+        },
+      ];
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = 'gpt-4';
+      mockLlmProviderService.getCurrentProviders.and.returnValue(providersWithWhitespaceKey);
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(true);
+    });
+
+    it('should return false when current model has valid provider with apiKey', () => {
+      // Arrange
+      component.availableModels = mockModels.filter(m => m.isEnabled);
+      component.currentModel = 'gpt-4';
+      mockLlmProviderService.getCurrentProviders.and.returnValue(mockProviders);
+
+      // Act
+      const result = component.hasNoApiKey();
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it('should check provider for newly selected model', () => {
+      // Arrange
+      const modelWithValidKey: ILLMModel = {
+        ...mockModels[0],
+        modelId: 'model-with-key',
+        providerId: 'openai',
+      };
+      const modelWithoutValidKey: ILLMModel = {
+        ...mockModels[1],
+        modelId: 'model-without-key',
+        providerId: 'anthropic',
+        isEnabled: true,
+      };
+      component.availableModels = [modelWithValidKey, modelWithoutValidKey];
+      mockLlmProviderService.getCurrentProviders.and.returnValue(mockProviders);
+
+      // Act - Select model with valid API key
+      component.currentModel = 'model-with-key';
+      const resultWithKey = component.hasNoApiKey();
+
+      // Assert
+      expect(resultWithKey).toBe(false);
+
+      // Act - Switch to model without valid API key
+      component.currentModel = 'model-without-key';
+      const resultWithoutKey = component.hasNoApiKey();
+
+      // Assert
+      expect(resultWithoutKey).toBe(true);
     });
   });
 });

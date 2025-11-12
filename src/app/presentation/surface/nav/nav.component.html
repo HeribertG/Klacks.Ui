@@ -1,90 +1,114 @@
 <div class="main-container" role="navigation" aria-label="Main navigation">
   <div class="main-cell">
     <div class="icon_group">
-      <app-icon-gantt
-        #absenceIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-absences"
         (click)="onClickAbsence()"
+        [attr.aria-label]="'Manage absences (Alt+1)'"
         placement="right"
-        autoClose="true"
         ngbTooltip="{{ absence }} (Alt+1)"
-        aria-label="Manage absences (Alt+1)"
-      ></app-icon-gantt>
+      >
+        <app-icon-gantt #absenceIcon></app-icon-gantt>
+      </button>
     </div>
 
     @if (isAdmin()) {
     <div class="icon">
-      <app-icon-group
-        #groupIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-groups"
         (click)="onClickGroup()"
+        [attr.aria-label]="'Manage groups (Alt+2)'"
         placement="right"
         ngbTooltip="{{ all_group }} (Alt+2)"
-        aria-label="Manage groups (Alt+2)"
-      ></app-icon-group>
+      >
+        <app-icon-group #groupIcon></app-icon-group>
+      </button>
     </div>
     }
 
     <div class="icon">
-      <app-icon-order
-        #shiftIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-shifts"
         (click)="onClickShift()"
+        [attr.aria-label]="'Manage shifts (Alt+3)'"
         placement="right"
         ngbTooltip="{{ all_shift }} (Alt+3)"
-        aria-label="Manage shifts (Alt+3)"
-      ></app-icon-order>
+      >
+        <app-icon-order #shiftIcon></app-icon-order>
+      </button>
     </div>
 
     <div class="icon">
-      <app-time-schedule
-        #scheduleIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-schedules"
         (click)="onClickSchedule()"
+        [attr.aria-label]="'Manage schedules (Alt+4)'"
         placement="right"
         ngbTooltip="{{ all_schedule }} (Alt+4)"
-        aria-label="Manage schedules (Alt+4)"
-      ></app-time-schedule>
+      >
+        <app-time-schedule #scheduleIcon></app-time-schedule>
+      </button>
     </div>
 
     <div class="icon">
-      <app-icon-clients
-        #employeesIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-employees"
         (click)="onClickClients()"
+        [attr.aria-label]="'Manage employees (Alt+5)'"
         placement="right"
         ngbTooltip="{{ all_employee }} (Alt+5)"
-        autoClose="true"
-        aria-label="Manage employees (Alt+5)"
-      ></app-icon-clients>
+      >
+        <app-icon-clients #employeesIcon></app-icon-clients>
+      </button>
     </div>
   </div>
 
   <div class="main-bottomcell">
     @if (!hasProfileImage()) {
-    <div class="icon icon_user" aria-label="Open profile (Alt+7)">
-      <app-icon-user #userIcon (click)="onClickProfile()"></app-icon-user>
+    <div class="icon icon_user">
+      <button
+        type="button"
+        class="icon-button"
+        id="open-profile"
+        (click)="onClickProfile()"
+        [attr.aria-label]="'Open profile (Alt+7)'"
+      >
+        <app-icon-user #userIcon></app-icon-user>
+      </button>
     </div>
     } @if (hasProfileImage()) {
-    <div
-      class="imgIconContainer"
-      tabindex="6"
-      id="open-profile"
-      (click)="onClickProfile()"
-      (keydown.enter)="onClickProfile()"
-      (keydown.space)="onClickProfile()"
-      aria-label="Open profile (Alt+7)"
-    >
-      <img [src]="dataLoadFileService.profileImage$()" alt="" class="imgIcon" />
+    <div class="imgIconContainer">
+      <button
+        type="button"
+        class="icon-button profile-img-button"
+        id="open-profile"
+        (click)="onClickProfile()"
+        [attr.aria-label]="'Open profile (Alt+7)'"
+      >
+        <img [src]="dataLoadFileService.profileImage$()" [attr.alt]="'Profile picture'" class="imgIcon" />
+      </button>
     </div>
     } @if (isAdmin()) {
     <div class="icon">
-      <app-icon-setting
-        #settingsIcon
+      <button
+        type="button"
+        class="icon-button"
         id="open-settings"
         (click)="onClickSettings()"
-        aria-label="Open Settings"
-      ></app-icon-setting>
+        [attr.aria-label]="'Open Settings (Alt+8)'"
+      >
+        <app-icon-setting #settingsIcon></app-icon-setting>
+      </button>
     </div>
     }
   </div>

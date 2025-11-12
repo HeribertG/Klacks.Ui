@@ -32,6 +32,7 @@ import { IconUserComponent } from '../../icons/icon-user.component';
 import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconChatComponent } from '../../icons/icon-chat.component';
+import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 
 export interface ChatMessage {
   id: string;
@@ -61,6 +62,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
 
   private llmService = inject(DataManagementLLMService);
+  private llmProviderService = inject(DataManagementLLMProviderService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
@@ -94,7 +96,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.conversationId = this.generateConversationId();
 
     this.translateService.onLangChange
@@ -111,6 +113,8 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.translateService.currentLang || this.translateService.defaultLang;
     this.updateSpeechLanguage(currentLang);
     this.addWelcomeMessage(currentLang);
+
+    await this.llmProviderService.loadProviders();
 
     this.llmService
       .getAvailableModels()
@@ -369,5 +373,22 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.addWelcomeMessage(currentLang);
 
     this.shouldScrollToBottom = true;
+  }
+
+  hasNoApiKey(): boolean {
+    if (this.availableModels.length === 0 || !this.currentModel || this.currentModel === '') {
+      return true;
+    }
+
+    const currentModelInfo = this.availableModels.find(m => m.modelId === this.currentModel);
+    if (!currentModelInfo) {
+      return true;
+    }
+
+    const providers = this.llmProviderService.getCurrentProviders();
+
+    const currentProvider = providers.find(p => p.providerId === currentModelInfo.providerId);
+
+    return !currentProvider || !currentProvider.apiKey || currentProvider.apiKey.trim() === '';
   }
 }

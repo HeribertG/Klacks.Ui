@@ -1,5 +1,11 @@
+<a href="#main-content" class="skip-link">
+  {{ 'accessibility.skip-to-main' | translate }}
+</a>
+
 <div #appRoot appKeyboardShortcut>
-  <router-outlet></router-outlet>
-  <app-toasts></app-toasts>
+  <main id="main-content" tabindex="-1">
+    <router-outlet></router-outlet>
+  </main>
+  <app-toasts aria-live="polite" aria-atomic="true"></app-toasts>
   <app-aside></app-aside>
 </div>

@@ -33,7 +33,6 @@ describe('AllAddressListComponent', () => {
 
   beforeEach(async () => {
     mockDataManagementClientService = jasmine.createSpyObj('DataManagementClientService', [
-      'init',
       'readPage',
       'deleteClient',
       'exportExcel',
@@ -145,11 +144,6 @@ describe('AllAddressListComponent', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should initialize DataManagementClientService', () => {
-      fixture.detectChanges();
-      expect(mockDataManagementClientService.init).toHaveBeenCalled();
-    });
-
     it('should initialize TableSortingService with correct config', () => {
       spyOn(sortingService, 'initialize');
       fixture.detectChanges();

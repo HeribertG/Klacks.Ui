@@ -11,6 +11,7 @@ import { AsideService } from './aside.service';
 import { LLMChatComponent } from './llm-chat/llm-chat.component';
 import { TrashIconRedComponent } from '../icons/trash-icon-red.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { FocusTrapDirective } from '../directives/focus-trap.directive';
 
 @Component({
   selector: 'app-aside',
@@ -22,6 +23,7 @@ import { TranslateModule } from '@ngx-translate/core';
     LLMChatComponent,
     TrashIconRedComponent,
     TranslateModule,
+    FocusTrapDirective,
   ],
 })
 export class AsideComponent {
