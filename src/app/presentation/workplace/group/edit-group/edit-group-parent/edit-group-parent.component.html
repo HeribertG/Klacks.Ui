@@ -1,15 +1,16 @@
-<form #parentForm="ngForm">
+<form #parentForm="ngForm" id="edit-group-parent-form">
   <app-expandable-card
+    id="edit-group-parent-card"
     [headerTitle]="'group.edit-group.edit-group-parent.headline' | translate">
 
   @if (dataManagementGroupService.editGroup) {
-  <div class="parent-selection">
-    <label for="parent-select">
+  <div id="edit-group-parent-selection" class="parent-selection">
+    <label for="edit-group-parent-select">
       {{ "group.edit-group.edit-group-parent.select-parent" | translate }}
     </label>
     <div class="select-group">
       <select
-        id="parent-select"
+        id="edit-group-parent-select"
         class="form-select"
         name="parent"
         [(ngModel)]="dataManagementGroupService.editGroup.parent"

@@ -1,20 +1,21 @@
-<form #navGroupForm="ngForm" id="navGroupForm">
-  <ul class="list-group">
+<form #navGroupForm="ngForm" id="all-group-nav-form">
+  <ul id="all-group-nav-list" class="list-group">
     <!-- Gültigkeit -->
     <li class="list-group-item-action">
-      <div ngbDropdown>
+      <div id="all-group-validity-dropdown" ngbDropdown>
         <button
           class="btn btn-outline-primary btn-sm max-width"
-          id="dropdownForm-1"
+          id="all-group-validity-dropdown-toggle"
           ngbDropdownToggle
         >
           {{ "address.all-address.all-address-nav.validity" | translate }}
         </button>
-        <div ngbDropdownMenu aria-labelledby="dropdownForm-1">
+        <div id="all-group-validity-dropdown-menu" ngbDropdownMenu aria-labelledby="all-group-validity-dropdown-toggle">
           <div class="form-group">
             <div class="checkbox-container-default">
               <label class="checkbox-label">
                 <input
+                  id="all-group-filter-active"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementGroupService.currentFilter.activeDateRange
@@ -26,6 +27,7 @@
 
               <label class="checkbox-label">
                 <input
+                  id="all-group-filter-former"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementGroupService.currentFilter.formerDateRange
@@ -37,6 +39,7 @@
 
               <label class="checkbox-label">
                 <input
+                  id="all-group-filter-future"
                   type="checkbox"
                   [(ngModel)]="
                     dataManagementGroupService.currentFilter.futureDateRange
@@ -49,7 +52,7 @@
           </div>
           <div class="dropdown-divider"></div>
 
-          <button ngbDropdownItem (click)="onClose()">
+          <button id="all-group-validity-close" ngbDropdownItem (click)="onClose()">
             {{ "close" | translate }}
           </button>
         </div>

@@ -1,12 +1,13 @@
-<div class="container-dashboard">
-  <div class="container-headline">
+<div id="all-group-home-container" class="container-dashboard">
+  <div id="all-group-home-headline" class="container-headline">
     {{ "group.all-group.all-group-home.header" | translate }}
   </div>
 
   @if (showGrid) {
-  <div>
-    <div class="container-profilline">
+  <div id="all-group-grid-view">
+    <div id="all-group-list-container" class="container-profilline">
       <app-all-group-list
+        id="all-group-list"
         class="container-profile first border-right-card border-bottom-card"
         (switchToTree)="showAsTree()"
       >
@@ -15,16 +16,17 @@
 
     @if (authorizationService.isAuthorised) {
     <div
-      id="group-nav"
+      id="all-group-nav-container"
       class="container-address-nav border-right-card border-bottom-card"
     >
-      <app-all-group-nav></app-all-group-nav>
+      <app-all-group-nav id="all-group-nav"></app-all-group-nav>
     </div>
     }
   </div>
   } @if (!showGrid) {
-  <div class="container-profilline">
+  <div id="all-group-tree-view" class="container-profilline">
     <app-tree-group
+      id="all-group-tree"
       class="container-profile first border-right-card border-bottom-card"
       (switchToGrid)="showAsGrid()"
     >

@@ -1,11 +1,12 @@
-<form #groupForm="ngForm">
+<form #groupForm="ngForm" id="edit-group-item-form">
   <app-expandable-card
+    id="edit-group-item-card"
     [headerTitle]="'group.edit-group.edit-group-item.headline' | translate">
 
   @if (dataManagementGroupService.editGroup !== undefined) {
   <div class="firstColumn first-row">
     <!-- Name -->
-    <label for="name">{{
+    <label for="edit-group-item-name">{{
       "group.edit-group.edit-group-item.name" | translate
     }}</label>
     <div class="custom-control-inline default-width">
@@ -14,7 +15,7 @@
         class="form-control"
         autocomplete="off"
         [(ngModel)]="dataManagementGroupService.editGroup.name"
-        id="name"
+        id="edit-group-item-name"
         name="name"
         required
         [disabled]="!authorizationService.isAuthorised"
@@ -28,8 +29,9 @@
       <div class="firstColumContainer">
         <div class="form-group">
           <app-date-input
+            id="edit-group-item-valid-from"
             [label]="'group.edit-group.edit-group-item.from' | translate"
-            inputId="validFrom"
+            inputId="edit-group-item-from"
             inputName="validFrom"
             inputWidth="medium-width"
             [value]="dataManagementGroupService.editGroup.internalValidFrom"
@@ -49,8 +51,9 @@
     <div class="secondColumnContainer firstColumn">
       <div class="form-group">
         <app-date-input
+          id="edit-group-item-valid-until"
           [label]="'group.edit-group.edit-group-item.until' | translate"
-          inputId="validUntil"
+          inputId="edit-group-item-until"
           inputName="validUntil"
           inputWidth="medium-width"
           [value]="dataManagementGroupService.editGroup.internalValidUntil"
