@@ -1,7 +1,7 @@
-<table class="table table-borderless" #myTable id="myTable">
-  <thead>
-    <tr>
-      <th class="table-header with100" (click)="onClickHeader('from')">
+<table id="absence-grid-table" class="table table-borderless" #myTable>
+  <thead id="absence-grid-thead">
+    <tr id="absence-grid-header-row">
+      <th id="absence-grid-header-from" class="table-header with100" (click)="onClickHeader('from')">
         <div class="table-header-cell form-inline">
           <p class="gap noselect">
             {{
@@ -12,7 +12,7 @@
           <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('from') }}</p>
         </div>
       </th>
-      <th class="table-header with100" (click)="onClickHeader('until')">
+      <th id="absence-grid-header-until" class="table-header with100" (click)="onClickHeader('until')">
         <div class="table-header-cell custom-control-inline">
           <p class="gap noselect">
             {{
@@ -23,7 +23,7 @@
           <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('until') }}</p>
         </div>
       </th>
-      <th class="table-header maxWith250" (click)="onClickHeader('absence')">
+      <th id="absence-grid-header-absence" class="table-header maxWith250" (click)="onClickHeader('absence')">
         <div class="table-header-cell custom-control-inline">
           <p class="gap noselect">
             {{
@@ -34,13 +34,13 @@
           <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('absence') }}</p>
         </div>
       </th>
-      <th class="table-header with20">
+      <th id="absence-grid-header-value" class="table-header with20">
         {{
           "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.value"
             | translate
         }}
       </th>
-      <th class="table-header">
+      <th id="absence-grid-header-note" class="table-header">
         {{
           "absence-gantt.absence-gantt-mask.absence-gantt-mask.list.note"
             | translate
@@ -48,18 +48,19 @@
       </th>
     </tr>
   </thead>
-  <tbody>
+  <tbody id="absence-grid-tbody">
     @for (data of selectedRowData; track data.id || $index; let i = $index) {
     <tr
+      [id]="'absence-grid-row-' + i"
       class="table-row"
       (click)="onClickedRow(data)"
       [class.active]="data.id === highlightRowId"
     >
-      <td class="table-cell">{{ data.from | date : "dd.MM.yyyy" }}</td>
-      <td class="table-cell">{{ data.until | date : "dd.MM.yyyy" }}</td>
-      <td class="table-cell">{{ onAbsenceName(data) }}</td>
-      <td class="table-cell">{{ onAbsenceValue(data) }}</td>
-      <td class="table-cell">{{ getPlainTextNote(data) }}</td>
+      <td [id]="'absence-grid-cell-from-' + i" class="table-cell">{{ data.from | date : "dd.MM.yyyy" }}</td>
+      <td [id]="'absence-grid-cell-until-' + i" class="table-cell">{{ data.until | date : "dd.MM.yyyy" }}</td>
+      <td [id]="'absence-grid-cell-absence-' + i" class="table-cell">{{ onAbsenceName(data) }}</td>
+      <td [id]="'absence-grid-cell-value-' + i" class="table-cell">{{ onAbsenceValue(data) }}</td>
+      <td [id]="'absence-grid-cell-note-' + i" class="table-cell">{{ getPlainTextNote(data) }}</td>
     </tr>
     }
   </tbody>

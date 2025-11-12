@@ -1,5 +1,6 @@
-<div class="container">
+<div id="absence-filter-container" class="container">
   <button
+    id="absence-filter-firstname-button"
     class="input-group button-as-div"
     (click)="onClickHeader('firstName')"
   >
@@ -17,7 +18,7 @@
     </div>
   </button>
 
-  <button class="input-group button-as-div" (click)="onClickHeader('name')">
+  <button id="absence-filter-name-button" class="input-group button-as-div" (click)="onClickHeader('name')">
     <div class="row-line">
       <p class="arrow">
         @if (sortingService.getArrow('name') === '↓') {
@@ -32,7 +33,7 @@
     </div>
   </button>
 
-  <button class="input-group button-as-div" (click)="onClickHeader('company')">
+  <button id="absence-filter-company-button" class="input-group button-as-div" (click)="onClickHeader('company')">
     <div class="row-line">
       <p class="arrow">
         @if (sortingService.getArrow('company') === '↓') {

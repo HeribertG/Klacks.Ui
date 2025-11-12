@@ -1,11 +1,11 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
-<div class="mask-container">
+<div id="absence-mask-container" class="mask-container">
   @if (selectedRow > -1) {
-  <div class="mask">
-    <div class="mask-header custom-control-inline">
-      <ul class="nav nav-tabs">
+  <div id="absence-mask" class="mask">
+    <div id="absence-mask-header" class="mask-header custom-control-inline">
+      <ul id="absence-mask-tabs" class="nav nav-tabs">
         <li class="nav-item">
           @if (selectedBreak) {
           <a
@@ -17,7 +17,7 @@
             role="tab"
             [attr.aria-selected]="tabId === 'mask'"
             tabindex="0"
-            id="mask-tab"
+            id="absence-mask-tab"
           >
             {{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.mask"
@@ -36,7 +36,7 @@
             role="tab"
             [attr.aria-selected]="tabId === 'list'"
             tabindex="1"
-            id="list-tab"
+            id="absence-list-tab"
           >
             {{
               "absence-gantt.absence-gantt-mask.absence-gantt-mask.tab.list"
@@ -47,6 +47,7 @@
       </ul>
       <span class="filler"></span>
       <div
+        id="absence-mask-pdf-export-wrapper"
         [ngStyle]="{
           display:
             tabId === 'list' && selectedRowData && selectedRowData.length > 0
@@ -54,7 +55,7 @@
               : 'none'
         }"
       >
-        <div class="pdf-icon" (click)="onExportPDF()">
+        <div id="absence-mask-pdf-export" class="pdf-icon" (click)="onExportPDF()">
           <app-icon-pdf-icon></app-icon-pdf-icon>
         </div>
       </div>
@@ -62,15 +63,16 @@
 
     @if (selectedBreak) {
     <div
+      id="absence-mask-form-tab"
       class="collapse"
       [ngStyle]="{ display: tabId === 'mask' ? 'inline' : 'none' }"
     >
-      <div class="container-mask">
-        <div class="container-mask-date">
+      <div id="absence-mask-form-container" class="container-mask">
+        <div id="absence-mask-date-container" class="container-mask-date">
           <div class="row-line">
             <!-- internalFrom -->
             <div class="form-group">
-              <label for="internal-from">
+              <label for="absence-mask-internal-from">
                 {{
                   "absence-gantt.absence-gantt-mask.absence-gantt-mask.from"
                     | translate
@@ -82,7 +84,7 @@
                   name="internal-from"
                   aria-label="internal-from"
                   aria-labelledby="internalFrom"
-                  id="internal-from"
+                  id="absence-mask-internal-from"
                   [ngModel]="selectedBreak!.internalFrom"
                   (ngModelChange)="
                     onChange(); selectedBreak!.internalFrom = $event
@@ -91,6 +93,7 @@
                   #internalFrom="ngbDatepicker"
                 />
                 <span
+                  id="absence-mask-internal-from-icon"
                   class="input-group-text span-date"
                   style="width: 40px"
                   (click)="internalFrom.toggle()"
@@ -105,7 +108,7 @@
 
             <!-- internalUntil -->
             <div class="form-group">
-              <label for="internal-until">
+              <label for="absence-mask-internal-until">
                 {{
                   "absence-gantt.absence-gantt-mask.absence-gantt-mask.until"
                     | translate
@@ -117,7 +120,7 @@
                   name="internal-until"
                   aria-label="internal-until"
                   aria-labelledby="internal-until"
-                  id="internal-until"
+                  id="absence-mask-internal-until"
                   [ngModel]="selectedBreak!.internalUntil"
                   (ngModelChange)="
                     onChange(); selectedBreak!.internalUntil = $event
@@ -126,6 +129,7 @@
                   #internalUntil="ngbDatepicker"
                 />
                 <span
+                  id="absence-mask-internal-until-icon"
                   class="input-group-text span-date"
                   style="width: 40px"
                   (click)="internalUntil.toggle()"
@@ -143,7 +147,7 @@
           <div class="row-line">
             <div class="absence-reason-container">
               <div class="form-group">
-                <label for="absenceId">
+                <label for="absence-mask-absence-type">
                   {{
                     "absence-gantt.absence-gantt-mask.absence-gantt-mask.type"
                       | translate
@@ -151,6 +155,7 @@
                 </label>
                 <div class="input-group">
                   <select
+                    id="absence-mask-absence-type"
                     class="form-select type-select"
                     [ngModel]="selectedBreak!.absenceId"
                     name="absenceId"
@@ -176,16 +181,17 @@
           }
         </div>
 
-        <div class="container-mask-description">
+        <div id="absence-mask-description-container" class="container-mask-description">
           <div class="form-group">
-            <label for="information">
+            <label for="absence-mask-information">
               {{
                 "absence-gantt.absence-gantt-mask.absence-gantt-mask.note"
                   | translate
               }}
             </label>
-            <div class="input-text">
+            <div id="absence-mask-information-wrapper" class="input-text">
               <app-rich-text-editor
+                id="absence-mask-information"
                 [content]="selectedBreak.information || ''"
                 [showToolbar]="true"
                 [showToolbarOnlyOnFocus]="false"
@@ -201,11 +207,13 @@
     }
 
     <div
+      id="absence-mask-list-tab"
       class="collapse"
       [ngStyle]="{ display: tabId === 'list' ? 'inline' : 'none' }"
     >
-      <div class="container-mask">
+      <div id="absence-mask-grid-container" class="container-mask">
         <app-absence-gantt-grid
+          id="absence-mask-grid"
           [selectedRowData]="selectedRowData"
           [selectedRow]="selectedRow"
           (exportPDF)="onPDFExported()"
@@ -215,18 +223,19 @@
     </div>
   </div>
   } @if (!selectedBreak) {
-  <div class="mask">
+  <div id="absence-mask-dummy" class="mask">
     <div class="dummy-div"></div>
   </div>
   }
 
-  <div class="input-group-flex mask-footer">
+  <div id="absence-mask-footer" class="input-group-flex mask-footer">
     @if (selectedRow > -1) {
-    <button class="btn new-btn button-new" (click)="onClickNewButton()">
+    <button id="absence-mask-new-button" class="btn new-btn button-new" (click)="onClickNewButton()">
       {{ "button.new" | translate }}
     </button>
     } @if (selectedBreak) {
     <button
+      id="absence-mask-delete-button"
       class="btn delete-btn"
       (click)="dataManagementBreak.deleteBreak(selectedRow, selectedBreak)"
     >
@@ -238,6 +247,7 @@
 
     @if (selectedBreak) {
     <app-simple-pagination
+      id="absence-mask-pagination"
       [collectionSize]="selectedRowBreaksMaxIndex!"
       (pageChange)="onBreakChange($event)"
       [(page)]="page"

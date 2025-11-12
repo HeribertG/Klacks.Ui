@@ -1,7 +1,8 @@
-<as-split direction="horizontal">
+<as-split id="absence-gantt-main-split" direction="horizontal">
   <!-- (Haupt) Split-Bereich -->
-  <as-split-area>
+  <as-split-area id="absence-gantt-main-area">
     <as-split
+      id="absence-gantt-vertical-split"
       #splitElVert
       direction="vertical"
       aria-orientation="vertical"
@@ -10,8 +11,9 @@
       unit="percent"
     >
       <!-- oberer Bereich -->
-      <as-split-area [size]="64" [minSize]="10" [maxSize]="90">
+      <as-split-area id="absence-gantt-upper-area" [size]="64" [minSize]="10" [maxSize]="90">
         <as-split
+          id="absence-gantt-horizontal-split"
           #splitElHorizontal
           [gutterSize]="6"
           direction="horizontal"
@@ -21,12 +23,14 @@
         >
           <!-- Links oben -->
           <as-split-area
+            id="absence-gantt-left-area"
             [size]="200"
             [minSize]="100"
             aria-label="as-split-area top left"
           >
             <!-- Inhalt für Links oben -->
             <app-absence-gantt-row-header
+              id="absence-gantt-row-header"
               #absenceRowHeader
               [valueChangeVScrollbar]="vScrollbarValue()"
             >
@@ -34,11 +38,11 @@
           </as-split-area>
 
           <!-- Rechts oben -->
-          <as-split-area [minSize]="100">
+          <as-split-area id="absence-gantt-right-area" [minSize]="100">
             <!-- Inhalt für Rechts oben -->
-            <div class="container-box">
-              <div class="surface">
-                <div class="box">
+            <div id="absence-gantt-surface-container" class="container-box">
+              <div id="absence-gantt-surface-wrapper" class="surface">
+                <div id="absence-gantt-surface-box" class="box">
                   <app-absence-gantt-surface
                     #absenceBody
                     class="grid-canvas"
@@ -61,6 +65,7 @@
                   </app-absence-gantt-surface>
                 </div>
                 <app-v-scrollbar
+                  id="absence-gantt-v-scrollbar"
                   [class.hidden]="vScrollbarSize() === 0"
                   class="vScrollArea"
                   [(value)]="vScrollbarValue"
@@ -72,6 +77,7 @@
                 </app-v-scrollbar>
               </div>
               <app-h-scrollbar
+                id="absence-gantt-h-scrollbar"
                 [class.hidden]="hScrollbarSize() === 0"
                 class="hScrollArea"
                 [(value)]="hScrollbarValue"
@@ -87,8 +93,9 @@
       </as-split-area>
 
       <!-- unterer Bereich -->
-      <as-split-area>
+      <as-split-area id="absence-gantt-lower-area">
         <app-absence-gantt-mask
+          id="absence-gantt-mask"
           #absenceMask
           [selectedRow]="selectedRow"
           [selectedBreakIndex]="selectedBreakIndex"
@@ -104,10 +111,10 @@
   </as-split-area>
 
   <!-- Rechter (Info) Split-Bereich -->
-  <as-split-area [maxSize]="20" unit="percent" [visible]="IsInfoVisible()">
-    <div class="info"></div>
+  <as-split-area id="absence-gantt-info-area" [maxSize]="20" unit="percent" [visible]="IsInfoVisible()">
+    <div id="absence-gantt-info" class="info"></div>
   </as-split-area>
 </as-split>
 
 
-<app-context-menu name="context-menu" #contextMenu></app-context-menu>
+<app-context-menu id="absence-gantt-context-menu" name="context-menu" #contextMenu></app-context-menu>
