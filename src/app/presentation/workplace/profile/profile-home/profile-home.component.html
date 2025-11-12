@@ -1,20 +1,23 @@
-<div class="container-dashboard">
-  <div class="container-headline">
+<div id="profile-home-container" class="container-dashboard">
+  <div id="profile-home-headline" class="container-headline">
     {{ translate.instant("setting.home.header") }}
   </div>
 
-  <div class="container-profilline">
+  <div id="profile-home-upper-row" class="container-profilline">
     <app-profile-picture
+      id="profile-picture"
       class="container-profile-small container-profile-login container-profile-login-margin first border-right-card border-bottom-card"
       (isChangingEvent)="onIsChanging($event)"
     ></app-profile-picture>
     <app-profile-data-edit
+      id="profile-data-edit"
       class="container-profile-small container-profile-login border-right-card border-bottom-card"
       (isChangingEvent)="onIsChanging($event)"
     ></app-profile-data-edit>
   </div>
-  <div class="container-profilline">
+  <div id="profile-home-lower-row" class="container-profilline">
     <app-profile-custom-setting
+      id="profile-custom-setting"
       class="container-profile-small container-profile-login-margin first border-right-card border-bottom-card"
     >
     </app-profile-custom-setting>

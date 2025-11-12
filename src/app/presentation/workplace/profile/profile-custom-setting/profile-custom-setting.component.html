@@ -1,33 +1,32 @@
-<div class="container-dashboard">
-  <div class="container-header">
+<div id="profile-custom-setting-container" class="container-dashboard">
+  <div id="profile-custom-setting-header" class="container-header">
     {{ "setting.profile-custom.header" | translate }}
   </div>
 
   <div class="container-line"></div>
 
-  <div class="custom-container">
-    <div class="main-switch-wrapper">
-      <label class="main-switch" for="checkbox">
+  <div id="profile-custom-setting-content" class="custom-container">
+    <div id="profile-custom-setting-dark-mode-wrapper" class="main-switch-wrapper">
+      <label class="main-switch" for="profile-custom-setting-dark-mode-checkbox">
         <input
           type="checkbox"
           name="isChecked"
           aria-labelledby="isChecked"
-          id="checkbox"
+          id="profile-custom-setting-dark-mode-checkbox"
           [(ngModel)]="isChecked"
           (change)="onDarkModeChecked()"
-          name="isChecked"
         />
         <div class="slider round"></div>
       </label>
       <em>{{ translate.instant("setting.profile-custom.dark-mode") }}</em>
     </div>
 
-    <div class="language-select">
-      <label for="selectedLanguage">
+    <div id="profile-custom-setting-language-wrapper" class="language-select">
+      <label for="profile-custom-setting-language-select">
         {{ translate.instant("header.selected-language") }}</label
       >
       <select
-        id="selectedLanguage"
+        id="profile-custom-setting-language-select"
         [ngModel]="selectedLanguage"
         (ngModelChange)="onChange(); selectedLanguage = $event"
       >
