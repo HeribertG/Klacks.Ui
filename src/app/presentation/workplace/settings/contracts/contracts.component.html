@@ -2,15 +2,16 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
 <!-- Contract Modal -->
-<ng-template #contractModal let-modal>
-  <form #contractForm="ngForm">
-    <div class="modal-header">
+<ng-template #contractModal id="contract-modal-template" let-modal>
+  <form id="contract-modal-form" #contractForm="ngForm">
+    <div id="contract-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("setting.contract.headline-modal") }}
       </div>
       <span class="filler"></span>
 
       <div
+        id="contract-modal-close-btn"
         type="button"
         class="close"
         aria-label="Close"
@@ -27,10 +28,10 @@
         >
       </div>
     </div>
-    <div class="modal-body">
+    <div id="contract-modal-body" class="modal-body">
       @if (editingContract) {
-      <div class="row-line-modal-inline">
-        <div class="contract-name-section">
+      <div id="contract-modal-name-row" class="row-line-modal-inline">
+        <div id="contract-modal-name-section" class="contract-name-section">
           <label for="contractName">{{
             translate.instant("setting.contract.name-modal")
           }}</label>
@@ -46,9 +47,10 @@
       </div>
 
       <!-- Hours Configuration -->
-      <div class="row-line-modal-inline hours-config-row">
-        <div class="hours-config-item">
+      <div id="contract-modal-hours-config-row" class="row-line-modal-inline hours-config-row">
+        <div id="contract-modal-guaranteed-hours-item" class="hours-config-item">
           <app-time-input
+            id="contract-modal-guaranteed-hours-input"
             [label]="
               translate.instant('setting.contract.guaranteedHours-modal')
             "
@@ -61,8 +63,9 @@
           ></app-time-input>
         </div>
 
-        <div class="hours-config-item">
+        <div id="contract-modal-min-hours-item" class="hours-config-item">
           <app-time-input
+            id="contract-modal-min-hours-input"
             [label]="translate.instant('setting.contract.minHours-modal')"
             [(value)]="editingContract.internalMinimumHours!"
             hoursName="minHoursHours"
@@ -73,8 +76,9 @@
           ></app-time-input>
         </div>
 
-        <div class="hours-config-item">
+        <div id="contract-modal-max-hours-item" class="hours-config-item">
           <app-time-input
+            id="contract-modal-max-hours-input"
             [label]="translate.instant('setting.contract.maxHours-modal')"
             [(value)]="editingContract.internalMaximumHours!"
             hoursName="maxHoursHours"
@@ -87,9 +91,10 @@
       </div>
 
       <!-- Validity Period -->
-      <div class="row-line-modal-inline">
-        <div class="validity-section">
+      <div id="contract-modal-validity-row" class="row-line-modal-inline">
+        <div id="contract-modal-valid-from-section" class="validity-section">
           <app-date-input
+            id="contract-modal-valid-from-input"
             [label]="translate.instant('setting.contract.validFrom-modal')"
             [(value)]="editingContract.internalValidFrom"
             inputName="validFrom"
@@ -98,8 +103,9 @@
           ></app-date-input>
         </div>
 
-        <div class="validity-section">
+        <div id="contract-modal-valid-until-section" class="validity-section">
           <app-date-input
+            id="contract-modal-valid-until-input"
             [label]="translate.instant('setting.contract.validUntil-modal')"
             [(value)]="editingContract.internalValidUntil"
             inputName="validUntil"
@@ -110,8 +116,8 @@
       </div>
 
       <!-- Calendar Selection -->
-      <div class="row-line-modal-inline">
-        <div class="calendar-section">
+      <div id="contract-modal-calendar-row" class="row-line-modal-inline">
+        <div id="contract-modal-calendar-section" class="calendar-section">
           <label for="calendarSelection">{{
             translate.instant("setting.contract.calendarSelection-modal")
           }}</label>
@@ -139,11 +145,11 @@
 
       <!-- Validation Errors -->
       @if (getValidationErrors().length > 0) {
-      <div class="row-line-modal-inline">
-        <div class="validation-errors-section">
-          <div class="alert alert-danger">
+      <div id="contract-modal-validation-row" class="row-line-modal-inline">
+        <div id="contract-modal-validation-section" class="validation-errors-section">
+          <div id="contract-modal-validation-alert" class="alert alert-danger">
             <strong>{{ translate.instant("validation.errors") }}:</strong>
-            <ul>
+            <ul id="contract-modal-validation-list">
               @for (error of getValidationErrors(); track error) {
               <li>{{ error }}</li>
               }
@@ -155,14 +161,16 @@
     </div>
   </form>
 
-  <div class="modal-footer">
+  <div id="contract-modal-footer" class="modal-footer">
     <span
+      id="contract-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ "cancel" | translate }}</span
     >
     <button
+      id="contract-modal-save-btn"
       type="button"
       class="btn save-btn"
       (click)="onSaveModal(modal)"
@@ -172,20 +180,21 @@
   </div>
 </ng-template>
 
-<form>
-  <div class="container-header">
+<form id="contracts-form">
+  <div id="contracts-header" class="container-header">
     {{ translate.instant("setting.contract.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="contracts-line" class="container-line"></div>
 
-  <app-contract-header></app-contract-header>
+  <app-contract-header id="contracts-table-header"></app-contract-header>
 
-  <div class="container-box" #containerBox>
+  <div id="contracts-box" class="container-box" #containerBox>
     @for (contract of dataManagementContractService.contracts; track contract.id
     || $index; let i = $index) {
 
     <app-contract-row
+      [id]="'contract-row-' + i"
       [data]="contract"
       (editEvent)="onClickEdit($event)"
       (isDeleteEvent)="onClickDelete(i)"
@@ -195,8 +204,8 @@
     }
   </div>
 
-  <div class="row">
-    <span class="add-button" type="button" (click)="onClickAdd()"
+  <div id="contracts-add-row" class="row">
+    <span id="contracts-add-btn" class="add-button" type="button" (click)="onClickAdd()"
       >{{ translate.instant("setting.contract.add") }}
     </span>
   </div>

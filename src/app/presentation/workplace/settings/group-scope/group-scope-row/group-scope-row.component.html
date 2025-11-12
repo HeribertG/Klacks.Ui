@@ -1,8 +1,8 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<ng-template #content let-modal>
-  <form #groupForm="ngForm">
-    <div class="modal-header">
+<ng-template #content id="group-scope-modal-template" let-modal>
+  <form id="group-scope-modal-form" #groupForm="ngForm">
+    <div id="group-scope-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("setting.group.chose-headline") }}
       </div>
@@ -26,10 +26,10 @@
         >
       </div>
     </div>
-    <div class="modal-body">
-      <div class="checkbox-container">
+    <div id="group-scope-modal-body" class="modal-body">
+      <div id="group-scope-modal-checkbox-container" class="checkbox-container">
         @for (group of rootList(); track group.id;) {
-        <div class="form-check">
+        <div [id]="'group-scope-modal-group-check-' + group.id" class="form-check">
           <input
             class="form-check-input"
             type="checkbox"
@@ -39,7 +39,7 @@
             (change)="onCheckboxChange($event, group.id!)"
             [value]="group.id"
           />
-          <label class="form-check-label" for="group-{{ group.id }}">
+          <label [id]="'group-scope-modal-group-label-' + group.id" class="form-check-label" for="group-{{ group.id }}">
             {{ group.name }}
             @if (group.description) {
             <span class="text-muted"> - {{ group.description }}</span>
@@ -51,7 +51,7 @@
     </div>
   </form>
 
-  <div class="modal-footer">
+  <div id="group-scope-modal-footer" class="modal-footer">
     <span
       id="group-scope-modal-cancel-btn"
       type="button"
@@ -65,8 +65,8 @@
   </div>
 </ng-template>
 
-<div class="first custom-control-inline">
-  <div class="form-group">
+<div id="group-scope-row-container-{{ user!.id }}" class="first custom-control-inline">
+  <div id="group-scope-row-name-group-{{ user!.id }}" class="form-group">
     <input
       id="group-scope-row-name-{{ user!.id }}"
       type="text"
@@ -77,7 +77,7 @@
       aria-label="name"
     />
   </div>
-  <div class="form-group">
+  <div id="group-scope-row-count-group-{{ user!.id }}" class="form-group">
     <button
       id="group-scope-row-count-btn-{{ user!.id }}"
       type="button"

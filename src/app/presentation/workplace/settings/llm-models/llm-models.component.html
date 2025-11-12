@@ -2,15 +2,16 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
 <!-- LLM Model Modal -->
-<ng-template #llmModal let-modal>
-  <form #llmForm="ngForm">
-    <div class="modal-header">
+<ng-template #llmModal id="llm-models-modal-template" let-modal>
+  <form id="llm-models-modal-form" #llmForm="ngForm">
+    <div id="llm-models-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("settings.llm-models.headline-modal") }}
       </div>
       <span class="filler"></span>
 
       <div
+        id="llm-models-modal-close-btn"
         type="button"
         class="close"
         aria-label="Close"
@@ -27,20 +28,20 @@
         >
       </div>
     </div>
-    <div class="modal-body">
+    <div id="llm-models-modal-body" class="modal-body">
       @if (editingModel) {
       <!-- Model ID and Display Name -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-basic-info-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="modelId">{{
             translate.instant("settings.llm-models.model-id")
           }}</label>
           <input
+            id="llm-models-modal-model-id"
             type="text"
             [(ngModel)]="editingModel.modelId"
             name="modelId"
             class="form-control"
-            id="modelId"
             required
           />
         </div>
@@ -49,27 +50,27 @@
             translate.instant("settings.llm-models.display-name")
           }}</label>
           <input
+            id="llm-models-modal-model-name"
             type="text"
             [(ngModel)]="editingModel.modelName"
             name="modelName"
             class="form-control"
-            id="modelName"
             required
           />
         </div>
       </div>
 
       <!-- Provider and Description -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-provider-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="provider">{{
             translate.instant("settings.llm-models.provider")
           }}</label>
           <select
+            id="llm-models-modal-provider"
             class="form-control"
             [(ngModel)]="editingModel.providerId"
             name="provider"
-            id="provider"
             required
           >
             @for (provider of availableProviders; track provider.providerId) {
@@ -84,44 +85,44 @@
             translate.instant("settings.llm-models.description")
           }}</label>
           <input
+            id="llm-models-modal-description"
             type="text"
             [(ngModel)]="editingModel.description"
             name="description"
             class="form-control"
-            id="description"
           />
         </div>
       </div>
 
       <!-- API Model ID -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-api-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="apiModelId">{{
             translate.instant("settings.llm-models.api-model-id")
           }}</label>
           <input
+            id="llm-models-modal-api-model-id"
             type="text"
             [(ngModel)]="editingModel.apiModelId"
             name="apiModelId"
             class="form-control"
-            id="apiModelId"
             required
           />
         </div>
       </div>
 
       <!-- Technical Specifications -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-specs-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="contextWindow">{{
             translate.instant("settings.llm-models.context-window")
           }}</label>
           <input
+            id="llm-models-modal-context-window"
             type="number"
             [(ngModel)]="editingModel.contextWindow"
             name="contextWindow"
             class="form-control"
-            id="contextWindow"
             required
             min="1"
           />
@@ -131,11 +132,11 @@
             translate.instant("settings.llm-models.max-tokens")
           }}</label>
           <input
+            id="llm-models-modal-max-tokens"
             type="number"
             [(ngModel)]="editingModel.maxTokens"
             name="maxTokens"
             class="form-control"
-            id="maxTokens"
             required
             min="1"
           />
@@ -143,7 +144,7 @@
       </div>
 
       <!-- Cost Configuration -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-cost-row" class="row-line-modal-inline">
         <div class="model-field">
           <label for="inputCost"
             >{{
@@ -152,11 +153,11 @@
             (€/1K)</label
           >
           <input
+            id="llm-models-modal-input-cost"
             type="number"
             [(ngModel)]="editingModel.costPerInputToken"
             name="inputCost"
             class="form-control"
-            id="inputCost"
             required
             min="0"
             step="0.0001"
@@ -170,11 +171,11 @@
             (€/1K)</label
           >
           <input
+            id="llm-models-modal-output-cost"
             type="number"
             [(ngModel)]="editingModel.costPerOutputToken"
             name="outputCost"
             class="form-control"
-            id="outputCost"
             required
             min="0"
             step="0.0001"
@@ -184,18 +185,18 @@
 
       <!-- Provider API Key (only for new models or when editing provider settings) -->
       @if (isProviderApiKeyEditable()) {
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-apikey-row" class="row-line-modal-inline">
         <div class="model-field full-width">
           <label for="apiKey"
             >{{ translate.instant("settings.llm-models.api-key") }}
             <span class="required-marker">*</span></label
           >
           <input
+            id="llm-models-modal-api-key"
             type="password"
             [(ngModel)]="providerApiKey"
             name="apiKey"
             class="form-control"
-            id="apiKey"
             placeholder="sk-..."
             [required]="isNewModel"
           />
@@ -207,13 +208,13 @@
       }
 
       <!-- Status Flags -->
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-flags-row" class="row-line-modal-inline">
         <div class="checkbox-field">
           <input
+            id="llm-models-modal-is-enabled"
             type="checkbox"
             [(ngModel)]="editingModel.isEnabled"
             name="isEnabled"
-            id="isEnabled"
           />
           <label for="isEnabled">{{
             translate.instant("settings.llm-models.enabled")
@@ -221,10 +222,10 @@
         </div>
         <div class="checkbox-field">
           <input
+            id="llm-models-modal-is-default"
             type="checkbox"
             [(ngModel)]="editingModel.isDefault"
             name="isDefault"
-            id="isDefault"
           />
           <label for="isDefault">{{
             translate.instant("settings.llm-models.default")
@@ -234,7 +235,7 @@
 
       <!-- Validation Errors -->
       @if (getValidationErrors().length > 0) {
-      <div class="row-line-modal-inline">
+      <div id="llm-models-modal-validation-row" class="row-line-modal-inline">
         <div class="validation-errors-section">
           <div class="alert alert-danger">
             <strong>{{ translate.instant("validation.errors") }}:</strong>
@@ -250,14 +251,16 @@
     </div>
   </form>
 
-  <div class="modal-footer">
+  <div id="llm-models-modal-footer" class="modal-footer">
     <span
+      id="llm-models-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("cancel") }}</span
     >
     <button
+      id="llm-models-modal-save-btn"
       type="button"
       class="btn save-btn"
       (click)="onSaveModal(modal)"
@@ -268,19 +271,20 @@
   </div>
 </ng-template>
 
-<form>
-  <div class="container-header">
+<form id="llm-models-form">
+  <div id="llm-models-header" class="container-header">
     {{ translate.instant("settings.llm-models.title") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="llm-models-line" class="container-line"></div>
 
-  <app-llm-models-header></app-llm-models-header>
+  <app-llm-models-header id="llm-models-table-header"></app-llm-models-header>
 
-  <div class="container-box">
+  <div id="llm-models-box" class="container-box">
     @for (model of models; track model.modelId || $index; let i = $index) {
 
     <app-llm-models-row
+      [id]="'llm-models-row-' + i"
       [data]="model"
       (editEvent)="onClickEdit($event)"
       (isDeleteEvent)="onClickDelete(i)"
@@ -290,8 +294,8 @@
     }
   </div>
 
-  <div class="row">
-    <span class="add-button" type="button" (click)="onClickAdd()"
+  <div id="llm-models-footer" class="row">
+    <span id="llm-models-add-btn" class="add-button" type="button" (click)="onClickAdd()"
       >{{ translate.instant("settings.llm-models.add") }}
     </span>
   </div>

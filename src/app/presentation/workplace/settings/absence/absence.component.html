@@ -20,14 +20,14 @@
   </div>
 </ng-template> -->
 
-<ng-template #absenceModal let-modal role="dialog" class="modal-window">
-  <div class="modal-header">
+<ng-template #absenceModal id="absence-modal-template" let-modal role="dialog" class="modal-window">
+  <div id="absence-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title1">
       {{ "setting.absence.modal.edit" | translate }}
     </div>
     <span class="filler"></span>
 
-    <div type="button" class="close" (click)="modal.dismiss('Cross click')">
+    <div id="absence-modal-close-btn" type="button" class="close" (click)="modal.dismiss('Cross click')">
       <span
         aria-hidden="true"
         style="
@@ -40,14 +40,15 @@
     </div>
   </div>
 
-  <form>
-    <div class="modal-body first-modal">
-      <div class="row-line">
+  <form id="absence-modal-form">
+    <div id="absence-modal-body" class="modal-body first-modal">
+      <div id="absence-modal-name-row" class="row-line">
         <label for="ruleName">{{
           "setting.absence.modal.name" | translate
         }}</label>
         @if (currentLang === 'de') {
         <input
+          id="absence-modal-name-de"
           type="text"
           class="form-control"
           [(ngModel)]="currentAbsence.name!.de!"
@@ -85,12 +86,13 @@
         }
       </div>
 
-      <div class="row-line">
+      <div id="absence-modal-description-row" class="row-line">
         <label for="description">{{
           "setting.absence.modal.description" | translate
         }}</label>
         @if (currentLang === 'de') {
         <textarea
+          id="absence-modal-description-de"
           class="form-control rule-description"
           [(ngModel)]="currentAbsence.description!.de!"
           aria-label="description.de"
@@ -124,13 +126,14 @@
         }
       </div>
 
-      <div class="row-line">
+      <div id="absence-modal-numbers-row" class="row-line">
         <div class="box-line">
           <div class="box">
             <label for="ruleName">{{
               "setting.absence.modal.sum-day" | translate
             }}</label>
             <input
+              id="absence-modal-default-length"
               type="Number"
               class="form-control input-number"
               [(ngModel)]="currentAbsence.defaultLength"
@@ -147,6 +150,7 @@
               "setting.absence.modal.value-day" | translate
             }}</label>
             <input
+              id="absence-modal-default-value"
               type="Number"
               class="form-control input-number"
               [(ngModel)]="currentAbsence.defaultValue"
@@ -160,9 +164,10 @@
           </div>
         </div>
       </div>
-      <div class="row-line">
+      <div id="absence-modal-saturday-row" class="row-line">
         <label class="checkbox-label">
           <input
+            id="absence-modal-with-saturday"
             type="checkbox"
             [(ngModel)]="currentAbsence.withSaturday"
             name="with-saturday"
@@ -170,9 +175,10 @@
           {{ "setting.absence.modal.value-sat" | translate }}
         </label>
       </div>
-      <div class="row-line">
+      <div id="absence-modal-sunday-row" class="row-line">
         <label class="checkbox-label">
           <input
+            id="absence-modal-with-sunday"
             type="checkbox"
             [(ngModel)]="currentAbsence.withSunday"
             name="with-sunday"
@@ -180,9 +186,10 @@
           {{ "setting.absence.modal.value-sun" | translate }}
         </label>
       </div>
-      <div class="row-line">
+      <div id="absence-modal-holiday-row" class="row-line">
         <label class="checkbox-label">
           <input
+            id="absence-modal-with-holiday"
             type="checkbox"
             [(ngModel)]="currentAbsence.withHoliday"
             name="with-holiday"
@@ -190,12 +197,13 @@
           {{ "setting.absence.modal.value-holiday" | translate }}
         </label>
       </div>
-      <div class="row-line box">
+      <div id="absence-modal-color-row" class="row-line box">
         <label for="color" class="form-label">{{
           "setting.absence.modal.color" | translate
         }}</label>
         <div class="input-group">
           <input
+            id="absence-modal-color-picker"
             type="color"
             class="form-control form-control-color color-button"
             name="color"
@@ -203,6 +211,7 @@
             (ngModelChange)="currentAbsence.color = $event"
           />
           <input
+            id="absence-modal-color-text"
             type="text"
             class="form-control color-text"
             [(ngModel)]="currentAbsence.color"
@@ -212,9 +221,10 @@
       </div>
 
       <div class="bottom-border-space"></div>
-      <div class="row-line">
+      <div id="absence-modal-hide-gantt-row" class="row-line">
         <label class="checkbox-label">
           <input
+            id="absence-modal-hide-in-gantt"
             type="checkbox"
             [(ngModel)]="currentAbsence.hideInGantt"
             name="hideInGantt"
@@ -225,14 +235,16 @@
     </div>
   </form>
 
-  <div class="modal-footer">
+  <div id="absence-modal-footer" class="modal-footer">
     <span
+      id="absence-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ "cancel" | translate }}</span
     >
     <button
+      id="absence-modal-save-btn"
       type="button"
       class="btn save-btn"
       (click)="onSaveModal(modal)"
@@ -242,13 +254,14 @@
   </div>
 </ng-template>
 
-<div class="container-dashboard">
-  <form #absenceForm="ngForm">
-    <div class="container-header header-container">
+<div id="absence-container" class="container-dashboard">
+  <form id="absence-form" #absenceForm="ngForm">
+    <div id="absence-header" class="container-header header-container">
       {{ "setting.absence.headline" | translate }}
       <span class="filler"></span>
 
       <div
+        id="absence-export-excel-btn"
         class="btn ownStyle-button last-right"
         role="button"
         aria-label="excel"
@@ -258,15 +271,16 @@
       </div>
     </div>
 
-    <div class="container-line"></div>
+    <div id="absence-line" class="container-line"></div>
 
-    <div class="container-box-collapse">
-      <div class="container-table table-height">
-        <table class="table table-borderless" #myTable id="myTable">
-          <thead>
+    <div id="absence-box" class="container-box-collapse">
+      <div id="absence-table-container" class="container-table table-height">
+        <table id="absence-table" class="table table-borderless" #myTable>
+          <thead id="absence-table-head">
             <tr>
-              <th class="table-header"></th>
+              <th id="absence-header-color" class="table-header"></th>
               <th
+                id="absence-header-name"
                 class="table-header header-name"
                 (click)="onClickHeader('name')"
               >
@@ -281,6 +295,7 @@
               </th>
 
               <th
+                id="absence-header-description"
                 class="table-header header-description"
                 (click)="onClickHeader('description')"
               >
@@ -294,33 +309,36 @@
                 </div>
               </th>
 
-              <th class="table-header action header-action"></th>
+              <th id="absence-header-action" class="table-header action header-action"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody id="absence-table-body">
             @for (data of dataManagementAbsenceService.listWrapper?.absences;
             track data.id; let i = $index) {
             <tr
+              [id]="'absence-row-' + i"
               class="table-row"
               (click)="onClickedRow(data)"
               [class.active]="data.id === highlightRowId"
             >
-              <td class="table-cell color-width">
+              <td [id]="'absence-cell-color-' + i" class="table-cell color-width">
                 <div
+                  [id]="'absence-color-icon-' + i"
                   class="color-icon"
                   [ngStyle]="{ 'background-color': data.color }"
                 ></div>
               </td>
-              <td class="table-cell">
+              <td [id]="'absence-cell-name-' + i" class="table-cell">
                 {{ data.name | fallback : currentLang }}
               </td>
-              <td class="table-cell">
+              <td [id]="'absence-cell-description-' + i" class="table-cell">
                 {{ data.description | fallback : currentLang }}
               </td>
 
-              <td class="table-cell cell-right">
+              <td [id]="'absence-cell-actions-' + i" class="table-cell cell-right">
                 <div>
                   <div
+                    [id]="'absence-edit-btn-' + i"
                     class="icon icon-padding"
                     (click)="onEditAbsence(absenceModal, data)"
                   >
@@ -328,13 +346,14 @@
                   </div>
 
                   <div
+                    [id]="'absence-copy-btn-' + i"
                     class="icon icon-padding"
                     (click)="onCopyAbsence(absenceModal, data)"
                   >
                     <app-icon-copy-grey></app-icon-copy-grey>
                   </div>
 
-                  <div class="icon" (click)="openDeleteAbsence(data)">
+                  <div [id]="'absence-delete-btn-' + i" class="icon" (click)="openDeleteAbsence(data)">
                     <app-icon-trash-red></app-icon-trash-red>
                   </div>
                 </div>
@@ -345,8 +364,9 @@
         </table>
       </div>
 
-      <div class="lastLine">
+      <div id="absence-footer" class="lastLine">
         <span
+          id="absence-add-btn"
           class="first add-button"
           type="button"
           (click)="createNewAbsence(absenceModal)"
@@ -355,6 +375,7 @@
         <span class="filler"></span>
 
         <app-simple-pagination
+          id="absence-pagination"
           [collectionSize]="dataManagementAbsenceService.maxItems"
           (pageChange)="onPageChange($event)"
           [(page)]="page"

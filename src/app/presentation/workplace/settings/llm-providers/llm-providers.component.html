@@ -1,15 +1,16 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- LLM Provider Modal -->
-<ng-template #providerModal let-modal>
-  <form #providerForm="ngForm">
-    <div class="modal-header">
+<ng-template #providerModal id="llm-providers-modal-template" let-modal>
+  <form id="llm-providers-modal-form" #providerForm="ngForm">
+    <div id="llm-providers-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("settings.llm-providers.headline-modal") }}
       </div>
       <span class="filler"></span>
 
       <div
+        id="llm-providers-modal-close-btn"
         type="button"
         class="close"
         aria-label="Close"
@@ -26,19 +27,19 @@
         >
       </div>
     </div>
-    <div class="modal-body">
+    <div id="llm-providers-modal-body" class="modal-body">
       @if (editingProvider) {
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-basic-info-row" class="row-line-modal-inline">
         <div class="provider-field">
           <label for="providerId">{{
             translate.instant("settings.llm-providers.provider-id")
           }}</label>
           <input
+            id="llm-providers-modal-provider-id"
             type="text"
             [value]="editingProvider.providerId"
             name="providerId"
             class="form-control"
-            id="providerId"
             readonly
           />
         </div>
@@ -47,44 +48,44 @@
             translate.instant("settings.llm-providers.provider-name")
           }}</label>
           <input
+            id="llm-providers-modal-provider-name"
             type="text"
             [(ngModel)]="editingProvider.providerName"
             name="providerName"
             class="form-control"
-            id="providerName"
             required
           />
         </div>
       </div>
 
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-url-row" class="row-line-modal-inline">
         <div class="provider-field full-width">
           <label for="baseUrl">{{
             translate.instant("settings.llm-providers.base-url")
           }}</label>
           <input
+            id="llm-providers-modal-base-url"
             type="url"
             [(ngModel)]="editingProvider.baseUrl"
             name="baseUrl"
             class="form-control"
-            id="baseUrl"
             placeholder="https://api.example.com/v1/"
             required
           />
         </div>
       </div>
 
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-version-priority-row" class="row-line-modal-inline">
         <div class="provider-field">
           <label for="apiVersion">{{
             translate.instant("settings.llm-providers.api-version")
           }}</label>
           <input
+            id="llm-providers-modal-api-version"
             type="text"
             [(ngModel)]="editingProvider.apiVersion"
             name="apiVersion"
             class="form-control"
-            id="apiVersion"
             placeholder="v1, 2023-06-01, etc."
           />
         </div>
@@ -93,29 +94,29 @@
             translate.instant("settings.llm-providers.priority")
           }}</label>
           <input
+            id="llm-providers-modal-priority"
             type="number"
             [(ngModel)]="editingProvider.priority"
             name="priority"
             class="form-control"
-            id="priority"
             min="1"
             required
           />
         </div>
       </div>
 
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-apikey-row" class="row-line-modal-inline">
         <div class="provider-field full-width">
           <label for="apiKey">
             {{ translate.instant("settings.llm-providers.api-key") }}
             <span class="required-marker">*</span></label
           >
           <input
+            id="llm-providers-modal-api-key"
             type="password"
             [(ngModel)]="providerApiKey"
             name="apiKey"
             class="form-control"
-            id="apiKey"
             placeholder="sk-..."
             required
           />
@@ -125,11 +126,11 @@
         </div>
       </div>
 
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-enabled-row" class="row-line-modal-inline">
         <div class="checkbox-container">
           <input
+            id="llm-providers-modal-is-enabled"
             type="checkbox"
-            id="isEnabledCheckbox"
             [(ngModel)]="editingProvider.isEnabled"
           />
           <label for="isEnabledCheckbox">
@@ -139,7 +140,7 @@
       </div>
 
       @if (getValidationErrors().length > 0) {
-      <div class="row-line-modal-inline">
+      <div id="llm-providers-modal-validation-row" class="row-line-modal-inline">
         <div class="validation-errors-section">
           <div class="alert alert-danger">
             <strong>{{ translate.instant("validation.errors") }}:</strong>
@@ -155,14 +156,16 @@
     </div>
   </form>
 
-  <div class="modal-footer">
+  <div id="llm-providers-modal-footer" class="modal-footer">
     <span
+      id="llm-providers-modal-cancel-btn"
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("cancel") }}</span
     >
     <button
+      id="llm-providers-modal-save-btn"
       type="button"
       class="btn save-btn"
       (click)="onSaveModal(modal)"
@@ -173,19 +176,20 @@
   </div>
 </ng-template>
 
-<form>
-  <div class="container-header">
+<form id="llm-providers-form">
+  <div id="llm-providers-header" class="container-header">
     {{ translate.instant("settings.llm-providers.title") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="llm-providers-line" class="container-line"></div>
 
-  <app-llm-providers-header></app-llm-providers-header>
+  <app-llm-providers-header id="llm-providers-table-header"></app-llm-providers-header>
 
-  <div class="container-box">
+  <div id="llm-providers-box" class="container-box">
     @for (provider of providers; track provider.providerId || $index; let i =
     $index) {
     <app-llm-providers-row
+      [id]="'llm-providers-row-' + i"
       [data]="provider"
       [canDelete]="canDeleteProvider(provider)"
       (editEvent)="onClickEdit($event)"
@@ -195,8 +199,8 @@
     }
   </div>
 
-  <div class="row">
-    <span class="add-button" type="button" (click)="onClickAdd()"
+  <div id="llm-providers-footer" class="row">
+    <span id="llm-providers-add-btn" class="add-button" type="button" (click)="onClickAdd()"
       >{{ translate.instant("settings.llm-providers.add") }}
     </span>
   </div>
