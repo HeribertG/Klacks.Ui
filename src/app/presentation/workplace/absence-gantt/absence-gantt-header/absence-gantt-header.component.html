@@ -1,31 +1,33 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div class="custom-control-inline">
+<div id="absence-gantt-header-controls" class="custom-control-inline">
   <app-absence-gantt-absence-list
+    id="absence-gantt-absence-list"
     class="absence-reason"
   ></app-absence-gantt-absence-list>
   <span class="filler"></span>
 
-  <div class="pdf-export-button" (click)="onPdfExport()">
+  <div id="absence-gantt-pdf-export-button" class="pdf-export-button" (click)="onPdfExport()">
     <app-icon-pdf-icon></app-icon-pdf-icon>
   </div>
 
-  <div ngbDropdown #dropdownSetting="ngbDropdown">
+  <div id="absence-gantt-settings-dropdown" ngbDropdown #dropdownSetting="ngbDropdown">
     <button
       class="btn btn-sm btn-setting"
-      id="dropdownSetting"
+      id="absence-gantt-settings-dropdown-toggle"
       ngbDropdownToggle
       aria-label="absence settings"
       placement="bottom"
       ngbTooltip="{{ 'calendar.selector.select-holidays' | translate }}"
       autoClose="true"
     >
-      <app-choose-calendar (change)="onChangeCalendar()"></app-choose-calendar>
+      <app-choose-calendar id="absence-gantt-choose-calendar" (change)="onChangeCalendar()"></app-choose-calendar>
     </button>
-    <div ngbDropdownMenu>
+    <div id="absence-gantt-settings-dropdown-menu" ngbDropdownMenu>
       <div class="px-3 py-3">
         <div class="chip-form-group">
           <app-calendar-selector
+            id="absence-gantt-calendar-selector"
             (openMenu)="onOpenMenu()"
             (change)="onChangeCalendar()"
             (initialized)="onCalendarInitialized()"
@@ -35,7 +37,7 @@
     </div>
   </div>
 
-  <div class="custom-counter">
+  <div id="absence-gantt-year-counter" class="custom-counter">
     <span class="custom-counter-span"
       >{{
         "absence-gantt.absence-gantt-header.absence-gantt-header.year"
@@ -43,6 +45,7 @@
       }}
     </span>
     <app-counter
+      id="absence-gantt-year-counter-control"
       [maxNumber]="maxYear()"
       [currentNumber]="currentYear()"
       (isChanged)="changeYear($event)"
@@ -51,11 +54,12 @@
   </div>
 
   <div
+    id="absence-gantt-zoom-slider"
     class="custom-slider"
     placement="bottom"
     ngbTooltip="Zoom"
     autoClose="true"
   >
-    <ngx-slider [(value)]="value" [options]="options()"></ngx-slider>
+    <ngx-slider id="absence-gantt-zoom-slider-control" [(value)]="value" [options]="options()"></ngx-slider>
   </div>
 </div>

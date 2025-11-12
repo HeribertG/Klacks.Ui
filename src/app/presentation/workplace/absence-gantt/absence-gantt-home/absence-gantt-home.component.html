@@ -1,10 +1,12 @@
-<div class="gantt-main-header">
-  <app-absence-gantt-header 
+<div id="absence-gantt-main-header" class="gantt-main-header">
+  <app-absence-gantt-header
+    id="absence-gantt-header"
     (pdfExportRequested)="onPdfExportRequested()">
   </app-absence-gantt-header>
 </div>
-<div class="gantt-body">
-  <app-absence-gantt-container 
+<div id="absence-gantt-body" class="gantt-body">
+  <app-absence-gantt-container
+    id="absence-gantt-container"
     #ganttContainer>
   </app-absence-gantt-container>
 </div>

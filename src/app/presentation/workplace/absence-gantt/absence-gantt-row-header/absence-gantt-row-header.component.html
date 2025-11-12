@@ -1,21 +1,21 @@
 <div
-  id="gantt-filter"
+  id="absence-row-header-filter"
   class="gantt-filter-windows"
   [ngStyle]="filterStyle"
   (mouseleave)="onMouseLeave()"
 >
-  <app-absence-gantt-filter #ganttFilter></app-absence-gantt-filter>
+  <app-absence-gantt-filter id="absence-row-header-filter-component" #ganttFilter></app-absence-gantt-filter>
 </div>
 
 <div
   #boxCalendarRowHeader
-  id="box-calendar-row-header"
+  id="absence-row-header-box"
   class="box-calendar"
   appResize
   (resizeElement)="onResize($event)"
 >
   <canvas
-    id="rowHeaderCanvas"
+    id="absence-row-header-canvas"
     class="calendar"
     (mousemove)="onMouseMove($event)"
     (click)="onClick($event)"

@@ -1,13 +1,13 @@
 <div
   #boxCalendar
-  id="box-calendar"
+  id="absence-surface-box"
   class="box-calendar"
   appResize
   (resizeElement)="onResize($event)"
 >
   <canvas
     appAbsenceCalendar
-    id="calendarCanvas"
+    id="absence-surface-canvas"
     (dragover)="dragOver($event)"
     (drop)="drop($event)"
     aria-label="Absence Calendar"
@@ -15,5 +15,5 @@
   >
   </canvas>
 </div>
-<div id="tooltip" class="div-tooltip"></div>
-<app-context-menu #contextMenu></app-context-menu>
+<div id="absence-surface-tooltip" class="div-tooltip"></div>
+<app-context-menu id="absence-surface-context-menu" #contextMenu></app-context-menu>
