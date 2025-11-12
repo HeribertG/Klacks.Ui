@@ -1,12 +1,12 @@
-<div class="container-dashboard">
-  <div class="container-header">
+<div id="owner-address-container" class="container-dashboard">
+  <div id="owner-address-header" class="container-header">
     {{ translate.instant("setting.owner-address.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="owner-address-line" class="container-line"></div>
 
-  <form #ownerAddressForm="ngForm">
-    <div class="row-line">
+  <form id="owner-address-form" #ownerAddressForm="ngForm">
+    <div id="owner-address-name-phone-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-name">{{
           translate.instant("setting.owner-address.name")
@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <div class="row-line">
+    <div id="owner-address-supplement-email-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-supplement">{{
           translate.instant("setting.owner-address.supplement")
@@ -70,7 +70,7 @@
       </div>
     </div>
 
-    <div class="row-line-single">
+    <div id="owner-address-street-row" class="row-line-single">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-street">{{
           translate.instant("setting.owner-address.street")
@@ -86,7 +86,7 @@
       </div>
     </div>
 
-    <div class="row-line-single">
+    <div id="owner-address-zip-row" class="row-line-single">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-zip">{{
           translate.instant("setting.owner-address.zip")
@@ -102,7 +102,7 @@
       </div>
     </div>
 
-    <div class="row-line-single">
+    <div id="owner-address-city-row" class="row-line-single">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-city">{{
           translate.instant("setting.owner-address.place")
@@ -118,6 +118,6 @@
       </div>
     </div>
 
-    <div class="bottom-border-space"></div>
+    <div id="owner-address-bottom-border" class="bottom-border-space"></div>
   </form>
 </div>

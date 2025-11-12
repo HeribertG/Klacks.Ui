@@ -1,18 +1,19 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="container-header">
+<form id="macros-form">
+  <div id="macros-header" class="container-header">
     {{ translate.instant("setting.macro.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="macros-line" class="container-line"></div>
 
-  <app-macro-header></app-macro-header>
+  <app-macro-header id="macros-table-header"></app-macro-header>
 
-  <div class="container-box">
+  <div id="macros-box" class="container-box">
     @for (c of dataManagementSettingsService.macroList; track c.id || $index;
     let i = $index) { @if (!(c.isDirty === 3)) {
     <app-macro-row
+      [id]="'macro-row-' + i"
       [data]="c"
       (isDeleteEvent)="onClickDelete(i)"
     >
@@ -20,8 +21,8 @@
     } }
   </div>
 
-  <div class="row">
-    <span class="add-button" type="button" (click)="onClickAdd()"
+  <div id="macros-add-row" class="row">
+    <span id="macros-add-btn" class="add-button" type="button" (click)="onClickAdd()"
       >{{ translate.instant("setting.macro.add") }}
     </span>
   </div>

@@ -1,19 +1,20 @@
-<div class="property-grid">
-  <table class="property-table">
-    <thead class="property-header">
+<div id="property-grid-container" class="property-grid">
+  <table id="property-grid-table" class="property-table">
+    <thead id="property-grid-header" class="property-header">
       <tr>
         <th>Eigenschaft</th>
         <th>Wert</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="property-grid-body">
       @for (prop of properties(); track trackByKey($index, prop)) {
-      <tr>
-        <td class="property-name">{{ prop.key }}</td>
-        <td class="property-value">
+      <tr [id]="'property-grid-row-' + prop.key">
+        <td [id]="'property-grid-name-' + prop.key" class="property-name">{{ prop.key }}</td>
+        <td [id]="'property-grid-value-' + prop.key" class="property-value">
           <!-- String -->
           @if (prop.type === 'string' && prop.editable) {
           <input
+            [id]="'property-grid-input-string-' + prop.key"
             class="property-value"
             type="text"
             [(ngModel)]="prop.value"
@@ -24,6 +25,7 @@
           <!-- Number mit Validierung -->
           @if (prop.type === 'number' && prop.editable) {
           <input
+            [id]="'property-grid-input-number-' + prop.key"
             class="form-control"
             type="number"
             [min]="prop.metadata?.min"
@@ -42,6 +44,7 @@
           <!-- Boolean -->
           @if (prop.type === 'boolean' && prop.editable) {
           <input
+            [id]="'property-grid-input-boolean-' + prop.key"
             class="form-control"
             type="checkbox"
             [checked]="prop.value"
@@ -52,6 +55,7 @@
           <!-- ShiftType Dropdown -->
           @if (prop.type === 'shiftType' && prop.editable) {
           <select
+            [id]="'property-grid-select-shifttype-' + prop.key"
             class="form-select enum-select"
             [(ngModel)]="prop.value"
             (change)="handleEnumChange($event, prop.key)"
@@ -67,6 +71,7 @@
           <!-- Weekday Dropdown -->
           @if (prop.type === 'weekday' && prop.editable) {
           <select
+            [id]="'property-grid-select-weekday-' + prop.key"
             class="form-select enum-select"
             [(ngModel)]="prop.value"
             (change)="handleEnumChange($event, prop.key)"
@@ -82,6 +87,7 @@
           <!-- Date -->
           @if (prop.type === 'date' && prop.editable) {
           <input
+            [id]="'property-grid-input-date-' + prop.key"
             class="form-control"
             type="date"
             [ngModel]="formatDate(prop.value)"
@@ -91,7 +97,7 @@
 
           <!-- Read-only values -->
           @if (!prop.editable) {
-          <span class="form-control">
+          <span [id]="'property-grid-readonly-' + prop.key" class="form-control">
             {{ displayValue(prop) }}
           </span>
           }

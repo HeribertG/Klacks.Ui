@@ -1,8 +1,8 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="first custom-control-inline">
-    <div>
+<form id="state-row-form-{{ data!.id }}">
+  <div id="state-row-container-{{ data!.id }}" class="first custom-control-inline">
+    <div id="state-row-abbreviation-wrapper-{{ data!.id }}">
       <input
         id="state-row-abbreviation-{{ data!.id }}"
         type="text"
@@ -14,7 +14,7 @@
         class="form-control abbreviation"
       />
     </div>
-    <div>
+    <div id="state-row-name-wrapper-{{ data!.id }}">
       @if (currentLang === 'de') {
       <input
         id="state-row-name-de-{{ data!.id }}"
@@ -61,7 +61,7 @@
       />
       }
     </div>
-    <div>
+    <div id="state-row-prefix-wrapper-{{ data!.id }}">
       <input
         id="state-row-prefix-{{ data!.id }}"
         type="text"

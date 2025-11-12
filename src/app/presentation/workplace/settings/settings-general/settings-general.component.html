@@ -1,12 +1,12 @@
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="container-header">
+<form id="settings-general-form">
+  <div id="settings-general-header" class="container-header">
     {{ translate.instant("setting.setting-general.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="settings-general-line" class="container-line"></div>
 
   <div class="form-group first">
     <label for="setting-general-name">{{
@@ -24,10 +24,10 @@
     />
   </div>
 
-  <div class="row-line first">
+  <div id="settings-general-icon-logo-row" class="row-line first">
     @if (dataLoadFileService.iconImage) {
-    <div class="image-container-show">
-      <img [src]="dataLoadFileService.iconImage" alt="" class="imgIcon" />
+    <div id="settings-general-icon-image-container" class="image-container-show">
+      <img id="settings-general-icon-image" [src]="dataLoadFileService.iconImage" alt="" class="imgIcon" />
 
       <div class="row">
         <div class="filler"></div>
@@ -42,11 +42,12 @@
     </div>
     } @if (!dataLoadFileService.iconImage) {
     <div
+      id="settings-general-icon-upload-container"
       class="image-container"
       ngbTooltip="ico Datei 32px x 32px"
       autoClose="true"
     >
-      <label class="first">{{
+      <label id="settings-general-icon-label" class="first">{{
         translate.instant("setting.setting-general.icon")
       }}</label>
 
@@ -57,7 +58,7 @@
         (click)="fileField1.click()"
         (fileDropped)="onUploadIcon($event)"
       >
-        <span class="ddinfo">{{
+        <span id="settings-general-icon-info" class="ddinfo">{{
           translate.instant("setting.setting-general.info-icon")
         }}</span>
         <input
@@ -72,12 +73,13 @@
       </div>
     </div>
     } @if (logoImage()) {
-    <div class="image-container-show">
-      <img 
-        [src]="logoImage()" 
-        [width]="logoDisplayDimensions().width" 
-        [height]="logoDisplayDimensions().height" 
-        alt="Logo" 
+    <div id="settings-general-logo-image-container" class="image-container-show">
+      <img
+        id="settings-general-logo-image"
+        [src]="logoImage()"
+        [width]="logoDisplayDimensions().width"
+        [height]="logoDisplayDimensions().height"
+        alt="Logo"
         class="imgIcon" />
 
       <div class="row">
@@ -93,11 +95,12 @@
     </div>
     } @if (!logoImage()) {
     <div
+      id="settings-general-logo-upload-container"
       class="image-container"
       ngbTooltip="png Datei 32px x 32px"
       autoClose="true"
     >
-      <label class="first">{{
+      <label id="settings-general-logo-label" class="first">{{
         translate.instant("setting.setting-general.logo")
       }}</label>
       <div
@@ -107,7 +110,7 @@
         (click)="fileField.click()"
         (fileDropped)="onUploadLogo($event)"
       >
-        <span class="ddinfo"
+        <span id="settings-general-logo-info" class="ddinfo"
           >{{ translate.instant("setting.setting-general.info-logo") }}
         </span>
         <input
@@ -124,5 +127,5 @@
     }
   </div>
 
-  <div class="bottom-border-space"></div>
+  <div id="settings-general-bottom-border" class="bottom-border-space"></div>
 </form>

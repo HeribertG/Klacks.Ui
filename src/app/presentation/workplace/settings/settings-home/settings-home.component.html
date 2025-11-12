@@ -1,103 +1,117 @@
-<div class="container-dashboard">
-  <div class="container-headline">
+<div id="settings-home-container" class="container-dashboard">
+  <div id="settings-home-headline" class="container-headline">
     {{ translate.instant("setting.title") }}
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-general-row" class="container-profilline">
     <app-settings-general
+      id="settings-general"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-settings-general>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-owner-row" class="container-profilline">
     <app-owner-address
+      id="settings-owner-address"
       class="container-profile container-owner-address first border-right-card border-bottom-card"
       (click)="isfocused('app-setting-owner-address')"
     >
     </app-owner-address>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-user-admin-row" class="container-profilline">
     <app-user-administration
+      id="settings-user-administration"
       class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
       (click)="isfocused('app-user-administration')"
     >
     </app-user-administration>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-group-contracts-row" class="container-profilline">
     <app-group-scope
+      id="settings-group-scope"
       class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-group-scope')"
     ></app-group-scope>
 
     <app-contracts
+      id="settings-contracts"
       class="container-setting-small border-right-card border-bottom-card"
       (click)="isfocused('app-contracts')"
     ></app-contracts>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-email-row" class="container-profilline">
     <app-email-setting
+      id="settings-email-setting"
       class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
       (click)="isfocused('app-email-setting')"
     >
     </app-email-setting>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-grid-macros-row" class="container-profilline">
     <app-grid-color
+      id="settings-grid-color"
       class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-grid-color')"
     >
     </app-grid-color>
 
     <app-macros
+      id="settings-macros"
       class="container-setting-small border-right-card border-bottom-card"
       (click)="isfocused('app-macros')"
     >
     </app-macros>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-state-countries-row" class="container-profilline">
     <app-state
+      id="settings-state"
       class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-state')"
     >
     </app-state>
 
     <app-countries
+      id="settings-countries"
       class="container-setting-small border-bottom-card"
       (click)="isfocused('app-countries')"
     >
     </app-countries>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-absence-row" class="container-profilline">
     <app-absence
+      id="settings-absence"
       class="container-profile container-profile-bank-account first border-right-card border-bottom-card"
       (click)="isfocused('app-absence')"
     >
     </app-absence>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-calendar-row" class="container-profilline">
     <app-calendar-rules
+      id="settings-calendar-rules"
       class="container-profile container-setting-user-administration first border-right-card border-bottom-card"
       (click)="isfocused('app-calendar-rules')"
     >
     </app-calendar-rules>
   </div>
 
-  <div class="container-profilline">
+  <div id="settings-home-llm-row" class="container-profilline">
     <app-llm-models
+      id="settings-llm-models"
       class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-llm-models')"
     >
     </app-llm-models>
 
     <app-llm-providers
+      id="settings-llm-providers"
       class="container-setting-small border-bottom-card"
       (click)="isfocused('app-llm-models')"
     >

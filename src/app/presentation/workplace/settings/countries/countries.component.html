@@ -1,20 +1,21 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="container-header">
+<form id="countries-form">
+  <div id="countries-header" class="container-header">
     {{ translate.instant("setting.state.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="countries-line" class="container-line"></div>
 
   @if (dataManagementSettingsService.countriesList &&
   dataManagementSettingsService.countriesList.length > 0) {
-  <app-countries-header> </app-countries-header>
+  <app-countries-header id="countries-table-header"> </app-countries-header>
   }
-  <div class="container-box" #containerBox>
+  <div id="countries-box" class="container-box" #containerBox>
     @for (c of dataManagementSettingsService.countriesList; track c.id ||
     $index; let i = $index) { @if (c.isDirty !== 3) {
     <app-countries-row
+      [id]="'countries-row-' + i"
       [data]="c"
       (isDeleteEvent)="onClickDelete(i)"
     >
@@ -22,7 +23,7 @@
     } }
   </div>
 
-  <div class="row">
+  <div id="countries-add-row" class="row">
     <span id="countries-add-btn" class="add-button" type="button" (click)="onClickAdd()"
       >{{ translate.instant("setting.country.add") }}
     </span>

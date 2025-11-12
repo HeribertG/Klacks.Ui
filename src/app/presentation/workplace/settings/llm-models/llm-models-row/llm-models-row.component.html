@@ -1,9 +1,10 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form>
-  <div class="first custom-control-inline">
+<form id="llm-models-row-form-{{ data.modelId }}">
+  <div id="llm-models-row-container-{{ data.modelId }}" class="first custom-control-inline">
     <div class="form-group">
       <input
+        id="llm-models-row-display-{{ data.modelId }}"
         type="text"
         [value]="getModelDisplayText()"
         name="modelDisplay"
@@ -14,9 +15,10 @@
       />
     </div>
 
-    <span 
-      class="delete-button" 
-      type="button" 
+    <span
+      id="llm-models-row-delete-{{ data.modelId }}"
+      class="delete-button"
+      type="button"
       (click)="onClickDelete()"
       [class.disabled]="data.isDefault"
       [title]="data.isDefault ? (translate.instant('settings.llm-models.cannot-delete-default') || 'Cannot delete default model') : ''"

@@ -1,8 +1,8 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #content id="content" let-modal>
-  <form #modalForm="ngForm">
-    <div class="modal-header">
+  <form id="user-admin-modal-form" #modalForm="ngForm">
+    <div id="user-admin-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title-user">
         {{ translate.instant("setting.user-admin.modal-title-user") }}
       </div>
@@ -17,8 +17,8 @@
         >
       </div>
     </div>
-    <div class="modal-body container-certificate-box">
-      <div class="container-certificate-value firstColumn">
+    <div id="user-admin-modal-body" class="modal-body container-certificate-box">
+      <div id="user-admin-modal-name-container" class="container-certificate-value firstColumn">
         <div class="form-group">
           <label for="user-firstname">{{
             translate.instant("setting.user-admin.modal-firstname")
@@ -48,7 +48,7 @@
         </div>
       </div>
 
-      <div class="container-certificate-value secondColumn">
+      <div id="user-admin-modal-username-container" class="container-certificate-value secondColumn">
         <div class="row-line">
           <div class="form-group">
             <label for="user-userName">{{
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    <div class="row-line firstColumn-email">
+    <div id="user-admin-modal-email-row" class="row-line firstColumn-email">
       <label for="setting-user-description">{{
         translate.instant("setting.user-admin.modal-email")
       }}</label>
@@ -93,7 +93,7 @@
     <p></p>
   </form>
 
-  <div class="modal-footer">
+  <div id="user-admin-modal-footer" class="modal-footer">
     <span
       id="user-admin-modal-cancel-btn"
       type="button"
@@ -114,12 +114,12 @@
 </ng-template>
 
 <ng-template #msg id="msg" let-modal>
-  <div class="modal-header">
+  <div id="user-admin-password-reset-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title">
       {{ translate.instant("setting.user-admin.password-reset") }}
     </div>
   </div>
-  <div class="modal-body">
+  <div id="user-admin-password-reset-modal-body" class="modal-body">
     <p>
       {{ translate.instant("setting.user-admin.password-reset-question") }}<br /><b>{{
         newUser?.email
@@ -128,7 +128,7 @@
     </p>
   </div>
 
-  <div class="modal-footer">
+  <div id="user-admin-password-reset-modal-footer" class="modal-footer">
     <span
       id="user-admin-msg-modal-cancel-btn"
       type="button"
@@ -142,19 +142,20 @@
   </div>
 </ng-template>
 
-<form>
-  <div class="container-header">
+<form id="user-administration-form">
+  <div id="user-administration-header" class="container-header">
     {{ translate.instant("setting.user-admin.headline") }}
   </div>
 
-  <div class="container-line"></div>
+  <div id="user-administration-line" class="container-line"></div>
 
-  <div class="container-box">
-    <app-user-administration-header></app-user-administration-header>
+  <div id="user-administration-box" class="container-box">
+    <app-user-administration-header id="user-administration-table-header"></app-user-administration-header>
     @for (c of userAdminService.accountsList(); track c.id ||
     c.userName || $index; let i = $index) {
-    <div>
+    <div [id]="'user-administration-row-wrapper-' + i">
       <app-user-administration-row
+        [id]="'user-administration-row-' + i"
         [user]="c"
         [enabled]="!(c.id === userAdminService.currentAccountId())"
         (isSentToEvent)="onSentTo($event)"
@@ -166,7 +167,7 @@
     }
   </div>
 
-  <div class="row">
+  <div id="user-administration-add-row" class="row">
     <div class="filler"></div>
     <span id="user-admin-add-user-btn" class="first add-button" type="button" (click)="open(content)"
       >{{ translate.instant("setting.user-admin.add") }}

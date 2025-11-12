@@ -1,15 +1,15 @@
-<form>
-  <div class="container-header">
+<form id="group-scope-form">
+  <div id="group-scope-header" class="container-header">
     {{ translate.instant("setting.group.headline") }}
   </div>
 
-  <div class="container-line"></div>
-  <div class="container-box">
-    <app-group-scope-header></app-group-scope-header>
+  <div id="group-scope-line" class="container-line"></div>
+  <div id="group-scope-box" class="container-box">
+    <app-group-scope-header id="group-scope-table-header"></app-group-scope-header>
     @for (c of dataManagementSettingsService.accountsList; track c.id ||
     c.userName || $index; let i = $index) {
-    <div>
-      <app-group-scope-row [user]="c"></app-group-scope-row>
+    <div [id]="'group-scope-row-wrapper-' + i">
+      <app-group-scope-row [id]="'group-scope-row-' + i" [user]="c"></app-group-scope-row>
     </div>
     }
   </div>

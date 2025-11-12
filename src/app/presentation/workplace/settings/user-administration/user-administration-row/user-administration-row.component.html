@@ -1,7 +1,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div class="first custom-control-inline">
-  <div class="form-group">
+<div id="user-admin-row-container-{{ user!.id }}" class="first custom-control-inline">
+  <div id="user-admin-row-name-group-{{ user!.id }}" class="form-group">
     <input
       id="user-admin-row-name-{{ user!.id }}"
       type="text"
@@ -13,7 +13,7 @@
     />
   </div>
 
-  <div class="form-group">
+  <div id="user-admin-row-email-group-{{ user!.id }}" class="form-group">
     <input
       id="user-admin-row-email-{{ user!.id }}"
       type="email"
@@ -29,7 +29,7 @@
     }}</span>
     }
   </div>
-  <div class="form-group">
+  <div id="user-admin-row-authorised-group-{{ user!.id }}" class="form-group">
     <select
       id="user-admin-row-authorised-{{ user!.id }}"
       [(ngModel)]="user!.isAuthorised"
@@ -48,7 +48,7 @@
     </select>
   </div>
 
-  <div class="form-group">
+  <div id="user-admin-row-admin-group-{{ user!.id }}" class="form-group">
     <select
       id="user-admin-row-admin-{{ user!.id }}"
       [(ngModel)]="user!.isAdmin"
@@ -62,7 +62,7 @@
       <option value="false" [selected]="user!.isAdmin === false">User</option>
     </select>
   </div>
-  <div>
+  <div id="user-admin-row-delete-group-{{ user!.id }}">
     @if (enabled) {
     <span id="user-admin-row-delete-{{ user!.id }}" class="delete-button" type="button" (click)="onDelete()">✕</span>
     }
