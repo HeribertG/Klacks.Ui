@@ -1,8 +1,8 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
-<div class="container-dashboard">
-  <div class="container-header">
+<div id="profile-picture-container" class="container-dashboard">
+  <div id="profile-picture-header" class="container-header">
     {{ translate.instant("setting.picture.header") }}
   </div>
 
@@ -10,31 +10,33 @@
 
   @if (!dataLoadFileService.profileImage) {
   <div class="row">
-    <label>{{ translate.instant("setting.picture.upload") }} </label>
+    <label id="profile-picture-upload-label">{{ translate.instant("setting.picture.upload") }} </label>
   </div>
   } @if (dataLoadFileService.profileImage) {
   <div class="row">
-    <label>{{ translate.instant("setting.picture.picture") }} </label>
+    <label id="profile-picture-label">{{ translate.instant("setting.picture.picture") }} </label>
   </div>
   }
 
-  <div class="row">
+  <div id="profile-picture-content" class="row">
     @if (dataLoadFileService.profileImage) {
-    <div class="image-container">
-      <img [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
+    <div id="profile-picture-image-container" class="image-container">
+      <img id="profile-picture-image" [src]="dataLoadFileService.profileImage" alt="" class="imgIcon" />
     </div>
     } @if (!dataLoadFileService.profileImage) {
-    <div>
+    <div id="profile-picture-upload-wrapper">
       <div
+        id="profile-picture-upload-area"
         class="fileupload"
         appDragDropFileUpload
         (click)="fileField.click()"
         (fileDropped)="onUpload($event)"
       >
-        <span class="ddinfo"
+        <span id="profile-picture-upload-info" class="ddinfo"
           >{{ translate.instant("setting.picture.info") }}
         </span>
         <input
+          id="profile-picture-file-input"
           type="file"
           name="avatars"
           #fileField
@@ -48,9 +50,10 @@
   </div>
 
   @if (dataLoadFileService.profileImage) {
-  <div class="row">
+  <div id="profile-picture-delete-row" class="row">
     <div class="filler"></div>
     <span
+      id="profile-picture-delete-button"
       class="delete-button firstColumn"
       type="button"
       (click)="onDeleteImg()"
