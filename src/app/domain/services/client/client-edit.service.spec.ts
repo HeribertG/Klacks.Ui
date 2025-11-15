@@ -7,6 +7,7 @@ import { ClientGroupItem } from 'src/app/domain/models/client-group-item-class';
 import { GenderEnum, EntityTypeEnum } from 'src/app/domain/enums/client-enum';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { ClientConfigService } from './client-config.service';
 import { of } from 'rxjs';
 
 class MockEventBus implements IEventBus {
@@ -16,6 +17,12 @@ class MockEventBus implements IEventBus {
   }
   onAny() {
     return of();
+  }
+}
+
+class MockClientConfigService {
+  hasRootGroups(): boolean {
+    return true;
   }
 }
 
@@ -33,7 +40,8 @@ describe('ClientEditService', () => {
       ],
       providers: [
         ClientEditService,
-        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus }
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+        { provide: ClientConfigService, useClass: MockClientConfigService }
       ]
     });
     service = TestBed.inject(ClientEditService);
