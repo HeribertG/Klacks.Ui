@@ -1,0 +1,72 @@
+<div id="dashboard-locations-container" class="container-dashboard">
+  <div id="dashboard-locations-header" class="container-header">
+    {{ 'dashboard.locations.headline' | translate }}
+  </div>
+
+  <div id="dashboard-locations-line" class="container-line"></div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <p>{{ 'dashboard.locations.loading' | translate }}</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <p class="error-message">{{ error() }}</p>
+    </div>
+  }
+
+  @if (!isLoading() && !error()) {
+    <div id="dashboard-locations-content">
+      @if (locations().length === 0) {
+        <div class="no-data-message">
+          <p>{{ 'dashboard.locations.noData' | translate }}</p>
+        </div>
+      } @else {
+        <div id="map-container" style="height: 600px; margin-bottom: 20px; width: 100%;"></div>
+
+        <div class="locations-container">
+          <div class="locations-header">
+            <h3>{{ 'dashboard.locations.byCity' | translate }}</h3>
+            <div class="locations-summary">
+              <span class="summary-item">{{ 'dashboard.locations.totalLocations' | translate }}: {{ totalLocations() }}</span>
+              <span class="summary-item">{{ 'dashboard.locations.totalClients' | translate }}: {{ totalClients() }}</span>
+            </div>
+          </div>
+
+          <div class="locations-grid">
+            @for (location of locations(); track location.city + location.country) {
+              <div class="location-card">
+                <div class="location-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="location-info">
+                  <div class="location-city">{{ location.city }}</div>
+                  <div class="location-country">{{ location.country }}</div>
+                  <div class="location-types">
+                    <span class="type-badge employee" *ngIf="location.employeeCount > 0">
+                      {{ location.employeeCount }} {{ 'dashboard.locations.employee' | translate }}
+                    </span>
+                    <span class="type-badge extern" *ngIf="location.externEmpCount > 0">
+                      {{ location.externEmpCount }} {{ 'dashboard.locations.externEmp' | translate }}
+                    </span>
+                    <span class="type-badge customer" *ngIf="location.customerCount > 0">
+                      {{ location.customerCount }} {{ 'dashboard.locations.customer' | translate }}
+                    </span>
+                  </div>
+                </div>
+                <div class="location-count">
+                  <span class="count-number">{{ location.count }}</span>
+                  <span class="count-label">{{ 'dashboard.locations.clients' | translate }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

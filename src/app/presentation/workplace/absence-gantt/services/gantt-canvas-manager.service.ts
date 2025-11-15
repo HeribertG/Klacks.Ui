@@ -122,10 +122,10 @@ export class GanttCanvasManagerService {
 
   private createMainCanvas(): void {
     this.canvas = document.getElementById(
-      'calendarCanvas'
+      'absence-surface-canvas'
     ) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error("Canvas with ID 'calendarCanvas' not found.");
+      console.error("Canvas with ID 'absence-surface-canvas' not found.");
       return;
     }
 
@@ -147,7 +147,9 @@ export class GanttCanvasManagerService {
     try {
       this.renderCanvas.width = this.width;
       this.renderCanvas.height = this.height;
-      this.renderCanvasCtx = this.renderCanvas.getContext('2d', { willReadFrequently: true })!;
+      this.renderCanvasCtx = this.renderCanvas.getContext('2d', {
+        willReadFrequently: true,
+      })!;
       DrawHelper.setAntiAliasing(this.renderCanvasCtx);
     } catch (error) {
       console.error('Error when creating the renderCanvas context:', error);
@@ -176,7 +178,9 @@ export class GanttCanvasManagerService {
     try {
       this.backgroundRowCanvas.width = this.width;
       this.backgroundRowCanvas.height = this.calendarSetting.cellHeight;
-      this.backgroundRowCtx = this.backgroundRowCanvas.getContext('2d', { willReadFrequently: true })!;
+      this.backgroundRowCtx = this.backgroundRowCanvas.getContext('2d', {
+        willReadFrequently: true,
+      })!;
       DrawHelper.setAntiAliasing(this.backgroundRowCtx);
     } catch (error) {
       console.error(
@@ -191,7 +195,9 @@ export class GanttCanvasManagerService {
     try {
       this.rowCanvas.width = this.width;
       this.rowCanvas.height = this.calendarSetting.cellHeight;
-      this.rowCtx = this.rowCanvas.getContext('2d', { willReadFrequently: true })!;
+      this.rowCtx = this.rowCanvas.getContext('2d', {
+        willReadFrequently: true,
+      })!;
       DrawHelper.setAntiAliasing(this.rowCtx);
     } catch (error) {
       console.error('Error when creating the rowCanvas context:', error);

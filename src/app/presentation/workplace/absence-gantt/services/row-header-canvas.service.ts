@@ -70,10 +70,10 @@ export class RowHeaderCanvasManagerService {
 
   private createMainCanvas(): void {
     this.canvas = document.getElementById(
-      'rowHeaderCanvas'
+      'absence-row-header-canvas'
     ) as HTMLCanvasElement;
     if (!this.canvas) {
-      console.error("Canvas with ID 'rowHeaderCanvas' not found.");
+      console.error("Canvas with ID 'absence-row-header-canvas' not found.");
       return;
     }
 

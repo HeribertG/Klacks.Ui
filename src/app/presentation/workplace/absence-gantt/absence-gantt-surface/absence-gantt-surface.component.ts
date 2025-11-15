@@ -18,7 +18,12 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
-import { EqualDate, addDays, daysBetweenDates, equalDate } from 'src/app/shared/helpers/date.helper';
+import {
+  EqualDate,
+  addDays,
+  daysBetweenDates,
+  equalDate,
+} from 'src/app/shared/helpers/date.helper';
 import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
@@ -133,7 +138,9 @@ export class AbsenceGanttSurfaceComponent
 
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
 
-    this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
+    this.tooltip = document.getElementById(
+      'absence-surface-tooltip'
+    ) as HTMLDivElement;
 
     this.absenceMask?.UpdateEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(
       () => {

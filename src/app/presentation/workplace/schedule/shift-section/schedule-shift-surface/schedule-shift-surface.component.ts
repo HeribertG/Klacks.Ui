@@ -97,7 +97,7 @@ export class ScheduleShiftSurfaceComponent {
 
   private createCanvas() {
     this.canvas = document.getElementById(
-      'calendarCanvas'
+      'absence-surface-canvas'
     ) as HTMLCanvasElement;
     this.ctx = DrawHelper.createHiDPICanvas(
       this.canvas,

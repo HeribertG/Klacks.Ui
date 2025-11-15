@@ -1,0 +1,64 @@
+.pie-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+.pie-chart-svg {
+  .pie-slice {
+    .slice-path {
+      stroke: var(--backgroundColorCard);
+      stroke-width: 2;
+      transition: opacity 0.2s ease;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
+}
+
+.pie-chart-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: var(--backgroundColorCard);
+  border: 1px solid var(--colorLine);
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.legend-name {
+  font-weight: 500;
+  color: var(--colorLabel);
+  font-size: 14px;
+}
+
+.legend-value {
+  font-size: 12px;
+  color: var(--gridColorText);
+}

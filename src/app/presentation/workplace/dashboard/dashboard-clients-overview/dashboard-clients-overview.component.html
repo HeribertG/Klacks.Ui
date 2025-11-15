@@ -1,0 +1,42 @@
+<div id="dashboard-clients-container" class="container-dashboard">
+  <div id="dashboard-clients-header" class="container-header">
+    {{ 'dashboard.clients.headline' | translate }}
+  </div>
+
+  <div id="dashboard-clients-line" class="container-line"></div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <p>{{ 'dashboard.clients.loading' | translate }}</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="error-container">
+      <p class="error-message">{{ error() }}</p>
+    </div>
+  }
+
+  @if (!isLoading() && !error()) {
+    <div id="dashboard-clients-content">
+      @if (chartData().length === 0) {
+        <div class="no-data-message">
+          <p>{{ 'dashboard.clients.noData' | translate }}</p>
+        </div>
+      } @else {
+        <div class="clients-chart-container">
+          <div class="chart-header">
+            <h3>{{ 'dashboard.clients.byGroup' | translate }}</h3>
+            <p class="total-clients">{{ 'dashboard.clients.total' | translate }}: {{ totalClients() }}</p>
+          </div>
+
+          <app-pie-chart
+            [data]="chartData()"
+            [width]="500"
+            [height]="500"
+          ></app-pie-chart>
+        </div>
+      }
+    </div>
+  }
+</div>

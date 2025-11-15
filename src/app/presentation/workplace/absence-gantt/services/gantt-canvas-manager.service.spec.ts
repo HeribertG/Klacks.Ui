@@ -31,7 +31,7 @@ describe('GanttCanvasManagerService', () => {
   describe('createCanvas', () => {
     it('should create all canvas elements', () => {
       const mockMainCanvas = document.createElement('canvas');
-      mockMainCanvas.id = 'calendarCanvas';
+      mockMainCanvas.id = 'absence-surface-canvas';
       document.body.appendChild(mockMainCanvas);
 
       spyOn(DrawHelper, 'createHiDPICanvas').and.returnValue(
@@ -108,16 +108,17 @@ describe('GanttCanvasManagerService', () => {
       const pixelRatioSpy = spyOn(DrawHelper, 'pixelRatio').and.returnValue(2);
       spyOn(mockCtx, 'scale');
 
-      const createHiDPISpy = spyOn(DrawHelper, 'createHiDPICanvas').and.callFake(
-        (canvas, w, h, setPixelRatio) => {
-          if (setPixelRatio) {
-            const dpr = DrawHelper.pixelRatio();
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-          }
-          return mockCtx;
+      const createHiDPISpy = spyOn(
+        DrawHelper,
+        'createHiDPICanvas'
+      ).and.callFake((canvas, w, h, setPixelRatio) => {
+        if (setPixelRatio) {
+          const dpr = DrawHelper.pixelRatio();
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
         }
-      );
+        return mockCtx;
+      });
 
       service.width = 100;
       service.height = 200;
@@ -158,16 +159,17 @@ describe('GanttCanvasManagerService', () => {
 
       const pixelRatioSpy = spyOn(DrawHelper, 'pixelRatio').and.returnValue(2);
 
-      const createHiDPISpy = spyOn(DrawHelper, 'createHiDPICanvas').and.callFake(
-        (canvas, w, h, setPixelRatio) => {
-          if (setPixelRatio) {
-            const dpr = DrawHelper.pixelRatio();
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-          }
-          return mockCtx;
+      const createHiDPISpy = spyOn(
+        DrawHelper,
+        'createHiDPICanvas'
+      ).and.callFake((canvas, w, h, setPixelRatio) => {
+        if (setPixelRatio) {
+          const dpr = DrawHelper.pixelRatio();
+          canvas.width = w * dpr;
+          canvas.height = h * dpr;
         }
-      );
+        return mockCtx;
+      });
 
       service.resizeHeaderCanvas(600);
 
@@ -197,7 +199,9 @@ describe('GanttCanvasManagerService', () => {
 
       service.resizeRenderCanvas(visibleRow, visibleCol);
 
-      expect(mockCanvas.height).toBe(visibleRow * mockCalendarSetting.cellHeight);
+      expect(mockCanvas.height).toBe(
+        visibleRow * mockCalendarSetting.cellHeight
+      );
       expect(mockCanvas.width).toBe(visibleCol * mockCalendarSetting.cellWidth);
       expect(mockCtx.clearRect).toHaveBeenCalledWith(
         0,
@@ -347,7 +351,7 @@ describe('GanttCanvasManagerService', () => {
   describe('HiDPI Architecture', () => {
     it('should apply HiDPI only to display and header canvases', () => {
       const mockMainCanvas = document.createElement('canvas');
-      mockMainCanvas.id = 'calendarCanvas';
+      mockMainCanvas.id = 'absence-surface-canvas';
       document.body.appendChild(mockMainCanvas);
 
       let hiDPICalls = 0;
@@ -366,7 +370,7 @@ describe('GanttCanvasManagerService', () => {
 
     it('should keep intermediate buffers without HiDPI scaling', () => {
       const mockMainCanvas = document.createElement('canvas');
-      mockMainCanvas.id = 'calendarCanvas';
+      mockMainCanvas.id = 'absence-surface-canvas';
       document.body.appendChild(mockMainCanvas);
 
       spyOn(DrawHelper, 'createHiDPICanvas').and.returnValue(

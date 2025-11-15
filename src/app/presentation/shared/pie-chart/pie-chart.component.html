@@ -1,0 +1,27 @@
+<div class="pie-chart-container">
+  <svg [attr.width]="width" [attr.height]="height" class="pie-chart-svg">
+    @for (slice of slices; track $index) {
+      <g class="pie-slice">
+        <path
+          [attr.d]="slice.path"
+          [attr.fill]="slice.color"
+          class="slice-path"
+        >
+          <title>{{ slice.label }}: {{ slice.value }} ({{ slice.percentage }})</title>
+        </path>
+      </g>
+    }
+  </svg>
+
+  <div class="pie-chart-legend">
+    @for (slice of slices; track $index) {
+      <div class="legend-item">
+        <div class="legend-color" [style.background-color]="slice.color"></div>
+        <div class="legend-label">
+          <span class="legend-name">{{ slice.label }}</span>
+          <span class="legend-value">{{ slice.value }} ({{ slice.percentage }})</span>
+        </div>
+      </div>
+    }
+  </div>
+</div>

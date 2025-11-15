@@ -26,8 +26,16 @@
 
   <div id="settings-general-icon-logo-row" class="row-line first">
     @if (dataLoadFileService.iconImage) {
-    <div id="settings-general-icon-image-container" class="image-container-show">
-      <img id="settings-general-icon-image" [src]="dataLoadFileService.iconImage" alt="" class="imgIcon" />
+    <div
+      id="settings-general-icon-image-container"
+      class="image-container-show"
+    >
+      <img
+        id="settings-general-icon-image"
+        [src]="dataLoadFileService.iconImage"
+        alt=""
+        class="imgIcon"
+      />
 
       <div class="row">
         <div class="filler"></div>
@@ -73,14 +81,18 @@
       </div>
     </div>
     } @if (logoImage()) {
-    <div id="settings-general-logo-image-container" class="image-container-show">
+    <div
+      id="settings-general-logo-image-container"
+      class="image-container-show"
+    >
       <img
         id="settings-general-logo-image"
         [src]="logoImage()"
         [width]="logoDisplayDimensions().width"
         [height]="logoDisplayDimensions().height"
         alt="Logo"
-        class="imgIcon" />
+        class="imgIcon"
+      />
 
       <div class="row">
         <div class="filler"></div>
@@ -127,5 +139,5 @@
     }
   </div>
 
-  <div id="settings-general-bottom-border" class="bottom-border-space"></div>
+  <div class="bottom-border-space"></div>
 </form>
