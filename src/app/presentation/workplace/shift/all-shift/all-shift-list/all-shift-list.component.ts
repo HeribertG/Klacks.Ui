@@ -365,7 +365,7 @@ export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 200);
   }
 
-  private readPage(shouldRecalculate: boolean = false): void {
+  private readPage(shouldRecalculate = false): void {
     this.allShiftStateService.prepareFilterForRequest(
       this.sortingService.getCurrentOrderBy(),
       this.sortingService.getCurrentSortOrder(),

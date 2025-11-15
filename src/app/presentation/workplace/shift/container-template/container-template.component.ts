@@ -24,6 +24,9 @@ import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
+import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
+import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
 import {
@@ -49,6 +52,9 @@ import {
     DragDropModule,
     TimeInputComponent,
     TimeRulerComponent,
+    IconShiftSegmentComponent,
+    IconTimeWindowComponent,
+    IconUnknownTimeComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',

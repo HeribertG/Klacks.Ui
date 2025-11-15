@@ -76,9 +76,9 @@ export class GeocodingService {
     );
   }
 
-  geocodeMultiple(locations: Array<{ city: string; country: string }>): Observable<Map<string, Coordinates>> {
+  geocodeMultiple(locations: { city: string; country: string }[]): Observable<Map<string, Coordinates>> {
     const results = new Map<string, Coordinates>();
-    const promises: Array<Promise<void>> = [];
+    const promises: Promise<void>[] = [];
 
     locations.forEach((location) => {
       const promise = new Promise<void>((resolve) => {

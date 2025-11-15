@@ -91,6 +91,7 @@
                   <table class="shifts-table">
                     <thead>
                       <tr>
+                        <th class="icon-column"></th>
                         <th>{{ 'shift.container-template.grid.name' | translate }}</th>
                         <th>{{ 'shift.container-template.grid.abbreviation' | translate }}</th>
                         <th>{{ 'shift.container-template.grid.time' | translate }}</th>
@@ -106,7 +107,7 @@
                     >
                       @if (selectedTasks.length === 0) {
                         <tr class="empty-drop-zone">
-                          <td colspan="4">
+                          <td colspan="5">
                             <div class="no-shifts">
                               <p>{{ 'shift.container-template.selected-tasks.placeholder' | translate }}</p>
                             </div>
@@ -115,6 +116,15 @@
                       }
                       @for (shift of selectedTasks; track shift.id) {
                         <tr cdkDrag (click)="onShiftRowClick(shift)" (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
+                          <td class="icon-column">
+                            @if (shift.isSporadic) {
+                              <app-icon-unknown-time></app-icon-unknown-time>
+                            } @else if (shift.isTimeRange) {
+                              <app-icon-time-window></app-icon-time-window>
+                            } @else {
+                              <app-icon-shift-segment></app-icon-shift-segment>
+                            }
+                          </td>
                           <td>{{ shift.name }}</td>
                           <td>{{ shift.abbreviation }}</td>
                           <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
@@ -158,6 +168,7 @@
                       <table class="shifts-table">
                         <thead>
                           <tr>
+                            <th class="icon-column"></th>
                             <th (click)="onHeaderClick('name')" style="cursor: pointer;">
                               {{ 'shift.container-template.grid.name' | translate }}
                               {{ sortingService.getArrow('name') }}
@@ -185,6 +196,15 @@
                         >
                           @for (shift of availableTasks; track shift.id) {
                             <tr cdkDrag (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
+                              <td class="icon-column">
+                                @if (shift.isSporadic) {
+                                  <app-icon-unknown-time></app-icon-unknown-time>
+                                } @else if (shift.isTimeRange) {
+                                  <app-icon-time-window></app-icon-time-window>
+                                } @else {
+                                  <app-icon-shift-segment></app-icon-shift-segment>
+                                }
+                              </td>
                               <td>{{ shift.name }}</td>
                               <td>{{ shift.abbreviation }}</td>
                               <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>

@@ -19,13 +19,13 @@ export class PieChartComponent implements OnChanges {
   @Input() width = 400;
   @Input() height = 400;
 
-  public slices: Array<{
+  public slices: {
     path: string;
     color: string;
     label: string;
     value: number;
     percentage: string;
-  }> = [];
+  }[] = [];
 
   public centerX = 0;
   public centerY = 0;

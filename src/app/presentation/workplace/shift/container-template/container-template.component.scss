@@ -230,6 +230,12 @@
               text-transform: uppercase;
               background-color: var(--backgroundColorCard);
               border-bottom: 1px solid var(--colorLine);
+
+              &.icon-column {
+                width: 28px;
+                padding: 0.75rem 0.5rem;
+                text-align: center;
+              }
             }
           }
 
@@ -274,6 +280,12 @@
               td {
                 @extend .table-cell;
                 padding: 0.75rem 1rem;
+
+                &.icon-column {
+                  width: 28px;
+                  padding: 0.75rem 0.5rem;
+                  text-align: center;
+                }
 
                 &:first-child {
                   font-weight: 500;
@@ -375,6 +387,12 @@
               text-transform: uppercase;
               background-color: var(--backgroundColorCard);
               border-bottom: 1px solid var(--colorLine);
+
+              &.icon-column {
+                width: 28px;
+                padding: 0.75rem 0.5rem;
+                text-align: center;
+              }
             }
           }
 
@@ -395,6 +413,12 @@
               td {
                 @extend .table-cell;
                 padding: 0.75rem 1rem;
+
+                &.icon-column {
+                  width: 28px;
+                  padding: 0.75rem 0.5rem;
+                  text-align: center;
+                }
 
                 &:first-child {
                   font-weight: 500;

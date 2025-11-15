@@ -52,6 +52,65 @@ Hauptkomponente für die Zuweisung von Shifts zu Container-Vorlagen.
 - Automatische Aktualisierung der Available Tasks bei Sucheingabe
 - EntityName: `SHIFT_CONTAINER_TEMPLATE`
 
+**Available Tasks Backend-Filter:**
+
+Die Available Tasks werden durch den `ContainerAvailableTasksService` im Backend gefiltert. Folgende Einschränkungen gelten:
+
+1. **Sporadische Shifts** (`IsSporadic == true`)
+   - Werden **NICHT** angezeigt
+   - Filter: `.Where(s => !s.IsSporadic)`
+
+2. **Zeitfenster-Filter** - Unterscheidung zwischen Normal und TimeRange Shifts:
+
+   **Wichtig:** Der Filter erkennt, ob das **Zeitfenster** über Mitternacht geht (`fromTime > untilTime`, z.B. 22:00-06:00).
+
+   **Normale Shifts** (`IsTimeRange == false`):
+   - Shifts, die selbst Mitternacht überschreiten, werden **immer ausgeschlossen**
+   - Filter für normales Zeitfenster: `StartShift >= fromTime && EndShift <= untilTime && StartShift < EndShift`
+   - Filter für Mitternachts-Zeitfenster: `(StartShift >= fromTime || EndShift <= untilTime) && StartShift < EndShift`
+
+   Beispiele:
+
+   *Zeitfenster 08:00-12:00 (normal):*
+     - ✅ Shift 09:00-11:00 (komplett innerhalb)
+     - ✅ Shift 08:00-12:00 (genau am Rand)
+     - ❌ Shift 07:00-09:00 (StartShift vor fromTime)
+     - ❌ Shift 11:00-13:00 (EndShift nach untilTime)
+     - ❌ Shift 23:00-07:00 (überschreitet Mitternacht)
+
+   *Zeitfenster 22:00-06:00 (über Mitternacht):*
+     - ✅ Shift 23:00-23:30 (im späten Abend)
+     - ✅ Shift 02:00-05:00 (im frühen Morgen)
+     - ❌ Shift 23:00-01:00 (überschreitet selbst Mitternacht)
+     - ❌ Shift 10:00-14:00 (außerhalb des Zeitfensters)
+
+   **TimeRange Shifts** (`IsTimeRange == true`):
+   - Dürfen mit dem Zeitfenster **überlappen**
+   - Filter für normales Zeitfenster: `StartShift < untilTime && EndShift > fromTime`
+   - Filter für Mitternachts-Zeitfenster: `StartShift < untilTime || EndShift > fromTime`
+
+   Beispiele:
+
+   *Zeitfenster 08:00-12:00 (normal):*
+     - ✅ Shift 07:00-09:00 (überlappt am Anfang)
+     - ✅ Shift 11:00-13:00 (überlappt am Ende)
+     - ✅ Shift 09:00-11:00 (komplett innerhalb)
+
+   *Zeitfenster 22:00-06:00 (über Mitternacht):*
+     - ✅ Shift 20:00-23:00 (überlappt am Anfang)
+     - ✅ Shift 04:00-08:00 (überlappt am Ende)
+     - ✅ Shift 23:00-05:00 (überlappt beide Teile)
+     - ❌ Shift 10:00-14:00 (keine Überlappung)
+
+3. **Weitere Basis-Filter:**
+   - Nur Tasks: `ShiftType == IsTask` (keine Container)
+   - Status: `Status >= OriginalShift` (Status 2 oder 3)
+   - Bereits verwendete Shifts werden ausgeschlossen
+   - Gruppen-Filter (Shifts aus denselben Gruppen wie der Container)
+   - Wochentags-Filter (IsMonday, IsTuesday, etc.)
+
+**Backend-Service:** `/mnt/c/SourceCode/Klacks.Api/Domain/Services/ContainerTemplates/ContainerAvailableTasksService.cs`
+
 ### ShiftTemplateComponent
 
 Hauptkomponente für die Schichtvorlagen-Verwaltung.
