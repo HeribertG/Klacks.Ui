@@ -25,6 +25,7 @@ import {
   BaselineAlignmentEnum,
 } from '../grid/enums/cell-settings.enum';
 import { TimeRangeService } from './services/time-range.service';
+import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 
@@ -33,6 +34,7 @@ import { ContainerTemplateShiftService } from 'src/app/domain/services/container
   imports: [],
   templateUrl: './time-ruler.component.html',
   styleUrl: './time-ruler.component.scss',
+  providers: [TimeRulerDragDropService],
 })
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
@@ -92,18 +94,33 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   rulerCanvasRef!: ElementRef<HTMLCanvasElement>;
 
   private timeRangeService = inject(TimeRangeService);
+  private dragDropService = inject(TimeRulerDragDropService);
   private gridColorService = inject(GridColorService);
   private shiftService = inject(ContainerTemplateShiftService);
   private injector = inject(Injector);
   private resizeObserver?: ResizeObserver;
 
+  private renderCanvas: HTMLCanvasElement | undefined;
+  private renderCtx: CanvasRenderingContext2D | undefined;
+
   constructor() {
     effect(
       () => {
-        this.shifts = this.shiftService.selectedTasksSignal();
-        this.selectedShift = this.shiftService.selectedShiftSignal();
+        const newShifts = this.shiftService.selectedTasksSignal();
+        const newSelectedShift = this.shiftService.selectedShiftSignal();
+
+        const shiftsChanged = JSON.stringify(this.shifts) !== JSON.stringify(newShifts);
+        const selectionChanged = this.selectedShift !== newSelectedShift;
+
+        this.shifts = newShifts;
+        this.selectedShift = newSelectedShift;
+
         if (this.inboxCanvasRef) {
-          this.setupCanvas();
+          if (shiftsChanged) {
+            this.setupCanvas();
+          } else if (selectionChanged) {
+            this.redrawWithSelection();
+          }
         }
       },
       { injector: this.injector }
@@ -174,6 +191,30 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       height
     );
 
+    if (!this.renderCanvas) {
+      this.renderCanvas = document.createElement('canvas');
+    }
+    this.renderCanvas.width = boundaryWidth;
+    this.renderCanvas.height = height;
+    this.renderCtx = this.renderCanvas.getContext('2d', {
+      willReadFrequently: true,
+    })!;
+
+    const paddingMinutes = this.calculatePaddingMinutes();
+    const range = this.timeRangeService.calculateDisplayRange(
+      this.fromTime,
+      this.untilTime,
+      paddingMinutes
+    );
+    const pixelsPerMinute = height / range.totalMinutes;
+
+    this.dragDropService.initializeDragState(
+      pixelsPerMinute,
+      1,
+      range.displayFromMinutes,
+      range.totalMinutes
+    );
+
     inboxCtx.fillStyle = this.gridColorService.backGroundColor;
     inboxCtx.fillRect(0, 0, boundaryWidth, height);
 
@@ -182,7 +223,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     this.drawTimeRuler(rulerCtx, height);
     this.drawRedBoundaryLines(inboxCtx, boundaryWidth, height);
-    this.drawShiftBoxes(inboxCtx, boundaryWidth, height);
+    this.renderShiftsToCache(boundaryWidth, height);
+    this.drawFromCache(inboxCtx);
 
     DrawImageHelper.drawCanvasLogical(
       inboxCtx,
@@ -450,8 +492,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     marginLeftRight: number,
     height: number,
     isSelected = false
-  ): void {
-    if (!shift.startShift || !shift.endShift) return;
+  ): Rectangle | null {
+    if (!shift.startShift || !shift.endShift) return null;
 
     let bodyStartTime: { hours: number; minutes: number } | null;
     let bodyEndTime: { hours: number; minutes: number } | null;
@@ -468,7 +510,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       bodyEndTime = this.parseTimeString(shift.endShift);
     }
 
-    if (!bodyStartTime || !bodyEndTime) return;
+    if (!bodyStartTime || !bodyEndTime) return null;
 
     const bodyStartMinutes =
       bodyStartTime.hours * this.MINUTES_PER_HOUR + bodyStartTime.minutes;
@@ -482,7 +524,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const startTime = this.parseTimeString(shift.startShift);
     const endTime = this.parseTimeString(shift.endShift);
 
-    if (!startTime || !endTime) return;
+    if (!startTime || !endTime) return null;
 
     const startMinutes =
       startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
@@ -509,7 +551,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       endY
     );
 
-    this.shiftRectangles.set(shift, rect);
+    if (!isSelected) {
+      this.shiftRectangles.set(shift, rect);
+    }
 
     DrawHelper.fillRectangle(
       ctx,
@@ -571,6 +615,40 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
+
+    return rect;
+  }
+
+  private renderShiftsToCache(width: number, height: number): void {
+    if (!this.shifts || this.shifts.length === 0 || !this.renderCtx) return;
+
+    this.shiftRectangles.clear();
+
+    this.renderCtx.fillStyle = this.gridColorService.backGroundColor;
+    this.renderCtx.fillRect(0, 0, width, height);
+
+    this.drawRedBoundaryLines(this.renderCtx, width, height);
+
+    const { range, boxWidth, marginLeftRight } =
+      this.calculateShiftBoxParameters(width, height);
+
+    this.shifts.forEach((shift) => {
+      this.drawSingleShiftBox(
+        this.renderCtx!,
+        shift,
+        range,
+        boxWidth,
+        marginLeftRight,
+        height,
+        false
+      );
+    });
+  }
+
+  private drawFromCache(ctx: CanvasRenderingContext2D): void {
+    if (!this.renderCanvas) return;
+
+    ctx.drawImage(this.renderCanvas, 0, 0);
   }
 
   private drawShiftBoxes(
@@ -639,6 +717,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   onCanvasClick(event: MouseEvent): void {
+    if (this.dragDropService.dragState.isDragging) {
+      return;
+    }
+
     const canvas = this.inboxCanvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
 
@@ -661,5 +743,198 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
     this.shiftService.setSelectedShift(null);
+  }
+
+  onMouseDown(event: MouseEvent): void {
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const logicalDimensions = DrawImageHelper.getLogicalDimensions(canvas);
+
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    const scaleX = logicalDimensions.width / rect.width;
+    const scaleY = logicalDimensions.height / rect.height;
+
+    const x = clickX * scaleX;
+    const y = clickY * scaleY;
+
+    for (const [shift, shiftRect] of this.shiftRectangles) {
+      if (shiftRect.pointInRect(x, y) && shift.isTimeRange) {
+        const dragStarted = this.dragDropService.startDrag(y, shift, shiftRect);
+        if (dragStarted) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        return;
+      }
+    }
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (!this.dragDropService.dragState.isDragging) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const logicalDimensions = DrawImageHelper.getLogicalDimensions(canvas);
+
+    const mouseY = event.clientY - rect.top;
+    const scaleY = logicalDimensions.height / rect.height;
+    const y = mouseY * scaleY;
+
+    const newPosition = this.dragDropService.updateDrag(y);
+    if (!newPosition) {
+      return;
+    }
+
+    const draggedShift = this.dragDropService.dragState.draggedShift;
+    if (draggedShift) {
+      draggedShift.timeRangeStartShift =
+        this.dragDropService.formatTimeFromMinutes(newPosition.newStartMinutes);
+      draggedShift.timeRangeEndShift =
+        this.dragDropService.formatTimeFromMinutes(newPosition.newEndMinutes);
+
+      this.redrawCanvas();
+    }
+  }
+
+  onMouseUp(event: MouseEvent): void {
+    if (!this.dragDropService.dragState.isDragging) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const result = this.dragDropService.endDrag();
+    if (result) {
+      const canvas = this.inboxCanvasRef.nativeElement;
+      const container = canvas.parentElement;
+      if (!container) return;
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      const rulerWidth = this.RULER_WIDTH;
+      const boundaryWidth = width - rulerWidth;
+
+      this.renderShiftsToCache(boundaryWidth, height);
+
+      this.redrawWithSelection();
+    }
+  }
+
+  private redrawWithSelection(): void {
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const inboxCtx = canvas.getContext('2d');
+    if (!inboxCtx) return;
+
+    const rulerWidth = this.RULER_WIDTH;
+    const boundaryWidth = width - rulerWidth;
+
+    inboxCtx.clearRect(0, 0, boundaryWidth, height);
+    this.drawFromCache(inboxCtx);
+
+    if (this.selectedShift) {
+      const { range, boxWidth, marginLeftRight } =
+        this.calculateShiftBoxParameters(boundaryWidth, height);
+
+      const selectedRect = this.drawSingleShiftBox(
+        inboxCtx,
+        this.selectedShift,
+        range,
+        boxWidth,
+        marginLeftRight,
+        height,
+        true
+      );
+
+      if (selectedRect) {
+        this.shiftRectangles.set(this.selectedShift, selectedRect);
+      }
+    }
+  }
+
+  private redrawCanvas(): void {
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    const inboxCtx = canvas.getContext('2d');
+    if (!inboxCtx) return;
+
+    const rulerWidth = this.RULER_WIDTH;
+    const boundaryWidth = width - rulerWidth;
+
+    inboxCtx.clearRect(0, 0, boundaryWidth, height);
+
+    this.drawFromCache(inboxCtx);
+
+    const draggedShift = this.dragDropService.dragState.draggedShift;
+    if (draggedShift) {
+      const { range, boxWidth, marginLeftRight } =
+        this.calculateShiftBoxParameters(boundaryWidth, height);
+
+      inboxCtx.clearRect(0, 0, boundaryWidth, height);
+
+      if (this.renderCanvas && this.renderCtx) {
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = this.renderCanvas.width;
+        tempCanvas.height = this.renderCanvas.height;
+        const tempCtx = tempCanvas.getContext('2d')!;
+        tempCtx.drawImage(this.renderCanvas, 0, 0);
+
+        this.renderCtx.clearRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
+        this.renderCtx.fillStyle = this.gridColorService.backGroundColor;
+        this.renderCtx.fillRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
+        this.drawRedBoundaryLines(this.renderCtx, boundaryWidth, height);
+
+        this.shifts.forEach((shift) => {
+          if (shift !== draggedShift) {
+            this.drawSingleShiftBox(
+              this.renderCtx!,
+              shift,
+              range,
+              boxWidth,
+              marginLeftRight,
+              height,
+              false
+            );
+          }
+        });
+
+        inboxCtx.drawImage(this.renderCanvas, 0, 0);
+
+        const draggedRect = this.drawSingleShiftBox(
+          inboxCtx,
+          draggedShift,
+          range,
+          boxWidth,
+          marginLeftRight,
+          height,
+          true
+        );
+
+        if (draggedRect) {
+          this.shiftRectangles.set(draggedShift, draggedRect);
+        }
+
+        this.renderCtx.clearRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
+        this.renderCtx.drawImage(tempCanvas, 0, 0);
+      }
+    }
   }
 }

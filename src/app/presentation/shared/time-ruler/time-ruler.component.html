@@ -1,4 +1,11 @@
 <div class="time-ruler-container">
-  <canvas #inboxCanvas class="main-canvas" (click)="onCanvasClick($event)"></canvas>
+  <canvas
+    #inboxCanvas
+    class="main-canvas"
+    (click)="onCanvasClick($event)"
+    (mousedown)="onMouseDown($event)"
+    (mousemove)="onMouseMove($event)"
+    (mouseup)="onMouseUp($event)"
+  ></canvas>
   <canvas #rulerCanvas class="sub-canvas"></canvas>
 </div>
