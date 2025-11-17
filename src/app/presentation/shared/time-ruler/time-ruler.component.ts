@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-generic-constructors */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
@@ -39,6 +40,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private shifts: IShift[] = [];
   private selectedShift: IShift | null = null;
+  private shiftRectangles: Map<IShift, Rectangle> = new Map();
 
   private readonly PADDING_MINUTES_DEFAULT = 30;
   private readonly PADDING_MINUTES_SHORT = 15;
@@ -71,6 +73,15 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private readonly SHIFT_TEXT_FONT = '12px Arial';
 
   private readonly BOUNDARY_LINE_WIDTH = 2;
+  private readonly BOUNDARY_GRADIENT_HEIGHT = 12;
+  private readonly BOUNDARY_GRADIENT_OPACITY = 0.2;
+  private readonly BOUNDARY_GRADIENT_OPACITY_TRANSPARENT = 0.0;
+
+  private readonly SHIFT_BOX_MARGIN_LEFT_RIGHT = 8;
+  private readonly SHIFT_BOX_BORDER_DEPTH = 4;
+  private readonly SHIFT_BOX_SELECTION_OPACITY = 0.2;
+
+  private readonly MINUTES_PER_DAY = 24 * 60;
 
   private _lastFromTimeString = '';
   private _lastUntilTimeString = '';
@@ -129,7 +140,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     let untilMinutes = this.timeRangeService.toMinutes(this.untilTime);
 
     if (untilMinutes <= fromMinutes) {
-      untilMinutes += 24 * 60;
+      untilMinutes += this.MINUTES_PER_DAY;
     }
 
     const durationMinutes = untilMinutes - fromMinutes;
@@ -170,7 +181,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     rulerCtx.fillRect(0, 0, rulerWidth, height);
 
     this.drawTimeRuler(rulerCtx, height);
-    this.drawBoundaryLines(inboxCtx, boundaryWidth, height);
+    this.drawRedBoundaryLines(inboxCtx, boundaryWidth, height);
     this.drawShiftBoxes(inboxCtx, boundaryWidth, height);
 
     DrawImageHelper.drawCanvasLogical(
@@ -262,7 +273,93 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
   }
 
+  private drawBoundaryLine(
+    ctx: CanvasRenderingContext2D,
+    y: number,
+    width: number,
+    color: string,
+    lineWidth: number,
+    isStart: boolean
+  ): void {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+
+    const rgbaColor = this.convertColorToRgba(
+      color,
+      this.BOUNDARY_GRADIENT_OPACITY
+    );
+    const transparentColor = this.convertColorToRgba(
+      color,
+      this.BOUNDARY_GRADIENT_OPACITY_TRANSPARENT
+    );
+
+    if (isStart) {
+      const gradient = ctx.createLinearGradient(
+        0,
+        y,
+        0,
+        y + this.BOUNDARY_GRADIENT_HEIGHT
+      );
+
+      gradient.addColorStop(0, rgbaColor);
+      gradient.addColorStop(1, transparentColor);
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, y, width, this.BOUNDARY_GRADIENT_HEIGHT);
+    } else {
+      const gradient = ctx.createLinearGradient(
+        0,
+        y - this.BOUNDARY_GRADIENT_HEIGHT,
+        0,
+        y
+      );
+
+      gradient.addColorStop(0, transparentColor);
+      gradient.addColorStop(1, rgbaColor);
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(
+        0,
+        y - this.BOUNDARY_GRADIENT_HEIGHT,
+        width,
+        this.BOUNDARY_GRADIENT_HEIGHT
+      );
+    }
+  }
+
+  private convertColorToRgba(color: string, opacity: number): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return `rgba(0, 0, 0, ${opacity})`;
+
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const imageData = ctx.getImageData(0, 0, 1, 1);
+    const pixel = imageData.data;
+
+    return `rgba(${pixel[0]}, ${pixel[1]}, ${pixel[2]}, ${opacity})`;
+  }
+
   private drawBoundaryLines(
+    ctx: CanvasRenderingContext2D,
+    startY: number,
+    endY: number,
+    width: number,
+    color: string,
+    lineWidth: number
+  ): void {
+    this.drawBoundaryLine(ctx, startY, width, color, lineWidth, true);
+    this.drawBoundaryLine(ctx, endY, width, color, lineWidth, false);
+  }
+
+  private drawRedBoundaryLines(
     ctx: CanvasRenderingContext2D,
     width: number,
     height: number
@@ -283,18 +380,52 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         range.totalMinutes) *
       height;
 
-    ctx.strokeStyle = this.gridColorService.warningColor;
-    ctx.lineWidth = this.BOUNDARY_LINE_WIDTH;
+    this.drawBoundaryLines(
+      ctx,
+      fromY,
+      untilY,
+      width,
+      this.gridColorService.warningColor,
+      this.BOUNDARY_LINE_WIDTH
+    );
+  }
 
-    ctx.beginPath();
-    ctx.moveTo(0, fromY);
-    ctx.lineTo(width, fromY);
-    ctx.stroke();
+  private drawBlueBoundaryLines(
+    ctx: CanvasRenderingContext2D,
+    shift: IShift,
+    range: any,
+    boxWidth: number,
+    marginLeftRight: number,
+    height: number
+  ): void {
+    if (!shift.startShift || !shift.endShift) return;
 
-    ctx.beginPath();
-    ctx.moveTo(0, untilY);
-    ctx.lineTo(width, untilY);
-    ctx.stroke();
+    const startTime = this.parseTimeString(shift.startShift);
+    const endTime = this.parseTimeString(shift.endShift);
+
+    if (!startTime || !endTime) return;
+
+    const startMinutes =
+      startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
+    let endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
+
+    if (endMinutes < startMinutes) {
+      endMinutes += this.MINUTES_PER_DAY;
+    }
+
+    const timeRangeStartY =
+      ((startMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+    const timeRangeEndY =
+      ((endMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+
+    this.drawBoundaryLines(
+      ctx,
+      timeRangeStartY,
+      timeRangeEndY,
+      boxWidth + marginLeftRight * 2,
+      this.gridColorService.focusBorderColor,
+      this.BOUNDARY_LINE_WIDTH
+    );
   }
 
   private calculateShiftBoxParameters(width: number, height: number) {
@@ -305,7 +436,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       paddingMinutes
     );
 
-    const marginLeftRight = 8;
+    const marginLeftRight = this.SHIFT_BOX_MARGIN_LEFT_RIGHT;
     const boxWidth = width - 2 * marginLeftRight;
 
     return { range, boxWidth, marginLeftRight };
@@ -322,31 +453,63 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   ): void {
     if (!shift.startShift || !shift.endShift) return;
 
+    let bodyStartTime: { hours: number; minutes: number } | null;
+    let bodyEndTime: { hours: number; minutes: number } | null;
+
+    if (
+      (shift.isTimeRange || shift.isSporadic) &&
+      shift.timeRangeStartShift &&
+      shift.timeRangeEndShift
+    ) {
+      bodyStartTime = this.parseTimeString(shift.timeRangeStartShift);
+      bodyEndTime = this.parseTimeString(shift.timeRangeEndShift);
+    } else {
+      bodyStartTime = this.parseTimeString(shift.startShift);
+      bodyEndTime = this.parseTimeString(shift.endShift);
+    }
+
+    if (!bodyStartTime || !bodyEndTime) return;
+
+    const bodyStartMinutes =
+      bodyStartTime.hours * this.MINUTES_PER_HOUR + bodyStartTime.minutes;
+    let bodyEndMinutes =
+      bodyEndTime.hours * this.MINUTES_PER_HOUR + bodyEndTime.minutes;
+
+    if (bodyEndMinutes < bodyStartMinutes) {
+      bodyEndMinutes += this.MINUTES_PER_DAY;
+    }
+
     const startTime = this.parseTimeString(shift.startShift);
     const endTime = this.parseTimeString(shift.endShift);
 
     if (!startTime || !endTime) return;
 
-    const startMinutes = startTime.hours * 60 + startTime.minutes;
-    let endMinutes = endTime.hours * 60 + endTime.minutes;
+    const startMinutes =
+      startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
+    let endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
 
     if (endMinutes < startMinutes) {
-      endMinutes += 24 * 60;
+      endMinutes += this.MINUTES_PER_DAY;
     }
 
     const startY =
-      ((startMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+      ((bodyStartMinutes - range.displayFromMinutes) / range.totalMinutes) *
+      height;
     const endY =
-      ((endMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+      ((bodyEndMinutes - range.displayFromMinutes) / range.totalMinutes) *
+      height;
 
-    const boxHeight = endY - startY;
+    const pixelsPerMinute = height / range.totalMinutes;
+    const durationMinutes = bodyEndMinutes - bodyStartMinutes;
 
     const rect = new Rectangle(
       marginLeftRight,
       startY,
-      boxWidth + 4,
-      boxHeight - 1
+      marginLeftRight + boxWidth,
+      endY
     );
+
+    this.shiftRectangles.set(shift, rect);
 
     DrawHelper.fillRectangle(
       ctx,
@@ -357,7 +520,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (isSelected) {
       ctx.save();
 
-      ctx.globalAlpha = 0.2;
+      ctx.globalAlpha = this.SHIFT_BOX_SELECTION_OPACITY;
       DrawHelper.fillRectangle(
         ctx,
         this.gridColorService.focusBorderColor,
@@ -367,16 +530,29 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       ctx.restore();
     }
 
+    const boxHeight = endY - startY;
+
     DrawHelper.drawBorder(
       ctx,
       marginLeftRight,
       startY,
       boxWidth,
-      boxHeight,
+      endY,
       this.gridColorService.controlBackGroundColor,
-      4,
+      this.SHIFT_BOX_BORDER_DEPTH,
       Gradient3DBorderStyleEnum.Raised
     );
+
+    if ((shift.isTimeRange || shift.isSporadic) && isSelected) {
+      this.drawBlueBoundaryLines(
+        ctx,
+        shift,
+        range,
+        boxWidth,
+        marginLeftRight,
+        height
+      );
+    }
 
     const abbreviation = shift.abbreviation || '';
     const name = shift.name || '';
@@ -403,6 +579,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     height: number
   ): void {
     if (!this.shifts || this.shifts.length === 0) return;
+
+    this.shiftRectangles.clear();
 
     const { range, boxWidth, marginLeftRight } =
       this.calculateShiftBoxParameters(width, height);
@@ -458,5 +636,30 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     });
 
     this.resizeObserver.observe(container);
+  }
+
+  onCanvasClick(event: MouseEvent): void {
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+
+    const logicalDimensions = DrawImageHelper.getLogicalDimensions(canvas);
+
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    const scaleX = logicalDimensions.width / rect.width;
+    const scaleY = logicalDimensions.height / rect.height;
+
+    const x = clickX * scaleX;
+    const y = clickY * scaleY;
+
+    for (const [shift, shiftRect] of this.shiftRectangles) {
+      if (shiftRect.pointInRect(x, y)) {
+        this.shiftService.setSelectedShift(shift);
+        return;
+      }
+    }
+
+    this.shiftService.setSelectedShift(null);
   }
 }

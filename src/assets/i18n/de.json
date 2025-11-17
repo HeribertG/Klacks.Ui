@@ -891,6 +891,7 @@
   "shift.container-template.grid.name": "Name",
   "shift.container-template.grid.abbreviation": "Abkürzung",
   "shift.container-template.grid.time": "Zeit",
+  "shift.container-template.grid.work-time": "Arbeitszeit",
   "shift.container-template.grid.client": "Kunde",
   "shift.container-template.grid.no-shifts": "Keine Schichten verfügbar",
   "shift.container-template.no-container-selected": "Kein Container ausgewählt",

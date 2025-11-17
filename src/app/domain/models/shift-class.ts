@@ -61,6 +61,8 @@ export interface IShift {
   isSporadic: boolean;
   sporadicScope: ShiftSporadic;
   isTimeRange: boolean;
+  timeRangeStartShift: string;
+  timeRangeEndShift: string;
   quantity: number;
   sumEmployees: number;
   travelTimeAfter: string;
@@ -122,6 +124,8 @@ export class Shift implements IShift {
   isSporadic = false;
   sporadicScope: ShiftSporadic = ShiftSporadic.Week;
   isTimeRange = false;
+  timeRangeStartShift = '';
+  timeRangeEndShift = '';
   quantity = 1;
   sumEmployees = 1;
   travelTimeAfter = '';

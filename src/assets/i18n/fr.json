@@ -907,6 +907,7 @@
   "shift.container-template.grid.name": "Nom",
   "shift.container-template.grid.abbreviation": "Abréviation",
   "shift.container-template.grid.time": "Heure",
+  "shift.container-template.grid.work-time": "Temps de travail",
   "shift.container-template.grid.client": "Client",
   "shift.container-template.grid.no-shifts": "Aucun service disponible",
   "shift.container-template.no-container-selected": "Aucun conteneur sélectionné",

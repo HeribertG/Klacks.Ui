@@ -208,14 +208,28 @@
 
     .shifts-grid-container {
       flex: 1;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 0 1rem 1rem 1rem;
 
       .shifts-grid {
+        overflow-x: auto;
+        overflow-y: visible;
+
         .shifts-table {
-          width: 100%;
+          width: auto;
           border-collapse: separate;
           border-spacing: 0;
+          min-width: 100%;
+
+          th, td {
+            min-width: 120px;
+            white-space: nowrap;
+
+            &.icon-column {
+              min-width: 28px;
+            }
+          }
 
           thead {
             position: sticky;
@@ -251,6 +265,15 @@
 
               &.cdk-drag-placeholder {
                 opacity: 0.3;
+              }
+
+              &.selected {
+                background-color: var(--backgroundColoPaginationSelected) !important;
+                border-left: 3px solid var(--paginationBorderColorSelected);
+
+                &:hover {
+                  background-color: var(--backgroundColoPaginationSelected) !important;
+                }
               }
 
               &.empty-drop-zone {
@@ -365,14 +388,28 @@
 
     .shifts-grid-container {
       flex: 1;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 0 1rem 1rem 1rem;
 
       .shifts-grid {
+        overflow-x: auto;
+        overflow-y: visible;
+
         .shifts-table {
-          width: 100%;
+          width: auto;
           border-collapse: separate;
           border-spacing: 0;
+          min-width: 100%;
+
+          th, td {
+            min-width: 120px;
+            white-space: nowrap;
+
+            &.icon-column {
+              min-width: 28px;
+            }
+          }
 
           thead {
             position: sticky;
@@ -408,6 +445,15 @@
 
               &.cdk-drag-placeholder {
                 opacity: 0.3;
+              }
+
+              &.selected {
+                background-color: var(--backgroundColoPaginationSelected) !important;
+                border-left: 3px solid var(--paginationBorderColorSelected);
+
+                &:hover {
+                  background-color: var(--backgroundColoPaginationSelected) !important;
+                }
               }
 
               td {

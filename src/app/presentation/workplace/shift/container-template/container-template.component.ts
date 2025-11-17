@@ -37,6 +37,7 @@ import { IContainerTemplate } from 'src/app/domain/models/container-template-cla
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
+import { ShiftArrangementService } from './services/shift-arrangement.service';
 import {
   formatTime,
   timeToString,
@@ -115,6 +116,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private dataShiftService = inject(DataShiftService);
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
+  private arrangementService = inject(ShiftArrangementService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -127,8 +129,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   formatTime = formatTime;
 
+  formatWorkTime(workTime: number): string {
+    const hours = Math.floor(workTime);
+    const minutes = Math.round((workTime - hours) * 60);
+    return `${hours}:${minutes.toString().padStart(2, '0')}`;
+  }
+
   get selectedTasks(): IShift[] {
     return this.shiftService.selectedTasksSignal();
+  }
+
+  get selectedShift(): IShift | null {
+    return this.shiftService.selectedShiftSignal();
   }
 
   private isDirty = computed(() => {
@@ -171,6 +183,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         this.updateAvailableTasks();
       }
     });
+
   }
 
   ngOnInit(): void {
@@ -316,11 +329,19 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           );
           this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
             this.updateAvailableTasks();
+            this.rearrangeSelectedTasks();
           });
         }
       },
       error: () => {},
     });
+  }
+
+  private rearrangeSelectedTasks(): void {
+    const currentTasks = this.shiftService.selectedTasksSignal();
+    if (currentTasks.length > 0) {
+      this.arrangeAndSetSelectedTasks([...currentTasks]);
+    }
   }
 
   private calculateDuration(): void {
@@ -425,7 +446,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         event.currentIndex
       );
       if (event.container.id === 'selected-tasks-list') {
-        this.shiftService.setSelectedTasks([...event.container.data]);
+        this.arrangeAndSetSelectedTasks([...event.container.data]);
       }
     } else {
       const movedItem = event.previousContainer.data[event.previousIndex];
@@ -438,14 +459,38 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       );
 
       if (event.container.id === 'selected-tasks-list') {
-        this.shiftService.setSelectedTasks([...event.container.data]);
+        this.arrangeAndSetSelectedTasks([...event.container.data]);
       } else if (event.previousContainer.id === 'selected-tasks-list') {
-        this.shiftService.setSelectedTasks([...event.previousContainer.data]);
+        this.arrangeAndSetSelectedTasks([...event.previousContainer.data]);
         if (this.shiftService.selectedShift?.id === movedItem.id) {
           this.shiftService.setSelectedShift(null);
         }
       }
     }
+  }
+
+  private arrangeAndSetSelectedTasks(tasks: IShift[]): void {
+    if (tasks.length === 0) {
+      this.shiftService.setSelectedTasks(tasks);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+    const containerTimeUntil = timeToString(
+      parseInt(this.timeTo.hours),
+      parseInt(this.timeTo.minutes)
+    );
+
+    const arrangedTasks = this.arrangementService.arrangeShifts(
+      tasks,
+      containerTimeFrom,
+      containerTimeUntil
+    );
+
+    this.shiftService.setSelectedTasks(arrangedTasks);
   }
 
   getTabLabel(rowIndex: number): string {

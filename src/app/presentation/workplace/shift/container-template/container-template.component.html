@@ -2,7 +2,12 @@
   <!-- Header -->
   <div class="header">
     <div class="header-content">
-      <h2>{{ containerShift?.name || ('shift.container-template.header' | translate) }}</h2>
+      <h2>
+        {{
+          containerShift?.name ||
+            ("shift.container-template.header" | translate)
+        }}
+      </h2>
 
       <div class="time-controls">
         <app-time-input
@@ -32,38 +37,37 @@
 
       <div class="weekday-buttons">
         @for (day of weekdays; track day.value) {
-          <label class="weekday-button" [class.active]="selectedWeekday === day.value">
-            <input
-              type="radio"
-              name="weekday"
-              [value]="day.value"
-              [(ngModel)]="selectedWeekday"
-              (change)="onWeekdayChange()"
-            />
-            <span>{{ day.labelKey | translate }}</span>
-          </label>
+        <label
+          class="weekday-button"
+          [class.active]="selectedWeekday === day.value"
+        >
+          <input
+            type="radio"
+            name="weekday"
+            [value]="day.value"
+            [(ngModel)]="selectedWeekday"
+            (change)="onWeekdayChange()"
+          />
+          <span>{{ day.labelKey | translate }}</span>
+        </label>
         }
       </div>
 
       <div class="holiday-checkboxes">
         @if (containerShift?.isHoliday) {
-          <label class="holiday-checkbox">
-            <input
-              type="checkbox"
-              [(ngModel)]="isHoliday"
-            />
-            <span>{{ 'shift.container-template.weekday.holiday' | translate }}</span>
-          </label>
-        }
-
-        @if (containerShift?.isWeekdayOrHoliday) {
-          <label class="holiday-checkbox">
-            <input
-              type="checkbox"
-              [(ngModel)]="isWeekdayOrHoliday"
-            />
-            <span>{{ 'shift.container-template.weekday.holiday-plus' | translate }}</span>
-          </label>
+        <label class="holiday-checkbox">
+          <input type="checkbox" [(ngModel)]="isHoliday" />
+          <span>{{
+            "shift.container-template.weekday.holiday" | translate
+          }}</span>
+        </label>
+        } @if (containerShift?.isWeekdayOrHoliday) {
+        <label class="holiday-checkbox">
+          <input type="checkbox" [(ngModel)]="isWeekdayOrHoliday" />
+          <span>{{
+            "shift.container-template.weekday.holiday-plus" | translate
+          }}</span>
+        </label>
         }
       </div>
     </div>
@@ -75,7 +79,10 @@
       <!-- Zone 1: Left -->
       <as-split-area [size]="30" [minSize]="15" [maxSize]="50">
         <div class="zone zone-left">
-          <app-time-ruler [fromTime]="timeFrom" [untilTime]="timeTo"></app-time-ruler>
+          <app-time-ruler
+            [fromTime]="timeFrom"
+            [untilTime]="timeTo"
+          ></app-time-ruler>
         </div>
       </as-split-area>
 
@@ -85,17 +92,40 @@
           <!-- Zone 2: Top -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-center">
-              <h3>{{ 'shift.container-template.selected-tasks.title' | translate }}</h3>
+              <h3>
+                {{
+                  "shift.container-template.selected-tasks.title" | translate
+                }}
+              </h3>
               <div class="shifts-grid-container">
                 <div class="shifts-grid">
                   <table class="shifts-table">
                     <thead>
                       <tr>
                         <th class="icon-column"></th>
-                        <th>{{ 'shift.container-template.grid.name' | translate }}</th>
-                        <th>{{ 'shift.container-template.grid.abbreviation' | translate }}</th>
-                        <th>{{ 'shift.container-template.grid.time' | translate }}</th>
-                        <th>{{ 'shift.container-template.grid.client' | translate }}</th>
+                        <th>
+                          {{ "shift.container-template.grid.name" | translate }}
+                        </th>
+                        <th>
+                          {{
+                            "shift.container-template.grid.abbreviation"
+                              | translate
+                          }}
+                        </th>
+                        <th>
+                          {{ "shift.container-template.grid.time" | translate }}
+                        </th>
+                        <th>
+                          {{
+                            "shift.container-template.grid.work-time"
+                              | translate
+                          }}
+                        </th>
+                        <th>
+                          {{
+                            "shift.container-template.grid.client" | translate
+                          }}
+                        </th>
                       </tr>
                     </thead>
                     <tbody
@@ -106,30 +136,49 @@
                       (cdkDropListDropped)="onTaskDrop($event)"
                     >
                       @if (selectedTasks.length === 0) {
-                        <tr class="empty-drop-zone">
-                          <td colspan="5">
-                            <div class="no-shifts">
-                              <p>{{ 'shift.container-template.selected-tasks.placeholder' | translate }}</p>
-                            </div>
-                          </td>
-                        </tr>
-                      }
-                      @for (shift of selectedTasks; track shift.id) {
-                        <tr cdkDrag (click)="onShiftRowClick(shift)" (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
-                          <td class="icon-column">
-                            @if (shift.isSporadic) {
-                              <app-icon-unknown-time></app-icon-unknown-time>
-                            } @else if (shift.isTimeRange) {
-                              <app-icon-time-window></app-icon-time-window>
-                            } @else {
-                              <app-icon-shift-segment></app-icon-shift-segment>
-                            }
-                          </td>
-                          <td>{{ shift.name }}</td>
-                          <td>{{ shift.abbreviation }}</td>
-                          <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
-                          <td>{{ shift.client?.name || '-' }}</td>
-                        </tr>
+                      <tr class="empty-drop-zone">
+                        <td colspan="6">
+                          <div class="no-shifts">
+                            <p>
+                              {{
+                                "shift.container-template.selected-tasks.placeholder"
+                                  | translate
+                              }}
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      } @for (shift of selectedTasks; track shift.id) {
+                      <tr
+                        cdkDrag
+                        (click)="onShiftRowClick(shift)"
+                        (cdkDragStarted)="onDragStarted($event)"
+                        (cdkDragEnded)="onDragEnded($event)"
+                        [class.selected]="shift === selectedShift"
+                      >
+                        <td class="icon-column">
+                          @if (shift.isSporadic) {
+                          <app-icon-unknown-time></app-icon-unknown-time>
+                          } @else if (shift.isTimeRange) {
+                          <app-icon-time-window></app-icon-time-window>
+                          } @else {
+                          <app-icon-shift-segment></app-icon-shift-segment>
+                          }
+                        </td>
+                        <td>{{ shift.name }}</td>
+                        <td>{{ shift.abbreviation }}</td>
+                        <td>
+                          @if (shift.isTimeRange) {
+                          {{ formatTime(shift.timeRangeStartShift) }} -
+                          {{ formatTime(shift.timeRangeEndShift) }}
+                          } @else {
+                          {{ formatTime(shift.startShift) }} -
+                          {{ formatTime(shift.endShift) }}
+                          }
+                        </td>
+                        <td>{{ formatWorkTime(shift.workTime) }}</td>
+                        <td>{{ shift.client?.name || "-" }}</td>
+                      </tr>
                       }
                     </tbody>
                   </table>
@@ -142,88 +191,132 @@
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-right">
               @if (isLoading) {
-                <div class="loading-indicator">
-                  <p>{{ 'common.loading' | translate }}</p>
-                </div>
+              <div class="loading-indicator">
+                <p>{{ "common.loading" | translate }}</p>
+              </div>
               } @else if (templateGrid) {
-                <!-- Tabs -->
-                <div class="tabs-container">
-                  <div class="tabs">
-                    @for (row of getFilteredRowsForSelectedWeekday(); track $index) {
-                      <button
-                        class="tab"
-                        [class.active]="selectedTabIndex === $index"
-                        (click)="selectTab($index)"
-                      >
-                        {{ getTabLabel($index) }}
-                      </button>
-                    }
-                  </div>
+              <!-- Tabs -->
+              <div class="tabs-container">
+                <div class="tabs">
+                  @for (row of getFilteredRowsForSelectedWeekday(); track
+                  $index) {
+                  <button
+                    class="tab"
+                    [class.active]="selectedTabIndex === $index"
+                    (click)="selectTab($index)"
+                  >
+                    {{ getTabLabel($index) }}
+                  </button>
+                  }
                 </div>
+              </div>
 
-                <!-- Shifts Grid -->
-                <div class="shifts-grid-container">
-                  <div class="shifts-grid">
-                    @if (availableTasks.length > 0) {
-                      <table class="shifts-table">
-                        <thead>
-                          <tr>
-                            <th class="icon-column"></th>
-                            <th (click)="onHeaderClick('name')" style="cursor: pointer;">
-                              {{ 'shift.container-template.grid.name' | translate }}
-                              {{ sortingService.getArrow('name') }}
-                            </th>
-                            <th (click)="onHeaderClick('abbreviation')" style="cursor: pointer;">
-                              {{ 'shift.container-template.grid.abbreviation' | translate }}
-                              {{ sortingService.getArrow('abbreviation') }}
-                            </th>
-                            <th (click)="onHeaderClick('startShift')" style="cursor: pointer;">
-                              {{ 'shift.container-template.grid.time' | translate }}
-                              {{ sortingService.getArrow('startShift') }}
-                            </th>
-                            <th (click)="onHeaderClick('client')" style="cursor: pointer;">
-                              {{ 'shift.container-template.grid.client' | translate }}
-                              {{ sortingService.getArrow('client') }}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody
-                          cdkDropList
-                          id="available-tasks-list"
-                          [cdkDropListData]="availableTasks"
-                          [cdkDropListConnectedTo]="getConnectedDropLists()"
-                          (cdkDropListDropped)="onTaskDrop($event)"
+              <!-- Shifts Grid -->
+              <div class="shifts-grid-container">
+                <div class="shifts-grid">
+                  @if (availableTasks.length > 0) {
+                  <table class="shifts-table">
+                    <thead>
+                      <tr>
+                        <th class="icon-column"></th>
+                        <th
+                          (click)="onHeaderClick('name')"
+                          style="cursor: pointer"
                         >
-                          @for (shift of availableTasks; track shift.id) {
-                            <tr cdkDrag (cdkDragStarted)="onDragStarted($event)" (cdkDragEnded)="onDragEnded($event)">
-                              <td class="icon-column">
-                                @if (shift.isSporadic) {
-                                  <app-icon-unknown-time></app-icon-unknown-time>
-                                } @else if (shift.isTimeRange) {
-                                  <app-icon-time-window></app-icon-time-window>
-                                } @else {
-                                  <app-icon-shift-segment></app-icon-shift-segment>
-                                }
-                              </td>
-                              <td>{{ shift.name }}</td>
-                              <td>{{ shift.abbreviation }}</td>
-                              <td>{{ formatTime(shift.startShift) }} - {{ formatTime(shift.endShift) }}</td>
-                              <td>{{ shift.client?.name || '-' }}</td>
-                            </tr>
+                          {{ "shift.container-template.grid.name" | translate }}
+                          {{ sortingService.getArrow("name") }}
+                        </th>
+                        <th
+                          (click)="onHeaderClick('abbreviation')"
+                          style="cursor: pointer"
+                        >
+                          {{
+                            "shift.container-template.grid.abbreviation"
+                              | translate
+                          }}
+                          {{ sortingService.getArrow("abbreviation") }}
+                        </th>
+                        <th
+                          (click)="onHeaderClick('startShift')"
+                          style="cursor: pointer"
+                        >
+                          {{ "shift.container-template.grid.time" | translate }}
+                          {{ sortingService.getArrow("startShift") }}
+                        </th>
+                        <th
+                          (click)="onHeaderClick('workTime')"
+                          style="cursor: pointer"
+                        >
+                          {{
+                            "shift.container-template.grid.work-time"
+                              | translate
+                          }}
+                          {{ sortingService.getArrow("workTime") }}
+                        </th>
+                        <th
+                          (click)="onHeaderClick('client')"
+                          style="cursor: pointer"
+                        >
+                          {{
+                            "shift.container-template.grid.client" | translate
+                          }}
+                          {{ sortingService.getArrow("client") }}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      cdkDropList
+                      id="available-tasks-list"
+                      [cdkDropListData]="availableTasks"
+                      [cdkDropListConnectedTo]="getConnectedDropLists()"
+                      (cdkDropListDropped)="onTaskDrop($event)"
+                    >
+                      @for (shift of availableTasks; track shift.id) {
+                      <tr
+                        cdkDrag
+                        (cdkDragStarted)="onDragStarted($event)"
+                        (cdkDragEnded)="onDragEnded($event)"
+                      >
+                        <td class="icon-column">
+                          @if (shift.isSporadic) {
+                          <app-icon-unknown-time></app-icon-unknown-time>
+                          } @else if (shift.isTimeRange) {
+                          <app-icon-time-window></app-icon-time-window>
+                          } @else {
+                          <app-icon-shift-segment></app-icon-shift-segment>
                           }
-                        </tbody>
-                      </table>
-                    } @else {
-                      <div class="no-shifts">
-                        <p>{{ 'shift.container-template.grid.no-shifts' | translate }}</p>
-                      </div>
-                    }
+                        </td>
+                        <td>{{ shift.name }}</td>
+                        <td>{{ shift.abbreviation }}</td>
+                        <td>
+                          {{ formatTime(shift.startShift) }} -
+                          {{ formatTime(shift.endShift) }}
+                        </td>
+                        <td>{{ formatWorkTime(shift.workTime) }}</td>
+                        <td>{{ shift.client?.name || "-" }}</td>
+                      </tr>
+                      }
+                    </tbody>
+                  </table>
+                  } @else {
+                  <div class="no-shifts">
+                    <p>
+                      {{
+                        "shift.container-template.grid.no-shifts" | translate
+                      }}
+                    </p>
                   </div>
+                  }
                 </div>
+              </div>
               } @else {
-                <div class="no-data">
-                  <p>{{ 'shift.container-template.no-container-selected' | translate }}</p>
-                </div>
+              <div class="no-data">
+                <p>
+                  {{
+                    "shift.container-template.no-container-selected" | translate
+                  }}
+                </p>
+              </div>
               }
             </div>
           </as-split-area>
