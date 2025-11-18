@@ -83,7 +83,10 @@ export class TimeRulerDragDropService {
     return true;
   }
 
-  public updateDrag(mouseY: number): {
+  public updateDrag(
+    mouseY: number,
+    allShifts: any[]
+  ): {
     newStartMinutes: number;
     newEndMinutes: number;
   } | null {
@@ -120,10 +123,276 @@ export class TimeRulerDragDropService {
     );
     newEndMinutes = newStartMinutes + duration;
 
-    return {
+    const adjustedPosition = this.resolveOverlaps(
       newStartMinutes,
       newEndMinutes,
-    };
+      allShifts
+    );
+
+    return adjustedPosition;
+  }
+
+  private resolveOverlaps(
+    startMinutes: number,
+    endMinutes: number,
+    allShifts: any[]
+  ): {
+    newStartMinutes: number;
+    newEndMinutes: number;
+  } {
+    const duration = endMinutes - startMinutes;
+    const draggedShift = this._dragState.draggedShift;
+
+    const otherShifts = allShifts.filter(
+      (shift) => shift !== draggedShift && shift.isTimeRange
+    );
+
+    if (otherShifts.length === 0) {
+      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
+    }
+
+    if (!this.hasOverlap(startMinutes, endMinutes, otherShifts)) {
+      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
+    }
+
+    const snapAbove = this.findSnapPositionAbove(
+      startMinutes,
+      endMinutes,
+      duration,
+      otherShifts
+    );
+    const snapBelow = this.findSnapPositionBelow(
+      startMinutes,
+      endMinutes,
+      duration,
+      otherShifts
+    );
+
+    const distanceAbove = snapAbove
+      ? Math.abs(snapAbove.newStartMinutes - startMinutes)
+      : Infinity;
+    const distanceBelow = snapBelow
+      ? Math.abs(snapBelow.newStartMinutes - startMinutes)
+      : Infinity;
+
+    if (distanceAbove < distanceBelow && snapAbove) {
+      return snapAbove;
+    } else if (snapBelow) {
+      return snapBelow;
+    } else if (snapAbove) {
+      return snapAbove;
+    }
+
+    return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
+  }
+
+  private findSnapPositionAbove(
+    startMinutes: number,
+    endMinutes: number,
+    duration: number,
+    otherShifts: any[]
+  ): { newStartMinutes: number; newEndMinutes: number } | null {
+    const conflictingShifts = otherShifts.filter((shift) =>
+      this.shiftsOverlap(
+        startMinutes,
+        endMinutes,
+        this.getShiftStartMinutes(shift),
+        this.getShiftEndMinutes(shift)
+      )
+    );
+
+    if (conflictingShifts.length === 0) {
+      return null;
+    }
+
+    const lowestConflictStart = Math.min(
+      ...conflictingShifts.map((s) => this.getShiftStartMinutes(s))
+    );
+
+    let candidateEnd = lowestConflictStart;
+    let candidateStart = candidateEnd - duration;
+
+    if (candidateStart < this._dragState.displayFromMinutes) {
+      return null;
+    }
+
+    let iterations = 0;
+    const maxIterations = 100;
+
+    while (
+      this.hasOverlap(candidateStart, candidateEnd, otherShifts) &&
+      iterations < maxIterations
+    ) {
+      const blockingShifts = otherShifts.filter((shift) =>
+        this.shiftsOverlap(
+          candidateStart,
+          candidateEnd,
+          this.getShiftStartMinutes(shift),
+          this.getShiftEndMinutes(shift)
+        )
+      );
+
+      if (blockingShifts.length === 0) break;
+
+      const nextStart = Math.min(
+        ...blockingShifts.map((s) => this.getShiftStartMinutes(s))
+      );
+
+      candidateEnd = nextStart;
+      candidateStart = candidateEnd - duration;
+
+      if (candidateStart < this._dragState.displayFromMinutes) {
+        return null;
+      }
+
+      iterations++;
+    }
+
+    if (iterations >= maxIterations) {
+      return null;
+    }
+
+    if (!this.hasOverlap(candidateStart, candidateEnd, otherShifts)) {
+      return {
+        newStartMinutes: candidateStart,
+        newEndMinutes: candidateEnd,
+      };
+    }
+
+    return null;
+  }
+
+  private findSnapPositionBelow(
+    startMinutes: number,
+    endMinutes: number,
+    duration: number,
+    otherShifts: any[]
+  ): { newStartMinutes: number; newEndMinutes: number } | null {
+    const conflictingShifts = otherShifts.filter((shift) =>
+      this.shiftsOverlap(
+        startMinutes,
+        endMinutes,
+        this.getShiftStartMinutes(shift),
+        this.getShiftEndMinutes(shift)
+      )
+    );
+
+    if (conflictingShifts.length === 0) {
+      return null;
+    }
+
+    const highestConflictEnd = Math.max(
+      ...conflictingShifts.map((s) => this.getShiftEndMinutes(s))
+    );
+
+    let candidateStart = highestConflictEnd;
+    let candidateEnd = candidateStart + duration;
+
+    if (
+      candidateEnd >
+      this._dragState.displayFromMinutes + this._dragState.totalMinutes
+    ) {
+      return null;
+    }
+
+    let iterations = 0;
+    const maxIterations = 100;
+
+    while (
+      this.hasOverlap(candidateStart, candidateEnd, otherShifts) &&
+      iterations < maxIterations
+    ) {
+      const blockingShifts = otherShifts.filter((shift) =>
+        this.shiftsOverlap(
+          candidateStart,
+          candidateEnd,
+          this.getShiftStartMinutes(shift),
+          this.getShiftEndMinutes(shift)
+        )
+      );
+
+      if (blockingShifts.length === 0) break;
+
+      const nextEnd = Math.max(
+        ...blockingShifts.map((s) => this.getShiftEndMinutes(s))
+      );
+
+      candidateStart = nextEnd;
+      candidateEnd = candidateStart + duration;
+
+      if (
+        candidateEnd >
+        this._dragState.displayFromMinutes + this._dragState.totalMinutes
+      ) {
+        return null;
+      }
+
+      iterations++;
+    }
+
+    if (iterations >= maxIterations) {
+      return null;
+    }
+
+    if (!this.hasOverlap(candidateStart, candidateEnd, otherShifts)) {
+      return {
+        newStartMinutes: candidateStart,
+        newEndMinutes: candidateEnd,
+      };
+    }
+
+    return null;
+  }
+
+  private hasOverlap(
+    startMinutes: number,
+    endMinutes: number,
+    shifts: any[]
+  ): boolean {
+    return shifts.some((shift) =>
+      this.shiftsOverlap(
+        startMinutes,
+        endMinutes,
+        this.getShiftStartMinutes(shift),
+        this.getShiftEndMinutes(shift)
+      )
+    );
+  }
+
+  private shiftsOverlap(
+    start1: number,
+    end1: number,
+    start2: number,
+    end2: number
+  ): boolean {
+    return start1 < end2 && end1 > start2;
+  }
+
+  private getShiftStartMinutes(shift: any): number {
+    const timeString = shift.timeRangeStartShift || shift.startShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+  }
+
+  private getShiftEndMinutes(shift: any): number {
+    const timeString = shift.timeRangeEndShift || shift.endShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+    const startMinutes = this.getShiftStartMinutes(shift);
+    if (minutes < startMinutes) {
+      minutes += this.MINUTES_PER_DAY;
+    }
+
+    return minutes;
   }
 
   public endDrag(): {

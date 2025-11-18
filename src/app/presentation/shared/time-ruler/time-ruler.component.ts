@@ -787,7 +787,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const scaleY = logicalDimensions.height / rect.height;
     const y = mouseY * scaleY;
 
-    const newPosition = this.dragDropService.updateDrag(y);
+    const newPosition = this.dragDropService.updateDrag(y, this.shifts);
     if (!newPosition) {
       return;
     }
