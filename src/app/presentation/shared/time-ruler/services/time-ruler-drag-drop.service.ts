@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { IShift } from 'src/app/domain/models/shift-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
+import { TimeRangeService } from './time-range.service';
 
 export interface DragState {
   isDragging: boolean;
@@ -17,6 +18,8 @@ export interface DragState {
 
 @Injectable()
 export class TimeRulerDragDropService {
+  private timeRangeService = inject(TimeRangeService);
+
   private _dragState: DragState = {
     isDragging: false,
     draggedShift: null,
@@ -58,19 +61,11 @@ export class TimeRulerDragDropService {
       return false;
     }
 
-    const startTime = this.parseTimeString(shift.timeRangeStartShift);
-    const endTime = this.parseTimeString(shift.timeRangeEndShift);
+    const startMinutes = this.timeRangeService.getShiftStartMinutes(shift);
+    const endMinutes = this.timeRangeService.getShiftEndMinutes(shift);
 
-    if (!startTime || !endTime) {
+    if (startMinutes === 0 && endMinutes === 0) {
       return false;
-    }
-
-    let startMinutes =
-      startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
-    let endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
-
-    if (endMinutes < startMinutes) {
-      endMinutes += this.MINUTES_PER_DAY;
     }
 
     this._dragState.isDragging = true;
@@ -196,8 +191,8 @@ export class TimeRulerDragDropService {
       this.shiftsOverlap(
         startMinutes,
         endMinutes,
-        this.getShiftStartMinutes(shift),
-        this.getShiftEndMinutes(shift)
+        this.timeRangeService.getShiftStartMinutes(shift),
+        this.timeRangeService.getShiftEndMinutes(shift)
       )
     );
 
@@ -206,7 +201,7 @@ export class TimeRulerDragDropService {
     }
 
     const lowestConflictStart = Math.min(
-      ...conflictingShifts.map((s) => this.getShiftStartMinutes(s))
+      ...conflictingShifts.map((s) => this.timeRangeService.getShiftStartMinutes(s))
     );
 
     let candidateEnd = lowestConflictStart;
@@ -227,15 +222,15 @@ export class TimeRulerDragDropService {
         this.shiftsOverlap(
           candidateStart,
           candidateEnd,
-          this.getShiftStartMinutes(shift),
-          this.getShiftEndMinutes(shift)
+          this.timeRangeService.getShiftStartMinutes(shift),
+          this.timeRangeService.getShiftEndMinutes(shift)
         )
       );
 
       if (blockingShifts.length === 0) break;
 
       const nextStart = Math.min(
-        ...blockingShifts.map((s) => this.getShiftStartMinutes(s))
+        ...blockingShifts.map((s) => this.timeRangeService.getShiftStartMinutes(s))
       );
 
       candidateEnd = nextStart;
@@ -272,8 +267,8 @@ export class TimeRulerDragDropService {
       this.shiftsOverlap(
         startMinutes,
         endMinutes,
-        this.getShiftStartMinutes(shift),
-        this.getShiftEndMinutes(shift)
+        this.timeRangeService.getShiftStartMinutes(shift),
+        this.timeRangeService.getShiftEndMinutes(shift)
       )
     );
 
@@ -282,7 +277,7 @@ export class TimeRulerDragDropService {
     }
 
     const highestConflictEnd = Math.max(
-      ...conflictingShifts.map((s) => this.getShiftEndMinutes(s))
+      ...conflictingShifts.map((s) => this.timeRangeService.getShiftEndMinutes(s))
     );
 
     let candidateStart = highestConflictEnd;
@@ -306,15 +301,15 @@ export class TimeRulerDragDropService {
         this.shiftsOverlap(
           candidateStart,
           candidateEnd,
-          this.getShiftStartMinutes(shift),
-          this.getShiftEndMinutes(shift)
+          this.timeRangeService.getShiftStartMinutes(shift),
+          this.timeRangeService.getShiftEndMinutes(shift)
         )
       );
 
       if (blockingShifts.length === 0) break;
 
       const nextEnd = Math.max(
-        ...blockingShifts.map((s) => this.getShiftEndMinutes(s))
+        ...blockingShifts.map((s) => this.timeRangeService.getShiftEndMinutes(s))
       );
 
       candidateStart = nextEnd;
@@ -353,8 +348,8 @@ export class TimeRulerDragDropService {
       this.shiftsOverlap(
         startMinutes,
         endMinutes,
-        this.getShiftStartMinutes(shift),
-        this.getShiftEndMinutes(shift)
+        this.timeRangeService.getShiftStartMinutes(shift),
+        this.timeRangeService.getShiftEndMinutes(shift)
       )
     );
   }
@@ -366,33 +361,6 @@ export class TimeRulerDragDropService {
     end2: number
   ): boolean {
     return start1 < end2 && end1 > start2;
-  }
-
-  private getShiftStartMinutes(shift: any): number {
-    const timeString = shift.timeRangeStartShift || shift.startShift;
-    if (!timeString) return 0;
-
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-
-    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
-  }
-
-  private getShiftEndMinutes(shift: any): number {
-    const timeString = shift.timeRangeEndShift || shift.endShift;
-    if (!timeString) return 0;
-
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-
-    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
-
-    const startMinutes = this.getShiftStartMinutes(shift);
-    if (minutes < startMinutes) {
-      minutes += this.MINUTES_PER_DAY;
-    }
-
-    return minutes;
   }
 
   public endDrag(): {
@@ -463,13 +431,7 @@ export class TimeRulerDragDropService {
   }
 
   public formatTimeFromMinutes(totalMinutes: number): string {
-    const normalizedMinutes = totalMinutes % this.MINUTES_PER_DAY;
-    const hours = Math.floor(normalizedMinutes / this.MINUTES_PER_HOUR);
-    const minutes = normalizedMinutes % this.MINUTES_PER_HOUR;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}`;
+    return this.timeRangeService.formatTime(totalMinutes) + ':00';
   }
 
   private resetDragState(): void {
@@ -479,19 +441,5 @@ export class TimeRulerDragDropService {
     this._dragState.dragStartMouseY = undefined;
     this._dragState.originalStartMinutes = undefined;
     this._dragState.originalEndMinutes = undefined;
-  }
-
-  private parseTimeString(
-    timeString: string
-  ): { hours: number; minutes: number } | null {
-    const parts = timeString.split(':');
-    if (parts.length < 2) return null;
-
-    const hours = parseInt(parts[0], 10);
-    const minutes = parseInt(parts[1], 10);
-
-    if (isNaN(hours) || isNaN(minutes)) return null;
-
-    return { hours, minutes };
   }
 }

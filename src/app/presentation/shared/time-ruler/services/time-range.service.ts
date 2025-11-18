@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { IShift } from 'src/app/domain/models/shift-class';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TimeRangeService {
+  private readonly MINUTES_PER_HOUR = 60;
+  private readonly MINUTES_PER_DAY = 24 * 60;
+
   toMinutes(time: OwnTime): number {
     return parseInt(time.hours) * 60 + parseInt(time.minutes);
   }
@@ -109,5 +113,46 @@ export class TimeRangeService {
     }
 
     return { increment: 60 * 24, showHalfHourLabels: false };
+  }
+
+  getShiftStartMinutes(shift: IShift): number {
+    const timeString = shift.timeRangeStartShift || shift.startShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+  }
+
+  getShiftEndMinutes(shift: IShift): number {
+    const timeString = shift.timeRangeEndShift || shift.endShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+    const startMinutes = this.getShiftStartMinutes(shift);
+    if (minutes < startMinutes) {
+      minutes += this.MINUTES_PER_DAY;
+    }
+
+    return minutes;
+  }
+
+  parseTimeString(
+    timeString: string
+  ): { hours: number; minutes: number } | null {
+    const parts = timeString.split(':');
+    if (parts.length < 2) return null;
+
+    const hours = parseInt(parts[0], 10);
+    const minutes = parseInt(parts[1], 10);
+
+    if (isNaN(hours) || isNaN(minutes)) return null;
+
+    return { hours, minutes };
   }
 }

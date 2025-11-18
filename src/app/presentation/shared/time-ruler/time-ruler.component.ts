@@ -465,8 +465,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   ): void {
     if (!shift.startShift || !shift.endShift) return;
 
-    const startTime = this.parseTimeString(shift.startShift);
-    const endTime = this.parseTimeString(shift.endShift);
+    const startTime = this.timeRangeService.parseTimeString(shift.startShift);
+    const endTime = this.timeRangeService.parseTimeString(shift.endShift);
 
     if (!startTime || !endTime) return;
 
@@ -520,36 +520,15 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       return null;
     }
 
-    let bodyStartTime: { hours: number; minutes: number } | null;
-    let bodyEndTime: { hours: number; minutes: number } | null;
+    const bodyStartMinutes = this.timeRangeService.getShiftStartMinutes(shift);
+    const bodyEndMinutes = this.timeRangeService.getShiftEndMinutes(shift);
 
-    if (
-      (shift.isTimeRange || shift.isSporadic) &&
-      shift.timeRangeStartShift &&
-      shift.timeRangeEndShift
-    ) {
-      bodyStartTime = this.parseTimeString(shift.timeRangeStartShift);
-      bodyEndTime = this.parseTimeString(shift.timeRangeEndShift);
-    } else {
-      bodyStartTime = this.parseTimeString(shift.startShift);
-      bodyEndTime = this.parseTimeString(shift.endShift);
-    }
-
-    if (!bodyStartTime || !bodyEndTime) {
+    if (bodyStartMinutes === 0 && bodyEndMinutes === 0) {
       return null;
     }
 
-    const bodyStartMinutes =
-      bodyStartTime.hours * this.MINUTES_PER_HOUR + bodyStartTime.minutes;
-    let bodyEndMinutes =
-      bodyEndTime.hours * this.MINUTES_PER_HOUR + bodyEndTime.minutes;
-
-    if (bodyEndMinutes < bodyStartMinutes) {
-      bodyEndMinutes += this.MINUTES_PER_DAY;
-    }
-
-    const startTime = this.parseTimeString(shift.startShift);
-    const endTime = this.parseTimeString(shift.endShift);
+    const startTime = this.timeRangeService.parseTimeString(shift.startShift);
+    const endTime = this.timeRangeService.parseTimeString(shift.endShift);
 
     if (!startTime || !endTime) return null;
 
@@ -737,20 +716,6 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
   }
 
-  private parseTimeString(
-    timeString: string
-  ): { hours: number; minutes: number } | null {
-    const parts = timeString.split(':');
-    if (parts.length < 2) return null;
-
-    const hours = parseInt(parts[0], 10);
-    const minutes = parseInt(parts[1], 10);
-
-    if (isNaN(hours) || isNaN(minutes)) return null;
-
-    return { hours, minutes };
-  }
-
   private setupResizeObserver(): void {
     const inboxCanvas = this.inboxCanvasRef.nativeElement;
     const container = inboxCanvas.parentElement;
@@ -882,24 +847,14 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const otherShifts = this.shifts.filter(shift => !shift.isTimeRange);
 
     shiftsToSort.sort((a, b) => {
-      const aStart = this.getShiftStartMinutes(a);
-      const bStart = this.getShiftStartMinutes(b);
+      const aStart = this.timeRangeService.getShiftStartMinutes(a);
+      const bStart = this.timeRangeService.getShiftStartMinutes(b);
       return aStart - bStart;
     });
 
     const newShiftsArray = [...shiftsToSort, ...otherShifts];
 
     this.shiftService.setSelectedTasks(newShiftsArray);
-  }
-
-  private getShiftStartMinutes(shift: IShift): number {
-    const timeString = shift.timeRangeStartShift || shift.startShift;
-    if (!timeString) return 0;
-
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-
-    return time.hours * 60 + time.minutes;
   }
 
   private checkShiftOverlap(
@@ -916,8 +871,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     for (const otherShift of otherShifts) {
-      const otherStart = this.getShiftStartMinutesWithMidnight(otherShift);
-      const otherEnd = this.getShiftEndMinutesWithMidnight(otherShift);
+      const otherStart = this.timeRangeService.getShiftStartMinutes(otherShift);
+      const otherEnd = this.timeRangeService.getShiftEndMinutes(otherShift);
 
       if (this.timesOverlap(startMinutes, endMinutes, otherStart, otherEnd)) {
         if (startMinutes >= otherStart) {
@@ -927,33 +882,6 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
     return false;
-  }
-
-  private getShiftStartMinutesWithMidnight(shift: IShift): number {
-    const timeString = shift.timeRangeStartShift || shift.startShift;
-    if (!timeString) return 0;
-
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-
-    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
-  }
-
-  private getShiftEndMinutesWithMidnight(shift: IShift): number {
-    const timeString = shift.timeRangeEndShift || shift.endShift;
-    if (!timeString) return 0;
-
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
-
-    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
-
-    const startMinutes = this.getShiftStartMinutesWithMidnight(shift);
-    if (minutes < startMinutes) {
-      minutes += this.MINUTES_PER_DAY;
-    }
-
-    return minutes;
   }
 
   private timesOverlap(
