@@ -107,23 +107,26 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     effect(
       () => {
         const newShifts = this.shiftService.selectedTasksSignal();
-        const newSelectedShift = this.shiftService.selectedShiftSignal();
-
-        const shiftsChanged = JSON.stringify(this.shifts) !== JSON.stringify(newShifts);
-        const selectionChanged = this.selectedShift !== newSelectedShift;
-
         this.shifts = newShifts;
-        this.selectedShift = newSelectedShift;
 
         if (this.inboxCanvasRef) {
-          if (shiftsChanged) {
-            this.setupCanvas();
-          } else if (selectionChanged) {
-            this.redrawWithSelection();
-          }
+          this.setupCanvas();
         }
       },
-      { injector: this.injector }
+      { injector: this.injector, allowSignalWrites: true }
+    );
+
+    effect(
+      () => {
+        const newSelectedShift = this.shiftService.selectedShiftSignal();
+        const selectionChanged = this.selectedShift !== newSelectedShift;
+        this.selectedShift = newSelectedShift;
+
+        if (this.inboxCanvasRef && selectionChanged) {
+          this.redrawWithSelection();
+        }
+      },
+      { injector: this.injector, allowSignalWrites: true }
     );
   }
 
@@ -513,7 +516,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     height: number,
     isSelected = false
   ): Rectangle | null {
-    if (!shift.startShift || !shift.endShift) return null;
+    if (!shift.startShift || !shift.endShift) {
+      return null;
+    }
 
     let bodyStartTime: { hours: number; minutes: number } | null;
     let bodyEndTime: { hours: number; minutes: number } | null;
@@ -530,7 +535,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       bodyEndTime = this.parseTimeString(shift.endShift);
     }
 
-    if (!bodyStartTime || !bodyEndTime) return null;
+    if (!bodyStartTime || !bodyEndTime) {
+      return null;
+    }
 
     const bodyStartMinutes =
       bodyStartTime.hours * this.MINUTES_PER_HOUR + bodyStartTime.minutes;
@@ -575,9 +582,14 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.shiftRectangles.set(shift, rect);
     }
 
+    const hasOverlap = this.checkShiftOverlap(shift, bodyStartMinutes, bodyEndMinutes);
+    const backgroundColor = hasOverlap
+      ? this.gridColorService.warningColor
+      : this.gridColorService.controlBackGroundColor;
+
     DrawHelper.fillRectangle(
       ctx,
-      this.gridColorService.controlBackGroundColor,
+      backgroundColor,
       rect
     );
 
@@ -848,6 +860,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
     const result = this.dragDropService.endDrag();
     if (result) {
+      this.sortShiftsByTime();
+
       const canvas = this.inboxCanvasRef.nativeElement;
       const container = canvas.parentElement;
       if (!container) return;
@@ -861,6 +875,94 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
       this.redrawWithSelection();
     }
+  }
+
+  private sortShiftsByTime(): void {
+    const shiftsToSort = this.shifts.filter(shift => shift.isTimeRange);
+    const otherShifts = this.shifts.filter(shift => !shift.isTimeRange);
+
+    shiftsToSort.sort((a, b) => {
+      const aStart = this.getShiftStartMinutes(a);
+      const bStart = this.getShiftStartMinutes(b);
+      return aStart - bStart;
+    });
+
+    const newShiftsArray = [...shiftsToSort, ...otherShifts];
+
+    this.shiftService.setSelectedTasks(newShiftsArray);
+  }
+
+  private getShiftStartMinutes(shift: IShift): number {
+    const timeString = shift.timeRangeStartShift || shift.startShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    return time.hours * 60 + time.minutes;
+  }
+
+  private checkShiftOverlap(
+    currentShift: IShift,
+    startMinutes: number,
+    endMinutes: number
+  ): boolean {
+    if (!currentShift.isTimeRange) {
+      return false;
+    }
+
+    const otherShifts = this.shifts.filter(
+      (shift) => shift !== currentShift && shift.isTimeRange
+    );
+
+    for (const otherShift of otherShifts) {
+      const otherStart = this.getShiftStartMinutesWithMidnight(otherShift);
+      const otherEnd = this.getShiftEndMinutesWithMidnight(otherShift);
+
+      if (this.timesOverlap(startMinutes, endMinutes, otherStart, otherEnd)) {
+        if (startMinutes >= otherStart) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private getShiftStartMinutesWithMidnight(shift: IShift): number {
+    const timeString = shift.timeRangeStartShift || shift.startShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+  }
+
+  private getShiftEndMinutesWithMidnight(shift: IShift): number {
+    const timeString = shift.timeRangeEndShift || shift.endShift;
+    if (!timeString) return 0;
+
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+
+    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+    const startMinutes = this.getShiftStartMinutesWithMidnight(shift);
+    if (minutes < startMinutes) {
+      minutes += this.MINUTES_PER_DAY;
+    }
+
+    return minutes;
+  }
+
+  private timesOverlap(
+    start1: number,
+    end1: number,
+    start2: number,
+    end2: number
+  ): boolean {
+    return start1 < end2 && end1 > start2;
   }
 
   private redrawWithSelection(): void {
