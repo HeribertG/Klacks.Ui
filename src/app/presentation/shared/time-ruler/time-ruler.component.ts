@@ -227,6 +227,25 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.renderShiftsToCache(boundaryWidth, height);
     this.drawFromCache(inboxCtx);
 
+    if (this.selectedShift) {
+      const { range: shiftRange, boxWidth, marginLeftRight } =
+        this.calculateShiftBoxParameters(boundaryWidth, height);
+
+      const selectedRect = this.drawSingleShiftBox(
+        inboxCtx,
+        this.selectedShift,
+        shiftRange,
+        boxWidth,
+        marginLeftRight,
+        height,
+        true
+      );
+
+      if (selectedRect) {
+        this.shiftRectangles.set(this.selectedShift, selectedRect);
+      }
+    }
+
     DrawImageHelper.drawCanvasLogical(
       inboxCtx,
       rulerCanvas,
