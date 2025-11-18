@@ -194,11 +194,12 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     if (!this.renderCanvas) {
       this.renderCanvas = document.createElement('canvas');
     }
-    this.renderCanvas.width = boundaryWidth;
-    this.renderCanvas.height = height;
-    this.renderCtx = this.renderCanvas.getContext('2d', {
-      willReadFrequently: true,
-    })!;
+    this.renderCtx = DrawHelper.createHiDPICanvas(
+      this.renderCanvas,
+      boundaryWidth,
+      height
+    );
+    DrawHelper.setAntiAliasing(this.renderCtx);
 
     const paddingMinutes = this.calculatePaddingMinutes();
     const range = this.timeRangeService.calculateDisplayRange(
@@ -648,7 +649,22 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private drawFromCache(ctx: CanvasRenderingContext2D): void {
     if (!this.renderCanvas) return;
 
-    ctx.drawImage(this.renderCanvas, 0, 0);
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const rulerWidth = this.RULER_WIDTH;
+    const boundaryWidth = container.clientWidth - rulerWidth;
+    const height = container.clientHeight;
+
+    DrawImageHelper.drawCanvasLogical(
+      ctx,
+      this.renderCanvas,
+      0,
+      0,
+      boundaryWidth,
+      height
+    );
   }
 
   private drawShiftBoxes(
@@ -892,14 +908,26 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
       if (this.renderCanvas && this.renderCtx) {
         const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = this.renderCanvas.width;
-        tempCanvas.height = this.renderCanvas.height;
-        const tempCtx = tempCanvas.getContext('2d')!;
-        tempCtx.drawImage(this.renderCanvas, 0, 0);
+        const tempCtx = DrawHelper.createHiDPICanvas(
+          tempCanvas,
+          boundaryWidth,
+          height
+        );
+        DrawHelper.setAntiAliasing(tempCtx);
 
-        this.renderCtx.clearRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
+        DrawImageHelper.drawCanvasLogical(
+          tempCtx,
+          this.renderCanvas,
+          0,
+          0,
+          boundaryWidth,
+          height
+        );
+
+        const logicalDimensions = DrawImageHelper.getLogicalDimensions(this.renderCanvas);
+        this.renderCtx.clearRect(0, 0, logicalDimensions.width, logicalDimensions.height);
         this.renderCtx.fillStyle = this.gridColorService.backGroundColor;
-        this.renderCtx.fillRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
+        this.renderCtx.fillRect(0, 0, logicalDimensions.width, logicalDimensions.height);
         this.drawRedBoundaryLines(this.renderCtx, boundaryWidth, height);
 
         this.shifts.forEach((shift) => {
@@ -916,7 +944,14 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           }
         });
 
-        inboxCtx.drawImage(this.renderCanvas, 0, 0);
+        DrawImageHelper.drawCanvasLogical(
+          inboxCtx,
+          this.renderCanvas,
+          0,
+          0,
+          boundaryWidth,
+          height
+        );
 
         const draggedRect = this.drawSingleShiftBox(
           inboxCtx,
@@ -932,8 +967,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.shiftRectangles.set(draggedShift, draggedRect);
         }
 
-        this.renderCtx.clearRect(0, 0, this.renderCanvas.width, this.renderCanvas.height);
-        this.renderCtx.drawImage(tempCanvas, 0, 0);
+        const renderLogicalDimensions = DrawImageHelper.getLogicalDimensions(this.renderCanvas);
+        this.renderCtx.clearRect(0, 0, renderLogicalDimensions.width, renderLogicalDimensions.height);
+        DrawImageHelper.drawCanvasLogical(
+          this.renderCtx,
+          tempCanvas,
+          0,
+          0,
+          boundaryWidth,
+          height
+        );
       }
     }
   }
