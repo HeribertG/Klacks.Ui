@@ -206,33 +206,25 @@ export class HolidaysListHelper {
   }
 
   private subRules(rules: string, item: HolidayDate) {
-    let rule: string[];
-    let zWtg: number;
-    let aWtg: number;
-    let nbr: number;
+    const ruleParts = rules.split(';');
 
-    rule = rules.split(';');
+    for (const part of ruleParts) {
+      if (part.length < 4) continue;
 
-    for (let i = 0; i < rule.length; i++) {
-      aWtg = item.currentDate.getDay() + 1;
-      zWtg =
-        Math.ceil(this.WEEKDAY_NAME.indexOf(rule[i].substring(0, 2)) / 2) + 1;
+      const actualWeekday = item.currentDate.getDay() + 1;
+      const targetWeekdayName = part.substring(0, 2);
+      const operator = part.substring(2, 3);
+      const daysToShift = Number.parseInt(part.substring(3));
 
-      nbr = Number.parseInt(rule[i].substring(3, rule[i].length - 3));
+      const targetWeekday =
+        Math.ceil(this.WEEKDAY_NAME.indexOf(targetWeekdayName) / 2) + 1;
 
-      if (aWtg === zWtg && nbr > 0) {
-        if (rule[i].substring(2, 1) == '+')
-          item.currentDate = new Date(
-            item.currentDate.getFullYear(),
-            item.currentDate.getMonth(),
-            item.currentDate.getDate() + nbr
-          );
-        else if (rule[i].substring(2, 1) == '-')
-          item.currentDate = new Date(
-            item.currentDate.getFullYear(),
-            item.currentDate.getMonth(),
-            item.currentDate.getDate() - nbr
-          );
+      if (actualWeekday === targetWeekday && !Number.isNaN(daysToShift)) {
+        if (operator === '+') {
+          item.currentDate = this.addDays(item.currentDate, daysToShift);
+        } else if (operator === '-') {
+          item.currentDate = this.addDays(item.currentDate, -daysToShift);
+        }
       }
     }
   }
@@ -393,52 +385,60 @@ export class HolidaysListHelper {
     dayOfWeek: number,
     alternativeDayOfWeek: number
   ): Date {
-    let l: number;
-
+    let diff: number;
     if (ruleToken === '+' || ruleToken === '&') {
-      l = dayOfWeek - alternativeDayOfWeek;
-      calcDate = this.addDays(calcDate, l);
-
-      if (l < 0) calcDate = this.addDays(calcDate, 7);
-      if (ruleToken == '&') calcDate = this.addDays(calcDate, -7);
+      diff = dayOfWeek - alternativeDayOfWeek;
+      if (diff < 0) {
+        diff += 7;
+      }
+      if (ruleToken === '&') {
+        diff -= 7;
+      }
     } else {
-      l = alternativeDayOfWeek - dayOfWeek;
-      if (l < 0) calcDate = this.addDays(calcDate, l * -1 + 7);
-      else calcDate = this.addDays(calcDate, l * -1);
+      diff = dayOfWeek - alternativeDayOfWeek;
+      if (diff > 0) {
+        diff -= 7;
+      }
     }
-    return calcDate;
+    return this.addDays(calcDate, diff);
   }
   private calcEasternRelatedDate(easterDate: Date, ruleString: string): Date {
     let calcDate: Date;
-    let dayOfWeek: number;
-    let alternativeDayOfWeek: number;
-    let differenceDays: number;
 
-    const tmpDay: number = Number.parseInt(
-      ruleString.substring(
-        this.DAY_OFFSET_START_INDEX,
-        this.DAY_OFFSET_END_INDEX
-      )
-    );
-    if (!Number.isNaN(tmpDay)) calcDate = this.addDays(easterDate, tmpDay);
-    else calcDate = easterDate;
+    const offsetString = ruleString.substring(6, 9); // e.g., "+01", "-46"
+    const dayOffset = Number.parseInt(offsetString);
 
-    if (ruleString.length > this.DAY_OFFSET_END_INDEX) {
-      dayOfWeek =
-        Math.ceil(
-          this.WEEKDAY_NAME.indexOf(
-            ruleString.substring(this.DAY_OFFSET_END_INDEX + 1, 2)
-          ) / 2
-        ) + 1;
-      alternativeDayOfWeek = calcDate.getDay() + 1;
+    if (!Number.isNaN(dayOffset)) {
+      calcDate = this.addDays(easterDate, dayOffset);
+    } else {
+      calcDate = easterDate;
+    }
 
-      if (ruleString.substring(this.DAY_OFFSET_END_INDEX, 1) == '+') {
-        differenceDays = dayOfWeek - alternativeDayOfWeek + 7;
-      } else {
-        differenceDays = dayOfWeek - alternativeDayOfWeek - 7;
+    if (ruleString.length > 9) {
+      const operator = ruleString.substring(9, 10);
+      const weekdayName = ruleString.substring(10, 12);
+
+      if (weekdayName && (operator === '+' || operator === '-')) {
+        const targetDayOfWeek =
+          Math.ceil(this.WEEKDAY_NAME.indexOf(weekdayName) / 2) + 1;
+        const currentDayOfWeek = calcDate.getDay() + 1;
+
+        if (targetDayOfWeek && targetDayOfWeek !== currentDayOfWeek) {
+          if (operator === '+') {
+            let diff = targetDayOfWeek - currentDayOfWeek;
+            if (diff <= 0) {
+              diff += 7;
+            }
+            calcDate = this.addDays(calcDate, diff);
+          } else {
+            let diff = targetDayOfWeek - currentDayOfWeek;
+            if (diff >= 0) {
+              diff -= 7;
+            }
+            calcDate = this.addDays(calcDate, diff);
+          }
+        }
       }
-
-      calcDate = this.addDays(calcDate, differenceDays);
     }
     return calcDate;
   }
