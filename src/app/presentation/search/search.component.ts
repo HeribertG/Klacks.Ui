@@ -67,7 +67,7 @@ export class SearchComponent {
   }
 
   @HostListener('search', ['$event'])
-  onsearch(event: KeyboardEvent): void {
+  onsearch(event: Event): void {
     this.onClickSearch();
   }
 

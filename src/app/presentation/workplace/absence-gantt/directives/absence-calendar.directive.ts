@@ -33,7 +33,7 @@ export class AbsenceCalendarDirective {
   // ): void {}
 
   @HostListener('appClickOutside', ['$event']) onClickOutside(
-    event: MouseEvent
+    event: Event
   ): void {
     this.gridBody.destroyToolTip();
   }
@@ -49,13 +49,14 @@ export class AbsenceCalendarDirective {
   }
 
   @HostListener('mousewheel', ['$event']) onMouseWheel(
-    event: WheelEvent
+    event: Event
   ): void {
     if (!this.isOwnElement(event)) {
       return;
     }
-    const moveY: number = event.deltaY === 0 ? 0 : event.deltaY > 0 ? 1 : -1;
-    const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
+    const wheelEvent = event as WheelEvent;
+    const moveY: number = wheelEvent.deltaY === 0 ? 0 : wheelEvent.deltaY > 0 ? 1 : -1;
+    const moveX: number = wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
       const newValue = this.gridBody.valueChangeHScrollbar + moveX;

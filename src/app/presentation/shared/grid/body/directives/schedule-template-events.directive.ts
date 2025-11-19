@@ -53,10 +53,11 @@ export class ScheduleTemplateEventsDirective {
   }
 
   @HostListener('mousewheel', ['$event']) onMouseWheel(
-    event: WheelEvent
+    event: Event
   ): void {
-    const moveY: number = event.deltaY === 0 ? 0 : event.deltaY > 0 ? 1 : -1;
-    const moveX: number = event.deltaX === 0 ? 0 : event.deltaX > 0 ? 1 : -1;
+    const wheelEvent = event as WheelEvent;
+    const moveY: number = wheelEvent.deltaY === 0 ? 0 : wheelEvent.deltaY > 0 ? 1 : -1;
+    const moveX: number = wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
       const newValue = this.gridSurface.valueChangeHScrollbar + moveX;
@@ -76,7 +77,7 @@ export class ScheduleTemplateEventsDirective {
   }
 
   @HostListener('appClickOutside', ['$event']) onClickOutside(
-    event: MouseEvent
+    event: Event
   ): void {
     this.gridSurface.destroyToolTip();
   }
