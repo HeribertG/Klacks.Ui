@@ -14,7 +14,7 @@ module.exports = function (config) {
       require('karma-junit-reporter'),
       require('karma-html-reporter'),
       require('karma-coverage'),
-      require('@angular-devkit/build-angular/plugins/karma')
+      
     ],
      files: [
     ],
