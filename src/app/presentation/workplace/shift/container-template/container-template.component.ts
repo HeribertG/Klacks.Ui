@@ -38,6 +38,7 @@ import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service'
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
+import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
 import {
   formatTime,
   timeToString,
@@ -60,7 +61,7 @@ import {
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,
-  providers: [TableSortingService],
+  providers: [TableSortingService, TimeRulerDragDropService],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private _timeFrom = OwnTime.forTime('06', '00');
@@ -117,6 +118,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
   private arrangementService = inject(ShiftArrangementService);
+  private dragDropService = inject(TimeRulerDragDropService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -133,6 +135,88 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const hours = Math.floor(workTime);
     const minutes = Math.round((workTime - hours) * 60);
     return `${hours}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  getTimeRangeStartTime(shift: IShift): OwnTime {
+    if (!shift.timeRangeStartShift) {
+      return OwnTime.forTime('00', '00');
+    }
+    const parsed = this.timeRangeService.parseTimeString(shift.timeRangeStartShift);
+    if (!parsed) {
+      return OwnTime.forTime('00', '00');
+    }
+    return OwnTime.forTime(
+      parsed.hours.toString().padStart(2, '0'),
+      parsed.minutes.toString().padStart(2, '0')
+    );
+  }
+
+  onTimeRangeStartChange(shift: IShift, newTime: OwnTime): void {
+    const desiredStartMinutes = parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
+    const workTimeMinutes = Math.round(shift.workTime * 60);
+    const desiredEndMinutes = desiredStartMinutes + workTimeMinutes;
+
+    const allShifts = this.shiftService.selectedTasksSignal();
+
+    const updatedShift: IShift = {
+      ...shift,
+      timeRangeStartShift: this.minutesToTimeString(desiredStartMinutes),
+      timeRangeEndShift: this.minutesToTimeString(desiredEndMinutes)
+    };
+
+    const updatedShifts = this.pushOverlappingShifts(updatedShift, allShifts);
+
+    this.shiftService.setSelectedTasks(updatedShifts);
+  }
+
+  private pushOverlappingShifts(changedShift: IShift, allShifts: IShift[]): IShift[] {
+    const result = [...allShifts];
+    const changedIndex = result.findIndex(s => s.id === changedShift.id);
+
+    if (changedIndex === -1) {
+      return result;
+    }
+
+    result[changedIndex] = changedShift;
+
+    const changedStartMinutes = this.timeRangeService.getShiftStartMinutes(changedShift);
+    const changedEndMinutes = this.timeRangeService.getShiftEndMinutes(changedShift);
+
+    for (let i = 0; i < result.length; i++) {
+      if (i === changedIndex || !result[i].isTimeRange) continue;
+
+      const currentShift = result[i];
+      const currentStartMinutes = this.timeRangeService.getShiftStartMinutes(currentShift);
+      const currentEndMinutes = this.timeRangeService.getShiftEndMinutes(currentShift);
+
+      const hasOverlap = changedStartMinutes < currentEndMinutes && changedEndMinutes > currentStartMinutes;
+
+      if (hasOverlap && currentStartMinutes >= changedStartMinutes) {
+        const workTimeMinutes = Math.round(currentShift.workTime * 60);
+        const newStartMinutes = changedEndMinutes;
+        const newEndMinutes = newStartMinutes + workTimeMinutes;
+
+        result[i] = {
+          ...currentShift,
+          timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
+          timeRangeEndShift: this.minutesToTimeString(newEndMinutes)
+        };
+
+        const pushedShift = result[i];
+        const recursiveResult = this.pushOverlappingShifts(pushedShift, result);
+        return recursiveResult;
+      }
+    }
+
+    return result;
+  }
+
+  private minutesToTimeString(totalMinutes: number): string {
+    const normalizedMinutes = totalMinutes % (24 * 60);
+    const hours = Math.floor(normalizedMinutes / 60);
+    const minutes = normalizedMinutes % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
   }
 
   get selectedTasks(): IShift[] {

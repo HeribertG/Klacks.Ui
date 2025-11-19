@@ -169,8 +169,16 @@
                         <td>{{ shift.abbreviation }}</td>
                         <td>
                           @if (shift.isTimeRange) {
-                          {{ formatTime(shift.timeRangeStartShift) }} -
-                          {{ formatTime(shift.timeRangeEndShift) }}
+                          <div class="time-range-inputs">
+                            <app-time-input
+                              [value]="getTimeRangeStartTime(shift)"
+                              (valueChange)="onTimeRangeStartChange(shift, $event)"
+                              [showLabel]="false"
+                              [forDuration]="false"
+                            ></app-time-input>
+                            <span class="time-separator">-</span>
+                            <span class="time-display">{{ formatTime(shift.timeRangeEndShift) }}</span>
+                          </div>
                           } @else {
                           {{ formatTime(shift.startShift) }} -
                           {{ formatTime(shift.endShift) }}

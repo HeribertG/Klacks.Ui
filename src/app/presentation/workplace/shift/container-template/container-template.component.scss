@@ -313,6 +313,22 @@
                 &:first-child {
                   font-weight: 500;
                 }
+
+                .time-range-inputs {
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+
+                  .time-separator {
+                    color: var(--colorLabel);
+                    font-weight: 500;
+                  }
+
+                  .time-display {
+                    color: var(--colorLabel);
+                    font-weight: 500;
+                  }
+                }
               }
             }
           }

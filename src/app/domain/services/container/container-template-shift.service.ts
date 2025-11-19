@@ -47,6 +47,16 @@ export class ContainerTemplateShiftService {
     }
   }
 
+  updateSelectedTask(shift: IShift): void {
+    const currentTasks = this.selectedTasksSignal();
+    const index = currentTasks.findIndex(t => t.id === shift.id);
+    if (index !== -1) {
+      const updatedTasks = [...currentTasks];
+      updatedTasks[index] = shift;
+      this.selectedTasksSignal.set(updatedTasks);
+    }
+  }
+
   setSelectedShift(shift: IShift | null): void {
     this.selectedShiftSignal.set(shift);
   }

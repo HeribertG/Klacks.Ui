@@ -516,7 +516,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     height: number,
     isSelected = false
   ): Rectangle | null {
-    if (!shift.startShift || !shift.endShift) {
+    const hasTimeRange = shift.isTimeRange && shift.timeRangeStartShift && shift.timeRangeEndShift;
+    const hasFixedTime = shift.startShift && shift.endShift;
+
+    if (!hasTimeRange && !hasFixedTime) {
       return null;
     }
 
@@ -527,17 +530,21 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       return null;
     }
 
-    const startTime = this.timeRangeService.parseTimeString(shift.startShift);
-    const endTime = this.timeRangeService.parseTimeString(shift.endShift);
+    let startMinutes = bodyStartMinutes;
+    let endMinutes = bodyEndMinutes;
 
-    if (!startTime || !endTime) return null;
+    if (shift.startShift && shift.endShift) {
+      const startTime = this.timeRangeService.parseTimeString(shift.startShift);
+      const endTime = this.timeRangeService.parseTimeString(shift.endShift);
 
-    const startMinutes =
-      startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
-    let endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
+      if (startTime && endTime) {
+        startMinutes = startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
+        endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
 
-    if (endMinutes < startMinutes) {
-      endMinutes += this.MINUTES_PER_DAY;
+        if (endMinutes < startMinutes) {
+          endMinutes += this.MINUTES_PER_DAY;
+        }
+      }
     }
 
     const startY =

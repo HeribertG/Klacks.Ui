@@ -127,19 +127,19 @@ export class TimeRulerDragDropService {
     return adjustedPosition;
   }
 
-  private resolveOverlaps(
+  public resolveOverlapsForShift(
     startMinutes: number,
     endMinutes: number,
-    allShifts: any[]
+    currentShift: IShift,
+    allShifts: IShift[]
   ): {
     newStartMinutes: number;
     newEndMinutes: number;
   } {
     const duration = endMinutes - startMinutes;
-    const draggedShift = this._dragState.draggedShift;
 
     const otherShifts = allShifts.filter(
-      (shift) => shift !== draggedShift && shift.isTimeRange
+      (shift) => shift !== currentShift && shift.isTimeRange
     );
 
     if (otherShifts.length === 0) {
@@ -179,6 +179,21 @@ export class TimeRulerDragDropService {
     }
 
     return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
+  }
+
+  private resolveOverlaps(
+    startMinutes: number,
+    endMinutes: number,
+    allShifts: any[]
+  ): {
+    newStartMinutes: number;
+    newEndMinutes: number;
+  } {
+    const draggedShift = this._dragState.draggedShift;
+    if (!draggedShift) {
+      return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
+    }
+    return this.resolveOverlapsForShift(startMinutes, endMinutes, draggedShift, allShifts);
   }
 
   private findSnapPositionAbove(
