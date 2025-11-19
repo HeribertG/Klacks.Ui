@@ -229,12 +229,32 @@
             &.icon-column {
               min-width: 28px;
             }
+
+            &.action-column {
+              min-width: 50px;
+              width: 50px;
+              max-width: 50px;
+              position: sticky;
+              right: 0;
+              background-color: var(--backgroundColorWorkplace);
+              text-align: center;
+              cursor: pointer;
+              z-index: 5;
+
+              &:hover {
+                opacity: 0.8;
+              }
+            }
           }
 
           thead {
             position: sticky;
             top: 0;
             z-index: 10;
+
+            th.action-column {
+              z-index: 15;
+            }
 
             th {
               @extend .table-header;
@@ -425,12 +445,32 @@
             &.icon-column {
               min-width: 28px;
             }
+
+            &.action-column {
+              min-width: 50px;
+              width: 50px;
+              max-width: 50px;
+              position: sticky;
+              right: 0;
+              background-color: var(--backgroundColorWorkplace);
+              text-align: center;
+              cursor: pointer;
+              z-index: 5;
+
+              &:hover {
+                opacity: 0.8;
+              }
+            }
           }
 
           thead {
             position: sticky;
             top: 0;
             z-index: 10;
+
+            th.action-column {
+              z-index: 15;
+            }
 
             th {
               @extend .table-header;

@@ -128,6 +128,7 @@
                             "shift.container-template.grid.client" | translate
                           }}
                         </th>
+                        <th class="action-column"></th>
                       </tr>
                     </thead>
                     <tbody
@@ -139,7 +140,7 @@
                     >
                       @if (selectedTasks.length === 0) {
                       <tr class="empty-drop-zone">
-                        <td colspan="6">
+                        <td colspan="7">
                           <div class="no-shifts">
                             <p>
                               {{
@@ -194,7 +195,10 @@
                           }
                         </td>
                         <td>{{ formatWorkTime(shift.workTime) }}</td>
-                        <td>{{ shift.client?.name || "-" }}</td>
+                        <td>{{ formatClientWithAddress(shift) }}</td>
+                        <td class="action-column" (click)="onRemoveTask(shift); $event.stopPropagation()">
+                          <app-icon-trash-red></app-icon-trash-red>
+                        </td>
                       </tr>
                       }
                     </tbody>
@@ -285,8 +289,9 @@
                       cdkDropList
                       id="available-tasks-list"
                       [cdkDropListData]="availableTasks"
-                      [cdkDropListConnectedTo]="getConnectedDropLists()"
-                      (cdkDropListDropped)="onTaskDrop($event)"
+                      [cdkDropListConnectedTo]="['selected-tasks-list']"
+                      [cdkDropListSortingDisabled]="true"
+                      (cdkDropListDropped)="onAvailableTasksDrop($event)"
                     >
                       @for (shift of availableTasks; track shift.id) {
                       <tr
@@ -310,7 +315,7 @@
                           {{ formatTime(shift.endShift) }}
                         </td>
                         <td>{{ formatWorkTime(shift.workTime) }}</td>
-                        <td>{{ shift.client?.name || "-" }}</td>
+                        <td>{{ formatClientWithAddress(shift) }}</td>
                       </tr>
                       }
                     </tbody>

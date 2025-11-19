@@ -27,8 +27,10 @@ import { TimeRulerComponent } from 'src/app/presentation/shared/time-ruler/time-
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
+import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
+import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
@@ -57,6 +59,7 @@ import {
     IconShiftSegmentComponent,
     IconTimeWindowComponent,
     IconUnknownTimeComponent,
+    TrashIconRedComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -135,6 +138,42 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const hours = Math.floor(workTime);
     const minutes = Math.round((workTime - hours) * 60);
     return `${hours}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  formatClientWithAddress(shift: IShift): string {
+    if (!shift.client) {
+      return '-';
+    }
+
+    const client = shift.client;
+    const employeeAddress = client.addresses?.find(
+      (addr) => addr.type === AddressTypeEnum.customer
+    );
+
+    if (!employeeAddress) {
+      return client.name || '-';
+    }
+
+    const addressParts = [
+      employeeAddress.street,
+      employeeAddress.zip,
+      employeeAddress.city,
+    ].filter((part) => part && part.trim() !== '');
+
+    const addressString = addressParts.join(', ');
+    return addressString ? `${client.name}: ${addressString}` : client.name || '-';
+  }
+
+  onRemoveTask(shift: IShift): void {
+    const currentTasks = this.shiftService.selectedTasksSignal();
+    const updatedTasks = currentTasks.filter(t => t.id !== shift.id);
+    this.shiftService.selectedTasksSignal.set(updatedTasks);
+    this.workplaceStateService.areObjectsDirty();
+  }
+
+  onAvailableTasksDrop(event: CdkDragDrop<IShift[]>): void {
+    // Do nothing - Zone 3 does not accept drops
+    // This handler exists only to satisfy the cdkDropList directive
   }
 
   getTimeRangeStartTime(shift: IShift): OwnTime {
