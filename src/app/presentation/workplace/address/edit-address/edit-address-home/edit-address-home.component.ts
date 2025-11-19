@@ -19,7 +19,7 @@ import { ClientGroupsComponent } from '../client-groups/client-groups.component'
 import { AddressPersonaComponent } from '../address-persona/address-persona.component';
 import { ClientImageComponent } from '../client-image/client-image.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
+
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { UrlParameterService } from 'src/app/presentation/services/url-parameter.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
@@ -35,7 +35,6 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrls: ['./edit-address-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     AddressPersonaComponent,
     MembershipComponent,
@@ -43,8 +42,8 @@ import { Subject, takeUntil } from 'rxjs';
     ClientGroupsComponent,
     NoteComponent,
     ClientImageComponent,
-    EditAddressNavComponent,
-  ],
+    EditAddressNavComponent
+],
 })
 export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponentDeactivate {
   @Input() isEditClient = false;

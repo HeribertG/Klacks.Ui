@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -15,14 +15,13 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   styleUrls: ['./grid-color.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
     SpinnerModule,
     GridColorHeaderComponent,
-    GridColorRowComponent,
-  ],
+    GridColorRowComponent
+],
 })
 export class GridColorComponent implements OnInit {
   public translate = inject(TranslateService);

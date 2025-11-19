@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -9,7 +9,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
   selector: 'app-page-not-found',
   templateUrl: './page-not-found.component.html',
   styleUrl: './page-not-found.component.scss',
-  imports: [CommonModule, FormsModule, TranslateModule, RouterModule],
+  imports: [FormsModule, TranslateModule, RouterModule],
   standalone: true,
 })
 export class PageNotFoundComponent {

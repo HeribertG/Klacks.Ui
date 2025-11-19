@@ -25,7 +25,7 @@ import {
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { CommonModule } from '@angular/common';
+
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { AllAddressStateService } from '../services/all-address-state.service';
 
@@ -35,15 +35,14 @@ import { AllAddressStateService } from '../services/all-address-state.service';
   styleUrls: ['./all-address-nav.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     FontAwesomeModule,
     NgbDropdownModule,
     NgbDatepickerModule,
     NgbTooltipModule,
-    FallbackPipe,
-  ],
+    FallbackPipe
+],
   providers: [AllAddressStateService],
 })
 export class AllAddressNavComponent

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { ModalComponent } from 'src/app/presentation/modal/modal/modal.component';
@@ -17,7 +17,6 @@ import { ApplicationInitService } from 'src/app/application/services/application
   styleUrls: ['./home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     ModalComponent,
     SpinnerWrapperComponent,
@@ -25,8 +24,8 @@ import { ApplicationInitService } from 'src/app/application/services/application
     NavComponent,
     MainComponent,
     SavebarComponent,
-    FooterComponent,
-  ],
+    FooterComponent
+],
 })
 export class HomeComponent implements OnInit, OnDestroy {
   private applicationInitService = inject(ApplicationInitService);

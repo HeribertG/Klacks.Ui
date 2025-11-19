@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -7,7 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   templateUrl: './state-header.component.html',
   styleUrls: ['./state-header.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
 })
 export class StateHeaderComponent {
   public translate = inject(TranslateService);

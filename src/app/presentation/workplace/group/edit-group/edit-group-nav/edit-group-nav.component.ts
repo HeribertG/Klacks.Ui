@@ -20,7 +20,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { CommonModule } from '@angular/common';
+
 import {
   NgbDatepickerModule,
   NgbDropdownModule,
@@ -35,15 +35,14 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
   styleUrls: ['./edit-group-nav.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbDropdownModule,
     NgbDatepickerModule,
     NgbTooltipModule,
     TranslateModule,
     FontAwesomeModule,
-    FallbackPipe,
-  ],
+    FallbackPipe
+],
 })
 export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navGroupForm', { static: false }) navGroupForm:

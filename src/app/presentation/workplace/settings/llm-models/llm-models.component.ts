@@ -7,7 +7,7 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
@@ -26,14 +26,13 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   selector: 'app-llm-models',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,
     SpinnerModule,
     LLMModelsHeaderComponent,
-    LLMModelsRowComponent,
-  ],
+    LLMModelsRowComponent
+],
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
 })

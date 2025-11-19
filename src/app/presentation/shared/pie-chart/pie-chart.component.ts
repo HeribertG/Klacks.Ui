@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 export interface PieChartData {
@@ -12,7 +12,7 @@ export interface PieChartData {
   templateUrl: './pie-chart.component.html',
   styleUrls: ['./pie-chart.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class PieChartComponent implements OnChanges {
   @Input() data: PieChartData[] = [];

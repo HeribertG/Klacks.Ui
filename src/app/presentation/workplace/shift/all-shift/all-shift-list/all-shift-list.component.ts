@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -44,15 +44,14 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrl: './all-shift-list.component.scss',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbTooltipModule,
     NgbPaginationModule,
     TranslateModule,
     OriginalTableComponent,
     ShiftTableComponent,
-    PaginationComponent,
-  ],
+    PaginationComponent
+],
   providers: [ShiftTableResizeService, AllShiftStateService, TableSortingService],
 })
 export class AllShiftListComponent implements OnInit, AfterViewInit, OnDestroy {

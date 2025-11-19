@@ -10,7 +10,7 @@ import {
   inject,
   runInInjectionContext,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -30,13 +30,12 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   styleUrls: ['./email-setting.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,
     SpinnerModule,
-    FontAwesomeModule,
-  ],
+    FontAwesomeModule
+],
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
   public dataManagementSettingsService = inject(DataManagementSettingsService);

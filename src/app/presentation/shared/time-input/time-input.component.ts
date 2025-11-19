@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 
@@ -8,7 +8,7 @@ import { OwnTime } from 'src/app/domain/models/schedule-class';
   templateUrl: './time-input.component.html',
   styleUrls: ['./time-input.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
 })
 export class TimeInputComponent {
   @Input() label?: string;

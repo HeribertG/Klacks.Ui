@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
@@ -11,7 +11,7 @@ import { DashboardClientsLocationsComponent } from '../dashboard-clients-locatio
   templateUrl: './dashboard-home.component.html',
   styleUrls: ['./dashboard-home.component.scss'],
   standalone: true,
-  imports: [CommonModule, DashboardClientsOverviewComponent, DashboardClientsLocationsComponent],
+  imports: [DashboardClientsOverviewComponent, DashboardClientsLocationsComponent],
 })
 export class DashboardHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);

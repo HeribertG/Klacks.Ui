@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   EventEmitter,
@@ -27,7 +27,7 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   templateUrl: './edit-group-parent.component.html',
   styleUrls: ['./edit-group-parent.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, ExpandableCardComponent],
+  imports: [FormsModule, TranslateModule, ExpandableCardComponent],
 })
 export class EditGroupParentComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();

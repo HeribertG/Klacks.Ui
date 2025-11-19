@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -21,12 +21,11 @@ import { ThemeService } from 'src/app/presentation/services/theme.service';
   styleUrls: ['./profile-custom-setting.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,
-    SpinnerModule,
-  ],
+    SpinnerModule
+],
 })
 export class ProfileCustomSettingComponent implements OnInit {
   isChecked = false;

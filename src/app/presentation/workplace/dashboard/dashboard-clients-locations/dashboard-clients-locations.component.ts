@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit, signal, AfterViewInit } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -25,7 +25,7 @@ export enum ClientType {
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [TranslateModule],
 })
 export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit {
   private dataDashboardService = inject(DataDashboardService);

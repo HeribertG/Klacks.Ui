@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -19,14 +19,13 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
   styleUrls: ['./state.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
     SpinnerModule,
     StateHeaderComponent,
-    StateRowComponent,
-  ],
+    StateRowComponent
+],
 })
 export class StateComponent {
   @ViewChild('containerBox') containerBox?: ElementRef;

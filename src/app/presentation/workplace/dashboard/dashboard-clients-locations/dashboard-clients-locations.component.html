@@ -47,15 +47,21 @@
                   <div class="location-city">{{ location.city }}</div>
                   <div class="location-country">{{ location.country }}</div>
                   <div class="location-types">
-                    <span class="type-badge employee" *ngIf="location.employeeCount > 0">
-                      {{ location.employeeCount }} {{ 'dashboard.locations.employee' | translate }}
-                    </span>
-                    <span class="type-badge extern" *ngIf="location.externEmpCount > 0">
-                      {{ location.externEmpCount }} {{ 'dashboard.locations.externEmp' | translate }}
-                    </span>
-                    <span class="type-badge customer" *ngIf="location.customerCount > 0">
-                      {{ location.customerCount }} {{ 'dashboard.locations.customer' | translate }}
-                    </span>
+                    @if (location.employeeCount > 0) {
+                      <span class="type-badge employee">
+                        {{ location.employeeCount }} {{ 'dashboard.locations.employee' | translate }}
+                      </span>
+                    }
+                    @if (location.externEmpCount > 0) {
+                      <span class="type-badge extern">
+                        {{ location.externEmpCount }} {{ 'dashboard.locations.externEmp' | translate }}
+                      </span>
+                    }
+                    @if (location.customerCount > 0) {
+                      <span class="type-badge customer">
+                        {{ location.customerCount }} {{ 'dashboard.locations.customer' | translate }}
+                      </span>
+                    }
                   </div>
                 </div>
                 <div class="location-count">

@@ -1,5 +1,5 @@
 import { Component, Input, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -11,7 +11,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   templateUrl: './grid-color-row.component.html',
   styleUrls: ['./grid-color-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
+  imports: [FormsModule, TranslateModule, NgbModule],
 })
 export class GridColorRowComponent {
   @Input() data: ISetting | undefined;

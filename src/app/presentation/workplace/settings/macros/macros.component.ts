@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -19,14 +19,13 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   styleUrls: ['./macros.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
     SpinnerModule,
     MacroHeaderComponent,
-    MacroRowComponent,
-  ],
+    MacroRowComponent
+],
 })
 export class MacrosComponent {
   public translate = inject(TranslateService);

@@ -14,7 +14,7 @@ import {
 import { Subject } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,12 +26,11 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
   styleUrls: ['./owner-address.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
-    SpinnerModule,
-  ],
+    SpinnerModule
+],
 })
 export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
 

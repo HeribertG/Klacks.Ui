@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -9,7 +9,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
   selector: 'app-no-access',
   templateUrl: './no-access.component.html',
   styleUrl: './no-access.component.scss',
-  imports: [CommonModule, FormsModule, TranslateModule, RouterModule],
+  imports: [FormsModule, TranslateModule, RouterModule],
   standalone: true,
 })
 export class NoAccessComponent {

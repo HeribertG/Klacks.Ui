@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -29,14 +29,13 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
   styleUrls: ['./calendar-dropdown.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbDropdownModule,
     NgbTooltipModule,
     TranslateModule,
     FontAwesomeModule,
-    FallbackPipe,
-  ],
+    FallbackPipe
+],
 })
 export class CalendarDropdownComponent
   implements OnInit, AfterViewInit, OnDestroy

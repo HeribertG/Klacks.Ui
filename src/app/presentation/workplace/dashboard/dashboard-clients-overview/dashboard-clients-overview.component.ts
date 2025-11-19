@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
@@ -10,7 +10,7 @@ import { IGroup } from 'src/app/domain/models/group-class';
   templateUrl: './dashboard-clients-overview.component.html',
   styleUrls: ['./dashboard-clients-overview.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, PieChartComponent],
+  imports: [TranslateModule, PieChartComponent],
 })
 export class DashboardClientsOverviewComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);

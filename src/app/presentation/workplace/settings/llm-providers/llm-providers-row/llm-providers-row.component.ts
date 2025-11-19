@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
@@ -7,7 +7,7 @@ import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.servi
 @Component({
   selector: 'app-llm-providers-row',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [FormsModule, TranslateModule],
   templateUrl: './llm-providers-row.component.html',
   styleUrls: ['./llm-providers-row.component.scss']
 })

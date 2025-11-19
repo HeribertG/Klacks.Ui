@@ -12,7 +12,7 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -28,13 +28,12 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   styleUrls: ['./client-image.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
     DragDropFileUploadDirective,
-    ExpandableCardComponent,
-  ],
+    ExpandableCardComponent
+],
 })
 export class ClientImageComponent implements OnInit, OnDestroy {
   @Output() isChangingEvent = new EventEmitter<boolean>();

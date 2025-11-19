@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { AllAddressNavComponent } from '../all-address-nav/all-address-nav.component';
 import { AllAddressListComponent } from '../all-address-list/all-address-list.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
+
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -14,11 +14,10 @@ import { AllAddressStateService } from '../services/all-address-state.service';
   styleUrls: ['./all-address-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     AllAddressListComponent,
-    AllAddressNavComponent,
-  ],
+    AllAddressNavComponent
+],
   providers: [AllAddressStateService],
 })
 export class AllAddressHomeComponent implements OnInit {

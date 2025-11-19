@@ -8,7 +8,7 @@ import {
   effect,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
@@ -51,7 +51,6 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
   styleUrls: ['./calendar-rules.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,
@@ -63,8 +62,8 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
     ExcelComponent,
     FallbackPipe,
     CalendarDropdownComponent,
-    SimplePaginationComponent,
-  ],
+    SimplePaginationComponent
+],
   providers: [TableSortingService],
 })
 export class CalendarRulesComponent

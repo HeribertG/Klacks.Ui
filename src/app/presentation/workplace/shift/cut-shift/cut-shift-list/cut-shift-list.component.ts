@@ -11,7 +11,7 @@ import {
   Output,
   HostListener,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import {
@@ -40,13 +40,12 @@ import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts
   selector: 'app-cut-shift-list',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbDatepickerModule,
     FontAwesomeModule,
-    CutTableComponent,
-  ],
+    CutTableComponent
+],
   templateUrl: './cut-shift-list.component.html',
   styleUrl: './cut-shift-list.component.scss',
 })

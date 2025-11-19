@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { CutShiftListComponent } from '../cut-shift-list/cut-shift-list.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftCutService } from 'src/app/domain/services/shift/data-management-shift-cut.service';
@@ -19,7 +19,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 @Component({
   selector: 'app-cut-shift-home',
   standalone: true,
-  imports: [CommonModule, TranslateModule, CutShiftListComponent],
+  imports: [TranslateModule, CutShiftListComponent],
   templateUrl: './cut-shift-home.component.html',
   styleUrl: './cut-shift-home.component.scss',
 })

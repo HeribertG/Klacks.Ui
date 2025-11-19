@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './simple-pagination.component.html',
   styleUrls: ['./simple-pagination.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbPaginationModule, TranslateModule],
+  imports: [FormsModule, NgbPaginationModule, TranslateModule],
 })
 export class SimplePaginationComponent {
   @Input() collectionSize = 0;

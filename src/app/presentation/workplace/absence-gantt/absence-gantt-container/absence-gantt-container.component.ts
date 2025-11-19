@@ -15,7 +15,7 @@ import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-s
 import { AbsenceGanttSurfaceComponent } from '../absence-gantt-surface/absence-gantt-surface.component';
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { AngularSplitModule } from 'angular-split';
-import { CommonModule } from '@angular/common';
+
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
@@ -28,15 +28,14 @@ import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
   styleUrls: ['./absence-gantt-container.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     AngularSplitModule,
     AbsenceGanttRowHeaderComponent,
     AbsenceGanttSurfaceComponent,
     HScrollbarComponent,
     VScrollbarComponent,
     ContextMenuComponent,
-    AbsenceGanttMaskComponent,
-  ],
+    AbsenceGanttMaskComponent
+],
   providers: [ScrollbarService],
 })
 export class AbsenceGanttContainerComponent {

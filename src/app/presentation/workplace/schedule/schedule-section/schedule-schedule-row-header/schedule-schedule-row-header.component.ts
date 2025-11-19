@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
-import { CommonModule } from '@angular/common';
+
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 
@@ -29,7 +29,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [CommonModule, ResizeDirective],
+  imports: [ResizeDirective],
   providers: [ScrollService, BaseCreateRowHeaderService],
 })
 export class ScheduleScheduleRowHeaderComponent

@@ -7,7 +7,7 @@ import {
   AfterViewInit,
   TemplateRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -34,14 +34,13 @@ import { Subject, takeUntil } from 'rxjs';
   styleUrls: ['./user-administration.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     NgbModule,
     SpinnerModule,
     UserAdministrationHeaderComponent,
-    UserAdministrationRowComponent,
-  ],
+    UserAdministrationRowComponent
+],
 })
 export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;

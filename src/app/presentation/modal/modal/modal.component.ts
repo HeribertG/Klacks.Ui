@@ -4,7 +4,7 @@ import { ModalService, ModalType } from '../modal.service';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { DeletewindowComponent } from '../deletewindow/deletewindow.component';
 import { MessageWindowComponent } from '../message-window/message-window.component';
@@ -15,13 +15,12 @@ import { MessageWindowComponent } from '../message-window/message-window.compone
   styleUrls: ['./modal.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbModule,
     TranslateModule,
     DeletewindowComponent,
-    MessageWindowComponent,
-  ],
+    MessageWindowComponent
+],
 })
 export class ModalComponent implements OnInit, AfterViewInit, OnDestroy {
   // @ViewChild properties

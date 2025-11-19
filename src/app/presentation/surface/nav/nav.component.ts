@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -54,7 +54,6 @@ type NavigationPage =
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss'],
   imports: [
-    CommonModule,
     NgbTooltipModule,
     IconGanttComponent,
     IconGroupComponent,
@@ -62,8 +61,8 @@ type NavigationPage =
     IconTimeScheduleComponent,
     IconClientsComponent,
     IconUserComponent,
-    IconSettingComponent,
-  ],
+    IconSettingComponent
+],
 })
 export class NavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('absenceIcon') absenceIcon!: IconGanttComponent;

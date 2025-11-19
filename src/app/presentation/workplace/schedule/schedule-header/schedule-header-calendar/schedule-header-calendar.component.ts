@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
@@ -17,7 +17,7 @@ export interface CalendarResetData {
   templateUrl: './schedule-header-calendar.component.html',
   styleUrls: ['./schedule-header-calendar.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, CounterComponent],
+  imports: [FormsModule, TranslateModule, CounterComponent],
 })
 export class ScheduleHeaderCalendarComponent implements OnInit {
   @Output() resetData = new EventEmitter<CalendarResetData>();

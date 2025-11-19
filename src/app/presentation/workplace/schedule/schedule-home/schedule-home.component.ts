@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -30,7 +30,7 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
   templateUrl: './schedule-home.component.html',
   styleUrls: ['./schedule-home.component.scss'],
   standalone: true,
-  imports: [CommonModule, ScheduleHeaderComponent, ScheduleContainerComponent],
+  imports: [ScheduleHeaderComponent, ScheduleContainerComponent],
   providers: [
     { provide: BaseDataService, useClass: ScheduleDataService },
     ScrollService,

@@ -8,7 +8,7 @@ import {
   ViewChild,
   TemplateRef,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -29,7 +29,6 @@ import { cloneObject } from 'src/app/shared/helpers/object.helper';
   styleUrls: ['./contracts.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
@@ -37,8 +36,8 @@ import { cloneObject } from 'src/app/shared/helpers/object.helper';
     ContractHeaderComponent,
     ContractRowComponent,
     TimeInputComponent,
-    DateInputComponent,
-  ],
+    DateInputComponent
+],
 })
 export class ContractsComponent implements OnInit, OnDestroy {
   @ViewChild('contractModal', { read: TemplateRef })

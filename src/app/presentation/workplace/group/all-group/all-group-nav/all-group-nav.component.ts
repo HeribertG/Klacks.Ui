@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -13,7 +13,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   templateUrl: './all-group-nav.component.html',
   styleUrls: ['./all-group-nav.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
+  imports: [FormsModule, NgbDropdownModule, TranslateModule],
 })
 export class AllGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   dataManagementGroupService = inject(DataManagementGroupService);

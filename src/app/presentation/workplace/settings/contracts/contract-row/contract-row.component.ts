@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { IContract, Contract } from 'src/app/domain/models/contract-class';
 
 @Component({
@@ -7,7 +7,7 @@ import { IContract, Contract } from 'src/app/domain/models/contract-class';
   templateUrl: './contract-row.component.html',
   styleUrls: ['./contract-row.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class ContractRowComponent {
   @Input() data: IContract = new Contract();

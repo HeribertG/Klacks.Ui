@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Component, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -34,7 +34,6 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
   styleUrls: ['./settings-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
@@ -52,8 +51,8 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
     GroupScopeComponent,
     ContractsComponent,
     LLMModelsComponent,
-    LLMProvidersComponent,
-  ],
+    LLMProvidersComponent
+],
 })
 export class SettingsHomeComponent implements OnInit {
   public translate = inject(TranslateService);

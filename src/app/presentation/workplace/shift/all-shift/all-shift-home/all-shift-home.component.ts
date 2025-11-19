@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { AllShiftListComponent } from '../all-shift-list/all-shift-list.component';
 import { AllShiftNavComponent } from '../all-shift-nav/all-shift-nav.component';
@@ -14,11 +14,10 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   styleUrl: './all-shift-home.component.scss',
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     AllShiftListComponent,
-    AllShiftNavComponent,
-  ],
+    AllShiftNavComponent
+],
 })
 export class AllShiftHomeComponent implements OnInit {
   private savebarService = inject(SavebarService);

@@ -4,7 +4,7 @@ import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,12 +18,11 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./settings-general.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
-    SpinnerModule,
-  ],
+    SpinnerModule
+],
 })
 export class SettingsGeneralComponent implements OnDestroy {
   selectedFileIcon: File | undefined;

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -17,7 +17,7 @@ export interface RoleChangeEvent {
   templateUrl: './user-administration-row.component.html',
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
+  imports: [FormsModule, TranslateModule, NgbModule],
 })
 export class UserAdministrationRowComponent {
   @Input() user: IAuthentication | undefined;

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -23,12 +23,11 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./all-group-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     AllGroupListComponent,
     AllGroupNavComponent,
-    TreeGroupComponent,
-  ],
+    TreeGroupComponent
+],
 })
 export class AllGroupHomeComponent implements OnInit {
   public authorizationService = inject(AuthorizationService);

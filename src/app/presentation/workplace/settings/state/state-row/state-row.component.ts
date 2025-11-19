@@ -10,7 +10,7 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +26,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   templateUrl: './state-row.component.html',
   styleUrls: ['./state-row.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbModule],
+  imports: [FormsModule, TranslateModule, NgbModule],
 })
 export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: IState | undefined;

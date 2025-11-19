@@ -29,7 +29,7 @@ import {
   takeUntil,
   throttleTime,
 } from 'rxjs';
-import { CommonModule } from '@angular/common';
+
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 
 enum ArrowDirection {
@@ -43,7 +43,7 @@ enum ArrowDirection {
   templateUrl: './h-scrollbar.component.html',
   styleUrls: ['./h-scrollbar.component.scss'],
   standalone: true,
-  imports: [CommonModule, ResizeDirective],
+  imports: [ResizeDirective],
 })
 export class HScrollbarComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

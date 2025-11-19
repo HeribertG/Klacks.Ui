@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -22,13 +22,12 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./edit-group-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     EditGroupItemComponent,
     EditGroupMembersComponent,
     EditGroupNavComponent,
-    EditGroupParentComponent,
-  ],
+    EditGroupParentComponent
+],
 })
 export class EditGroupHomeComponent implements OnInit {
 

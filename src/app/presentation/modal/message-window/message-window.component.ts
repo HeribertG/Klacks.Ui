@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { QuestionMarkRoundComponent } from 'src/app/presentation/icons/icon-round-question_mark.component';
@@ -10,7 +10,7 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './message-window.component.html',
   styleUrls: ['./message-window.component.scss'],
   standalone: true,
-  imports: [CommonModule, TranslateModule, QuestionMarkRoundComponent],
+  imports: [TranslateModule, QuestionMarkRoundComponent],
 })
 export class MessageWindowComponent implements OnInit, OnDestroy {
   private translateService = inject(TranslateService);

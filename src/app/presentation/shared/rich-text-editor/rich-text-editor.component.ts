@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { IconBoldGreyComponent } from '../../icons/icon-bold-grey.component';
@@ -21,7 +21,6 @@ import { TextFormatterService } from './text-formatter.service';
   styleUrls: ['./rich-text-editor.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     NgbTooltipModule,
     TranslateModule,
     IconBoldGreyComponent,
@@ -34,8 +33,8 @@ import { TextFormatterService } from './text-formatter.service';
     IconCopyGreyComponent,
     IconCutGreyComponent,
     IconPasteGreyComponent,
-    InitContentDirective,
-  ],
+    InitContentDirective
+],
 })
 export class RichTextEditorComponent {
   @Input() content = '';

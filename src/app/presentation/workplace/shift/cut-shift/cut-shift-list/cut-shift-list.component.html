@@ -22,12 +22,12 @@
           ngbDatepicker
           #cutDatePicker="ngbDatepicker"
           readonly
-        />
+          />
         <span
           class="input-group-text"
           style="width: 40px"
           (click)="cutDatePicker.toggle()"
-        >
+          >
           <fa-icon
             [icon]="faCalendar"
             [style]="{ 'font-size': '16px', color: '#464e5f' }"
@@ -41,7 +41,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
@@ -75,7 +75,7 @@
                 maxlength="3"
                 placeholder="hh"
                 (focus)="selectAllText($event)"
-              />
+                />
               <label class="delimiter-time">:</label>
               <input
                 (keyup)="onKeyUpInput($event, cutTimeShift.minutes)"
@@ -86,7 +86,7 @@
                 type="text"
                 maxlength="3"
                 placeholder="mm"
-              />
+                />
             </div>
           </div>
         </div>
@@ -98,7 +98,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
@@ -118,86 +118,100 @@
     <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">
-          <div class="form-group" *ngIf="isMondayEnabled">
-            <label class="checkbox-label" for="isMonday">
-              <input
-                type="checkbox"
-                [(ngModel)]="weekdays.isMonday"
-                name="isMonday"
-                id="isMonday"
-              />
-              {{ "monday" | translate }}
-            </label>
-          </div>
-          <div class="form-group top-margin5" *ngIf="isTuesdayEnabled">
-            <label class="checkbox-label" for="isTuesday">
-              <input
-                type="checkbox"
-                [(ngModel)]="weekdays.isTuesday"
-                name="isTuesday"
-                id="isTuesday"
-              />
-              {{ "tuesday" | translate }}
-            </label>
-          </div>
-          <div class="form-group top-margin5" *ngIf="isWednesdayEnabled">
-            <label class="checkbox-label" for="isWednesday">
-              <input
-                type="checkbox"
-                [(ngModel)]="weekdays.isWednesday"
-                name="isWednesday"
-                id="isWednesday"
-              />
-              {{ "wednesday" | translate }}
-            </label>
-          </div>
-          <div class="form-group top-margin5" *ngIf="isThursdayEnabled">
-            <label class="checkbox-label" for="isThursday">
-              <input
-                type="checkbox"
-                [(ngModel)]="weekdays.isThursday"
-                name="isThursday"
-                id="isThursday"
-              />
-              {{ "thursday" | translate }}
-            </label>
-          </div>
-          <div class="form-group top-margin5" *ngIf="isFridayEnabled">
-            <label class="checkbox-label" for="isFriday">
-              <input
-                type="checkbox"
-                [(ngModel)]="weekdays.isFriday"
-                name="isFriday"
-                id="isFriday"
-              />
-              {{ "friday" | translate }}
-            </label>
-          </div>
+          @if (isMondayEnabled) {
+            <div class="form-group">
+              <label class="checkbox-label" for="isMonday">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="weekdays.isMonday"
+                  name="isMonday"
+                  id="isMonday"
+                  />
+                {{ "monday" | translate }}
+              </label>
+            </div>
+          }
+          @if (isTuesdayEnabled) {
+            <div class="form-group top-margin5">
+              <label class="checkbox-label" for="isTuesday">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="weekdays.isTuesday"
+                  name="isTuesday"
+                  id="isTuesday"
+                  />
+                {{ "tuesday" | translate }}
+              </label>
+            </div>
+          }
+          @if (isWednesdayEnabled) {
+            <div class="form-group top-margin5">
+              <label class="checkbox-label" for="isWednesday">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="weekdays.isWednesday"
+                  name="isWednesday"
+                  id="isWednesday"
+                  />
+                {{ "wednesday" | translate }}
+              </label>
+            </div>
+          }
+          @if (isThursdayEnabled) {
+            <div class="form-group top-margin5">
+              <label class="checkbox-label" for="isThursday">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="weekdays.isThursday"
+                  name="isThursday"
+                  id="isThursday"
+                  />
+                {{ "thursday" | translate }}
+              </label>
+            </div>
+          }
+          @if (isFridayEnabled) {
+            <div class="form-group top-margin5">
+              <label class="checkbox-label" for="isFriday">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="weekdays.isFriday"
+                  name="isFriday"
+                  id="isFriday"
+                  />
+                {{ "friday" | translate }}
+              </label>
+            </div>
+          }
         </div>
       </div>
       <div class="secondColumnContainer">
-        <div class="form-group" *ngIf="isSaturdayEnabled">
-          <label class="checkbox-label" for="isSaturday">
-            <input
-              type="checkbox"
-              [(ngModel)]="weekdays.isSaturday"
-              name="isSaturday"
-              id="isSaturday"
-            />
-            {{ "saturday" | translate }}
-          </label>
-        </div>
-        <div class="form-group top-margin5" *ngIf="isSundayEnabled">
-          <label class="checkbox-label" for="isSunday">
-            <input
-              type="checkbox"
-              [(ngModel)]="weekdays.isSunday"
-              name="isSunday"
-              id="isSunday"
-            />
-            {{ "sunday" | translate }}
-          </label>
-        </div>
+        @if (isSaturdayEnabled) {
+          <div class="form-group">
+            <label class="checkbox-label" for="isSaturday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isSaturday"
+                name="isSaturday"
+                id="isSaturday"
+                />
+              {{ "saturday" | translate }}
+            </label>
+          </div>
+        }
+        @if (isSundayEnabled) {
+          <div class="form-group top-margin5">
+            <label class="checkbox-label" for="isSunday">
+              <input
+                type="checkbox"
+                [(ngModel)]="weekdays.isSunday"
+                name="isSunday"
+                id="isSunday"
+                />
+              {{ "sunday" | translate }}
+            </label>
+          </div>
+        }
       </div>
     </div>
   </div>
@@ -206,7 +220,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button type="button" class="btn btn-primary" (click)="modal.close()">
@@ -233,7 +247,7 @@
         [min]="minStaffCount"
         [max]="maxStaffCount"
         [placeholder]="'shift.cut-shift.placeholders.staff-count' | translate"
-      />
+        />
       <small class="form-text text-muted">
         Min: {{ minStaffCount }}, Max: {{ maxStaffCount }}
       </small>
@@ -244,7 +258,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button
@@ -252,7 +266,7 @@
       class="btn btn-primary"
       (click)="modal.close()"
       [disabled]="!staffCount || staffCount < minStaffCount || staffCount > maxStaffCount"
-    >
+      >
       {{ "save" | translate }}
     </button>
   </div>
@@ -276,7 +290,7 @@
         [min]="minTaskCount"
         [max]="maxTaskCount"
         [placeholder]="'shift.cut-shift.placeholders.task-count' | translate"
-      />
+        />
       <small class="form-text text-muted">
         Min: {{ minTaskCount }}, Max: {{ maxTaskCount }}
       </small>
@@ -287,7 +301,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button
@@ -295,7 +309,7 @@
       class="btn btn-primary"
       (click)="modal.close()"
       [disabled]="!taskCount || taskCount < minTaskCount || taskCount > maxTaskCount"
-    >
+      >
       {{ "save" | translate }}
     </button>
   </div>
@@ -324,12 +338,12 @@
           ngbDatepicker
           #resetDatePicker="ngbDatepicker"
           readonly
-        />
+          />
         <span
           class="input-group-text"
           style="width: 40px"
           (click)="resetDatePicker.toggle()"
-        >
+          >
           <fa-icon
             [icon]="faCalendar"
             [style]="{ 'font-size': '16px', color: '#464e5f' }"
@@ -343,7 +357,7 @@
       type="button"
       class="link-button darkgrey-font font-underline"
       (click)="modal.dismiss()"
-    >
+      >
       {{ "cancel" | translate }}
     </div>
     <button
@@ -351,7 +365,7 @@
       class="btn btn-primary"
       (click)="modal.close()"
       [disabled]="!resetDate"
-    >
+      >
       {{ "save" | translate }}
     </button>
   </div>
@@ -368,7 +382,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutDate()"
       [disabled]="!isCutDateEnabled"
-    >
+      >
       {{ "shift.cut-shift.buttons.cut-date" | translate }}
     </button>
     <button
@@ -376,7 +390,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutTime()"
       [disabled]="!isCutTimeEnabled"
-    >
+      >
       {{ "shift.cut-shift.buttons.cut-time" | translate }}
     </button>
     <button
@@ -384,7 +398,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutWeekdays()"
       [disabled]="!isCutWeekdaysEnabled"
-    >
+      >
       {{ "shift.cut-shift.buttons.cut-weekdays" | translate }}
     </button>
     <button
@@ -392,7 +406,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutStaff()"
       [disabled]="!isCutStaffEnabled"
-    >
+      >
       {{ "shift.cut-shift.buttons.cut-staff" | translate }}
     </button>
     <button
@@ -400,7 +414,7 @@
       class="btn btn-sm btn-primary"
       (click)="onCutTask()"
       [disabled]="!isCutTaskEnabled"
-    >
+      >
       {{ "shift.cut-shift.buttons.cut-task" | translate }}
     </button>
     <button
@@ -408,7 +422,7 @@
       class="btn btn-sm btn-warning"
       (click)="onResetCuts()"
       [disabled]="!isResetCutsEnabled"
-    >
+      >
       <fa-icon [icon]="faRotateLeft"></fa-icon>
       {{ "shift.cut-shift.buttons.reset-cuts" | translate }}
     </button>
@@ -419,7 +433,7 @@
       [selectedShiftId]="selectedShift?.id"
       (rowClicked)="onTableRowClicked($event)"
       (cellUpdated)="onCellUpdated($event)"
-    >
+      >
     </app-cut-shift-table>
   </div>
 

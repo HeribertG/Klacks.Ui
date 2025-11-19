@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -35,12 +35,11 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   styleUrls: ['./edit-group-members.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     TrashIconRedComponent,
-    ExpandableCardComponent,
-  ],
+    ExpandableCardComponent
+],
   providers: [TableSortingService],
 })
 export class EditGroupMembersComponent implements OnInit, AfterViewInit, OnDestroy {

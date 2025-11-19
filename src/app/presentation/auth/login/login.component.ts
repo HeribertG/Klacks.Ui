@@ -16,7 +16,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -32,13 +32,12 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./login.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     RouterModule,
     FontAwesomeModule,
-    NgbModule,
-  ],
+    NgbModule
+],
 })
 export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('forgotPasswordModal', { read: TemplateRef })

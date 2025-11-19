@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -26,7 +26,7 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-scope-row',
-  imports: [CommonModule, FormsModule, NgbModule, TranslateModule],
+  imports: [FormsModule, NgbModule, TranslateModule],
   templateUrl: './group-scope-row.component.html',
   styleUrl: './group-scope-row.component.scss',
   standalone: true,

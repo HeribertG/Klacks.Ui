@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -19,12 +19,11 @@ import { FocusTrapDirective } from '../directives/focus-trap.directive';
   styleUrls: ['./aside.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     LLMChatComponent,
     TrashIconRedComponent,
     TranslateModule,
-    FocusTrapDirective,
-  ],
+    FocusTrapDirective
+],
 })
 export class AsideComponent {
   @ViewChild(LLMChatComponent) llmChatComponent!: LLMChatComponent;

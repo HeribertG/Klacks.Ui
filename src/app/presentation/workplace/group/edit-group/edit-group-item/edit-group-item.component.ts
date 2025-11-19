@@ -20,7 +20,7 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
-import { CommonModule } from '@angular/common';
+
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
@@ -34,15 +34,14 @@ import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-
   styleUrls: ['./edit-group-item.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbDatepickerModule,
     TranslateModule,
     FontAwesomeModule,
     DateInputComponent,
     RichTextEditorComponent,
-    ExpandableCardComponent,
-  ],
+    ExpandableCardComponent
+],
 })
 export class EditGroupItemComponent
   implements OnInit, AfterViewInit, OnDestroy

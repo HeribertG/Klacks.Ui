@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
@@ -8,7 +8,7 @@ import { faAngleRight, faAngleLeft } from '@fortawesome/free-solid-svg-icons';
   templateUrl: './counter.component.html',
   styleUrls: ['./counter.component.scss'],
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule, FontAwesomeModule],
+  imports: [FontAwesomeModule, FontAwesomeModule],
 })
 export class CounterComponent {
   @Output() isChanged = new EventEmitter<number>();

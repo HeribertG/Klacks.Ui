@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
@@ -36,10 +36,9 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
   styleUrls: ['./absence-gantt-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     AbsenceGanttHeaderComponent,
-    AbsenceGanttContainerComponent,
-  ],
+    AbsenceGanttContainerComponent
+],
   providers: [
     CalendarSettingService,
     ScrollbarService,

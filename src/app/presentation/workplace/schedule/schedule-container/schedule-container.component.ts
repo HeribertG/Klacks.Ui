@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
-import { CommonModule } from '@angular/common';
+
 import { ScheduleSectionComponent } from '../schedule-section/schedule-section.component';
 import { ShiftSectionComponent } from '../shift-section/shift-section.component';
 
@@ -8,11 +8,10 @@ import { ShiftSectionComponent } from '../shift-section/shift-section.component'
   selector: 'app-schedule-container',
   standalone: true,
   imports: [
-    CommonModule,
     AngularSplitModule,
     ScheduleSectionComponent,
-    ShiftSectionComponent,
-  ],
+    ShiftSectionComponent
+],
   templateUrl: './schedule-container.component.html',
   styleUrls: ['./schedule-container.component.scss'],
 })

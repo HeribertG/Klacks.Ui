@@ -7,7 +7,7 @@ import {
   ChangeDetectorRef,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
@@ -22,7 +22,7 @@ import { SearchService } from 'src/app/application/services/search.service';
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, FontAwesomeModule, TranslateModule],
+  imports: [FormsModule, FontAwesomeModule, TranslateModule],
 })
 export class SearchComponent {
   private cdr = inject(ChangeDetectorRef);

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, inject, OnDestroy, OnInit, effect, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -49,7 +49,6 @@ import {
 @Component({
   selector: 'app-container-template',
   imports: [
-    CommonModule,
     FormsModule,
     AngularSplitModule,
     TranslateModule,
@@ -59,8 +58,8 @@ import {
     IconShiftSegmentComponent,
     IconTimeWindowComponent,
     IconUnknownTimeComponent,
-    TrashIconRedComponent,
-  ],
+    TrashIconRedComponent
+],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,

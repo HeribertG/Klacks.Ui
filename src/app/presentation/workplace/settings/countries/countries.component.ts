@@ -4,7 +4,7 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -18,14 +18,13 @@ import { CountriesRowComponent } from './countries-row/countries-row.component';
   styleUrls: ['./countries.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
     SpinnerModule,
     CountriesHeaderComponent,
-    CountriesRowComponent,
-  ],
+    CountriesRowComponent
+],
 })
 export class CountriesComponent {
   @ViewChild('containerBox') containerBox?: ElementRef;

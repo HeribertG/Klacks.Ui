@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component } from '@angular/core';
 
 @Component({
@@ -6,6 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './spinner.component.html',
   styleUrls: ['./spinner.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class SpinnerComponent {}

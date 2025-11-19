@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   Component,
   inject,
@@ -32,7 +32,6 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./edit-shift-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     EditShiftItemComponent,
     EditShiftWeekdayComponent,
@@ -40,8 +39,8 @@ import { SearchService } from 'src/app/application/services/search.service';
     EditShiftAddressComponent,
     EditShiftSpecialFeatureComponent,
     EditShiftNavComponent,
-    EditShiftGroupComponent,
-  ],
+    EditShiftGroupComponent
+],
 })
 export class EditShiftHomeComponent implements OnInit, OnDestroy {
 

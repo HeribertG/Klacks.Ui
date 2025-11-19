@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -34,15 +34,14 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
   styleUrls: ['./edit-shift-nav.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgbDropdownModule,
     NgbDatepickerModule,
     NgbTooltipModule,
     TranslateModule,
     FontAwesomeModule,
-    FallbackPipe,
-  ],
+    FallbackPipe
+],
 })
 export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navShiftForm', { static: false }) navShiftForm:

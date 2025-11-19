@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -23,7 +23,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
   templateUrl: './all-shift-nav.component.html',
   styleUrl: './all-shift-nav.component.scss',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbDropdownModule, TranslateModule],
+  imports: [FormsModule, NgbDropdownModule, TranslateModule],
 })
 export class AllShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('navShiftForm', { static: false }) navGroupForm:

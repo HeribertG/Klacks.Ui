@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import {
   AfterViewInit,
   Component,
@@ -29,14 +29,13 @@ import { IconLogoComponent } from '../../icons/icon-logo.component';
   styleUrls: ['./header.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     SearchComponent,
     GroupSelectComponent,
     IconSignOutComponent,
     FontAwesomeModule,
     IconMMLComponent,
-    IconLogoComponent,
-  ],
+    IconLogoComponent
+],
 })
 export class HeaderComponent implements AfterViewInit, OnDestroy {
   public dataLoadFileService = inject(DataLoadFileService);

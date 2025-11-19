@@ -26,7 +26,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { CalendarDropdownComponent } from '../calendar-dropdown/calendar-dropdown.component';
 import { ChipsComponent } from '../chips/chips.component';
@@ -46,13 +46,12 @@ interface TranslationResults {
   styleUrls: ['./calendar-selector.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     TranslateModule,
     CalendarDropdownComponent,
     ChipsComponent,
-    FontAwesomeModule,
-  ],
+    FontAwesomeModule
+],
 })
 export class CalendarSelectorComponent
   implements OnInit, AfterViewInit, OnDestroy

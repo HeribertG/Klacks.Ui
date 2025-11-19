@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
@@ -7,7 +7,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   templateUrl: './button-new.component.html',
   styleUrls: ['./button-new.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
 })
 export class ButtonNewComponent {
   @Input() id?: string;

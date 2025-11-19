@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Component, EventEmitter, OnDestroy, Output, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -20,14 +20,13 @@ import { takeUntil } from 'rxjs/operators';
   styleUrls: ['./profile-picture.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     RouterModule,
     NgbModule,
     SpinnerModule,
     TranslateModule,
-    FontAwesomeModule,
-  ],
+    FontAwesomeModule
+],
 })
 export class ProfilePictureComponent implements OnDestroy {
   @Output() isChangingEvent = new EventEmitter();

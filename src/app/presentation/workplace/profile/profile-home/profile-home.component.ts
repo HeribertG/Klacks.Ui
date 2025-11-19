@@ -5,7 +5,7 @@ import {
 } from '@angular/core';
 
 // Angular und Bibliotheksmodule
-import { CommonModule } from '@angular/common';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Anwendungskomponenten
@@ -26,12 +26,11 @@ import { SearchService } from 'src/app/application/services/search.service';
   styleUrls: ['./profile-home.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     TranslateModule,
     ProfilePictureComponent,
     ProfileDataEditComponent,
-    ProfileCustomSettingComponent,
-  ],
+    ProfileCustomSettingComponent
+],
 })
 export class ProfileHomeComponent implements OnInit {
 

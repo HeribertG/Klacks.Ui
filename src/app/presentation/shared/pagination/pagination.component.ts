@@ -7,7 +7,7 @@ import {
   OnInit,
   inject,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
@@ -23,7 +23,7 @@ import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.int
   templateUrl: './pagination.component.html',
   styleUrls: ['./pagination.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, NgbPaginationModule, TranslateModule],
+  imports: [FormsModule, NgbPaginationModule, TranslateModule],
 })
 export class PaginationComponent implements OnInit {
   @Input() paginationType: 'standard' | 'shift' = 'standard';

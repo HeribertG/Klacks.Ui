@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -11,12 +11,11 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./chips.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     FontAwesomeModule,
     TranslateModule,
-    NgbDropdownModule,
-  ],
+    NgbDropdownModule
+],
 })
 export class ChipsComponent {
   @Output() delete = new EventEmitter<string>();

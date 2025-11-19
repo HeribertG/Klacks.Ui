@@ -15,7 +15,7 @@ import {
   NgbTooltip,
 } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
-import { CommonModule } from '@angular/common';
+
 import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
 import {
   CalendarResetData,
@@ -31,7 +31,6 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
   styleUrls: ['./schedule-header.component.scss'],
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     NgxSliderModule,
     NgbDropdownModule,
@@ -39,8 +38,8 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
     CalendarSelectorComponent,
     NgbTooltip,
     ChooseCalendarComponent,
-    ScheduleHeaderCalendarComponent,
-  ],
+    ScheduleHeaderCalendarComponent
+],
   providers: [],
 })
 export class ScheduleHeaderComponent implements OnInit {
