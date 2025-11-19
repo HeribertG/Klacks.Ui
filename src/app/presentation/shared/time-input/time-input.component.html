@@ -27,6 +27,7 @@
     />
     <label class="delimiter-time">:</label>
     <input
+      [id]="minutesId"
       [value]="value.minutes"
       [name]="minutesName || 'minutes'"
       (input)="onMinutesInputChange($event)"
