@@ -210,12 +210,11 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 0 1rem 1rem 1rem;
 
       .shifts-grid {
         overflow-x: auto;
         overflow-y: visible;
-
+        height: 100%;
         .shifts-table {
           width: auto;
           border-collapse: separate;
@@ -237,7 +236,7 @@
               max-width: 50px;
               position: sticky;
               right: 0;
-              background-color: var(--backgroundColorWorkplace);
+              background-color: var(--backgroundColorCard) !important;
               text-align: center;
               cursor: pointer;
               z-index: 10;
@@ -247,11 +246,6 @@
                 width: 100%;
                 height: 100%;
                 background-color: inherit;
-              }
-
-              &:hover {
-                background-color: var(--backgroundColorWorkplace);
-                opacity: 0.8;
               }
             }
           }
@@ -457,19 +451,20 @@
 
     .shifts-grid-container {
       flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0 1rem 1rem 1rem;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
 
       .shifts-grid {
-        overflow-x: auto;
-        overflow-y: visible;
+        flex: 1;
+        overflow: auto;
 
         .shifts-table {
-          width: auto;
+          width: 100%;
           border-collapse: separate;
           border-spacing: 0;
-          min-width: 100%;
+          table-layout: fixed;
 
           th,
           td {
@@ -477,7 +472,8 @@
             white-space: nowrap;
 
             &.icon-column {
-              min-width: 28px;
+              min-width: 40px;
+              width: 40px;
             }
           }
 
