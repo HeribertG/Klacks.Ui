@@ -16,6 +16,7 @@ import {
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from '../../helpers/draw-helper';
 import { DrawImageHelper } from '../../helpers/draw-image-helper';
@@ -40,9 +41,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
   @Input() untilTime: OwnTime = OwnTime.forTime('24', '00');
 
-  private shifts: IShift[] = [];
-  private selectedShift: IShift | null = null;
-  private shiftRectangles: Map<IShift, Rectangle> = new Map();
+  private shifts: IContainerTemplateItem[] = [];
+  private selectedShift: IContainerTemplateItem | null = null;
+  private shiftRectangles: Map<IContainerTemplateItem, Rectangle> = new Map();
 
   private readonly PADDING_MINUTES_DEFAULT = 30;
   private readonly PADDING_MINUTES_SHORT = 15;
@@ -106,7 +107,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   constructor() {
     effect(
       () => {
-        const newShifts = this.shiftService.selectedTasksSignal();
+        const newShifts = this.shiftService.selectedContainerTemplateItemsSignal();
         this.shifts = newShifts;
 
         if (this.inboxCanvasRef) {
@@ -457,16 +458,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private drawBlueBoundaryLines(
     ctx: CanvasRenderingContext2D,
-    shift: IShift,
+    item: IContainerTemplateItem,
     range: any,
     boxWidth: number,
     marginLeftRight: number,
     height: number
   ): void {
-    if (!shift.startShift || !shift.endShift) return;
+    if (!item.shift?.startShift || !item.shift?.endShift) return;
 
-    const startTime = this.timeRangeService.parseTimeString(shift.startShift);
-    const endTime = this.timeRangeService.parseTimeString(shift.endShift);
+    const startTime = this.timeRangeService.parseTimeString(item.shift.startShift);
+    const endTime = this.timeRangeService.parseTimeString(item.shift.endShift);
 
     if (!startTime || !endTime) return;
 
@@ -509,22 +510,22 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
 
   private drawSingleShiftBox(
     ctx: CanvasRenderingContext2D,
-    shift: IShift,
+    item: IContainerTemplateItem,
     range: any,
     boxWidth: number,
     marginLeftRight: number,
     height: number,
     isSelected = false
   ): Rectangle | null {
-    const hasTimeRange = shift.isTimeRange && shift.timeRangeStartShift && shift.timeRangeEndShift;
-    const hasFixedTime = shift.startShift && shift.endShift;
+    const hasTimeRange = item.shift?.isTimeRange && item.timeRangeStartShift && item.timeRangeEndShift;
+    const hasFixedTime = item.startShift && item.endShift;
 
     if (!hasTimeRange && !hasFixedTime) {
       return null;
     }
 
-    const bodyStartMinutes = this.timeRangeService.getShiftStartMinutes(shift);
-    const bodyEndMinutes = this.timeRangeService.getShiftEndMinutes(shift);
+    const bodyStartMinutes = this.timeRangeService.getShiftStartMinutes(item);
+    const bodyEndMinutes = this.timeRangeService.getShiftEndMinutes(item);
 
     if (bodyStartMinutes === 0 && bodyEndMinutes === 0) {
       return null;
@@ -533,9 +534,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     let startMinutes = bodyStartMinutes;
     let endMinutes = bodyEndMinutes;
 
-    if (shift.startShift && shift.endShift) {
-      const startTime = this.timeRangeService.parseTimeString(shift.startShift);
-      const endTime = this.timeRangeService.parseTimeString(shift.endShift);
+    if (item.startShift && item.endShift) {
+      const startTime = this.timeRangeService.parseTimeString(item.startShift);
+      const endTime = this.timeRangeService.parseTimeString(item.endShift);
 
       if (startTime && endTime) {
         startMinutes = startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
@@ -565,10 +566,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     );
 
     if (!isSelected) {
-      this.shiftRectangles.set(shift, rect);
+      this.shiftRectangles.set(item, rect);
     }
 
-    const hasOverlap = this.checkShiftOverlap(shift, bodyStartMinutes, bodyEndMinutes);
+    const hasOverlap = this.checkShiftOverlap(item, bodyStartMinutes, bodyEndMinutes);
     const backgroundColor = hasOverlap
       ? this.gridColorService.warningColor
       : this.gridColorService.controlBackGroundColor;
@@ -605,10 +606,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       Gradient3DBorderStyleEnum.Raised
     );
 
-    if ((shift.isTimeRange || shift.isSporadic) && isSelected) {
+    if ((item.shift?.isTimeRange || item.shift?.isSporadic) && isSelected) {
       this.drawBlueBoundaryLines(
         ctx,
-        shift,
+        item,
         range,
         boxWidth,
         marginLeftRight,
@@ -616,8 +617,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       );
     }
 
-    const abbreviation = shift.abbreviation || '';
-    const name = shift.name || '';
+    const abbreviation = item.shift?.abbreviation || '';
+    const name = item.shift?.name || '';
     const displayText = abbreviation ? `${abbreviation} - ${name}` : name;
 
     DrawHelper.drawText(
@@ -754,9 +755,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const x = clickX * scaleX;
     const y = clickY * scaleY;
 
-    for (const [shift, shiftRect] of this.shiftRectangles) {
+    for (const [item, shiftRect] of this.shiftRectangles) {
       if (shiftRect.pointInRect(x, y)) {
-        this.shiftService.setSelectedShift(shift);
+        this.shiftService.setSelectedShift(item);
         return;
       }
     }
@@ -778,9 +779,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const x = clickX * scaleX;
     const y = clickY * scaleY;
 
-    for (const [shift, shiftRect] of this.shiftRectangles) {
-      if (shiftRect.pointInRect(x, y) && shift.isTimeRange) {
-        const dragStarted = this.dragDropService.startDrag(y, shift, shiftRect);
+    for (const [item, shiftRect] of this.shiftRectangles) {
+      if (shiftRect.pointInRect(x, y) && item.shift?.isTimeRange) {
+        const dragStarted = this.dragDropService.startDrag(y, item, shiftRect);
         if (dragStarted) {
           event.preventDefault();
           event.stopPropagation();
@@ -850,36 +851,36 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private sortShiftsByTime(): void {
-    const shiftsToSort = this.shifts.filter(shift => shift.isTimeRange);
-    const otherShifts = this.shifts.filter(shift => !shift.isTimeRange);
+    const itemsToSort = this.shifts.filter(item => item.shift?.isTimeRange);
+    const otherItems = this.shifts.filter(item => !item.shift?.isTimeRange);
 
-    shiftsToSort.sort((a, b) => {
+    itemsToSort.sort((a, b) => {
       const aStart = this.timeRangeService.getShiftStartMinutes(a);
       const bStart = this.timeRangeService.getShiftStartMinutes(b);
       return aStart - bStart;
     });
 
-    const newShiftsArray = [...shiftsToSort, ...otherShifts];
+    const newItemsArray = [...itemsToSort, ...otherItems];
 
-    this.shiftService.setSelectedTasks(newShiftsArray);
+    this.shiftService.setSelectedContainerTemplateItems(newItemsArray);
   }
 
   private checkShiftOverlap(
-    currentShift: IShift,
+    currentItem: IContainerTemplateItem,
     startMinutes: number,
     endMinutes: number
   ): boolean {
-    if (!currentShift.isTimeRange) {
+    if (!currentItem.shift?.isTimeRange) {
       return false;
     }
 
-    const otherShifts = this.shifts.filter(
-      (shift) => shift !== currentShift && shift.isTimeRange
+    const otherItems = this.shifts.filter(
+      (item) => item !== currentItem && item.shift?.isTimeRange
     );
 
-    for (const otherShift of otherShifts) {
-      const otherStart = this.timeRangeService.getShiftStartMinutes(otherShift);
-      const otherEnd = this.timeRangeService.getShiftEndMinutes(otherShift);
+    for (const otherItem of otherItems) {
+      const otherStart = this.timeRangeService.getShiftStartMinutes(otherItem);
+      const otherEnd = this.timeRangeService.getShiftEndMinutes(otherItem);
 
       if (this.timesOverlap(startMinutes, endMinutes, otherStart, otherEnd)) {
         if (startMinutes >= otherStart) {

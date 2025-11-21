@@ -1,63 +1,125 @@
-import { Injectable, signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { IShift } from '../../models/shift-class';
+import { IContainerTemplateItem } from '../../models/container-template-class';
+
+export type WeekdayContainerTemplateItemsMap = {
+  monday: IContainerTemplateItem[];
+  tuesday: IContainerTemplateItem[];
+  wednesday: IContainerTemplateItem[];
+  thursday: IContainerTemplateItem[];
+  friday: IContainerTemplateItem[];
+  saturday: IContainerTemplateItem[];
+  sunday: IContainerTemplateItem[];
+};
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContainerTemplateShiftService {
-  public selectedTasksSignal: WritableSignal<IShift[]> = signal([]);
-  public selectedShiftSignal: WritableSignal<IShift | null> = signal(null);
+  private currentWeekdaySignal: WritableSignal<string> = signal('monday');
+  private weekdayContainerTemplateItemsSignal: WritableSignal<WeekdayContainerTemplateItemsMap> = signal({
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: []
+  });
 
-  get selectedTasks(): IShift[] {
-    return this.selectedTasksSignal();
+  public selectedContainerTemplateItemsSignal = computed(() => {
+    const weekday = this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+    const items = this.weekdayContainerTemplateItemsSignal()[weekday];
+    return items;
+  });
+
+  public selectedShiftSignal: WritableSignal<IContainerTemplateItem | null> = signal(null);
+
+  get selectedContainerTemplateItems(): IContainerTemplateItem[] {
+    return this.selectedContainerTemplateItemsSignal();
   }
 
-  get selectedShift(): IShift | null {
+  get selectedShift(): IContainerTemplateItem | null {
     return this.selectedShiftSignal();
   }
 
-  setSelectedTasks(tasks: IShift[]): void {
-    this.selectedTasksSignal.set(tasks);
+  setCurrentWeekday(weekday: string): void {
+    this.currentWeekdaySignal.set(weekday);
   }
 
-  addTask(task: IShift): void {
-    const currentTasks = this.selectedTasksSignal();
+  getCurrentWeekday(): string {
+    return this.currentWeekdaySignal();
+  }
+
+  setSelectedContainerTemplateItems(containerTemplateItems: IContainerTemplateItem[]): void {
+    const weekday = this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+    const updatedMap = { ...this.weekdayContainerTemplateItemsSignal() };
+    updatedMap[weekday] = containerTemplateItems;
+    this.weekdayContainerTemplateItemsSignal.set(updatedMap);
+  }
+
+  getAllWeekdayTasks(): WeekdayContainerTemplateItemsMap {
+    return this.weekdayContainerTemplateItemsSignal();
+  }
+
+  setAllWeekdayTasks(tasks: WeekdayContainerTemplateItemsMap): void {
+    this.weekdayContainerTemplateItemsSignal.set(tasks);
+  }
+
+  addTask(task: IContainerTemplateItem): void {
+    const currentTasks = this.selectedContainerTemplateItemsSignal();
     const exists = currentTasks.some(t => t.id === task.id);
     if (!exists) {
-      this.selectedTasksSignal.set([...currentTasks, task]);
+      this.setSelectedContainerTemplateItems([...currentTasks, task]);
     }
   }
 
   removeTask(taskId: string): void {
-    const currentTasks = this.selectedTasksSignal();
-    this.selectedTasksSignal.set(currentTasks.filter(t => t.id !== taskId));
+    const currentTasks = this.selectedContainerTemplateItemsSignal();
+    this.setSelectedContainerTemplateItems(currentTasks.filter(t => t.id !== taskId));
+
+    if (this.selectedShiftSignal()?.id === taskId) {
+      this.selectedShiftSignal.set(null);
+    }
   }
 
   clearTasks(): void {
-    this.selectedTasksSignal.set([]);
+    this.setSelectedContainerTemplateItems([]);
   }
 
-  updateTask(taskId: string, updatedTask: IShift): void {
-    const currentTasks = this.selectedTasksSignal();
+  clearAllTasks(): void {
+    this.weekdayContainerTemplateItemsSignal.set({
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: []
+    });
+  }
+
+  updateTask(taskId: string, updatedTask: IContainerTemplateItem): void {
+    const currentTasks = this.selectedContainerTemplateItemsSignal();
     const index = currentTasks.findIndex(t => t.id === taskId);
     if (index !== -1) {
       const updatedTasks = [...currentTasks];
       updatedTasks[index] = updatedTask;
-      this.selectedTasksSignal.set(updatedTasks);
+      this.setSelectedContainerTemplateItems(updatedTasks);
     }
   }
 
-  updateSelectedTask(shift: IShift): void {
-    const currentTasks = this.selectedTasksSignal();
-    const index = currentTasks.findIndex(t => t.id === shift.id);
+  updateSelectedTask(item: IContainerTemplateItem): void {
+    const currentTasks = this.selectedContainerTemplateItemsSignal();
+    const index = currentTasks.findIndex(t => t.id === item.id);
     if (index !== -1) {
       const updatedTasks = [...currentTasks];
-      updatedTasks[index] = shift;
-      this.selectedTasksSignal.set(updatedTasks);
+      updatedTasks[index] = item;
+      this.setSelectedContainerTemplateItems(updatedTasks);
     }
   }
 
-  setSelectedShift(shift: IShift | null): void {
-    this.selectedShiftSignal.set(shift);
+  setSelectedShift(item: IContainerTemplateItem | null): void {
+    this.selectedShiftSignal.set(item);
   }
 }

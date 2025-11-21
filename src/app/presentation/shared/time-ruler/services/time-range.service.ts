@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 
 @Injectable({
   providedIn: 'root',
@@ -115,31 +116,64 @@ export class TimeRangeService {
     return { increment: 60 * 24, showHalfHourLabels: false };
   }
 
-  getShiftStartMinutes(shift: IShift): number {
-    const timeString = shift.timeRangeStartShift || shift.startShift;
-    if (!timeString) return 0;
+  getShiftStartMinutes(item: IShift | IContainerTemplateItem): number {
+    const isContainerItem = 'shiftId' in item;
 
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
+    if (isContainerItem) {
+      const timeString = item.timeRangeStartShift || item.startShift;
+      if (!timeString) return 0;
 
-    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+      const time = this.parseTimeString(timeString);
+      if (!time) return 0;
+
+      return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+    } else {
+      const shift = item as IShift;
+      const timeString = shift.startShift;
+      if (!timeString) return 0;
+
+      const time = this.parseTimeString(timeString);
+      if (!time) return 0;
+
+      return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+    }
   }
 
-  getShiftEndMinutes(shift: IShift): number {
-    const timeString = shift.timeRangeEndShift || shift.endShift;
-    if (!timeString) return 0;
+  getShiftEndMinutes(item: IShift | IContainerTemplateItem): number {
+    const isContainerItem = 'shiftId' in item;
 
-    const time = this.parseTimeString(timeString);
-    if (!time) return 0;
+    if (isContainerItem) {
+      const timeString = item.timeRangeEndShift || item.endShift;
+      if (!timeString) return 0;
 
-    let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+      const time = this.parseTimeString(timeString);
+      if (!time) return 0;
 
-    const startMinutes = this.getShiftStartMinutes(shift);
-    if (minutes < startMinutes) {
-      minutes += this.MINUTES_PER_DAY;
+      let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+      const startMinutes = this.getShiftStartMinutes(item);
+      if (minutes < startMinutes) {
+        minutes += this.MINUTES_PER_DAY;
+      }
+
+      return minutes;
+    } else {
+      const shift = item as IShift;
+      const timeString = shift.endShift;
+      if (!timeString) return 0;
+
+      const time = this.parseTimeString(timeString);
+      if (!time) return 0;
+
+      let minutes = time.hours * this.MINUTES_PER_HOUR + time.minutes;
+
+      const startMinutes = this.getShiftStartMinutes(item);
+      if (minutes < startMinutes) {
+        minutes += this.MINUTES_PER_DAY;
+      }
+
+      return minutes;
     }
-
-    return minutes;
   }
 
   parseTimeString(

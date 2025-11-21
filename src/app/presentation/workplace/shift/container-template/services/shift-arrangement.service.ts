@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IShift } from 'src/app/domain/models/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 
@@ -9,44 +9,44 @@ import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/service
 export class ShiftArrangementService {
   private timeRangeService = inject(TimeRangeService);
   arrangeShifts(
-    shifts: IShift[],
+    items: IContainerTemplateItem[],
     containerTimeFrom: string,
     containerTimeUntil: string
-  ): IShift[] {
-    if (!shifts || shifts.length === 0) {
-      return shifts;
+  ): IContainerTemplateItem[] {
+    if (!items || items.length === 0) {
+      return items;
     }
 
-    const arrangedShifts: IShift[] = [];
+    const arrangedItems: IContainerTemplateItem[] = [];
     const containerFromTime = this.timeRangeService.parseTimeString(containerTimeFrom);
 
     if (!containerFromTime) {
-      return shifts;
+      return items;
     }
 
     let currentStartMinutes = containerFromTime.hours * 60 + containerFromTime.minutes;
 
-    for (let i = 0; i < shifts.length; i++) {
-      const shift = { ...shifts[i] };
+    for (let i = 0; i < items.length; i++) {
+      const item = { ...items[i] };
 
-      if (!shift.isTimeRange && !shift.isSporadic) {
-        arrangedShifts.push(shift);
-        const endTime = this.timeRangeService.parseTimeString(shift.endShift);
+      if (!item.shift?.isTimeRange && !item.shift?.isSporadic) {
+        arrangedItems.push(item);
+        const endTime = item.endShift ? this.timeRangeService.parseTimeString(item.endShift) : null;
         if (endTime) {
           currentStartMinutes = endTime.hours * 60 + endTime.minutes;
         }
         continue;
       }
 
-      const originalStartTime = this.timeRangeService.parseTimeString(shift.startShift);
+      const originalStartTime = item.startShift ? this.timeRangeService.parseTimeString(item.startShift) : null;
 
       if (!originalStartTime) {
-        arrangedShifts.push(shift);
+        arrangedItems.push(item);
         continue;
       }
 
       const originalStartMinutes = originalStartTime.hours * 60 + originalStartTime.minutes;
-      const workTimeMinutes = Math.round(shift.workTime * 60);
+      const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
 
       let newStartMinutes: number;
       if (i === 0) {
@@ -57,14 +57,14 @@ export class ShiftArrangementService {
 
       const newEndMinutes = newStartMinutes + workTimeMinutes;
 
-      shift.timeRangeStartShift = this.minutesToTimeString(newStartMinutes);
-      shift.timeRangeEndShift = this.minutesToTimeString(newEndMinutes);
+      item.timeRangeStartShift = this.minutesToTimeString(newStartMinutes);
+      item.timeRangeEndShift = this.minutesToTimeString(newEndMinutes);
 
-      arrangedShifts.push(shift);
+      arrangedItems.push(item);
       currentStartMinutes = newEndMinutes;
     }
 
-    return arrangedShifts;
+    return arrangedItems;
   }
 
   private minutesToTimeString(totalMinutes: number): string {

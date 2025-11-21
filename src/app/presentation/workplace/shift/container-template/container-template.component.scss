@@ -222,7 +222,8 @@
           border-spacing: 0;
           min-width: 100%;
 
-          th, td {
+          th,
+          td {
             min-width: 120px;
             white-space: nowrap;
 
@@ -239,9 +240,17 @@
               background-color: var(--backgroundColorWorkplace);
               text-align: center;
               cursor: pointer;
-              z-index: 5;
+              z-index: 10;
+
+              app-icon-trash-red {
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-color: inherit;
+              }
 
               &:hover {
+                background-color: var(--backgroundColorWorkplace);
                 opacity: 0.8;
               }
             }
@@ -287,12 +296,36 @@
                 opacity: 0.3;
               }
 
+              &:hover {
+                .action-column {
+                  background-color: var(
+                    --gridBackgroundColorRowHover
+                  ) !important;
+                }
+              }
+
               &.selected {
-                background-color: var(--backgroundColoPaginationSelected) !important;
+                background-color: var(
+                  --backgroundColoPaginationSelected
+                ) !important;
                 border-left: 3px solid var(--paginationBorderColorSelected);
 
+                .action-column {
+                  background-color: var(
+                    --backgroundColoPaginationSelected
+                  ) !important;
+                }
+
                 &:hover {
-                  background-color: var(--backgroundColoPaginationSelected) !important;
+                  background-color: var(
+                    --backgroundColoPaginationSelected
+                  ) !important;
+
+                  .action-column {
+                    background-color: var(
+                      --backgroundColoPaginationSelected
+                    ) !important;
+                  }
                 }
               }
 
@@ -438,28 +471,13 @@
           border-spacing: 0;
           min-width: 100%;
 
-          th, td {
+          th,
+          td {
             min-width: 120px;
             white-space: nowrap;
 
             &.icon-column {
               min-width: 28px;
-            }
-
-            &.action-column {
-              min-width: 50px;
-              width: 50px;
-              max-width: 50px;
-              position: sticky;
-              right: 0;
-              background-color: var(--backgroundColorWorkplace);
-              text-align: center;
-              cursor: pointer;
-              z-index: 5;
-
-              &:hover {
-                opacity: 0.8;
-              }
             }
           }
 
@@ -467,10 +485,6 @@
             position: sticky;
             top: 0;
             z-index: 10;
-
-            th.action-column {
-              z-index: 15;
-            }
 
             th {
               @extend .table-header;
@@ -504,11 +518,15 @@
               }
 
               &.selected {
-                background-color: var(--backgroundColoPaginationSelected) !important;
+                background-color: var(
+                  --backgroundColoPaginationSelected
+                ) !important;
                 border-left: 3px solid var(--paginationBorderColorSelected);
 
                 &:hover {
-                  background-color: var(--backgroundColoPaginationSelected) !important;
+                  background-color: var(
+                    --backgroundColoPaginationSelected
+                  ) !important;
                 }
               }
 

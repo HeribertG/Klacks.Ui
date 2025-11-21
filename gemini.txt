@@ -1,2 +1,2 @@
-C:\SourceCode
+cd C:\SourceCode
 gemini

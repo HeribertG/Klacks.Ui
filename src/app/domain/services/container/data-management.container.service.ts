@@ -9,7 +9,7 @@ import {
 } from '../../models/container-template-slot';
 import { DataContainerTemplateService } from '../../../infrastructure/api/data-container-template.service';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
-import { ContainerTemplateShiftService } from './container-template-shift.service';
+import { ContainerTemplateShiftService, WeekdayContainerTemplateItemsMap } from './container-template-shift.service';
 import { ISaveable, IResettable, ILoadable, INavigable } from '../../interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../models/entity-names.enum';
@@ -144,18 +144,18 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     return this.dataService.getTemplates(containerId);
   }
 
-  addTemplates(
+  postTemplates(
     containerId: string,
     templates: IContainerTemplate[]
   ): Observable<IContainerTemplate[]> {
-    return this.dataService.addTemplates(containerId, templates);
+    return this.dataService.postTemplates(containerId, templates);
   }
 
-  updateTemplates(
+  putTemplates(
     containerId: string,
     templates: IContainerTemplate[]
   ): Observable<IContainerTemplate[]> {
-    return this.dataService.updateTemplates(containerId, templates);
+    return this.dataService.putTemplates(containerId, templates);
   }
 
   deleteTemplates(containerId: string): Observable<IContainerTemplate[]> {
@@ -314,18 +314,22 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
   }
 
   canSave(): boolean {
-    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
+    const hasSelectedTasks = this.hasAnyWeekdayTasks();
     const canSaveTemplates = this.areObjectsDirty() && this.isValid();
     return hasSelectedTasks || canSaveTemplates;
   }
 
   areObjectsDirty(): boolean {
-    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
     const hasTemplateChanges = !compareComplexObjects(
       this.editTemplates(),
       this.editTemplatesDummy()
     );
-    return hasSelectedTasks || hasTemplateChanges;
+    return hasTemplateChanges;
+  }
+
+  private hasAnyWeekdayTasks(): boolean {
+    const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
+    return Object.values(weekdayTasksMap).some((tasks) => tasks.length > 0);
   }
 
   private currentWeekdaySignal = signal<number | undefined>(undefined);
@@ -345,17 +349,7 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     const containerShift = this.currentContainerShiftSignal();
     if (!containerShift?.id) return;
 
-    const hasSelectedTasks = this.shiftService.selectedTasks.length > 0;
-    const currentWeekday = this.currentWeekdaySignal();
-    const currentSlot = this.currentSlotSignal();
-
-    if (hasSelectedTasks && currentWeekday !== undefined && currentSlot) {
-      this.createTemplateFromSelectedTasks(
-        containerShift.id,
-        currentWeekday,
-        currentSlot
-      );
-    }
+    this.createTemplatesFromAllWeekdayTasks(containerShift.id);
 
     this.loadingSignal.set(true);
     const templates = this.editTemplates();
@@ -365,17 +359,20 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
       return;
     }
 
-    const hasNewTemplates = templates.some((t) => !t.id);
-    const saveAction = hasNewTemplates
-      ? this.addTemplates(containerShift.id, templates)
-      : this.updateTemplates(containerShift.id, templates);
+    const hasExistingItems = templates.some(t =>
+      t.containerTemplateItems?.some(containerTemplateItem => containerTemplateItem.id != null)
+    );
+    const saveAction = hasExistingItems
+      ? this.putTemplates(containerShift.id, templates)
+      : this.postTemplates(containerShift.id, templates);
 
     saveAction.pipe(takeUntil(this.destroy$)).subscribe({
       next: (savedTemplates) => {
         this.editTemplates.set(savedTemplates);
         this.editTemplatesDummy.set(cloneObject(savedTemplates));
+        this.shiftService.clearAllTasks();
+        this.restoreWeekdayTasksFromTemplates(savedTemplates);
         this.loadingSignal.set(false);
-        this.shiftService.clearTasks();
         this.onSaveCompleted?.();
       },
       error: () => {
@@ -386,8 +383,11 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
 
   resetData(): void {
     this.editTemplates.set(cloneObject(this.editTemplatesDummy()));
-    this.shiftService.clearTasks();
+    this.shiftService.clearAllTasks();
     this.shiftService.setSelectedShift(null);
+
+    const templates = this.editTemplatesDummy();
+    this.restoreWeekdayTasksFromTemplates(templates);
 
     const currentWeekday = this.currentWeekdaySignal();
     if (currentWeekday !== undefined) {
@@ -406,6 +406,7 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
         next: (templates) => {
           this.editTemplates.set(templates);
           this.editTemplatesDummy.set(cloneObject(templates));
+          this.restoreWeekdayTasksFromTemplates(templates);
           this.fireIsReadEvent();
           this.loadingSignal.set(false);
         },
@@ -427,7 +428,8 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
         t.weekday !== undefined &&
         t.fromTime &&
         t.untilTime &&
-        t.items.length > 0
+        t.containerTemplateItems &&
+        t.containerTemplateItems.length > 0
     );
   }
 
@@ -445,16 +447,11 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     weekday: number,
     slot: IContainerTemplateSlot
   ): void {
-    const selectedTasks = this.shiftService.selectedTasks;
+    const selectedContainerTemplateItems = this.shiftService.selectedContainerTemplateItems;
 
-    if (selectedTasks.length === 0) return;
+    if (selectedContainerTemplateItems.length === 0) return;
 
-    const items: IContainerTemplateItem[] = selectedTasks
-      .filter((task) => task.id)
-      .map((task) => ({
-        shiftId: task.id!,
-        shift: task,
-      }));
+    const containerTemplateItems: IContainerTemplateItem[] = selectedContainerTemplateItems.filter((task) => task.shiftId);
 
     const newTemplate: IContainerTemplate = {
       containerId: containerId,
@@ -463,11 +460,91 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
       untilTime: slot.untilTime,
       isHoliday: slot.isHoliday,
       isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
-      items: items,
+      containerTemplateItems: containerTemplateItems,
     };
 
     const templates = this.editTemplates();
     this.editTemplates.set([...templates, newTemplate]);
+  }
+
+  private createTemplatesFromAllWeekdayTasks(containerId: string): void {
+    const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
+    const grid = this.templateGridSignal();
+
+    if (!grid) return;
+
+    const weekdayMapping: Record<string, number> = {
+      sunday: 0,
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
+    Object.entries(weekdayTasksMap).forEach(([weekdayName, tasks]) => {
+      if (tasks.length === 0) return;
+
+      const weekdayNumber = weekdayMapping[weekdayName];
+      const slotsForWeekday = grid.slots
+        .flat()
+        .filter((slot) => slot.weekday === weekdayNumber);
+
+      if (slotsForWeekday.length === 0) return;
+
+      const slot = slotsForWeekday[0];
+
+      const containerTemplateItems: IContainerTemplateItem[] = tasks.filter((task) => task.shiftId);
+
+      const newTemplate: IContainerTemplate = {
+        containerId: containerId,
+        weekday: weekdayNumber,
+        fromTime: slot.fromTime,
+        untilTime: slot.untilTime,
+        isHoliday: slot.isHoliday,
+        isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+        containerTemplateItems: containerTemplateItems,
+      };
+
+      const templates = this.editTemplates();
+      this.editTemplates.set([...templates, newTemplate]);
+    });
+  }
+
+  private restoreWeekdayTasksFromTemplates(templates: IContainerTemplate[]): void {
+    const weekdayNumberToName: Record<number, keyof WeekdayContainerTemplateItemsMap> = {
+      0: 'sunday',
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday',
+    };
+
+    const weekdayContainerTemplateItemsMap: WeekdayContainerTemplateItemsMap = {
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: []
+    };
+
+    templates.forEach((template) => {
+      const weekdayName = weekdayNumberToName[template.weekday];
+      if (weekdayName && template.containerTemplateItems) {
+        weekdayContainerTemplateItemsMap[weekdayName] = template.containerTemplateItems.sort((a, b) => {
+          const timeA = a.timeRangeStartShift || '';
+          const timeB = b.timeRangeStartShift || '';
+          return timeA.localeCompare(timeB);
+        });
+      }
+    });
+
+    this.shiftService.setAllWeekdayTasks(weekdayContainerTemplateItemsMap);
   }
 
   removeTemplate(index: number): void {

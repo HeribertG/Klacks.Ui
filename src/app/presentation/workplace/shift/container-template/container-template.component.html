@@ -134,11 +134,11 @@
                     <tbody
                       cdkDropList
                       id="selected-tasks-list"
-                      [cdkDropListData]="selectedTasks"
+                      [cdkDropListData]="selectedContainerTemplateItems"
                       [cdkDropListConnectedTo]="getConnectedDropLists()"
                       (cdkDropListDropped)="onTaskDrop($event)"
                     >
-                      @if (selectedTasks.length === 0) {
+                      @if (selectedContainerTemplateItems.length === 0) {
                       <tr class="empty-drop-zone">
                         <td colspan="7">
                           <div class="no-shifts">
@@ -151,7 +151,7 @@
                           </div>
                         </td>
                       </tr>
-                      } @for (shift of selectedTasks; track shift.id) {
+                      } @for (shift of selectedContainerTemplateItems; track shift.id) {
                       <tr
                         cdkDrag
                         (click)="onShiftRowClick(shift)"
@@ -160,18 +160,18 @@
                         [class.selected]="shift === selectedShift"
                       >
                         <td class="icon-column">
-                          @if (shift.isSporadic) {
+                          @if (shift.shift?.isSporadic) {
                           <app-icon-unknown-time></app-icon-unknown-time>
-                          } @else if (shift.isTimeRange) {
+                          } @else if (shift.shift?.isTimeRange) {
                           <app-icon-time-window></app-icon-time-window>
                           } @else {
                           <app-icon-shift-segment></app-icon-shift-segment>
                           }
                         </td>
-                        <td>{{ shift.name }}</td>
-                        <td>{{ shift.abbreviation }}</td>
+                        <td>{{ shift.shift?.name }}</td>
+                        <td>{{ shift.shift?.abbreviation }}</td>
                         <td>
-                          @if (shift.isTimeRange) {
+                          @if (shift.shift?.isTimeRange) {
                           <div
                             class="time-range-inputs"
                             (click)="$event.stopPropagation()"
@@ -194,7 +194,7 @@
                           {{ formatTime(shift.endShift) }}
                           }
                         </td>
-                        <td>{{ formatWorkTime(shift.workTime) }}</td>
+                        <td>{{ shift.shift?.workTime ? formatWorkTime(shift.shift!.workTime) : '-' }}</td>
                         <td>{{ formatClientWithAddress(shift) }}</td>
                         <td class="action-column" (click)="onRemoveTask(shift); $event.stopPropagation()">
                           <app-icon-trash-red></app-icon-trash-red>

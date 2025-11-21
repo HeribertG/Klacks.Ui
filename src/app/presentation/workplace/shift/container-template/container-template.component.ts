@@ -35,7 +35,7 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container-template-slot';
-import { IContainerTemplate } from 'src/app/domain/models/container-template-class';
+import { IContainerTemplate, IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -139,8 +139,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return `${hours}:${minutes.toString().padStart(2, '0')}`;
   }
 
-  formatClientWithAddress(shift: IShift): string {
-    if (!shift.client) {
+  formatClientWithAddress(item: IShift | IContainerTemplateItem): string {
+    const shift = 'shiftId' in item ? item.shift : item;
+
+    if (!shift?.client) {
       return '-';
     }
 
@@ -163,10 +165,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return addressString ? `${client.name}: ${addressString}` : client.name || '-';
   }
 
-  onRemoveTask(shift: IShift): void {
-    const currentTasks = this.shiftService.selectedTasksSignal();
-    const updatedTasks = currentTasks.filter(t => t.id !== shift.id);
-    this.shiftService.selectedTasksSignal.set(updatedTasks);
+  onRemoveTask(item: IContainerTemplateItem): void {
+    this.shiftService.removeTask(item.id!);
     this.workplaceStateService.areObjectsDirty();
   }
 
@@ -175,11 +175,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     // This handler exists only to satisfy the cdkDropList directive
   }
 
-  getTimeRangeStartTime(shift: IShift): OwnTime {
-    if (!shift.timeRangeStartShift) {
+  getTimeRangeStartTime(item: IContainerTemplateItem): OwnTime {
+    if (!item.timeRangeStartShift) {
       return OwnTime.forTime('00', '00');
     }
-    const parsed = this.timeRangeService.parseTimeString(shift.timeRangeStartShift);
+    const parsed = this.timeRangeService.parseTimeString(item.timeRangeStartShift);
     if (!parsed) {
       return OwnTime.forTime('00', '00');
     }
@@ -189,59 +189,59 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
   }
 
-  onTimeRangeStartChange(shift: IShift, newTime: OwnTime): void {
+  onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
     const desiredStartMinutes = parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
-    const workTimeMinutes = Math.round(shift.workTime * 60);
+    const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
     const desiredEndMinutes = desiredStartMinutes + workTimeMinutes;
 
-    const allShifts = this.shiftService.selectedTasksSignal();
+    const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
 
-    const updatedShift: IShift = {
-      ...shift,
+    const updatedItem: IContainerTemplateItem = {
+      ...item,
       timeRangeStartShift: this.minutesToTimeString(desiredStartMinutes),
       timeRangeEndShift: this.minutesToTimeString(desiredEndMinutes)
     };
 
-    const updatedShifts = this.pushOverlappingShifts(updatedShift, allShifts);
+    const updatedItems = this.pushOverlappingShifts(updatedItem, allItems);
 
-    this.shiftService.setSelectedTasks(updatedShifts);
+    this.shiftService.setSelectedContainerTemplateItems(updatedItems);
   }
 
-  private pushOverlappingShifts(changedShift: IShift, allShifts: IShift[]): IShift[] {
-    const result = [...allShifts];
-    const changedIndex = result.findIndex(s => s.id === changedShift.id);
+  private pushOverlappingShifts(changedItem: IContainerTemplateItem, allItems: IContainerTemplateItem[]): IContainerTemplateItem[] {
+    const result = [...allItems];
+    const changedIndex = result.findIndex(s => s.id === changedItem.id);
 
     if (changedIndex === -1) {
       return result;
     }
 
-    result[changedIndex] = changedShift;
+    result[changedIndex] = changedItem;
 
-    const changedStartMinutes = this.timeRangeService.getShiftStartMinutes(changedShift);
-    const changedEndMinutes = this.timeRangeService.getShiftEndMinutes(changedShift);
+    const changedStartMinutes = this.timeRangeService.getShiftStartMinutes(changedItem);
+    const changedEndMinutes = this.timeRangeService.getShiftEndMinutes(changedItem);
 
     for (let i = 0; i < result.length; i++) {
-      if (i === changedIndex || !result[i].isTimeRange) continue;
+      if (i === changedIndex || !result[i].shift?.isTimeRange) continue;
 
-      const currentShift = result[i];
-      const currentStartMinutes = this.timeRangeService.getShiftStartMinutes(currentShift);
-      const currentEndMinutes = this.timeRangeService.getShiftEndMinutes(currentShift);
+      const currentItem = result[i];
+      const currentStartMinutes = this.timeRangeService.getShiftStartMinutes(currentItem);
+      const currentEndMinutes = this.timeRangeService.getShiftEndMinutes(currentItem);
 
       const hasOverlap = changedStartMinutes < currentEndMinutes && changedEndMinutes > currentStartMinutes;
 
       if (hasOverlap && currentStartMinutes >= changedStartMinutes) {
-        const workTimeMinutes = Math.round(currentShift.workTime * 60);
+        const workTimeMinutes = Math.round((currentItem.shift?.workTime || 0) * 60);
         const newStartMinutes = changedEndMinutes;
         const newEndMinutes = newStartMinutes + workTimeMinutes;
 
         result[i] = {
-          ...currentShift,
+          ...currentItem,
           timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
           timeRangeEndShift: this.minutesToTimeString(newEndMinutes)
         };
 
-        const pushedShift = result[i];
-        const recursiveResult = this.pushOverlappingShifts(pushedShift, result);
+        const pushedItem = result[i];
+        const recursiveResult = this.pushOverlappingShifts(pushedItem, result);
         return recursiveResult;
       }
     }
@@ -257,22 +257,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
   }
 
-  get selectedTasks(): IShift[] {
-    return this.shiftService.selectedTasksSignal();
+  get selectedContainerTemplateItems(): IContainerTemplateItem[] {
+    return this.shiftService.selectedContainerTemplateItemsSignal();
   }
 
-  get selectedShift(): IShift | null {
+  get selectedShift(): IContainerTemplateItem | null {
     return this.shiftService.selectedShiftSignal();
   }
 
   private isDirty = computed(() => {
-    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
+    const hasSelectedTasks = this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
     const hasTemplateChanges = this.containerService.areObjectsDirty();
     return hasSelectedTasks || hasTemplateChanges;
   });
 
   private canSaveComputed = computed(() => {
-    const hasSelectedTasks = this.shiftService.selectedTasksSignal().length > 0;
+    const hasSelectedTasks = this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
     const canSaveTemplates = this.containerService.canSave();
     return hasSelectedTasks || canSaveTemplates;
   });
@@ -411,6 +411,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     if (activeWeekdays.length > 0) {
       this.selectedWeekday = activeWeekdays[0].value;
+      this.shiftService.setCurrentWeekday(this.selectedWeekday);
     }
   }
 
@@ -460,9 +461,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private rearrangeSelectedTasks(): void {
-    const currentTasks = this.shiftService.selectedTasksSignal();
+    const currentTasks = this.shiftService.selectedContainerTemplateItemsSignal();
     if (currentTasks.length > 0) {
-      this.arrangeAndSetSelectedTasks([...currentTasks]);
+      this.arrangeAndSetSelectedContainerTemplateItems([...currentTasks]);
     }
   }
 
@@ -475,9 +476,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   onWeekdayChange(): void {
     this.selectedTabIndex = 0;
-    this.shiftService.clearTasks();
     this.shiftService.setSelectedShift(null);
     if (this.selectedWeekday) {
+      this.shiftService.setCurrentWeekday(this.selectedWeekday);
       const weekdayNumber = this.containerService.getWeekdayNumber(
         this.selectedWeekday
       );
@@ -560,7 +561,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   onDragEnded(event: any): void {}
 
-  onTaskDrop(event: CdkDragDrop<IShift[]>): void {
+  onTaskDrop(event: CdkDragDrop<IContainerTemplateItem[]>): void {
     if (event.previousContainer === event.container) {
       moveItemInArray(
         event.container.data,
@@ -568,32 +569,47 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         event.currentIndex
       );
       if (event.container.id === 'selected-tasks-list') {
-        this.arrangeAndSetSelectedTasks([...event.container.data]);
+        this.arrangeAndSetSelectedContainerTemplateItems([...event.container.data]);
       }
     } else {
-      const movedItem = event.previousContainer.data[event.previousIndex];
+      if (event.container.id === 'selected-tasks-list' && event.previousContainer.id === 'available-tasks-list') {
+        const shift = (event.previousContainer.data as any)[event.previousIndex] as IShift;
+        const containerTemplateItem: IContainerTemplateItem = this.convertShiftToContainerTemplateItem(shift);
 
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+        event.container.data.splice(event.currentIndex, 0, containerTemplateItem);
+        (event.previousContainer.data as any).splice(event.previousIndex, 1);
 
-      if (event.container.id === 'selected-tasks-list') {
-        this.arrangeAndSetSelectedTasks([...event.container.data]);
-      } else if (event.previousContainer.id === 'selected-tasks-list') {
-        this.arrangeAndSetSelectedTasks([...event.previousContainer.data]);
-        if (this.shiftService.selectedShift?.id === movedItem.id) {
+        this.arrangeAndSetSelectedContainerTemplateItems([...event.container.data]);
+      } else if (event.previousContainer.id === 'selected-tasks-list' && event.container.id === 'available-tasks-list') {
+        const item = event.previousContainer.data[event.previousIndex];
+        event.previousContainer.data.splice(event.previousIndex, 1);
+
+        this.arrangeAndSetSelectedContainerTemplateItems([...event.previousContainer.data]);
+        if (this.shiftService.selectedShift?.id === item.id) {
           this.shiftService.setSelectedShift(null);
         }
       }
     }
   }
 
-  private arrangeAndSetSelectedTasks(tasks: IShift[]): void {
-    if (tasks.length === 0) {
-      this.shiftService.setSelectedTasks(tasks);
+  private convertShiftToContainerTemplateItem(shift: IShift): IContainerTemplateItem {
+    return {
+      shiftId: shift.id!,
+      shift: shift,
+      startShift: shift.startShift,
+      endShift: shift.endShift,
+      briefingTime: shift.briefingTime,
+      debriefingTime: shift.debriefingTime,
+      travelTimeAfter: shift.travelTimeAfter,
+      travelTimeBefore: shift.travelTimeBefore,
+      timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
+      timeRangeEndShift: shift.isTimeRange ? shift.endShift : ''
+    };
+  }
+
+  private arrangeAndSetSelectedContainerTemplateItems(containerTemplateItems: IContainerTemplateItem[]): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
       return;
     }
 
@@ -606,13 +622,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       parseInt(this.timeTo.minutes)
     );
 
-    const arrangedTasks = this.arrangementService.arrangeShifts(
-      tasks,
+    const arrangedItems = this.arrangementService.arrangeShifts(
+      containerTemplateItems,
       containerTimeFrom,
       containerTimeUntil
     );
 
-    this.shiftService.setSelectedTasks(arrangedTasks);
+    this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
   }
 
   getTabLabel(rowIndex: number): string {
@@ -661,8 +677,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
   }
 
-  onShiftRowClick(shift: IShift): void {
-    this.shiftService.setSelectedShift(shift);
+  onShiftRowClick(item: IContainerTemplateItem): void {
+    this.shiftService.setSelectedShift(item);
   }
 
   onHeaderClick(columnKey: string): void {

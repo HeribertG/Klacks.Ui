@@ -19,7 +19,7 @@ export class LiveRegionService {
       this.renderer.addClass(this.liveRegion, 'sr-only');
       this.renderer.appendChild(document.body, this.liveRegion);
     }
-    return this.liveRegion;
+    return this.liveRegion!;
   }
 
   announce(message: string, priority: 'polite' | 'assertive' = 'polite'): void {

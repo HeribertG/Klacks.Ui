@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { IShift } from 'src/app/domain/models/shift-class';
+import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { TimeRangeService } from './time-range.service';
 
 export interface DragState {
   isDragging: boolean;
-  draggedShift: IShift | null;
+  draggedShift: IContainerTemplateItem | null;
   draggedShiftRect: Rectangle | null;
   dragStartMouseY: number | undefined;
   originalStartMinutes: number | undefined;
@@ -54,22 +55,22 @@ export class TimeRulerDragDropService {
 
   public startDrag(
     mouseY: number,
-    shift: IShift,
+    item: IContainerTemplateItem,
     shiftRect: Rectangle
   ): boolean {
-    if (!shift.isTimeRange || !shift.timeRangeStartShift || !shift.timeRangeEndShift) {
+    if (!item.shift?.isTimeRange || !item.timeRangeStartShift || !item.timeRangeEndShift) {
       return false;
     }
 
-    const startMinutes = this.timeRangeService.getShiftStartMinutes(shift);
-    const endMinutes = this.timeRangeService.getShiftEndMinutes(shift);
+    const startMinutes = this.timeRangeService.getShiftStartMinutes(item);
+    const endMinutes = this.timeRangeService.getShiftEndMinutes(item);
 
     if (startMinutes === 0 && endMinutes === 0) {
       return false;
     }
 
     this._dragState.isDragging = true;
-    this._dragState.draggedShift = shift;
+    this._dragState.draggedShift = item;
     this._dragState.draggedShiftRect = shiftRect;
     this._dragState.dragStartMouseY = mouseY;
     this._dragState.originalStartMinutes = startMinutes;
@@ -130,23 +131,23 @@ export class TimeRulerDragDropService {
   public resolveOverlapsForShift(
     startMinutes: number,
     endMinutes: number,
-    currentShift: IShift,
-    allShifts: IShift[]
+    currentItem: IContainerTemplateItem,
+    allItems: IContainerTemplateItem[]
   ): {
     newStartMinutes: number;
     newEndMinutes: number;
   } {
     const duration = endMinutes - startMinutes;
 
-    const otherShifts = allShifts.filter(
-      (shift) => shift !== currentShift && shift.isTimeRange
+    const otherItems = allItems.filter(
+      (item) => item !== currentItem && item.shift?.isTimeRange
     );
 
-    if (otherShifts.length === 0) {
+    if (otherItems.length === 0) {
       return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
     }
 
-    if (!this.hasOverlap(startMinutes, endMinutes, otherShifts)) {
+    if (!this.hasOverlap(startMinutes, endMinutes, otherItems)) {
       return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
     }
 
@@ -154,13 +155,13 @@ export class TimeRulerDragDropService {
       startMinutes,
       endMinutes,
       duration,
-      otherShifts
+      otherItems
     );
     const snapBelow = this.findSnapPositionBelow(
       startMinutes,
       endMinutes,
       duration,
-      otherShifts
+      otherItems
     );
 
     const distanceAbove = snapAbove
@@ -379,7 +380,7 @@ export class TimeRulerDragDropService {
   }
 
   public endDrag(): {
-    shift: IShift;
+    shift: IContainerTemplateItem;
     newStartTime: string;
     newEndTime: string;
   } | null {
@@ -388,7 +389,7 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    const shift = this._dragState.draggedShift;
+    const item = this._dragState.draggedShift;
     const originalStartMinutes = this._dragState.originalStartMinutes;
     const originalEndMinutes = this._dragState.originalEndMinutes;
 
@@ -401,15 +402,15 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    const newStartTime = shift.timeRangeStartShift;
-    const newEndTime = shift.timeRangeEndShift;
+    const newStartTime = item.timeRangeStartShift;
+    const newEndTime = item.timeRangeEndShift;
 
     if (!newStartTime || !newEndTime) {
       return null;
     }
 
     return {
-      shift,
+      shift: item,
       newStartTime,
       newEndTime,
     };

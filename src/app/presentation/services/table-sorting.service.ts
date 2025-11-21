@@ -1,5 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
-import { HeaderDirection, HeaderProperties } from 'src/app/domain/models/headerProperties';
+import {
+  HeaderDirection,
+  HeaderProperties,
+} from 'src/app/domain/models/headerProperties';
 
 export interface TableSortingConfig {
   columns: string[];
@@ -24,7 +27,7 @@ export class TableSortingService {
 
   public currentSort = signal<SortState>({
     orderBy: '',
-    sortOrder: 'asc'
+    sortOrder: 'asc',
   });
 
   public arrows = computed(() => {
@@ -39,13 +42,13 @@ export class TableSortingService {
     this.config = config;
     this.headers.clear();
 
-    config.columns.forEach(column => {
+    config.columns.forEach((column) => {
       this.headers.set(column, new HeaderProperties());
     });
 
     this.currentSort.set({
       orderBy: config.defaultOrderBy,
-      sortOrder: config.defaultSortOrder
+      sortOrder: config.defaultSortOrder,
     });
 
     this.applySortState(config.defaultOrderBy, config.defaultSortOrder);
@@ -54,7 +57,6 @@ export class TableSortingService {
   onHeaderClick(columnKey: string, callback: () => void): void {
     const header = this.headers.get(columnKey);
     if (!header) {
-      console.warn(`Column "${columnKey}" not found in configured columns`);
       return;
     }
 
@@ -71,7 +73,7 @@ export class TableSortingService {
 
     this.currentSort.set({
       orderBy: columnKey,
-      sortOrder: sortOrder
+      sortOrder: sortOrder,
     });
 
     callback();
@@ -105,7 +107,10 @@ export class TableSortingService {
     });
   }
 
-  private setHeaderDirection(columnKey: string, sortOrder: 'asc' | 'desc' | ''): void {
+  private setHeaderDirection(
+    columnKey: string,
+    sortOrder: 'asc' | 'desc' | ''
+  ): void {
     const header = this.headers.get(columnKey);
     if (!header) return;
 
@@ -118,7 +123,10 @@ export class TableSortingService {
     }
   }
 
-  private applySortState(orderBy: string, sortOrder: 'asc' | 'desc' | ''): void {
+  private applySortState(
+    orderBy: string,
+    sortOrder: 'asc' | 'desc' | ''
+  ): void {
     this.resetAllHeadersExcept(orderBy);
     this.setHeaderDirection(orderBy, sortOrder);
   }

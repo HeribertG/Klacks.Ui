@@ -36,36 +36,75 @@ export class DataContainerTemplateService {
       params = params.append('isHoliday', isHoliday.toString());
     }
     if (isWeekdayOrHoliday !== undefined) {
-      params = params.append('isWeekdayOrHoliday', isWeekdayOrHoliday.toString());
+      params = params.append(
+        'isWeekdayOrHoliday',
+        isWeekdayOrHoliday.toString()
+      );
     }
 
     return this.httpClient
-      .get<IShift[]>(`${environment.baseUrl}Containers/available-tasks`, { params })
+      .get<IShift[]>(`${environment.baseUrl}Containers/available-tasks`, {
+        params,
+      })
       .pipe(retry(3));
   }
 
   getTemplates(containerId: string) {
     return this.httpClient
-      .get<IContainerTemplate[]>(`${environment.baseUrl}Containers/${containerId}/templates`)
+      .get<IContainerTemplate[]>(
+        `${environment.baseUrl}Containers/${containerId}/templates`
+      )
       .pipe(retry(3));
   }
 
-  addTemplates(containerId: string, values: IContainerTemplate[]) {
-    values.forEach(v => delete v.id);
+  postTemplates(containerId: string, values: IContainerTemplate[]) {
+    const cleanedValues = JSON.parse(JSON.stringify(values));
+    this.deleteUnnecessaryShiftObject(cleanedValues);
+    cleanedValues.forEach((v: IContainerTemplate) => delete v.id);
     return this.httpClient
-      .post<IContainerTemplate[]>(`${environment.baseUrl}Containers/${containerId}/templates`, values)
+      .post<IContainerTemplate[]>(
+        `${environment.baseUrl}Containers/${containerId}/templates`,
+        cleanedValues
+      )
       .pipe(retry(3));
   }
 
-  updateTemplates(containerId: string, values: IContainerTemplate[]) {
+  putTemplates(containerId: string, values: IContainerTemplate[]) {
+    const cleanedValues = JSON.parse(JSON.stringify(values));
+    this.deleteUnnecessaryShiftObjectForPut(cleanedValues);
     return this.httpClient
-      .put<IContainerTemplate[]>(`${environment.baseUrl}Containers/${containerId}/templates`, values)
+      .put<IContainerTemplate[]>(
+        `${environment.baseUrl}Containers/${containerId}/templates`,
+        cleanedValues
+      )
       .pipe(retry(3));
   }
 
   deleteTemplates(containerId: string) {
     return this.httpClient
-      .delete<IContainerTemplate[]>(`${environment.baseUrl}Containers/${containerId}/templates`)
+      .delete<IContainerTemplate[]>(
+        `${environment.baseUrl}Containers/${containerId}/templates`
+      )
       .pipe(retry(3));
+  }
+
+  private deleteUnnecessaryShiftObject(values: IContainerTemplate[]): void {
+    values.forEach(template => {
+      delete template.shift;
+      template.containerTemplateItems?.forEach(containerTemplateItem => {
+        delete containerTemplateItem.shift;
+        delete containerTemplateItem.id;
+        delete containerTemplateItem.containerTemplateId;
+      });
+    });
+  }
+
+  private deleteUnnecessaryShiftObjectForPut(values: IContainerTemplate[]): void {
+    values.forEach(template => {
+      delete template.shift;
+      template.containerTemplateItems?.forEach(containerTemplateItem => {
+        delete containerTemplateItem.shift;
+      });
+    });
   }
 }
