@@ -1,5 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { IShift } from 'src/app/domain/models/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { TimeRangeService } from './time-range.service';
@@ -58,7 +57,11 @@ export class TimeRulerDragDropService {
     item: IContainerTemplateItem,
     shiftRect: Rectangle
   ): boolean {
-    if (!item.shift?.isTimeRange || !item.timeRangeStartShift || !item.timeRangeEndShift) {
+    if (
+      !item.shift?.isTimeRange ||
+      !item.timeRangeStartShift ||
+      !item.timeRangeEndShift
+    ) {
       return false;
     }
 
@@ -114,7 +117,9 @@ export class TimeRulerDragDropService {
       this._dragState.displayFromMinutes,
       Math.min(
         newStartMinutes,
-        this._dragState.displayFromMinutes + this._dragState.totalMinutes - duration
+        this._dragState.displayFromMinutes +
+          this._dragState.totalMinutes -
+          duration
       )
     );
     newEndMinutes = newStartMinutes + duration;
@@ -194,7 +199,12 @@ export class TimeRulerDragDropService {
     if (!draggedShift) {
       return { newStartMinutes: startMinutes, newEndMinutes: endMinutes };
     }
-    return this.resolveOverlapsForShift(startMinutes, endMinutes, draggedShift, allShifts);
+    return this.resolveOverlapsForShift(
+      startMinutes,
+      endMinutes,
+      draggedShift,
+      allShifts
+    );
   }
 
   private findSnapPositionAbove(
@@ -217,7 +227,9 @@ export class TimeRulerDragDropService {
     }
 
     const lowestConflictStart = Math.min(
-      ...conflictingShifts.map((s) => this.timeRangeService.getShiftStartMinutes(s))
+      ...conflictingShifts.map((s) =>
+        this.timeRangeService.getShiftStartMinutes(s)
+      )
     );
 
     let candidateEnd = lowestConflictStart;
@@ -246,7 +258,9 @@ export class TimeRulerDragDropService {
       if (blockingShifts.length === 0) break;
 
       const nextStart = Math.min(
-        ...blockingShifts.map((s) => this.timeRangeService.getShiftStartMinutes(s))
+        ...blockingShifts.map((s) =>
+          this.timeRangeService.getShiftStartMinutes(s)
+        )
       );
 
       candidateEnd = nextStart;
@@ -293,7 +307,9 @@ export class TimeRulerDragDropService {
     }
 
     const highestConflictEnd = Math.max(
-      ...conflictingShifts.map((s) => this.timeRangeService.getShiftEndMinutes(s))
+      ...conflictingShifts.map((s) =>
+        this.timeRangeService.getShiftEndMinutes(s)
+      )
     );
 
     let candidateStart = highestConflictEnd;
@@ -325,7 +341,9 @@ export class TimeRulerDragDropService {
       if (blockingShifts.length === 0) break;
 
       const nextEnd = Math.max(
-        ...blockingShifts.map((s) => this.timeRangeService.getShiftEndMinutes(s))
+        ...blockingShifts.map((s) =>
+          this.timeRangeService.getShiftEndMinutes(s)
+        )
       );
 
       candidateStart = nextEnd;

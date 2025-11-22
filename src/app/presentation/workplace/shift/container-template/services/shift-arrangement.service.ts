@@ -7,6 +7,13 @@ import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/service
   providedIn: 'root',
 })
 export class ShiftArrangementService {
+  private readonly MINUTES_PER_HOUR = 60;
+  private readonly HOURS_PER_DAY = 24;
+  private readonly MINUTES_PER_DAY = this.HOURS_PER_DAY * this.MINUTES_PER_HOUR;
+  private readonly PADDING_WIDTH = 2;
+  private readonly PADDING_CHAR = '0';
+  private readonly HALF_DIVISOR = 2;
+
   private timeRangeService = inject(TimeRangeService);
   arrangeShifts(
     items: IContainerTemplateItem[],
@@ -24,7 +31,7 @@ export class ShiftArrangementService {
       return items;
     }
 
-    let currentStartMinutes = containerFromTime.hours * 60 + containerFromTime.minutes;
+    let currentStartMinutes = containerFromTime.hours * this.MINUTES_PER_HOUR + containerFromTime.minutes;
 
     for (let i = 0; i < items.length; i++) {
       const item = { ...items[i] };
@@ -33,7 +40,7 @@ export class ShiftArrangementService {
         arrangedItems.push(item);
         const endTime = item.endShift ? this.timeRangeService.parseTimeString(item.endShift) : null;
         if (endTime) {
-          currentStartMinutes = endTime.hours * 60 + endTime.minutes;
+          currentStartMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
         }
         continue;
       }
@@ -45,8 +52,8 @@ export class ShiftArrangementService {
         continue;
       }
 
-      const originalStartMinutes = originalStartTime.hours * 60 + originalStartTime.minutes;
-      const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
+      const originalStartMinutes = originalStartTime.hours * this.MINUTES_PER_HOUR + originalStartTime.minutes;
+      const workTimeMinutes = Math.round((item.shift?.workTime || 0) * this.MINUTES_PER_HOUR);
 
       let newStartMinutes: number;
       if (i === 0) {
@@ -89,7 +96,7 @@ export class ShiftArrangementService {
       return result;
     }
 
-    const workTimeMinutes = Math.round((newItem.shift?.workTime || 0) * 60);
+    const workTimeMinutes = Math.round((newItem.shift?.workTime || 0) * this.MINUTES_PER_HOUR);
     const containerFromTime = this.timeRangeService.parseTimeString(containerTimeFrom);
 
     if (!containerFromTime) {
@@ -103,7 +110,7 @@ export class ShiftArrangementService {
     let newEndMinutes: number;
 
     if (!previousItem) {
-      const containerStartMinutes = containerFromTime.hours * 60 + containerFromTime.minutes;
+      const containerStartMinutes = containerFromTime.hours * this.MINUTES_PER_HOUR + containerFromTime.minutes;
       newStartMinutes = containerStartMinutes;
       newEndMinutes = newStartMinutes + workTimeMinutes;
     } else {
@@ -121,7 +128,7 @@ export class ShiftArrangementService {
         const isNextMovable = nextItem.shift?.isTimeRange || nextItem.shift?.isSporadic;
 
         if (isPreviousMovable && isNextMovable) {
-          const halfOverlap = Math.ceil(overlap / 2);
+          const halfOverlap = Math.ceil(overlap / this.HALF_DIVISOR);
 
           const prevStartMinutes = this.timeRangeService.getShiftStartMinutes(previousItem!);
           const prevDuration = this.timeRangeService.getShiftEndMinutes(previousItem!) - prevStartMinutes;
@@ -164,10 +171,10 @@ export class ShiftArrangementService {
   }
 
   private minutesToTimeString(totalMinutes: number): string {
-    const normalizedMinutes = totalMinutes % (24 * 60);
-    const hours = Math.floor(normalizedMinutes / 60);
-    const minutes = normalizedMinutes % 60;
+    const normalizedMinutes = totalMinutes % this.MINUTES_PER_DAY;
+    const hours = Math.floor(normalizedMinutes / this.MINUTES_PER_HOUR);
+    const minutes = normalizedMinutes % this.MINUTES_PER_HOUR;
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+    return `${hours.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR)}:${minutes.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR)}:00`;
   }
 }

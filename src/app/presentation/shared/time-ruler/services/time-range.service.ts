@@ -8,10 +8,22 @@ import { IContainerTemplateItem } from 'src/app/domain/models/container-template
 })
 export class TimeRangeService {
   private readonly MINUTES_PER_HOUR = 60;
-  private readonly MINUTES_PER_DAY = 24 * 60;
+  private readonly HOURS_PER_DAY = 24;
+  private readonly MINUTES_PER_DAY = this.HOURS_PER_DAY * this.MINUTES_PER_HOUR;
+  private readonly MINUTES_PER_HALF_HOUR = 30;
+  private readonly MINUTES_PER_QUARTER_HOUR = 15;
+  private readonly MIN_PIXELS_PER_LABEL = 25;
+  private readonly MIN_PIXELS_PER_MINUTE_FOR_ONE_MINUTE_INCREMENT = 2;
+  private readonly MIN_PIXELS_PER_QUARTER_HOUR = 12;
+  private readonly MIN_PIXELS_PER_HALF_HOUR = 15;
+  private readonly MIN_PIXELS_FOR_HALF_HOUR_LABELS = 35;
+  private readonly RADIX_DECIMAL = 10;
+  private readonly PADDING_WIDTH = 2;
+  private readonly PADDING_CHAR = '0';
+  private readonly TIME_SEPARATOR_INDEX = 2;
 
   toMinutes(time: OwnTime): number {
-    return parseInt(time.hours) * 60 + parseInt(time.minutes);
+    return parseInt(time.hours) * this.MINUTES_PER_HOUR + parseInt(time.minutes);
   }
 
   calculateDuration(from: OwnTime, until: OwnTime): OwnTime {
@@ -19,20 +31,20 @@ export class TimeRangeService {
     let untilMinutes = this.toMinutes(until);
 
     if (untilMinutes <= fromMinutes) {
-      untilMinutes += 24 * 60;
+      untilMinutes += this.MINUTES_PER_DAY;
     }
 
     let durationMinutes = untilMinutes - fromMinutes;
     if (durationMinutes < 0) {
-      durationMinutes += 24 * 60;
+      durationMinutes += this.MINUTES_PER_DAY;
     }
 
-    const hours = Math.floor(durationMinutes / 60);
-    const minutes = durationMinutes % 60;
+    const hours = Math.floor(durationMinutes / this.MINUTES_PER_HOUR);
+    const minutes = durationMinutes % this.MINUTES_PER_HOUR;
 
     return OwnTime.forTime(
-      hours.toString().padStart(2, '0'),
-      minutes.toString().padStart(2, '0')
+      hours.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR),
+      minutes.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR)
     );
   }
 
@@ -51,7 +63,7 @@ export class TimeRangeService {
     let originalUntilMinutes = this.toMinutes(until);
 
     if (originalUntilMinutes <= originalFromMinutes) {
-      originalUntilMinutes += 24 * 60;
+      originalUntilMinutes += this.MINUTES_PER_DAY;
     }
 
     const displayFromMinutes = originalFromMinutes - paddingMinutes;
@@ -68,7 +80,7 @@ export class TimeRangeService {
   }
 
   normalizeHours(hours: number): number {
-    return hours % 24;
+    return hours % this.HOURS_PER_DAY;
   }
 
   isCrossingMidnight(from: OwnTime, until: OwnTime): boolean {
@@ -78,42 +90,41 @@ export class TimeRangeService {
   }
 
   formatTime(totalMinutes: number): string {
-    const hours = Math.floor(totalMinutes / 60) % 24;
-    const minutes = totalMinutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes
+    const hours = Math.floor(totalMinutes / this.MINUTES_PER_HOUR) % this.HOURS_PER_DAY;
+    const minutes = totalMinutes % this.MINUTES_PER_HOUR;
+    return `${hours.toString().padStart(this.PADDING_WIDTH, this.PADDING_CHAR)}:${minutes
       .toString()
-      .padStart(2, '0')}`;
+      .padStart(this.PADDING_WIDTH, this.PADDING_CHAR)}`;
   }
 
   calculateOptimalIncrement(pixelsPerMinute: number): {
     increment: number;
     showHalfHourLabels: boolean;
   } {
-    const minPixelsPerLabel = 25;
-    const pixelsPerHalfHour = pixelsPerMinute * 30;
-    const pixelsPerQuarterHour = pixelsPerMinute * 15;
+    const pixelsPerHalfHour = pixelsPerMinute * this.MINUTES_PER_HALF_HOUR;
+    const pixelsPerQuarterHour = pixelsPerMinute * this.MINUTES_PER_QUARTER_HOUR;
 
-    if (pixelsPerMinute >= 2) {
+    if (pixelsPerMinute >= this.MIN_PIXELS_PER_MINUTE_FOR_ONE_MINUTE_INCREMENT) {
       return { increment: 1, showHalfHourLabels: false };
     }
 
-    if (pixelsPerQuarterHour >= 12) {
-      return { increment: 15, showHalfHourLabels: false };
+    if (pixelsPerQuarterHour >= this.MIN_PIXELS_PER_QUARTER_HOUR) {
+      return { increment: this.MINUTES_PER_QUARTER_HOUR, showHalfHourLabels: false };
     }
 
-    if (pixelsPerHalfHour >= 15) {
-      return { increment: 30, showHalfHourLabels: pixelsPerHalfHour >= 35 };
+    if (pixelsPerHalfHour >= this.MIN_PIXELS_PER_HALF_HOUR) {
+      return { increment: this.MINUTES_PER_HALF_HOUR, showHalfHourLabels: pixelsPerHalfHour >= this.MIN_PIXELS_FOR_HALF_HOUR_LABELS };
     }
 
-    const hourMultipliers = [1, 2, 3, 4, 6, 12, 24];
+    const hourMultipliers = [1, 2, 3, 4, 6, 12, this.HOURS_PER_DAY];
     for (const multiplier of hourMultipliers) {
-      const pixelsPerInterval = pixelsPerMinute * 60 * multiplier;
-      if (pixelsPerInterval >= minPixelsPerLabel) {
-        return { increment: 60 * multiplier, showHalfHourLabels: false };
+      const pixelsPerInterval = pixelsPerMinute * this.MINUTES_PER_HOUR * multiplier;
+      if (pixelsPerInterval >= this.MIN_PIXELS_PER_LABEL) {
+        return { increment: this.MINUTES_PER_HOUR * multiplier, showHalfHourLabels: false };
       }
     }
 
-    return { increment: 60 * 24, showHalfHourLabels: false };
+    return { increment: this.MINUTES_PER_DAY, showHalfHourLabels: false };
   }
 
   getShiftStartMinutes(item: IShift | IContainerTemplateItem): number {
@@ -180,10 +191,10 @@ export class TimeRangeService {
     timeString: string
   ): { hours: number; minutes: number } | null {
     const parts = timeString.split(':');
-    if (parts.length < 2) return null;
+    if (parts.length < this.TIME_SEPARATOR_INDEX) return null;
 
-    const hours = parseInt(parts[0], 10);
-    const minutes = parseInt(parts[1], 10);
+    const hours = parseInt(parts[0], this.RADIX_DECIMAL);
+    const minutes = parseInt(parts[1], this.RADIX_DECIMAL);
 
     if (isNaN(hours) || isNaN(minutes)) return null;
 
