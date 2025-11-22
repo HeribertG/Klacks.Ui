@@ -100,7 +100,14 @@
                 }}
               </h3>
               <div class="shifts-grid-container">
-                <div class="shifts-grid">
+                <div
+                  class="shifts-grid"
+                  cdkDropList
+                  id="selected-tasks-list"
+                  [cdkDropListData]="selectedContainerTemplateItems"
+                  [cdkDropListConnectedTo]="getConnectedDropLists()"
+                  (cdkDropListDropped)="onTaskDrop($event)"
+                >
                   <table class="shifts-table">
                     <thead>
                       <tr>
@@ -131,13 +138,7 @@
                         <th class="action-column"></th>
                       </tr>
                     </thead>
-                    <tbody
-                      cdkDropList
-                      id="selected-tasks-list"
-                      [cdkDropListData]="selectedContainerTemplateItems"
-                      [cdkDropListConnectedTo]="getConnectedDropLists()"
-                      (cdkDropListDropped)="onTaskDrop($event)"
-                    >
+                    <tbody>
                       @if (selectedContainerTemplateItems.length === 0) {
                       <tr class="empty-drop-zone">
                         <td colspan="7">
@@ -151,7 +152,7 @@
                           </div>
                         </td>
                       </tr>
-                      } @for (shift of selectedContainerTemplateItems; track shift.id) {
+                      } @for (shift of selectedContainerTemplateItems; track shift.id || shift.tmpId) {
                       <tr
                         cdkDrag
                         (click)="onShiftRowClick(shift)"

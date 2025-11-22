@@ -2,23 +2,39 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, forkJoin, of, Subject } from 'rxjs';
 import { map, tap, catchError, takeUntil } from 'rxjs/operators';
 import { IShift } from '../../models/shift-class';
-import { IContainerTemplate, IContainerTemplateItem } from '../../models/container-template-class';
+import {
+  IContainerTemplate,
+  IContainerTemplateItem,
+} from '../../models/container-template-class';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from '../../models/container-template-slot';
 import { DataContainerTemplateService } from '../../../infrastructure/api/data-container-template.service';
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
-import { ContainerTemplateShiftService, WeekdayContainerTemplateItemsMap } from './container-template-shift.service';
-import { ISaveable, IResettable, ILoadable, INavigable } from '../../interfaces/manageable.interface';
+import {
+  ContainerTemplateShiftService,
+  WeekdayContainerTemplateItemsMap,
+} from './container-template-shift.service';
+import {
+  ISaveable,
+  IResettable,
+  ILoadable,
+  INavigable,
+} from '../../interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { RouteName } from '../../models/entity-names.enum';
-import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import {
+  cloneObject,
+  compareComplexObjects,
+} from 'src/app/shared/helpers/object.helper';
 
 @Injectable({
   providedIn: 'root',
 })
-export class DataManagementContainerService implements ISaveable, IResettable, ILoadable, INavigable {
+export class DataManagementContainerService
+  implements ISaveable, IResettable, ILoadable, INavigable
+{
   private dataService = inject(DataContainerTemplateService);
   private slotCalculationService = inject(
     ContainerTemplateSlotCalculationService
@@ -68,7 +84,10 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     return of(grid);
   }
 
-  loadTasksForWeekday(weekday: number, searchString?: string): Observable<void> {
+  loadTasksForWeekday(
+    weekday: number,
+    searchString?: string
+  ): Observable<void> {
     const grid = this.templateGridSignal();
     if (!grid || !grid.containerShift.id) {
       return of(void 0);
@@ -86,11 +105,23 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     }
 
     const loadTasks$ = slotsForWeekday.map((slot) =>
-      this.loadAvailableTasksForSlot(grid.containerShift.id!, slot, searchString)
+      this.loadAvailableTasksForSlot(
+        grid.containerShift.id!,
+        slot,
+        searchString
+      )
     );
 
     return forkJoin(loadTasks$).pipe(
       map(() => {
+        const allShifts: IShift[] = [];
+        grid.slots.flat().forEach((slot) => {
+          if (slot.availableTasks) {
+            allShifts.push(...slot.availableTasks);
+          }
+        });
+        this.allLoadedShiftsSignal.set(this.getUniqueShifts(allShifts));
+
         this.templateGridSignal.set(grid);
         this.loadingSignal.set(false);
         return void 0;
@@ -232,9 +263,7 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     });
   }
 
-  getActiveWeekdays(
-    shift: IShift
-  ): { value: string; labelKey: string }[] {
+  getActiveWeekdays(shift: IShift): { value: string; labelKey: string }[] {
     const activeWeekdays: { value: string; labelKey: string }[] = [];
 
     if (shift.isSunday) {
@@ -324,7 +353,18 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
       this.editTemplates(),
       this.editTemplatesDummy()
     );
-    return hasTemplateChanges;
+    const hasUnsavedTasks = this.hasUnsavedTasks();
+    return hasTemplateChanges || hasUnsavedTasks;
+  }
+
+  private hasUnsavedTasks(): boolean {
+    const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
+    for (const tasks of Object.values(weekdayTasksMap)) {
+      if (tasks.some(task => !task.id && task.tmpId)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private hasAnyWeekdayTasks(): boolean {
@@ -336,6 +376,7 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
   private currentSlotSignal = signal<IContainerTemplateSlot | undefined>(
     undefined
   );
+  private allLoadedShiftsSignal = signal<IShift[]>([]);
 
   setCurrentWeekdayAndSlot(
     weekday: number,
@@ -359,8 +400,10 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
       return;
     }
 
-    const hasExistingItems = templates.some(t =>
-      t.containerTemplateItems?.some(containerTemplateItem => containerTemplateItem.id != null)
+    const hasExistingItems = templates.some((t) =>
+      t.containerTemplateItems?.some(
+        (containerTemplateItem) => containerTemplateItem.id != null
+      )
     );
     const saveAction = hasExistingItems
       ? this.putTemplates(containerShift.id, templates)
@@ -368,10 +411,10 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
 
     saveAction.pipe(takeUntil(this.destroy$)).subscribe({
       next: (savedTemplates) => {
-        this.editTemplates.set(savedTemplates);
-        this.editTemplatesDummy.set(cloneObject(savedTemplates));
+        this.editTemplates.set([]);
+        this.editTemplatesDummy.set([]);
         this.shiftService.clearAllTasks();
-        this.restoreWeekdayTasksFromTemplates(savedTemplates);
+        this.shiftService.setSelectedShift(null);
         this.loadingSignal.set(false);
         this.onSaveCompleted?.();
       },
@@ -398,22 +441,23 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     setTimeout(() => this.isReset.set(false), 100);
   }
 
-  loadTemplates(containerId: string): void {
+  loadTemplates(containerId: string): Observable<void> {
     this.loadingSignal.set(true);
-    this.getTemplates(containerId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (templates) => {
-          this.editTemplates.set(templates);
-          this.editTemplatesDummy.set(cloneObject(templates));
-          this.restoreWeekdayTasksFromTemplates(templates);
-          this.fireIsReadEvent();
-          this.loadingSignal.set(false);
-        },
-        error: () => {
-          this.loadingSignal.set(false);
-        },
-      });
+    return this.getTemplates(containerId).pipe(
+      takeUntil(this.destroy$),
+      map((templates) => {
+        this.editTemplates.set(templates);
+        this.editTemplatesDummy.set(cloneObject(templates));
+        this.restoreWeekdayTasksFromTemplates(templates);
+        this.fireIsReadEvent();
+        this.loadingSignal.set(false);
+        return void 0;
+      }),
+      catchError(() => {
+        this.loadingSignal.set(false);
+        return of(void 0);
+      })
+    );
   }
 
   goBack(): string {
@@ -447,11 +491,13 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     weekday: number,
     slot: IContainerTemplateSlot
   ): void {
-    const selectedContainerTemplateItems = this.shiftService.selectedContainerTemplateItems;
+    const selectedContainerTemplateItems =
+      this.shiftService.selectedContainerTemplateItems;
 
     if (selectedContainerTemplateItems.length === 0) return;
 
-    const containerTemplateItems: IContainerTemplateItem[] = selectedContainerTemplateItems.filter((task) => task.shiftId);
+    const containerTemplateItems: IContainerTemplateItem[] =
+      selectedContainerTemplateItems.filter((task) => task.shiftId);
 
     const newTemplate: IContainerTemplate = {
       containerId: containerId,
@@ -495,7 +541,9 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
 
       const slot = slotsForWeekday[0];
 
-      const containerTemplateItems: IContainerTemplateItem[] = tasks.filter((task) => task.shiftId);
+      const containerTemplateItems: IContainerTemplateItem[] = tasks.filter(
+        (task) => task.shiftId
+      );
 
       const newTemplate: IContainerTemplate = {
         containerId: containerId,
@@ -512,8 +560,13 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     });
   }
 
-  private restoreWeekdayTasksFromTemplates(templates: IContainerTemplate[]): void {
-    const weekdayNumberToName: Record<number, keyof WeekdayContainerTemplateItemsMap> = {
+  private restoreWeekdayTasksFromTemplates(
+    templates: IContainerTemplate[]
+  ): void {
+    const weekdayNumberToName: Record<
+      number,
+      keyof WeekdayContainerTemplateItemsMap
+    > = {
       0: 'sunday',
       1: 'monday',
       2: 'tuesday',
@@ -530,17 +583,28 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
       thursday: [],
       friday: [],
       saturday: [],
-      sunday: []
+      sunday: [],
     };
+
+    const allLoadedShifts = this.allLoadedShiftsSignal();
 
     templates.forEach((template) => {
       const weekdayName = weekdayNumberToName[template.weekday];
       if (weekdayName && template.containerTemplateItems) {
-        weekdayContainerTemplateItemsMap[weekdayName] = template.containerTemplateItems.sort((a, b) => {
-          const timeA = a.timeRangeStartShift || '';
-          const timeB = b.timeRangeStartShift || '';
-          return timeA.localeCompare(timeB);
+        const enrichedItems = template.containerTemplateItems.map((item) => {
+          const matchingShift = allLoadedShifts.find(
+            (s) => s.id === item.shiftId
+          );
+          if (matchingShift) {
+            return {
+              ...item,
+              shift: matchingShift,
+            };
+          }
+          return item;
         });
+
+        weekdayContainerTemplateItemsMap[weekdayName] = enrichedItems;
       }
     });
 
@@ -551,6 +615,40 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
     const templates = this.editTemplates();
     const updated = [...templates];
     updated.splice(index, 1);
+    this.editTemplates.set(updated);
+  }
+
+  removeTaskItemFromTemplates(taskId: string, weekday: number, isHoliday: boolean): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          containerTemplateItems: (template.containerTemplateItems || []).filter(
+            item => (item.id || item.tmpId) !== taskId
+          )
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  updateTaskOrderInTemplates(
+    orderedTasks: IContainerTemplateItem[],
+    weekday: number,
+    isHoliday: boolean
+  ): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          containerTemplateItems: orderedTasks
+        };
+      }
+      return template;
+    });
     this.editTemplates.set(updated);
   }
 
@@ -571,6 +669,51 @@ export class DataManagementContainerService implements ISaveable, IResettable, I
           this.loadingSignal.set(false);
         },
       });
+  }
+
+  addShiftToAvailableTasks(shift: IShift, weekday: number): void {
+    const grid = this.templateGridSignal();
+    if (!grid) return;
+
+    const slotsForWeekday = grid.slots
+      .flat()
+      .filter((slot) => slot.weekday === weekday);
+
+    slotsForWeekday.forEach((slot) => {
+      if (!slot.availableTasks) {
+        slot.availableTasks = [];
+      }
+
+      const exists = slot.availableTasks.some((t) => t.id === shift.id);
+      if (!exists) {
+        slot.availableTasks.push(shift);
+      }
+    });
+
+    this.templateGridSignal.set({ ...grid });
+  }
+
+  filterAvailableTasksBySearch(
+    shifts: IShift[],
+    searchString: string
+  ): IShift[] {
+    if (!searchString || searchString.trim() === '') {
+      return shifts;
+    }
+
+    const search = searchString.toLowerCase().trim();
+
+    return shifts.filter((shift) => {
+      const name = shift.name?.toLowerCase() || '';
+      const abbreviation = shift.abbreviation?.toLowerCase() || '';
+      const clientName = shift.client?.name?.toLowerCase() || '';
+
+      return (
+        name.includes(search) ||
+        abbreviation.includes(search) ||
+        clientName.includes(search)
+      );
+    });
   }
 
   destroy(): void {

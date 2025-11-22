@@ -14,6 +14,7 @@ export interface IContainerTemplate {
 
 export interface IContainerTemplateItem {
   id?: string;
+  tmpId?: string;
   containerTemplateId?: string;
   shiftId: string;
   startShift?: string;
