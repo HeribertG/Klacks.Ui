@@ -28,6 +28,7 @@ import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
+import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { IShift } from 'src/app/domain/models/shift-class';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
@@ -166,8 +167,23 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   onRemoveTask(item: IContainerTemplateItem): void {
-    this.shiftService.removeTask(item.id!);
-    this.workplaceStateService.areObjectsDirty();
+    const itemIdentifier = item.id || item.tmpId;
+    if (itemIdentifier) {
+      if (item.shift && this.selectedWeekday) {
+        const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+        this.containerService.addShiftToAvailableTasks(item.shift, weekdayNumber);
+        this.updateAvailableTasks();
+
+        this.containerService.removeTaskItemFromTemplates(
+          itemIdentifier,
+          weekdayNumber,
+          this.isHoliday
+        );
+      }
+
+      this.shiftService.removeTask(itemIdentifier);
+      this.workplaceStateService.areObjectsDirty();
+    }
   }
 
   onAvailableTasksDrop(event: CdkDragDrop<IShift[]>): void {
@@ -320,8 +336,15 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.savebarService.setSavebarVisibility(true);
 
     this.containerService.onSaveCompleted = () => {
-      if (this.containerShift?.id) {
-        this.containerService.loadTemplates(this.containerShift.id);
+      if (this.containerShift?.id && this.selectedWeekday) {
+        const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+
+        this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
+          this.containerService.loadTemplates(this.containerShift!.id!).subscribe(() => {
+            this.updateAvailableTasks();
+            this.updateCurrentWeekdayAndSlot();
+          });
+        });
       }
     };
 
@@ -340,7 +363,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         const id = params['id'];
         if (id) {
           this.loadContainerShift(id);
-          this.containerService.loadTemplates(id);
         }
       });
 
@@ -379,7 +401,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
                 this.containerService
                   .loadTasksForWeekday(weekdayNumber)
                   .subscribe(() => {
-                    this.updateAvailableTasks();
+                    this.containerService.loadTemplates(this.containerShift!.id!).subscribe(() => {
+                      this.updateAvailableTasks();
+                    });
                   });
               }
             },
@@ -516,7 +540,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       }
     });
 
-    const uniqueShifts = this.containerService.getUniqueShifts(allShifts);
+    let uniqueShifts = this.containerService.getUniqueShifts(allShifts);
+
+    const selectedShiftIds = this.shiftService
+      .selectedContainerTemplateItemsSignal()
+      .map((item) => item.shiftId)
+      .filter((id) => id != null);
+
+    uniqueShifts = uniqueShifts.filter(
+      (shift) => !selectedShiftIds.includes(shift.id!)
+    );
+
+    uniqueShifts = this.containerService.filterAvailableTasksBySearch(
+      uniqueShifts,
+      this.currentSearchString
+    );
+
     const orderBy = this.sortingService.getCurrentOrderBy();
     const sortOrder = this.sortingService.getCurrentSortOrder();
 
@@ -585,7 +624,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         event.previousContainer.data.splice(event.previousIndex, 1);
 
         this.arrangeAndSetSelectedContainerTemplateItems([...event.previousContainer.data]);
-        if (this.shiftService.selectedShift?.id === item.id) {
+        const selectedIdentifier = this.shiftService.selectedShift?.id || this.shiftService.selectedShift?.tmpId;
+        const itemIdentifier = item.id || item.tmpId;
+        if (selectedIdentifier === itemIdentifier) {
           this.shiftService.setSelectedShift(null);
         }
       }
@@ -594,6 +635,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   private convertShiftToContainerTemplateItem(shift: IShift): IContainerTemplateItem {
     return {
+      tmpId: newGuid(),
       shiftId: shift.id!,
       shift: shift,
       startShift: shift.startShift,
@@ -629,6 +671,15 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
 
     this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      this.containerService.updateTaskOrderInTemplates(
+        arrangedItems,
+        weekdayNumber,
+        this.isHoliday
+      );
+    }
   }
 
   getTabLabel(rowIndex: number): string {
@@ -688,16 +739,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private onSearchChanged(): void {
-    if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(
-        this.selectedWeekday
-      );
-      this.containerService
-        .loadTasksForWeekday(weekdayNumber, this.currentSearchString)
-        .subscribe(() => {
-          this.updateAvailableTasks();
-        });
-    }
+    this.updateAvailableTasks();
   }
 
   private updateCurrentWeekdayAndSlot(): void {

@@ -235,9 +235,13 @@ export class WorkplaceStateService implements IEntityStateProvider {
           managerAny.isSaveAndClose = isSaveAndClose;
         }
 
+        const existingCallback = manager.onSaveCompleted;
         manager.onSaveCompleted = () => {
           this._isDisabled.set(false);
           this._isSavedOrReset.set(true);
+          if (existingCallback) {
+            existingCallback();
+          }
         };
         this._isDisabled.set(true);
         manager.save();
