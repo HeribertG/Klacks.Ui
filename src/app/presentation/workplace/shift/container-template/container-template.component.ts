@@ -618,7 +618,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         event.container.data.splice(event.currentIndex, 0, containerTemplateItem);
         (event.previousContainer.data as any).splice(event.previousIndex, 1);
 
-        this.arrangeAndSetSelectedContainerTemplateItems([...event.container.data]);
+        this.insertNewItemWithMinimalRepositioning([...event.container.data], event.currentIndex);
       } else if (event.previousContainer.id === 'selected-tasks-list' && event.container.id === 'available-tasks-list') {
         const item = event.previousContainer.data[event.previousIndex];
         event.previousContainer.data.splice(event.previousIndex, 1);
@@ -647,6 +647,40 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
       timeRangeEndShift: shift.isTimeRange ? shift.endShift : ''
     };
+  }
+
+  private insertNewItemWithMinimalRepositioning(containerTemplateItems: IContainerTemplateItem[], newItemIndex: number): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+    const containerTimeUntil = timeToString(
+      parseInt(this.timeTo.hours),
+      parseInt(this.timeTo.minutes)
+    );
+
+    const arrangedItems = this.arrangementService.insertItemWithMinimalRepositioning(
+      containerTemplateItems,
+      newItemIndex,
+      containerTimeFrom,
+      containerTimeUntil
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      this.containerService.updateTaskOrderInTemplates(
+        arrangedItems,
+        weekdayNumber,
+        this.isHoliday
+      );
+    }
   }
 
   private arrangeAndSetSelectedContainerTemplateItems(containerTemplateItems: IContainerTemplateItem[]): void {
