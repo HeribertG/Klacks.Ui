@@ -70,4 +70,55 @@ describe('WorkplaceStateService', () => {
       expect(service.isDisabled).toBe(true);
     });
   });
+
+  describe('onClickSave', () => {
+    it('should call existing onSaveCompleted callback after save', () => {
+      // Arrange
+      let existingCallbackCalled = false;
+      let saveCompletedCallbackCalled = false;
+
+      const mockManager = {
+        save: jasmine.createSpy('save').and.callFake(() => {
+          if (mockManager.onSaveCompleted) {
+            mockManager.onSaveCompleted();
+          }
+        }),
+        onSaveCompleted: () => {
+          existingCallbackCalled = true;
+        }
+      };
+
+      mockRegistry.get.and.returnValue(mockManager);
+      service.setActiveManagerByRoute('test-route');
+
+      // Act
+      service.onClickSave();
+
+      // Assert
+      expect(mockManager.save).toHaveBeenCalled();
+      expect(existingCallbackCalled).toBe(true);
+    });
+
+    it('should handle save when no existing onSaveCompleted callback exists', () => {
+      // Arrange
+      const mockManager = {
+        save: jasmine.createSpy('save').and.callFake(() => {
+          if (mockManager.onSaveCompleted) {
+            mockManager.onSaveCompleted();
+          }
+        }),
+        onSaveCompleted: undefined
+      };
+
+      mockRegistry.get.and.returnValue(mockManager);
+      service.setActiveManagerByRoute('test-route');
+
+      // Act
+      service.onClickSave();
+
+      // Assert
+      expect(mockManager.save).toHaveBeenCalled();
+      expect(service.isDisabled).toBe(false);
+    });
+  });
 });
