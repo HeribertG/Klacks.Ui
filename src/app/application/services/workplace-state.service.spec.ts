@@ -75,19 +75,18 @@ describe('WorkplaceStateService', () => {
     it('should call existing onSaveCompleted callback after save', () => {
       // Arrange
       let existingCallbackCalled = false;
-      let saveCompletedCallbackCalled = false;
 
-      const mockManager = {
-        save: jasmine.createSpy('save').and.callFake(() => {
-          if (mockManager.onSaveCompleted) {
-            mockManager.onSaveCompleted();
-          }
-        }),
-        onSaveCompleted: () => {
-          existingCallbackCalled = true;
+      const mockManager: any = {};
+      mockManager.save = jasmine.createSpy('save').and.callFake(() => {
+        if (mockManager.onSaveCompleted) {
+          mockManager.onSaveCompleted();
         }
+      });
+      mockManager.onSaveCompleted = () => {
+        existingCallbackCalled = true;
       };
 
+      mockRegistry.has.and.returnValue(true);
       mockRegistry.get.and.returnValue(mockManager);
       service.setActiveManagerByRoute('test-route');
 
@@ -101,15 +100,15 @@ describe('WorkplaceStateService', () => {
 
     it('should handle save when no existing onSaveCompleted callback exists', () => {
       // Arrange
-      const mockManager = {
-        save: jasmine.createSpy('save').and.callFake(() => {
-          if (mockManager.onSaveCompleted) {
-            mockManager.onSaveCompleted();
-          }
-        }),
-        onSaveCompleted: undefined
-      };
+      const mockManager: any = {};
+      mockManager.save = jasmine.createSpy('save').and.callFake(() => {
+        if (mockManager.onSaveCompleted) {
+          mockManager.onSaveCompleted();
+        }
+      });
+      mockManager.onSaveCompleted = undefined;
 
+      mockRegistry.has.and.returnValue(true);
       mockRegistry.get.and.returnValue(mockManager);
       service.setActiveManagerByRoute('test-route');
 

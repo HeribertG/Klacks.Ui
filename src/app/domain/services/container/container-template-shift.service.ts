@@ -1,5 +1,4 @@
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
-import { IShift } from '../../models/shift-class';
 import { IContainerTemplateItem } from '../../models/container-template-class';
 
 export type WeekdayContainerTemplateItemsMap = {
@@ -13,27 +12,30 @@ export type WeekdayContainerTemplateItemsMap = {
 };
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ContainerTemplateShiftService {
   private currentWeekdaySignal: WritableSignal<string> = signal('monday');
-  private weekdayContainerTemplateItemsSignal: WritableSignal<WeekdayContainerTemplateItemsMap> = signal({
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
-    saturday: [],
-    sunday: []
-  });
+  private weekdayContainerTemplateItemsSignal: WritableSignal<WeekdayContainerTemplateItemsMap> =
+    signal({
+      monday: [],
+      tuesday: [],
+      wednesday: [],
+      thursday: [],
+      friday: [],
+      saturday: [],
+      sunday: [],
+    });
 
   public selectedContainerTemplateItemsSignal = computed(() => {
-    const weekday = this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+    const weekday =
+      this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
     const items = this.weekdayContainerTemplateItemsSignal()[weekday];
     return items;
   });
 
-  public selectedShiftSignal: WritableSignal<IContainerTemplateItem | null> = signal(null);
+  public selectedShiftSignal: WritableSignal<IContainerTemplateItem | null> =
+    signal(null);
 
   get selectedContainerTemplateItems(): IContainerTemplateItem[] {
     return this.selectedContainerTemplateItemsSignal();
@@ -51,8 +53,11 @@ export class ContainerTemplateShiftService {
     return this.currentWeekdaySignal();
   }
 
-  setSelectedContainerTemplateItems(containerTemplateItems: IContainerTemplateItem[]): void {
-    const weekday = this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+  setSelectedContainerTemplateItems(
+    containerTemplateItems: IContainerTemplateItem[]
+  ): void {
+    const weekday =
+      this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
     const updatedMap = { ...this.weekdayContainerTemplateItemsSignal() };
     updatedMap[weekday] = containerTemplateItems;
     this.weekdayContainerTemplateItemsSignal.set(updatedMap);
@@ -68,7 +73,11 @@ export class ContainerTemplateShiftService {
 
   addTask(task: IContainerTemplateItem): void {
     const currentTasks = this.selectedContainerTemplateItemsSignal();
-    const exists = currentTasks.some(t => t.id === task.id);
+    const taskIdentifier = task.id || task.tmpId;
+    const exists = currentTasks.some((t) => {
+      const existingIdentifier = t.id || t.tmpId;
+      return existingIdentifier === taskIdentifier;
+    });
     if (!exists) {
       this.setSelectedContainerTemplateItems([...currentTasks, task]);
     }
@@ -76,9 +85,16 @@ export class ContainerTemplateShiftService {
 
   removeTask(taskId: string): void {
     const currentTasks = this.selectedContainerTemplateItemsSignal();
-    this.setSelectedContainerTemplateItems(currentTasks.filter(t => t.id !== taskId));
+    this.setSelectedContainerTemplateItems(
+      currentTasks.filter((t) => {
+        const itemIdentifier = t.id || t.tmpId;
+        return itemIdentifier !== taskId;
+      })
+    );
 
-    if (this.selectedShiftSignal()?.id === taskId) {
+    const selectedShift = this.selectedShiftSignal();
+    const selectedIdentifier = selectedShift?.id || selectedShift?.tmpId;
+    if (selectedIdentifier === taskId) {
       this.selectedShiftSignal.set(null);
     }
   }
@@ -95,13 +111,16 @@ export class ContainerTemplateShiftService {
       thursday: [],
       friday: [],
       saturday: [],
-      sunday: []
+      sunday: [],
     });
   }
 
   updateTask(taskId: string, updatedTask: IContainerTemplateItem): void {
     const currentTasks = this.selectedContainerTemplateItemsSignal();
-    const index = currentTasks.findIndex(t => t.id === taskId);
+    const index = currentTasks.findIndex((t) => {
+      const itemIdentifier = t.id || t.tmpId;
+      return itemIdentifier === taskId;
+    });
     if (index !== -1) {
       const updatedTasks = [...currentTasks];
       updatedTasks[index] = updatedTask;
@@ -111,7 +130,11 @@ export class ContainerTemplateShiftService {
 
   updateSelectedTask(item: IContainerTemplateItem): void {
     const currentTasks = this.selectedContainerTemplateItemsSignal();
-    const index = currentTasks.findIndex(t => t.id === item.id);
+    const itemIdentifier = item.id || item.tmpId;
+    const index = currentTasks.findIndex((t) => {
+      const existingIdentifier = t.id || t.tmpId;
+      return existingIdentifier === itemIdentifier;
+    });
     if (index !== -1) {
       const updatedTasks = [...currentTasks];
       updatedTasks[index] = item;

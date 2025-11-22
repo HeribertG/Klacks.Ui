@@ -45,12 +45,37 @@ Hauptkomponente für die Zuweisung von Shifts zu Container-Vorlagen.
 - Keine Backend-Integration erforderlich
 
 **Search Integration (NEU):**
-- Backend-Filterung über `getAvailableTasks` API
+- **Client-seitige Filterung** der Available Tasks (Zone 3)
 - Suchfeld sichtbar und aktiv
 - Verwendet `ContainerTemplateSearchStrategy` für Search-Pattern
 - Signal-basierte Kommunikation via `SearchStateService.containerTemplateSearch`
-- Automatische Aktualisierung der Available Tasks bei Sucheingabe
+- Automatische Aktualisierung bei Sucheingabe ohne Backend-Call
+- Filterung nach: Name, Abkürzung, Kunde (case-insensitive)
 - EntityName: `SHIFT_CONTAINER_TEMPLATE`
+- **Service-Methode:** `DataManagementContainerService.filterAvailableTasksBySearch()`
+
+**isDirty Detection & Reset (NEU):**
+- **Dual-Check System** für vollständige Change Detection:
+  - `hasTemplateChanges`: Vergleicht `editTemplates` mit `editTemplatesDummy` (gespeicherte Tasks)
+  - `hasUnsavedTasks`: Prüft auf neue Tasks mit nur `tmpId` (noch nie gespeichert)
+- **tmpId System** für neue Tasks:
+  - Verwendet `newGuid()` für eindeutige temporäre IDs
+  - Alle CRUD-Operationen unterstützen `id || tmpId` Fallback
+  - Verhindert Massenlöschung von neuen Tasks
+- **Position Tracking**:
+  - Task-Reihenfolge wird in `editTemplates` gespeichert
+  - `updateTaskOrderInTemplates()` synchronisiert Position nach Drag & Drop
+  - Keine automatische Sortierung beim Reset - Benutzer-Reihenfolge wird beibehalten
+- **Reset Behavior**:
+  - `editTemplates` wird auf `editTemplatesDummy` zurückgesetzt
+  - `weekdayContainerTemplateItemsSignal` wird aus Backup wiederhergestellt
+  - Available Tasks werden vom Backend neu geladen
+  - Original-Reihenfolge wird korrekt wiederhergestellt
+- **Delete Task Flow**:
+  - Task wird aus `editTemplates` entfernt via `removeTaskItemFromTemplates()`
+  - Task wird aus `weekdayContainerTemplateItemsSignal` entfernt
+  - Task wird zurück zu Available Tasks hinzugefügt via `addShiftToAvailableTasks()`
+  - isDirty wird sofort aktualisiert
 
 **Available Tasks Backend-Filter:**
 
