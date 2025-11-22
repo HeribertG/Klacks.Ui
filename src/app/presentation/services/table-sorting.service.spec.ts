@@ -208,14 +208,14 @@ describe('TableSortingService', () => {
       service.initialize(defaultConfig);
     });
 
-    it('should warn when clicking non-configured column', () => {
-      spyOn(console, 'warn');
+    it('should silently ignore clicking non-configured column', () => {
+      const callback = jasmine.createSpy('callback');
 
-      service.onHeaderClick('nonExistentColumn', () => {});
+      service.onHeaderClick('nonExistentColumn', callback);
 
-      expect(console.warn).toHaveBeenCalledWith(
-        'Column "nonExistentColumn" not found in configured columns'
-      );
+      expect(callback).not.toHaveBeenCalled();
+      expect(service.getCurrentOrderBy()).toBe('name');
+      expect(service.getCurrentSortOrder()).toBe('asc');
     });
 
     it('should handle empty columns array', () => {
