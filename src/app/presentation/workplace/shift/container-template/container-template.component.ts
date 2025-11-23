@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, inject, OnDestroy, OnInit, effect, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+  effect,
+  computed,
+} from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -36,7 +43,10 @@ import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
 } from 'src/app/domain/models/container-template-slot';
-import { IContainerTemplate, IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import {
+  IContainerTemplate,
+  IContainerTemplateItem,
+} from 'src/app/domain/models/container-template-class';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -46,6 +56,8 @@ import {
   formatTime,
   timeToString,
 } from 'src/app/shared/helpers/time-format.helper';
+import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
+import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
 
 @Component({
   selector: 'app-container-template',
@@ -59,8 +71,10 @@ import {
     IconShiftSegmentComponent,
     IconTimeWindowComponent,
     IconUnknownTimeComponent,
-    TrashIconRedComponent
-],
+    TrashIconRedComponent,
+    IconCompactComponent,
+    PdfIconComponent,
+  ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,
@@ -163,15 +177,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     ].filter((part) => part && part.trim() !== '');
 
     const addressString = addressParts.join(', ');
-    return addressString ? `${client.name}: ${addressString}` : client.name || '-';
+    return addressString
+      ? `${client.name}: ${addressString}`
+      : client.name || '-';
   }
 
   onRemoveTask(item: IContainerTemplateItem): void {
     const itemIdentifier = item.id || item.tmpId;
     if (itemIdentifier) {
       if (item.shift && this.selectedWeekday) {
-        const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-        this.containerService.addShiftToAvailableTasks(item.shift, weekdayNumber);
+        const weekdayNumber = this.containerService.getWeekdayNumber(
+          this.selectedWeekday
+        );
+        this.containerService.addShiftToAvailableTasks(
+          item.shift,
+          weekdayNumber
+        );
         this.updateAvailableTasks();
 
         this.containerService.removeTaskItemFromTemplates(
@@ -195,7 +216,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     if (!item.timeRangeStartShift) {
       return OwnTime.forTime('00', '00');
     }
-    const parsed = this.timeRangeService.parseTimeString(item.timeRangeStartShift);
+    const parsed = this.timeRangeService.parseTimeString(
+      item.timeRangeStartShift
+    );
     if (!parsed) {
       return OwnTime.forTime('00', '00');
     }
@@ -206,7 +229,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
-    const desiredStartMinutes = parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
+    const desiredStartMinutes =
+      parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
     const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
     const desiredEndMinutes = desiredStartMinutes + workTimeMinutes;
 
@@ -215,7 +239,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const updatedItem: IContainerTemplateItem = {
       ...item,
       timeRangeStartShift: this.minutesToTimeString(desiredStartMinutes),
-      timeRangeEndShift: this.minutesToTimeString(desiredEndMinutes)
+      timeRangeEndShift: this.minutesToTimeString(desiredEndMinutes),
     };
 
     const updatedItems = this.pushOverlappingShifts(updatedItem, allItems);
@@ -223,9 +247,12 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.shiftService.setSelectedContainerTemplateItems(updatedItems);
   }
 
-  private pushOverlappingShifts(changedItem: IContainerTemplateItem, allItems: IContainerTemplateItem[]): IContainerTemplateItem[] {
+  private pushOverlappingShifts(
+    changedItem: IContainerTemplateItem,
+    allItems: IContainerTemplateItem[]
+  ): IContainerTemplateItem[] {
     const result = [...allItems];
-    const changedIndex = result.findIndex(s => s.id === changedItem.id);
+    const changedIndex = result.findIndex((s) => s.id === changedItem.id);
 
     if (changedIndex === -1) {
       return result;
@@ -233,27 +260,35 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     result[changedIndex] = changedItem;
 
-    const changedStartMinutes = this.timeRangeService.getShiftStartMinutes(changedItem);
-    const changedEndMinutes = this.timeRangeService.getShiftEndMinutes(changedItem);
+    const changedStartMinutes =
+      this.timeRangeService.getShiftStartMinutes(changedItem);
+    const changedEndMinutes =
+      this.timeRangeService.getShiftEndMinutes(changedItem);
 
     for (let i = 0; i < result.length; i++) {
       if (i === changedIndex || !result[i].shift?.isTimeRange) continue;
 
       const currentItem = result[i];
-      const currentStartMinutes = this.timeRangeService.getShiftStartMinutes(currentItem);
-      const currentEndMinutes = this.timeRangeService.getShiftEndMinutes(currentItem);
+      const currentStartMinutes =
+        this.timeRangeService.getShiftStartMinutes(currentItem);
+      const currentEndMinutes =
+        this.timeRangeService.getShiftEndMinutes(currentItem);
 
-      const hasOverlap = changedStartMinutes < currentEndMinutes && changedEndMinutes > currentStartMinutes;
+      const hasOverlap =
+        changedStartMinutes < currentEndMinutes &&
+        changedEndMinutes > currentStartMinutes;
 
       if (hasOverlap && currentStartMinutes >= changedStartMinutes) {
-        const workTimeMinutes = Math.round((currentItem.shift?.workTime || 0) * 60);
+        const workTimeMinutes = Math.round(
+          (currentItem.shift?.workTime || 0) * 60
+        );
         const newStartMinutes = changedEndMinutes;
         const newEndMinutes = newStartMinutes + workTimeMinutes;
 
         result[i] = {
           ...currentItem,
           timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
-          timeRangeEndShift: this.minutesToTimeString(newEndMinutes)
+          timeRangeEndShift: this.minutesToTimeString(newEndMinutes),
         };
 
         const pushedItem = result[i];
@@ -270,7 +305,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const hours = Math.floor(normalizedMinutes / 60);
     const minutes = normalizedMinutes % 60;
 
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`;
+    return `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}:00`;
   }
 
   get selectedContainerTemplateItems(): IContainerTemplateItem[] {
@@ -282,13 +319,15 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private isDirty = computed(() => {
-    const hasSelectedTasks = this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
+    const hasSelectedTasks =
+      this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
     const hasTemplateChanges = this.containerService.areObjectsDirty();
     return hasSelectedTasks || hasTemplateChanges;
   });
 
   private canSaveComputed = computed(() => {
-    const hasSelectedTasks = this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
+    const hasSelectedTasks =
+      this.shiftService.selectedContainerTemplateItemsSignal().length > 0;
     const canSaveTemplates = this.containerService.canSave();
     return hasSelectedTasks || canSaveTemplates;
   });
@@ -321,7 +360,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         this.updateAvailableTasks();
       }
     });
-
   }
 
   ngOnInit(): void {
@@ -337,14 +375,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     this.containerService.onSaveCompleted = () => {
       if (this.containerShift?.id && this.selectedWeekday) {
-        const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+        const weekdayNumber = this.containerService.getWeekdayNumber(
+          this.selectedWeekday
+        );
 
-        this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
-          this.containerService.loadTemplates(this.containerShift!.id!).subscribe(() => {
-            this.updateAvailableTasks();
-            this.updateCurrentWeekdayAndSlot();
+        this.containerService
+          .loadTasksForWeekday(weekdayNumber)
+          .subscribe(() => {
+            this.containerService
+              .loadTemplates(this.containerShift!.id!)
+              .subscribe(() => {
+                this.updateAvailableTasks();
+                this.updateCurrentWeekdayAndSlot();
+              });
           });
-        });
       }
     };
 
@@ -401,9 +445,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
                 this.containerService
                   .loadTasksForWeekday(weekdayNumber)
                   .subscribe(() => {
-                    this.containerService.loadTemplates(this.containerShift!.id!).subscribe(() => {
-                      this.updateAvailableTasks();
-                    });
+                    this.containerService
+                      .loadTemplates(this.containerShift!.id!)
+                      .subscribe(() => {
+                        this.updateAvailableTasks();
+                      });
                   });
               }
             },
@@ -474,10 +520,12 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           const weekdayNumber = this.containerService.getWeekdayNumber(
             this.selectedWeekday
           );
-          this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
-            this.updateAvailableTasks();
-            this.rearrangeSelectedTasks();
-          });
+          this.containerService
+            .loadTasksForWeekday(weekdayNumber)
+            .subscribe(() => {
+              this.updateAvailableTasks();
+              this.rearrangeSelectedTasks();
+            });
         }
       },
       error: () => {},
@@ -485,7 +533,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private rearrangeSelectedTasks(): void {
-    const currentTasks = this.shiftService.selectedContainerTemplateItemsSignal();
+    const currentTasks =
+      this.shiftService.selectedContainerTemplateItemsSignal();
     if (currentTasks.length > 0) {
       this.arrangeAndSetSelectedContainerTemplateItems([...currentTasks]);
     }
@@ -608,23 +657,45 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         event.currentIndex
       );
       if (event.container.id === 'selected-tasks-list') {
-        this.arrangeAndSetSelectedContainerTemplateItems([...event.container.data]);
+        this.arrangeAndSetSelectedContainerTemplateItems([
+          ...event.container.data,
+        ]);
       }
     } else {
-      if (event.container.id === 'selected-tasks-list' && event.previousContainer.id === 'available-tasks-list') {
-        const shift = (event.previousContainer.data as any)[event.previousIndex] as IShift;
-        const containerTemplateItem: IContainerTemplateItem = this.convertShiftToContainerTemplateItem(shift);
+      if (
+        event.container.id === 'selected-tasks-list' &&
+        event.previousContainer.id === 'available-tasks-list'
+      ) {
+        const shift = (event.previousContainer.data as any)[
+          event.previousIndex
+        ] as IShift;
+        const containerTemplateItem: IContainerTemplateItem =
+          this.convertShiftToContainerTemplateItem(shift);
 
-        event.container.data.splice(event.currentIndex, 0, containerTemplateItem);
+        event.container.data.splice(
+          event.currentIndex,
+          0,
+          containerTemplateItem
+        );
         (event.previousContainer.data as any).splice(event.previousIndex, 1);
 
-        this.insertNewItemWithMinimalRepositioning([...event.container.data], event.currentIndex);
-      } else if (event.previousContainer.id === 'selected-tasks-list' && event.container.id === 'available-tasks-list') {
+        this.insertNewItemWithMinimalRepositioning(
+          [...event.container.data],
+          event.currentIndex
+        );
+      } else if (
+        event.previousContainer.id === 'selected-tasks-list' &&
+        event.container.id === 'available-tasks-list'
+      ) {
         const item = event.previousContainer.data[event.previousIndex];
         event.previousContainer.data.splice(event.previousIndex, 1);
 
-        this.arrangeAndSetSelectedContainerTemplateItems([...event.previousContainer.data]);
-        const selectedIdentifier = this.shiftService.selectedShift?.id || this.shiftService.selectedShift?.tmpId;
+        this.arrangeAndSetSelectedContainerTemplateItems([
+          ...event.previousContainer.data,
+        ]);
+        const selectedIdentifier =
+          this.shiftService.selectedShift?.id ||
+          this.shiftService.selectedShift?.tmpId;
         const itemIdentifier = item.id || item.tmpId;
         if (selectedIdentifier === itemIdentifier) {
           this.shiftService.setSelectedShift(null);
@@ -633,7 +704,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private convertShiftToContainerTemplateItem(shift: IShift): IContainerTemplateItem {
+  private convertShiftToContainerTemplateItem(
+    shift: IShift
+  ): IContainerTemplateItem {
     return {
       tmpId: newGuid(),
       shiftId: shift.id!,
@@ -645,13 +718,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       travelTimeAfter: shift.travelTimeAfter,
       travelTimeBefore: shift.travelTimeBefore,
       timeRangeStartShift: shift.isTimeRange ? shift.startShift : '',
-      timeRangeEndShift: shift.isTimeRange ? shift.endShift : ''
+      timeRangeEndShift: shift.isTimeRange ? shift.endShift : '',
     };
   }
 
-  private insertNewItemWithMinimalRepositioning(containerTemplateItems: IContainerTemplateItem[], newItemIndex: number): void {
+  private insertNewItemWithMinimalRepositioning(
+    containerTemplateItems: IContainerTemplateItem[],
+    newItemIndex: number
+  ): void {
     if (containerTemplateItems.length === 0) {
-      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      this.shiftService.setSelectedContainerTemplateItems(
+        containerTemplateItems
+      );
       return;
     }
 
@@ -664,17 +742,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       parseInt(this.timeTo.minutes)
     );
 
-    const arrangedItems = this.arrangementService.insertItemWithMinimalRepositioning(
-      containerTemplateItems,
-      newItemIndex,
-      containerTimeFrom,
-      containerTimeUntil
-    );
+    const arrangedItems =
+      this.arrangementService.insertItemWithMinimalRepositioning(
+        containerTemplateItems,
+        newItemIndex,
+        containerTimeFrom,
+        containerTimeUntil
+      );
 
     this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
 
     if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
       this.containerService.updateTaskOrderInTemplates(
         arrangedItems,
         weekdayNumber,
@@ -683,9 +764,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private arrangeAndSetSelectedContainerTemplateItems(containerTemplateItems: IContainerTemplateItem[]): void {
+  private arrangeAndSetSelectedContainerTemplateItems(
+    containerTemplateItems: IContainerTemplateItem[]
+  ): void {
     if (containerTemplateItems.length === 0) {
-      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      this.shiftService.setSelectedContainerTemplateItems(
+        containerTemplateItems
+      );
       return;
     }
 
@@ -707,13 +792,20 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.shiftService.setSelectedContainerTemplateItems(arrangedItems);
 
     if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
       this.containerService.updateTaskOrderInTemplates(
         arrangedItems,
         weekdayNumber,
         this.isHoliday
       );
     }
+  }
+
+  compactSelectedShifts(): void {
+    const currentItems = this.shiftService.selectedContainerTemplateItemsSignal();
+    this.arrangeAndSetSelectedContainerTemplateItems([...currentItems]);
   }
 
   getTabLabel(rowIndex: number): string {

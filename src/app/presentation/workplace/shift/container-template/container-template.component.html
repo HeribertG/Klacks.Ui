@@ -94,11 +94,17 @@
           <!-- Zone 2: Top -->
           <as-split-area [size]="50" [minSize]="20">
             <div class="zone zone-center">
-              <h3>
-                {{
-                  "shift.container-template.selected-tasks.title" | translate
-                }}
-              </h3>
+              <div class="header-table">
+                <h3>
+                  {{
+                    "shift.container-template.selected-tasks.title" | translate
+                  }}
+                </h3>
+                <span class="filler"></span>
+                <app-icon-pdf-icon class="icon-table"></app-icon-pdf-icon>
+                <app-icon-compact class="icon-table" (click)="compactSelectedShifts()"></app-icon-compact>
+              </div>
+
               <div class="shifts-grid-container">
                 <div
                   class="shifts-grid"
@@ -152,7 +158,8 @@
                           </div>
                         </td>
                       </tr>
-                      } @for (shift of selectedContainerTemplateItems; track shift.id || shift.tmpId) {
+                      } @for (shift of selectedContainerTemplateItems; track
+                      shift.id || shift.tmpId) {
                       <tr
                         cdkDrag
                         (click)="onShiftRowClick(shift)"
@@ -195,9 +202,20 @@
                           {{ formatTime(shift.endShift) }}
                           }
                         </td>
-                        <td>{{ shift.shift?.workTime ? formatWorkTime(shift.shift!.workTime) : '-' }}</td>
+                        <td>
+                          {{
+                            shift.shift?.workTime
+                              ? formatWorkTime(shift.shift!.workTime)
+                              : "-"
+                          }}
+                        </td>
                         <td>{{ formatClientWithAddress(shift) }}</td>
-                        <td class="action-column" (click)="onRemoveTask(shift); $event.stopPropagation()">
+                        <td
+                          class="action-column"
+                          (click)="
+                            onRemoveTask(shift); $event.stopPropagation()
+                          "
+                        >
                           <app-icon-trash-red></app-icon-trash-red>
                         </td>
                       </tr>
