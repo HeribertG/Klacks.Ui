@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { AddressTypeEnum } from 'src/app/domain/models/address-class';
 
 @Injectable({
   providedIn: 'root',
@@ -30,18 +31,20 @@ export class ContainerTemplatePdfExportService {
 
     const tableData = items.map((item) => [
       item.shift?.name || '',
-      item.startShift || '',
-      item.endShift || '',
+      item.shift?.description || '',
+      this.formatStartTime(item),
+      this.formatEndTime(item),
       this.formatDuration(item),
-      this.formatShiftType(item),
+      this.formatClientWithAddress(item),
     ]);
 
     const headers = [
       this.translateService.instant('shift.container-template.shift-name'),
+      this.translateService.instant('shift.container-template.description'),
       this.translateService.instant('shift.container-template.start-time'),
       this.translateService.instant('shift.container-template.end-time'),
       this.translateService.instant('shift.container-template.duration'),
-      this.translateService.instant('shift.container-template.type'),
+      this.translateService.instant('shift.container-template.address'),
     ];
 
     autoTable(pdf, {
@@ -60,11 +63,12 @@ export class ContainerTemplatePdfExportService {
         cellPadding: 3,
       },
       columnStyles: {
-        0: { cellWidth: 'auto' },
-        1: { cellWidth: 40, halign: 'center' },
+        0: { cellWidth: 60 },
+        1: { cellWidth: 'auto' },
         2: { cellWidth: 40, halign: 'center' },
         3: { cellWidth: 40, halign: 'center' },
-        4: { cellWidth: 60, halign: 'center' },
+        4: { cellWidth: 40, halign: 'center' },
+        5: { cellWidth: 'auto' },
       },
     });
 
@@ -84,6 +88,20 @@ export class ContainerTemplatePdfExportService {
     pdf.save(`container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`);
   }
 
+  private formatStartTime(item: IContainerTemplateItem): string {
+    if (item.shift?.isTimeRange) {
+      return item.timeRangeStartShift || item.startShift || '';
+    }
+    return item.startShift || '';
+  }
+
+  private formatEndTime(item: IContainerTemplateItem): string {
+    if (item.shift?.isTimeRange) {
+      return item.timeRangeEndShift || item.endShift || '';
+    }
+    return item.endShift || '';
+  }
+
   private formatDuration(item: IContainerTemplateItem): string {
     if (item.shift?.workTime) {
       const hours = Math.floor(item.shift.workTime);
@@ -93,13 +111,31 @@ export class ContainerTemplatePdfExportService {
     return '';
   }
 
-  private formatShiftType(item: IContainerTemplateItem): string {
-    if (item.shift?.isTimeRange) {
-      return this.translateService.instant('shift.container-template.time-range-shift');
+  private formatClientWithAddress(item: IContainerTemplateItem): string {
+    const shift = item.shift;
+
+    if (!shift?.client) {
+      return '-';
     }
-    if (item.shift?.isSporadic) {
-      return this.translateService.instant('shift.container-template.sporadic-shift');
+
+    const client = shift.client;
+    const employeeAddress = client.addresses?.find(
+      (addr) => addr.type === AddressTypeEnum.customer
+    );
+
+    if (!employeeAddress) {
+      return client.name || '-';
     }
-    return this.translateService.instant('shift.container-template.fixed-shift');
+
+    const addressParts = [
+      employeeAddress.street,
+      employeeAddress.zip,
+      employeeAddress.city,
+    ].filter((part) => part && part.trim() !== '');
+
+    const addressString = addressParts.join(', ');
+    return addressString
+      ? `${client.name}: ${addressString}`
+      : client.name || '-';
   }
 }
