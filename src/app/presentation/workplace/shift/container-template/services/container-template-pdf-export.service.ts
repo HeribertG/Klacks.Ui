@@ -4,7 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
-import { AddressTypeEnum } from 'src/app/domain/models/address-class';
+import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 
 @Injectable({
   providedIn: 'root',
