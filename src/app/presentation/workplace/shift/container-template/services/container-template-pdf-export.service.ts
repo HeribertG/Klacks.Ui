@@ -34,7 +34,6 @@ export class ContainerTemplatePdfExportService {
       item.endShift || '',
       this.formatDuration(item),
       this.formatShiftType(item),
-      item.information || '',
     ]);
 
     const headers = [
@@ -43,7 +42,6 @@ export class ContainerTemplatePdfExportService {
       this.translateService.instant('shift.container-template.end-time'),
       this.translateService.instant('shift.container-template.duration'),
       this.translateService.instant('shift.container-template.type'),
-      this.translateService.instant('shift.container-template.information'),
     ];
 
     autoTable(pdf, {
@@ -63,11 +61,10 @@ export class ContainerTemplatePdfExportService {
       },
       columnStyles: {
         0: { cellWidth: 'auto' },
-        1: { cellWidth: 30, halign: 'center' },
-        2: { cellWidth: 30, halign: 'center' },
-        3: { cellWidth: 30, halign: 'center' },
-        4: { cellWidth: 40, halign: 'center' },
-        5: { cellWidth: 'auto' },
+        1: { cellWidth: 40, halign: 'center' },
+        2: { cellWidth: 40, halign: 'center' },
+        3: { cellWidth: 40, halign: 'center' },
+        4: { cellWidth: 60, halign: 'center' },
       },
     });
 
