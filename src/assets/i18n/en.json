@@ -915,5 +915,14 @@
   "shift.container-template.selected-tasks.placeholder": "Drag tasks here",
   "shift.container-template.slots.title": "Time Slots",
   "shift.container-template.slots.label": "Time Slot",
-  "shift.container-template.slots.tasks": "Tasks"
+  "shift.container-template.slots.tasks": "Tasks",
+  "shift.container-template.shift-name": "Shift Name",
+  "shift.container-template.start-time": "Start Time",
+  "shift.container-template.end-time": "End Time",
+  "shift.container-template.type": "Type",
+  "shift.container-template.information": "Information",
+  "shift.container-template.time-range": "Time Range",
+  "shift.container-template.time-range-shift": "Time Range Shift",
+  "shift.container-template.sporadic-shift": "Sporadic Shift",
+  "shift.container-template.fixed-shift": "Fixed Shift"
 }

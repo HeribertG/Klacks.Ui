@@ -52,6 +52,7 @@ import { DataManagementContainerService } from 'src/app/domain/services/containe
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 import { ShiftArrangementService } from './services/shift-arrangement.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
+import { ContainerTemplatePdfExportService } from './services/container-template-pdf-export.service';
 import {
   formatTime,
   timeToString,
@@ -136,6 +137,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private shiftService = inject(ContainerTemplateShiftService);
   private arrangementService = inject(ShiftArrangementService);
   private dragDropService = inject(TimeRulerDragDropService);
+  private pdfExportService = inject(ContainerTemplatePdfExportService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -806,6 +808,33 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   compactSelectedShifts(): void {
     const currentItems = this.shiftService.selectedContainerTemplateItemsSignal();
     this.arrangeAndSetSelectedContainerTemplateItems([...currentItems]);
+  }
+
+  exportSelectedShiftsToPdf(): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    if (items.length === 0) {
+      return;
+    }
+
+    const containerName = this.containerShift?.name || 'Container Template';
+    const weekday = this.selectedWeekday || '';
+    const timeFrom = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+    const timeTo = timeToString(
+      parseInt(this.timeTo.hours),
+      parseInt(this.timeTo.minutes)
+    );
+
+    this.pdfExportService.exportContainerTemplateToPdf(
+      items,
+      containerName,
+      weekday,
+      timeFrom,
+      timeTo
+    );
   }
 
   getTabLabel(rowIndex: number): string {

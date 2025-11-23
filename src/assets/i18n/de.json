@@ -899,5 +899,14 @@
   "shift.container-template.selected-tasks.placeholder": "Ziehen Sie Aufgaben hierher",
   "shift.container-template.slots.title": "Zeitfenster",
   "shift.container-template.slots.label": "Zeitfenster",
-  "shift.container-template.slots.tasks": "Aufgaben"
+  "shift.container-template.slots.tasks": "Aufgaben",
+  "shift.container-template.shift-name": "Schichtname",
+  "shift.container-template.start-time": "Startzeit",
+  "shift.container-template.end-time": "Endzeit",
+  "shift.container-template.type": "Typ",
+  "shift.container-template.information": "Information",
+  "shift.container-template.time-range": "Zeitbereich",
+  "shift.container-template.time-range-shift": "Zeitbereich-Schicht",
+  "shift.container-template.sporadic-shift": "Sporadische Schicht",
+  "shift.container-template.fixed-shift": "Feste Schicht"
 }
