@@ -89,17 +89,26 @@ export class ContainerTemplatePdfExportService {
   }
 
   private formatStartTime(item: IContainerTemplateItem): string {
-    if (item.shift?.isTimeRange) {
-      return item.timeRangeStartShift || item.startShift || '';
-    }
-    return item.startShift || '';
+    const timeString = item.shift?.isTimeRange
+      ? (item.timeRangeStartShift || item.startShift || '')
+      : (item.startShift || '');
+    return this.formatTimeToHHMM(timeString);
   }
 
   private formatEndTime(item: IContainerTemplateItem): string {
-    if (item.shift?.isTimeRange) {
-      return item.timeRangeEndShift || item.endShift || '';
+    const timeString = item.shift?.isTimeRange
+      ? (item.timeRangeEndShift || item.endShift || '')
+      : (item.endShift || '');
+    return this.formatTimeToHHMM(timeString);
+  }
+
+  private formatTimeToHHMM(timeString: string): string {
+    if (!timeString) return '';
+    const parts = timeString.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0]}:${parts[1]}`;
     }
-    return item.endShift || '';
+    return timeString;
   }
 
   private formatDuration(item: IContainerTemplateItem): string {
