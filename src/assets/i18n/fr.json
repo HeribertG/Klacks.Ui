@@ -915,5 +915,16 @@
   "shift.container-template.selected-tasks.placeholder": "Glissez les tâches ici",
   "shift.container-template.slots.title": "Créneaux horaires",
   "shift.container-template.slots.label": "Créneau horaire",
-  "shift.container-template.slots.tasks": "Tâches"
+  "shift.container-template.slots.tasks": "Tâches",
+  "shift.container-template.shift-name": "Nom du service",
+  "shift.container-template.description": "Description",
+  "shift.container-template.start-time": "Heure de début",
+  "shift.container-template.end-time": "Heure de fin",
+  "shift.container-template.address": "Adresse",
+  "shift.container-template.type": "Type",
+  "shift.container-template.information": "Information",
+  "shift.container-template.time-range": "Plage horaire",
+  "shift.container-template.time-range-shift": "Service à plage horaire",
+  "shift.container-template.sporadic-shift": "Service sporadique",
+  "shift.container-template.fixed-shift": "Service fixe"
 }

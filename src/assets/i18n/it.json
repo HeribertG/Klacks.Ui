@@ -915,5 +915,16 @@
   "shift.container-template.selected-tasks.placeholder": "Trascina i compiti qui",
   "shift.container-template.slots.title": "Fasce orarie",
   "shift.container-template.slots.label": "Fascia oraria",
-  "shift.container-template.slots.tasks": "Compiti"
+  "shift.container-template.slots.tasks": "Compiti",
+  "shift.container-template.shift-name": "Nome del turno",
+  "shift.container-template.description": "Descrizione",
+  "shift.container-template.start-time": "Ora di inizio",
+  "shift.container-template.end-time": "Ora di fine",
+  "shift.container-template.address": "Indirizzo",
+  "shift.container-template.type": "Tipo",
+  "shift.container-template.information": "Informazione",
+  "shift.container-template.time-range": "Fascia oraria",
+  "shift.container-template.time-range-shift": "Turno a fascia oraria",
+  "shift.container-template.sporadic-shift": "Turno sporadico",
+  "shift.container-template.fixed-shift": "Turno fisso"
 }
