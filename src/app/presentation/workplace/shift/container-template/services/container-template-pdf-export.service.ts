@@ -21,7 +21,8 @@ export class ContainerTemplatePdfExportService {
   ): void {
     const pdf = new jsPDF('landscape');
 
-    const title = `${containerName} - ${weekday}`;
+    const translatedWeekday = this.translateWeekday(weekday);
+    const title = `${containerName} - ${translatedWeekday}`;
     pdf.setFontSize(16);
     pdf.text(title, 14, 15);
 
@@ -109,6 +110,25 @@ export class ContainerTemplatePdfExportService {
       return `${parts[0]}:${parts[1]}`;
     }
     return timeString;
+  }
+
+  private translateWeekday(weekday: string): string {
+    const weekdayMap: { [key: string]: string } = {
+      'Mo': 'shift.container-template.weekday-full.monday',
+      'Di': 'shift.container-template.weekday-full.tuesday',
+      'Mi': 'shift.container-template.weekday-full.wednesday',
+      'Do': 'shift.container-template.weekday-full.thursday',
+      'Fr': 'shift.container-template.weekday-full.friday',
+      'Sa': 'shift.container-template.weekday-full.saturday',
+      'So': 'shift.container-template.weekday-full.sunday',
+      'Feiertag': 'shift.container-template.weekday.holiday',
+    };
+
+    const translationKey = weekdayMap[weekday];
+    if (translationKey) {
+      return this.translateService.instant(translationKey);
+    }
+    return weekday;
   }
 
   private formatDuration(item: IContainerTemplateItem): string {
