@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   inject,
   TemplateRef,
   ViewChild,
@@ -20,7 +21,8 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-llm-models',
@@ -36,14 +38,15 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
 })
-export class LLMModelsComponent implements OnInit, OnDestroy {
+export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
   @ViewChild('llmForm') llmForm!: NgForm;
 
   private llmService = inject(DataManagementLLMService);
   private providerService = inject(DataManagementLLMProviderService);
   private toastService = inject(ToastShowService);
-  private modalService = inject(NgbModal);
+  private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
@@ -55,11 +58,27 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
 
   providerApiKey = '';
   isNewModel = false;
+  message = MessageLibrary.DELETE_ENTRY;
   private isSaving = false;
 
   ngOnInit(): void {
     this.loadModels();
     this.loadProviders();
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'llm-models'
+        ) {
+          this.deleteModel(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -143,7 +162,7 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     this.originalModel = null;
 
     setTimeout(() => {
-      this.modalService.open(this.llmModal, {
+      this.ngbModal.open(this.llmModal, {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -163,57 +182,40 @@ export class LLMModelsComponent implements OnInit, OnDestroy {
     this.originalModel = model;
     this.providerApiKey = '';
 
-    this.modalService.open(this.llmModal, {
+    this.ngbModal.open(this.llmModal, {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
   }
 
-  async onClickDelete(index: number): Promise<void> {
-    if (index >= 0 && index < this.models.length) {
-      const model = this.models[index];
+  openDeleteModel(model: ILLMModel): void {
+    if (model.id) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'llm-models';
 
-      if (model) {
-        const modalRef = this.modalService.open(DeletewindowComponent, {
-          size: 'md',
-          backdrop: 'static',
-        });
+      this.modalService.Filing = model.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
 
-        modalRef.componentInstance.title = this.translate.instant(
-          'settings.llm-models.delete.title'
-        );
-        modalRef.componentInstance.message = this.translate.instant(
-          'settings.llm-models.confirm-delete',
-          { name: model.displayName || model.modelName }
-        );
+  private async deleteModel(id: string): Promise<void> {
+    try {
+      await firstValueFrom(this.llmService.deleteModel(id));
 
-        modalRef.result.then(
-          async (result) => {
-            if (result === 'delete') {
-              try {
-                if (!model.id) {
-                  this.toastService.showError(
-                    'settings.llm-models.error.missing-id'
-                  );
-                  console.error('Model is missing ID field:', model);
-                  return;
-                }
-                await firstValueFrom(this.llmService.deleteModel(model.id));
-
-                this.models.splice(index, 1);
-                this.toastService.showSuccess(
-                  'settings.llm-models.success.delete',
-                  'Success'
-                );
-              } catch (error) {
-                console.error('Error deleting model:', error);
-                this.toastService.showError('settings.llm-models.error.delete');
-              }
-            }
-          },
-          () => {}
-        );
+      const index = this.models.findIndex(m => m.id === id);
+      if (index !== -1) {
+        this.models.splice(index, 1);
       }
+
+      this.toastService.showSuccess(
+        'settings.llm-models.success.delete',
+        'Success'
+      );
+    } catch (error) {
+      console.error('Error deleting model:', error);
+      this.toastService.showError('settings.llm-models.error.delete');
     }
   }
 

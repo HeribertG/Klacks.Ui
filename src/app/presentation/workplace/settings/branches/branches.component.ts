@@ -2,6 +2,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   inject,
   TemplateRef,
   ViewChild,
@@ -15,9 +16,10 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { BranchesHeaderComponent } from './branches-header/branches-header.component';
 import { BranchesRowComponent } from './branches-row/branches-row.component';
-import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { IBranch } from 'src/app/domain/models/branch';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-branches',
@@ -33,13 +35,14 @@ import { IBranch } from 'src/app/domain/models/branch';
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss'],
 })
-export class BranchesComponent implements OnInit, OnDestroy {
+export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('branchModal', { read: TemplateRef }) branchModal!: TemplateRef<any>;
   @ViewChild('branchForm') branchForm!: NgForm;
 
   private branchService = inject(DataBranchService);
   private toastService = inject(ToastShowService);
-  private modalService = inject(NgbModal);
+  private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
 
@@ -50,9 +53,25 @@ export class BranchesComponent implements OnInit, OnDestroy {
 
   isNewBranch = false;
   private isSaving = false;
+  message = MessageLibrary.DELETE_ENTRY;
 
   ngOnInit(): void {
     this.loadBranches();
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'branches'
+        ) {
+          this.deleteBranch(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -93,7 +112,7 @@ export class BranchesComponent implements OnInit, OnDestroy {
     this.originalBranch = null;
 
     setTimeout(() => {
-      this.modalService.open(this.branchModal, {
+      this.ngbModal.open(this.branchModal, {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -112,57 +131,40 @@ export class BranchesComponent implements OnInit, OnDestroy {
     this.editingBranch = { ...branch };
     this.originalBranch = branch;
 
-    this.modalService.open(this.branchModal, {
+    this.ngbModal.open(this.branchModal, {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
   }
 
-  async onClickDelete(index: number): Promise<void> {
-    if (index >= 0 && index < this.branches.length) {
-      const branch = this.branches[index];
+  openDeleteBranch(branch: IBranch): void {
+    if (branch.id) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'branches';
 
-      if (branch) {
-        const modalRef = this.modalService.open(DeletewindowComponent, {
-          size: 'md',
-          backdrop: 'static',
-        });
+      this.modalService.Filing = branch.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
 
-        modalRef.componentInstance.title = this.translate.instant(
-          'setting.branches.delete.title'
-        );
-        modalRef.componentInstance.message = this.translate.instant(
-          'setting.branches.confirm-delete',
-          { name: branch.name }
-        );
+  private async deleteBranch(id: string): Promise<void> {
+    try {
+      await firstValueFrom(this.branchService.deleteBranch(id));
 
-        modalRef.result.then(
-          async (result) => {
-            if (result === 'delete') {
-              try {
-                if (!branch.id) {
-                  this.toastService.showError(
-                    'setting.branches.error.missing-id'
-                  );
-                  console.error('Branch is missing ID field:', branch);
-                  return;
-                }
-                await firstValueFrom(this.branchService.deleteBranch(branch.id));
-
-                this.branches.splice(index, 1);
-                this.toastService.showSuccess(
-                  'setting.branches.success.delete',
-                  'Success'
-                );
-              } catch (error) {
-                console.error('Error deleting branch:', error);
-                this.toastService.showError('setting.branches.error.delete');
-              }
-            }
-          },
-          () => {}
-        );
+      const index = this.branches.findIndex(b => b.id === id);
+      if (index !== -1) {
+        this.branches.splice(index, 1);
       }
+
+      this.toastService.showSuccess(
+        'setting.branches.success.delete',
+        'Success'
+      );
+    } catch (error) {
+      console.error('Error deleting branch:', error);
+      this.toastService.showError('setting.branches.error.delete');
     }
   }
 

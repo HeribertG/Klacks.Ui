@@ -5,6 +5,7 @@ import {
   inject,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   ViewChild,
   TemplateRef,
 } from '@angular/core';
@@ -13,7 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 
 import { ContractHeaderComponent } from './contract-header/contract-header.component';
 import { ContractRowComponent } from './contract-row/contract-row.component';
@@ -22,6 +23,8 @@ import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-contracts',
@@ -39,7 +42,7 @@ import { cloneObject } from 'src/app/shared/helpers/object.helper';
     DateInputComponent
 ],
 })
-export class ContractsComponent implements OnInit, OnDestroy {
+export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
   @ViewChild('contractForm') contractForm!: NgForm;
@@ -47,7 +50,8 @@ export class ContractsComponent implements OnInit, OnDestroy {
 
   public translate = inject(TranslateService);
   public dataManagementContractService = inject(DataManagementContractService);
-  private modalService = inject(NgbModal);
+  private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
 
   public editingContract: IContract | null = null;
   private originalContract: IContract | null = null;
@@ -55,12 +59,29 @@ export class ContractsComponent implements OnInit, OnDestroy {
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
+  message = MessageLibrary.DELETE_ENTRY;
+
   async ngOnInit(): Promise<void> {
     try {
       await this.dataManagementContractService.init();
     } catch (error) {
       console.error('Error initializing contracts:', error);
     }
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'contracts'
+        ) {
+          this.deleteContract(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -75,7 +96,7 @@ export class ContractsComponent implements OnInit, OnDestroy {
     this.isNewContract = true;
 
     setTimeout(() => {
-      this.modalService.open(this.contractModal, {
+      this.ngbModal.open(this.contractModal, {
         ariaLabelledBy: 'modal-title',
         size: 'lg',
       });
@@ -90,13 +111,26 @@ export class ContractsComponent implements OnInit, OnDestroy {
     this.originalContract = contract;
     this.isNewContract = false;
 
-    this.modalService.open(this.contractModal, {
+    this.ngbModal.open(this.contractModal, {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
   }
 
-  async onClickDelete(index: number): Promise<void> {
+  openDeleteContract(index: number): void {
+    const contracts = this.dataManagementContractService.contracts;
+    if (index >= 0 && index < contracts.length) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'contracts';
+      this.modalService.Filing = index.toString();
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  private async deleteContract(indexStr: string): Promise<void> {
+    const index = parseInt(indexStr, 10);
     const contracts = this.dataManagementContractService.contracts;
 
     if (index >= 0 && index < contracts.length) {

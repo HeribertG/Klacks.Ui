@@ -3,6 +3,7 @@ import {
   Component,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   inject,
   TemplateRef,
   ViewChild,
@@ -19,7 +20,8 @@ import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
-import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/deletewindow.component';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-llm-providers',
@@ -35,13 +37,14 @@ import { DeletewindowComponent } from 'src/app/presentation/modal/deletewindow/d
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],
 })
-export class LLMProvidersComponent implements OnInit, OnDestroy {
+export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
   @ViewChild('providerForm') providerForm!: NgForm;
 
   private toastService = inject(ToastShowService);
-  private modalService = inject(NgbModal);
+  private ngbModal = inject(NgbModal);
+  private modalService = inject(ModalService);
   public translate = inject(TranslateService);
   private providerService = inject(DataManagementLLMProviderService);
   private llmService = inject(DataManagementLLMService);
@@ -54,7 +57,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
 
   providerApiKey = '';
   isNewProvider = false;
-  providerToDelete: ILLMProvider | null = null;
+  message = MessageLibrary.DELETE_ENTRY;
   private isSaving = false;
 
   ngOnInit(): void {
@@ -67,6 +70,21 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(providers => {
         this.providers = providers;
+      });
+  }
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'llm-providers'
+        ) {
+          this.deleteProvider(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
       });
   }
 
@@ -93,7 +111,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     this.originalProvider = null;
     this.providerApiKey = '';
 
-    this.modalService.open(this.providerModal, {
+    this.ngbModal.open(this.providerModal, {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
@@ -105,7 +123,7 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     this.originalProvider = provider;
     this.providerApiKey = provider.apiKey || '';
 
-    this.modalService.open(this.providerModal, {
+    this.ngbModal.open(this.providerModal, {
       ariaLabelledBy: 'modal-title',
       size: 'lg',
     });
@@ -118,30 +136,20 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
     }
   }
 
-  onClickDelete(provider: ILLMProvider): void {
-    this.providerToDelete = provider;
-    
-    const modalRef = this.modalService.open(DeletewindowComponent, {
-      size: 'md',
-      backdrop: 'static'
-    });
+  openDeleteProvider(provider: ILLMProvider): void {
+    if (provider.id) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'llm-providers';
 
-    modalRef.componentInstance.title = this.translate.instant('settings.llm-providers.delete.title');
-    modalRef.componentInstance.message = this.translate.instant(
-      'settings.llm-providers.delete.message',
-      { providerName: provider.providerName }
-    );
+      this.modalService.Filing = provider.id;
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
 
-    modalRef.result.then(
-      (result) => {
-        if (result === 'delete' && this.providerToDelete?.id) {
-          this.confirmDelete();
-        }
-      },
-      () => {
-        this.providerToDelete = null;
-      }
-    );
+  private async deleteProvider(id: string): Promise<void> {
+    await this.providerService.deleteProvider(id);
   }
 
   async onClickToggleEnable(index: number): Promise<void> {
@@ -222,15 +230,6 @@ export class LLMProvidersComponent implements OnInit, OnDestroy {
   canDeleteProvider(provider: ILLMProvider): boolean {
     const defaultModel = this.llmService.getDefaultModel();
     return !defaultModel || defaultModel.providerId !== provider.providerId;
-  }
-
-  private async confirmDelete(): Promise<void> {
-    if (!this.providerToDelete?.id) {
-      return;
-    }
-
-    await this.providerService.deleteProvider(this.providerToDelete.id);
-    this.providerToDelete = null;
   }
 
   isFormValid(): boolean {

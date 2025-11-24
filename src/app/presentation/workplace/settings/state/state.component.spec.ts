@@ -150,7 +150,8 @@ describe('StateComponent', () => {
       const indexToDelete = currentList.length - 1;
 
       // Act
-      component.onClickDelete(indexToDelete);
+      component.openDeleteState(indexToDelete);
+      component['deleteState'](indexToDelete.toString());
 
       // Assert
       const updatedList =
@@ -165,7 +166,8 @@ describe('StateComponent', () => {
       const indexToDelete = 0;
 
       // Act
-      component.onClickDelete(indexToDelete);
+      component.openDeleteState(indexToDelete);
+      component['deleteState'](indexToDelete.toString());
 
       // Assert
       const updatedList =
@@ -180,8 +182,8 @@ describe('StateComponent', () => {
       mockSettingsService.countryStateService.statesList.set([...mockStates]);
 
       // Act & Assert
-      expect(() => component.onClickDelete(-1)).not.toThrow();
-      expect(() => component.onClickDelete(999)).not.toThrow();
+      expect(() => component.openDeleteState(-1)).not.toThrow();
+      expect(() => component.openDeleteState(999)).not.toThrow();
     });
   });
 

@@ -10,6 +10,8 @@ import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/da
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ILLMModel } from 'src/app/infrastructure/api/data-llm.service';
 import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { ModalService } from 'src/app/presentation/modal/modal.service';
+import { Subject } from 'rxjs';
 
 describe('LLMModelsComponent', () => {
   let component: LLMModelsComponent;
@@ -17,7 +19,8 @@ describe('LLMModelsComponent', () => {
   let mockLLMService: jasmine.SpyObj<DataManagementLLMService>;
   let mockProviderService: jasmine.SpyObj<DataManagementLLMProviderService>;
   let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockModalService: jasmine.SpyObj<NgbModal>;
+  let mockNgbModal: jasmine.SpyObj<NgbModal>;
+  let mockModalService: jasmine.SpyObj<ModalService>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockModels: ILLMModel[] = [
@@ -89,7 +92,12 @@ describe('LLMModelsComponent', () => {
       'showSuccess',
     ]);
 
-    const modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open']);
+    const ngbModalSpy = jasmine.createSpyObj('NgbModal', ['open']);
+    const modalServiceSpy = jasmine.createSpyObj('ModalService', [
+      'openModel',
+      'setDefault',
+    ]);
+    modalServiceSpy.resultEvent = new Subject();
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -108,7 +116,8 @@ describe('LLMModelsComponent', () => {
           useValue: providerServiceSpy,
         },
         { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: NgbModal, useValue: modalServiceSpy },
+        { provide: NgbModal, useValue: ngbModalSpy },
+        { provide: ModalService, useValue: modalServiceSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
     }).compileComponents();
@@ -116,13 +125,14 @@ describe('LLMModelsComponent', () => {
     mockLLMService = TestBed.inject(
       DataManagementLLMService
     ) as jasmine.SpyObj<DataManagementLLMService>;
+    mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
+    mockModalService = TestBed.inject(ModalService) as jasmine.SpyObj<ModalService>;
     mockProviderService = TestBed.inject(
       DataManagementLLMProviderService
     ) as jasmine.SpyObj<DataManagementLLMProviderService>;
     mockToastService = TestBed.inject(
       ToastShowService
     ) as jasmine.SpyObj<ToastShowService>;
-    mockModalService = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
@@ -236,10 +246,11 @@ describe('LLMModelsComponent', () => {
       component.models = [...mockModels];
     });
 
-    it('should not delete if index is invalid', async () => {
-      await component.onClickDelete(-1);
+    it('should not delete if model has no id', () => {
+      const invalidModel = { id: undefined } as ILLMModel;
+      component.openDeleteModel(invalidModel);
 
-      expect(mockModalService.open).not.toHaveBeenCalled();
+      expect(mockModalService.openModel).not.toHaveBeenCalled();
     });
   });
 

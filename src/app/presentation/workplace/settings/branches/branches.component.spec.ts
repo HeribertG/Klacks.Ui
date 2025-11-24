@@ -2,19 +2,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
 
 import { BranchesComponent } from './branches.component';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IBranch } from 'src/app/domain/models/branch';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 describe('BranchesComponent', () => {
   let component: BranchesComponent;
   let fixture: ComponentFixture<BranchesComponent>;
   let mockBranchService: jasmine.SpyObj<DataBranchService>;
   let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockModalService: jasmine.SpyObj<NgbModal>;
+  let mockNgbModal: jasmine.SpyObj<NgbModal>;
+  let mockModalService: ModalService;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockBranches: IBranch[] = [
@@ -53,7 +55,7 @@ describe('BranchesComponent', () => {
       'showSuccess',
     ]);
 
-    const modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open']);
+    const ngbModalSpy = jasmine.createSpyObj('NgbModal', ['open']);
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -69,7 +71,8 @@ describe('BranchesComponent', () => {
       providers: [
         { provide: DataBranchService, useValue: branchServiceSpy },
         { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: NgbModal, useValue: modalServiceSpy },
+        { provide: NgbModal, useValue: ngbModalSpy },
+        ModalService,
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
     }).compileComponents();
@@ -80,7 +83,8 @@ describe('BranchesComponent', () => {
     mockToastService = TestBed.inject(
       ToastShowService
     ) as jasmine.SpyObj<ToastShowService>;
-    mockModalService = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
+    mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
+    mockModalService = TestBed.inject(ModalService);
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
@@ -158,14 +162,78 @@ describe('BranchesComponent', () => {
   describe('Delete Branch', () => {
     beforeEach(() => {
       component.branches = [...mockBranches];
+      fixture.detectChanges();
     });
 
-    it('should not delete if index is invalid', async () => {
+    it('should open delete modal with correct context', () => {
+      // Arrange
+      const branchToDelete = mockBranches[0];
+
       // Act
-      await component.onClickDelete(-1);
+      component.openDeleteBranch(branchToDelete);
 
       // Assert
-      expect(mockModalService.open).not.toHaveBeenCalled();
+      expect(mockModalService.componentContext).toBe('branches');
+      expect(mockModalService.Filing).toBe(branchToDelete.id as string);
+    });
+
+    it('should not open delete modal if branch has no id', () => {
+      // Arrange
+      const branchWithoutId: IBranch = {
+        id: undefined,
+        name: 'Test',
+        address: 'Test',
+        phone: '',
+        email: '',
+        select: false,
+        isDirty: 0
+      };
+
+      // Act
+      component.openDeleteBranch(branchWithoutId);
+
+      // Assert
+      expect(mockModalService.Filing).toBe('');
+    });
+
+    it('should delete branch when modal service confirms', async () => {
+      // Arrange
+      const branchToDelete = mockBranches[0];
+      mockBranchService.deleteBranch.and.returnValue(of({} as any));
+
+      // Act
+      component.openDeleteBranch(branchToDelete);
+      mockModalService.result(ModalType.Delete);
+
+      // Wait for async operations
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Assert
+      expect(mockBranchService.deleteBranch).toHaveBeenCalledWith(branchToDelete.id as string);
+      expect(mockToastService.showSuccess).toHaveBeenCalledWith(
+        'setting.branches.success.delete',
+        'Success'
+      );
+    });
+
+    it('should handle delete error', async () => {
+      // Arrange
+      const branchToDelete = mockBranches[0];
+      mockBranchService.deleteBranch.and.returnValue(
+        throwError(() => new Error('Delete failed'))
+      );
+
+      // Act
+      component.openDeleteBranch(branchToDelete);
+      mockModalService.result(ModalType.Delete);
+
+      // Wait for async operations
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Assert
+      expect(mockToastService.showError).toHaveBeenCalledWith(
+        'setting.branches.error.delete'
+      );
     });
   });
 

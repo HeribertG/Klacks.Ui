@@ -17,7 +17,7 @@
     <app-countries-row
       [id]="'countries-row-' + i"
       [data]="c"
-      (isDeleteEvent)="onClickDelete(i)"
+      (isDeleteEvent)="openDeleteCountry(i)"
     >
     </app-countries-row>
     } }

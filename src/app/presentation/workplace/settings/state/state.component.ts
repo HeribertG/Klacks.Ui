@@ -1,9 +1,10 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { Subject, takeUntil } from 'rxjs';
 
 import { StateHeaderComponent } from './state-header/state-header.component';
 import { StateRowComponent } from './state-row/state-row.component';
@@ -12,6 +13,8 @@ import { State } from 'src/app/domain/models/client-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-state',
@@ -27,11 +30,35 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
     StateRowComponent
 ],
 })
-export class StateComponent {
+export class StateComponent implements AfterViewInit, OnDestroy {
   @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
+
+  message = MessageLibrary.DELETE_ENTRY;
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'state'
+        ) {
+          this.deleteState(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onClickAdd(): void {
     const state = new State();
@@ -50,7 +77,20 @@ export class StateComponent {
     });
   }
 
-  onClickDelete(index: number): void {
+  openDeleteState(index: number): void {
+    const currentList = this.dataManagementSettingsService.statesList;
+    if (index >= 0 && index < currentList.length) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'state';
+      this.modalService.Filing = index.toString();
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  private deleteState(indexStr: string): void {
+    const index = parseInt(indexStr, 10);
     const currentList = this.dataManagementSettingsService.statesList;
 
     if (index >= 0 && index < currentList.length) {

@@ -141,7 +141,7 @@
       [id]="'branches-row-' + i"
       [data]="branch"
       (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="onClickDelete(i)"
+      (isDeleteEvent)="openDeleteBranch($event)"
     >
     </app-branches-row>
 

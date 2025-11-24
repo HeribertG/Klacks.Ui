@@ -16,13 +16,13 @@ export class BranchesRowComponent {
 
   @Input() data!: IBranch;
   @Output() editEvent = new EventEmitter<IBranch>();
-  @Output() isDeleteEvent = new EventEmitter<void>();
+  @Output() isDeleteEvent = new EventEmitter<IBranch>();
 
   onClickEdit(): void {
     this.editEvent.emit(this.data);
   }
 
   onClickDelete(): void {
-    this.isDeleteEvent.emit();
+    this.isDeleteEvent.emit(this.data);
   }
 }

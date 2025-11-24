@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { Subject, takeUntil } from 'rxjs';
 
 import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
@@ -12,6 +13,7 @@ import { Macro } from 'src/app/domain/models/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 @Component({
   selector: 'app-macros',
@@ -27,9 +29,34 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
     MacroRowComponent
 ],
 })
-export class MacrosComponent {
+export class MacrosComponent implements AfterViewInit, OnDestroy {
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
+
+  message = MessageLibrary.DELETE_ENTRY;
+  private macroToDeleteIndex: number | null = null;
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'macros'
+        ) {
+          this.deleteMacro(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onClickAdd(): void {
     const macro = new Macro();
@@ -39,7 +66,22 @@ export class MacrosComponent {
     this.dataManagementSettingsService.macroList.push(macro);
   }
 
-  onClickDelete(index: number): void {
+  openDeleteMacro(index: number): void {
+    const macros = this.dataManagementSettingsService.macroList;
+
+    if (index >= 0 && index < macros.length) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'macros';
+
+      this.modalService.Filing = index.toString();
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  private deleteMacro(indexStr: string): void {
+    const index = parseInt(indexStr, 10);
     const macros = this.dataManagementSettingsService.macroList;
 
     if (index >= 0 && index < macros.length) {

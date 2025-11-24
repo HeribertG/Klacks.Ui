@@ -11,6 +11,7 @@ import { DataManagementLLMService } from 'src/app/domain/services/llm/data-manag
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
 import { signal } from '@angular/core';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 describe('LLMProvidersComponent', () => {
   let component: LLMProvidersComponent;
@@ -18,7 +19,8 @@ describe('LLMProvidersComponent', () => {
   let mockProviderService: jasmine.SpyObj<DataManagementLLMProviderService>;
   let mockLLMService: jasmine.SpyObj<DataManagementLLMService>;
   let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockModalService: jasmine.SpyObj<NgbModal>;
+  let mockNgbModal: jasmine.SpyObj<NgbModal>;
+  let mockModalService: ModalService;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
 
   const mockProviders: ILLMProvider[] = [
@@ -80,7 +82,7 @@ describe('LLMProvidersComponent', () => {
       'showSuccess',
     ]);
 
-    const modalServiceSpy = jasmine.createSpyObj('NgbModal', ['open']);
+    const ngbModalSpy = jasmine.createSpyObj('NgbModal', ['open']);
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
@@ -100,7 +102,8 @@ describe('LLMProvidersComponent', () => {
         },
         { provide: DataManagementLLMService, useValue: llmServiceSpy },
         { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: NgbModal, useValue: modalServiceSpy },
+        { provide: NgbModal, useValue: ngbModalSpy },
+        ModalService,
         { provide: TranslateService, useValue: translateServiceSpy },
       ],
     }).compileComponents();
@@ -114,7 +117,8 @@ describe('LLMProvidersComponent', () => {
     mockToastService = TestBed.inject(
       ToastShowService
     ) as jasmine.SpyObj<ToastShowService>;
-    mockModalService = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
+    mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
+    mockModalService = TestBed.inject(ModalService);
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
@@ -180,10 +184,56 @@ describe('LLMProvidersComponent', () => {
   });
 
   describe('Delete Provider', () => {
-    it('should set providerToDelete', () => {
-      component.onClickDelete(mockProviders[0]);
+    beforeEach(() => {
+      component.providers = [...mockProviders];
+      fixture.detectChanges();
+    });
 
-      expect(component.providerToDelete).toEqual(mockProviders[0]);
+    it('should open delete modal with correct context', () => {
+      // Arrange
+      const providerToDelete = mockProviders[0];
+
+      // Act
+      component.openDeleteProvider(providerToDelete);
+
+      // Assert
+      expect(mockModalService.componentContext).toBe('llm-providers');
+      expect(mockModalService.Filing).toBe(providerToDelete.id as string);
+    });
+
+    it('should not open delete modal if provider has no id', () => {
+      // Arrange
+      const providerWithoutId: ILLMProvider = {
+        id: '',
+        providerId: 'test',
+        providerName: 'Test',
+        baseUrl: 'https://test.com',
+        apiVersion: 'v1',
+        isEnabled: true,
+        priority: 1
+      };
+
+      // Act
+      component.openDeleteProvider(providerWithoutId);
+
+      // Assert
+      expect(mockModalService.Filing).toBe('');
+    });
+
+    it('should delete provider when modal service confirms', async () => {
+      // Arrange
+      const providerToDelete = mockProviders[0];
+      mockProviderService.deleteProvider.and.returnValue(Promise.resolve(true));
+
+      // Act
+      component.openDeleteProvider(providerToDelete);
+      mockModalService.result(ModalType.Delete);
+
+      // Wait for async operations
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // Assert
+      expect(mockProviderService.deleteProvider).toHaveBeenCalledWith(providerToDelete.id);
     });
   });
 

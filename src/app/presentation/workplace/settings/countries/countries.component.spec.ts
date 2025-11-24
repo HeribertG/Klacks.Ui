@@ -169,7 +169,8 @@ describe('CountriesComponent', () => {
       const indexToDelete = currentList.length - 1;
 
       // Act
-      component.onClickDelete(indexToDelete);
+      component.openDeleteCountry(indexToDelete);
+      component['deleteCountry'](indexToDelete.toString());
 
       // Assert
       const updatedList =
@@ -186,7 +187,8 @@ describe('CountriesComponent', () => {
       const originalName = currentList[indexToDelete].name!.de;
 
       // Act
-      component.onClickDelete(indexToDelete);
+      component.openDeleteCountry(indexToDelete);
+      component['deleteCountry'](indexToDelete.toString());
 
       // Assert
       const updatedList =
@@ -215,7 +217,7 @@ describe('CountriesComponent', () => {
       const indexToDelete = currentList.length - 1;
 
       // Act & Assert
-      expect(() => component.onClickDelete(indexToDelete)).not.toThrow();
+      expect(() => component.openDeleteCountry(indexToDelete)).not.toThrow();
     });
   });
 
@@ -316,7 +318,8 @@ describe('CountriesComponent', () => {
       // Act
       component.onClickAdd();
       component.onClickAdd();
-      component.onClickDelete(0);
+      component.openDeleteCountry(0);
+      component['deleteCountry']('0');
 
       // Assert
       const finalList = mockSettingsService.countryStateService.countriesList();
@@ -346,7 +349,8 @@ describe('CountriesComponent', () => {
       component.onIsChanging();
 
       // Delete existing country
-      component.onClickDelete(0);
+      component.openDeleteCountry(0);
+      component['deleteCountry']('0');
 
       // Assert
       const finalList = mockSettingsService.countryStateService.countriesList();
@@ -373,7 +377,8 @@ describe('CountriesComponent', () => {
         mockSettingsService.countryStateService.countriesList();
       const newCountryIndex = currentList.length - 1;
 
-      component.onClickDelete(newCountryIndex);
+      component.openDeleteCountry(newCountryIndex);
+      component['deleteCountry'](newCountryIndex.toString());
 
       // Assert
       const finalList = mockSettingsService.countryStateService.countriesList();

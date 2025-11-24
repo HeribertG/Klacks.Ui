@@ -16,7 +16,7 @@ export class LLMModelsRowComponent {
 
   @Input() data!: ILLMModel;
   @Output() editEvent = new EventEmitter<ILLMModel>();
-  @Output() isDeleteEvent = new EventEmitter<void>();
+  @Output() isDeleteEvent = new EventEmitter<ILLMModel>();
 
   onClickEdit(): void {
     this.editEvent.emit(this.data);
@@ -24,7 +24,7 @@ export class LLMModelsRowComponent {
 
   onClickDelete(): void {
     if (!this.data.isDefault) {
-      this.isDeleteEvent.emit();
+      this.isDeleteEvent.emit(this.data);
     }
   }
 

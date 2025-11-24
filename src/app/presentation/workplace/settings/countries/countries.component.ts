@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, inject } from '@angular/core';
+import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 import { Country } from 'src/app/domain/models/client-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
-
+import { Subject, takeUntil } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { CountriesHeaderComponent } from './countries-header/countries-header.component';
 import { CountriesRowComponent } from './countries-row/countries-row.component';
+import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
   selector: 'app-countries',
@@ -26,11 +28,35 @@ import { CountriesRowComponent } from './countries-row/countries-row.component';
     CountriesRowComponent
 ],
 })
-export class CountriesComponent {
+export class CountriesComponent implements AfterViewInit, OnDestroy {
   @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private modalService = inject(ModalService);
+  private destroy$ = new Subject<void>();
+
+  message = MessageLibrary.DELETE_ENTRY;
+
+  ngAfterViewInit(): void {
+    this.modalService.resultEvent
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((x: ModalType) => {
+        if (
+          x === ModalType.Delete &&
+          this.modalService.componentContext === 'countries'
+        ) {
+          this.deleteCountry(this.modalService.Filing);
+          this.modalService.componentContext = '';
+          this.modalService.Filing = '';
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   onClickAdd() {
     const c = new Country();
@@ -47,7 +73,20 @@ export class CountriesComponent {
     }, 0);
   }
 
-  onClickDelete(index: number) {
+  openDeleteCountry(index: number): void {
+    const currentList = this.dataManagementSettingsService.countriesList;
+    if (index >= 0 && index < currentList.length) {
+      this.modalService.Filing = '';
+      this.modalService.componentContext = 'countries';
+      this.modalService.Filing = index.toString();
+      this.modalService.deleteMessage = this.message;
+      this.modalService.setDefault(ModalType.Delete);
+      this.modalService.openModel(ModalType.Delete);
+    }
+  }
+
+  private deleteCountry(indexStr: string): void {
+    const index = parseInt(indexStr, 10);
     const currentList = this.dataManagementSettingsService.countriesList;
     const c = currentList[index];
 

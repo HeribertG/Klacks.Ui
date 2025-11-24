@@ -197,7 +197,7 @@
       [id]="'contract-row-' + i"
       [data]="contract"
       (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="onClickDelete(i)"
+      (isDeleteEvent)="openDeleteContract(i)"
     >
     </app-contract-row>
 
