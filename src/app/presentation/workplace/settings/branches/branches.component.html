@@ -1,0 +1,160 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Branch Modal -->
+<ng-template #branchModal id="branches-modal-template" let-modal>
+  <form id="branches-modal-form" #branchForm="ngForm">
+    <div id="branches-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.branches.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        id="branches-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="branches-modal-body" class="modal-body">
+      @if (editingBranch) {
+      <!-- Name and Address -->
+      <div id="branches-modal-basic-info-row" class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="name">{{
+            translate.instant("setting.branches.modal.name")
+          }}</label>
+          <input
+            id="branches-modal-name"
+            type="text"
+            [(ngModel)]="editingBranch.name"
+            name="name"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="model-field">
+          <label for="address">{{
+            translate.instant("setting.branches.modal.address")
+          }}</label>
+          <input
+            id="branches-modal-address"
+            type="text"
+            [(ngModel)]="editingBranch.address"
+            name="address"
+            class="form-control"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Phone and Email -->
+      <div id="branches-modal-contact-row" class="row-line-modal-inline">
+        <div class="model-field">
+          <label for="phone">{{
+            translate.instant("setting.branches.modal.phone")
+          }}</label>
+          <input
+            id="branches-modal-phone"
+            type="text"
+            [(ngModel)]="editingBranch.phone"
+            name="phone"
+            class="form-control"
+          />
+        </div>
+        <div class="model-field">
+          <label for="email">{{
+            translate.instant("setting.branches.modal.email")
+          }}</label>
+          <input
+            id="branches-modal-email"
+            type="email"
+            [(ngModel)]="editingBranch.email"
+            name="email"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div id="branches-modal-validation-row" class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div id="branches-modal-footer" class="modal-footer">
+    <span
+      id="branches-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      id="branches-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("save") }}
+    </button>
+  </div>
+</ng-template>
+
+<form id="branches-form">
+  <div id="branches-header" class="container-header">
+    {{ translate.instant("setting.branches.title") }}
+  </div>
+
+  <div id="branches-line" class="container-line"></div>
+
+  <app-branches-header id="branches-table-header"></app-branches-header>
+
+  <div id="branches-box" class="container-box">
+    @for (branch of branches; track branch.id || $index; let i = $index) {
+
+    <app-branches-row
+      [id]="'branches-row-' + i"
+      [data]="branch"
+      (editEvent)="onClickEdit($event)"
+      (isDeleteEvent)="onClickDelete(i)"
+    >
+    </app-branches-row>
+
+    }
+  </div>
+
+  <div id="branches-footer" class="row">
+    <span
+      id="branches-add-btn"
+      class="add-button"
+      type="button"
+      (click)="onClickAdd()"
+      >{{ translate.instant("setting.branches.add") }}
+    </span>
+  </div>
+</form>

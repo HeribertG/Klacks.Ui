@@ -113,7 +113,7 @@ describe('StateComponent', () => {
       expect(newState.name).toBeDefined();
     });
 
-    it('should scroll to bottom after adding state', (done) => {
+    it('should scroll to bottom after adding state', async () => {
       // Arrange
       const mockContainer = {
         nativeElement: {
@@ -127,13 +127,15 @@ describe('StateComponent', () => {
       component.onClickAdd();
 
       // Assert
-      requestAnimationFrame(() => {
-        setTimeout(() => {
-          expect(mockContainer.nativeElement.scrollTop).toBe(
-            mockContainer.nativeElement.scrollHeight
-          );
-          done();
-        }, 100);
+      await new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            expect(mockContainer.nativeElement.scrollTop).toBe(
+              mockContainer.nativeElement.scrollHeight
+            );
+            resolve();
+          }, 100);
+        });
       });
     });
   });

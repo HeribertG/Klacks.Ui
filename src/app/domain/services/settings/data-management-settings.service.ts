@@ -4,10 +4,12 @@ import { UserAdministrationManagementService } from './user-administration-manag
 import { AppSettingsManagementService } from './app-settings-management.service';
 import { MacroManagementService } from './macro-management.service';
 import { CountryStateManagementService } from './country-state-management.service';
+import { BranchManagementService } from './branch-management.service';
 import { GridColorService } from './grid-color.service';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { IMacro } from 'src/app/domain/models/macro-class';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
+import { IBranch } from 'src/app/domain/models/branch';
 
 /**
  * Facade service that coordinates all settings-related operations.
@@ -27,6 +29,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   private appSettingsService = inject(AppSettingsManagementService);
   private macroService = inject(MacroManagementService);
   public countryStateService = inject(CountryStateManagementService);
+  public branchService = inject(BranchManagementService);
   public gridColorService = inject(GridColorService);
 
   // IManageable implementation
@@ -288,6 +291,18 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   // =============================
+  // Branches - Delegated
+  // =============================
+
+  get branchesList(): IBranch[] {
+    return this.branchService.branchesList();
+  }
+
+  readBranchList(): void {
+    this.branchService.loadBranches();
+  }
+
+  // =============================
   // Macros - Delegated
   // =============================
 
@@ -316,6 +331,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       this.appSettingsService.isDirty() ||
       this.countryStateService.isCountriesDirty() ||
       this.countryStateService.isStatesDirty() ||
+      this.branchService.isBranchesDirty() ||
       this.macroService.isDirty() ||
       this.gridColorService.isSetting_Dirty()
     );
@@ -339,6 +355,11 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       hasOperations = true;
     }
 
+    if (this.branchService.isBranchesDirty()) {
+      this.branchService.saveBranches();
+      hasOperations = true;
+    }
+
     if (this.macroService.isDirty()) {
       this.macroService.save();
       hasOperations = true;
@@ -357,6 +378,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   readData(): void {
     this.appSettingsService.loadSettings();
     this.countryStateService.loadCountriesAndStates();
+    this.branchService.loadBranches();
     this.macroService.loadMacros();
     // UserAdministrationManagementService loads automatically in constructor
 
@@ -367,6 +389,7 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   resetData(): void {
     this.appSettingsService.resetData();
     this.countryStateService.loadCountriesAndStates();
+    this.branchService.loadBranches();
     this.macroService.resetData();
     this.gridColorService.readData();
 
@@ -382,5 +405,6 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     this.userAdminService.destroy();
     this.appSettingsService.destroy();
     this.macroService.destroy();
+    this.branchService.destroy();
   }
 }

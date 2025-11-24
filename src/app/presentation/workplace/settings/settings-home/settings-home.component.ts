@@ -17,6 +17,7 @@ import { SettingsGeneralComponent } from '../settings-general/settings-general.c
 import { OwnerAddressComponent } from '../owner-address/owner-address.component';
 import { CountriesComponent } from '../countries/countries.component';
 import { StateComponent } from '../state/state.component';
+import { BranchesComponent } from '../branches/branches.component';
 import { AbsenceComponent } from '../absence/absence.component';
 import { CalendarRulesComponent } from '../calendar-rules/calendar-rules.component';
 import { EmailSettingComponent } from '../email-setting/email-setting.component';
@@ -42,6 +43,7 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
     OwnerAddressComponent,
     CountriesComponent,
     StateComponent,
+    BranchesComponent,
     AbsenceComponent,
     CalendarRulesComponent,
     EmailSettingComponent,
