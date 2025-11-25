@@ -8,6 +8,8 @@ export interface IContainerTemplate {
   weekday: number;
   isWeekdayOrHoliday: boolean;
   isHoliday: boolean;
+  startBase?: string;
+  endBase?: string;
   shift?: IShift;
   containerTemplateItems: IContainerTemplateItem[];
 }

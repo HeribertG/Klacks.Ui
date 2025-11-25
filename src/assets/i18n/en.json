@@ -913,6 +913,8 @@
   "shift.container-template.weekday.sunday": "Sun",
   "shift.container-template.weekday.holiday": "Holiday",
   "shift.container-template.weekday.holiday-plus": "Weekday or Holiday",
+  "shift.container-template.start-base": "Start",
+  "shift.container-template.end-base": "End",
   "shift.container-template.weekday-full.monday": "Monday",
   "shift.container-template.weekday-full.tuesday": "Tuesday",
   "shift.container-template.weekday-full.wednesday": "Wednesday",

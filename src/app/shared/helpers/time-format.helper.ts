@@ -91,3 +91,68 @@ export function parseTime(time: string | undefined): { hours: number; minutes: n
 export function isValidTimeString(time: string | undefined): boolean {
   return parseTime(time) !== null;
 }
+
+/**
+ * Converts time string to total minutes since midnight
+ *
+ * @param time - Time string in format "HH:mm:ss" or "HH:mm"
+ * @returns Total minutes since midnight
+ *
+ * @example
+ * timeToMinutes("14:30:00") // 870
+ * timeToMinutes("09:05")    // 545
+ */
+export function timeToMinutes(time: string): number {
+  const parsed = parseTime(time);
+  if (!parsed) {
+    return 0;
+  }
+  return parsed.hours * 60 + parsed.minutes;
+}
+
+/**
+ * Calculates duration in minutes between two time strings
+ *
+ * @param startTime - Start time in format "HH:mm:ss" or "HH:mm"
+ * @param endTime - End time in format "HH:mm:ss" or "HH:mm"
+ * @returns Duration in minutes
+ *
+ * @example
+ * calculateDurationInMinutes("09:00:00", "10:30:00") // 90
+ * calculateDurationInMinutes("14:00", "15:15")       // 75
+ */
+export function calculateDurationInMinutes(
+  startTime: string | undefined,
+  endTime: string | undefined
+): number {
+  if (!startTime || !endTime) {
+    return 0;
+  }
+
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+
+  if (end >= start) {
+    return end - start;
+  } else {
+    return 24 * 60 - start + end;
+  }
+}
+
+/**
+ * Formats minutes since midnight to time string "HH:mm:ss"
+ *
+ * @param minutes - Total minutes since midnight
+ * @returns Time string in format "HH:mm:ss"
+ *
+ * @example
+ * formatTimeFromMinutes(870)  // "14:30:00"
+ * formatTimeFromMinutes(545)  // "09:05:00"
+ * formatTimeFromMinutes(1500) // "01:00:00" (next day)
+ */
+export function formatTimeFromMinutes(minutes: number): string {
+  const totalMinutes = minutes % (24 * 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const mins = totalMinutes % 60;
+  return timeToString(hours, mins);
+}

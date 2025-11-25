@@ -913,6 +913,8 @@
   "shift.container-template.weekday.sunday": "Di",
   "shift.container-template.weekday.holiday": "Jour férié",
   "shift.container-template.weekday.holiday-plus": "Jour de semaine ou férié",
+  "shift.container-template.start-base": "Début",
+  "shift.container-template.end-base": "Fin",
   "shift.container-template.weekday-full.monday": "Lundi",
   "shift.container-template.weekday-full.tuesday": "Mardi",
   "shift.container-template.weekday-full.wednesday": "Mercredi",

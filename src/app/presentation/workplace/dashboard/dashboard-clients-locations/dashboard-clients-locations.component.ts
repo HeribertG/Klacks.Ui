@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, signal, AfterViewInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -17,7 +18,7 @@ export interface LocationData {
 export enum ClientType {
   Employee = 0,
   ExternEmp = 1,
-  Customer = 2
+  Customer = 2,
 }
 
 @Component({
@@ -27,7 +28,7 @@ export enum ClientType {
   standalone: true,
   imports: [TranslateModule],
 })
-export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit {
+export class DashboardClientsLocationsComponent implements OnInit {
   private dataDashboardService = inject(DataDashboardService);
 
   public locations = signal<LocationData[]>([]);
@@ -43,9 +44,6 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
     this.loadLocationData();
   }
 
-  ngAfterViewInit(): void {
-  }
-
   private loadLocationData(): void {
     this.isLoading.set(true);
     this.error.set(null);
@@ -54,7 +52,7 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
       next: (clients) => {
         const locationMap = new Map<string, LocationData>();
 
-        clients.forEach(client => {
+        clients.forEach((client) => {
           if (client.currentAddress) {
             const address = client.currentAddress;
 
@@ -80,15 +78,16 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
                   count: 1,
                   employeeCount: clientType === ClientType.Employee ? 1 : 0,
                   externEmpCount: clientType === ClientType.ExternEmp ? 1 : 0,
-                  customerCount: clientType === ClientType.Customer ? 1 : 0
+                  customerCount: clientType === ClientType.Customer ? 1 : 0,
                 });
               }
             }
           }
         });
 
-        const locationsArray = Array.from(locationMap.values())
-          .sort((a, b) => b.count - a.count);
+        const locationsArray = Array.from(locationMap.values()).sort(
+          (a, b) => b.count - a.count
+        );
 
         this.locations.set(locationsArray);
         this.totalLocations.set(locationsArray.length);
@@ -128,7 +127,8 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
     this.map = L.map('map-container').setView([46.8182, 8.2275], 7);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(this.map);
 
@@ -154,17 +154,21 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
       next: (clients) => {
         const locationCoords = new Map<string, { lat: number; lon: number }>();
 
-        clients.forEach(client => {
-          if (client.currentAddress && client.currentAddress.latitude && client.currentAddress.longitude) {
+        clients.forEach((client) => {
+          if (
+            client.currentAddress &&
+            client.currentAddress.latitude &&
+            client.currentAddress.longitude
+          ) {
             const key = `${client.currentAddress.city},${client.currentAddress.country}`;
             locationCoords.set(key, {
               lat: client.currentAddress.latitude,
-              lon: client.currentAddress.longitude
+              lon: client.currentAddress.longitude,
             });
           }
         });
 
-        locations.forEach(location => {
+        locations.forEach((location) => {
           const key = `${location.city},${location.country}`;
           const coords = locationCoords.get(key);
 
@@ -173,11 +177,27 @@ export class DashboardClientsLocationsComponent implements OnInit, AfterViewInit
 
             const popupContent = `
               <div style="min-width: 200px;">
-                <h4 style="margin: 0 0 10px 0;">${location.city}, ${location.country}</h4>
-                <p style="margin: 5px 0;"><strong>Total:</strong> ${location.count} Clients</p>
-                ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>Employees:</strong> ${location.employeeCount}</p>` : ''}
-                ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>Extern Emp:</strong> ${location.externEmpCount}</p>` : ''}
-                ${location.customerCount > 0 ? `<p style="margin: 5px 0; color: #ffa800;"><strong>Customers:</strong> ${location.customerCount}</p>` : ''}
+                <h4 style="margin: 0 0 10px 0;">${location.city}, ${
+              location.country
+            }</h4>
+                <p style="margin: 5px 0;"><strong>Total:</strong> ${
+                  location.count
+                } Clients</p>
+                ${
+                  location.employeeCount > 0
+                    ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>Employees:</strong> ${location.employeeCount}</p>`
+                    : ''
+                }
+                ${
+                  location.externEmpCount > 0
+                    ? `<p style="margin: 5px 0; color: #6993ff;"><strong>Extern Emp:</strong> ${location.externEmpCount}</p>`
+                    : ''
+                }
+                ${
+                  location.customerCount > 0
+                    ? `<p style="margin: 5px 0; color: #ffa800;"><strong>Customers:</strong> ${location.customerCount}</p>`
+                    : ''
+                }
               </div>
             `;
 

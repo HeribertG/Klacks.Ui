@@ -19,7 +19,6 @@ import {
   CdkDragDrop,
   DragDropModule,
   moveItemInArray,
-  transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { SearchService } from 'src/app/application/services/search.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
@@ -56,9 +55,18 @@ import { ContainerTemplatePdfExportService } from './services/container-template
 import {
   formatTime,
   timeToString,
+  parseTime,
+  calculateDurationInMinutes,
+  formatTimeFromMinutes,
+  timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
 import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
 import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component';
+import { AddressProviderService } from 'src/app/domain/services/address-provider.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+import { BranchManagementService } from 'src/app/domain/services/settings/branch-management.service';
+import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
+import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
 
 @Component({
   selector: 'app-container-template',
@@ -75,6 +83,7 @@ import { PdfIconComponent } from 'src/app/presentation/icons/pdf-icon.component'
     TrashIconRedComponent,
     IconCompactComponent,
     PdfIconComponent,
+    IconRouteComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -136,10 +145,16 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
   private arrangementService = inject(ShiftArrangementService);
-  private dragDropService = inject(TimeRulerDragDropService);
   private pdfExportService = inject(ContainerTemplatePdfExportService);
+  public addressProvider = inject(AddressProviderService);
+  private appSettingsService = inject(AppSettingsManagementService);
+  private branchService = inject(BranchManagementService);
+  private routeOptimizationService = inject(RouteOptimizationService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
+
+  public selectedStartBase = '';
+  public selectedEndBase = '';
 
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
@@ -375,6 +390,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.searchService.setSearchVisibility(true);
     this.savebarService.setSavebarVisibility(true);
 
+    this.appSettingsService.loadSettings();
+    this.branchService.loadBranches();
+
     this.containerService.onSaveCompleted = () => {
       if (this.containerShift?.id && this.selectedWeekday) {
         const weekdayNumber = this.containerService.getWeekdayNumber(
@@ -389,6 +407,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
               .subscribe(() => {
                 this.updateAvailableTasks();
                 this.updateCurrentWeekdayAndSlot();
+                this.loadStartEndBaseForCurrentTemplate();
               });
           });
       }
@@ -451,6 +470,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
                       .loadTemplates(this.containerShift!.id!)
                       .subscribe(() => {
                         this.updateAvailableTasks();
+                        this.loadStartEndBaseForCurrentTemplate();
                       });
                   });
               }
@@ -490,12 +510,46 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   onTimeFromChange(time: OwnTime): void {
     this.timeFrom = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      const timeString = timeToString(
+        parseInt(this.timeFrom.hours),
+        parseInt(this.timeFrom.minutes)
+      );
+      this.containerService.updateFromTime(
+        weekdayNumber,
+        this.isHoliday,
+        timeString
+      );
+      this.workplaceStateService.areObjectsDirty();
+    }
+
     this.timeChange$.next();
   }
 
   onTimeToChange(time: OwnTime): void {
     this.timeTo = OwnTime.forTime(time.hours, time.minutes);
     this.calculateDuration();
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      const timeString = timeToString(
+        parseInt(this.timeTo.hours),
+        parseInt(this.timeTo.minutes)
+      );
+      this.containerService.updateUntilTime(
+        weekdayNumber,
+        this.isHoliday,
+        timeString
+      );
+      this.workplaceStateService.areObjectsDirty();
+    }
+
     this.timeChange$.next();
   }
 
@@ -560,6 +614,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.containerService.loadTasksForWeekday(weekdayNumber).subscribe(() => {
         this.updateAvailableTasks();
         this.updateCurrentWeekdayAndSlot();
+        this.loadStartEndBaseForCurrentTemplate();
       });
     }
   }
@@ -570,6 +625,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     this.shiftService.setSelectedShift(null);
     this.updateAvailableTasks();
     this.updateCurrentWeekdayAndSlot();
+    this.loadStartEndBaseForCurrentTemplate();
   }
 
   private updateAvailableTasks(): void {
@@ -806,8 +862,176 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   compactSelectedShifts(): void {
-    const currentItems = this.shiftService.selectedContainerTemplateItemsSignal();
+    const currentItems =
+      this.shiftService.selectedContainerTemplateItemsSignal();
     this.arrangeAndSetSelectedContainerTemplateItems([...currentItems]);
+  }
+
+  optimizeRoute(): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    if (items.length < 2) {
+      alert('Mindestens 2 Shifts sind für die Routenoptimierung erforderlich');
+      return;
+    }
+
+    if (!this.containerShift?.id || !this.selectedWeekday) {
+      alert('Kein Container oder Wochentag ausgewählt');
+      return;
+    }
+
+    const weekdayNumber = this.containerService.getWeekdayNumber(
+      this.selectedWeekday
+    );
+
+    console.log('Starting route optimization:', {
+      containerId: this.containerShift.id,
+      weekday: weekdayNumber,
+      isHoliday: this.isHoliday,
+      startBase: this.selectedStartBase,
+      endBase: this.selectedEndBase,
+      itemsCount: items.length,
+    });
+
+    this.routeOptimizationService
+      .optimizeRoute(
+        this.containerShift.id,
+        weekdayNumber,
+        this.isHoliday,
+        this.selectedStartBase || undefined,
+        this.selectedEndBase || undefined
+      )
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          console.log('Route optimization successful:', result);
+          this.applyOptimizedRoute(result, items);
+          alert(
+            `Route optimiert! Distanz: ${result.totalDistanceKm.toFixed(
+              2
+            )} km, Zeit: ${result.estimatedTravelTime}`
+          );
+        },
+        error: (error) => {
+          console.error('Route optimization failed:', error);
+          alert(
+            `Fehler bei Routenoptimierung: ${
+              error.message || error.statusText || 'Unbekannter Fehler'
+            }`
+          );
+        },
+      });
+  }
+
+  private applyOptimizedRoute(
+    result: any,
+    currentItems: IContainerTemplateItem[]
+  ): void {
+    const optimizedRoute = result.optimizedRoute;
+    const reorderedItems: IContainerTemplateItem[] = [];
+    const itemsByShiftId = new Map<string, IContainerTemplateItem>();
+
+    currentItems.forEach((item) => {
+      if (item.shiftId) {
+        itemsByShiftId.set(item.shiftId, item);
+      }
+    });
+
+    const startTimeString = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+    let currentStartTimeMinutes = timeToMinutes(startTimeString);
+
+    console.log(`\n${startTimeString} (StartBase)`);
+
+    for (let i = 0; i < optimizedRoute.length; i++) {
+      const routeStep = optimizedRoute[i];
+      const item = itemsByShiftId.get(routeStep.shiftId);
+
+      if (item && item.shift) {
+        let travelTimeToThisShiftMinutes = 0;
+        if (i === 0) {
+          travelTimeToThisShiftMinutes = this.parseTimeSpan(result.travelTimeFromStartBase);
+        } else {
+          travelTimeToThisShiftMinutes = this.parseTimeSpan(optimizedRoute[i - 1].travelTimeToNext);
+        }
+
+        const shiftWorkTimeMinutes = Math.round(item.shift.workTime * 60);
+        const shiftStartAfterTravel = currentStartTimeMinutes + travelTimeToThisShiftMinutes;
+        const newStartShift = formatTimeFromMinutes(shiftStartAfterTravel);
+        const newEndShift = formatTimeFromMinutes(shiftStartAfterTravel + shiftWorkTimeMinutes);
+
+        const travelTimeFormatted = this.formatMinutesToTime(travelTimeToThisShiftMinutes);
+        const workTimeFormatted = this.formatMinutesToTime(shiftWorkTimeMinutes);
+
+        console.log(`  + ${travelTimeFormatted} (Reisezeit zu ${item.shift.client?.name})`);
+        console.log(`  = ${newStartShift} (${item.shift.client?.name} timeRangeStartShift)`);
+        console.log(`  + ${workTimeFormatted} (${item.shift.client?.name} workTime)`);
+        console.log(`  = ${newEndShift} (${item.shift.client?.name} timeRangeEndShift)\n`);
+
+        const newItem: IContainerTemplateItem = {
+          ...item,
+          startShift: newStartShift,
+          endShift: newEndShift,
+        };
+
+        reorderedItems.push(newItem);
+        currentStartTimeMinutes = shiftStartAfterTravel + shiftWorkTimeMinutes;
+
+        if (i < optimizedRoute.length - 1) {
+          console.log(`${newEndShift} (Ende ${item.shift.client?.name})`);
+        }
+      }
+    }
+
+    if (reorderedItems.length > 0) {
+      console.log('Setting reordered items directly...');
+
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday!
+      );
+
+      this.shiftService.setSelectedContainerTemplateItems(reorderedItems);
+      this.containerService.updateTaskOrderInTemplates(
+        reorderedItems,
+        weekdayNumber,
+        this.isHoliday
+      );
+      this.workplaceStateService.areObjectsDirty();
+
+      // Sort by startShift time after route optimization
+      this.sortingService.onHeaderClick('startShift', () => {
+        this.loadItemsAndResize();
+      });
+
+      console.log('Done! Items reordered and saved.');
+      console.log(
+        'New order in UI:',
+        reorderedItems.map((i) => i.shift?.client?.name)
+      );
+    } else {
+      console.error('No reordered items to apply!');
+    }
+  }
+
+  private parseTimeSpan(timeSpan: string): number {
+    const parts = timeSpan.split(':');
+    if (parts.length === 3) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      return hours * 60 + minutes;
+    }
+    return 0;
+  }
+
+  private formatMinutesToTime(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}h${mins > 0 ? ' ' + mins + 'm' : ''}`;
+    }
+    return `${mins}m`;
   }
 
   exportSelectedShiftsToPdf(): void {
@@ -912,5 +1136,70 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   get currentTemplates(): IContainerTemplate[] {
     return this.containerService.getCurrentTemplates();
+  }
+
+  onStartBaseChange(): void {
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.updateStartBase(
+        weekdayNumber,
+        this.isHoliday,
+        this.selectedStartBase
+      );
+      this.workplaceStateService.areObjectsDirty();
+    }
+  }
+
+  onEndBaseChange(): void {
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.updateEndBase(
+        weekdayNumber,
+        this.isHoliday,
+        this.selectedEndBase
+      );
+      this.workplaceStateService.areObjectsDirty();
+    }
+  }
+
+  private loadStartEndBaseForCurrentTemplate(): void {
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      const template = this.containerService.getTemplateForWeekday(
+        weekdayNumber,
+        this.isHoliday
+      );
+      if (template) {
+        console.log('Template startBase:', template.startBase);
+        console.log('Available addresses:', this.addressProvider.allAddresses());
+
+        // Check if template.startBase is a name or already an address
+        let startBaseAddress = this.addressProvider.allAddresses().find(a => a.name === template.startBase);
+        if (!startBaseAddress) {
+          // If not found by name, check if it's already an address
+          startBaseAddress = this.addressProvider.allAddresses().find(a => a.address === template.startBase);
+        }
+
+        let endBaseAddress = this.addressProvider.allAddresses().find(a => a.name === template.endBase);
+        if (!endBaseAddress) {
+          endBaseAddress = this.addressProvider.allAddresses().find(a => a.address === template.endBase);
+        }
+
+        console.log('Found startBaseAddress:', startBaseAddress);
+        console.log('Setting selectedStartBase to:', startBaseAddress?.address);
+
+        this.selectedStartBase = startBaseAddress?.address || '';
+        this.selectedEndBase = endBaseAddress?.address || '';
+      } else {
+        this.selectedStartBase = '';
+        this.selectedEndBase = '';
+      }
+    }
   }
 }

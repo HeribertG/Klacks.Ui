@@ -545,17 +545,23 @@ export class DataManagementContainerService
         (task) => task.shiftId
       );
 
+      const templates = this.editTemplates();
+      const existingTemplate = templates.find(
+        t => t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
+      );
+
       const newTemplate: IContainerTemplate = {
         containerId: containerId,
         weekday: weekdayNumber,
-        fromTime: slot.fromTime,
-        untilTime: slot.untilTime,
+        fromTime: existingTemplate?.fromTime ?? slot.fromTime,
+        untilTime: existingTemplate?.untilTime ?? slot.untilTime,
         isHoliday: slot.isHoliday,
         isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+        startBase: existingTemplate?.startBase,
+        endBase: existingTemplate?.endBase,
         containerTemplateItems: containerTemplateItems,
       };
 
-      const templates = this.editTemplates();
       this.editTemplates.set([...templates, newTemplate]);
     });
   }
@@ -645,6 +651,69 @@ export class DataManagementContainerService
         return {
           ...template,
           containerTemplateItems: orderedTasks
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  updateStartBase(weekday: number, isHoliday: boolean, startBase: string): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          startBase: startBase
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  updateEndBase(weekday: number, isHoliday: boolean, endBase: string): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          endBase: endBase
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  getTemplateForWeekday(weekday: number, isHoliday: boolean): IContainerTemplate | undefined {
+    const templates = this.editTemplates();
+    return templates.find(
+      template => template.weekday === weekday && template.isHoliday === isHoliday
+    );
+  }
+
+  updateFromTime(weekday: number, isHoliday: boolean, fromTime: string): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          fromTime: fromTime
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  updateUntilTime(weekday: number, isHoliday: boolean, untilTime: string): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          untilTime: untilTime
         };
       }
       return template;

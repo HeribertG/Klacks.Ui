@@ -72,6 +72,48 @@
         </label>
         }
       </div>
+
+      <div class="address-selects">
+        <div class="address-select-group">
+          <label for="start-base">
+            {{ "shift.container-template.start-base" | translate }}
+          </label>
+          <select
+            id="start-base"
+            class="form-select"
+            [(ngModel)]="selectedStartBase"
+            (change)="onStartBaseChange()"
+          >
+            <option [value]="''">-</option>
+            @for (address of addressProvider.allAddresses(); track address.name)
+            {
+            <option [value]="address.address">
+              {{ address.name }}
+            </option>
+            }
+          </select>
+        </div>
+
+        <div class="address-select-group">
+          <label for="end-base">
+            {{ "shift.container-template.end-base" | translate }}
+          </label>
+          <select
+            id="end-base"
+            class="form-select"
+            [(ngModel)]="selectedEndBase"
+            (change)="onEndBaseChange()"
+          >
+            <option [value]="''">-</option>
+            @for (address of addressProvider.allAddresses(); track address.name)
+            {
+            <option [value]="address.address">
+              {{ address.name }}
+            </option>
+            }
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -101,8 +143,18 @@
                   }}
                 </h3>
                 <span class="filler"></span>
-                <app-icon-pdf-icon class="icon-table" (click)="exportSelectedShiftsToPdf()"></app-icon-pdf-icon>
-                <app-icon-compact class="icon-table" (click)="compactSelectedShifts()"></app-icon-compact>
+                <app-icon-route
+                  class="icon-table"
+                  (click)="optimizeRoute()"
+                ></app-icon-route>
+                <app-icon-pdf-icon
+                  class="icon-table"
+                  (click)="exportSelectedShiftsToPdf()"
+                ></app-icon-pdf-icon>
+                <app-icon-compact
+                  class="icon-table"
+                  (click)="compactSelectedShifts()"
+                ></app-icon-compact>
               </div>
 
               <div class="shifts-grid-container">
