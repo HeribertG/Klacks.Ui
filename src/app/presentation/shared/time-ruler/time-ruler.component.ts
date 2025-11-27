@@ -91,6 +91,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private readonly SHIFT_BOX_MARGIN_LEFT_RIGHT = 8;
   private readonly SHIFT_BOX_BORDER_DEPTH = 4;
   private readonly SHIFT_BOX_SELECTION_OPACITY = 0.2;
+  private readonly TRAVEL_TIME_BACKGROUND_COLOR = '#F5F5DC';
 
   private readonly MINUTES_PER_DAY = 24 * 60;
 
@@ -581,7 +582,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           startY
         );
 
-        DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);
+        DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
 
         DrawHelper.drawBaseBorder(
           ctx,
@@ -684,7 +685,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           travelEndY
         );
 
-        DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);
+        DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
 
         DrawHelper.drawBaseBorder(
           ctx,

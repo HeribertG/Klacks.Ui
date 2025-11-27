@@ -1,3 +1,4 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div
@@ -118,6 +119,7 @@
           </select>
         </div>
       </div>
+      @if (selectedStartBase && selectedEndBase) {
       <div class="transport-mode-group">
         <label>
           {{ "shift.container-template.transport-mode" | translate }}
@@ -128,7 +130,9 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 0"
             (click)="selectTransportMode(0)"
-            [title]="'shift.container-template.transport-mode.by-car' | translate"
+            [title]="
+              'shift.container-template.transport-mode.by-car' | translate
+            "
           >
             <app-icon-by-car></app-icon-by-car>
           </button>
@@ -137,7 +141,9 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 1"
             (click)="selectTransportMode(1)"
-            [title]="'shift.container-template.transport-mode.by-bicycle' | translate"
+            [title]="
+              'shift.container-template.transport-mode.by-bicycle' | translate
+            "
           >
             <app-icon-by-bicycle></app-icon-by-bicycle>
           </button>
@@ -146,7 +152,9 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 2"
             (click)="selectTransportMode(2)"
-            [title]="'shift.container-template.transport-mode.by-foot' | translate"
+            [title]="
+              'shift.container-template.transport-mode.by-foot' | translate
+            "
           >
             <app-icon-by-foot></app-icon-by-foot>
           </button>
@@ -161,6 +169,7 @@
           </button>
         </div>
       </div>
+      }
       }
     </div>
   </div>
