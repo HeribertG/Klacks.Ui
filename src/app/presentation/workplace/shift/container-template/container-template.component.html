@@ -1,6 +1,6 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div class="container-template-container">
+<div class="container-template-container" (contextmenu)="onContainerContextMenu($event)">
   <!-- Header -->
   <div class="header">
     <div class="header-content">
@@ -73,6 +73,7 @@
         }
       </div>
 
+      @if (addressProvider.allAddresses().length > 0) {
       <div class="address-selects">
         <div class="address-select-group">
           <label for="start-base">
@@ -114,6 +115,7 @@
           </select>
         </div>
       </div>
+      }
     </div>
   </div>
 
@@ -126,6 +128,7 @@
           <app-time-ruler
             [fromTime]="timeFrom"
             [untilTime]="timeTo"
+            (shiftRightClick)="onShiftRightClick($event)"
           ></app-time-ruler>
         </div>
       </as-split-area>
@@ -143,14 +146,24 @@
                   }}
                 </h3>
                 <span class="filler"></span>
+                @if (selectedStartBase && selectedEndBase) {
                 <app-icon-route
                   class="icon-table"
                   (click)="optimizeRoute()"
                 ></app-icon-route>
+                @if (hasRouteInfo) {
+                <app-icon-route-file
+                  class="icon-table"
+                  (click)="exportRouteToPdf()"
+                  title="Export Route to PDF"
+                ></app-icon-route-file>
+                }
                 <app-icon-pdf-icon
                   class="icon-table"
                   (click)="exportSelectedShiftsToPdf()"
+                  title="Export Shifts to PDF"
                 ></app-icon-pdf-icon>
+                }
                 <app-icon-compact
                   class="icon-table"
                   (click)="compactSelectedShifts()"
@@ -214,7 +227,9 @@
                       shift.id || shift.tmpId) {
                       <tr
                         cdkDrag
+                        cdkDragLockAxis="y"
                         (click)="onShiftRowClick(shift)"
+                        (contextmenu)="onTableRowRightClick($event, shift)"
                         (cdkDragStarted)="onDragStarted($event)"
                         (cdkDragEnded)="onDragEnded($event)"
                         [class.selected]="shift === selectedShift"
@@ -354,6 +369,7 @@
                           }}
                           {{ sortingService.getArrow("client") }}
                         </th>
+                        <th class="action-column"></th>
                       </tr>
                     </thead>
                     <tbody
@@ -367,6 +383,7 @@
                       @for (shift of availableTasks; track shift.id) {
                       <tr
                         cdkDrag
+                        cdkDragLockAxis="y"
                         (cdkDragStarted)="onDragStarted($event)"
                         (cdkDragEnded)="onDragEnded($event)"
                       >
@@ -387,6 +404,7 @@
                         </td>
                         <td>{{ formatWorkTime(shift.workTime) }}</td>
                         <td>{{ formatClientWithAddress(shift) }}</td>
+                        <td class="action-column"></td>
                       </tr>
                       }
                     </tbody>
@@ -418,3 +436,8 @@
     </as-split>
   </div>
 </div>
+
+<app-context-menu
+  #contextMenu
+  (hasClicked)="onContextMenuClick($event)"
+></app-context-menu>

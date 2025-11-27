@@ -555,6 +555,445 @@ Der Service befindet sich in `presentation/shared/time-ruler/services/` statt in
 
 Dies ermöglicht selektives Neuzeichnen und bessere Performance.
 
+## Route Optimization & PDF Export
+
+### Übersicht
+
+Das Container Template Modul enthält eine vollständige Route-Optimierungs- und PDF-Export-Funktionalität für die Planung von Fahrrouten zwischen Kunden-Standorten.
+
+### Features
+
+- **Route-Optimierung** mit Ant Colony Optimization Algorithmus
+- **Echte Straßendistanzen** via OSRM (Open Source Routing Machine) API
+- **PDF-Export** mit:
+  - OpenStreetMap-basierte Karte mit Route
+  - Detaillierte Routentabelle mit Ankunfts-/Abfahrtszeiten
+  - Individuelle Distanzen für jeden Streckenabschnitt
+- **Reisezeit-Visualisierung** als gelbe Balken im Time Ruler
+- **RouteInfo Persistierung** in PostgreSQL als JSONB
+- **Compact-Funktion** zum Zurücksetzen der Reisezeiten
+
+### RouteInfo Persistierung
+
+Die Route-Optimierungsdaten werden dauerhaft in der Datenbank gespeichert, sodass sie nach dem Neuladen der Seite wieder verfügbar sind.
+
+**Datenmodell (Backend):**
+
+```csharp
+// ContainerTemplate.cs
+[Column(TypeName = "jsonb")]
+public RouteInfo? RouteInfo { get; set; }
+
+// RouteInfo.cs
+public class RouteInfo
+{
+    public string StartBase { get; set; }
+    public string EndBase { get; set; }
+    public double TotalDistanceKm { get; set; }
+    public string EstimatedTravelTime { get; set; }
+    public string TravelTimeFromStartBase { get; set; }
+    public double DistanceFromStartBaseKm { get; set; }
+    public double DistanceToEndBaseKm { get; set; }
+    public string TravelTimeToEndBase { get; set; }
+    public List<RouteLocation> OptimizedRoute { get; set; }
+}
+```
+
+**Datenmodell (Frontend):**
+
+```typescript
+// container-template-class.ts
+export interface IRouteInfo {
+  startBase: string;
+  endBase: string;
+  totalDistanceKm: number;
+  estimatedTravelTime: string;
+  travelTimeFromStartBase: string;
+  distanceFromStartBaseKm: number;
+  distanceToEndBaseKm: number;
+  travelTimeToEndBase: string;
+  optimizedRoute: IRouteLocation[];
+}
+```
+
+**Workflow:**
+
+1. User führt `optimizeRoute()` aus → `lastRouteInfo` wird gesetzt
+2. `saveRouteInfoToTemplate()` speichert RouteInfo ins lokale Template
+3. Beim Speichern wird `routeInfo` als JSONB in PostgreSQL gespeichert
+4. Beim Laden wird `routeInfo` aus der DB geladen und `lastRouteInfo` wiederhergestellt
+5. PDF-Export funktioniert sofort ohne erneute Route-Optimierung
+
+**Npgsql Konfiguration:**
+
+Für die JSONB-Serialisierung muss `EnableDynamicJson()` aktiviert sein:
+
+```csharp
+// Program.cs
+var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
+dataSourceBuilder.EnableDynamicJson();
+var dataSource = dataSourceBuilder.Build();
+builder.Services.AddDbContext<DataBaseContext>(options => options.UseNpgsql(dataSource));
+```
+
+### Compact-Funktion
+
+Die `compactSelectedShifts()` Methode setzt alle Reisezeiten zurück und positioniert alle Shifts direkt ab Container-Startzeit hintereinander ohne Lücken.
+
+**Funktionsweise:**
+
+```typescript
+compactSelectedShifts(): void {
+  const currentItems = this.shiftService.selectedContainerTemplateItemsSignal();
+  const itemsWithResetTravelTimes = currentItems.map(item => ({
+    ...item,
+    travelTimeBefore: '00:00',
+    travelTimeAfter: '00:00',
+  }));
+  this.compactAndSetSelectedContainerTemplateItems(itemsWithResetTravelTimes);
+}
+```
+
+**Effekte:**
+
+1. Alle `travelTimeBefore` und `travelTimeAfter` werden auf `'00:00'` gesetzt
+2. Items werden direkt ab `containerTimeFrom` (startBase) positioniert
+3. Jedes Item startet genau dort, wo das vorherige endet (keine Lücken)
+4. Verwendet `ShiftArrangementService.compactShifts()` für die Neupositionierung
+
+**ShiftArrangementService.compactShifts():**
+
+```typescript
+compactShifts(items: IContainerTemplateItem[], containerTimeFrom: string): IContainerTemplateItem[] {
+  // Startet bei containerTimeFrom
+  let currentStartMinutes = containerFromTime.hours * 60 + containerFromTime.minutes;
+
+  for (const item of items) {
+    const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
+
+    if (item.shift?.isTimeRange || item.shift?.isSporadic) {
+      compactedItem.timeRangeStartShift = this.minutesToTimeString(currentStartMinutes);
+      compactedItem.timeRangeEndShift = this.minutesToTimeString(currentStartMinutes + workTimeMinutes);
+    }
+
+    currentStartMinutes += workTimeMinutes;
+  }
+  return compactedItems;
+}
+```
+
+### Icon-Sichtbarkeit
+
+Das PDF-Export Icon (`app-icon-route-file`) ist nur sichtbar, wenn eine RouteInfo verfügbar ist:
+
+```html
+@if (hasRouteInfo) {
+  <app-icon-route-file
+    class="icon-table"
+    (click)="exportRouteToPdf()"
+    title="Export Route to PDF"
+  ></app-icon-route-file>
+}
+```
+
+```typescript
+get hasRouteInfo(): boolean {
+  return this.lastRouteInfo !== null;
+}
+
+### Backend-Services
+
+#### RouteOptimizationService
+
+**Pfad:** `/mnt/c/SourceCode/Klacks.Api/Domain/Services/RouteOptimization/RouteOptimizationService.cs`
+
+**Hauptmethoden:**
+
+```csharp
+Task<RouteOptimizationResult> OptimizeRouteAsync(
+    Guid containerId,
+    int weekday,
+    bool isHoliday,
+    string? startBase = null,
+    string? endBase = null)
+```
+
+**Distanzberechnung:**
+- Verwendet **OSRM Table API** (`router.project-osrm.org/table/v1/driving/`) für echte Straßendistanzen
+- Fallback auf Haversine-Distanz (Luftlinie) wenn OSRM nicht erreichbar
+- Ergebnisse werden 7 Tage gecacht
+
+```csharp
+private async Task<double[,]> GetOsrmDistanceMatrixAsync(List<Location> locations)
+{
+    var coordinates = string.Join(";", locations.Select(l => $"{l.Longitude:F6},{l.Latitude:F6}"));
+    var url = $"{OSRM_BASE_URL}/table/v1/driving/{coordinates}?annotations=distance";
+    // ... API call und Matrix-Parsing
+}
+```
+
+**Route-Struktur:**
+Die `OptimizedRoute` enthält die vollständige Route inklusive:
+1. Start-Base (z.B. Bern)
+2. Alle Kunden-Stopps in optimierter Reihenfolge
+3. End-Base (z.B. Bern)
+
+#### RouteOptimizationResult Record
+
+```csharp
+public record RouteOptimizationResult(
+    List<Location> OptimizedRoute,      // Vollständige Route inkl. Start/End-Base
+    double TotalDistanceKm,              // Gesamtdistanz in km
+    TimeSpan EstimatedTravelTime,        // Geschätzte Fahrzeit
+    double[,] DistanceMatrix,            // Distanzmatrix
+    TimeSpan TravelTimeFromStartBase,    // Fahrzeit von Start-Base zum ersten Stopp
+    List<int> RouteIndices,              // Indizes der optimierten Route
+    double DistanceFromStartBaseKm,      // Distanz von Start-Base zum ersten Stopp
+    double DistanceToEndBaseKm,          // Distanz vom letzten Stopp zur End-Base
+    TimeSpan TravelTimeToEndBase);       // Fahrzeit vom letzten Stopp zur End-Base
+```
+
+### Frontend-Services
+
+#### RouteOptimizationService (Frontend)
+
+**Pfad:** `src/app/domain/services/route-optimization.service.ts`
+
+```typescript
+export interface IRouteStep extends ILocation {
+  order: number;
+  distanceToNextKm: number;
+  travelTimeToNext: string;
+}
+
+export interface IRouteOptimizationResult {
+  optimizedRoute: IRouteStep[];
+  totalDistanceKm: number;
+  estimatedTravelTime: string;
+  travelTimeFromStartBase: string;
+  distanceFromStartBaseKm: number;
+  distanceToEndBaseKm: number;
+  travelTimeToEndBase: string;
+}
+```
+
+#### ContainerTemplatePdfExportService
+
+**Pfad:** `src/app/presentation/workplace/shift/container-template/services/container-template-pdf-export.service.ts`
+
+**Hauptmethoden:**
+
+1. **exportContainerTemplateToPdf()** - Exportiert Shift-Liste als PDF
+2. **exportRouteToPdf()** - Exportiert Route mit Karte als PDF
+
+**Karten-Generierung:**
+
+Die Karte wird mit echten OpenStreetMap-Tiles und OSRM-Routing erstellt:
+
+```typescript
+private async generateRouteMapCanvas(coordinates): Promise<HTMLCanvasElement | null> {
+    // 1. OSRM Route API für echte Straßenroute
+    const routeGeometry = await this.getOsrmRoute(coordinates);
+
+    // 2. OpenStreetMap Tiles laden
+    await this.loadOsmTiles(ctx, centerLat, centerLon, zoom, width, height);
+
+    // 3. Route auf Karte zeichnen (blaue Linie)
+    // 4. Nummerierte Marker für Stopps
+}
+
+private async getOsrmRoute(coordinates): Promise<{lat, lon}[]> {
+    const coordString = coordinates.map(c => `${c.lon},${c.lat}`).join(';');
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+    // Gibt detaillierte Straßengeometrie zurück
+}
+```
+
+**OSM Tile Loading:**
+
+```typescript
+private async loadOsmTiles(ctx, centerLat, centerLon, zoom, width, height) {
+    // Berechnet benötigte Tiles basierend auf Zoom und Canvas-Größe
+    // Lädt Tiles von https://{a|b|c}.tile.openstreetmap.org/{zoom}/{x}/{y}.png
+    // Zeichnet Tiles auf Canvas
+}
+```
+
+### Datenmodell
+
+#### Address Model (Backend)
+
+**Pfad:** `/mnt/c/SourceCode/Klacks.Api/Domain/Models/Staffs/Address.cs`
+
+```csharp
+public class Address : BaseEntity
+{
+    // ... andere Properties
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+}
+```
+
+#### IAddress Interface (Frontend)
+
+**Pfad:** `src/app/domain/models/client-class.ts`
+
+```typescript
+export interface IAddress {
+    // ... andere Properties
+    latitude?: number;
+    longitude?: number;
+}
+```
+
+### Reisezeit-Visualisierung im Time Ruler
+
+Die Reisezeiten werden als gelbe Balken im Time Ruler dargestellt:
+
+**Felder in IContainerTemplateItem:**
+- `travelTimeBefore: string` - Reisezeit zum Stopp (Format: "HH:mm")
+- `travelTimeAfter: string` - Reisezeit nach dem Stopp (nur für letzten Stopp)
+
+**Rendering in TimeRulerComponent:**
+
+```typescript
+// Gelber Balken VOR dem Shift (travelTimeBefore)
+if (item.travelTimeBefore) {
+    const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeBefore);
+    const travelRect = new Rectangle(x, travelStartY, x + width, shiftStartY);
+    DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);  // Gelb
+}
+
+// Gelber Balken NACH dem Shift (travelTimeAfter) - nur beim letzten Stopp
+if (item.travelTimeAfter) {
+    const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeAfter);
+    const travelRect = new Rectangle(x, shiftEndY, x + width, travelEndY);
+    DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);  // Gelb
+}
+```
+
+### PDF-Export Struktur
+
+Das generierte PDF enthält:
+
+1. **Header**
+   - Container-Name und Wochentag
+   - Generierungsdatum
+
+2. **Route Summary**
+   - Start-Base
+   - End-Base
+   - Gesamtdistanz (km)
+   - Geschätzte Fahrzeit
+
+3. **Karte** (OpenStreetMap)
+   - Straßenkarte mit Route
+   - Nummerierte Marker (grün = Start, rot = Ende/Zwischenstopps)
+   - Blaue Linie entlang der Straßen
+
+4. **Route Details Tabelle**
+   | # | Location | Arrival | Departure | Travel Time | Distance |
+   |---|----------|---------|-----------|-------------|----------|
+   | 0 | Start: Bern | 08:00 | 08:00 | 1h 30m | 97.66 km |
+   | 1 | Basel (Barbier) | 09:30 | 10:30 | 00:45 | 66.17 km |
+   | 2 | Regensdorf (Behrens) | 11:15 | 12:15 | 01:10 | 114.02 km |
+   | 3 | End: Bern | 13:25 | - | 01:10 | 114.02 km |
+
+### API Endpoints
+
+#### Route Optimization
+
+```
+GET /api/RouteOptimization/optimize-route
+    ?containerId={guid}
+    &weekday={0-6}
+    &isHoliday={true|false}
+    &startBase={address}
+    &endBase={address}
+```
+
+**Response:**
+```json
+{
+    "optimizedRoute": [
+        {
+            "name": "Bern",
+            "address": "Bahnhofplatz 1, 3011 Bern",
+            "latitude": 46.9480,
+            "longitude": 7.4474,
+            "shiftId": "00000000-0000-0000-0000-000000000000",
+            "distanceToNextKm": 97.66,
+            "travelTimeToNext": "01:30:00"
+        },
+        // ... weitere Stopps
+    ],
+    "totalDistanceKm": 277.85,
+    "estimatedTravelTime": "05:33:00",
+    "travelTimeFromStartBase": "01:30:00",
+    "distanceFromStartBaseKm": 97.66,
+    "distanceToEndBaseKm": 114.02,
+    "travelTimeToEndBase": "01:10:00"
+}
+```
+
+### Externe APIs
+
+1. **OSRM Table API** (Distanzmatrix)
+   - URL: `https://router.project-osrm.org/table/v1/driving/{coordinates}?annotations=distance`
+   - Gibt Distanzen in Metern zurück
+
+2. **OSRM Route API** (Straßengeometrie)
+   - URL: `https://router.project-osrm.org/route/v1/driving/{coordinates}?overview=full&geometries=geojson`
+   - Gibt GeoJSON mit detaillierter Straßengeometrie zurück
+
+3. **OpenStreetMap Tiles**
+   - URL: `https://{a|b|c}.tile.openstreetmap.org/{zoom}/{x}/{y}.png`
+   - Standard Web Mercator Projektion
+
+### Konfiguration
+
+#### Address Provider Service
+
+Die Start-/End-Base Adressen werden vom `AddressProviderService` bereitgestellt:
+
+```typescript
+// container-template.component.ts
+addressProvider = inject(AddressProviderService);
+
+// Template
+<select [(ngModel)]="selectedStartBase">
+    @for (address of addressProvider.allAddresses(); track address.name) {
+        <option [value]="address.address">{{ address.name }}</option>
+    }
+</select>
+```
+
+### Troubleshooting
+
+#### Distanzen sind Luftlinie statt Straßendistanz
+
+**Ursache:** OSRM API nicht erreichbar
+
+**Lösung:**
+- Prüfen, ob `router.project-osrm.org` erreichbar ist
+- Backend-Logs prüfen: "Failed to get OSRM distance matrix, falling back to Haversine distances"
+
+#### Karte zeigt keine Route
+
+**Ursache:** Koordinaten fehlen oder OSRM Route API Fehler
+
+**Lösung:**
+- Prüfen, ob `Address.Latitude` und `Address.Longitude` in der Datenbank gesetzt sind
+- Browser-Konsole auf CORS-Fehler prüfen
+
+#### Start/End-Base fehlen auf der Karte
+
+**Ursache:** Backend gibt unvollständige `OptimizedRoute` zurück
+
+**Lösung:**
+- Backend prüfen: `fullRoute` muss Start-Base und End-Base enthalten
+- `startIndex` und `endIndex` müssen korrekt berechnet sein
+
 ## Troubleshooting
 
 ### Time Ruler aktualisiert nicht bei Zeitänderung

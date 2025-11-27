@@ -157,6 +157,8 @@ export interface IAddress extends BaseEntity {
   country: string;
   isScoped: boolean;
   isFuture: boolean;
+  latitude?: number;
+  longitude?: number;
 
   internalValidFrom: NgbDateStruct | undefined;
 }

@@ -7,6 +7,7 @@ import {
   OnInit,
   effect,
   computed,
+  ViewChild,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ import {
 import {
   IContainerTemplate,
   IContainerTemplateItem,
+  IRouteInfo,
 } from 'src/app/domain/models/container-template-class';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
@@ -55,8 +57,6 @@ import { ContainerTemplatePdfExportService } from './services/container-template
 import {
   formatTime,
   timeToString,
-  parseTime,
-  calculateDurationInMinutes,
   formatTimeFromMinutes,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
@@ -67,6 +67,12 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 import { BranchManagementService } from 'src/app/domain/services/settings/branch-management.service';
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
+import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
 
 @Component({
   selector: 'app-container-template',
@@ -84,11 +90,13 @@ import { RouteOptimizationService } from 'src/app/domain/services/route-optimiza
     IconCompactComponent,
     PdfIconComponent,
     IconRouteComponent,
+    IconRouteFileComponent,
+    ContextMenuComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,
-  providers: [TableSortingService, TimeRulerDragDropService],
+  providers: [TableSortingService, TimeRulerDragDropService, ContextMenuService],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private _timeFrom = OwnTime.forTime('06', '00');
@@ -150,11 +158,21 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private appSettingsService = inject(AppSettingsManagementService);
   private branchService = inject(BranchManagementService);
   private routeOptimizationService = inject(RouteOptimizationService);
+  private toastService = inject(ToastShowService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
+  @ViewChild('contextMenu', { static: false })
+  contextMenu!: ContextMenuComponent;
+
   public selectedStartBase = '';
   public selectedEndBase = '';
+  private lastRouteInfo: IRouteInfo | null = null;
+  private contextMenuTargetItem: IContainerTemplateItem | null = null;
+
+  get hasRouteInfo(): boolean {
+    return this.lastRouteInfo !== null;
+  }
 
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
@@ -580,20 +598,11 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
             .loadTasksForWeekday(weekdayNumber)
             .subscribe(() => {
               this.updateAvailableTasks();
-              this.rearrangeSelectedTasks();
             });
         }
       },
       error: () => {},
     });
-  }
-
-  private rearrangeSelectedTasks(): void {
-    const currentTasks =
-      this.shiftService.selectedContainerTemplateItemsSignal();
-    if (currentTasks.length > 0) {
-      this.arrangeAndSetSelectedContainerTemplateItems([...currentTasks]);
-    }
   }
 
   private calculateDuration(): void {
@@ -864,19 +873,60 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   compactSelectedShifts(): void {
     const currentItems =
       this.shiftService.selectedContainerTemplateItemsSignal();
-    this.arrangeAndSetSelectedContainerTemplateItems([...currentItems]);
+    const itemsWithResetTravelTimes = currentItems.map(item => ({
+      ...item,
+      travelTimeBefore: '00:00',
+      travelTimeAfter: '00:00',
+    }));
+    this.compactAndSetSelectedContainerTemplateItems(itemsWithResetTravelTimes);
+  }
+
+  private compactAndSetSelectedContainerTemplateItems(
+    containerTemplateItems: IContainerTemplateItem[]
+  ): void {
+    if (containerTemplateItems.length === 0) {
+      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      return;
+    }
+
+    const containerTimeFrom = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+
+    const compactedItems = this.arrangementService.compactShifts(
+      containerTemplateItems,
+      containerTimeFrom
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(compactedItems);
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.updateTaskOrderInTemplates(
+        compactedItems,
+        weekdayNumber,
+        this.isHoliday
+      );
+    }
   }
 
   optimizeRoute(): void {
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
 
     if (items.length < 2) {
-      alert('Mindestens 2 Shifts sind für die Routenoptimierung erforderlich');
+      this.toastService.showInfo(
+        this.translateService.instant('shift.container-template.toast.min-shifts-required')
+      );
       return;
     }
 
     if (!this.containerShift?.id || !this.selectedWeekday) {
-      alert('Kein Container oder Wochentag ausgewählt');
+      this.toastService.showInfo(
+        this.translateService.instant('shift.container-template.toast.no-container-weekday')
+      );
       return;
     }
 
@@ -905,19 +955,34 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (result) => {
           console.log('Route optimization successful:', result);
+
+          this.lastRouteInfo = {
+            startBase: this.selectedStartBase,
+            endBase: this.selectedEndBase,
+            totalDistanceKm: result.totalDistanceKm,
+            estimatedTravelTime: result.estimatedTravelTime,
+            travelTimeFromStartBase: result.travelTimeFromStartBase,
+            distanceFromStartBaseKm: result.distanceFromStartBaseKm,
+            distanceToEndBaseKm: result.distanceToEndBaseKm,
+            travelTimeToEndBase: result.travelTimeToEndBase,
+            optimizedRoute: result.optimizedRoute,
+          };
+
+          this.saveRouteInfoToTemplate();
           this.applyOptimizedRoute(result, items);
-          alert(
-            `Route optimiert! Distanz: ${result.totalDistanceKm.toFixed(
-              2
-            )} km, Zeit: ${result.estimatedTravelTime}`
+          this.toastService.showSuccess(
+            this.translateService.instant('shift.container-template.toast.route-optimized-details', {
+              distance: result.totalDistanceKm.toFixed(2),
+              time: result.estimatedTravelTime
+            }),
+            this.translateService.instant('shift.container-template.toast.route-optimized')
           );
         },
         error: (error) => {
           console.error('Route optimization failed:', error);
-          alert(
-            `Fehler bei Routenoptimierung: ${
-              error.message || error.statusText || 'Unbekannter Fehler'
-            }`
+          this.toastService.showError(
+            error.message || error.statusText || 'Unknown error',
+            'route-optimization-error'
           );
         },
       });
@@ -952,28 +1017,51 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       if (item && item.shift) {
         let travelTimeToThisShiftMinutes = 0;
         if (i === 0) {
-          travelTimeToThisShiftMinutes = this.parseTimeSpan(result.travelTimeFromStartBase);
+          travelTimeToThisShiftMinutes = this.parseTimeSpan(
+            result.travelTimeFromStartBase
+          );
         } else {
-          travelTimeToThisShiftMinutes = this.parseTimeSpan(optimizedRoute[i - 1].travelTimeToNext);
+          travelTimeToThisShiftMinutes = this.parseTimeSpan(
+            optimizedRoute[i - 1].travelTimeToNext
+          );
         }
 
         const shiftWorkTimeMinutes = Math.round(item.shift.workTime * 60);
-        const shiftStartAfterTravel = currentStartTimeMinutes + travelTimeToThisShiftMinutes;
+        const shiftStartAfterTravel =
+          currentStartTimeMinutes + travelTimeToThisShiftMinutes;
         const newStartShift = formatTimeFromMinutes(shiftStartAfterTravel);
-        const newEndShift = formatTimeFromMinutes(shiftStartAfterTravel + shiftWorkTimeMinutes);
+        const newEndShift = formatTimeFromMinutes(
+          shiftStartAfterTravel + shiftWorkTimeMinutes
+        );
 
-        const travelTimeFormatted = this.formatMinutesToTime(travelTimeToThisShiftMinutes);
-        const workTimeFormatted = this.formatMinutesToTime(shiftWorkTimeMinutes);
+        const travelTimeFormatted = this.formatMinutesToTime(
+          travelTimeToThisShiftMinutes
+        );
+        const workTimeFormatted =
+          this.formatMinutesToTime(shiftWorkTimeMinutes);
 
-        console.log(`  + ${travelTimeFormatted} (Reisezeit zu ${item.shift.client?.name})`);
-        console.log(`  = ${newStartShift} (${item.shift.client?.name} timeRangeStartShift)`);
-        console.log(`  + ${workTimeFormatted} (${item.shift.client?.name} workTime)`);
-        console.log(`  = ${newEndShift} (${item.shift.client?.name} timeRangeEndShift)\n`);
+        console.log(
+          `  + ${travelTimeFormatted} (Reisezeit zu ${item.shift.client?.name})`
+        );
+        console.log(
+          `  = ${newStartShift} (${item.shift.client?.name} timeRangeStartShift)`
+        );
+        console.log(
+          `  + ${workTimeFormatted} (${item.shift.client?.name} workTime)`
+        );
+        console.log(
+          `  = ${newEndShift} (${item.shift.client?.name} timeRangeEndShift)\n`
+        );
+
+        const travelTimeBeforeHHMM = this.formatMinutesToHHMM(
+          travelTimeToThisShiftMinutes
+        );
 
         const newItem: IContainerTemplateItem = {
           ...item,
-          startShift: newStartShift,
-          endShift: newEndShift,
+          timeRangeStartShift: newStartShift,
+          timeRangeEndShift: newEndShift,
+          travelTimeBefore: travelTimeBeforeHHMM,
         };
 
         reorderedItems.push(newItem);
@@ -983,6 +1071,40 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           console.log(`${newEndShift} (Ende ${item.shift.client?.name})`);
         }
       }
+    }
+
+    if (
+      result.distanceToEndBaseKm > 0 &&
+      result.travelTimeToEndBase &&
+      reorderedItems.length > 0
+    ) {
+      const travelTimeToEndBaseMinutes = this.parseTimeSpan(
+        result.travelTimeToEndBase
+      );
+      const travelTimeAfterHHMM = this.formatMinutesToHHMM(
+        travelTimeToEndBaseMinutes
+      );
+      const lastItem = reorderedItems[reorderedItems.length - 1];
+      lastItem.travelTimeAfter = travelTimeAfterHHMM;
+    }
+
+    if (result.distanceToEndBaseKm > 0 && result.travelTimeToEndBase) {
+      const travelTimeToEndBaseMinutes = this.parseTimeSpan(
+        result.travelTimeToEndBase
+      );
+      const arrivalAtEndBaseMinutes =
+        currentStartTimeMinutes + travelTimeToEndBaseMinutes;
+      const arrivalAtEndBase = formatTimeFromMinutes(arrivalAtEndBaseMinutes);
+      const travelTimeFormatted = this.formatMinutesToTime(
+        travelTimeToEndBaseMinutes
+      );
+
+      console.log(
+        `  + ${travelTimeFormatted} (Rückfahrt zu Base, ${result.distanceToEndBaseKm.toFixed(
+          2
+        )} km)`
+      );
+      console.log(`  = ${arrivalAtEndBase} (Ankunft Base)\n`);
     }
 
     if (reorderedItems.length > 0) {
@@ -1000,10 +1122,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       );
       this.workplaceStateService.areObjectsDirty();
 
-      // Sort by startShift time after route optimization
-      this.sortingService.onHeaderClick('startShift', () => {
-        this.loadItemsAndResize();
-      });
+      this.sortingService.restoreSortState('startShift', 'asc');
 
       console.log('Done! Items reordered and saved.');
       console.log(
@@ -1034,6 +1153,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return `${mins}m`;
   }
 
+  private formatMinutesToHHMM(minutes: number): string {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins
+      .toString()
+      .padStart(2, '0')}`;
+  }
+
   exportSelectedShiftsToPdf(): void {
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
 
@@ -1058,6 +1185,39 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       weekday,
       timeFrom,
       timeTo
+    );
+  }
+
+  exportRouteToPdf(): void {
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    if (items.length === 0) {
+      this.toastService.showInfo(
+        this.translateService.instant('shift.container-template.toast.no-shifts-export')
+      );
+      return;
+    }
+
+    if (!this.lastRouteInfo) {
+      this.toastService.showInfo(
+        this.translateService.instant('shift.container-template.toast.optimize-first')
+      );
+      return;
+    }
+
+    const containerName = this.containerShift?.name || 'Route';
+    const weekday = this.selectedWeekday || '';
+    const timeFrom = timeToString(
+      parseInt(this.timeFrom.hours),
+      parseInt(this.timeFrom.minutes)
+    );
+
+    this.pdfExportService.exportRouteToPdf(
+      items,
+      this.lastRouteInfo,
+      containerName,
+      weekday,
+      timeFrom
     );
   }
 
@@ -1176,30 +1336,93 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         this.isHoliday
       );
       if (template) {
-        console.log('Template startBase:', template.startBase);
-        console.log('Available addresses:', this.addressProvider.allAddresses());
-
-        // Check if template.startBase is a name or already an address
-        let startBaseAddress = this.addressProvider.allAddresses().find(a => a.name === template.startBase);
+        let startBaseAddress = this.addressProvider
+          .allAddresses()
+          .find((a) => a.name === template.startBase);
         if (!startBaseAddress) {
-          // If not found by name, check if it's already an address
-          startBaseAddress = this.addressProvider.allAddresses().find(a => a.address === template.startBase);
+          startBaseAddress = this.addressProvider
+            .allAddresses()
+            .find((a) => a.address === template.startBase);
         }
 
-        let endBaseAddress = this.addressProvider.allAddresses().find(a => a.name === template.endBase);
+        let endBaseAddress = this.addressProvider
+          .allAddresses()
+          .find((a) => a.name === template.endBase);
         if (!endBaseAddress) {
-          endBaseAddress = this.addressProvider.allAddresses().find(a => a.address === template.endBase);
+          endBaseAddress = this.addressProvider
+            .allAddresses()
+            .find((a) => a.address === template.endBase);
         }
-
-        console.log('Found startBaseAddress:', startBaseAddress);
-        console.log('Setting selectedStartBase to:', startBaseAddress?.address);
 
         this.selectedStartBase = startBaseAddress?.address || '';
         this.selectedEndBase = endBaseAddress?.address || '';
+
+        this.lastRouteInfo = template.routeInfo || null;
       } else {
         this.selectedStartBase = '';
         this.selectedEndBase = '';
+        this.lastRouteInfo = null;
       }
     }
+  }
+
+  private saveRouteInfoToTemplate(): void {
+    if (!this.selectedWeekday || !this.lastRouteInfo) {
+      return;
+    }
+
+    const weekdayNumber = this.containerService.getWeekdayNumber(
+      this.selectedWeekday
+    );
+    this.containerService.updateRouteInfo(
+      weekdayNumber,
+      this.isHoliday,
+      this.lastRouteInfo
+    );
+    this.workplaceStateService.areObjectsDirty();
+  }
+
+  onShiftRightClick(event: IShiftContextMenuEvent): void {
+    this.contextMenuTargetItem = event.item;
+    this.shiftService.setSelectedShift(event.item);
+    this.openContextMenu(event.mouseEvent);
+  }
+
+  onTableRowRightClick(event: MouseEvent, item: IContainerTemplateItem): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.contextMenuTargetItem = item;
+    this.shiftService.setSelectedShift(item);
+    this.openContextMenu(event);
+  }
+
+  private openContextMenu(event: MouseEvent): void {
+    const menuData = new Menu();
+    const propertiesItem = new MenuItem(
+      'properties',
+      this.translateService.instant('shift.container-template.context-menu.properties'),
+      false
+    );
+    menuData.list.push(propertiesItem);
+
+    this.contextMenu.menuData = menuData;
+    this.contextMenu.openMenu(event);
+  }
+
+  onContextMenuClick(keys: string[]): void {
+    if (keys.includes('properties')) {
+      this.openPropertiesDialog();
+    }
+    this.contextMenu.closeMenu(true);
+  }
+
+  private openPropertiesDialog(): void {
+    if (this.contextMenuTargetItem) {
+      console.log('Properties for:', this.contextMenuTargetItem);
+    }
+  }
+
+  onContainerContextMenu(event: MouseEvent): void {
+    event.preventDefault();
   }
 }

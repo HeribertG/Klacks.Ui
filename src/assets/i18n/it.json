@@ -948,5 +948,12 @@
   "shift.container-template.time-range": "Fascia oraria",
   "shift.container-template.time-range-shift": "Turno a fascia oraria",
   "shift.container-template.sporadic-shift": "Turno sporadico",
-  "shift.container-template.fixed-shift": "Turno fisso"
+  "shift.container-template.fixed-shift": "Turno fisso",
+  "shift.container-template.toast.min-shifts-required": "Sono necessari almeno 2 turni per l'ottimizzazione del percorso",
+  "shift.container-template.toast.no-container-weekday": "Nessun contenitore o giorno della settimana selezionato",
+  "shift.container-template.toast.route-optimized": "Percorso ottimizzato!",
+  "shift.container-template.toast.route-optimized-details": "Distanza: {{distance}} km, Tempo: {{time}}",
+  "shift.container-template.toast.no-shifts-export": "Nessun turno selezionato per l'esportazione del percorso",
+  "shift.container-template.toast.optimize-first": "Si prega di ottimizzare prima il percorso prima di esportare",
+  "shift.container-template.context-menu.properties": "Proprietà..."
 }

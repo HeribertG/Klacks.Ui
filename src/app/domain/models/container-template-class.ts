@@ -1,5 +1,28 @@
 import { IShift } from './shift-class';
 
+export interface IRouteLocation {
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  shiftId: string;
+  distanceToNextKm: number;
+  travelTimeToNext: string;
+  order: number;
+}
+
+export interface IRouteInfo {
+  startBase: string;
+  endBase: string;
+  totalDistanceKm: number;
+  estimatedTravelTime: string;
+  travelTimeFromStartBase: string;
+  distanceFromStartBaseKm: number;
+  distanceToEndBaseKm: number;
+  travelTimeToEndBase: string;
+  optimizedRoute: IRouteLocation[];
+}
+
 export interface IContainerTemplate {
   id?: string;
   containerId: string;
@@ -10,6 +33,7 @@ export interface IContainerTemplate {
   isHoliday: boolean;
   startBase?: string;
   endBase?: string;
+  routeInfo?: IRouteInfo;
   shift?: IShift;
   containerTemplateItems: IContainerTemplateItem[];
 }

@@ -22,6 +22,9 @@ export interface IRouteOptimizationResult {
   totalDistanceKm: number;
   estimatedTravelTime: string;
   travelTimeFromStartBase: string;
+  distanceFromStartBaseKm: number;
+  distanceToEndBaseKm: number;
+  travelTimeToEndBase: string;
 }
 
 @Injectable({

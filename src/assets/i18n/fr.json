@@ -948,5 +948,12 @@
   "shift.container-template.time-range": "Plage horaire",
   "shift.container-template.time-range-shift": "Service à plage horaire",
   "shift.container-template.sporadic-shift": "Service sporadique",
-  "shift.container-template.fixed-shift": "Service fixe"
+  "shift.container-template.fixed-shift": "Service fixe",
+  "shift.container-template.toast.min-shifts-required": "Au moins 2 services sont nécessaires pour l'optimisation de l'itinéraire",
+  "shift.container-template.toast.no-container-weekday": "Aucun conteneur ou jour de la semaine sélectionné",
+  "shift.container-template.toast.route-optimized": "Itinéraire optimisé!",
+  "shift.container-template.toast.route-optimized-details": "Distance: {{distance}} km, Temps: {{time}}",
+  "shift.container-template.toast.no-shifts-export": "Aucun service sélectionné pour l'export de l'itinéraire",
+  "shift.container-template.toast.optimize-first": "Veuillez d'abord optimiser l'itinéraire avant d'exporter",
+  "shift.container-template.context-menu.properties": "Propriétés..."
 }

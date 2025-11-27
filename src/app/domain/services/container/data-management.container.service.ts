@@ -5,6 +5,7 @@ import { IShift } from '../../models/shift-class';
 import {
   IContainerTemplate,
   IContainerTemplateItem,
+  IRouteInfo,
 } from '../../models/container-template-class';
 import {
   IContainerTemplateGrid,
@@ -410,7 +411,7 @@ export class DataManagementContainerService
       : this.postTemplates(containerShift.id, templates);
 
     saveAction.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (savedTemplates) => {
+      next: () => {
         this.editTemplates.set([]);
         this.editTemplatesDummy.set([]);
         this.shiftService.clearAllTasks();
@@ -529,6 +530,8 @@ export class DataManagementContainerService
       saturday: 6,
     };
 
+    let templates = this.editTemplates();
+
     Object.entries(weekdayTasksMap).forEach(([weekdayName, tasks]) => {
       if (tasks.length === 0) return;
 
@@ -545,12 +548,12 @@ export class DataManagementContainerService
         (task) => task.shiftId
       );
 
-      const templates = this.editTemplates();
       const existingTemplate = templates.find(
         t => t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
       );
 
       const newTemplate: IContainerTemplate = {
+        id: existingTemplate?.id,
         containerId: containerId,
         weekday: weekdayNumber,
         fromTime: existingTemplate?.fromTime ?? slot.fromTime,
@@ -559,11 +562,22 @@ export class DataManagementContainerService
         isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
         startBase: existingTemplate?.startBase,
         endBase: existingTemplate?.endBase,
+        routeInfo: existingTemplate?.routeInfo,
         containerTemplateItems: containerTemplateItems,
       };
 
-      this.editTemplates.set([...templates, newTemplate]);
+      if (existingTemplate) {
+        templates = templates.map(t =>
+          t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
+            ? newTemplate
+            : t
+        );
+      } else {
+        templates = [...templates, newTemplate];
+      }
     });
+
+    this.editTemplates.set(templates);
   }
 
   private restoreWeekdayTasksFromTemplates(
@@ -719,6 +733,44 @@ export class DataManagementContainerService
       return template;
     });
     this.editTemplates.set(updated);
+  }
+
+  updateRouteInfo(weekday: number, isHoliday: boolean, routeInfo: IRouteInfo): void {
+    const templates = this.editTemplates();
+    const existingTemplate = templates.find(
+      t => t.weekday === weekday && t.isHoliday === isHoliday
+    );
+
+    if (existingTemplate) {
+      const updated = templates.map(template => {
+        if (template.weekday === weekday && template.isHoliday === isHoliday) {
+          return {
+            ...template,
+            routeInfo: routeInfo
+          };
+        }
+        return template;
+      });
+      this.editTemplates.set(updated);
+    } else {
+      const containerShift = this.currentContainerShiftSignal();
+      if (!containerShift?.id) return;
+
+      const grid = this.templateGridSignal();
+      const slot = grid?.slots.flat().find(s => s.weekday === weekday && s.isHoliday === isHoliday);
+
+      const newTemplate: IContainerTemplate = {
+        containerId: containerShift.id,
+        weekday: weekday,
+        fromTime: slot?.fromTime || '00:00',
+        untilTime: slot?.untilTime || '23:59',
+        isHoliday: isHoliday,
+        isWeekdayOrHoliday: slot?.isWeekdayOrHoliday || false,
+        routeInfo: routeInfo,
+        containerTemplateItems: [],
+      };
+      this.editTemplates.set([...templates, newTemplate]);
+    }
   }
 
   clearAllTemplates(): void {

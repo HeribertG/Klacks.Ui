@@ -170,6 +170,38 @@ export class ShiftArrangementService {
     return result;
   }
 
+  compactShifts(
+    items: IContainerTemplateItem[],
+    containerTimeFrom: string
+  ): IContainerTemplateItem[] {
+    if (!items || items.length === 0) {
+      return items;
+    }
+
+    const containerFromTime = this.timeRangeService.parseTimeString(containerTimeFrom);
+    if (!containerFromTime) {
+      return items;
+    }
+
+    const compactedItems: IContainerTemplateItem[] = [];
+    let currentStartMinutes = containerFromTime.hours * this.MINUTES_PER_HOUR + containerFromTime.minutes;
+
+    for (const item of items) {
+      const compactedItem = { ...item };
+      const workTimeMinutes = Math.round((item.shift?.workTime || 0) * this.MINUTES_PER_HOUR);
+
+      if (item.shift?.isTimeRange || item.shift?.isSporadic) {
+        compactedItem.timeRangeStartShift = this.minutesToTimeString(currentStartMinutes);
+        compactedItem.timeRangeEndShift = this.minutesToTimeString(currentStartMinutes + workTimeMinutes);
+      }
+
+      compactedItems.push(compactedItem);
+      currentStartMinutes += workTimeMinutes;
+    }
+
+    return compactedItems;
+  }
+
   private minutesToTimeString(totalMinutes: number): string {
     const normalizedMinutes = totalMinutes % this.MINUTES_PER_DAY;
     const hours = Math.floor(normalizedMinutes / this.MINUTES_PER_HOUR);

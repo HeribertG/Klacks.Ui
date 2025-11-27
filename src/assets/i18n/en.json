@@ -948,5 +948,12 @@
   "shift.container-template.time-range": "Time Range",
   "shift.container-template.time-range-shift": "Time Range Shift",
   "shift.container-template.sporadic-shift": "Sporadic Shift",
-  "shift.container-template.fixed-shift": "Fixed Shift"
+  "shift.container-template.fixed-shift": "Fixed Shift",
+  "shift.container-template.toast.min-shifts-required": "At least 2 shifts are required for route optimization",
+  "shift.container-template.toast.no-container-weekday": "No container or weekday selected",
+  "shift.container-template.toast.route-optimized": "Route optimized!",
+  "shift.container-template.toast.route-optimized-details": "Distance: {{distance}} km, Time: {{time}}",
+  "shift.container-template.toast.no-shifts-export": "No shifts selected for route export",
+  "shift.container-template.toast.optimize-first": "Please optimize the route first before exporting",
+  "shift.container-template.context-menu.properties": "Properties..."
 }

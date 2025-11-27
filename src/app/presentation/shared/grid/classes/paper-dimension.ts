@@ -1,6 +1,6 @@
 export class PaperDimensions {
-  private readonly MM_TO_INCHES = 25.4;
-  private readonly NON_PRINTABLE_MARGIN_MM = 5; // angenommener Wert
+  private readonly INCHES_TO_MM = 25.4;
+  private readonly NON_PRINTABLE_MARGIN_MM = 5; // assumed value
 
   getA3Dimensions(): { width: number; height: number } {
     return {
@@ -11,15 +11,15 @@ export class PaperDimensions {
 
   getTabloidDimensions(): { width: number; height: number } {
     return {
-      width: 11 * this.MM_TO_INCHES, // Umrechnung in mm
-      height: 17 * this.MM_TO_INCHES, // Umrechnung in mm
+      width: 11 * this.INCHES_TO_MM, // conversion to mm
+      height: 17 * this.INCHES_TO_MM, // conversion to mm
     };
   }
 
   getDoubleDemyDimensions(): { width: number; height: number } {
     return {
-      width: 22.5 * this.MM_TO_INCHES, // Umrechnung in mm
-      height: 17.5 * this.MM_TO_INCHES, // Umrechnung in mm
+      width: 22.5 * this.INCHES_TO_MM, // conversion to mm
+      height: 17.5 * this.INCHES_TO_MM, // conversion to mm
     };
   }
 
@@ -28,14 +28,14 @@ export class PaperDimensions {
   }
 }
 
-//   // Verwendung:
+//   // Usage:
 //   const paperService = new PaperDimensions();
 
 //   const a3 = paperService.getA3Dimensions();
-//   console.log(`A3 - Breite: ${a3.width}mm, Höhe: ${a3.height}mm, Nicht druckbare Breite: ${paperService.getNonPrintableWidth(a3.width)}mm`);
+//   console.log(`A3 - Width: ${a3.width}mm, Height: ${a3.height}mm, Non-printable width: ${paperService.getNonPrintableWidth(a3.width)}mm`);
 
 //   const tabloid = paperService.getTabloidDimensions();
-//   console.log(`Tabloid - Breite: ${tabloid.width}mm, Höhe: ${tabloid.height}mm, Nicht druckbare Breite: ${paperService.getNonPrintableWidth(tabloid.width)}mm`);
+//   console.log(`Tabloid - Width: ${tabloid.width}mm, Height: ${tabloid.height}mm, Non-printable width: ${paperService.getNonPrintableWidth(tabloid.width)}mm`);
 
 //   const doubleDemy = paperService.getDoubleDemyDimensions();
-//   console.log(`Double Demy - Breite: ${doubleDemy.width}mm, Höhe: ${doubleDemy.height}mm, Nicht druckbare Breite: ${paperService.getNonPrintableWidth(doubleDemy.width)}mm`);
+//   console.log(`Double Demy - Width: ${doubleDemy.width}mm, Height: ${doubleDemy.height}mm, Non-printable width: ${paperService.getNonPrintableWidth(doubleDemy.width)}mm`);

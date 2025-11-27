@@ -280,11 +280,6 @@
               @extend .table-row;
               cursor: move;
 
-              &.cdk-drag-preview {
-                opacity: 0.8;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-              }
-
               &.cdk-drag-placeholder {
                 opacity: 0.3;
               }
@@ -460,10 +455,10 @@
         overflow: auto;
 
         .shifts-table {
-          width: 100%;
+          width: auto;
           border-collapse: separate;
           border-spacing: 0;
-          table-layout: fixed;
+          min-width: 100%;
 
           th,
           td {
@@ -471,8 +466,14 @@
             white-space: nowrap;
 
             &.icon-column {
-              min-width: 40px;
-              width: 40px;
+              min-width: 28px;
+              width: 28px;
+            }
+
+            &.action-column {
+              min-width: 50px;
+              width: 50px;
+              max-width: 50px;
             }
           }
 
@@ -502,11 +503,6 @@
             tr {
               @extend .table-row;
               cursor: move;
-
-              &.cdk-drag-preview {
-                opacity: 0.8;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-              }
 
               &.cdk-drag-placeholder {
                 opacity: 0.3;
@@ -577,5 +573,34 @@
   .icon-table {
     padding-top: 15px;
     padding-right: 30px;
+  }
+}
+
+::ng-deep .cdk-drag-preview {
+  display: table;
+  background-color: var(--backgroundColorCard);
+  border-radius: 4px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0.7;
+
+  td {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gridColorText);
+    padding: 0.75rem 1rem;
+    background-color: var(--backgroundColorCard);
+    border-bottom: none;
+    white-space: nowrap;
+
+    &.icon-column {
+      width: 28px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+    }
+
+    &.action-column {
+      width: 50px;
+      padding: 0.75rem 0.5rem;
+    }
   }
 }

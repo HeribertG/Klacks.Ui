@@ -26,11 +26,19 @@ export abstract class DrawImageHelper {
     sWidth?: number,
     sHeight?: number
   ): void {
+    if (image.width === 0 || image.height === 0) {
+      return;
+    }
+
     const sourceWidth = sWidth || image.width;
     const sourceHeight = sHeight || image.height;
 
     const destWidth = dWidth || sourceWidth;
     const destHeight = dHeight || sourceHeight;
+
+    if (sourceWidth === 0 || sourceHeight === 0 || destWidth === 0 || destHeight === 0) {
+      return;
+    }
 
     ctx.drawImage(
       image,

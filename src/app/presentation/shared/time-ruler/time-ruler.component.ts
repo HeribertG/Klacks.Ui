@@ -10,6 +10,8 @@ import {
   OnChanges,
   SimpleChanges,
   Input,
+  Output,
+  EventEmitter,
   inject,
   effect,
   Injector,
@@ -30,6 +32,11 @@ import { TimeRulerDragDropService } from './services/time-ruler-drag-drop.servic
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
 
+export interface IShiftContextMenuEvent {
+  item: IContainerTemplateItem;
+  mouseEvent: MouseEvent;
+}
+
 @Component({
   selector: 'app-time-ruler',
   imports: [],
@@ -40,6 +47,7 @@ import { ContainerTemplateShiftService } from 'src/app/domain/services/container
 export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() fromTime: OwnTime = OwnTime.forTime('00', '00');
   @Input() untilTime: OwnTime = OwnTime.forTime('24', '00');
+  @Output() shiftRightClick = new EventEmitter<IShiftContextMenuEvent>();
 
   private shifts: IContainerTemplateItem[] = [];
   private selectedShift: IContainerTemplateItem | null = null;
@@ -558,6 +566,32 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const pixelsPerMinute = height / range.totalMinutes;
     const durationMinutes = bodyEndMinutes - bodyStartMinutes;
 
+    if (item.travelTimeBefore) {
+      const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeBefore);
+      if (travelMinutes > 0) {
+        const travelStartMinutes = bodyStartMinutes - travelMinutes;
+        const travelStartY =
+          ((travelStartMinutes - range.displayFromMinutes) / range.totalMinutes) *
+          height;
+
+        const travelRect = new Rectangle(
+          marginLeftRight,
+          travelStartY,
+          marginLeftRight + boxWidth,
+          startY
+        );
+
+        DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);
+
+        DrawHelper.drawBaseBorder(
+          ctx,
+          this.gridColorService.borderColor,
+          1,
+          travelRect
+        );
+      }
+    }
+
     const rect = new Rectangle(
       marginLeftRight,
       startY,
@@ -634,6 +668,32 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
+
+    if (item.travelTimeAfter) {
+      const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeAfter);
+      if (travelMinutes > 0) {
+        const travelEndMinutes = bodyEndMinutes + travelMinutes;
+        const travelEndY =
+          ((travelEndMinutes - range.displayFromMinutes) / range.totalMinutes) *
+          height;
+
+        const travelRect = new Rectangle(
+          marginLeftRight,
+          endY,
+          marginLeftRight + boxWidth,
+          travelEndY
+        );
+
+        DrawHelper.fillRectangle(ctx, '#FFFF00', travelRect);
+
+        DrawHelper.drawBaseBorder(
+          ctx,
+          this.gridColorService.borderColor,
+          1,
+          travelRect
+        );
+      }
+    }
 
     return rect;
   }
@@ -763,6 +823,33 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     }
 
     this.shiftService.setSelectedShift(null);
+  }
+
+  onContextMenu(event: MouseEvent): void {
+    const canvas = this.inboxCanvasRef.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    const logicalDimensions = DrawImageHelper.getLogicalDimensions(canvas);
+
+    const clickX = event.clientX - rect.left;
+    const clickY = event.clientY - rect.top;
+
+    const scaleX = logicalDimensions.width / rect.width;
+    const scaleY = logicalDimensions.height / rect.height;
+
+    const x = clickX * scaleX;
+    const y = clickY * scaleY;
+
+    for (const [item, shiftRect] of this.shiftRectangles) {
+      if (shiftRect.pointInRect(x, y)) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.shiftService.setSelectedShift(item);
+        this.shiftRightClick.emit({ item, mouseEvent: event });
+        return;
+      }
+    }
+
+    event.preventDefault();
   }
 
   onMouseDown(event: MouseEvent): void {
@@ -1036,5 +1123,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
         );
       }
     }
+  }
+
+  private parseTravelTimeToMinutes(travelTime: string): number {
+    if (!travelTime) return 0;
+    const parts = travelTime.split(':');
+    if (parts.length >= 2) {
+      const hours = parseInt(parts[0], 10) || 0;
+      const minutes = parseInt(parts[1], 10) || 0;
+      return hours * 60 + minutes;
+    }
+    return 0;
   }
 }
