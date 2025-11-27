@@ -7,6 +7,7 @@ import {
   IContainerTemplateItem,
   IRouteInfo,
 } from '../../models/container-template-class';
+import { ContainerTransportModeEnum } from '../../enums/transport-mode.enum';
 import {
   IContainerTemplateGrid,
   IContainerTemplateSlot,
@@ -693,6 +694,20 @@ export class DataManagementContainerService
         return {
           ...template,
           endBase: endBase
+        };
+      }
+      return template;
+    });
+    this.editTemplates.set(updated);
+  }
+
+  updateTransportMode(weekday: number, isHoliday: boolean, transportMode: ContainerTransportModeEnum): void {
+    const templates = this.editTemplates();
+    const updated = templates.map(template => {
+      if (template.weekday === weekday && template.isHoliday === isHoliday) {
+        return {
+          ...template,
+          transportMode: transportMode
         };
       }
       return template;

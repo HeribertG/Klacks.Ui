@@ -955,5 +955,11 @@
   "shift.container-template.toast.route-optimized-details": "Distance: {{distance}} km, Temps: {{time}}",
   "shift.container-template.toast.no-shifts-export": "Aucun service sélectionné pour l'export de l'itinéraire",
   "shift.container-template.toast.optimize-first": "Veuillez d'abord optimiser l'itinéraire avant d'exporter",
-  "shift.container-template.context-menu.properties": "Propriétés..."
+  "shift.container-template.toast.optimizing-route": "Calcul de l'itinéraire optimal. Cela peut prendre un moment...",
+  "shift.container-template.context-menu.properties": "Propriétés...",
+  "shift.container-template.transport-mode": "Transport",
+  "shift.container-template.transport-mode.by-car": "En voiture",
+  "shift.container-template.transport-mode.by-foot": "À pied",
+  "shift.container-template.transport-mode.by-bicycle": "À vélo",
+  "shift.container-template.transport-mode.mix": "Mixte"
 }

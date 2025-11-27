@@ -48,6 +48,7 @@ import {
   IContainerTemplateItem,
   IRouteInfo,
 } from 'src/app/domain/models/container-template-class';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -68,11 +69,16 @@ import { BranchManagementService } from 'src/app/domain/services/settings/branch
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
 import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
-import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
+import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
+import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
+import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
 
 @Component({
   selector: 'app-container-template',
@@ -92,6 +98,10 @@ import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/t
     IconRouteComponent,
     IconRouteFileComponent,
     ContextMenuComponent,
+    IconByCarComponent,
+    IconByFootComponent,
+    IconByBicycleComponent,
+    IconTransportMixComponent,
   ],
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
@@ -159,6 +169,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private branchService = inject(BranchManagementService);
   private routeOptimizationService = inject(RouteOptimizationService);
   private toastService = inject(ToastShowService);
+  private spinnerService = inject(SpinnerService);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
@@ -167,6 +178,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   public selectedStartBase = '';
   public selectedEndBase = '';
+  public selectedTransportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar;
   private lastRouteInfo: IRouteInfo | null = null;
   private contextMenuTargetItem: IContainerTemplateItem | null = null;
 
@@ -943,6 +955,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       itemsCount: items.length,
     });
 
+    this.spinnerService.showProgressSpinner = true;
+    this.toastService.showInfo(
+      this.translateService.instant('shift.container-template.toast.optimizing-route'),
+      '',
+      '',
+      TOAST_ICONS.ROUTE
+    );
+
     this.routeOptimizationService
       .optimizeRoute(
         this.containerShift.id,
@@ -954,6 +974,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
+          this.spinnerService.showProgressSpinner = false;
           console.log('Route optimization successful:', result);
 
           this.lastRouteInfo = {
@@ -979,6 +1000,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           );
         },
         error: (error) => {
+          this.spinnerService.showProgressSpinner = false;
           console.error('Route optimization failed:', error);
           this.toastService.showError(
             error.message || error.statusText || 'Unknown error',
@@ -1326,6 +1348,25 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
   }
 
+  onTransportModeChange(): void {
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.updateTransportMode(
+        weekdayNumber,
+        this.isHoliday,
+        this.selectedTransportMode
+      );
+      this.workplaceStateService.areObjectsDirty();
+    }
+  }
+
+  selectTransportMode(mode: ContainerTransportModeEnum): void {
+    this.selectedTransportMode = mode;
+    this.onTransportModeChange();
+  }
+
   private loadStartEndBaseForCurrentTemplate(): void {
     if (this.selectedWeekday) {
       const weekdayNumber = this.containerService.getWeekdayNumber(
@@ -1356,11 +1397,13 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
         this.selectedStartBase = startBaseAddress?.address || '';
         this.selectedEndBase = endBaseAddress?.address || '';
+        this.selectedTransportMode = template.transportMode ?? ContainerTransportModeEnum.byCar;
 
         this.lastRouteInfo = template.routeInfo || null;
       } else {
         this.selectedStartBase = '';
         this.selectedEndBase = '';
+        this.selectedTransportMode = ContainerTransportModeEnum.byCar;
         this.lastRouteInfo = null;
       }
     }

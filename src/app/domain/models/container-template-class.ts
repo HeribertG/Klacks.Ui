@@ -1,4 +1,5 @@
 import { IShift } from './shift-class';
+import { ContainerTransportModeEnum, TransportModeEnum } from '../enums/transport-mode.enum';
 
 export interface IRouteLocation {
   name: string;
@@ -34,6 +35,7 @@ export interface IContainerTemplate {
   startBase?: string;
   endBase?: string;
   routeInfo?: IRouteInfo;
+  transportMode?: ContainerTransportModeEnum;
   shift?: IShift;
   containerTemplateItems: IContainerTemplateItem[];
 }
@@ -51,5 +53,6 @@ export interface IContainerTemplateItem {
   travelTimeBefore: string;
   timeRangeStartShift: string;
   timeRangeEndShift: string;
+  transportMode?: TransportModeEnum;
   shift?: IShift;
 }

@@ -18,7 +18,12 @@ import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
       @if (isTemplate(toast)) {
       <ng-template [ngTemplateOutlet]="toast.textOrTpl"></ng-template>
       } @else {
-      {{ toast.textOrTpl }}
+      <div class="toast-content">
+        @if (toast.icon) {
+        <span class="toast-icon me-2">{{ toast.icon }}</span>
+        }
+        <span>{{ toast.textOrTpl }}</span>
+      </div>
 
       @if (toast.showTextField) {
       <div class="mt-2">

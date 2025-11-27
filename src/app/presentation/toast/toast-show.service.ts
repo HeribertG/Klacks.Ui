@@ -2,13 +2,22 @@ import { inject, Injectable } from '@angular/core';
 import { ToastService } from './toast.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
+export const TOAST_ICONS = {
+  INFO: 'ℹ️',
+  WARNING: '⚠️',
+  ERROR: '❌',
+  SUCCESS: '✅',
+  LOADING: '⏳',
+  ROUTE: '🗺️',
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class ToastShowService {
   private toastService = inject(ToastService);
 
-  showInfo(message: string, infoName = '', additionalMessage = '') {
+  showInfo(message: string, infoName = '', additionalMessage = '', icon = '') {
     if (infoName) {
       const y = this.toastService.toasts.find((x) => x.name === infoName);
       this.toastService.remove(y);
@@ -21,10 +30,11 @@ export class ToastShowService {
       headertext: 'Info',
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
+      icon: icon,
     });
   }
 
-  showError(message: string, errorName = '', additionalMessage = '') {
+  showError(message: string, errorName = '', additionalMessage = '', icon = '') {
     if (errorName) {
       const y = this.toastService.toasts.find((x) => x.name === errorName);
       this.toastService.remove(y);
@@ -38,10 +48,11 @@ export class ToastShowService {
       headertext: MessageLibrary.ERROR_TOASTTITLE,
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
+      icon: icon,
     });
   }
 
-  showSuccess(message: string, header: string, additionalMessage = '') {
+  showSuccess(message: string, header: string, additionalMessage = '', icon = '') {
     this.toastService.show(message, {
       classname: 'bg-success text-light',
       delay: 2000,
@@ -49,6 +60,7 @@ export class ToastShowService {
       headertext: header,
       showTextField: additionalMessage !== '',
       textFieldValue: additionalMessage,
+      icon: icon,
     });
   }
 }

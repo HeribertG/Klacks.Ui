@@ -1,6 +1,9 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<div class="container-template-container" (contextmenu)="onContainerContextMenu($event)">
+<div
+  class="container-template-container"
+  (contextmenu)="onContainerContextMenu($event)"
+>
   <!-- Header -->
   <div class="header">
     <div class="header-content">
@@ -113,6 +116,49 @@
             </option>
             }
           </select>
+        </div>
+      </div>
+      <div class="transport-mode-group">
+        <label>
+          {{ "shift.container-template.transport-mode" | translate }}
+        </label>
+        <div class="transport-mode-buttons">
+          <button
+            type="button"
+            class="transport-mode-btn"
+            [class.active]="selectedTransportMode === 0"
+            (click)="selectTransportMode(0)"
+            [title]="'shift.container-template.transport-mode.by-car' | translate"
+          >
+            <app-icon-by-car></app-icon-by-car>
+          </button>
+          <button
+            type="button"
+            class="transport-mode-btn"
+            [class.active]="selectedTransportMode === 1"
+            (click)="selectTransportMode(1)"
+            [title]="'shift.container-template.transport-mode.by-bicycle' | translate"
+          >
+            <app-icon-by-bicycle></app-icon-by-bicycle>
+          </button>
+          <button
+            type="button"
+            class="transport-mode-btn"
+            [class.active]="selectedTransportMode === 2"
+            (click)="selectTransportMode(2)"
+            [title]="'shift.container-template.transport-mode.by-foot' | translate"
+          >
+            <app-icon-by-foot></app-icon-by-foot>
+          </button>
+          <button
+            type="button"
+            class="transport-mode-btn"
+            [class.active]="selectedTransportMode === 3"
+            (click)="selectTransportMode(3)"
+            [title]="'shift.container-template.transport-mode.mix' | translate"
+          >
+            <app-icon-transport-mix></app-icon-transport-mix>
+          </button>
         </div>
       </div>
       }
