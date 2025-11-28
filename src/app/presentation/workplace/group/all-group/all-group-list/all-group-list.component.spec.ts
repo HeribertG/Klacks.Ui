@@ -260,7 +260,9 @@ describe('AllGroupListComponent', () => {
         lft: 0,
         rgt: 0,
         depth: 0,
-        clientsCount: 0
+        clientsCount: 0,
+        shiftsCount: 0,
+        customersCount: 0
       };
       component.onClickEdit(mockGroup as any);
 

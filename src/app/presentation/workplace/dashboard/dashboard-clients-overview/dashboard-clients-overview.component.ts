@@ -74,11 +74,11 @@ export class DashboardClientsOverviewComponent implements OnInit {
   }
 
   private prepareChartData(groups: IGroup[]): PieChartData[] {
-    const groupsWithClients = groups.filter(g => g.clientsCount > 0);
+    const groupsWithCustomers = groups.filter(g => g.customersCount > 0);
 
-    return groupsWithClients.map((group, index) => ({
+    return groupsWithCustomers.map((group, index) => ({
       label: group.name,
-      value: group.clientsCount,
+      value: group.customersCount,
       color: this.colors[index % this.colors.length],
     }));
   }

@@ -1,7 +1,6 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { BaseTableResizeService } from './base-table-resize.service';
 
@@ -9,10 +8,6 @@ import { BaseTableResizeService } from './base-table-resize.service';
 export class ShiftTableResizeService extends BaseTableResizeService {
   private readonly MIN_ITEMS_PER_PAGE = 3;
   private readonly ROWS_PER_DATA_ITEM = 2;
-
-  constructor() {
-    super(inject(LocalStorageService));
-  }
 
   protected getMinItemsPerPage(): number {
     return this.MIN_ITEMS_PER_PAGE;

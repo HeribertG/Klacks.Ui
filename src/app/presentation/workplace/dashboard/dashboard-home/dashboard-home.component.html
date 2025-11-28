@@ -1,4 +1,12 @@
-<div class="dashboard-grid">
-  <app-dashboard-clients-overview></app-dashboard-clients-overview>
-  <app-dashboard-clients-locations class="dashboard-locations-full-width"></app-dashboard-clients-locations>
+<div class="container-dashboard">
+  <h1 class="container-dashboard-header">{{ 'dashboard.clients.headline' | translate }}</h1>
+  <div class="container-dashboard-line"></div>
+
+  <div class="container-dashboard-content">
+    <div class="container-dashboard-charts-row">
+      <app-dashboard-clients-overview></app-dashboard-clients-overview>
+      <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+    </div>
+    <app-dashboard-clients-locations></app-dashboard-clients-locations>
+  </div>
 </div>

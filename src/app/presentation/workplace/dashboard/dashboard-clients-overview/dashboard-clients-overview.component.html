@@ -1,42 +1,33 @@
-<div id="dashboard-clients-container" class="container-dashboard">
-  <div id="dashboard-clients-header" class="container-header">
-    {{ 'dashboard.clients.headline' | translate }}
-  </div>
-
-  <div id="dashboard-clients-line" class="container-line"></div>
-
+<div class="container-dashboard-card">
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="container-dashboard-loading">
       <p>{{ 'dashboard.clients.loading' | translate }}</p>
     </div>
   }
 
   @if (error()) {
-    <div class="error-container">
-      <p class="error-message">{{ error() }}</p>
+    <div class="container-dashboard-error">
+      <p class="container-dashboard-error-message">{{ error() }}</p>
     </div>
   }
 
   @if (!isLoading() && !error()) {
-    <div id="dashboard-clients-content">
-      @if (chartData().length === 0) {
-        <div class="no-data-message">
-          <p>{{ 'dashboard.clients.noData' | translate }}</p>
-        </div>
-      } @else {
-        <div class="clients-chart-container">
-          <div class="chart-header">
-            <h3>{{ 'dashboard.clients.byGroup' | translate }}</h3>
-            <p class="total-clients">{{ 'dashboard.clients.total' | translate }}: {{ totalClients() }}</p>
-          </div>
+    @if (chartData().length === 0) {
+      <div class="container-dashboard-no-data">
+        <p>{{ 'dashboard.clients.noData' | translate }}</p>
+      </div>
+    } @else {
+      <div class="container-dashboard-card-header">
+        <h3>{{ 'dashboard.clients.byGroup' | translate }}</h3>
+      </div>
 
-          <app-pie-chart
-            [data]="chartData()"
-            [width]="500"
-            [height]="500"
-          ></app-pie-chart>
-        </div>
-      }
-    </div>
+      <div class="container-dashboard-card-content">
+        <app-pie-chart
+          [data]="chartData()"
+          [width]="500"
+          [height]="500"
+        ></app-pie-chart>
+      </div>
+    }
   }
 </div>

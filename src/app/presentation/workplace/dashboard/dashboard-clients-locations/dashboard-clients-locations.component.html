@@ -1,29 +1,48 @@
-<div id="dashboard-locations-container" class="container-dashboard">
-  <div id="dashboard-locations-header" class="container-header">
-    {{ 'dashboard.locations.headline' | translate }}
+<div class="container-dashboard-card">
+  <div class="container-dashboard-card-header">
+    <h3>{{ 'dashboard.locations.headline' | translate }}</h3>
   </div>
 
-  <div id="dashboard-locations-line" class="container-line"></div>
-
   @if (isLoading()) {
-    <div class="loading-container">
+    <div class="container-dashboard-loading">
       <p>{{ 'dashboard.locations.loading' | translate }}</p>
     </div>
   }
 
   @if (error()) {
-    <div class="error-container">
-      <p class="error-message">{{ error() }}</p>
+    <div class="container-dashboard-error">
+      <p class="container-dashboard-error-message">{{ error() }}</p>
     </div>
   }
 
   @if (!isLoading() && !error()) {
-    <div id="dashboard-locations-content">
+    <div class="container-dashboard-card-content">
       @if (locations().length === 0) {
-        <div class="no-data-message">
+        <div class="container-dashboard-no-data">
           <p>{{ 'dashboard.locations.noData' | translate }}</p>
         </div>
       } @else {
+        <div class="container-dashboard-controls">
+          <label for="map-style-select">{{ 'dashboard.locations.mapStyle' | translate }}:</label>
+          <select
+            id="map-style-select"
+            [ngModel]="selectedTileProviderId()"
+            (ngModelChange)="onTileProviderChange($event)">
+            @for (provider of tileProviders; track provider.id) {
+              <option [value]="provider.id">{{ provider.name }}</option>
+            }
+          </select>
+          <button
+            type="button"
+            class="container-dashboard-btn"
+            (click)="onZoomToAllMarkers()"
+            title="{{ 'dashboard.locations.zoomToAll' | translate }}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ 'dashboard.locations.zoomToAll' | translate }}
+          </button>
+        </div>
         <div id="map-container" style="height: 600px; margin-bottom: 20px; width: 100%;"></div>
 
         <div class="locations-container">

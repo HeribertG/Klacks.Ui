@@ -362,7 +362,7 @@ export class DataManagementContainerService
   private hasUnsavedTasks(): boolean {
     const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
     for (const tasks of Object.values(weekdayTasksMap)) {
-      if (tasks.some(task => !task.id && task.tmpId)) {
+      if (tasks.some((task: IContainerTemplateItem) => !task.id && task.tmpId)) {
         return true;
       }
     }
@@ -546,7 +546,7 @@ export class DataManagementContainerService
       const slot = slotsForWeekday[0];
 
       const containerTemplateItems: IContainerTemplateItem[] = tasks.filter(
-        (task) => task.shiftId
+        (task: IContainerTemplateItem) => task.shiftId
       );
 
       const existingTemplate = templates.find(

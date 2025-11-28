@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ElementRef } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 declare let L: any;
@@ -15,21 +17,33 @@ export interface LocationData {
   customerCount: number;
 }
 
+export interface MapTileProvider {
+  id: string;
+  name: string;
+  url: string;
+  attribution: string;
+  maxZoom: number;
+}
+
 export enum ClientType {
   Employee = 0,
   ExternEmp = 1,
   Customer = 2,
 }
 
+const MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
+
 @Component({
   selector: 'app-dashboard-clients-locations',
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [TranslateModule],
+  imports: [TranslateModule, FormsModule],
 })
-export class DashboardClientsLocationsComponent implements OnInit {
+export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
   private dataDashboardService = inject(DataDashboardService);
+  private localStorageService = inject(LocalStorageService);
+  private elementRef = inject(ElementRef);
 
   public locations = signal<LocationData[]>([]);
   public totalLocations = signal(0);
@@ -37,11 +51,78 @@ export class DashboardClientsLocationsComponent implements OnInit {
   public isLoading = signal(true);
   public error = signal<string | null>(null);
 
+  public readonly tileProviders: MapTileProvider[] = [
+    {
+      id: 'osm-standard',
+      name: 'OpenStreetMap Standard',
+      url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    },
+    {
+      id: 'osm-de',
+      name: 'OpenStreetMap DE',
+      url: 'https://{s}.tile.openstreetmap.de/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    },
+    {
+      id: 'carto-positron',
+      name: 'CartoDB Positron (Hell)',
+      url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19,
+    },
+    {
+      id: 'carto-dark',
+      name: 'CartoDB Dark Matter (Dunkel)',
+      url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19,
+    },
+    {
+      id: 'carto-voyager',
+      name: 'CartoDB Voyager (Modern)',
+      url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 19,
+    },
+    {
+      id: 'opentopomap',
+      name: 'OpenTopoMap (Topografisch)',
+      url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+      maxZoom: 17,
+    },
+  ];
+
+  public selectedTileProviderId = signal('osm-standard');
+
   private map: any;
+  private currentTileLayer: any;
   private markerClusterGroup: any;
+  private resizeObserver: ResizeObserver | null = null;
+  private markerBounds: any[] = [];
 
   ngOnInit(): void {
+    this.loadSavedTileProvider();
     this.loadLocationData();
+  }
+
+  private loadSavedTileProvider(): void {
+    const savedProviderId = this.localStorageService.get(MAP_TILE_PROVIDER_STORAGE_KEY);
+    if (savedProviderId && this.tileProviders.some(p => p.id === savedProviderId)) {
+      this.selectedTileProviderId.set(savedProviderId);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    if (this.map) {
+      this.map.remove();
+    }
   }
 
   private loadLocationData(): void {
@@ -126,10 +207,10 @@ export class DashboardClientsLocationsComponent implements OnInit {
 
     this.map = L.map('map-container').setView([46.8182, 8.2275], 7);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
+    const provider = this.tileProviders.find(p => p.id === this.selectedTileProviderId()) || this.tileProviders[0];
+    this.currentTileLayer = L.tileLayer(provider.url, {
+      attribution: provider.attribution,
+      maxZoom: provider.maxZoom,
     }).addTo(this.map);
 
     this.markerClusterGroup = L.markerClusterGroup({
@@ -140,6 +221,38 @@ export class DashboardClientsLocationsComponent implements OnInit {
     });
 
     this.map.addLayer(this.markerClusterGroup);
+
+    setTimeout(() => {
+      this.map?.invalidateSize();
+    }, 200);
+
+    this.resizeObserver = new ResizeObserver(() => {
+      this.map?.invalidateSize();
+    });
+    this.resizeObserver.observe(mapContainer);
+  }
+
+  public onTileProviderChange(providerId: string): void {
+    this.selectedTileProviderId.set(providerId);
+    this.localStorageService.set(MAP_TILE_PROVIDER_STORAGE_KEY, providerId);
+
+    if (!this.map) {
+      return;
+    }
+
+    const provider = this.tileProviders.find(p => p.id === providerId);
+    if (!provider) {
+      return;
+    }
+
+    if (this.currentTileLayer) {
+      this.map.removeLayer(this.currentTileLayer);
+    }
+
+    this.currentTileLayer = L.tileLayer(provider.url, {
+      attribution: provider.attribution,
+      maxZoom: provider.maxZoom,
+    }).addTo(this.map);
   }
 
   private loadMarkersOnMap(locations: LocationData[]): void {
@@ -209,12 +322,20 @@ export class DashboardClientsLocationsComponent implements OnInit {
         });
 
         if (bounds.length > 0) {
-          this.map.fitBounds(bounds, { padding: [50, 50] });
+          this.markerBounds = bounds;
+          this.map.fitBounds(bounds);
         }
       },
       error: (err) => {
         console.error('Error loading location coordinates:', err);
       },
     });
+  }
+
+  public onZoomToAllMarkers(): void {
+    if (!this.map || this.markerBounds.length === 0) {
+      return;
+    }
+    this.map.fitBounds(this.markerBounds);
   }
 }

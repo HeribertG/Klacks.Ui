@@ -1,43 +1,22 @@
-#dashboard-locations-container {
-  padding: 20px;
-}
-
-.loading-container,
-.error-container,
-.no-data-message {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--standartTextColor);
-}
-
-.error-message {
-  color: var(--standartRedColor);
-  font-weight: 500;
-}
-
-#dashboard-locations-content {
-  margin-top: 20px;
-}
+@use "src/assets/standard-styles/standard-dashboard.scss";
 
 .locations-container {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-top: 24px;
 }
 
 .locations-header {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px 20px;
-  background-color: var(--backgroundColorCard);
-  border-radius: 8px;
-  border: 1px solid var(--colorLine);
+  width: 100%;
 
   h3 {
     margin: 0;
     color: var(--colorLabel);
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
   }
 }
@@ -50,14 +29,15 @@
 
 .summary-item {
   color: var(--gridColorText);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .locations-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
+  justify-content: space-evenly;
 }
 
 .location-card {
@@ -65,13 +45,13 @@
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background-color: var(--backgroundColorCard);
-  border-radius: 8px;
-  border: 1px solid var(--colorLine);
-  transition: all 0.2s ease;
+  background-color: var(--backgroundColorHeaderWorkplace);
+  border-radius: 5px;
+  border: 1px solid var(--cardBorderColor);
+  width: 320px;
+  flex: 0 0 320px;
 
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-color: var(--standartGreenColor);
   }
 }
@@ -96,14 +76,14 @@
 }
 
 .location-city {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--colorLabel);
 }
 
 .location-country {
   font-size: 13px;
-  color: var(--gridColorText);
+  color: var(--colorLabel);
 }
 
 .location-types {
@@ -121,7 +101,7 @@
 
   &.employee {
     background-color: var(--backgroundColorContributionTypeName);
-    color: var(--standartGreenColor);
+    color: var(--standartBlueColor);
   }
 
   &.extern {
@@ -141,8 +121,8 @@
   align-items: center;
   gap: 4px;
   padding: 8px 12px;
-  background-color: var(--backgroundColorHeaderWorkplace);
-  border-radius: 6px;
+  background-color: var(--backgroundColorCard);
+  border-radius: 5px;
 }
 
 .count-number {
@@ -157,8 +137,3 @@
   text-transform: uppercase;
 }
 
-@media (max-width: 768px) {
-  .locations-grid {
-    grid-template-columns: 1fr;
-  }
-}

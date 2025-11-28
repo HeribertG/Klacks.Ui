@@ -1,15 +1,10 @@
-import { Injectable, inject } from '@angular/core';
-import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { Injectable } from '@angular/core';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { BaseTableResizeService } from './base-table-resize.service';
 
 @Injectable()
 export class TableResizeService extends BaseTableResizeService {
   private readonly MIN_ITEMS_PER_PAGE = 5;
-
-  constructor() {
-    super(inject(LocalStorageService));
-  }
 
   protected getMinItemsPerPage(): number {
     return this.MIN_ITEMS_PER_PAGE;

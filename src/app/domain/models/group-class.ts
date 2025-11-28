@@ -22,6 +22,8 @@ export interface IGroup {
   rgt: number;
   depth: number;
   clientsCount: number;
+  shiftsCount: number;
+  customersCount: number;
   children?: IGroup[];
   clientIds?: string[];
 }
@@ -40,6 +42,8 @@ export class Group implements IGroup {
   rgt = 0;
   depth = 0;
   clientsCount = 0;
+  shiftsCount = 0;
+  customersCount = 0;
   children: Group[] = [];
   clientIds?: string[] = [];
   groupItems: GroupItem[] = [];
@@ -69,6 +73,8 @@ export class Group implements IGroup {
     this.rgt = data.rgt || 0;
     this.depth = data.depth || 0;
     this.clientsCount = data.clientsCount || 0;
+    this.shiftsCount = data.shiftsCount || 0;
+    this.customersCount = data.customersCount || 0;
     this.clientIds = data.clientIds || [];
     this.groupItems = data.groupItems
       ? data.groupItems.map((item) => {
