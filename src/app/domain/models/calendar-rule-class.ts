@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-for-of */
 /* eslint-disable prefer-const */
 import {
   BaseFilter,

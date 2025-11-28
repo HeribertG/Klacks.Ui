@@ -122,7 +122,7 @@ export class ContainerTemplatePdfExportService {
   }
 
   private translateWeekday(weekday: string): string {
-    const weekdayMap: { [key: string]: string } = {
+    const weekdayMap: Record<string, string> = {
       'Mo': 'shift.container-template.weekday-full.monday',
       'Di': 'shift.container-template.weekday-full.tuesday',
       'Mi': 'shift.container-template.weekday-full.wednesday',

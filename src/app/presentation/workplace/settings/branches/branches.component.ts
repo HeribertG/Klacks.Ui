@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   OnInit,
@@ -18,7 +19,10 @@ import { BranchesHeaderComponent } from './branches-header/branches-header.compo
 import { BranchesRowComponent } from './branches-row/branches-row.component';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { IBranch } from 'src/app/domain/models/branch';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 @Component({
@@ -30,13 +34,14 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
     NgbModule,
     SpinnerModule,
     BranchesHeaderComponent,
-    BranchesRowComponent
+    BranchesRowComponent,
   ],
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss'],
 })
 export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild('branchModal', { read: TemplateRef }) branchModal!: TemplateRef<any>;
+  @ViewChild('branchModal', { read: TemplateRef })
+  branchModal!: TemplateRef<any>;
   @ViewChild('branchForm') branchForm!: NgForm;
 
   private branchService = inject(DataBranchService);
@@ -106,7 +111,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       phone: '',
       email: '',
       select: false,
-      isDirty: 0
+      isDirty: 0,
     };
 
     this.originalBranch = null;
@@ -153,7 +158,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       await firstValueFrom(this.branchService.deleteBranch(id));
 
-      const index = this.branches.findIndex(b => b.id === id);
+      const index = this.branches.findIndex((b) => b.id === id);
       if (index !== -1) {
         this.branches.splice(index, 1);
       }
@@ -217,10 +222,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   isFormValid(): boolean {
     if (!this.editingBranch) return false;
 
-    return !!(
-      this.editingBranch.name &&
-      this.editingBranch.address
-    );
+    return !!(this.editingBranch.name && this.editingBranch.address);
   }
 
   getValidationErrors(): string[] {
@@ -230,16 +232,12 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.editingBranch.name) {
       errors.push(
-        this.translate.instant(
-          'setting.branches.validation.name-required'
-        )
+        this.translate.instant('setting.branches.validation.name-required')
       );
     }
     if (!this.editingBranch.address) {
       errors.push(
-        this.translate.instant(
-          'setting.branches.validation.address-required'
-        )
+        this.translate.instant('setting.branches.validation.address-required')
       );
     }
 

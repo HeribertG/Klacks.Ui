@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';

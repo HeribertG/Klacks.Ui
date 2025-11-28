@@ -1,17 +1,16 @@
-import { Directive, ElementRef, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Directive, ElementRef, OnDestroy, AfterViewInit, inject } from '@angular/core';
 
 @Directive({
   selector: '[appFocusTrap]',
   standalone: true
 })
 export class FocusTrapDirective implements AfterViewInit, OnDestroy {
+  private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private previousActiveElement: HTMLElement | null = null;
   private focusableElements: HTMLElement[] = [];
   private firstFocusableElement: HTMLElement | null = null;
   private lastFocusableElement: HTMLElement | null = null;
   private keydownListener: ((event: KeyboardEvent) => void) | null = null;
-
-  constructor(private elementRef: ElementRef<HTMLElement>) {}
 
   ngAfterViewInit(): void {
     this.previousActiveElement = document.activeElement as HTMLElement;

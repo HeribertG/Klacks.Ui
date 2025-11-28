@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -126,7 +127,9 @@ describe('LLMModelsComponent', () => {
       DataManagementLLMService
     ) as jasmine.SpyObj<DataManagementLLMService>;
     mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
-    mockModalService = TestBed.inject(ModalService) as jasmine.SpyObj<ModalService>;
+    mockModalService = TestBed.inject(
+      ModalService
+    ) as jasmine.SpyObj<ModalService>;
     mockProviderService = TestBed.inject(
       DataManagementLLMProviderService
     ) as jasmine.SpyObj<DataManagementLLMProviderService>;
@@ -514,5 +517,4 @@ describe('LLMModelsComponent', () => {
       expect(component.isProviderApiKeyEditable()).toBe(false);
     });
   });
-
 });

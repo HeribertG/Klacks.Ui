@@ -16,7 +16,7 @@ import { DataContainerTemplateService } from '../../../infrastructure/api/data-c
 import { ContainerTemplateSlotCalculationService } from './container-template-slot-calculation.service';
 import {
   ContainerTemplateShiftService,
-  WeekdayContainerTemplateItemsMap,
+  IWeekdayContainerTemplateItemsMap,
 } from './container-template-shift.service';
 import {
   ISaveable,
@@ -564,6 +564,7 @@ export class DataManagementContainerService
         startBase: existingTemplate?.startBase,
         endBase: existingTemplate?.endBase,
         routeInfo: existingTemplate?.routeInfo,
+        transportMode: existingTemplate?.transportMode,
         containerTemplateItems: containerTemplateItems,
       };
 
@@ -586,7 +587,7 @@ export class DataManagementContainerService
   ): void {
     const weekdayNumberToName: Record<
       number,
-      keyof WeekdayContainerTemplateItemsMap
+      keyof IWeekdayContainerTemplateItemsMap
     > = {
       0: 'sunday',
       1: 'monday',
@@ -597,7 +598,7 @@ export class DataManagementContainerService
       6: 'saturday',
     };
 
-    const weekdayContainerTemplateItemsMap: WeekdayContainerTemplateItemsMap = {
+    const weekdayContainerTemplateItemsMap: IWeekdayContainerTemplateItemsMap = {
       monday: [],
       tuesday: [],
       wednesday: [],

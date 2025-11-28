@@ -1,15 +1,11 @@
-import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
+import { inject, Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LiveRegionService {
-  private renderer: Renderer2;
+  private renderer: Renderer2 = inject(RendererFactory2).createRenderer(null, null);
   private liveRegion: HTMLElement | null = null;
-
-  constructor(rendererFactory: RendererFactory2) {
-    this.renderer = rendererFactory.createRenderer(null, null);
-  }
 
   private ensureLiveRegion(): HTMLElement {
     if (!this.liveRegion) {

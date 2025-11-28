@@ -8,7 +8,12 @@
 
     @if (authorizationService.isAdmin) {
     <div class="tree-actions">
-      <button id="new-address-button" class="btn new-btn" (click)="onAddAddress()" tabindex="0">
+      <button
+        id="new-address-button"
+        class="btn new-btn"
+        (click)="onAddAddress()"
+        tabindex="0"
+      >
         {{ "new-address" | translate }}
       </button>
     </div>
@@ -27,7 +32,7 @@
     checkBoxIndeterminate) {
     <div>
       <div
-        tabindex="1"
+        tabindex="0"
         class="btn ownStyle-button"
         role="button"
         data-bs-toggle="dropdown"
@@ -54,8 +59,12 @@
       id="myAddressTable"
       appResizeTable
       #resizeDirective="resizeTable"
-      [defaultItemsPerPage]="dataManagementClientService.currentFilter.numberOfItemsPerPage"
-      [maxItems]="dataManagementClientService.paginationDataService()?.maxItems || 0"
+      [defaultItemsPerPage]="
+        dataManagementClientService.currentFilter.numberOfItemsPerPage
+      "
+      [maxItems]="
+        dataManagementClientService.paginationDataService()?.maxItems || 0
+      "
       [currentPage]="page"
       (itemsPerPageChange)="onItemsPerPageChange($event)"
       (recalculateRequired)="onRecalculateRequired($event)"
@@ -89,7 +98,9 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('idNumber') }}</p>
+              <p class="table-header-cell-arrow noselect">
+                {{ sortingService.getArrow("idNumber") }}
+              </p>
             </div>
           </th>
           <th
@@ -105,7 +116,9 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('company') }}</p>
+              <p class="table-header-cell-arrow noselect">
+                {{ sortingService.getArrow("company") }}
+              </p>
             </div>
           </th>
           <th
@@ -122,7 +135,7 @@
                 }}
               </p>
               <p class="table-header-cell-arrow noselect">
-                {{ sortingService.getArrow('firstName') }}
+                {{ sortingService.getArrow("firstName") }}
               </p>
             </div>
           </th>
@@ -139,7 +152,9 @@
                   )
                 }}
               </p>
-              <p class="table-header-cell-arrow noselect">{{ sortingService.getArrow('name') }}</p>
+              <p class="table-header-cell-arrow noselect">
+                {{ sortingService.getArrow("name") }}
+              </p>
             </div>
           </th>
 
@@ -207,19 +222,31 @@
           <td class="table-cell cell-right">
             @if (authorizationService.isAdmin) {
             <div>
-              <div [id]="'client-edit-button-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
+              <div
+                [id]="'client-edit-button-' + i"
+                class="icon icon-padding"
+                (click)="onClickEdit(data)"
+              >
                 <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
               </div>
 
               @if (!data.isDeleted) {
-              <div [id]="'client-delete-button-' + i" class="icon" (click)="open(data)">
+              <div
+                [id]="'client-delete-button-' + i"
+                class="icon"
+                (click)="open(data)"
+              >
                 <app-icon-trash-red></app-icon-trash-red>
               </div>
               }
             </div>
             } @if (!authorizationService.isAdmin) {
             <div>
-              <div [id]="'client-view-button-' + i" class="icon icon-padding" (click)="onClickEdit(data)">
+              <div
+                [id]="'client-view-button-' + i"
+                class="icon icon-padding"
+                (click)="onClickEdit(data)"
+              >
                 <app-icon-eye-grey></app-icon-eye-grey>
               </div>
             </div>

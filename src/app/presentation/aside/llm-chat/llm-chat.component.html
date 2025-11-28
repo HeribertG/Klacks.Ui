@@ -1,14 +1,20 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Chat Container - Integrated -->
 <div class="chat-container-integrated">
   <!-- No API Key Warning -->
   @if (hasNoApiKey()) {
-    <div class="no-api-key-warning" role="alert" aria-live="polite">
-      <div class="warning-icon">⚠️</div>
-      <div class="warning-content">
-        <h3 class="warning-title">{{ 'llm-chat.no-api-key.title' | translate }}</h3>
-        <p class="warning-message">{{ 'llm-chat.no-api-key.message' | translate }}</p>
-      </div>
+  <div class="no-api-key-warning" role="alert" aria-live="polite">
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-content">
+      <h3 class="warning-title">
+        {{ "llm-chat.no-api-key.title" | translate }}
+      </h3>
+      <p class="warning-message">
+        {{ "llm-chat.no-api-key.message" | translate }}
+      </p>
     </div>
+  </div>
   }
 
   <!-- Model Selection Header -->
@@ -19,16 +25,16 @@
       (click)="toggleModelDropdown()"
       [attr.aria-label]="'llm-chat.select-model' | translate"
       [attr.aria-expanded]="showModelDropdown"
-      >
+    >
       <div class="current-model">
         <span class="model-name">{{
           getCurrentModelInfo()?.displayName ||
-          ("llm-chat.select-model" | translate)
+            ("llm-chat.select-model" | translate)
         }}</span>
         @if (getCurrentModelInfo()) {
-          <span class="model-cost">
-            {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
-          </span>
+        <span class="model-cost">
+          {{ formatCost(getCurrentModelInfo()!.costPerInputToken) }}
+        </span>
         }
         <fa-icon
           [icon]="faChevronDown"
@@ -37,129 +43,131 @@
       </div>
 
       @if (showModelDropdown) {
-        <div class="dropdown-menu" role="menu" (click)="$event.stopPropagation()">
-          @for (model of availableModels; track model.modelId) {
+      <div class="dropdown-menu" role="menu" (click)="$event.stopPropagation()">
+        @for (model of availableModels; track model.modelId) {
+        <button
+          type="button"
+          role="menuitem"
+          class="dropdown-item"
+          [class.selected]="model.modelId === currentModel"
+          (click)="selectModel(model.modelId); $event.stopPropagation()"
+          [attr.aria-label]="model.displayName"
+        >
+          <div class="model-info">
+            <div class="model-name">{{ model.displayName }}</div>
+            <div class="model-description">{{ model.description }}</div>
+            <div class="model-pricing">
+              <span class="input-cost"
+                >In: {{ formatCost(model.costPerInputToken) }}</span
+              >
+              <span class="output-cost"
+                >Out: {{ formatCost(model.costPerOutputToken) }}</span
+              >
+            </div>
+          </div>
+          <div class="provider-badge">{{ model.providerId }}</div>
+        </button>
+        }
+      </div>
+      }
+    </button>
+  </div>
+  <!-- Messages Area -->
+  <div class="messages-container" #messagesContainer>
+    <div class="messages">
+      @for (message of messages; track message.id) {
+      <div class="message-wrapper" [class]="message.sender">
+        <div class="message-avatar">
+          @if (message.sender === 'user') {
+          <app-icon-user></app-icon-user>
+          } @else {
+          <app-icon-mml></app-icon-mml>
+          }
+        </div>
+        <div class="message-content">
+          <div class="message-bubble" [class]="message.sender">
+            <div
+              class="message-text"
+              [innerHTML]="formatMessage(message.content)"
+            ></div>
+            <div class="message-time">
+              {{ message.timestamp | date : "short" }}
+            </div>
+          </div>
+
+          <!-- Action buttons for assistant messages -->
+          @if (message.sender === 'assistant' && message.navigateTo) {
+          <button
+            type="button"
+            class="action-btn navigate-btn"
+            (click)="onNavigateClick(message.navigateTo!)"
+            [attr.aria-label]="'llm-chat.open' | translate"
+          >
+            📍 {{ "llm-chat.open" | translate }}
+          </button>
+          }
+
+          <!-- Suggestions -->
+          @if (message.suggestions && message.suggestions.length > 0) {
+          <div class="suggestions">
+            @for (suggestion of message.suggestions; track $index) {
             <button
               type="button"
-              role="menuitem"
-              class="dropdown-item"
-              [class.selected]="model.modelId === currentModel"
-              (click)="selectModel(model.modelId); $event.stopPropagation()"
-              [attr.aria-label]="model.displayName"
-              >
-              <div class="model-info">
-                <div class="model-name">{{ model.displayName }}</div>
-                <div class="model-description">{{ model.description }}</div>
-                <div class="model-pricing">
-                  <span class="input-cost"
-                    >In: {{ formatCost(model.costPerInputToken) }}</span
-                    >
-                    <span class="output-cost"
-                      >Out: {{ formatCost(model.costPerOutputToken) }}</span
-                      >
-                    </div>
-                  </div>
-                  <div class="provider-badge">{{ model.providerId }}</div>
-                </button>
-              }
-            </div>
-          }
-        </button>
-      </div>
-      <!-- Messages Area -->
-      <div class="messages-container" #messagesContainer>
-        <div class="messages">
-          @for (message of messages; track message.id) {
-            <div class="message-wrapper" [class]="message.sender">
-              <div class="message-avatar">
-                @if (message.sender === 'user') {
-                  <app-icon-user></app-icon-user>
-                } @else {
-                  <app-icon-mml></app-icon-mml>
-                }
-              </div>
-              <div class="message-content">
-                <div class="message-bubble" [class]="message.sender">
-                  <div
-                    class="message-text"
-                    [innerHTML]="formatMessage(message.content)"
-                  ></div>
-                  <div class="message-time">
-                    {{ message.timestamp | date : "short" }}
-                  </div>
-                </div>
-
-                <!-- Action buttons for assistant messages -->
-                @if (message.sender === 'assistant' && message.navigateTo) {
-                  <button
-                    type="button"
-                    class="action-btn navigate-btn"
-                    (click)="onNavigateClick(message.navigateTo!)"
-                    [attr.aria-label]="'llm-chat.open' | translate"
-                    >
-                    📍 {{ "llm-chat.open" | translate }}
-                  </button>
-                }
-
-                <!-- Suggestions -->
-                @if (message.suggestions && message.suggestions.length > 0) {
-                  <div class="suggestions">
-                    @for (suggestion of message.suggestions; track $index) {
-                      <button
-                        type="button"
-                        class="suggestion-btn"
-                        (click)="onSuggestionClick(suggestion)"
-                        [attr.aria-label]="suggestion"
-                        >
-                        {{ suggestion }}
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          }
-
-          <!-- Processing indicator -->
-          @if (isProcessing) {
-            <div class="message-wrapper assistant">
-              <div class="message-avatar">
-                <app-icon-mml></app-icon-mml>
-              </div>
-              <div class="message-content">
-                <div class="message-bubble assistant">
-                  <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            </div>
+              class="suggestion-btn"
+              (click)="onSuggestionClick(suggestion)"
+              [attr.aria-label]="suggestion"
+            >
+              {{ suggestion }}
+            </button>
+            }
+          </div>
           }
         </div>
       </div>
+      }
 
-      <!-- Input Area -->
-      <div class="input-container" [class.disabled]="hasNoApiKey()">
-        <!-- Voice input indicator -->
-        @if (isListening) {
-          <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
-          } @if (speechService.isSupported$() === false) {
-          <div class="speech-not-supported">
-            ⚠️ {{ "llm-chat.speech-not-supported" | translate }}
+      <!-- Processing indicator -->
+      @if (isProcessing) {
+      <div class="message-wrapper assistant">
+        <div class="message-avatar">
+          <app-icon-mml></app-icon-mml>
+        </div>
+        <div class="message-content">
+          <div class="message-bubble assistant">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
-        }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
 
-        <div class="input-wrapper">
-          <!-- Voice button -->
-          <button
-            type="button"
-            class="btn-voice"
-            [class.listening]="isListening"
-            [class.disabled]="!speechService.isSupported$()"
-            [disabled]="isProcessing || !speechService.isSupported$() || hasNoApiKey()"
-            (click)="isListening ? stopVoiceInput() : startVoiceInput()"
+  <!-- Input Area -->
+  <div class="input-container" [class.disabled]="hasNoApiKey()">
+    <!-- Voice input indicator -->
+    @if (isListening) {
+    <div class="voice-indicator">🎤 {{ "llm-chat.speak-now" | translate }}</div>
+    } @if (speechService.isSupported$() === false) {
+    <div class="speech-not-supported">
+      ⚠️ {{ "llm-chat.speech-not-supported" | translate }}
+    </div>
+    }
+
+    <div class="input-wrapper">
+      <!-- Voice button -->
+      <button
+        type="button"
+        class="btn-voice"
+        [class.listening]="isListening"
+        [class.disabled]="!speechService.isSupported$()"
+        [disabled]="
+          isProcessing || !speechService.isSupported$() || hasNoApiKey()
+        "
+        (click)="isListening ? stopVoiceInput() : startVoiceInput()"
         title="{{
           !speechService.isSupported$()
             ? ('llm-chat.speech-not-available' | translate)
@@ -167,34 +175,36 @@
             ? ('llm-chat.stop-recording' | translate)
             : ('llm-chat.start-speech' | translate)
         }}"
-            >
-            <fa-icon
-              [icon]="isListening ? faMicrophone : faMicrophoneSlash"
-            ></fa-icon>
-          </button>
+      >
+        <fa-icon
+          [icon]="isListening ? faMicrophone : faMicrophoneSlash"
+        ></fa-icon>
+      </button>
 
-          <!-- Text input -->
-          <textarea
-            class="input-field"
-            [(ngModel)]="inputText"
-            (keydown)="onInputKeyPress($event)"
-            [disabled]="isProcessing || isListening || hasNoApiKey()"
-            placeholder="{{ 'llm-chat.placeholder' | translate }}"
-            rows="1"
-            #textInput
-            >
-          </textarea>
+      <!-- Text input -->
+      <textarea
+        class="input-field"
+        [(ngModel)]="inputText"
+        (keydown)="onInputKeyPress($event)"
+        [disabled]="isProcessing || isListening || hasNoApiKey()"
+        placeholder="{{ 'llm-chat.placeholder' | translate }}"
+        rows="1"
+        #textInput
+      >
+      </textarea>
 
-          <!-- Send button -->
-          <button
-            type="button"
-            class="btn-send"
-            [disabled]="!inputText.trim() || isProcessing || isListening || hasNoApiKey()"
-            (click)="sendMessage()"
-            [attr.aria-label]="'llm-chat.send-message' | translate"
-            >
-            <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
-          </button>
-        </div>
-      </div>
+      <!-- Send button -->
+      <button
+        type="button"
+        class="btn-send"
+        [disabled]="
+          !inputText.trim() || isProcessing || isListening || hasNoApiKey()
+        "
+        (click)="sendMessage()"
+        [attr.aria-label]="'llm-chat.send-message' | translate"
+      >
+        <fa-icon [icon]="faPaperPlane" aria-hidden="true"></fa-icon>
+      </button>
     </div>
+  </div>
+</div>

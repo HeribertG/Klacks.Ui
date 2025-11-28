@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable, fromEvent, merge } from 'rxjs';
 import { debounceTime, startWith, map } from 'rxjs/operators';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
@@ -6,6 +6,7 @@ import { isNumeric } from 'src/app/shared/helpers/number.helper';
 
 @Injectable()
 export abstract class BaseTableResizeService {
+  protected localStorageService = inject(LocalStorageService);
   protected readonly UI_OFFSET = 234;
 
   protected abstract getMinItemsPerPage(): number;
@@ -15,12 +16,29 @@ export abstract class BaseTableResizeService {
   protected abstract getStorageKey(): string;
   protected abstract measureAverageRowHeight(tableElement: HTMLElement): number;
 
-  protected defaultRowHeight: number;
-  protected minRowHeight: number;
+  private _defaultRowHeight?: number;
+  private _minRowHeight?: number;
 
-  constructor(protected localStorageService: LocalStorageService) {
-    this.defaultRowHeight = this.getDefaultRowHeight();
-    this.minRowHeight = this.getMinRowHeight();
+  protected get defaultRowHeight(): number {
+    if (this._defaultRowHeight === undefined) {
+      this._defaultRowHeight = this.getDefaultRowHeight();
+    }
+    return this._defaultRowHeight;
+  }
+
+  protected set defaultRowHeight(value: number) {
+    this._defaultRowHeight = value;
+  }
+
+  protected get minRowHeight(): number {
+    if (this._minRowHeight === undefined) {
+      this._minRowHeight = this.getMinRowHeight();
+    }
+    return this._minRowHeight;
+  }
+
+  protected set minRowHeight(value: number) {
+    this._minRowHeight = value;
   }
 
   setRowHeights(defaultHeight: number, minHeight: number): void {

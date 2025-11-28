@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
 import { DataManagementGroupService } from './data-management-group.service';
 import { DataGroupService } from 'src/app/infrastructure/api/data-group.service';
@@ -14,10 +16,14 @@ describe('DataManagementGroupService', () => {
 
   beforeEach(() => {
     const dataGroupSpy = jasmine.createSpyObj('DataGroupService', ['getAll']);
-    const selectionSpy = jasmine.createSpyObj('GroupSelectionService', ['selectNode']);
+    const selectionSpy = jasmine.createSpyObj('GroupSelectionService', [
+      'selectNode',
+    ]);
     const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
     const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
-    const registrySpy = jasmine.createSpyObj('ManageableServiceRegistry', ['register']);
+    const registrySpy = jasmine.createSpyObj('ManageableServiceRegistry', [
+      'register',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -31,8 +37,12 @@ describe('DataManagementGroupService', () => {
     });
 
     service = TestBed.inject(DataManagementGroupService);
-    dataGroupServiceSpy = TestBed.inject(DataGroupService) as jasmine.SpyObj<DataGroupService>;
-    groupSelectionServiceSpy = TestBed.inject(GroupSelectionService) as jasmine.SpyObj<GroupSelectionService>;
+    dataGroupServiceSpy = TestBed.inject(
+      DataGroupService
+    ) as jasmine.SpyObj<DataGroupService>;
+    groupSelectionServiceSpy = TestBed.inject(
+      GroupSelectionService
+    ) as jasmine.SpyObj<GroupSelectionService>;
   });
 
   it('should be created', () => {

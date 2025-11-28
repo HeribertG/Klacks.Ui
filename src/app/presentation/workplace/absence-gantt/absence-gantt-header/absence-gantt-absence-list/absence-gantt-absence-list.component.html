@@ -1,12 +1,21 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-keys -->
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 
 @if (dataManagementAbsence.hasAbsences()) {
 <div id="absence-list-container" class="absence-reason-container">
   @for (c of dataManagementAbsence.absenceList(); track c.id || c.name ||
   $index) {
-  <div [id]="'absence-list-item-' + $index" class="name-line" draggable="true" (dragstart)="dragStart($event, c)">
-    <div [id]="'absence-list-icon-' + $index" class="name-icon" [style.background-color]="onColor(c)">
+  <div
+    [id]="'absence-list-item-' + $index"
+    class="name-line"
+    draggable="true"
+    (dragstart)="dragStart($event, c)"
+  >
+    <div
+      [id]="'absence-list-icon-' + $index"
+      class="name-icon"
+      [style.background-color]="onColor(c)"
+    >
       @if (onIsChecked(c)) {
       <p
         [id]="'absence-list-checkmark-' + $index"

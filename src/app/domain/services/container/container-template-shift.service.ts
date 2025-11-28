@@ -1,7 +1,7 @@
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { IContainerTemplateItem } from '../../models/container-template-class';
 
-export type WeekdayContainerTemplateItemsMap = {
+export interface IWeekdayContainerTemplateItemsMap {
   monday: IContainerTemplateItem[];
   tuesday: IContainerTemplateItem[];
   wednesday: IContainerTemplateItem[];
@@ -9,14 +9,14 @@ export type WeekdayContainerTemplateItemsMap = {
   friday: IContainerTemplateItem[];
   saturday: IContainerTemplateItem[];
   sunday: IContainerTemplateItem[];
-};
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContainerTemplateShiftService {
   private currentWeekdaySignal: WritableSignal<string> = signal('monday');
-  private weekdayContainerTemplateItemsSignal: WritableSignal<WeekdayContainerTemplateItemsMap> =
+  private weekdayContainerTemplateItemsSignal: WritableSignal<IWeekdayContainerTemplateItemsMap> =
     signal({
       monday: [],
       tuesday: [],
@@ -29,7 +29,7 @@ export class ContainerTemplateShiftService {
 
   public selectedContainerTemplateItemsSignal = computed(() => {
     const weekday =
-      this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+      this.currentWeekdaySignal() as keyof IWeekdayContainerTemplateItemsMap;
     const items = this.weekdayContainerTemplateItemsSignal()[weekday];
     return items;
   });
@@ -57,17 +57,17 @@ export class ContainerTemplateShiftService {
     containerTemplateItems: IContainerTemplateItem[]
   ): void {
     const weekday =
-      this.currentWeekdaySignal() as keyof WeekdayContainerTemplateItemsMap;
+      this.currentWeekdaySignal() as keyof IWeekdayContainerTemplateItemsMap;
     const updatedMap = { ...this.weekdayContainerTemplateItemsSignal() };
     updatedMap[weekday] = containerTemplateItems;
     this.weekdayContainerTemplateItemsSignal.set(updatedMap);
   }
 
-  getAllWeekdayTasks(): WeekdayContainerTemplateItemsMap {
+  getAllWeekdayTasks(): IWeekdayContainerTemplateItemsMap {
     return this.weekdayContainerTemplateItemsSignal();
   }
 
-  setAllWeekdayTasks(tasks: WeekdayContainerTemplateItemsMap): void {
+  setAllWeekdayTasks(tasks: IWeekdayContainerTemplateItemsMap): void {
     this.weekdayContainerTemplateItemsSignal.set(tasks);
   }
 

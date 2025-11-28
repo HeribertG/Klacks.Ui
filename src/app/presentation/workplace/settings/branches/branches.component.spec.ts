@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -8,7 +9,10 @@ import { BranchesComponent } from './branches.component';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { IBranch } from 'src/app/domain/models/branch';
-import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
+import {
+  ModalService,
+  ModalType,
+} from 'src/app/presentation/modal/modal.service';
 
 describe('BranchesComponent', () => {
   let component: BranchesComponent;
@@ -27,7 +31,7 @@ describe('BranchesComponent', () => {
       phone: '123-456-7890',
       email: 'branch1@test.com',
       select: false,
-      isDirty: 0
+      isDirty: 0,
     },
     {
       id: '2',
@@ -36,7 +40,7 @@ describe('BranchesComponent', () => {
       phone: '098-765-4321',
       email: 'branch2@test.com',
       select: false,
-      isDirty: 0
+      isDirty: 0,
     },
   ];
 
@@ -59,7 +63,7 @@ describe('BranchesComponent', () => {
 
     const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
       'instant',
-      'get'
+      'get',
     ]);
     translateServiceSpy.instant.and.returnValue('Translated text');
     translateServiceSpy.get.and.returnValue(of('Translated text'));
@@ -186,7 +190,7 @@ describe('BranchesComponent', () => {
         phone: '',
         email: '',
         select: false,
-        isDirty: 0
+        isDirty: 0,
       };
 
       // Act
@@ -206,10 +210,12 @@ describe('BranchesComponent', () => {
       mockModalService.result(ModalType.Delete);
 
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Assert
-      expect(mockBranchService.deleteBranch).toHaveBeenCalledWith(branchToDelete.id as string);
+      expect(mockBranchService.deleteBranch).toHaveBeenCalledWith(
+        branchToDelete.id as string
+      );
       expect(mockToastService.showSuccess).toHaveBeenCalledWith(
         'setting.branches.success.delete',
         'Success'
@@ -228,7 +234,7 @@ describe('BranchesComponent', () => {
       mockModalService.result(ModalType.Delete);
 
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Assert
       expect(mockToastService.showError).toHaveBeenCalledWith(
@@ -254,7 +260,7 @@ describe('BranchesComponent', () => {
         phone: '111-222-3333',
         email: 'new@test.com',
         select: false,
-        isDirty: 0
+        isDirty: 0,
       };
       const createdBranch = { ...component.editingBranch, id: '3' };
       mockBranchService.addBranch.and.returnValue(of(createdBranch));
@@ -276,7 +282,9 @@ describe('BranchesComponent', () => {
       component.isNewBranch = false;
       component.onClickEdit(mockBranches[0]);
       component.editingBranch!.address = 'Updated Address';
-      mockBranchService.updateBranch.and.returnValue(of(component.editingBranch!));
+      mockBranchService.updateBranch.and.returnValue(
+        of(component.editingBranch!)
+      );
 
       // Act
       await component.onSaveModal(mockModal);
@@ -300,7 +308,7 @@ describe('BranchesComponent', () => {
         phone: '',
         email: '',
         select: false,
-        isDirty: 0
+        isDirty: 0,
       };
       mockBranchService.addBranch.and.returnValue(
         throwError(() => new Error('Save failed'))
@@ -325,7 +333,7 @@ describe('BranchesComponent', () => {
         phone: '',
         email: '',
         select: false,
-        isDirty: 0
+        isDirty: 0,
       };
 
       // Act
@@ -346,7 +354,7 @@ describe('BranchesComponent', () => {
         phone: '123-456-7890',
         email: 'test@example.com',
         select: false,
-        isDirty: 0
+        isDirty: 0,
       };
     });
 
