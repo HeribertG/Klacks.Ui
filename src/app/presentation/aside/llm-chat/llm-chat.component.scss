@@ -545,6 +545,15 @@
     animation: pulse-red 1s infinite;
   }
 
+  &.not-supported {
+    color: #ffc107;
+    opacity: 0.7;
+
+    &:hover {
+      background: #fff3cd;
+    }
+  }
+
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;

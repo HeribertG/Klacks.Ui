@@ -951,5 +951,9 @@
   "shift.container-template.transport-mode.by-car": "Mit dem Auto",
   "shift.container-template.transport-mode.by-foot": "Zu Fuss",
   "shift.container-template.transport-mode.by-bicycle": "Mit dem Velo",
-  "shift.container-template.transport-mode.mix": "Gemischt"
+  "shift.container-template.transport-mode.mix": "Gemischt",
+  "shift.container-template.tooltip.optimize-route": "Route optimieren",
+  "shift.container-template.tooltip.export-route-pdf": "Route als PDF exportieren",
+  "shift.container-template.tooltip.export-shifts-pdf": "Dienste als PDF exportieren",
+  "shift.container-template.tooltip.compact-shifts": "Dienste komprimieren"
 }

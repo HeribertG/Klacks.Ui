@@ -967,5 +967,9 @@
   "shift.container-template.transport-mode.by-car": "In auto",
   "shift.container-template.transport-mode.by-foot": "A piedi",
   "shift.container-template.transport-mode.by-bicycle": "In bicicletta",
-  "shift.container-template.transport-mode.mix": "Misto"
+  "shift.container-template.transport-mode.mix": "Misto",
+  "shift.container-template.tooltip.optimize-route": "Ottimizza percorso",
+  "shift.container-template.tooltip.export-route-pdf": "Esporta percorso in PDF",
+  "shift.container-template.tooltip.export-shifts-pdf": "Esporta turni in PDF",
+  "shift.container-template.tooltip.compact-shifts": "Compatta turni"
 }

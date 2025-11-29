@@ -967,5 +967,9 @@
   "shift.container-template.transport-mode.by-car": "By car",
   "shift.container-template.transport-mode.by-foot": "By foot",
   "shift.container-template.transport-mode.by-bicycle": "By bicycle",
-  "shift.container-template.transport-mode.mix": "Mixed"
+  "shift.container-template.transport-mode.mix": "Mixed",
+  "shift.container-template.tooltip.optimize-route": "Optimize route",
+  "shift.container-template.tooltip.export-route-pdf": "Export route to PDF",
+  "shift.container-template.tooltip.export-shifts-pdf": "Export shifts to PDF",
+  "shift.container-template.tooltip.compact-shifts": "Compact shifts"
 }

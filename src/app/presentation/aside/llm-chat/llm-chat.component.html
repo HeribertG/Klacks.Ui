@@ -158,15 +158,13 @@
     }
 
     <div class="input-wrapper">
-      <!-- Voice button -->
+      <!-- Voice button - always visible for diagnostics -->
       <button
         type="button"
         class="btn-voice"
         [class.listening]="isListening"
-        [class.disabled]="!speechService.isSupported$()"
-        [disabled]="
-          isProcessing || !speechService.isSupported$() || hasNoApiKey()
-        "
+        [class.not-supported]="!speechService.isSupported$()"
+        [disabled]="isProcessing || hasNoApiKey()"
         (click)="isListening ? stopVoiceInput() : startVoiceInput()"
         title="{{
           !speechService.isSupported$()

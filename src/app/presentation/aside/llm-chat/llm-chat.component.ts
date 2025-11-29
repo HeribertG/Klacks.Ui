@@ -214,7 +214,19 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async startVoiceInput(): Promise<void> {
-    if (this.isListening || !this.speechService.isSupported$()) {
+    const diagnostics = this.speechService.getDiagnostics();
+    console.log('Speech Recognition Diagnostics:', diagnostics);
+
+    if (!this.speechService.isSupported$()) {
+      const errorMsg = diagnostics.isArmProcessor
+        ? 'Speech recognition may not be fully supported on Windows ARM devices. Please check Windows Speech settings.'
+        : 'Speech recognition is not supported in this browser.';
+      console.warn('Speech not supported:', errorMsg, diagnostics);
+      alert(errorMsg + '\n\nDiagnostics:\n' + JSON.stringify(diagnostics, null, 2));
+      return;
+    }
+
+    if (this.isListening) {
       return;
     }
 

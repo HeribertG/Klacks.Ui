@@ -37,100 +37,160 @@ export class LLMSystemContextService {
   }
 
   private getSystemPrompt(): string {
-    return `Du bist ein KI-Assistent für die Klacks Anwendung. Du kannst dem Benutzer helfen, indem du:
+    return `Du bist ein KI-Assistent für die Klacks Anwendung - eine Software für Einsatzplanung und Personalmanagement.
 
-1. **Navigation**: Durch die Anwendung navigieren, Dialoge öffnen und Seiten wechseln
-2. **Formulare**: Formulare ausfüllen und absenden
-3. **Datenoperationen**: Daten suchen, abrufen, erstellen und aktualisieren
-4. **Systeminformationen**: Benutzerinformationen und Berechtigungen abrufen
+DU KANNST DEM BENUTZER HELFEN MIT:
+
+1. **Navigation**: Durch die Anwendung navigieren zu verschiedenen Bereichen
+2. **Datenoperationen**: Adressen, Dienste, Gruppen suchen und anzeigen
+3. **Erstellen**: Neue Adressen, Dienste oder Gruppen anlegen
+4. **Bearbeiten**: Bestehende Einträge öffnen und bearbeiten
+5. **Systeminformationen**: Benutzerinformationen und Berechtigungen anzeigen
 
 WICHTIGE REGELN:
 - Führe nur Aktionen aus, die der Benutzer explizit anfordert
 - Bei kritischen Operationen (Löschen, Ändern) frage nach Bestätigung
 - Erkläre was du tust, bevor du Funktionen ausführst
 - Wenn du unsicher bist, frage nach mehr Details
-- Respektiere Benutzerberechtigungen - manche Funktionen könnten fehlschlagen
+- Respektiere Benutzerberechtigungen - Admin-Seiten erfordern Admin-Rechte
 
-VERFÜGBARE ENTITÄTEN:
-- projects: Projekte verwalten
-- tasks: Aufgaben verwalten
-- users: Benutzer anzeigen
-- documents: Dokumente verwalten
+KLACKS ENTITÄTEN:
+- **Adressen/Clients**: Alle Personen im System (Mitarbeiter, Externe, Kunden)
+  - Typ 0 = Mitarbeiter (interne Angestellte)
+  - Typ 1 = Externe (externe Mitarbeiter)
+  - Typ 2 = Kunden (Kundenadressen)
+- **Dienste/Shifts**: Arbeitsschichten und Einsätze
+- **Gruppen/Groups**: Organisatorische Einheiten
+- **Einsatzpläne/Schedules**: Zuweisungen von Mitarbeitern zu Diensten
+- **Abwesenheiten/Absences**: Urlaub, Krankheit, etc.
 
-NAVIGATION BEISPIELE:
-- "/workplace/projects" - Projektübersicht
-- "/workplace/tasks" - Aufgabenübersicht
-- "/settings" - Einstellungen
-- "/settings/llm-models" - LLM Modelle verwalten`;
+VERFÜGBARE NAVIGATION:
+- /workplace/dashboard - Dashboard mit Übersicht
+- /workplace/client - Adressen-Liste (alle Adressen)
+- /workplace/shift - Dienste-Liste
+- /workplace/group - Gruppen-Verwaltung (Admin)
+- /workplace/schedule - Einsatzplan
+- /workplace/absence - Abwesenheiten (Gantt-Ansicht)
+- /workplace/settings - Einstellungen (Admin)
+- /workplace/profile - Benutzerprofil
+- /workplace/edit-address - Neue Adresse erstellen
+- /workplace/edit-address/:id - Adresse bearbeiten
+- /workplace/new-shift - Neuen Dienst erstellen
+- /workplace/edit-shift/:id - Dienst bearbeiten
+- /workplace/edit-group - Neue Gruppe erstellen
+- /workplace/edit-group/:id - Gruppe bearbeiten
+- /workplace/container-template/:id - Container-Vorlage bearbeiten`;
   }
 
   private getCapabilities(): string[] {
     return [
-      'Navigiere zu verschiedenen Seiten der Anwendung',
-      'Öffne Dialoge für Projekt-, Task- oder Benutzererstellung',
-      'Fülle Formulare mit Daten aus',
-      'Sende ausgefüllte Formulare ab',
-      'Suche nach Projekten, Tasks, Benutzern oder Dokumenten',
-      'Rufe Details zu spezifischen Entitäten ab',
-      'Erstelle neue Projekte, Tasks oder Dokumente',
-      'Aktualisiere bestehende Entitäten',
+      'Navigiere zu Dashboard, Adressen, Dienste, Gruppen, Einsatzplan, Abwesenheiten',
+      'Öffne die Erstellungsformulare für Adressen, Dienste oder Gruppen',
+      'Öffne bestehende Einträge zur Bearbeitung',
+      'Suche nach Adressen (Mitarbeiter, Externe, Kunden)',
+      'Suche nach Diensten und Gruppen',
       'Zeige Informationen zum aktuellen Benutzer',
-      'Prüfe Benutzerberechtigungen',
+      'Zeige Benutzerberechtigungen an',
+      'Navigiere zu Einstellungen (Admin-Bereich)',
+      'Navigiere zu Container-Vorlagen für Dienste',
     ];
   }
 
   private getExamples(): any[] {
     return [
       {
-        userQuery: 'Zeige mir alle Projekte',
-        assistantResponse: 'Ich navigiere zur Projektübersicht.',
+        userQuery: 'Zeige mir das Dashboard',
+        assistantResponse: 'Ich navigiere zum Dashboard.',
         functionCalls: [
           {
             name: 'navigateToPage',
-            arguments: { route: '/workplace/projects' },
+            arguments: { route: '/workplace/dashboard' },
           },
         ],
       },
       {
-        userQuery:
-          "Erstelle ein neues Projekt mit dem Namen 'Website Redesign'",
-        assistantResponse:
-          'Ich öffne den Dialog zur Projekterstellung und fülle das Formular aus.',
+        userQuery: 'Zeige mir alle Adressen',
+        assistantResponse: 'Ich navigiere zur Adressen-Liste.',
         functionCalls: [
           {
-            name: 'openDialog',
-            arguments: { dialogType: 'project-create' },
-          },
-          {
-            name: 'fillForm',
-            arguments: {
-              formId: '#project-form',
-              data: {
-                name: 'Website Redesign',
-                description: 'Komplettes Redesign der Unternehmenswebsite',
-              },
-            },
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/client' },
           },
         ],
       },
       {
-        userQuery: "Suche nach allen Tasks die 'Bug' enthalten",
-        assistantResponse:
-          "Ich suche nach Tasks mit 'Bug' im Namen oder der Beschreibung.",
+        userQuery: 'Gehe zu den Diensten',
+        assistantResponse: 'Ich navigiere zur Dienste-Liste.',
         functionCalls: [
           {
-            name: 'searchData',
-            arguments: {
-              entity: 'tasks',
-              query: 'Bug',
-            },
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/shift' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Öffne die Gruppen-Verwaltung',
+        assistantResponse: 'Ich navigiere zur Gruppen-Verwaltung. Hinweis: Diese Seite erfordert Admin-Rechte.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/group' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Zeige mir den Einsatzplan',
+        assistantResponse: 'Ich navigiere zum Einsatzplan.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/schedule' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Zeige mir die Abwesenheiten',
+        assistantResponse: 'Ich navigiere zur Abwesenheits-Übersicht.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/absence' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Erstelle eine neue Adresse',
+        assistantResponse: 'Ich öffne das Formular zum Erstellen einer neuen Adresse.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/edit-address' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Erstelle einen neuen Dienst',
+        assistantResponse: 'Ich öffne das Formular zum Erstellen eines neuen Dienstes.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/new-shift' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Öffne die Einstellungen',
+        assistantResponse: 'Ich navigiere zu den Einstellungen. Hinweis: Diese Seite erfordert Admin-Rechte.',
+        functionCalls: [
+          {
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/settings' },
           },
         ],
       },
       {
         userQuery: 'Wer bin ich und welche Rechte habe ich?',
-        assistantResponse:
-          'Ich hole deine Benutzerinformationen und Berechtigungen.',
+        assistantResponse: 'Ich hole deine Benutzerinformationen und Berechtigungen.',
         functionCalls: [
           {
             name: 'getCurrentUser',
@@ -143,16 +203,58 @@ NAVIGATION BEISPIELE:
         ],
       },
       {
-        userQuery:
-          "Update das Projekt mit ID 123, setze den Status auf 'In Progress'",
-        assistantResponse: 'Ich aktualisiere den Status des Projekts 123.',
+        userQuery: 'Zeige mir mein Profil',
+        assistantResponse: 'Ich navigiere zu deinem Profil.',
         functionCalls: [
           {
-            name: 'updateEntity',
+            name: 'navigateToPage',
+            arguments: { route: '/workplace/profile' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Öffne den Kunden Max Müller',
+        assistantResponse:
+          'Ich suche nach "Max Müller" und öffne den Eintrag zur Bearbeitung.',
+        functionCalls: [
+          {
+            name: 'searchAndNavigate',
+            arguments: { entityType: 'client', searchQuery: 'Max Müller' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Bearbeite den Dienst Frühschicht',
+        assistantResponse:
+          'Ich suche nach dem Dienst "Frühschicht" und öffne ihn zur Bearbeitung.',
+        functionCalls: [
+          {
+            name: 'searchAndNavigate',
+            arguments: { entityType: 'shift', searchQuery: 'Frühschicht' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Zeige mir die Gruppe Zürich',
+        assistantResponse:
+          'Ich suche nach der Gruppe "Zürich" und öffne sie zur Bearbeitung.',
+        functionCalls: [
+          {
+            name: 'searchAndNavigate',
+            arguments: { entityType: 'group', searchQuery: 'Zürich' },
+          },
+        ],
+      },
+      {
+        userQuery: 'Suche alle Mitarbeiter in Bern',
+        assistantResponse: 'Ich suche nach Mitarbeitern in Bern.',
+        functionCalls: [
+          {
+            name: 'searchData',
             arguments: {
-              entity: 'project',
-              id: '123',
-              data: { status: 'In Progress' },
+              entity: 'clients',
+              query: 'Bern',
+              filters: { type: 0 },
             },
           },
         ],

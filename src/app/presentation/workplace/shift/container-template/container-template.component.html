@@ -130,9 +130,7 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 0"
             (click)="selectTransportMode(0)"
-            [title]="
-              'shift.container-template.transport-mode.by-car' | translate
-            "
+            [ngbTooltip]="'shift.container-template.transport-mode.by-car' | translate"
           >
             <app-icon-by-car></app-icon-by-car>
           </button>
@@ -141,9 +139,7 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 1"
             (click)="selectTransportMode(1)"
-            [title]="
-              'shift.container-template.transport-mode.by-bicycle' | translate
-            "
+            [ngbTooltip]="'shift.container-template.transport-mode.by-bicycle' | translate"
           >
             <app-icon-by-bicycle></app-icon-by-bicycle>
           </button>
@@ -152,9 +148,7 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 2"
             (click)="selectTransportMode(2)"
-            [title]="
-              'shift.container-template.transport-mode.by-foot' | translate
-            "
+            [ngbTooltip]="'shift.container-template.transport-mode.by-foot' | translate"
           >
             <app-icon-by-foot></app-icon-by-foot>
           </button>
@@ -163,7 +157,7 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 3"
             (click)="selectTransportMode(3)"
-            [title]="'shift.container-template.transport-mode.mix' | translate"
+            [ngbTooltip]="'shift.container-template.transport-mode.mix' | translate"
           >
             <app-icon-transport-mix></app-icon-transport-mix>
           </button>
@@ -205,23 +199,25 @@
                 <app-icon-route
                   class="icon-table"
                   (click)="optimizeRoute()"
+                  [ngbTooltip]="'shift.container-template.tooltip.optimize-route' | translate"
                 ></app-icon-route>
                 @if (hasRouteInfo) {
                 <app-icon-route-file
                   class="icon-table"
                   (click)="exportRouteToPdf()"
-                  title="Export Route to PDF"
+                  [ngbTooltip]="'shift.container-template.tooltip.export-route-pdf' | translate"
                 ></app-icon-route-file>
                 }
                 <app-icon-pdf-icon
                   class="icon-table"
                   (click)="exportSelectedShiftsToPdf()"
-                  title="Export Shifts to PDF"
+                  [ngbTooltip]="'shift.container-template.tooltip.export-shifts-pdf' | translate"
                 ></app-icon-pdf-icon>
                 }
                 <app-icon-compact
                   class="icon-table"
                   (click)="compactSelectedShifts()"
+                  [ngbTooltip]="'shift.container-template.tooltip.compact-shifts' | translate"
                 ></app-icon-compact>
               </div>
 

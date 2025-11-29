@@ -79,6 +79,7 @@ import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.compo
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-container-template',
@@ -87,6 +88,7 @@ import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-trans
     AngularSplitModule,
     TranslateModule,
     DragDropModule,
+    NgbTooltipModule,
     TimeInputComponent,
     TimeRulerComponent,
     IconShiftSegmentComponent,

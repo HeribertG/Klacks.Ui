@@ -19,6 +19,17 @@ export interface SpeechRecognitionResult {
   isFinal: boolean;
 }
 
+export interface SpeechDiagnostics {
+  isSupported: boolean;
+  isSecureContext: boolean;
+  browserName: string;
+  isArmProcessor: boolean;
+  speechRecognitionAvailable: boolean;
+  webkitSpeechRecognitionAvailable: boolean;
+  mediaDevicesAvailable: boolean;
+  errorMessage?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -29,12 +40,41 @@ export class SpeechRecognitionService {
   private results$ = new Subject<string>();
   private errors$ = new Subject<string>();
   private languageMappingService = inject(LanguageMappingService);
+  private diagnostics: SpeechDiagnostics;
 
   constructor() {
+    this.diagnostics = this.collectDiagnostics();
     this.initializeSpeechRecognition();
     if (this.isSupported$()) {
       this.detectAvailableLanguages();
     }
+  }
+
+  private collectDiagnostics(): SpeechDiagnostics {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isArm = /arm|aarch64|snapdragon/i.test(navigator.userAgent) ||
+                  (navigator as any).userAgentData?.platform === 'Windows' &&
+                  /arm/i.test((navigator as any).userAgentData?.architecture || '');
+
+    let browserName = 'Unknown';
+    if (/edg/i.test(userAgent)) browserName = 'Edge';
+    else if (/chrome/i.test(userAgent)) browserName = 'Chrome';
+    else if (/safari/i.test(userAgent)) browserName = 'Safari';
+    else if (/firefox/i.test(userAgent)) browserName = 'Firefox';
+
+    return {
+      isSupported: false,
+      isSecureContext: window.isSecureContext,
+      browserName,
+      isArmProcessor: isArm,
+      speechRecognitionAvailable: !!window.SpeechRecognition,
+      webkitSpeechRecognitionAvailable: !!window.webkitSpeechRecognition,
+      mediaDevicesAvailable: !!navigator.mediaDevices?.getUserMedia,
+    };
+  }
+
+  getDiagnostics(): SpeechDiagnostics {
+    return { ...this.diagnostics, isSupported: this.isSupported$() };
   }
 
   private availableLanguages: string[] = [];
@@ -96,56 +136,41 @@ export class SpeechRecognitionService {
   }
 
   private initializeSpeechRecognition(): void {
-    // Check for browser support
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    const browserInfo = {
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      languages: navigator.languages,
-      SpeechRecognition: !!window.SpeechRecognition,
-      webkitSpeechRecognition: !!window.webkitSpeechRecognition,
-      isSecureContext: window.isSecureContext,
-      location: window.location.protocol + '//' + window.location.host,
-      mediaDevicesSupported: !!navigator.mediaDevices,
-      getUserMediaSupported: !!(
-        navigator.mediaDevices && navigator.mediaDevices.getUserMedia
-      ),
-    };
-
-    // Check if this is Safari/WebKit which has different behavior
-    const isSafari =
-      /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
     const isEdge = /Edg/.test(navigator.userAgent);
-    const isChrome =
-      /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.userAgent);
 
     if (!SpeechRecognition) {
       this.isSupported$.set(false);
+      this.diagnostics.errorMessage = 'SpeechRecognition API not available in this browser';
       return;
     }
 
-    // Check if we're in a secure context (HTTPS or localhost)
     if (!window.isSecureContext) {
       this.isSupported$.set(false);
-      this.errors$.next('Spracherkennung erfordert HTTPS oder localhost');
+      this.diagnostics.errorMessage = 'Speech recognition requires HTTPS or localhost';
+      this.errors$.next('Speech recognition requires HTTPS or localhost');
       return;
     }
 
-    // Windows Edge specific check
+    try {
+      this.recognition = new SpeechRecognition();
 
-    this.isSupported$.set(true);
-    this.recognition = new SpeechRecognition();
+      this.recognition.continuous = false;
+      this.recognition.interimResults = true;
+      this.recognition.maxAlternatives = 1;
 
-    // Configuration - DON'T set language here, let it be set dynamically
-    this.recognition.continuous = false;
-    this.recognition.interimResults = true;
-    this.recognition.maxAlternatives = 1;
+      if (isEdge || this.diagnostics.isArmProcessor) {
+        this.recognition.lang = navigator.language || 'de-DE';
+      }
 
-    // Edge-specific workaround - set a default language to avoid issues
-    if (isEdge) {
-      this.recognition.lang = navigator.language || 'de-DE';
+      this.isSupported$.set(true);
+    } catch (error: any) {
+      this.isSupported$.set(false);
+      this.diagnostics.errorMessage = `Failed to create SpeechRecognition: ${error?.message || 'Unknown error'}`;
+      console.error('SpeechRecognition initialization failed:', error);
+      return;
     }
 
     // Event handlers
@@ -180,35 +205,48 @@ export class SpeechRecognitionService {
     this.recognition.onerror = (event: any) => {
       this.isListening.set(false);
 
-      let errorMessage = 'Spracherkennungsfehler aufgetreten';
+      let errorMessage = 'Speech recognition error occurred';
       switch (event.error) {
         case 'no-speech':
-          errorMessage =
-            'Keine Sprache erkannt. Bitte versuchen Sie es erneut.';
+          errorMessage = 'No speech detected. Please try again.';
           break;
         case 'audio-capture':
-          errorMessage = 'Mikrofon nicht verfügbar oder blockiert.';
+          errorMessage = 'Microphone not available or blocked.';
           break;
         case 'not-allowed':
-          errorMessage =
-            'Mikrofonzugriff verweigert. Bitte erlauben Sie den Zugriff.';
+          errorMessage = 'Microphone access denied. Please allow access.';
           break;
         case 'network':
-          errorMessage = 'Netzwerkfehler bei der Spracherkennung.';
+          errorMessage = 'Network error during speech recognition.';
           break;
         case 'language-not-supported':
-          errorMessage = 'Sprache wird nicht unterstützt.';
+          errorMessage = 'Language not supported.';
           break;
         case 'service-not-allowed':
-          errorMessage = 'Spracherkennungsdienst nicht verfügbar.';
+          errorMessage = this.diagnostics.isArmProcessor
+            ? 'Speech recognition service not available. Windows on ARM may not support all speech recognition features. Please check Windows speech settings.'
+            : 'Speech recognition service not available.';
           break;
+        case 'aborted':
+          errorMessage = 'Speech recognition was aborted.';
+          break;
+        default:
+          if (this.diagnostics.isArmProcessor) {
+            errorMessage = `Speech recognition error (${event.error}). Windows on ARM may have limited speech recognition support.`;
+          }
       }
+
+      console.warn('Speech recognition error:', {
+        error: event.error,
+        message: event.message,
+        diagnostics: this.diagnostics
+      });
 
       this.errors$.next(errorMessage);
     };
 
     this.recognition.onnomatch = () => {
-      this.errors$.next('Sprache nicht erkannt. Bitte deutlicher sprechen.');
+      this.errors$.next('Speech not recognized. Please speak more clearly.');
     };
   }
 
@@ -217,9 +255,7 @@ export class SpeechRecognitionService {
    */
   startListening(language?: string): Observable<string> {
     if (!this.isSupported$()) {
-      this.errors$.next(
-        'Spracherkennung wird in diesem Browser nicht unterstützt'
-      );
+      this.errors$.next('Speech recognition is not supported in this browser');
       return this.results$.asObservable();
     }
 
@@ -255,7 +291,7 @@ export class SpeechRecognitionService {
           this.recognition.start();
         } catch {
           this.errors$.next(
-            `Spracherkennung konnte nicht gestartet werden. Browser: ${navigator.userAgent.substring(
+            `Speech recognition could not be started. Browser: ${navigator.userAgent.substring(
               0,
               50
             )}...`
@@ -298,7 +334,7 @@ export class SpeechRecognitionService {
   private tryLanguages(languages: string[], index: number): void {
     if (index >= languages.length) {
       this.errors$.next(
-        'Keine unterstützte Sprache gefunden. Bitte überprüfen Sie Ihre Browser-Einstellungen.'
+        'No supported language found. Please check your browser settings.'
       );
       return;
     }

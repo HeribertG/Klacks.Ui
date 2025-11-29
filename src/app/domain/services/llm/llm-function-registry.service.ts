@@ -22,20 +22,48 @@ export class LLMFunctionRegistryService {
     // Navigation Functions
     this.registerFunction({
       name: 'navigateToPage',
-      description: 'Navigate to a specific page or route in the application',
+      description: 'Navigate to a specific page or route in the Klacks application',
       parameters: [
         {
           name: 'route',
           type: 'string',
           description:
-            'The route path to navigate to (e.g., "/workplace/projects", "/settings")',
+            'The route path to navigate to. Available routes: /workplace/dashboard (Dashboard), /workplace/client (Adressen/Kunden), /workplace/schedule (Einsatzplan), /workplace/absence (Abwesenheiten), /workplace/profile (Profil), /workplace/settings (Einstellungen), /workplace/group (Gruppen), /workplace/shift (Dienste), /workplace/edit-address (Neue Adresse), /workplace/edit-group (Neue Gruppe), /workplace/new-shift (Neuer Dienst)',
           required: true,
         },
         {
           name: 'params',
           type: 'object',
-          description: 'Optional route parameters',
+          description: 'Optional route parameters (e.g., { id: "guid" } for edit routes)',
           required: false,
+        },
+      ],
+      category: 'navigation',
+    });
+
+    this.registerFunction({
+      name: 'navigateToEntity',
+      description: 'Navigate to view or edit a specific entity by ID',
+      parameters: [
+        {
+          name: 'entityType',
+          type: 'string',
+          description: 'Type of entity to navigate to',
+          required: true,
+          enum: ['client', 'group', 'shift', 'container-template'],
+        },
+        {
+          name: 'entityId',
+          type: 'string',
+          description: 'The GUID of the entity',
+          required: true,
+        },
+        {
+          name: 'action',
+          type: 'string',
+          description: 'Action to perform',
+          required: false,
+          enum: ['view', 'edit', 'cut'],
         },
       ],
       category: 'navigation',
@@ -50,7 +78,7 @@ export class LLMFunctionRegistryService {
           type: 'string',
           description: 'Type of dialog to open',
           required: true,
-          enum: ['project-create', 'task-create', 'user-invite', 'settings'],
+          enum: ['client-create', 'group-create', 'shift-create', 'settings'],
         },
         {
           name: 'data',
@@ -100,14 +128,14 @@ export class LLMFunctionRegistryService {
     // Data Functions
     this.registerFunction({
       name: 'searchData',
-      description: 'Search for data in the application',
+      description: 'Search for data in the Klacks application',
       parameters: [
         {
           name: 'entity',
           type: 'string',
-          description: 'Type of entity to search',
+          description: 'Type of entity to search: clients (Adressen), shifts (Dienste), groups (Gruppen), schedules (Einsatzpläne)',
           required: true,
-          enum: ['projects', 'tasks', 'users', 'documents'],
+          enum: ['clients', 'shifts', 'groups', 'schedules'],
         },
         {
           name: 'query',
@@ -118,7 +146,7 @@ export class LLMFunctionRegistryService {
         {
           name: 'filters',
           type: 'object',
-          description: 'Additional filters to apply',
+          description: 'Additional filters: type (0=Employee, 1=External, 2=Customer), city, country',
           required: false,
         },
       ],
@@ -134,12 +162,12 @@ export class LLMFunctionRegistryService {
           type: 'string',
           description: 'Type of entity to retrieve',
           required: true,
-          enum: ['project', 'task', 'user', 'document'],
+          enum: ['client', 'shift', 'group', 'schedule'],
         },
         {
           name: 'id',
           type: 'string',
-          description: 'The ID of the entity',
+          description: 'The GUID of the entity',
           required: true,
         },
       ],
@@ -148,20 +176,20 @@ export class LLMFunctionRegistryService {
 
     this.registerFunction({
       name: 'createEntity',
-      description: 'Create a new entity in the system',
+      description: 'Create a new entity in the system (navigates to create form)',
       parameters: [
         {
           name: 'entity',
           type: 'string',
           description: 'Type of entity to create',
           required: true,
-          enum: ['project', 'task', 'document'],
+          enum: ['client', 'shift', 'group'],
         },
         {
           name: 'data',
           type: 'object',
-          description: 'Entity data',
-          required: true,
+          description: 'Initial entity data to pre-fill the form',
+          required: false,
         },
       ],
       category: 'data',
@@ -169,29 +197,59 @@ export class LLMFunctionRegistryService {
 
     this.registerFunction({
       name: 'updateEntity',
-      description: 'Update an existing entity',
+      description: 'Update an existing entity (navigates to edit form)',
       parameters: [
         {
           name: 'entity',
           type: 'string',
           description: 'Type of entity to update',
           required: true,
-          enum: ['project', 'task', 'document'],
+          enum: ['client', 'shift', 'group'],
         },
         {
           name: 'id',
           type: 'string',
-          description: 'The ID of the entity',
+          description: 'The GUID of the entity',
           required: true,
         },
         {
           name: 'data',
           type: 'object',
           description: 'Updated entity data',
-          required: true,
+          required: false,
         },
       ],
       category: 'data',
+    });
+
+    // Combined convenience functions
+    this.registerFunction({
+      name: 'searchAndNavigate',
+      description:
+        'Search for an entity by name and navigate to it. Use this when the user wants to open/edit an entity by name (e.g., "Öffne den Kunden Max Müller"). Returns search results if multiple matches found.',
+      parameters: [
+        {
+          name: 'entityType',
+          type: 'string',
+          description: 'Type of entity to search and navigate to',
+          required: true,
+          enum: ['client', 'shift', 'group'],
+        },
+        {
+          name: 'searchQuery',
+          type: 'string',
+          description: 'Name or search term to find the entity',
+          required: true,
+        },
+        {
+          name: 'action',
+          type: 'string',
+          description: 'Action to perform after finding (edit is default)',
+          required: false,
+          enum: ['view', 'edit'],
+        },
+      ],
+      category: 'navigation',
     });
 
     // System Functions

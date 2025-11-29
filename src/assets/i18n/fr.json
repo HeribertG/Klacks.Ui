@@ -967,5 +967,9 @@
   "shift.container-template.transport-mode.by-car": "En voiture",
   "shift.container-template.transport-mode.by-foot": "À pied",
   "shift.container-template.transport-mode.by-bicycle": "À vélo",
-  "shift.container-template.transport-mode.mix": "Mixte"
+  "shift.container-template.transport-mode.mix": "Mixte",
+  "shift.container-template.tooltip.optimize-route": "Optimiser l'itinéraire",
+  "shift.container-template.tooltip.export-route-pdf": "Exporter l'itinéraire en PDF",
+  "shift.container-template.tooltip.export-shifts-pdf": "Exporter les services en PDF",
+  "shift.container-template.tooltip.compact-shifts": "Compacter les services"
 }
