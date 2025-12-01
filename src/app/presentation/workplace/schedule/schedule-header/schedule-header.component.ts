@@ -89,7 +89,7 @@ export class ScheduleHeaderComponent implements OnInit {
 
   onCalendarReset(data: CalendarResetData) {
     this.displayYear = data.currentYear.toString();
-    this.displayMonth = this.gridSettingsService.monthsName[data.selectedMonth];
+    this.displayMonth = this.gridSettingsService.monthsName[data.selectedMonth - 1];
   }
 
   private emitZoomChange() {

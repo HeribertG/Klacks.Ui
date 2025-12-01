@@ -28,7 +28,7 @@ export class ScheduleHeaderCalendarComponent implements OnInit {
 
   currentYear: number = new Date().getFullYear();
   maxYear: number = this.currentYear + 30;
-  selectedMonth: number = new Date().getMonth();
+  selectedMonth: number = new Date().getMonth() + 1;
 
   ngOnInit(): void {
     this.resetData.emit({

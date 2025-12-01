@@ -14,7 +14,7 @@
       (ngChange)="onChangeMonth()"
     >
       @for (c of gridSettingsService.monthsName; track $index; let i = $index) {
-      <option [ngValue]="i" [selected]="i === selectedMonth">
+      <option [ngValue]="i + 1" [selected]="i + 1 === selectedMonth">
         {{ c | translate }}
       </option>
       }
