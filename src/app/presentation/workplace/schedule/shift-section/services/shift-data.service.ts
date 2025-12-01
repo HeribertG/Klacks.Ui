@@ -63,7 +63,7 @@ export class ShiftDataService extends BaseDataService {
     this.startDate = new Date(currentYear, currentMonth - 1, 1);
     this.startDate = addDays(this.startDate, -1 * dayVisibleBeforeMonth);
     this.columns =
-      getDaysInMonth(currentYear, currentMonth) +
+      getDaysInMonth(currentYear, currentMonth - 1) +
       dayVisibleBeforeMonth +
       dayVisibleAfterMonth;
   }
@@ -89,7 +89,7 @@ export class ShiftDataService extends BaseDataService {
     const currentYear = this.dataManagementSchedule.workFilter.currentYear;
     const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
 
-    const daysInCurrentMonth = getDaysInMonth(currentYear, currentMonth);
+    const daysInCurrentMonth = getDaysInMonth(currentYear, currentMonth - 1);
 
     if (column < dayVisibleBeforeMonth) {
       return true;
