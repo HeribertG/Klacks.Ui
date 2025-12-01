@@ -2,9 +2,15 @@
 
 import { Component, inject, OnInit, OnDestroy, signal, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSearch, faStreetView } from '@fortawesome/free-solid-svg-icons';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataDashboardService } from 'src/app/infrastructure/api/data-dashboard.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { IconLocationPinComponent } from 'src/app/presentation/icons/icon-location-pin.component';
+import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
+import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 declare let L: any;
 
@@ -15,6 +21,8 @@ export interface LocationData {
   employeeCount: number;
   externEmpCount: number;
   customerCount: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface MapTileProvider {
@@ -38,18 +46,27 @@ const MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
   templateUrl: './dashboard-clients-locations.component.html',
   styleUrls: ['./dashboard-clients-locations.component.scss'],
   standalone: true,
-  imports: [TranslateModule, FormsModule],
+  imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent],
 })
 export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
   private dataDashboardService = inject(DataDashboardService);
   private localStorageService = inject(LocalStorageService);
   private elementRef = inject(ElementRef);
+  private spinnerService = inject(SpinnerService);
+  private toastService = inject(ToastShowService);
+  private translateService = inject(TranslateService);
+
+  public faSearch = faSearch;
+  public faStreetView = faStreetView;
 
   public locations = signal<LocationData[]>([]);
   public totalLocations = signal(0);
   public totalClients = signal(0);
   public isLoading = signal(true);
   public error = signal<string | null>(null);
+
+  public searchQuery = signal('');
+  private searchMarker: any = null;
 
   public readonly tileProviders: MapTileProvider[] = [
     {
@@ -160,6 +177,8 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
                   employeeCount: clientType === ClientType.Employee ? 1 : 0,
                   externEmpCount: clientType === ClientType.ExternEmp ? 1 : 0,
                   customerCount: clientType === ClientType.Customer ? 1 : 0,
+                  latitude: address.latitude ?? undefined,
+                  longitude: address.longitude ?? undefined,
                 });
               }
             }
@@ -288,29 +307,21 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
           if (coords) {
             const marker = L.marker([coords.lat, coords.lon]);
 
+            const streetViewUrl = `https://www.google.com/maps/@${coords.lat},${coords.lon},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
+            const streetViewIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="14" height="14" fill="white"><path d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8 28.5l38.7 0c16.3 0 30-12.3 31.8-28.5L318.2 304l1.8 0c17.7 0 32-14.3 32-32l0-48c0-35.3-28.7-64-64-64l-64 0zM132.3 394.2c13-2.4 21.7-14.9 19.3-27.9s-14.9-21.7-27.9-19.3c-32.4 5.9-60.9 14.2-82 24.8c-10.5 5.3-20.3 11.7-27.8 19.6C6.4 399.5 0 410.5 0 424c0 21.4 15.5 36.1 29.1 45c14.7 9.6 34.3 17.3 56.4 23.4C130.2 504.7 190.4 512 256 512s125.8-7.3 170.4-19.6c22.1-6.1 41.8-13.8 56.4-23.4c13.7-8.9 29.1-23.6 29.1-45c0-13.5-6.4-24.5-13.9-32.6c-7.5-8-17.3-14.4-27.8-19.6c-21-10.6-49.5-18.9-82-24.8c-13-2.4-25.5 6.3-27.9 19.3s6.3 25.5 19.3 27.9c30.2 5.5 53.7 12.8 69 20.5c3.2 1.6 5.8 3.1 7.9 4.5c3.6 2.4 3.6 7.2 0 9.6c-8.8 5.7-23.1 11.8-43 17.3C374.3 457 318.5 464 256 464s-118.3-7-157.7-17.9c-19.9-5.5-34.2-11.6-43-17.3c-3.6-2.4-3.6-7.2 0-9.6c2.1-1.4 4.8-2.9 7.9-4.5c15.3-7.7 38.8-14.9 69-20.5z"/></svg>`;
+
             const popupContent = `
               <div style="min-width: 200px;">
-                <h4 style="margin: 0 0 10px 0;">${location.city}, ${
-              location.country
-            }</h4>
-                <p style="margin: 5px 0;"><strong>Total:</strong> ${
-                  location.count
-                } Clients</p>
-                ${
-                  location.employeeCount > 0
-                    ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>Employees:</strong> ${location.employeeCount}</p>`
-                    : ''
-                }
-                ${
-                  location.externEmpCount > 0
-                    ? `<p style="margin: 5px 0; color: #6993ff;"><strong>Extern Emp:</strong> ${location.externEmpCount}</p>`
-                    : ''
-                }
-                ${
-                  location.customerCount > 0
-                    ? `<p style="margin: 5px 0; color: #ffa800;"><strong>Customers:</strong> ${location.customerCount}</p>`
-                    : ''
-                }
+                <h4 style="margin: 0 0 10px 0;">${location.city}, ${location.country}</h4>
+                <p style="margin: 5px 0;"><strong>Total:</strong> ${location.count} Clients</p>
+                ${location.employeeCount > 0 ? `<p style="margin: 5px 0; color: #1bc5bd;"><strong>Employees:</strong> ${location.employeeCount}</p>` : ''}
+                ${location.externEmpCount > 0 ? `<p style="margin: 5px 0; color: #6993ff;"><strong>Extern Emp:</strong> ${location.externEmpCount}</p>` : ''}
+                ${location.customerCount > 0 ? `<p style="margin: 5px 0; color: #ffa800;"><strong>Customers:</strong> ${location.customerCount}</p>` : ''}
+                <div style="margin-top: 10px;">
+                  <a href="${streetViewUrl}" target="_blank" class="btn btn-primary" style="color: white;">
+                    ${streetViewIcon} Street View
+                  </a>
+                </div>
               </div>
             `;
 
@@ -337,5 +348,115 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
       return;
     }
     this.map.fitBounds(this.markerBounds);
+  }
+
+  public onZoomToLocation(location: LocationData): void {
+    if (!this.map || !location.latitude || !location.longitude) {
+      return;
+    }
+
+    this.map.setView([location.latitude, location.longitude], 14, {
+      animate: true,
+      duration: 0.5,
+    });
+
+    const mapContainer = this.elementRef.nativeElement.querySelector('#map-container');
+    if (mapContainer) {
+      mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  public onSearchAddress(): void {
+    const query = this.searchQuery().trim();
+    if (!query || !this.map) {
+      return;
+    }
+
+    this.spinnerService.showProgressSpinner = true;
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+
+    fetch(url, {
+      headers: {
+        'Accept-Language': 'de',
+      },
+    })
+      .then(response => response.json())
+      .then((results: any[]) => {
+        this.spinnerService.showProgressSpinner = false;
+
+        if (results && results.length > 0) {
+          const result = results[0];
+          const lat = parseFloat(result.lat);
+          const lon = parseFloat(result.lon);
+
+          if (this.searchMarker) {
+            this.map.removeLayer(this.searchMarker);
+          }
+
+          this.searchMarker = L.marker([lat, lon], {
+            icon: L.divIcon({
+              className: 'search-marker-icon',
+              html: `<svg width="32" height="32" viewBox="0 0 24 24" fill="#e74c3c">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>`,
+              iconSize: [32, 32],
+              iconAnchor: [16, 32],
+            }),
+          }).addTo(this.map);
+
+          const streetViewUrl = `https://www.google.com/maps/@${lat},${lon},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
+          const streetViewIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="14" height="14" fill="white"><path d="M320 64A64 64 0 1 0 192 64a64 64 0 1 0 128 0zm-96 96c-35.3 0-64 28.7-64 64l0 48c0 17.7 14.3 32 32 32l1.8 0 11.1 99.5c1.8 16.2 15.5 28.5 31.8 28.5l38.7 0c16.3 0 30-12.3 31.8-28.5L318.2 304l1.8 0c17.7 0 32-14.3 32-32l0-48c0-35.3-28.7-64-64-64l-64 0zM132.3 394.2c13-2.4 21.7-14.9 19.3-27.9s-14.9-21.7-27.9-19.3c-32.4 5.9-60.9 14.2-82 24.8c-10.5 5.3-20.3 11.7-27.8 19.6C6.4 399.5 0 410.5 0 424c0 21.4 15.5 36.1 29.1 45c14.7 9.6 34.3 17.3 56.4 23.4C130.2 504.7 190.4 512 256 512s125.8-7.3 170.4-19.6c22.1-6.1 41.8-13.8 56.4-23.4c13.7-8.9 29.1-23.6 29.1-45c0-13.5-6.4-24.5-13.9-32.6c-7.5-8-17.3-14.4-27.8-19.6c-21-10.6-49.5-18.9-82-24.8c-13-2.4-25.5 6.3-27.9 19.3s6.3 25.5 19.3 27.9c30.2 5.5 53.7 12.8 69 20.5c3.2 1.6 5.8 3.1 7.9 4.5c3.6 2.4 3.6 7.2 0 9.6c-8.8 5.7-23.1 11.8-43 17.3C374.3 457 318.5 464 256 464s-118.3-7-157.7-17.9c-19.9-5.5-34.2-11.6-43-17.3c-3.6-2.4-3.6-7.2 0-9.6c2.1-1.4 4.8-2.9 7.9-4.5c15.3-7.7 38.8-14.9 69-20.5z"/></svg>`;
+          const popupContent = `
+            <div style="min-width: 200px;">
+              <strong>${result.display_name}</strong>
+              <div style="margin-top: 10px;">
+                <a href="${streetViewUrl}" target="_blank" class="btn btn-primary" style="color: white;">
+                  ${streetViewIcon} Street View
+                </a>
+              </div>
+            </div>
+          `;
+          this.searchMarker.bindPopup(popupContent).openPopup();
+
+          this.map.setView([lat, lon], 16, {
+            animate: true,
+            duration: 0.5,
+          });
+
+          const mapContainer = this.elementRef.nativeElement.querySelector('#map-container');
+          if (mapContainer) {
+            mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          this.toastService.showError(
+            this.translateService.instant('dashboard.locations.searchNotFound')
+          );
+        }
+      })
+      .catch(error => {
+        this.spinnerService.showProgressSpinner = false;
+        console.error('Error searching address:', error);
+      });
+  }
+
+  public onOpenStreetView(location: LocationData, event: Event): void {
+    event.stopPropagation();
+
+    if (!location.latitude || !location.longitude) {
+      return;
+    }
+
+    const url = `https://www.google.com/maps/@${location.latitude},${location.longitude},3a,75y,90t/data=!3m6!1e1!3m4!1s!2e0!7i16384!8i8192`;
+    window.open(url, '_blank');
+  }
+
+  public onSearchQueryChange(value: string): void {
+    this.searchQuery.set(value);
+
+    if (!value.trim() && this.searchMarker && this.map) {
+      this.map.removeLayer(this.searchMarker);
+      this.searchMarker = null;
+    }
   }
 }

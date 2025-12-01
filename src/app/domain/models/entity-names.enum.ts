@@ -12,6 +12,7 @@ export enum EntityName {
   SHIFT_CONTAINER_TEMPLATE = 'DataManagementContainerService',
   SCHEDULE = 'DataManagementScheduleService',
   ABSENCE = 'DataManagementAbsenceService',
+  DASHBOARD = 'Dashboard',
 }
 
 export enum RouteName {

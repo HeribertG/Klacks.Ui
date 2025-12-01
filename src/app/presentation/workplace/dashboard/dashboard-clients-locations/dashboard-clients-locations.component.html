@@ -1,97 +1,153 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="container-dashboard-card">
   <div class="container-dashboard-card-header">
-    <h3>{{ 'dashboard.locations.headline' | translate }}</h3>
+    <h3>{{ "dashboard.locations.headline" | translate }}</h3>
   </div>
 
   @if (isLoading()) {
-    <div class="container-dashboard-loading">
-      <p>{{ 'dashboard.locations.loading' | translate }}</p>
+  <div class="container-dashboard-loading">
+    <p>{{ "dashboard.locations.loading" | translate }}</p>
+  </div>
+  } @if (error()) {
+  <div class="container-dashboard-error">
+    <p class="container-dashboard-error-message">{{ error() }}</p>
+  </div>
+  } @if (!isLoading() && !error()) {
+  <div class="container-dashboard-card-content">
+    @if (locations().length === 0) {
+    <div class="container-dashboard-no-data">
+      <p>{{ "dashboard.locations.noData" | translate }}</p>
     </div>
-  }
-
-  @if (error()) {
-    <div class="container-dashboard-error">
-      <p class="container-dashboard-error-message">{{ error() }}</p>
+    } @else {
+    <div class="container-search form-group">
+      <div class="input-group">
+        <input
+          type="search"
+          class="form-control"
+          id="address-search"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchQueryChange($event)"
+          (keydown.enter)="onSearchAddress()"
+          placeholder="{{
+            'dashboard.locations.searchPlaceholder' | translate
+          }}"
+        />
+        <button
+          type="button"
+          class="btn btn-outline-secondary container-search-button input-group-text"
+          (click)="onSearchAddress()"
+        >
+          <fa-icon [icon]="faSearch"></fa-icon>
+        </button>
+      </div>
     </div>
-  }
+    <div
+      id="map-container"
+      style="height: 600px; margin-bottom: 20px; width: 100%"
+    ></div>
 
-  @if (!isLoading() && !error()) {
-    <div class="container-dashboard-card-content">
-      @if (locations().length === 0) {
-        <div class="container-dashboard-no-data">
-          <p>{{ 'dashboard.locations.noData' | translate }}</p>
-        </div>
-      } @else {
-        <div class="container-dashboard-controls">
-          <label for="map-style-select">{{ 'dashboard.locations.mapStyle' | translate }}:</label>
-          <select
-            id="map-style-select"
-            [ngModel]="selectedTileProviderId()"
-            (ngModelChange)="onTileProviderChange($event)">
-            @for (provider of tileProviders; track provider.id) {
-              <option [value]="provider.id">{{ provider.name }}</option>
-            }
-          </select>
-          <button
-            type="button"
-            class="container-dashboard-btn"
-            (click)="onZoomToAllMarkers()"
-            title="{{ 'dashboard.locations.zoomToAll' | translate }}">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            {{ 'dashboard.locations.zoomToAll' | translate }}
-          </button>
-        </div>
-        <div id="map-container" style="height: 600px; margin-bottom: 20px; width: 100%;"></div>
+    <div class="map-controls">
+      <label for="map-style-select"
+        >{{ "dashboard.locations.mapStyle" | translate }}:</label
+      >
+      <select
+        class="form-select map-style"
+        id="map-style-select"
+        [ngModel]="selectedTileProviderId()"
+        (ngModelChange)="onTileProviderChange($event)"
+      >
+        @for (provider of tileProviders; track provider.id) {
+        <option [value]="provider.id">{{ provider.name }}</option>
+        }
+      </select>
+    </div>
 
-        <div class="locations-container">
-          <div class="locations-header">
-            <h3>{{ 'dashboard.locations.byCity' | translate }}</h3>
-            <div class="locations-summary">
-              <span class="summary-item">{{ 'dashboard.locations.totalLocations' | translate }}: {{ totalLocations() }}</span>
-              <span class="summary-item">{{ 'dashboard.locations.totalClients' | translate }}: {{ totalClients() }}</span>
+    <div class="locations-container">
+      <div class="locations-header">
+        <h3>{{ "dashboard.locations.byCity" | translate }}</h3>
+        <div class="locations-summary">
+          <span class="summary-item"
+            >{{ "dashboard.locations.totalLocations" | translate }}:
+            {{ totalLocations() }}</span
+          >
+          <span class="summary-item"
+            >{{ "dashboard.locations.totalClients" | translate }}:
+            {{ totalClients() }}</span
+          >
+        </div>
+        <button
+          type="button"
+          class="container-dashboard-btn"
+          (click)="onZoomToAllMarkers()"
+          title="{{ 'dashboard.locations.zoomToAll' | translate }}"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          {{ "dashboard.locations.zoomToAll" | translate }}
+        </button>
+      </div>
+
+      <div class="locations-grid">
+        @for (location of locations(); track location.city + location.country) {
+        <div
+          class="location-card"
+          (click)="onZoomToLocation(location)"
+          [class.clickable]="location.latitude && location.longitude"
+        >
+          <div class="location-icon">
+            <app-icon-location-pin></app-icon-location-pin>
+          </div>
+          <div class="location-info">
+            <div class="location-city">{{ location.city }}</div>
+            <div class="location-country">{{ location.country }}</div>
+            <div class="location-types">
+              @if (location.employeeCount > 0) {
+              <span class="type-badge employee">
+                {{ location.employeeCount }}
+                {{ "dashboard.locations.employee" | translate }}
+              </span>
+              } @if (location.externEmpCount > 0) {
+              <span class="type-badge extern">
+                {{ location.externEmpCount }}
+                {{ "dashboard.locations.externEmp" | translate }}
+              </span>
+              } @if (location.customerCount > 0) {
+              <span class="type-badge customer">
+                {{ location.customerCount }}
+                {{ "dashboard.locations.customer" | translate }}
+              </span>
+              }
             </div>
           </div>
-
-          <div class="locations-grid">
-            @for (location of locations(); track location.city + location.country) {
-              <div class="location-card">
-                <div class="location-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
-                  </svg>
-                </div>
-                <div class="location-info">
-                  <div class="location-city">{{ location.city }}</div>
-                  <div class="location-country">{{ location.country }}</div>
-                  <div class="location-types">
-                    @if (location.employeeCount > 0) {
-                      <span class="type-badge employee">
-                        {{ location.employeeCount }} {{ 'dashboard.locations.employee' | translate }}
-                      </span>
-                    }
-                    @if (location.externEmpCount > 0) {
-                      <span class="type-badge extern">
-                        {{ location.externEmpCount }} {{ 'dashboard.locations.externEmp' | translate }}
-                      </span>
-                    }
-                    @if (location.customerCount > 0) {
-                      <span class="type-badge customer">
-                        {{ location.customerCount }} {{ 'dashboard.locations.customer' | translate }}
-                      </span>
-                    }
-                  </div>
-                </div>
-                <div class="location-count">
-                  <span class="count-number">{{ location.count }}</span>
-                  <span class="count-label">{{ 'dashboard.locations.clients' | translate }}</span>
-                </div>
-              </div>
-            }
+          <div class="location-count">
+            <span class="count-number">{{ location.count }}</span>
+            <span class="count-label">{{
+              "dashboard.locations.clients" | translate
+            }}</span>
           </div>
+          @if (location.latitude && location.longitude) {
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="onOpenStreetView(location, $event)"
+            ngbTooltip="{{ 'dashboard.locations.streetView' | translate }}"
+          >
+            <fa-icon [icon]="faStreetView"></fa-icon>
+          </button>
+          }
         </div>
-      }
+        }
+      </div>
     </div>
+    }
+  </div>
   }
 </div>

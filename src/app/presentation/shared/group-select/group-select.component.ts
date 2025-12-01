@@ -399,6 +399,8 @@ export class GroupSelectComponent
       case EntityName.SHIFT:
         const filter = this.dataManagementShiftService.currentFilter;
         return !(filter.filterType === 0 && filter.isSealedOrder === false);
+      case EntityName.DASHBOARD:
+        return false;
     }
 
     return false;
