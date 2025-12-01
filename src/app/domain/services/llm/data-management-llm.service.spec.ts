@@ -12,12 +12,16 @@ import {
   ILLMUsage,
 } from 'src/app/infrastructure/api/data-llm.service';
 import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { LLMFunctionExecutionService } from './llm-function-execution.service';
+import { LLMSystemContextService } from './llm-system-context.service';
 
 describe('DataManagementLLMService', () => {
   let service: DataManagementLLMService;
   let mockDataLLMService: jasmine.SpyObj<DataLLMService>;
   let mockEventBus: jasmine.SpyObj<IEventBus>;
   let mockTranslateService: jasmine.SpyObj<TranslateService>;
+  let mockFunctionExecutionService: jasmine.SpyObj<LLMFunctionExecutionService>;
+  let mockSystemContextService: jasmine.SpyObj<LLMSystemContextService>;
 
   const mockModels: ILLMModel[] = [
     {
@@ -73,6 +77,27 @@ describe('DataManagementLLMService', () => {
       }
     );
 
+    const functionExecutionServiceSpy = jasmine.createSpyObj(
+      'LLMFunctionExecutionService',
+      ['executeFunction', 'executeFunctions']
+    );
+    functionExecutionServiceSpy.executeFunction.and.returnValue(of({ success: true }));
+    functionExecutionServiceSpy.executeFunctions.and.returnValue(of([]));
+
+    const systemContextServiceSpy = jasmine.createSpyObj(
+      'LLMSystemContextService',
+      ['getSystemContext', 'formatSystemMessage', 'getToolsForLLM']
+    );
+    systemContextServiceSpy.getSystemContext.and.returnValue({
+      systemPrompt: 'Test prompt',
+      capabilities: [],
+      availableTools: [],
+      examples: [],
+      currentContext: {}
+    });
+    systemContextServiceSpy.formatSystemMessage.and.returnValue('System message');
+    systemContextServiceSpy.getToolsForLLM.and.returnValue([]);
+
     translateServiceSpy.get.and.returnValue(of('Translated text'));
 
     TestBed.configureTestingModule({
@@ -82,6 +107,8 @@ describe('DataManagementLLMService', () => {
         { provide: DataLLMService, useValue: dataLLMServiceSpy },
         { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
         { provide: TranslateService, useValue: translateServiceSpy },
+        { provide: LLMFunctionExecutionService, useValue: functionExecutionServiceSpy },
+        { provide: LLMSystemContextService, useValue: systemContextServiceSpy },
       ],
     });
 
@@ -95,6 +122,12 @@ describe('DataManagementLLMService', () => {
     mockTranslateService = TestBed.inject(
       TranslateService
     ) as jasmine.SpyObj<TranslateService>;
+    mockFunctionExecutionService = TestBed.inject(
+      LLMFunctionExecutionService
+    ) as jasmine.SpyObj<LLMFunctionExecutionService>;
+    mockSystemContextService = TestBed.inject(
+      LLMSystemContextService
+    ) as jasmine.SpyObj<LLMSystemContextService>;
 
     mockDataLLMService.getModels.and.returnValue(of(mockModels));
     // Default mock for chat method to prevent undefined.pipe() errors

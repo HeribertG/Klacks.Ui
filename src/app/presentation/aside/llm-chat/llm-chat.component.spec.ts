@@ -22,6 +22,8 @@ import { IconChatComponent } from 'src/app/presentation/icons/icon-chat.componen
 import { IconMMLComponent } from 'src/app/presentation/icons/icon-mml.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { ILLMProvider } from 'src/app/infrastructure/api/data-llm-provider.service';
+import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
+import { LanguageMappingService } from 'src/app/domain/services/language-mapping.service';
 
 @Pipe({ name: 'translate' })
 class MockTranslatePipe implements PipeTransform {
@@ -38,6 +40,8 @@ describe('LLMChatComponent', () => {
   let mockSpeechService: jasmine.SpyObj<SpeechRecognitionService>;
   let mockTranslateService: TranslateService;
   let mockRouter: jasmine.SpyObj<Router>;
+  let mockFunctionExecutionService: jasmine.SpyObj<LLMFunctionExecutionService>;
+  let mockLanguageMappingService: jasmine.SpyObj<LanguageMappingService>;
 
   const mockModels: ILLMModel[] = [
     {
@@ -113,14 +117,45 @@ describe('LLMChatComponent', () => {
         'requestPermissions',
         'updateLanguage',
         'setLanguage',
+        'getDiagnostics',
       ],
       {
         isSupported$: jasmine.createSpy('isSupported$').and.returnValue(true),
         errors: new BehaviorSubject(''),
       }
     );
+    speechServiceSpy.getDiagnostics.and.returnValue({
+      isSupported: true,
+      permissionStatus: 'granted',
+      browserInfo: 'Chrome Headless',
+      error: null
+    });
 
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+    const functionExecutionServiceSpy = jasmine.createSpyObj(
+      'LLMFunctionExecutionService',
+      ['executeFunction']
+    );
+    functionExecutionServiceSpy.executeFunction.and.returnValue(of({ id: '1', success: true }));
+
+    const languageMappingServiceSpy = jasmine.createSpyObj(
+      'LanguageMappingService',
+      ['getCurrentLanguageConfig', 'getSpeechLocale', 'getLanguageConfig']
+    );
+    languageMappingServiceSpy.getCurrentLanguageConfig.and.returnValue({
+      code: 'de',
+      name: 'German',
+      speechLocale: 'de-CH',
+      displayName: 'Deutsch'
+    });
+    languageMappingServiceSpy.getSpeechLocale.and.returnValue('de-CH');
+    languageMappingServiceSpy.getLanguageConfig.and.returnValue({
+      code: 'de',
+      name: 'German',
+      speechLocale: 'de-CH',
+      displayName: 'Deutsch'
+    });
 
     await TestBed.configureTestingModule({
       imports: [
@@ -134,6 +169,8 @@ describe('LLMChatComponent', () => {
         { provide: DataManagementLLMProviderService, useValue: llmProviderServiceSpy },
         { provide: SpeechRecognitionService, useValue: speechServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: LLMFunctionExecutionService, useValue: functionExecutionServiceSpy },
+        { provide: LanguageMappingService, useValue: languageMappingServiceSpy },
       ],
     })
       .overrideComponent(LLMChatComponent, {
@@ -160,6 +197,12 @@ describe('LLMChatComponent', () => {
       SpeechRecognitionService
     ) as jasmine.SpyObj<SpeechRecognitionService>;
     mockRouter = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    mockFunctionExecutionService = TestBed.inject(
+      LLMFunctionExecutionService
+    ) as jasmine.SpyObj<LLMFunctionExecutionService>;
+    mockLanguageMappingService = TestBed.inject(
+      LanguageMappingService
+    ) as jasmine.SpyObj<LanguageMappingService>;
 
     const translateService = TestBed.inject(TranslateService);
     spyOn(translateService, 'instant').and.callFake((key: string) => {

@@ -5,12 +5,32 @@ import { AppComponent } from './app.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { EVENT_BUS_TOKEN, IEventBus } from './domain/interfaces/event-bus.interface';
+import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from './domain/interfaces/loading-indicator.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN, IManageableServiceRegistry } from './domain/interfaces/manageable-service-registry.interface';
 
 import { ToastShowService } from './presentation/toast/toast-show.service';
+import { ApplicationInitService } from './application/services/application-init.service';
 
 class MockToastService {
-  // Optional: Füge Mock-Methoden hinzu, falls benötigt
 }
+
+class MockApplicationInitService {
+  initialize(): void {}
+  initializeBasics(): void {}
+  destroy(): void {}
+}
+
+const mockLoadingIndicator: ILoadingIndicator = {
+  showProgressSpinner: false
+};
+
+const mockManageableServiceRegistry: IManageableServiceRegistry = {
+  register: () => {},
+  get: () => undefined,
+  has: () => false,
+  clear: () => {},
+  getRegisteredRoutes: () => []
+};
 
 class MockTranslateService {
   currentLang = 'de';
@@ -42,18 +62,23 @@ describe('AppComponent', () => {
   let mockToastService: MockToastService;
   let mockTranslateService: MockTranslateService;
   let mockEventBus: MockEventBus;
+  let mockApplicationInitService: MockApplicationInitService;
 
   beforeEach(() => {
     mockToastService = new MockToastService();
     mockTranslateService = new MockTranslateService();
     mockEventBus = new MockEventBus();
+    mockApplicationInitService = new MockApplicationInitService();
 
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, HttpClientTestingModule, TranslateModule.forRoot(), AppComponent], // AppComponent importieren
+      imports: [RouterTestingModule, HttpClientTestingModule, TranslateModule.forRoot(), AppComponent],
       providers: [
-        { provide: ToastShowService, useValue: mockToastService }, // Mock für ToastService
-        { provide: TranslateService, useValue: mockTranslateService }, // Mock für TranslateService
-        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus }
+        { provide: ToastShowService, useValue: mockToastService },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+        { provide: ApplicationInitService, useValue: mockApplicationInitService },
+        { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
+        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockManageableServiceRegistry }
       ],
     });
   });
