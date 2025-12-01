@@ -2,17 +2,24 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, from, of, forkJoin } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Observable, from, of, timer } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { DataManagementClientService } from '../client/data-management-client.service';
 import {
   ILLMFunctionCall,
   ILLMFunctionResult,
 } from '../../models/llm-function-definitions.interface';
 import { LLMFunctionRegistryService } from './llm-function-registry.service';
 import { environment } from 'src/environments/environment';
-import { Filter, IClient, ITruncatedClient } from '../../models/client-class';
+import { ClientContract, Filter, ITruncatedClient } from '../../models/client-class';
 import { ITruncatedShift, ShiftFilter } from '../../models/shift-data-class';
 import { GroupFilter, ITruncatedGroup } from '../../models/group-class';
+import { SearchStateService } from 'src/app/application/services/search-state.service';
+import { SearchStrategyService } from 'src/app/presentation/search/search-strategy.service';
+import { DataManagementContractService } from '../contract/data-management-contract.service';
+import { DataManagementGroupService } from '../group/data-management-group.service';
+import { ClientGroupItem } from '../../models/client-group-item-class';
+import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +28,11 @@ export class LLMFunctionExecutionService {
   private router = inject(Router);
   private httpClient = inject(HttpClient);
   private functionRegistry = inject(LLMFunctionRegistryService);
+  private searchStateService = inject(SearchStateService);
+  private searchStrategyService = inject(SearchStrategyService);
+  private dataManagementClientService = inject(DataManagementClientService);
+  private dataManagementContractService = inject(DataManagementContractService);
+  private dataManagementGroupService = inject(DataManagementGroupService);
   private readonly apiBaseUrl = environment.baseUrl;
 
   executeFunction(
@@ -71,6 +83,17 @@ export class LLMFunctionExecutionService {
         return this.executeGetCurrentUser(functionCall);
       case 'getUserPermissions':
         return this.executeGetUserPermissions(functionCall);
+
+      // Client creation via UI flow
+      case 'create_client':
+        return this.executeCreateClient(functionCall);
+
+      // Backend-executed functions (pass through)
+      case 'search_clients':
+      case 'create_contract':
+      case 'get_system_info':
+      case 'navigate_to_page':
+        return this.executeBackendFunction(functionCall);
 
       default:
         return of({
@@ -133,14 +156,16 @@ export class LLMFunctionExecutionService {
       let route = '';
       switch (entityType) {
         case 'client':
-          route = action === 'edit' || !action
-            ? `/workplace/edit-address/${entityId}`
-            : `/workplace/client`;
+          route =
+            action === 'edit' || !action
+              ? `/workplace/edit-address/${entityId}`
+              : `/workplace/client`;
           break;
         case 'group':
-          route = action === 'edit' || !action
-            ? `/workplace/edit-group/${entityId}`
-            : `/workplace/group`;
+          route =
+            action === 'edit' || !action
+              ? `/workplace/edit-group/${entityId}`
+              : `/workplace/group`;
           break;
         case 'shift':
           if (action === 'cut') {
@@ -445,67 +470,26 @@ export class LLMFunctionExecutionService {
     searchQuery: string,
     action?: string
   ): Observable<ILLMFunctionResult> {
-    const filter = new Filter();
-    filter.searchString = searchQuery;
-    filter.numberOfItemsPerPage = 5;
-    filter.requiredPage = 1;
-    filter.includeAddress = true;
+    const route = '/workplace/client';
 
-    return this.httpClient
-      .post<ITruncatedClient>(`${this.apiBaseUrl}Clients/GetSimpleList`, filter)
-      .pipe(
-        map((response) => {
-          if (response.clients.length === 0) {
-            return {
-              id: callId,
-              success: false,
-              error: `Keine Adresse gefunden für "${searchQuery}"`,
-            };
-          }
+    this.searchStateService.setRestoreSearch(searchQuery);
 
-          if (response.clients.length === 1) {
-            const client = response.clients[0];
-            const route = `/workplace/edit-address/${client.id}`;
-            this.router.navigate([route]);
-            return {
-              id: callId,
-              success: true,
-              result: {
-                action: 'navigated',
-                route,
-                entity: {
-                  id: client.id,
-                  name: `${client.firstName} ${client.name}`.trim(),
-                  company: client.company,
-                },
-              },
-            };
-          }
+    this.router.navigate([route]).then(() => {
+      setTimeout(() => {
+        this.searchStrategyService.globalSearch(searchQuery, true, false);
+      }, 500);
+    });
 
-          return {
-            id: callId,
-            success: true,
-            result: {
-              action: 'multiple_results',
-              message: `${response.clients.length} Adressen gefunden. Bitte wählen Sie:`,
-              items: response.clients.map((c) => ({
-                id: c.id,
-                name: `${c.firstName} ${c.name}`.trim(),
-                company: c.company,
-                type: this.getClientTypeLabel(c.type),
-                city: c.addresses?.[0]?.city,
-              })),
-            },
-          };
-        }),
-        catchError((error) =>
-          of({
-            id: callId,
-            success: false,
-            error: error.message || 'Search failed',
-          })
-        )
-      );
+    return of({
+      id: callId,
+      success: true,
+      result: {
+        action: 'navigated_with_search',
+        route,
+        searchQuery,
+        message: `Navigiert zu Adressen und suche nach "${searchQuery}"`,
+      },
+    });
   }
 
   private searchAndNavigateShift(
@@ -513,70 +497,26 @@ export class LLMFunctionExecutionService {
     searchQuery: string,
     action?: string
   ): Observable<ILLMFunctionResult> {
-    const filter = new ShiftFilter();
-    filter.searchString = searchQuery;
-    filter.numberOfItemsPerPage = 5;
-    filter.requiredPage = 1;
-    filter.includeClientName = true;
+    const route = '/workplace/shift';
 
-    return this.httpClient
-      .post<ITruncatedShift>(`${this.apiBaseUrl}Shifts/GetSimpleList/`, filter)
-      .pipe(
-        map((response) => {
-          if (response.shifts.length === 0) {
-            return {
-              id: callId,
-              success: false,
-              error: `Kein Dienst gefunden für "${searchQuery}"`,
-            };
-          }
+    this.searchStateService.setRestoreSearch(searchQuery);
 
-          if (response.shifts.length === 1) {
-            const shift = response.shifts[0];
-            const route =
-              action === 'cut'
-                ? `/workplace/cut-shift/${shift.id}`
-                : `/workplace/edit-shift/${shift.id}`;
-            this.router.navigate([route]);
-            return {
-              id: callId,
-              success: true,
-              result: {
-                action: 'navigated',
-                route,
-                entity: {
-                  id: shift.id,
-                  name: shift.name,
-                  addressName: shift.addressName,
-                },
-              },
-            };
-          }
+    this.router.navigate([route]).then(() => {
+      setTimeout(() => {
+        this.searchStrategyService.globalSearch(searchQuery, false, true);
+      }, 500);
+    });
 
-          return {
-            id: callId,
-            success: true,
-            result: {
-              action: 'multiple_results',
-              message: `${response.shifts.length} Dienste gefunden. Bitte wählen Sie:`,
-              items: response.shifts.map((s) => ({
-                id: s.id,
-                name: s.name,
-                addressName: s.addressName,
-                startShift: s.startShift,
-                endShift: s.endShift,
-              })),
-            },
-          };
-        }),
-        catchError((error) =>
-          of({
-            id: callId,
-            success: false,
-            error: error.message || 'Search failed',
-          })
-        )
-      );
+    return of({
+      id: callId,
+      success: true,
+      result: {
+        action: 'navigated_with_search',
+        route,
+        searchQuery,
+        message: `Navigiert zu Dienste und suche nach "${searchQuery}"`,
+      },
+    });
   }
 
   private searchAndNavigateGroup(
@@ -584,65 +524,26 @@ export class LLMFunctionExecutionService {
     searchQuery: string,
     action?: string
   ): Observable<ILLMFunctionResult> {
-    const filter = new GroupFilter();
-    filter.searchString = searchQuery;
-    filter.numberOfItemsPerPage = 5;
-    filter.requiredPage = 1;
+    const route = '/workplace/group';
 
-    return this.httpClient
-      .post<ITruncatedGroup>(`${this.apiBaseUrl}Groups/GetSimpleList/`, filter)
-      .pipe(
-        map((response) => {
-          if (response.groups.length === 0) {
-            return {
-              id: callId,
-              success: false,
-              error: `Keine Gruppe gefunden für "${searchQuery}"`,
-            };
-          }
+    this.searchStateService.setRestoreSearch(searchQuery);
 
-          if (response.groups.length === 1) {
-            const group = response.groups[0];
-            const route = `/workplace/edit-group/${group.id}`;
-            this.router.navigate([route]);
-            return {
-              id: callId,
-              success: true,
-              result: {
-                action: 'navigated',
-                route,
-                entity: {
-                  id: group.id,
-                  name: group.name,
-                  description: group.description,
-                },
-              },
-            };
-          }
+    this.router.navigate([route]).then(() => {
+      setTimeout(() => {
+        this.searchStrategyService.globalSearch(searchQuery, false, false);
+      }, 500);
+    });
 
-          return {
-            id: callId,
-            success: true,
-            result: {
-              action: 'multiple_results',
-              message: `${response.groups.length} Gruppen gefunden. Bitte wählen Sie:`,
-              items: response.groups.map((g) => ({
-                id: g.id,
-                name: g.name,
-                description: g.description,
-                clientsCount: g.clientsCount,
-              })),
-            },
-          };
-        }),
-        catchError((error) =>
-          of({
-            id: callId,
-            success: false,
-            error: error.message || 'Search failed',
-          })
-        )
-      );
+    return of({
+      id: callId,
+      success: true,
+      result: {
+        action: 'navigated_with_search',
+        route,
+        searchQuery,
+        message: `Navigiert zu Gruppen und suche nach "${searchQuery}"`,
+      },
+    });
   }
 
   private executeGetData(
@@ -766,6 +667,270 @@ export class LLMFunctionExecutionService {
         success: false,
         error: error.message,
       });
+    }
+  }
+
+  private executeBackendFunction(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    return this.httpClient
+      .post<{ success: boolean; result?: any; error?: string; message?: string }>(
+        `${this.apiBaseUrl}assistant/chat/execute-function`,
+        {
+          functionName: call.name,
+          parameters: call.arguments,
+        }
+      )
+      .pipe(
+        map((response) => ({
+          id: call.id,
+          success: response.success,
+          result: response.result,
+          error: response.error,
+        })),
+        catchError((error) =>
+          of({
+            id: call.id,
+            success: false,
+            error: error.message || 'Backend function execution failed',
+          })
+        )
+      );
+  }
+
+  private async ensureServicesInitialized(): Promise<void> {
+    if (this.dataManagementContractService.contracts.length === 0) {
+      await this.dataManagementContractService.init();
+    }
+    if (this.dataManagementGroupService.flatNodeList.length === 0) {
+      this.dataManagementGroupService.initTree();
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  }
+
+  private executeCreateClient(
+    call: ILLMFunctionCall
+  ): Observable<ILLMFunctionResult> {
+    const { firstName, lastName, gender, birthdate, street, postalCode, city, canton, country, contractType, groupPath } = call.arguments;
+
+    const clientEditService = this.dataManagementClientService.clientEditService;
+
+    clientEditService.createClient();
+
+    return from(this.ensureServicesInitialized()).pipe(
+      switchMap(() => timer(500)),
+      tap(() => {
+        const editClient = clientEditService.editClient();
+        if (editClient) {
+          editClient.firstName = firstName || '';
+          editClient.name = lastName || '';
+          editClient.gender = this.parseGender(gender);
+
+          if (birthdate) {
+            const date = new Date(birthdate);
+            if (!isNaN(date.getTime())) {
+              editClient.birthdate = date;
+            }
+          }
+
+          if (editClient.addresses && editClient.addresses.length > 0) {
+            const address = editClient.addresses[0];
+            address.street = street || '';
+            address.zip = postalCode || '';
+            address.city = city || '';
+            address.state = canton || this.getCantonFromPostalCode(postalCode) || '';
+            address.country = this.getCountryAbbreviation(country) || 'CH';
+          }
+
+          if (contractType) {
+            this.assignContractToClient(editClient, contractType);
+          }
+
+          if (groupPath) {
+            this.assignGroupToClient(editClient, groupPath);
+          }
+
+          clientEditService.editClient.set({ ...editClient });
+        }
+      }),
+      switchMap(() => {
+        return new Observable<ILLMFunctionResult>((observer) => {
+          clientEditService.onSaveCompleted = () => {
+            const savedClient = clientEditService.editClient();
+            this.router.navigate(['/workplace/edit-address', savedClient?.id]);
+
+            const assignedContract = savedClient?.clientContracts?.find(c => c.contract?.name?.includes(contractType));
+            const assignedGroup = savedClient?.groupItems?.find(g => g.groupName);
+
+            let message = `Mitarbeiter ${firstName} ${lastName} wurde erfolgreich erstellt.`;
+            if (assignedContract) {
+              message += ` Vertrag "${assignedContract.contract?.name}" wurde zugewiesen.`;
+            } else if (contractType) {
+              message += ` Vertrag "${contractType}" wurde zugewiesen.`;
+            }
+            if (assignedGroup) {
+              message += ` Gruppe "${assignedGroup.groupName}" wurde zugewiesen.`;
+            } else if (groupPath) {
+              message += ` Gruppe aus Pfad "${groupPath}" wurde zugewiesen.`;
+            }
+
+            observer.next({
+              id: call.id,
+              success: true,
+              result: {
+                id: savedClient?.id,
+                firstName: savedClient?.firstName,
+                lastName: savedClient?.name,
+                canton: canton || this.getCantonFromPostalCode(postalCode),
+                country: country || 'Schweiz',
+                contractAssigned: !!assignedContract || !!contractType,
+                groupAssigned: !!assignedGroup || !!groupPath,
+                message
+              },
+            });
+            observer.complete();
+          };
+
+          clientEditService.saveEditClient();
+
+          setTimeout(() => {
+            if (!clientEditService.lastSaveError()) {
+              return;
+            }
+            observer.next({
+              id: call.id,
+              success: false,
+              error: clientEditService.lastSaveErrorMessage() || 'Error saving client',
+            });
+            observer.complete();
+          }, 5000);
+        });
+      }),
+      catchError((error) =>
+        of({
+          id: call.id,
+          success: false,
+          error: error.message || 'Error creating client',
+        })
+      )
+    );
+  }
+
+  private assignContractToClient(client: any, contractType: string): void {
+    const contracts = this.dataManagementContractService.contracts;
+
+    const matchingContract = contracts.find(c =>
+      c.name?.toLowerCase().includes(contractType.toLowerCase()) ||
+      contractType.toLowerCase().includes(c.name?.toLowerCase() || '')
+    );
+
+    if (matchingContract && matchingContract.id) {
+      const newClientContract: any = new ClientContract();
+      newClientContract.clientId = client.id || '';
+      newClientContract.contractId = matchingContract.id;
+      newClientContract.contract = matchingContract;
+      const today = new Date();
+      newClientContract.fromDate = today;
+      newClientContract.internalFromDate = transformDateToNgbDateStruct(today);
+      newClientContract.isActive = true;
+
+      if (!client.clientContracts) {
+        client.clientContracts = [];
+      }
+      client.clientContracts.push(newClientContract);
+    }
+  }
+
+  private assignGroupToClient(client: any, groupPath: string): void {
+    const flatNodeList = this.dataManagementGroupService.flatNodeList;
+
+    const pathParts = groupPath.split('->').map(p => p.trim().toLowerCase());
+    const lastPart = pathParts[pathParts.length - 1];
+
+    let matchingGroup = flatNodeList.find(g =>
+      g.name?.toLowerCase() === lastPart
+    );
+
+    if (!matchingGroup) {
+      matchingGroup = flatNodeList.find(g =>
+        g.name?.toLowerCase().includes(lastPart) ||
+        lastPart.includes(g.name?.toLowerCase() || '')
+      );
+    }
+
+    if (matchingGroup) {
+      const newGroupItem = new ClientGroupItem();
+      newGroupItem.clientId = client.id || '';
+      newGroupItem.groupId = matchingGroup.id;
+      newGroupItem.groupName = matchingGroup.name;
+      const today = new Date();
+      newGroupItem.validFrom = today;
+      newGroupItem.internalValidFrom = transformDateToNgbDateStruct(today);
+
+      if (!client.groupItems) {
+        client.groupItems = [];
+      }
+      client.groupItems.push(newGroupItem);
+    }
+  }
+
+  private getCantonFromPostalCode(postalCode: string): string {
+    if (!postalCode) return '';
+    const plz = parseInt(postalCode, 10);
+    if (isNaN(plz)) return '';
+
+    if (plz >= 1000 && plz < 2000) return 'VD';
+    if (plz >= 2000 && plz < 3000) return 'NE';
+    if (plz >= 3000 && plz < 4000) return 'BE';
+    if (plz >= 4000 && plz < 5000) return 'BS';
+    if (plz >= 5000 && plz < 6000) return 'AG';
+    if (plz >= 6000 && plz < 7000) return 'LU';
+    if (plz >= 7000 && plz < 8000) return 'GR';
+    if (plz >= 8000 && plz < 9000) return 'ZH';
+    if (plz >= 9000 && plz < 10000) return 'SG';
+
+    return '';
+  }
+
+  private getCountryAbbreviation(country: string): string {
+    if (!country) return 'CH';
+
+    const countryLower = country.toLowerCase().trim();
+
+    const countryMap: Record<string, string> = {
+      'schweiz': 'CH',
+      'switzerland': 'CH',
+      'suisse': 'CH',
+      'svizzera': 'CH',
+      'ch': 'CH',
+      'deutschland': 'DE',
+      'germany': 'DE',
+      'de': 'DE',
+      'österreich': 'AT',
+      'oesterreich': 'AT',
+      'austria': 'AT',
+      'at': 'AT',
+      'frankreich': 'FR',
+      'france': 'FR',
+      'fr': 'FR',
+      'italien': 'IT',
+      'italy': 'IT',
+      'italia': 'IT',
+      'it': 'IT',
+      'liechtenstein': 'LI',
+      'li': 'LI',
+    };
+
+    return countryMap[countryLower] || country.toUpperCase().substring(0, 2);
+  }
+
+  private parseGender(gender: string): number {
+    switch (gender?.toLowerCase()) {
+      case 'male': return 1;
+      case 'female': return 0;
+      case 'intersexuality': return 2;
+      case 'legalentity': return 3;
+      default: return 1;
     }
   }
 }

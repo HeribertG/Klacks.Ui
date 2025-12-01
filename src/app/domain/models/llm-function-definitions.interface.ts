@@ -13,7 +13,7 @@ export interface ILLMFunctionDefinition {
   name: string;
   description: string;
   parameters: ILLMFunctionParameter[];
-  category: 'navigation' | 'form' | 'data' | 'system' | 'utility';
+  category: 'navigation' | 'form' | 'data' | 'system' | 'utility' | 'backend';
   requiresAuth?: boolean;
   permissions?: string[];
 }

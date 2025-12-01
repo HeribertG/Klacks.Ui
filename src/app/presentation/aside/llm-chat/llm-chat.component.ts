@@ -33,6 +33,7 @@ import { LanguageMappingService } from 'src/app/domain/services/language-mapping
 import { IconMMLComponent } from '../../icons/icon-mml.component';
 import { IconChatComponent } from '../../icons/icon-chat.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
+import { LLMFunctionExecutionService } from 'src/app/domain/services/llm/llm-function-execution.service';
 
 export interface ChatMessage {
   id: string;
@@ -63,6 +64,7 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private llmService = inject(DataManagementLLMService);
   private llmProviderService = inject(DataManagementLLMProviderService);
+  private functionExecutionService = inject(LLMFunctionExecutionService);
   speechService = inject(SpeechRecognitionService);
   private translateService = inject(TranslateService);
   private languageMappingService = inject(LanguageMappingService);
@@ -185,7 +187,9 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.messages.push(assistantMessage);
       this.shouldScrollToBottom = true;
 
-      if (response?.navigateTo && response?.actionPerformed) {
+      if (response?.functionCalls && response.functionCalls.length > 0) {
+        await this.executeFunctionCalls(response.functionCalls);
+      } else if (response?.navigateTo && response?.actionPerformed) {
         setTimeout(() => {
           this.router.navigate([response.navigateTo!]);
         }, 2000);
@@ -385,6 +389,50 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.addWelcomeMessage(currentLang);
 
     this.shouldScrollToBottom = true;
+  }
+
+  private async executeFunctionCalls(functionCalls: any[]): Promise<void> {
+    for (const call of functionCalls) {
+      const functionCall = {
+        id: this.generateMessageId(),
+        name: call.FunctionName || call.functionName,
+        arguments: call.Parameters || call.parameters || {},
+      };
+
+      try {
+        const result = await firstValueFrom(
+          this.functionExecutionService.executeFunction(functionCall)
+        );
+
+        if (result.success && result.result?.action === 'navigated') {
+          const lastMessage = this.messages[this.messages.length - 1];
+          if (lastMessage) {
+            lastMessage.content = `✅ Navigiert zu: ${result.result.entity?.name || result.result.route}`;
+          }
+        } else if (result.success && result.result?.action === 'navigated_with_search') {
+          const lastMessage = this.messages[this.messages.length - 1];
+          if (lastMessage) {
+            lastMessage.content = `✅ ${result.result.message}`;
+          }
+        } else if (result.success && result.result?.action === 'multiple_results') {
+          const lastMessage = this.messages[this.messages.length - 1];
+          if (lastMessage) {
+            const items = result.result.items as any[];
+            const itemList = items.map((item: any) =>
+              `• ${item.name}${item.company ? ` (${item.company})` : ''}${item.city ? ` - ${item.city}` : ''}`
+            ).join('\n');
+            lastMessage.content = `${result.result.message}\n\n${itemList}`;
+          }
+        } else if (!result.success) {
+          const lastMessage = this.messages[this.messages.length - 1];
+          if (lastMessage) {
+            lastMessage.content = `❌ ${result.error}`;
+          }
+        }
+      } catch (error: any) {
+        console.error('Function execution error:', error);
+      }
+    }
   }
 
   hasNoApiKey(): boolean {

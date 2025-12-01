@@ -266,6 +266,62 @@ export class LLMFunctionRegistryService {
       parameters: [],
       category: 'system',
     });
+
+    // Backend-executed Functions
+    this.registerFunction({
+      name: 'create_client',
+      description: 'Erstellt einen neuen Mitarbeiter mit allen Daten (Name, Adresse, Geburtsdatum, Vertrag, Gruppe)',
+      parameters: [
+        { name: 'firstName', type: 'string', description: 'Vorname', required: true },
+        { name: 'lastName', type: 'string', description: 'Nachname', required: true },
+        { name: 'gender', type: 'string', description: 'Geschlecht', required: true, enum: ['Male', 'Female', 'Intersexuality', 'LegalEntity'] },
+        { name: 'birthdate', type: 'string', description: 'Geburtsdatum (YYYY-MM-DD)', required: false },
+        { name: 'street', type: 'string', description: 'Strasse und Hausnummer', required: false },
+        { name: 'postalCode', type: 'string', description: 'Postleitzahl', required: false },
+        { name: 'city', type: 'string', description: 'Stadt/Ort', required: false },
+        { name: 'canton', type: 'string', description: 'Kanton (z.B. BE, ZH, AG)', required: false },
+        { name: 'country', type: 'string', description: 'Land (z.B. Schweiz)', required: false },
+        { name: 'contractType', type: 'string', description: 'Vertragstyp (z.B. BE 180 Std)', required: false },
+        { name: 'groupPath', type: 'string', description: 'Gruppenpfad (z.B. Deutschweiz Mitte -> BERN -> Bern)', required: false },
+      ],
+      category: 'backend',
+    });
+
+    this.registerFunction({
+      name: 'search_clients',
+      description: 'Sucht nach Mitarbeitern oder Kunden',
+      parameters: [
+        { name: 'searchTerm', type: 'string', description: 'Suchbegriff', required: false },
+      ],
+      category: 'backend',
+    });
+
+    this.registerFunction({
+      name: 'create_contract',
+      description: 'Erstellt einen neuen Vertrag für einen Mitarbeiter',
+      parameters: [
+        { name: 'clientId', type: 'string', description: 'ID des Mitarbeiters', required: true },
+        { name: 'contractType', type: 'string', description: 'Vertragsart', required: true },
+        { name: 'canton', type: 'string', description: 'Kanton', required: true },
+      ],
+      category: 'backend',
+    });
+
+    this.registerFunction({
+      name: 'get_system_info',
+      description: 'Liefert Systeminformationen',
+      parameters: [],
+      category: 'backend',
+    });
+
+    this.registerFunction({
+      name: 'navigate_to_page',
+      description: 'Navigiert zu einer Seite',
+      parameters: [
+        { name: 'page', type: 'string', description: 'Zielseite', required: true },
+      ],
+      category: 'backend',
+    });
   }
 
   registerFunction(definition: ILLMFunctionDefinition): void {

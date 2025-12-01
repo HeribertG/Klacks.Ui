@@ -104,7 +104,6 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
   }
 
   onToggleAssistant(): void {
-    console.log('Assistant button clicked - toggling aside');
     this.asideService.toggle();
   }
 

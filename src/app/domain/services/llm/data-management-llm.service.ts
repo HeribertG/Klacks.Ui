@@ -403,10 +403,6 @@ export class DataManagementLLMService {
     functionCalls: ILLMFunctionCall[]
   ): Observable<any> {
     return this.functionExecutionService.executeFunctions(functionCalls).pipe(
-      tap((results) => {
-        // Log function execution results
-        console.log('Function execution results:', results);
-      }),
       catchError(() => {
         this.eventBus.emit(DomainEventType.ERROR, { message: 'Function execution failed', code: 'LLMFunctionError', context: 'DataManagementLLMService.executeFunctionCalls' });
         return of([]);
