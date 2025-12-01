@@ -2,7 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
-import { IEntitySearchStrategy, EntitySearchOptions } from './strategies/interfaces/entity-search-strategy.interface';
+import {
+  IEntitySearchStrategy,
+  EntitySearchOptions,
+} from './strategies/interfaces/entity-search-strategy.interface';
 import { ClientSearchStrategy } from './strategies/client-search.strategy';
 import { GroupSearchStrategy } from './strategies/group-search.strategy';
 import { AbsenceSearchStrategy } from './strategies/absence-search.strategy';
@@ -32,12 +35,12 @@ export class SearchStrategyService {
       absenceStrategy,
       scheduleStrategy,
       shiftStrategy,
-      containerTemplateStrategy
+      containerTemplateStrategy,
     ]);
   }
 
   private initializeStrategies(strategies: IEntitySearchStrategy[]): void {
-    strategies.forEach(strategy => {
+    strategies.forEach((strategy) => {
       this.strategies.set(strategy.getEntityName(), strategy);
     });
   }
@@ -48,14 +51,15 @@ export class SearchStrategyService {
     isIncludeClient = false
   ): void {
     this.searchStateService.setRestoreSearch(value);
-    
-    const currentEntity = this.workplaceStateService.nameOfVisibleEntity() as EntityName;
+
+    const currentEntity =
+      this.workplaceStateService.nameOfVisibleEntity() as EntityName;
     const strategy = this.strategies.get(currentEntity);
-    
+
     if (strategy) {
       const options: EntitySearchOptions = {
         includeAddress: isIncludeAddress,
-        includeClient: isIncludeClient
+        includeClient: isIncludeClient,
       };
       strategy.search(value, options);
     } else {
@@ -69,13 +73,12 @@ export class SearchStrategyService {
   }
 
   public resetFilterWithoutSignalWrite(): void {
-    const currentEntity = this.workplaceStateService.nameOfVisibleEntity() as EntityName;
+    const currentEntity =
+      this.workplaceStateService.nameOfVisibleEntity() as EntityName;
     const strategy = this.strategies.get(currentEntity);
-    
+
     if (strategy) {
       strategy.resetFilter();
-    } else {
-      console.warn(`No search strategy found for entity: ${currentEntity}`);
     }
   }
 
@@ -87,7 +90,10 @@ export class SearchStrategyService {
     this.searchStateService.setRestoreSearch(value);
   }
 
-  public addStrategy(entityName: EntityName, strategy: IEntitySearchStrategy): void {
+  public addStrategy(
+    entityName: EntityName,
+    strategy: IEntitySearchStrategy
+  ): void {
     this.strategies.set(entityName, strategy);
   }
 
