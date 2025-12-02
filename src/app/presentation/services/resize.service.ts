@@ -1,19 +1,20 @@
-import { Injectable, NgZone, inject } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { Injectable, NgZone, inject, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ResizeService {
-  private resizeSubject: Subject<void> = new Subject<void>();
-
+  public resizeTrigger = signal<number>(0);
   private ngZone: NgZone = inject(NgZone);
+  private resizeSubject$ = toObservable(this.resizeTrigger);
 
   observe(element: HTMLElement): Observable<void> {
     return new Observable((observer) => {
       const appResizeObserver = new ResizeObserver(() => {
         this.ngZone.run(() => {
-          this.resizeSubject.next();
+          this.resizeTrigger.update((v) => v + 1);
           observer.next();
         });
       });
@@ -27,6 +28,6 @@ export class ResizeService {
   }
 
   onResize(): Observable<void> {
-    return this.resizeSubject.asObservable();
+    return this.resizeSubject$.pipe() as Observable<void>;
   }
 }

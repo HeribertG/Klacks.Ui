@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ISetting, Setting } from 'src/app/domain/models/settings-various-class';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
 import { PixelToPtService } from './pixel-to-pt.service';
-import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +14,8 @@ export class GridFontsService {
   private pixelToPt = inject(PixelToPtService);
 
   public isReset = signal(false);
-  public isChangingEvent = new Subject<boolean>();
+  public isChangingSignal = signal<boolean>(false);
+  public isChangingEvent = toObservable(this.isChangingSignal);
 
   public settingList: ISetting[] = [];
   private settingListDummy: ISetting[] = [];
@@ -208,7 +209,7 @@ export class GridFontsService {
         this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
 
         this.isReset.set(true);
-        this.isChangingEvent.next(false);
+        this.isChangingSignal.set(false);
         setTimeout(() => this.isReset.set(false), 100);
       }
     });

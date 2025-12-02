@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { Component, inject, OnInit, OnDestroy, signal, ElementRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faSearch, faStreetView } from '@fortawesome/free-solid-svg-icons';
@@ -48,7 +48,10 @@ const MAP_TILE_PROVIDER_STORAGE_KEY = 'dashboard-map-tile-provider';
   standalone: true,
   imports: [TranslateModule, FormsModule, FontAwesomeModule, NgbTooltipModule, IconLocationPinComponent],
 })
-export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
+export class DashboardClientsLocationsComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChild('mapContainer') mapContainerRef!: ElementRef<HTMLDivElement>;
+  private mapInitialized = false;
+  private shouldInitializeMap = false;
   private dataDashboardService = inject(DataDashboardService);
   private localStorageService = inject(LocalStorageService);
   private elementRef = inject(ElementRef);
@@ -126,6 +129,15 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
     this.loadLocationData();
   }
 
+  ngAfterViewChecked(): void {
+    if (this.shouldInitializeMap && !this.mapInitialized && this.mapContainerRef?.nativeElement) {
+      this.mapInitialized = true;
+      this.shouldInitializeMap = false;
+      this.initializeMap();
+      this.loadMarkersOnMap(this.locations());
+    }
+  }
+
   private loadSavedTileProvider(): void {
     const savedProviderId = this.localStorageService.get(MAP_TILE_PROVIDER_STORAGE_KEY);
     if (savedProviderId && this.tileProviders.some(p => p.id === savedProviderId)) {
@@ -194,10 +206,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
         this.totalClients.set(clients.length);
         this.isLoading.set(false);
 
-        setTimeout(() => {
-          this.initializeMap();
-          this.loadMarkersOnMap(locationsArray);
-        }, 100);
+        this.shouldInitializeMap = true;
       },
       error: (err) => {
         this.error.set('Failed to load location data');
@@ -213,7 +222,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const mapContainer = document.getElementById('map-container');
+    const mapContainer = this.mapContainerRef?.nativeElement;
     if (!mapContainer) {
       console.error('Map container not found');
       return;
@@ -224,7 +233,7 @@ export class DashboardClientsLocationsComponent implements OnInit, OnDestroy {
       this.map = null;
     }
 
-    this.map = L.map('map-container').setView([46.8182, 8.2275], 7);
+    this.map = L.map(mapContainer).setView([46.8182, 8.2275], 7);
 
     const provider = this.tileProviders.find(p => p.id === this.selectedTileProviderId()) || this.tileProviders[0];
     this.currentTileLayer = L.tileLayer(provider.url, {

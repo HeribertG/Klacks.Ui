@@ -1,15 +1,19 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+
+export interface ScrollPosition {
+  horizontal: number;
+  vertical: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ScrollEventService {
-  private scrollSubject = new Subject<{horizontal: number, vertical: number}>();
-  
-  public scroll$ = this.scrollSubject.asObservable();
-  
-  public emitScroll(horizontal: number, vertical: number) {
-    this.scrollSubject.next({horizontal, vertical});
+  public scrollPosition = signal<ScrollPosition>({ horizontal: 0, vertical: 0 });
+  public scroll$ = toObservable(this.scrollPosition);
+
+  public emitScroll(horizontal: number, vertical: number): void {
+    this.scrollPosition.set({ horizontal, vertical });
   }
 }

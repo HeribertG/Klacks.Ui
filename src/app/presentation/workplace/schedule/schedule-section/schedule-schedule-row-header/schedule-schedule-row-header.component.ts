@@ -13,7 +13,7 @@ import {
   Injector,
   runInInjectionContext,
 } from '@angular/core';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
@@ -52,7 +52,6 @@ export class ScheduleScheduleRowHeaderComponent
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
     this.readSignals();
-    this.subscribeToScrollEvents(); // Back to Observable solution
   }
 
   ngOnDestroy(): void {
@@ -133,16 +132,14 @@ export class ScheduleScheduleRowHeaderComponent
         }
       });
       this.effects.push(positionEffect);
-    });
-  }
 
-  private subscribeToScrollEvents(): void {
-    this.scrollEventService.scroll$
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe(() => {
+      const scrollEffect = effect(() => {
+        this.scrollEventService.scrollPosition();
         if (this.drawRowHeader.isCanvasAvailable()) {
           this.drawRowHeader.moveGrid();
         }
       });
+      this.effects.push(scrollEffect);
+    });
   }
 }

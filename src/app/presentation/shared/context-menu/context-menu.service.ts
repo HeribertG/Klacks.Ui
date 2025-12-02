@@ -1,14 +1,24 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Injectable, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
+
+export interface ContextMenuClickEvent {
+  event: string;
+  value: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContextMenuService {
-  public hasClicked = new Subject<string[]>();
-  constructor() {}
+  public clickedSignal = signal<ContextMenuClickEvent | null>(null);
 
-  onClickEvent(event: string, valueEvent: string | undefined) {
-    this.hasClicked.next([event, valueEvent ?? '']);
+  public hasClicked = toObservable(this.clickedSignal).pipe(
+    filter((x): x is ContextMenuClickEvent => x !== null),
+    map((x) => [x.event, x.value])
+  );
+
+  onClickEvent(event: string, valueEvent: string | undefined): void {
+    this.clickedSignal.set({ event, value: valueEvent ?? '' });
   }
 }
