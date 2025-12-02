@@ -112,7 +112,8 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "Klacks.Ui:build:development",
-            "setupFiles": ["src/test-setup.ts"]
+            "setupFiles": ["src/test-setup.ts"],
+            "runnerConfig": "vitest.config.ts"
           }
         },
         "lint": {
