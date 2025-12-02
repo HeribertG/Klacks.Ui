@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllGroupListComponent } from './all-group-list.component';
@@ -16,423 +17,421 @@ import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
 describe('AllGroupListComponent', () => {
-  let component: AllGroupListComponent;
-  let fixture: ComponentFixture<AllGroupListComponent>;
-  let mockDataManagementGroupService: jasmine.SpyObj<DataManagementGroupService>;
-  let mockLocalStorageService: jasmine.SpyObj<LocalStorageService>;
-  let mockModalService: jasmine.SpyObj<ModalService>;
-  let mockTableResizeService: jasmine.SpyObj<TableResizeService>;
-  let mockAllGroupStateService: jasmine.SpyObj<AllGroupStateService>;
-  let mockNavigationService: jasmine.SpyObj<NavigationService>;
-  let mockLoadingIndicator: ILoadingIndicator;
-  let mockRegistry: jasmine.SpyObj<IManageableServiceRegistry>;
-  let mockFilterStorage: jasmine.SpyObj<IFilterStorage>;
-  let sortingService: TableSortingService;
+    let component: AllGroupListComponent;
+    let fixture: ComponentFixture<AllGroupListComponent>;
+    let mockDataManagementGroupService: any;
+    let mockLocalStorageService: any;
+    let mockModalService: any;
+    let mockTableResizeService: any;
+    let mockAllGroupStateService: any;
+    let mockNavigationService: any;
+    let mockLoadingIndicator: ILoadingIndicator;
+    let mockRegistry: any;
+    let mockFilterStorage: any;
+    let sortingService: TableSortingService;
 
-  beforeEach(async () => {
-    mockDataManagementGroupService = jasmine.createSpyObj('DataManagementGroupService', [
-      'init',
-      'readPage',
-      'deleteGroup',
-      'createGroup',
-      'prepareGroup',
-      'findCheckBoxValue',
-      'addCheckBoxValueToArray',
-      'clearCheckedArray',
-      'checkBoxIndeterminate'
-    ], {
-      listWrapper: signal({ groups: [] }),
-      currentFilter: { numberOfItemsPerPage: 10, searchString: '', orderBy: 'name', sortOrder: 'asc', requiredPage: 0 },
-      paginationDataService: signal({ maxItems: 100, firstItem: 0 }),
-      headerCheckBoxValue: signal(false),
-      isRead: signal(false),
-      initIsRead: signal(false),
-      groupListService: {
-        headerCheckBoxValue: signal(false)
-      }
-    });
+    beforeEach(async () => {
+        mockDataManagementGroupService = {
+            init: vi.fn(),
+            readPage: vi.fn(),
+            deleteGroup: vi.fn(),
+            createGroup: vi.fn(),
+            prepareGroup: vi.fn(),
+            findCheckBoxValue: vi.fn(),
+            addCheckBoxValueToArray: vi.fn(),
+            clearCheckedArray: vi.fn(),
+            checkBoxIndeterminate: vi.fn(),
+            listWrapper: signal({ groups: [] }),
+            currentFilter: { numberOfItemsPerPage: 10, searchString: '', orderBy: 'name', sortOrder: 'asc', requiredPage: 0 },
+            paginationDataService: signal({ maxItems: 100, firstItem: 0 }),
+            headerCheckBoxValue: signal(false),
+            isRead: signal(false),
+            initIsRead: signal(false),
+            groupListService: {
+                headerCheckBoxValue: signal(false)
+            }
+        };
 
-    mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['get', 'set']);
-    mockModalService = jasmine.createSpyObj('ModalService', ['openModel', 'setDefault'], {
-      resultEvent: of()
-    });
-    mockTableResizeService = jasmine.createSpyObj('TableResizeService', [
-      'calculateOptimalRowCount',
-      'createResizeObservable',
-      'isAutoMode'
-    ]);
-    mockAllGroupStateService = jasmine.createSpyObj('AllGroupStateService', [
-      'saveCurrentFilter',
-      'prepareFilterForRequest',
-      'restoreFilterFromStorage',
-      'isResizeCalculationAllowed',
-      'initializeWorkplaceState'
-    ]);
-    mockNavigationService = jasmine.createSpyObj('NavigationService', [
-      'navigateToEditGroup'
-    ]);
+        mockLocalStorageService = {
+            get: vi.fn(),
+            set: vi.fn()
+        };
+        mockModalService = {
+            openModel: vi.fn(),
+            setDefault: vi.fn(),
+            resultEvent: of()
+        };
+        mockTableResizeService = {
+            calculateOptimalRowCount: vi.fn(),
+            createResizeObservable: vi.fn(),
+            isAutoMode: vi.fn()
+        };
+        mockAllGroupStateService = {
+            saveCurrentFilter: vi.fn(),
+            prepareFilterForRequest: vi.fn(),
+            restoreFilterFromStorage: vi.fn(),
+            isResizeCalculationAllowed: vi.fn(),
+            initializeWorkplaceState: vi.fn()
+        };
+        mockNavigationService = {
+            navigateToEditGroup: vi.fn()
+        };
 
-    mockLoadingIndicator = {
-      showProgressSpinner: false
-    };
+        mockLoadingIndicator = {
+            showProgressSpinner: false
+        };
 
-    mockRegistry = jasmine.createSpyObj('IManageableServiceRegistry', ['register', 'unregister']);
+        mockRegistry = {
+            register: vi.fn(),
+            unregister: vi.fn()
+        };
 
-    mockFilterStorage = jasmine.createSpyObj('IFilterStorage', [
-      'saveFilter',
-      'restoreFilter',
-      'removeFilter',
-      'isAvailable',
-      'getKeys',
-      'clear'
-    ]);
-    mockFilterStorage.saveFilter.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.restoreFilter.and.returnValue(Promise.resolve(null));
-    mockFilterStorage.removeFilter.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.isAvailable.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.getKeys.and.returnValue(Promise.resolve([]));
-    mockFilterStorage.clear.and.returnValue(Promise.resolve(true));
+        mockFilterStorage = {
+            saveFilter: vi.fn(),
+            restoreFilter: vi.fn(),
+            removeFilter: vi.fn(),
+            isAvailable: vi.fn(),
+            getKeys: vi.fn(),
+            clear: vi.fn()
+        };
+        mockFilterStorage.saveFilter.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.restoreFilter.mockReturnValue(Promise.resolve(null));
+        mockFilterStorage.removeFilter.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.isAvailable.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.getKeys.mockReturnValue(Promise.resolve([]));
+        mockFilterStorage.clear.mockReturnValue(Promise.resolve(true));
 
-    mockLocalStorageService.get.and.returnValue(null);
-    mockTableResizeService.createResizeObservable.and.returnValue(of(10));
-    mockTableResizeService.isAutoMode.and.returnValue(false);
-    mockAllGroupStateService.restoreFilterFromStorage.and.returnValue(Promise.resolve(false));
-    mockAllGroupStateService.isResizeCalculationAllowed.and.returnValue(true);
-    mockDataManagementGroupService.deleteGroup.and.returnValue(of(null as any));
+        mockLocalStorageService.get.mockReturnValue(null);
+        mockTableResizeService.createResizeObservable.mockReturnValue(of(10));
+        mockTableResizeService.isAutoMode.mockReturnValue(false);
+        mockAllGroupStateService.restoreFilterFromStorage.mockReturnValue(Promise.resolve(false));
+        mockAllGroupStateService.isResizeCalculationAllowed.mockReturnValue(true);
+        mockDataManagementGroupService.deleteGroup.mockReturnValue(of(null as any));
 
-    await TestBed.configureTestingModule({
-      imports: [AllGroupListComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: DataManagementGroupService, useValue: mockDataManagementGroupService },
-        { provide: LocalStorageService, useValue: mockLocalStorageService },
-        { provide: ModalService, useValue: mockModalService },
-        { provide: TableResizeService, useValue: mockTableResizeService },
-        { provide: AllGroupStateService, useValue: mockAllGroupStateService },
-        { provide: NavigationService, useValue: mockNavigationService },
-        { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
-        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
-        { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },
-        TableSortingService
-      ]
-    })
-    .overrideComponent(AllGroupListComponent, {
-      set: {
-        providers: [
-          { provide: TableResizeService, useValue: mockTableResizeService },
-          { provide: AllGroupStateService, useValue: mockAllGroupStateService },
-          TableSortingService
-        ]
-      }
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(AllGroupListComponent);
-    component = fixture.componentInstance;
-    sortingService = component.sortingService;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  describe('ngOnInit', () => {
-    it('should initialize DataManagementGroupService', () => {
-      fixture.detectChanges();
-      expect(mockDataManagementGroupService.init).toHaveBeenCalled();
-    });
-
-    it('should initialize AllGroupStateService', () => {
-      fixture.detectChanges();
-      expect(mockAllGroupStateService.initializeWorkplaceState).toHaveBeenCalled();
-    });
-
-    it('should initialize TableSortingService with correct config', () => {
-      spyOn(sortingService, 'initialize');
-      fixture.detectChanges();
-
-      expect(sortingService.initialize).toHaveBeenCalledWith({
-        columns: ['name', 'description', 'valid_from', 'valid_until'],
-        defaultOrderBy: 'name',
-        defaultSortOrder: 'asc',
-        useThreeWaySort: true
-      });
-    });
-  });
-
-  describe('Table Sorting', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
-    it('should handle header click for name column', () => {
-      spyOn(component as any, 'readPage');
-
-      component.onClickHeader('name');
-
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('name');
-    });
-
-    it('should handle header click for description column', () => {
-      spyOn(component as any, 'readPage');
-
-      component.onClickHeader('description');
-
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('description');
-    });
-
-    it('should handle header click for valid_from column', () => {
-      spyOn(component as any, 'readPage');
-
-      component.onClickHeader('valid_from');
-
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('valid_from');
-    });
-
-    it('should handle header click for valid_until column', () => {
-      spyOn(component as any, 'readPage');
-
-      component.onClickHeader('valid_until');
-
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('valid_until');
-    });
-
-    it('should cycle through three-way sort: asc -> desc -> none', () => {
-      spyOn(component as any, 'readPage');
-
-      component.onClickHeader('description');
-      expect(sortingService.getCurrentSortOrder()).toBe('asc');
-
-      component.onClickHeader('description');
-      expect(sortingService.getCurrentSortOrder()).toBe('desc');
-
-      component.onClickHeader('description');
-      expect(sortingService.getCurrentSortOrder()).toBe('');
-    });
-
-    it('should get correct arrow for sorted column', () => {
-      component.onClickHeader('description');
-      expect(sortingService.getArrow('description')).toBe('↓');
-    });
-
-    it('should get empty arrow for non-sorted column', () => {
-      component.onClickHeader('name');
-      expect(sortingService.getArrow('description')).toBe('');
-    });
-
-    it('should pass current sort state to filter', () => {
-      component.onClickHeader('description');
-      spyOn(component as any, 'readPage').and.callThrough();
-
-      (component as any).setFilter();
-
-      expect(mockAllGroupStateService.prepareFilterForRequest).toHaveBeenCalledWith(
-        'description',
-        jasmine.any(String),
-        component.page,
-        component.firstItemOnLastPage,
-        component.isPreviousPage,
-        component.isNextPage
-      );
-    });
-  });
-
-  describe('Navigation', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
-    it('should create new group on add button click', () => {
-      component.onAddGroup();
-      expect(mockDataManagementGroupService.createGroup).toHaveBeenCalled();
-    });
-
-    it('should navigate to edit group with group id', () => {
-      const mockGroup = {
-        id: '123',
-        name: 'Test Group',
-        description: 'Test',
-        validFrom: new Date(),
-        groupItems: [],
-        lft: 0,
-        rgt: 0,
-        depth: 0,
-        clientsCount: 0,
-        shiftsCount: 0,
-        customersCount: 0
-      };
-      component.onClickEdit(mockGroup as any);
-
-      expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
-      expect(mockDataManagementGroupService.prepareGroup).toHaveBeenCalledWith(mockGroup);
-      expect(mockNavigationService.navigateToEditGroup).toHaveBeenCalledWith('123');
-    });
-
-    it('should emit switchToTree event on toggle click', () => {
-      spyOn(component.switchToTree, 'emit');
-
-      component.onClickToggle();
-
-      expect(component.switchToTree.emit).toHaveBeenCalled();
-    });
-  });
-
-  describe('Copy Group', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
-
-    it('should copy group with modified properties', () => {
-      const mockGroup = {
-        id: '123',
-        name: 'Original',
-        description: 'Test',
-        validFrom: new Date(),
-        groupItems: [
-          { id: 'item1', groupId: '123', clientId: 'client1' }
-        ],
-        lft: 0,
-        rgt: 0,
-        depth: 0,
-        clientsCount: 1
-      };
-
-      component.onCopyGroup(mockGroup as any);
-
-      expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
-      expect(mockDataManagementGroupService.prepareGroup).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          id: '',
-          name: 'Original-copy'
+        await TestBed.configureTestingModule({
+            imports: [AllGroupListComponent, TranslateModule.forRoot()],
+            providers: [
+                { provide: DataManagementGroupService, useValue: mockDataManagementGroupService },
+                { provide: LocalStorageService, useValue: mockLocalStorageService },
+                { provide: ModalService, useValue: mockModalService },
+                { provide: TableResizeService, useValue: mockTableResizeService },
+                { provide: AllGroupStateService, useValue: mockAllGroupStateService },
+                { provide: NavigationService, useValue: mockNavigationService },
+                { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
+                { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
+                { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },
+                TableSortingService
+            ]
         })
-      );
-      expect(mockNavigationService.navigateToEditGroup).toHaveBeenCalled();
+            .overrideComponent(AllGroupListComponent, {
+            set: {
+                providers: [
+                    { provide: TableResizeService, useValue: mockTableResizeService },
+                    { provide: AllGroupStateService, useValue: mockAllGroupStateService },
+                    TableSortingService
+                ]
+            }
+        })
+            .compileComponents();
+
+        fixture = TestBed.createComponent(AllGroupListComponent);
+        component = fixture.componentInstance;
+        sortingService = component.sortingService;
     });
 
-    it('should reset groupItem ids when copying', () => {
-      const mockGroup = {
-        id: '123',
-        name: 'Test',
-        description: 'Test',
-        validFrom: new Date(),
-        groupItems: [
-          { id: 'item1', groupId: '123', clientId: 'client1' }
-        ],
-        lft: 0,
-        rgt: 0,
-        depth: 0,
-        clientsCount: 1
-      };
-
-      component.onCopyGroup(mockGroup as any);
-
-      const prepareCall = mockDataManagementGroupService.prepareGroup.calls.mostRecent();
-      const copiedGroup = prepareCall.args[0];
-
-      expect(copiedGroup.groupItems[0].id).toBeUndefined();
-      expect(copiedGroup.groupItems[0].groupId).toBeUndefined();
-    });
-  });
-
-  describe('Pagination', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
 
-    it('should handle page change', () => {
-      spyOn(component as any, 'readPage');
-      component.page = 1;
+    describe('ngOnInit', () => {
+        it('should initialize DataManagementGroupService', () => {
+            fixture.detectChanges();
+            expect(mockDataManagementGroupService.init).toHaveBeenCalled();
+        });
 
-      component.onPageChange(2);
+        it('should initialize AllGroupStateService', () => {
+            fixture.detectChanges();
+            expect(mockAllGroupStateService.initializeWorkplaceState).toHaveBeenCalled();
+        });
 
-      expect(component.isNextPage).toBe(true);
-      expect(component.page).toBe(2);
+        it('should initialize TableSortingService with correct config', () => {
+            vi.spyOn(sortingService, 'initialize');
+            fixture.detectChanges();
+
+            expect(sortingService.initialize).toHaveBeenCalledWith({
+                columns: ['name', 'description', 'valid_from', 'valid_until'],
+                defaultOrderBy: 'name',
+                defaultSortOrder: 'asc',
+                useThreeWaySort: true
+            });
+        });
     });
 
-    it('should handle previous page', () => {
-      spyOn(component as any, 'readPage');
-      component.page = 2;
+    describe('Table Sorting', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      component.onPageChange(1);
+        it('should handle header click for name column', () => {
+            vi.spyOn(component as any, 'readPage');
 
-      expect(component.isPreviousPage).toBe(true);
-      expect(component.page).toBe(1);
+            component.onClickHeader('name');
+
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('name');
+        });
+
+        it('should handle header click for description column', () => {
+            vi.spyOn(component as any, 'readPage');
+
+            component.onClickHeader('description');
+
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('description');
+        });
+
+        it('should handle header click for valid_from column', () => {
+            vi.spyOn(component as any, 'readPage');
+
+            component.onClickHeader('valid_from');
+
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('valid_from');
+        });
+
+        it('should handle header click for valid_until column', () => {
+            vi.spyOn(component as any, 'readPage');
+
+            component.onClickHeader('valid_until');
+
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('valid_until');
+        });
+
+        it('should cycle through three-way sort: asc -> desc -> none', () => {
+            vi.spyOn(component as any, 'readPage');
+
+            component.onClickHeader('description');
+            expect(sortingService.getCurrentSortOrder()).toBe('asc');
+
+            component.onClickHeader('description');
+            expect(sortingService.getCurrentSortOrder()).toBe('desc');
+
+            component.onClickHeader('description');
+            expect(sortingService.getCurrentSortOrder()).toBe('');
+        });
+
+        it('should get correct arrow for sorted column', () => {
+            component.onClickHeader('description');
+            expect(sortingService.getArrow('description')).toBe('↓');
+        });
+
+        it('should get empty arrow for non-sorted column', () => {
+            component.onClickHeader('name');
+            expect(sortingService.getArrow('description')).toBe('');
+        });
+
+        it('should pass current sort state to filter', () => {
+            component.onClickHeader('description');
+            vi.spyOn(component as any, 'readPage');
+
+            (component as any).setFilter();
+
+            expect(mockAllGroupStateService.prepareFilterForRequest).toHaveBeenCalledWith('description', expect.any(String), component.page, component.firstItemOnLastPage, component.isPreviousPage, component.isNextPage);
+        });
     });
 
-    it('should update items per page', () => {
-      spyOn(component as any, 'readPage');
+    describe('Navigation', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      component.onItemsPerPageChange(20);
+        it('should create new group on add button click', () => {
+            component.onAddGroup();
+            expect(mockDataManagementGroupService.createGroup).toHaveBeenCalled();
+        });
 
-      expect(mockDataManagementGroupService.currentFilter.numberOfItemsPerPage).toBe(20);
-      expect((component as any).readPage).toHaveBeenCalled();
+        it('should navigate to edit group with group id', () => {
+            const mockGroup = {
+                id: '123',
+                name: 'Test Group',
+                description: 'Test',
+                validFrom: new Date(),
+                groupItems: [],
+                lft: 0,
+                rgt: 0,
+                depth: 0,
+                clientsCount: 0,
+                shiftsCount: 0,
+                customersCount: 0
+            };
+            component.onClickEdit(mockGroup as any);
+
+            expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
+            expect(mockDataManagementGroupService.prepareGroup).toHaveBeenCalledWith(mockGroup);
+            expect(mockNavigationService.navigateToEditGroup).toHaveBeenCalledWith('123');
+        });
+
+        it('should emit switchToTree event on toggle click', () => {
+            vi.spyOn(component.switchToTree, 'emit');
+
+            component.onClickToggle();
+
+            expect(component.switchToTree.emit).toHaveBeenCalled();
+        });
     });
 
-    it('should not update items per page when search is active', () => {
-      spyOn(component as any, 'readPage');
-      mockDataManagementGroupService.currentFilter.searchString = 'test';
+    describe('Copy Group', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      component.onItemsPerPageChange(20);
+        it('should copy group with modified properties', () => {
+            const mockGroup = {
+                id: '123',
+                name: 'Original',
+                description: 'Test',
+                validFrom: new Date(),
+                groupItems: [
+                    { id: 'item1', groupId: '123', clientId: 'client1' }
+                ],
+                lft: 0,
+                rgt: 0,
+                depth: 0,
+                clientsCount: 1
+            };
 
-      expect((component as any).readPage).not.toHaveBeenCalled();
+            component.onCopyGroup(mockGroup as any);
+
+            expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
+            expect(mockDataManagementGroupService.prepareGroup).toHaveBeenCalledWith(expect.objectContaining({
+                id: '',
+                name: 'Original-copy'
+            }));
+            expect(mockNavigationService.navigateToEditGroup).toHaveBeenCalled();
+        });
+
+        it('should reset groupItem ids when copying', () => {
+            const mockGroup = {
+                id: '123',
+                name: 'Test',
+                description: 'Test',
+                validFrom: new Date(),
+                groupItems: [
+                    { id: 'item1', groupId: '123', clientId: 'client1' }
+                ],
+                lft: 0,
+                rgt: 0,
+                depth: 0,
+                clientsCount: 1
+            };
+
+            component.onCopyGroup(mockGroup as any);
+
+            const lastCall = vi.mocked(mockDataManagementGroupService.prepareGroup).mock.lastCall;
+            const copiedGroup = lastCall?.[0];
+
+            expect(copiedGroup.groupItems[0].id).toBeUndefined();
+            expect(copiedGroup.groupItems[0].groupId).toBeUndefined();
+        });
     });
-  });
 
-  describe('Checkbox Operations', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
+    describe('Pagination', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('should handle page change', () => {
+            vi.spyOn(component as any, 'readPage');
+            component.page = 1;
+
+            component.onPageChange(2);
+
+            expect(component.isNextPage).toBe(true);
+            expect(component.page).toBe(2);
+        });
+
+        it('should handle previous page', () => {
+            vi.spyOn(component as any, 'readPage');
+            component.page = 2;
+
+            component.onPageChange(1);
+
+            expect(component.isPreviousPage).toBe(true);
+            expect(component.page).toBe(1);
+        });
+
+        it('should update items per page', () => {
+            vi.spyOn(component as any, 'readPage');
+
+            component.onItemsPerPageChange(20);
+
+            expect(mockDataManagementGroupService.currentFilter.numberOfItemsPerPage).toBe(20);
+            expect((component as any).readPage).toHaveBeenCalled();
+        });
+
+        it('should not update items per page when search is active', () => {
+            vi.spyOn(component as any, 'readPage');
+            mockDataManagementGroupService.currentFilter.searchString = 'test';
+
+            component.onItemsPerPageChange(20);
+
+            expect((component as any).readPage).not.toHaveBeenCalled();
+        });
     });
 
-    it('should handle header checkbox change', () => {
-      component.onChangeHeaderCheckBox();
+    describe('Checkbox Operations', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      expect(mockDataManagementGroupService.clearCheckedArray).toHaveBeenCalled();
+        it('should handle header checkbox change', () => {
+            component.onChangeHeaderCheckBox();
+
+            expect(mockDataManagementGroupService.clearCheckedArray).toHaveBeenCalled();
+        });
+
+        it('should update row checkbox value', () => {
+            const mockGroup = {
+                id: '1',
+                name: 'Test Group',
+                description: 'Test',
+                validFrom: new Date(),
+                groupItems: [],
+                lft: 0,
+                rgt: 0,
+                depth: 0,
+                clientsCount: 0
+            };
+            const mockListWrapper = {
+                groups: [mockGroup as any],
+                editor: null,
+                lastChange: null,
+                maxItems: 1,
+                maxPages: 1,
+                firstItem: 0,
+                lastItem: 0
+            };
+            (mockDataManagementGroupService.listWrapper as any).set(mockListWrapper);
+            Object.defineProperty(mockDataManagementGroupService, 'listWrapper', {
+                get: () => mockListWrapper
+            });
+            const mockEvent = { currentTarget: { checked: true } };
+            mockDataManagementGroupService.findCheckBoxValue.mockReturnValue({ id: '1', checked: false });
+
+            component.onChangeCheckBox(0, mockEvent);
+
+            expect(mockDataManagementGroupService.findCheckBoxValue).toHaveBeenCalled();
+        });
     });
 
-    it('should update row checkbox value', () => {
-      const mockGroup = {
-        id: '1',
-        name: 'Test Group',
-        description: 'Test',
-        validFrom: new Date(),
-        groupItems: [],
-        lft: 0,
-        rgt: 0,
-        depth: 0,
-        clientsCount: 0
-      };
-      const mockListWrapper = {
-        groups: [mockGroup as any],
-        editor: null,
-        lastChange: null,
-        maxItems: 1,
-        maxPages: 1,
-        firstItem: 0,
-        lastItem: 0
-      };
-      (mockDataManagementGroupService.listWrapper as any).set(mockListWrapper);
-      Object.defineProperty(mockDataManagementGroupService, 'listWrapper', {
-        get: () => mockListWrapper
-      });
-      const mockEvent = { currentTarget: { checked: true } };
-      mockDataManagementGroupService.findCheckBoxValue.and.returnValue({ id: '1', checked: false });
+    describe('Cleanup', () => {
+        it('should clean up on destroy', () => {
+            fixture.detectChanges();
 
-      component.onChangeCheckBox(0, mockEvent);
+            component.ngOnDestroy();
 
-      expect(mockDataManagementGroupService.findCheckBoxValue).toHaveBeenCalled();
+            expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
+        });
     });
-  });
-
-  describe('Cleanup', () => {
-    it('should clean up on destroy', () => {
-      fixture.detectChanges();
-
-      component.ngOnDestroy();
-
-      expect(mockAllGroupStateService.saveCurrentFilter).toHaveBeenCalled();
-    });
-  });
 });

@@ -1,4 +1,5 @@
- 
+import type { MockedObject } from "vitest";
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -6,53 +7,49 @@ import { GridColorComponent } from './grid-color.component';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 describe('GridColorComponent', () => {
-  let component: GridColorComponent;
-  let fixture: ComponentFixture<GridColorComponent>;
-  let mockGridColorService: jasmine.SpyObj<GridColorService>;
-  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
+    let component: GridColorComponent;
+    let fixture: ComponentFixture<GridColorComponent>;
+    let mockGridColorService: any;
+    let _mockTranslateService: any;
 
-  beforeEach(async () => {
-    const gridColorServiceSpy = jasmine.createSpyObj('GridColorService', [
-      'readData',
-      'saveData',
-      'resetColors',
-    ]);
+    beforeEach(async () => {
+        const gridColorServiceSpy = {
+            readData: vi.fn(),
+            saveData: vi.fn(),
+            resetColors: vi.fn()
+        };
 
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-    ]);
-    translateServiceSpy.instant.and.returnValue('Translated text');
+        const translateServiceSpy = {
+            instant: vi.fn()
+        };
+        translateServiceSpy.instant.mockReturnValue('Translated text');
 
-    await TestBed.configureTestingModule({
-      imports: [GridColorComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: GridColorService, useValue: gridColorServiceSpy },
-        { provide: TranslateService, useValue: translateServiceSpy },
-      ],
-    }).compileComponents();
+        await TestBed.configureTestingModule({
+            imports: [GridColorComponent, TranslateModule.forRoot()],
+            providers: [
+                { provide: GridColorService, useValue: gridColorServiceSpy },
+                { provide: TranslateService, useValue: translateServiceSpy },
+            ],
+        }).compileComponents();
 
-    mockGridColorService = TestBed.inject(
-      GridColorService
-    ) as jasmine.SpyObj<GridColorService>;
-    _mockTranslateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
+        mockGridColorService = TestBed.inject(GridColorService) as any;
+        _mockTranslateService = TestBed.inject(TranslateService) as any;
 
-    fixture = TestBed.createComponent(GridColorComponent);
-    component = fixture.componentInstance;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  describe('Initialization', () => {
-    it('should load grid color data on ngOnInit', () => {
-      // Arrange & Act
-      component.ngOnInit();
-
-      // Assert
-      expect(mockGridColorService.readData).toHaveBeenCalled();
+        fixture = TestBed.createComponent(GridColorComponent);
+        component = fixture.componentInstance;
     });
-  });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    describe('Initialization', () => {
+        it('should load grid color data on ngOnInit', () => {
+            // Arrange & Act
+            component.ngOnInit();
+
+            // Assert
+            expect(mockGridColorService.readData).toHaveBeenCalled();
+        });
+    });
 });

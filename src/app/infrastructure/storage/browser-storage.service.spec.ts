@@ -2,108 +2,108 @@ import { TestBed } from '@angular/core/testing';
 import { BrowserStorageService } from './browser-storage.service';
 
 describe('BrowserStorageService', () => {
-  let service: BrowserStorageService;
-  const testKey = 'test_filter_key';
-  const testFilter = { searchString: 'test', pageSize: 10 };
+    let service: BrowserStorageService;
+    const testKey = 'test_filter_key';
+    const testFilter = { searchString: 'test', pageSize: 10 };
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(BrowserStorageService);
-    
-    // Clean up any existing test data
-    localStorage.removeItem('klacks_filter_' + testKey);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({});
+        service = TestBed.inject(BrowserStorageService);
 
-  afterEach(() => {
-    // Clean up test data
-    localStorage.removeItem('klacks_filter_' + testKey);
-  });
+        // Clean up any existing test data
+        localStorage.removeItem('klacks_filter_' + testKey);
+    });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    afterEach(() => {
+        // Clean up test data
+        localStorage.removeItem('klacks_filter_' + testKey);
+    });
 
-  it('should save and restore filter', async () => {
-    // Save filter
-    const saveResult = await service.saveFilter(testKey, testFilter);
-    expect(saveResult).toBe(true);
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 
-    // Restore filter
-    const restoredFilter = await service.restoreFilter(testKey);
-    expect(restoredFilter).toEqual(testFilter);
-  });
+    it('should save and restore filter', async () => {
+        // Save filter
+        const saveResult = await service.saveFilter(testKey, testFilter);
+        expect(saveResult).toBe(true);
 
-  it('should return null for non-existent filter', async () => {
-    const result = await service.restoreFilter('non_existent_key');
-    expect(result).toBeNull();
-  });
+        // Restore filter
+        const restoredFilter = await service.restoreFilter(testKey);
+        expect(restoredFilter).toEqual(testFilter);
+    });
 
-  it('should remove filter', async () => {
-    // Save filter first
-    await service.saveFilter(testKey, testFilter);
-    
-    // Remove filter
-    const removeResult = await service.removeFilter(testKey);
-    expect(removeResult).toBe(true);
+    it('should return null for non-existent filter', async () => {
+        const result = await service.restoreFilter('non_existent_key');
+        expect(result).toBeNull();
+    });
 
-    // Verify it's gone
-    const restoredFilter = await service.restoreFilter(testKey);
-    expect(restoredFilter).toBeNull();
-  });
+    it('should remove filter', async () => {
+        // Save filter first
+        await service.saveFilter(testKey, testFilter);
 
-  it('should check availability', async () => {
-    const isAvailable = await service.isAvailable();
-    expect(isAvailable).toBe(true);
-  });
+        // Remove filter
+        const removeResult = await service.removeFilter(testKey);
+        expect(removeResult).toBe(true);
 
-  it('should get keys with prefix', async () => {
-    const testPrefix = 'test_prefix_';
-    const key1 = testPrefix + 'key1';
-    const key2 = testPrefix + 'key2';
-    const key3 = 'other_key';
+        // Verify it's gone
+        const restoredFilter = await service.restoreFilter(testKey);
+        expect(restoredFilter).toBeNull();
+    });
 
-    // Save test filters
-    await service.saveFilter(key1, testFilter);
-    await service.saveFilter(key2, testFilter);
-    await service.saveFilter(key3, testFilter);
+    it('should check availability', async () => {
+        const isAvailable = await service.isAvailable();
+        expect(isAvailable).toBe(true);
+    });
 
-    // Get keys with prefix
-    const keys = await service.getKeys(testPrefix);
-    expect(keys).toContain(key1);
-    expect(keys).toContain(key2);
-    expect(keys).not.toContain(key3);
+    it('should get keys with prefix', async () => {
+        const testPrefix = 'test_prefix_';
+        const key1 = testPrefix + 'key1';
+        const key2 = testPrefix + 'key2';
+        const key3 = 'other_key';
 
-    // Clean up
-    await service.removeFilter(key1);
-    await service.removeFilter(key2);
-    await service.removeFilter(key3);
-  });
+        // Save test filters
+        await service.saveFilter(key1, testFilter);
+        await service.saveFilter(key2, testFilter);
+        await service.saveFilter(key3, testFilter);
 
-  it('should clear filters with prefix', async () => {
-    const testPrefix = 'clear_test_';
-    const key1 = testPrefix + 'key1';
-    const key2 = testPrefix + 'key2';
-    const key3 = 'other_key';
+        // Get keys with prefix
+        const keys = await service.getKeys(testPrefix);
+        expect(keys).toContain(key1);
+        expect(keys).toContain(key2);
+        expect(keys).not.toContain(key3);
 
-    // Save test filters
-    await service.saveFilter(key1, testFilter);
-    await service.saveFilter(key2, testFilter);
-    await service.saveFilter(key3, testFilter);
+        // Clean up
+        await service.removeFilter(key1);
+        await service.removeFilter(key2);
+        await service.removeFilter(key3);
+    });
 
-    // Clear with prefix
-    const clearResult = await service.clear(testPrefix);
-    expect(clearResult).toBe(true);
+    it('should clear filters with prefix', async () => {
+        const testPrefix = 'clear_test_';
+        const key1 = testPrefix + 'key1';
+        const key2 = testPrefix + 'key2';
+        const key3 = 'other_key';
 
-    // Verify filters with prefix are gone
-    const restoredFilter1 = await service.restoreFilter(key1);
-    const restoredFilter2 = await service.restoreFilter(key2);
-    const restoredFilter3 = await service.restoreFilter(key3);
+        // Save test filters
+        await service.saveFilter(key1, testFilter);
+        await service.saveFilter(key2, testFilter);
+        await service.saveFilter(key3, testFilter);
 
-    expect(restoredFilter1).toBeNull();
-    expect(restoredFilter2).toBeNull();
-    expect(restoredFilter3).toEqual(testFilter); // Should still exist
+        // Clear with prefix
+        const clearResult = await service.clear(testPrefix);
+        expect(clearResult).toBe(true);
 
-    // Clean up remaining
-    await service.removeFilter(key3);
-  });
+        // Verify filters with prefix are gone
+        const restoredFilter1 = await service.restoreFilter(key1);
+        const restoredFilter2 = await service.restoreFilter(key2);
+        const restoredFilter3 = await service.restoreFilter(key3);
+
+        expect(restoredFilter1).toBeNull();
+        expect(restoredFilter2).toBeNull();
+        expect(restoredFilter3).toEqual(testFilter); // Should still exist
+
+        // Clean up remaining
+        await service.removeFilter(key3);
+    });
 });

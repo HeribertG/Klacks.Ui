@@ -1,11 +1,8 @@
+import type { Mock, MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import {
-  CdkDragDrop,
-  CdkDragMove,
-  DragDropModule,
-} from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDragMove, DragDropModule, } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
 
 import { TreeGroupComponent } from './tree-group.component';
@@ -16,567 +13,550 @@ import { ModalService } from 'src/app/presentation/modal/modal.service';
 import { Group } from 'src/app/domain/models/group-class';
 
 describe('TreeGroupComponent - Drag and Drop', () => {
-  let component: TreeGroupComponent;
-  let fixture: ComponentFixture<TreeGroupComponent>;
-  let mockDataManagementGroupService: jasmine.SpyObj<DataManagementGroupService>;
-  let mockAuthorizationService: jasmine.SpyObj<AuthorizationService>;
-  let mockNavigationService: jasmine.SpyObj<NavigationService>;
-  let mockModalService: jasmine.SpyObj<ModalService>;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+    let component: TreeGroupComponent;
+    let fixture: ComponentFixture<TreeGroupComponent>;
+    let mockDataManagementGroupService: any;
+    let mockAuthorizationService: any;
+    let mockNavigationService: any;
+    let mockModalService: any;
+    let mockTranslateService: any;
 
-  const createMockGroup = (
-    id: string,
-    name: string,
-    depth: number,
-    lft: number,
-    rgt: number,
-    children: Group[] = []
-  ): Group => {
-    const group = new Group();
-    group.id = id;
-    group.name = name;
-    group.depth = depth;
-    group.lft = lft;
-    group.rgt = rgt;
-    group.children = children;
-    group.clientsCount = 0;
-    return group;
-  };
+    const createMockGroup = (id: string, name: string, depth: number, lft: number, rgt: number, children: Group[] = []): Group => {
+        const group = new Group();
+        group.id = id;
+        group.name = name;
+        group.depth = depth;
+        group.lft = lft;
+        group.rgt = rgt;
+        group.children = children;
+        group.clientsCount = 0;
+        return group;
+    };
 
-  beforeEach(async () => {
-    const dataManagementGroupServiceSpy = jasmine.createSpyObj(
-      'DataManagementGroupService',
-      [
-        'init',
-        'initTree',
-        'refreshTree',
-        'selectNode',
-        'toggleNodeExpansion',
-        'expandNode',
-        'collapseAllNodes',
-        'createGroup',
-        'deleteGroup',
-        'prepareGroup',
-        'moveGroup',
-        'isRead',
-      ],
-      {
-        selectedNode: null,
-        expandedNodes: new Set<string>(),
-        groupTree: { nodes: [] },
-      }
-    );
+    beforeEach(async () => {
+        const dataManagementGroupServiceSpy = {
+            init: vi.fn(),
+            initTree: vi.fn(),
+            refreshTree: vi.fn(),
+            selectNode: vi.fn(),
+            toggleNodeExpansion: vi.fn(),
+            expandNode: vi.fn(),
+            collapseAllNodes: vi.fn(),
+            createGroup: vi.fn(),
+            deleteGroup: vi.fn(),
+            prepareGroup: vi.fn(),
+            moveGroup: vi.fn(),
+            isRead: vi.fn(),
+            selectedNode: null,
+            expandedNodes: new Set<string>(),
+            groupTree: { nodes: [] }
+        };
 
-    const authorizationServiceSpy = jasmine.createSpyObj(
-      'AuthorizationService',
-      [],
-      {
-        isAuthorised: true,
-      }
-    );
+        const authorizationServiceSpy = {
+            isAuthorised: true
+        };
 
-    const navigationServiceSpy = jasmine.createSpyObj('NavigationService', [
-      'navigateToEditGroup',
-    ]);
+        const navigationServiceSpy = {
+            navigateToEditGroup: vi.fn()
+        };
 
-    const modalServiceSpy = jasmine.createSpyObj(
-      'ModalService',
-      ['openModel'],
-      {
-        Filing: '',
-        componentContext: '',
-        deleteMessageTitle: '',
-        deleteMessage: '',
-        deleteMessageOkButton: '',
-        resultEvent: of(null),
-      }
-    );
+        const modalServiceSpy = {
+            openModel: vi.fn(),
+            Filing: '',
+            componentContext: '',
+            deleteMessageTitle: '',
+            deleteMessage: '',
+            deleteMessageOkButton: '',
+            resultEvent: of(null)
+        };
 
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-    ]);
-    translateServiceSpy.instant.and.returnValue('Translated text');
+        const translateServiceSpy = {
+            instant: vi.fn()
+        };
+        translateServiceSpy.instant.mockReturnValue('Translated text');
 
-    dataManagementGroupServiceSpy.isRead.and.returnValue(false);
-    dataManagementGroupServiceSpy.deleteGroup.and.returnValue(of(undefined));
+        dataManagementGroupServiceSpy.isRead.mockReturnValue(false);
+        dataManagementGroupServiceSpy.deleteGroup.mockReturnValue(of(undefined));
 
-    await TestBed.configureTestingModule({
-      imports: [TreeGroupComponent, TranslateModule.forRoot(), DragDropModule],
-      providers: [
-        {
-          provide: DataManagementGroupService,
-          useValue: dataManagementGroupServiceSpy,
-        },
-        { provide: AuthorizationService, useValue: authorizationServiceSpy },
-        { provide: NavigationService, useValue: navigationServiceSpy },
-        { provide: ModalService, useValue: modalServiceSpy },
-        { provide: TranslateService, useValue: translateServiceSpy },
-      ],
-    }).compileComponents();
+        await TestBed.configureTestingModule({
+            imports: [TreeGroupComponent, TranslateModule.forRoot(), DragDropModule],
+            providers: [
+                {
+                    provide: DataManagementGroupService,
+                    useValue: dataManagementGroupServiceSpy,
+                },
+                { provide: AuthorizationService, useValue: authorizationServiceSpy },
+                { provide: NavigationService, useValue: navigationServiceSpy },
+                { provide: ModalService, useValue: modalServiceSpy },
+                { provide: TranslateService, useValue: translateServiceSpy },
+            ],
+        }).compileComponents();
 
-    mockDataManagementGroupService = TestBed.inject(
-      DataManagementGroupService
-    ) as jasmine.SpyObj<DataManagementGroupService>;
-    mockAuthorizationService = TestBed.inject(
-      AuthorizationService
-    ) as jasmine.SpyObj<AuthorizationService>;
-    mockNavigationService = TestBed.inject(
-      NavigationService
-    ) as jasmine.SpyObj<NavigationService>;
-    mockModalService = TestBed.inject(
-      ModalService
-    ) as jasmine.SpyObj<ModalService>;
-    mockTranslateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
+        mockDataManagementGroupService = TestBed.inject(DataManagementGroupService) as any;
+        mockAuthorizationService = TestBed.inject(AuthorizationService) as any;
+        mockNavigationService = TestBed.inject(NavigationService) as any;
+        mockModalService = TestBed.inject(ModalService) as any;
+        mockTranslateService = TestBed.inject(TranslateService) as any;
 
-    fixture = TestBed.createComponent(TreeGroupComponent);
-    component = fixture.componentInstance;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  describe('Drag and Drop State Management', () => {
-    it('should set dragging state on drag started', () => {
-      const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
-
-      component.onDragStarted(testNode);
-
-      expect(component.isDragging).toBe(true);
-      expect(component.draggedNodeId).toBe('1');
-    });
-
-    it('should reset dragging state on drag ended', () => {
-      const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
-      component.onDragStarted(testNode);
-
-      component.onDragEnded();
-
-      expect(component.isDragging).toBe(false);
-      expect(component.draggedNodeId).toBeNull();
-      expect(component.hoveredNodeId).toBeNull();
-    });
-
-    it('should set hovered node on drop zone enter', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
-
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(targetNode);
-
-      expect(component.hoveredNodeId).toBe('2');
-    });
-
-    it('should not set hovered node when hovering over dragged node', () => {
-      const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
-
-      component.onDragStarted(testNode);
-      component.onDropZoneEnter(testNode);
-
-      expect(component.hoveredNodeId).toBeNull();
-    });
-
-    it('should clear hovered node on drop zone exit', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
-
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(targetNode);
-
-      component.onDropZoneExit();
-
-      expect(component.hoveredNodeId).toBeNull();
-    });
-  });
-
-  describe('Drop Zone Visibility', () => {
-    it('should show drop zone when dragging and hovering over different node', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
-
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(targetNode);
-
-      expect(component.shouldShowDropZone(targetNode)).toBe(true);
-    });
-
-    it('should not show drop zone when not dragging', () => {
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
-
-      expect(component.shouldShowDropZone(targetNode)).toBe(false);
-    });
-
-    it('should not show drop zone when hovering over dragged node', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-
-      component.onDragStarted(draggedNode);
-
-      expect(component.shouldShowDropZone(draggedNode)).toBe(false);
-    });
-
-    it('should not show drop zone when hovering over different node', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const otherNode = createMockGroup('3', 'Other', 0, 5, 6);
-
-      component.onDragStarted(draggedNode);
-      component.hoveredNodeId = '2';
-
-      expect(component.shouldShowDropZone(otherNode)).toBe(false);
-    });
-  });
-
-  describe('Auto-Expand Functionality', () => {
-    beforeEach(() => {
-      jasmine.clock().install();
+        fixture = TestBed.createComponent(TreeGroupComponent);
+        component = fixture.componentInstance;
     });
 
     afterEach(() => {
-      jasmine.clock().uninstall();
+        fixture?.destroy();
+        TestBed.resetTestingModule();
     });
 
-    it('should expand collapsed node after 800ms hover', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
-      const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
-
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(parentNode);
-
-      jasmine.clock().tick(800);
-
-      expect(mockDataManagementGroupService.expandNode).toHaveBeenCalledWith(
-        parentNode
-      );
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
 
-    it('should not expand node if hover time is less than 800ms', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
-      const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+    describe('Drag and Drop State Management', () => {
+        it('should set dragging state on drag started', () => {
+            const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
 
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(parentNode);
+            component.onDragStarted(testNode);
 
-      jasmine.clock().tick(799);
+            expect(component.isDragging).toBe(true);
+            expect(component.draggedNodeId).toBe('1');
+        });
 
-      expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        it('should reset dragging state on drag ended', () => {
+            const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
+            component.onDragStarted(testNode);
+
+            component.onDragEnded();
+
+            expect(component.isDragging).toBe(false);
+            expect(component.draggedNodeId).toBeNull();
+            expect(component.hoveredNodeId).toBeNull();
+        });
+
+        it('should set hovered node on drop zone enter', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(targetNode);
+
+            expect(component.hoveredNodeId).toBe('2');
+        });
+
+        it('should not set hovered node when hovering over dragged node', () => {
+            const testNode = createMockGroup('1', 'Test Group', 0, 1, 4);
+
+            component.onDragStarted(testNode);
+            component.onDropZoneEnter(testNode);
+
+            expect(component.hoveredNodeId).toBeNull();
+        });
+
+        it('should clear hovered node on drop zone exit', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(targetNode);
+
+            component.onDropZoneExit();
+
+            expect(component.hoveredNodeId).toBeNull();
+        });
     });
 
-    it('should cancel expand timer on drop zone exit', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
-      const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+    describe('Drop Zone Visibility', () => {
+        it('should show drop zone when dragging and hovering over different node', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
 
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(parentNode);
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(targetNode);
 
-      jasmine.clock().tick(400);
-      component.onDropZoneExit();
-      jasmine.clock().tick(400);
+            expect(component.shouldShowDropZone(targetNode)).toBe(true);
+        });
 
-      expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        it('should not show drop zone when not dragging', () => {
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+
+            expect(component.shouldShowDropZone(targetNode)).toBe(false);
+        });
+
+        it('should not show drop zone when hovering over dragged node', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+
+            component.onDragStarted(draggedNode);
+
+            expect(component.shouldShowDropZone(draggedNode)).toBe(false);
+        });
+
+        it('should not show drop zone when hovering over different node', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const otherNode = createMockGroup('3', 'Other', 0, 5, 6);
+
+            component.onDragStarted(draggedNode);
+            component.hoveredNodeId = '2';
+
+            expect(component.shouldShowDropZone(otherNode)).toBe(false);
+        });
     });
 
-    it('should not expand already expanded node', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
-      const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+    describe('Auto-Expand Functionality', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
 
-      mockDataManagementGroupService.expandedNodes.add('1');
+        afterEach(() => {
+            vi.useRealTimers();
+        });
 
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(parentNode);
+        it('should expand collapsed node after 800ms hover', () => {
+            const child = createMockGroup('2', 'Child', 1, 2, 3);
+            const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+            const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
 
-      jasmine.clock().tick(800);
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(parentNode);
 
-      expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+            vi.advanceTimersByTime(800);
+
+            expect(mockDataManagementGroupService.expandNode).toHaveBeenCalledWith(parentNode);
+        });
+
+        it('should not expand node if hover time is less than 800ms', () => {
+            const child = createMockGroup('2', 'Child', 1, 2, 3);
+            const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+            const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(parentNode);
+
+            vi.advanceTimersByTime(799);
+
+            expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        });
+
+        it('should cancel expand timer on drop zone exit', () => {
+            const child = createMockGroup('2', 'Child', 1, 2, 3);
+            const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+            const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(parentNode);
+
+            vi.advanceTimersByTime(400);
+            component.onDropZoneExit();
+            vi.advanceTimersByTime(400);
+
+            expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        });
+
+        it('should not expand already expanded node', () => {
+            const child = createMockGroup('2', 'Child', 1, 2, 3);
+            const parentNode = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+            const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+
+            mockDataManagementGroupService.expandedNodes.add('1');
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(parentNode);
+
+            vi.advanceTimersByTime(800);
+
+            expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        });
+
+        it('should not expand node without children', () => {
+            const parentNode = createMockGroup('1', 'Parent', 0, 1, 2, []);
+            const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(parentNode);
+
+            vi.advanceTimersByTime(800);
+
+            expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
+        });
     });
 
-    it('should not expand node without children', () => {
-      const parentNode = createMockGroup('1', 'Parent', 0, 1, 2, []);
-      const draggedNode = createMockGroup('3', 'Dragged', 0, 5, 6);
+    describe('Drop Event Handling', () => {
+        it('should call moveGroup when dropping on different parent', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
 
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(parentNode);
+            const mockEvent = {
+                previousContainer: { data: {} },
+                container: { data: targetNode },
+                item: { data: draggedNode },
+            } as unknown as CdkDragDrop<Group>;
 
-      jasmine.clock().tick(800);
+            component.onDrop(mockEvent);
 
-      expect(mockDataManagementGroupService.expandNode).not.toHaveBeenCalled();
-    });
-  });
+            expect(mockDataManagementGroupService.moveGroup).toHaveBeenCalledWith('1', '2');
+        });
 
-  describe('Drop Event Handling', () => {
-    it('should call moveGroup when dropping on different parent', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+        it('should refresh tree when dropping on same container', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const container = { data: draggedNode };
 
-      const mockEvent = {
-        previousContainer: { data: {} },
-        container: { data: targetNode },
-        item: { data: draggedNode },
-      } as unknown as CdkDragDrop<Group>;
+            const mockEvent = {
+                previousContainer: container,
+                container: container,
+                item: { data: draggedNode },
+            } as unknown as CdkDragDrop<Group>;
 
-      component.onDrop(mockEvent);
+            component.onDrop(mockEvent);
 
-      expect(mockDataManagementGroupService.moveGroup).toHaveBeenCalledWith(
-        '1',
-        '2'
-      );
-    });
+            expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(undefined, true);
+            expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
+        });
 
-    it('should refresh tree when dropping on same container', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const container = { data: draggedNode };
+        it('should not move when dropping node on itself', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
 
-      const mockEvent = {
-        previousContainer: container,
-        container: container,
-        item: { data: draggedNode },
-      } as unknown as CdkDragDrop<Group>;
+            const mockEvent = {
+                previousContainer: { data: {} },
+                container: { data: draggedNode },
+                item: { data: draggedNode },
+            } as unknown as CdkDragDrop<Group>;
 
-      component.onDrop(mockEvent);
+            component.onDrop(mockEvent);
 
-      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
-        undefined,
-        true
-      );
-      expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-    });
+            expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
+            expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(undefined, true);
+        });
 
-    it('should not move when dropping node on itself', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+        it('should prevent dropping parent into its own descendant', () => {
+            const child = createMockGroup('2', 'Child', 1, 2, 3);
+            const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
 
-      const mockEvent = {
-        previousContainer: { data: {} },
-        container: { data: draggedNode },
-        item: { data: draggedNode },
-      } as unknown as CdkDragDrop<Group>;
+            const mockEvent = {
+                previousContainer: { data: {} },
+                container: { data: child },
+                item: { data: parent },
+            } as unknown as CdkDragDrop<Group>;
 
-      component.onDrop(mockEvent);
+            component.onDrop(mockEvent);
 
-      expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
-        undefined,
-        true
-      );
-    });
+            expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
+            expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(undefined, true);
+        });
 
-    it('should prevent dropping parent into its own descendant', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+        it('should reset drag state after drop', () => {
+            const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
 
-      const mockEvent = {
-        previousContainer: { data: {} },
-        container: { data: child },
-        item: { data: parent },
-      } as unknown as CdkDragDrop<Group>;
+            component.onDragStarted(draggedNode);
+            component.onDropZoneEnter(targetNode);
 
-      component.onDrop(mockEvent);
+            const mockEvent = {
+                previousContainer: { data: {} },
+                container: { data: targetNode },
+                item: { data: draggedNode },
+            } as unknown as CdkDragDrop<Group>;
 
-      expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-      expect(mockDataManagementGroupService.initTree).toHaveBeenCalledWith(
-        undefined,
-        true
-      );
-    });
+            component.onDrop(mockEvent);
 
-    it('should reset drag state after drop', () => {
-      const draggedNode = createMockGroup('1', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+            expect(component.isDragging).toBe(false);
+            expect(component.draggedNodeId).toBeNull();
+            expect(component.hoveredNodeId).toBeNull();
+        });
 
-      component.onDragStarted(draggedNode);
-      component.onDropZoneEnter(targetNode);
+        it('should handle drop with missing node IDs gracefully', () => {
+            const draggedNode = createMockGroup('', 'Dragged', 0, 1, 2);
+            const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
 
-      const mockEvent = {
-        previousContainer: { data: {} },
-        container: { data: targetNode },
-        item: { data: draggedNode },
-      } as unknown as CdkDragDrop<Group>;
+            const mockEvent = {
+                previousContainer: { data: {} },
+                container: { data: targetNode },
+                item: { data: draggedNode },
+            } as unknown as CdkDragDrop<Group>;
 
-      component.onDrop(mockEvent);
+            component.onDrop(mockEvent);
 
-      expect(component.isDragging).toBe(false);
-      expect(component.draggedNodeId).toBeNull();
-      expect(component.hoveredNodeId).toBeNull();
+            expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
+        });
     });
 
-    it('should handle drop with missing node IDs gracefully', () => {
-      const draggedNode = createMockGroup('', 'Dragged', 0, 1, 2);
-      const targetNode = createMockGroup('2', 'Target', 0, 3, 4);
+    describe('Auto-Scroll Functionality', () => {
+        let mockAppMain: HTMLElement;
 
-      const mockEvent = {
-        previousContainer: { data: {} },
-        container: { data: targetNode },
-        item: { data: draggedNode },
-      } as unknown as CdkDragDrop<Group>;
+        beforeEach(() => {
+            mockAppMain = document.createElement('div');
+            Object.defineProperty(mockAppMain, 'scrollTop', {
+                writable: true,
+                value: 100,
+            });
+            vi.spyOn(document, 'querySelector').mockReturnValue(mockAppMain);
+        });
 
-      component.onDrop(mockEvent);
+        it('should trigger auto-scroll when near top edge', async () => {
+            const mockEvent = {
+                pointerPosition: { x: 0, y: 150 },
+            } as CdkDragMove;
 
-      expect(mockDataManagementGroupService.moveGroup).not.toHaveBeenCalled();
-    });
-  });
+            vi.spyOn(mockAppMain, 'getBoundingClientRect').mockReturnValue({
+                top: 100,
+                bottom: 600,
+                left: 0,
+                right: 800,
+                width: 800,
+                height: 500,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            });
 
-  describe('Auto-Scroll Functionality', () => {
-    let mockAppMain: HTMLElement;
+            const initialScrollTop = mockAppMain.scrollTop;
+            component.onDragMoved(mockEvent);
 
-    beforeEach(() => {
-      mockAppMain = document.createElement('div');
-      Object.defineProperty(mockAppMain, 'scrollTop', {
-        writable: true,
-        value: 100,
-      });
-      spyOn(document, 'querySelector').and.returnValue(mockAppMain);
-    });
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(component['scrollInterval']).toBeTruthy();
+            component.onDragEnded();
+        });
 
-    it('should trigger auto-scroll when near top edge', (done) => {
-      const mockEvent = {
-        pointerPosition: { x: 0, y: 150 },
-      } as CdkDragMove;
+        it('should trigger auto-scroll when near bottom edge', async () => {
+            const mockEvent = {
+                pointerPosition: { x: 0, y: 570 },
+            } as CdkDragMove;
 
-      spyOn(mockAppMain, 'getBoundingClientRect').and.returnValue({
-        top: 100,
-        bottom: 600,
-        left: 0,
-        right: 800,
-        width: 800,
-        height: 500,
-        x: 0,
-        y: 100,
-        toJSON: () => ({}),
-      });
+            vi.spyOn(mockAppMain, 'getBoundingClientRect').mockReturnValue({
+                top: 100,
+                bottom: 600,
+                left: 0,
+                right: 800,
+                width: 800,
+                height: 500,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            });
 
-      const initialScrollTop = mockAppMain.scrollTop;
-      component.onDragMoved(mockEvent);
+            component.onDragMoved(mockEvent);
 
-      setTimeout(() => {
-        expect(component['scrollInterval']).toBeTruthy();
-        component.onDragEnded();
-        done();
-      }, 50);
-    });
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(component['scrollInterval']).toBeTruthy();
+            component.onDragEnded();
+        });
 
-    it('should trigger auto-scroll when near bottom edge', (done) => {
-      const mockEvent = {
-        pointerPosition: { x: 0, y: 570 },
-      } as CdkDragMove;
+        it('should not trigger auto-scroll when in middle zone', () => {
+            const mockEvent = {
+                pointerPosition: { x: 0, y: 350 },
+            } as CdkDragMove;
 
-      spyOn(mockAppMain, 'getBoundingClientRect').and.returnValue({
-        top: 100,
-        bottom: 600,
-        left: 0,
-        right: 800,
-        width: 800,
-        height: 500,
-        x: 0,
-        y: 100,
-        toJSON: () => ({}),
-      });
+            vi.spyOn(mockAppMain, 'getBoundingClientRect').mockReturnValue({
+                top: 100,
+                bottom: 600,
+                left: 0,
+                right: 800,
+                width: 800,
+                height: 500,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            });
 
-      component.onDragMoved(mockEvent);
+            component.onDragMoved(mockEvent);
 
-      setTimeout(() => {
-        expect(component['scrollInterval']).toBeTruthy();
-        component.onDragEnded();
-        done();
-      }, 50);
-    });
+            expect(component['scrollInterval']).toBeFalsy();
+        });
 
-    it('should not trigger auto-scroll when in middle zone', () => {
-      const mockEvent = {
-        pointerPosition: { x: 0, y: 350 },
-      } as CdkDragMove;
+        it('should stop auto-scroll on drag ended', async () => {
+            const mockEvent = {
+                pointerPosition: { x: 0, y: 150 },
+            } as CdkDragMove;
 
-      spyOn(mockAppMain, 'getBoundingClientRect').and.returnValue({
-        top: 100,
-        bottom: 600,
-        left: 0,
-        right: 800,
-        width: 800,
-        height: 500,
-        x: 0,
-        y: 100,
-        toJSON: () => ({}),
-      });
+            vi.spyOn(mockAppMain, 'getBoundingClientRect').mockReturnValue({
+                top: 100,
+                bottom: 600,
+                left: 0,
+                right: 800,
+                width: 800,
+                height: 500,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            });
 
-      component.onDragMoved(mockEvent);
+            component.onDragMoved(mockEvent);
 
-      expect(component['scrollInterval']).toBeFalsy();
-    });
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(component['scrollInterval']).toBeTruthy();
+            component.onDragEnded();
+            expect(component['scrollInterval']).toBeFalsy();
+        });
 
-    it('should stop auto-scroll on drag ended', (done) => {
-      const mockEvent = {
-        pointerPosition: { x: 0, y: 150 },
-      } as CdkDragMove;
+        it('should not crash when app-main element is not found', () => {
+            (document.querySelector as Mock).mockReturnValue(null);
 
-      spyOn(mockAppMain, 'getBoundingClientRect').and.returnValue({
-        top: 100,
-        bottom: 600,
-        left: 0,
-        right: 800,
-        width: 800,
-        height: 500,
-        x: 0,
-        y: 100,
-        toJSON: () => ({}),
-      });
+            const mockEvent = {
+                pointerPosition: { x: 0, y: 150 },
+            } as CdkDragMove;
 
-      component.onDragMoved(mockEvent);
-
-      setTimeout(() => {
-        expect(component['scrollInterval']).toBeTruthy();
-        component.onDragEnded();
-        expect(component['scrollInterval']).toBeFalsy();
-        done();
-      }, 50);
+            expect(() => component.onDragMoved(mockEvent)).not.toThrow();
+        });
     });
 
-    it('should not crash when app-main element is not found', () => {
-      (document.querySelector as jasmine.Spy).and.returnValue(null);
+});
 
-      const mockEvent = {
-        pointerPosition: { x: 0, y: 150 },
-      } as CdkDragMove;
+describe('TreeGroupComponent - Descendant Check Logic', () => {
+    const createMockGroup = (id: string, name: string, depth: number, lft: number, rgt: number, children: Group[] = []): Group => {
+        const group = new Group();
+        group.id = id;
+        group.name = name;
+        group.depth = depth;
+        group.lft = lft;
+        group.rgt = rgt;
+        group.children = children;
+        group.clientsCount = 0;
+        return group;
+    };
 
-      expect(() => component.onDragMoved(mockEvent)).not.toThrow();
-    });
-  });
+    const isDescendantLogic = (parent: Group, potentialDescendant: Group): boolean => {
+        return parent.lft < potentialDescendant.lft && parent.rgt > potentialDescendant.rgt;
+    };
 
-  describe('Descendant Check', () => {
     it('should identify child as descendant of parent', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+        // Arrange
+        const child = createMockGroup('2', 'Child', 1, 2, 3);
+        const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
 
-      expect(component['isDescendant'](parent, child)).toBe(true);
+        // Act & Assert
+        expect(isDescendantLogic(parent, child)).toBe(true);
     });
 
     it('should identify grandchild as descendant of grandparent', () => {
-      const grandchild = createMockGroup('3', 'Grandchild', 2, 3, 4);
-      const child = createMockGroup('2', 'Child', 1, 2, 5, [grandchild]);
-      const parent = createMockGroup('1', 'Parent', 0, 1, 6, [child]);
+        // Arrange
+        const grandchild = createMockGroup('3', 'Grandchild', 2, 3, 4);
+        const child = createMockGroup('2', 'Child', 1, 2, 5, [grandchild]);
+        const parent = createMockGroup('1', 'Parent', 0, 1, 6, [child]);
 
-      expect(component['isDescendant'](parent, grandchild)).toBe(true);
+        // Act & Assert
+        expect(isDescendantLogic(parent, grandchild)).toBe(true);
     });
 
     it('should not identify parent as descendant of child', () => {
-      const child = createMockGroup('2', 'Child', 1, 2, 3);
-      const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
+        // Arrange
+        const child = createMockGroup('2', 'Child', 1, 2, 3);
+        const parent = createMockGroup('1', 'Parent', 0, 1, 4, [child]);
 
-      expect(component['isDescendant'](child, parent)).toBe(false);
+        // Act & Assert
+        expect(isDescendantLogic(child, parent)).toBe(false);
     });
 
     it('should not identify sibling as descendant', () => {
-      const sibling1 = createMockGroup('2', 'Sibling1', 1, 2, 3);
-      const sibling2 = createMockGroup('3', 'Sibling2', 1, 4, 5);
+        // Arrange
+        const sibling1 = createMockGroup('2', 'Sibling1', 1, 2, 3);
+        const sibling2 = createMockGroup('3', 'Sibling2', 1, 4, 5);
 
-      expect(component['isDescendant'](sibling1, sibling2)).toBe(false);
+        // Act & Assert
+        expect(isDescendantLogic(sibling1, sibling2)).toBe(false);
     });
 
     it('should not identify node as descendant of itself', () => {
-      const node = createMockGroup('1', 'Node', 0, 1, 2);
+        // Arrange
+        const node = createMockGroup('1', 'Node', 0, 1, 2);
 
-      expect(component['isDescendant'](node, node)).toBe(false);
+        // Act & Assert
+        expect(isDescendantLogic(node, node)).toBe(false);
     });
-  });
 });

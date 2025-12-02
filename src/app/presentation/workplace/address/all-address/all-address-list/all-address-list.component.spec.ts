@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllAddressListComponent } from './all-address-list.component';
@@ -17,323 +18,323 @@ import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
 describe('AllAddressListComponent', () => {
-  let component: AllAddressListComponent;
-  let fixture: ComponentFixture<AllAddressListComponent>;
-  let mockDataManagementClientService: jasmine.SpyObj<DataManagementClientService>;
-  let mockAuthorizationService: jasmine.SpyObj<AuthorizationService>;
-  let mockLocalStorageService: jasmine.SpyObj<LocalStorageService>;
-  let mockModalService: jasmine.SpyObj<ModalService>;
-  let mockTableResizeService: jasmine.SpyObj<TableResizeService>;
-  let mockAllAddressStateService: jasmine.SpyObj<AllAddressStateService>;
-  let mockNavigationService: jasmine.SpyObj<NavigationService>;
-  let mockLoadingIndicator: ILoadingIndicator;
-  let mockRegistry: jasmine.SpyObj<IManageableServiceRegistry>;
-  let mockFilterStorage: jasmine.SpyObj<IFilterStorage>;
-  let sortingService: TableSortingService;
+    let component: AllAddressListComponent;
+    let fixture: ComponentFixture<AllAddressListComponent>;
+    let mockDataManagementClientService: any;
+    let mockAuthorizationService: any;
+    let mockLocalStorageService: any;
+    let mockModalService: any;
+    let mockTableResizeService: any;
+    let mockAllAddressStateService: any;
+    let mockNavigationService: any;
+    let mockLoadingIndicator: ILoadingIndicator;
+    let mockRegistry: any;
+    let mockFilterStorage: any;
+    let sortingService: TableSortingService;
 
-  beforeEach(async () => {
-    mockDataManagementClientService = jasmine.createSpyObj('DataManagementClientService', [
-      'readPage',
-      'deleteClient',
-      'exportExcel',
-      'findCheckBoxValue',
-      'addCheckBoxValueToArray',
-      'clearCheckedArray',
-      'checkBoxIndeterminate',
-      'getLastChangeMetaData',
-      'subTitleLastChangesAllAddress'
-    ], {
-      listWrapper: signal({ clients: [] }),
-      currentFilter: { numberOfItemsPerPage: 10, searchString: '', orderBy: 'name', sortOrder: 'asc', requiredPage: 0 },
-      paginationDataService: signal({ maxItems: 100, firstItem: 0 }),
-      headerCheckBoxValue: signal(false),
-      isRead: signal(false),
-      initIsRead: signal(false),
-      clientListService: {
-        headerCheckBoxValue: signal(false)
-      },
-      clientAttribute: []
+    beforeEach(async () => {
+        mockDataManagementClientService = {
+            readPage: vi.fn(),
+            deleteClient: vi.fn(),
+            exportExcel: vi.fn(),
+            findCheckBoxValue: vi.fn(),
+            addCheckBoxValueToArray: vi.fn(),
+            clearCheckedArray: vi.fn(),
+            checkBoxIndeterminate: vi.fn(),
+            getLastChangeMetaData: vi.fn(),
+            subTitleLastChangesAllAddress: vi.fn(),
+            listWrapper: signal({ clients: [] }),
+            currentFilter: { numberOfItemsPerPage: 10, searchString: '', orderBy: 'name', sortOrder: 'asc', requiredPage: 0 },
+            paginationDataService: signal({ maxItems: 100, firstItem: 0 }),
+            headerCheckBoxValue: signal(false),
+            isRead: signal(false),
+            initIsRead: signal(false),
+            clientListService: {
+                headerCheckBoxValue: signal(false)
+            },
+            clientAttribute: []
+        };
+
+        mockAuthorizationService = {
+            isAdmin: true
+        };
+
+        mockLocalStorageService = {
+            get: vi.fn(),
+            set: vi.fn()
+        };
+        mockModalService = {
+            openModel: vi.fn(),
+            setDefault: vi.fn(),
+            resultEvent: of()
+        };
+        mockTableResizeService = {
+            calculateOptimalRowCount: vi.fn(),
+            createResizeObservable: vi.fn(),
+            isAutoMode: vi.fn()
+        };
+        mockAllAddressStateService = {
+            saveCurrentFilter: vi.fn(),
+            prepareFilterForRequest: vi.fn(),
+            restoreFilterFromStorage: vi.fn(),
+            isResizeCalculationAllowed: vi.fn()
+        };
+        mockNavigationService = {
+            navigateToEditAddress: vi.fn()
+        };
+
+        mockLoadingIndicator = {
+            showProgressSpinner: false
+        };
+
+        mockRegistry = {
+            register: vi.fn(),
+            unregister: vi.fn()
+        };
+
+        mockFilterStorage = {
+            saveFilter: vi.fn(),
+            restoreFilter: vi.fn(),
+            removeFilter: vi.fn(),
+            isAvailable: vi.fn(),
+            getKeys: vi.fn(),
+            clear: vi.fn()
+        };
+        mockFilterStorage.saveFilter.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.restoreFilter.mockReturnValue(Promise.resolve(null));
+        mockFilterStorage.removeFilter.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.isAvailable.mockReturnValue(Promise.resolve(true));
+        mockFilterStorage.getKeys.mockReturnValue(Promise.resolve([]));
+        mockFilterStorage.clear.mockReturnValue(Promise.resolve(true));
+
+        mockLocalStorageService.get.mockReturnValue(null);
+        mockTableResizeService.createResizeObservable.mockReturnValue(of(10));
+        mockTableResizeService.isAutoMode.mockReturnValue(false);
+        mockAllAddressStateService.restoreFilterFromStorage.mockReturnValue(Promise.resolve(false));
+        mockAllAddressStateService.isResizeCalculationAllowed.mockReturnValue(true);
+        mockDataManagementClientService.deleteClient.mockReturnValue(of(null as any));
+        mockDataManagementClientService.subTitleLastChangesAllAddress.mockReturnValue('Last changes');
+
+        await TestBed.configureTestingModule({
+            imports: [AllAddressListComponent, TranslateModule.forRoot()],
+            providers: [
+                { provide: DataManagementClientService, useValue: mockDataManagementClientService },
+                { provide: AuthorizationService, useValue: mockAuthorizationService },
+                { provide: LocalStorageService, useValue: mockLocalStorageService },
+                { provide: ModalService, useValue: mockModalService },
+                { provide: TableResizeService, useValue: mockTableResizeService },
+                { provide: AllAddressStateService, useValue: mockAllAddressStateService },
+                { provide: NavigationService, useValue: mockNavigationService },
+                { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
+                { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
+                { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },
+                TableSortingService
+            ]
+        })
+            .overrideComponent(AllAddressListComponent, {
+            set: {
+                providers: [
+                    { provide: TableResizeService, useValue: mockTableResizeService },
+                    { provide: AllAddressStateService, useValue: mockAllAddressStateService },
+                    TableSortingService
+                ]
+            }
+        })
+            .compileComponents();
+
+        fixture = TestBed.createComponent(AllAddressListComponent);
+        component = fixture.componentInstance;
+        sortingService = component.sortingService;
     });
 
-    mockAuthorizationService = jasmine.createSpyObj('AuthorizationService', [], {
-      isAdmin: true
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
 
-    mockLocalStorageService = jasmine.createSpyObj('LocalStorageService', ['get', 'set']);
-    mockModalService = jasmine.createSpyObj('ModalService', ['openModel', 'setDefault'], {
-      resultEvent: of()
-    });
-    mockTableResizeService = jasmine.createSpyObj('TableResizeService', [
-      'calculateOptimalRowCount',
-      'createResizeObservable',
-      'isAutoMode'
-    ]);
-    mockAllAddressStateService = jasmine.createSpyObj('AllAddressStateService', [
-      'saveCurrentFilter',
-      'prepareFilterForRequest',
-      'restoreFilterFromStorage',
-      'isResizeCalculationAllowed'
-    ]);
-    mockNavigationService = jasmine.createSpyObj('NavigationService', [
-      'navigateToEditAddress'
-    ]);
+    describe('ngOnInit', () => {
+        it('should initialize TableSortingService with correct config', () => {
+            vi.spyOn(sortingService, 'initialize');
+            fixture.detectChanges();
 
-    mockLoadingIndicator = {
-      showProgressSpinner: false
-    };
+            expect(sortingService.initialize).toHaveBeenCalledWith({
+                columns: ['idNumber', 'company', 'firstName', 'name', 'status'],
+                defaultOrderBy: 'name',
+                defaultSortOrder: 'asc',
+                useThreeWaySort: false
+            });
+        });
 
-    mockRegistry = jasmine.createSpyObj('IManageableServiceRegistry', ['register', 'unregister']);
-
-    mockFilterStorage = jasmine.createSpyObj('IFilterStorage', [
-      'saveFilter',
-      'restoreFilter',
-      'removeFilter',
-      'isAvailable',
-      'getKeys',
-      'clear'
-    ]);
-    mockFilterStorage.saveFilter.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.restoreFilter.and.returnValue(Promise.resolve(null));
-    mockFilterStorage.removeFilter.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.isAvailable.and.returnValue(Promise.resolve(true));
-    mockFilterStorage.getKeys.and.returnValue(Promise.resolve([]));
-    mockFilterStorage.clear.and.returnValue(Promise.resolve(true));
-
-    mockLocalStorageService.get.and.returnValue(null);
-    mockTableResizeService.createResizeObservable.and.returnValue(of(10));
-    mockTableResizeService.isAutoMode.and.returnValue(false);
-    mockAllAddressStateService.restoreFilterFromStorage.and.returnValue(Promise.resolve(false));
-    mockAllAddressStateService.isResizeCalculationAllowed.and.returnValue(true);
-    mockDataManagementClientService.deleteClient.and.returnValue(of(null as any));
-    mockDataManagementClientService.subTitleLastChangesAllAddress.and.returnValue('Last changes');
-
-    await TestBed.configureTestingModule({
-      imports: [AllAddressListComponent, TranslateModule.forRoot()],
-      providers: [
-        { provide: DataManagementClientService, useValue: mockDataManagementClientService },
-        { provide: AuthorizationService, useValue: mockAuthorizationService },
-        { provide: LocalStorageService, useValue: mockLocalStorageService },
-        { provide: ModalService, useValue: mockModalService },
-        { provide: TableResizeService, useValue: mockTableResizeService },
-        { provide: AllAddressStateService, useValue: mockAllAddressStateService },
-        { provide: NavigationService, useValue: mockNavigationService },
-        { provide: LOADING_INDICATOR_TOKEN, useValue: mockLoadingIndicator },
-        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
-        { provide: FILTER_STORAGE_TOKEN, useValue: mockFilterStorage },
-        TableSortingService
-      ]
-    })
-    .overrideComponent(AllAddressListComponent, {
-      set: {
-        providers: [
-          { provide: TableResizeService, useValue: mockTableResizeService },
-          { provide: AllAddressStateService, useValue: mockAllAddressStateService },
-          TableSortingService
-        ]
-      }
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(AllAddressListComponent);
-    component = fixture.componentInstance;
-    sortingService = component.sortingService;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  describe('ngOnInit', () => {
-    it('should initialize TableSortingService with correct config', () => {
-      spyOn(sortingService, 'initialize');
-      fixture.detectChanges();
-
-      expect(sortingService.initialize).toHaveBeenCalledWith({
-        columns: ['idNumber', 'company', 'firstName', 'name', 'status'],
-        defaultOrderBy: 'name',
-        defaultSortOrder: 'asc',
-        useThreeWaySort: false
-      });
+        it('should set isAuthorised from localStorage', () => {
+            mockLocalStorageService.get.mockReturnValue(JSON.stringify(true));
+            fixture.detectChanges();
+            expect(component.isAuthorised).toBe(true);
+        });
     });
 
-    it('should set isAuthorised from localStorage', () => {
-      mockLocalStorageService.get.and.returnValue(JSON.stringify(true));
-      fixture.detectChanges();
-      expect(component.isAuthorised).toBe(true);
-    });
-  });
+    describe('Table Sorting', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-  describe('Table Sorting', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
+        it('should handle header click for name column', () => {
+            vi.spyOn(component as any, 'readPage');
 
-    it('should handle header click for name column', () => {
-      spyOn(component as any, 'readPage');
+            component.onClickHeader('name');
 
-      component.onClickHeader('name');
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('name');
+        });
 
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('name');
-    });
+        it('should handle header click for company column', () => {
+            vi.spyOn(component as any, 'readPage');
 
-    it('should handle header click for company column', () => {
-      spyOn(component as any, 'readPage');
+            component.onClickHeader('company');
 
-      component.onClickHeader('company');
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('company');
+        });
 
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('company');
-    });
+        it('should handle header click for firstName column', () => {
+            vi.spyOn(component as any, 'readPage');
 
-    it('should handle header click for firstName column', () => {
-      spyOn(component as any, 'readPage');
+            component.onClickHeader('firstName');
 
-      component.onClickHeader('firstName');
+            expect((component as any).readPage).toHaveBeenCalled();
+            expect(sortingService.getCurrentOrderBy()).toBe('firstName');
+        });
 
-      expect((component as any).readPage).toHaveBeenCalled();
-      expect(sortingService.getCurrentOrderBy()).toBe('firstName');
-    });
+        it('should toggle sort order on repeated header clicks', () => {
+            vi.spyOn(component as any, 'readPage');
 
-    it('should toggle sort order on repeated header clicks', () => {
-      spyOn(component as any, 'readPage');
+            component.onClickHeader('name');
+            expect(sortingService.getCurrentSortOrder()).toBe('desc');
 
-      component.onClickHeader('name');
-      expect(sortingService.getCurrentSortOrder()).toBe('desc');
+            component.onClickHeader('name');
+            expect(sortingService.getCurrentSortOrder()).toBe('asc');
+        });
 
-      component.onClickHeader('name');
-      expect(sortingService.getCurrentSortOrder()).toBe('asc');
-    });
+        it('should get correct arrow for sorted column', () => {
+            component.onClickHeader('name');
+            expect(sortingService.getArrow('name')).toBe('↑');
+        });
 
-    it('should get correct arrow for sorted column', () => {
-      component.onClickHeader('name');
-      expect(sortingService.getArrow('name')).toBe('↑');
-    });
+        it('should get empty arrow for non-sorted column', () => {
+            component.onClickHeader('name');
+            expect(sortingService.getArrow('company')).toBe('');
+        });
 
-    it('should get empty arrow for non-sorted column', () => {
-      component.onClickHeader('name');
-      expect(sortingService.getArrow('company')).toBe('');
-    });
+        it('should pass current sort state to filter', () => {
+            component.onClickHeader('company');
+            vi.spyOn(component as any, 'readPage');
 
-    it('should pass current sort state to filter', () => {
-      component.onClickHeader('company');
-      spyOn(component as any, 'readPage').and.callThrough();
+            (component as any).setFilter();
 
-      (component as any).setFilter();
-
-      expect(mockAllAddressStateService.prepareFilterForRequest).toHaveBeenCalledWith(
-        'company',
-        jasmine.any(String),
-        component.page,
-        component.firstItemOnLastPage,
-        component.isPreviousPage,
-        component.isNextPage
-      );
-    });
-  });
-
-  describe('Navigation', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
+            expect(mockAllAddressStateService.prepareFilterForRequest).toHaveBeenCalledWith('company', expect.any(String), component.page, component.firstItemOnLastPage, component.isPreviousPage, component.isNextPage);
+        });
     });
 
-    it('should navigate to new address on add button click', () => {
-      component.onAddAddress();
-      expect(mockNavigationService.navigateToEditAddress).toHaveBeenCalled();
+    describe('Navigation', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
+
+        it('should navigate to new address on add button click', () => {
+            component.onAddAddress();
+            expect(mockNavigationService.navigateToEditAddress).toHaveBeenCalled();
+        });
+
+        it('should navigate to edit address with client id', () => {
+            const mockClient = { id: '123', name: 'Test', firstName: 'User', company: '' };
+            component.onClickEdit(mockClient as any);
+
+            expect(mockAllAddressStateService.saveCurrentFilter).toHaveBeenCalled();
+            expect(mockNavigationService.navigateToEditAddress).toHaveBeenCalledWith('123');
+        });
     });
 
-    it('should navigate to edit address with client id', () => {
-      const mockClient = { id: '123', name: 'Test', firstName: 'User', company: '' };
-      component.onClickEdit(mockClient as any);
+    describe('Pagination', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      expect(mockAllAddressStateService.saveCurrentFilter).toHaveBeenCalled();
-      expect(mockNavigationService.navigateToEditAddress).toHaveBeenCalledWith('123');
-    });
-  });
+        it('should handle page change', () => {
+            vi.spyOn(component as any, 'readPage');
+            component.page = 1;
 
-  describe('Pagination', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
-    });
+            component.onPageChange(2);
 
-    it('should handle page change', () => {
-      spyOn(component as any, 'readPage');
-      component.page = 1;
+            expect(component.isNextPage).toBe(true);
+            expect(component.page).toBe(2);
+        });
 
-      component.onPageChange(2);
+        it('should handle previous page', () => {
+            vi.spyOn(component as any, 'readPage');
+            component.page = 2;
 
-      expect(component.isNextPage).toBe(true);
-      expect(component.page).toBe(2);
-    });
+            component.onPageChange(1);
 
-    it('should handle previous page', () => {
-      spyOn(component as any, 'readPage');
-      component.page = 2;
+            expect(component.isPreviousPage).toBe(true);
+            expect(component.page).toBe(1);
+        });
 
-      component.onPageChange(1);
+        it('should update items per page', () => {
+            vi.spyOn(component as any, 'readPage');
 
-      expect(component.isPreviousPage).toBe(true);
-      expect(component.page).toBe(1);
-    });
+            component.onItemsPerPageChange(20);
 
-    it('should update items per page', () => {
-      spyOn(component as any, 'readPage');
+            expect(mockDataManagementClientService.currentFilter.numberOfItemsPerPage).toBe(20);
+            expect((component as any).readPage).toHaveBeenCalled();
+        });
 
-      component.onItemsPerPageChange(20);
+        it('should not update items per page when search is active', () => {
+            vi.spyOn(component as any, 'readPage');
+            mockDataManagementClientService.currentFilter.searchString = 'test';
 
-      expect(mockDataManagementClientService.currentFilter.numberOfItemsPerPage).toBe(20);
-      expect((component as any).readPage).toHaveBeenCalled();
-    });
+            component.onItemsPerPageChange(20);
 
-    it('should not update items per page when search is active', () => {
-      spyOn(component as any, 'readPage');
-      mockDataManagementClientService.currentFilter.searchString = 'test';
-
-      component.onItemsPerPageChange(20);
-
-      expect((component as any).readPage).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Checkbox Operations', () => {
-    beforeEach(() => {
-      fixture.detectChanges();
+            expect((component as any).readPage).not.toHaveBeenCalled();
+        });
     });
 
-    it('should handle header checkbox change', () => {
-      component.headerCheckBoxValue = true;
-      component.onChangeHeaderCheckBox();
+    describe('Checkbox Operations', () => {
+        beforeEach(() => {
+            fixture.detectChanges();
+        });
 
-      expect(mockDataManagementClientService.clearCheckedArray).toHaveBeenCalled();
+        it('should handle header checkbox change', () => {
+            component.headerCheckBoxValue = true;
+            component.onChangeHeaderCheckBox();
+
+            expect(mockDataManagementClientService.clearCheckedArray).toHaveBeenCalled();
+        });
+
+        it('should update row checkbox value', () => {
+            const mockClient = { id: '1', name: 'Test', firstName: 'User', company: '' };
+            (mockDataManagementClientService.listWrapper as any).set({
+                clients: [mockClient as any],
+                editor: null,
+                lastChange: null,
+                maxItems: 1,
+                maxPages: 1,
+                firstItem: 0,
+                lastItem: 0
+            });
+            const mockEvent = { currentTarget: { checked: true } };
+            mockDataManagementClientService.findCheckBoxValue.mockReturnValue({ id: '1', checked: false });
+
+            component.onChangeCheckBox(0, mockEvent);
+
+            expect(mockDataManagementClientService.findCheckBoxValue).toHaveBeenCalled();
+        });
     });
 
-    it('should update row checkbox value', () => {
-      const mockClient = { id: '1', name: 'Test', firstName: 'User', company: '' };
-      (mockDataManagementClientService.listWrapper as any).set({
-        clients: [mockClient as any],
-        editor: null,
-        lastChange: null,
-        maxItems: 1,
-        maxPages: 1,
-        firstItem: 0,
-        lastItem: 0
-      });
-      const mockEvent = { currentTarget: { checked: true } };
-      mockDataManagementClientService.findCheckBoxValue.and.returnValue({ id: '1', checked: false });
+    describe('Cleanup', () => {
+        it('should clean up on destroy', () => {
+            fixture.detectChanges();
 
-      component.onChangeCheckBox(0, mockEvent);
+            component.ngOnDestroy();
 
-      expect(mockDataManagementClientService.findCheckBoxValue).toHaveBeenCalled();
+            expect(mockAllAddressStateService.saveCurrentFilter).toHaveBeenCalled();
+        });
     });
-  });
-
-  describe('Cleanup', () => {
-    it('should clean up on destroy', () => {
-      fixture.detectChanges();
-
-      component.ngOnDestroy();
-
-      expect(mockAllAddressStateService.saveCurrentFilter).toHaveBeenCalled();
-    });
-  });
 });

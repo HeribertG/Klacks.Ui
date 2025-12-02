@@ -1,101 +1,99 @@
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 describe('LocalStorageService', () => {
-  let service: LocalStorageService;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mockLocalStorage: any;
+    let service: LocalStorageService;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let mockLocalStorage: any;
 
-  beforeEach(() => {
-    mockLocalStorage = jasmine.createSpyObj('localStorage', [
-      'getItem',
-      'setItem',
-      'removeItem',
-      'clear',
-    ]);
+    beforeEach(() => {
+        mockLocalStorage = {
+            getItem: vi.fn(),
+            setItem: vi.fn(),
+            removeItem: vi.fn(),
+            clear: vi.fn()
+        };
 
-    // Mock-Methoden an Objekte koppeln, um Funktionalität zu simulieren
-    mockLocalStorage.getItem.and.callFake((key: string) => {
-      return mockLocalStorage[key];
+        // Mock-Methoden an Objekte koppeln, um Funktionalität zu simulieren
+        mockLocalStorage.getItem.mockImplementation((key: string) => {
+            return mockLocalStorage[key];
+        });
+
+        mockLocalStorage.setItem.mockImplementation((key: string, value: string) => {
+            mockLocalStorage[key] = value;
+        });
+
+        mockLocalStorage.removeItem.mockImplementation((key: string) => {
+            delete mockLocalStorage[key];
+        });
+
+        mockLocalStorage.clear.mockImplementation(() => {
+            for (const key in mockLocalStorage) {
+                if (Object.prototype.hasOwnProperty.call(mockLocalStorage, key)) {
+                    delete mockLocalStorage[key];
+                }
+            }
+        });
+
+        // localStorage im globalen Objekt überschreiben
+        vi.spyOn(window, 'localStorage', 'get').mockReturnValue(mockLocalStorage);
+
+        // Service-Instanz erstellen
+        service = new LocalStorageService();
     });
 
-    mockLocalStorage.setItem.and.callFake((key: string, value: string) => {
-      mockLocalStorage[key] = value;
+    it('should get item from localStorage', () => {
+        // Einen Wert direkt im mockLocalStorage setzen
+        mockLocalStorage.someKey = 'someValue';
+
+        // Testen, ob der Wert korrekt abgerufen wird
+        expect(service.get('someKey')).toEqual('someValue');
     });
 
-    mockLocalStorage.removeItem.and.callFake((key: string) => {
-      delete mockLocalStorage[key];
+    it('should set item to localStorage', () => {
+        // Wert über den Service setzen
+        service.set('someKey', 'someValue');
+
+        // Testen, ob der Wert korrekt im mockLocalStorage gesetzt wurde
+        expect(mockLocalStorage.someKey).toEqual('someValue');
     });
 
-    mockLocalStorage.clear.and.callFake(() => {
-      for (const key in mockLocalStorage) {
-        if (Object.prototype.hasOwnProperty.call(mockLocalStorage, key)) {
-          delete mockLocalStorage[key];
-        }
-      }
+    it('should remove item from localStorage', () => {
+        // Einen Wert direkt im mockLocalStorage setzen
+        mockLocalStorage.someKey = 'someValue';
+
+        // Wert über den Service entfernen
+        service.remove('someKey');
+
+        // Testen, ob der Wert korrekt aus dem mockLocalStorage entfernt wurde
+        expect(mockLocalStorage.someKey).toBeUndefined();
     });
 
-    // localStorage im globalen Objekt überschreiben
-    spyOnProperty(window, 'localStorage', 'get').and.returnValue(
-      mockLocalStorage
-    );
+    it('should get JSON item from localStorage', () => {
+        // JSON-String direkt im mockLocalStorage setzen
+        mockLocalStorage.someKey = JSON.stringify({ prop: 'value' });
 
-    // Service-Instanz erstellen
-    service = new LocalStorageService();
-  });
+        // JSON über den Service abrufen und Testen
+        expect(service.getJson('someKey')).toEqual({ prop: 'value' });
+    });
 
-  it('should get item from localStorage', () => {
-    // Einen Wert direkt im mockLocalStorage setzen
-    mockLocalStorage.someKey = 'someValue';
+    it('should set JSON item to localStorage', () => {
+        // JSON über den Service setzen
+        service.setJson('someKey', { prop: 'value' });
 
-    // Testen, ob der Wert korrekt abgerufen wird
-    expect(service.get('someKey')).toEqual('someValue');
-  });
+        // Testen, ob der JSON-String korrekt im mockLocalStorage gesetzt wurde
+        expect(mockLocalStorage.someKey).toEqual(JSON.stringify({ prop: 'value' }));
+    });
 
-  it('should set item to localStorage', () => {
-    // Wert über den Service setzen
-    service.set('someKey', 'someValue');
+    it('should clear all items from localStorage', () => {
+        // Mehrere Werte direkt im mockLocalStorage setzen
+        mockLocalStorage.key1 = 'value1';
+        mockLocalStorage.key2 = 'value2';
 
-    // Testen, ob der Wert korrekt im mockLocalStorage gesetzt wurde
-    expect(mockLocalStorage.someKey).toEqual('someValue');
-  });
+        // Alle Werte über den Service entfernen
+        service.clear();
 
-  it('should remove item from localStorage', () => {
-    // Einen Wert direkt im mockLocalStorage setzen
-    mockLocalStorage.someKey = 'someValue';
-
-    // Wert über den Service entfernen
-    service.remove('someKey');
-
-    // Testen, ob der Wert korrekt aus dem mockLocalStorage entfernt wurde
-    expect(mockLocalStorage.someKey).toBeUndefined();
-  });
-
-  it('should get JSON item from localStorage', () => {
-    // JSON-String direkt im mockLocalStorage setzen
-    mockLocalStorage.someKey = JSON.stringify({ prop: 'value' });
-
-    // JSON über den Service abrufen und Testen
-    expect(service.getJson('someKey')).toEqual({ prop: 'value' });
-  });
-
-  it('should set JSON item to localStorage', () => {
-    // JSON über den Service setzen
-    service.setJson('someKey', { prop: 'value' });
-
-    // Testen, ob der JSON-String korrekt im mockLocalStorage gesetzt wurde
-    expect(mockLocalStorage.someKey).toEqual(JSON.stringify({ prop: 'value' }));
-  });
-
-  it('should clear all items from localStorage', () => {
-    // Mehrere Werte direkt im mockLocalStorage setzen
-    mockLocalStorage.key1 = 'value1';
-    mockLocalStorage.key2 = 'value2';
-
-    // Alle Werte über den Service entfernen
-    service.clear();
-
-    // Testen, ob alle Werte korrekt aus dem mockLocalStorage entfernt wurden
-    expect(mockLocalStorage.key1).toBeUndefined();
-    expect(mockLocalStorage.key2).toBeUndefined();
-  });
+        // Testen, ob alle Werte korrekt aus dem mockLocalStorage entfernt wurden
+        expect(mockLocalStorage.key1).toBeUndefined();
+        expect(mockLocalStorage.key2).toBeUndefined();
+    });
 });

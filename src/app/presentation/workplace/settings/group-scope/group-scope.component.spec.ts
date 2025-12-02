@@ -1,4 +1,5 @@
- 
+import type { MockedObject } from "vitest";
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { signal } from '@angular/core';
@@ -9,99 +10,88 @@ import { DataManagementGroupService } from 'src/app/domain/services/group/data-m
 import { DataManagementGroupVisibilityService } from 'src/app/domain/services/group/data-management-group-visibility.service';
 
 describe('GroupScopeComponent', () => {
-  let component: GroupScopeComponent;
-  let fixture: ComponentFixture<GroupScopeComponent>;
-  let _mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let _mockGroupService: jasmine.SpyObj<DataManagementGroupService>;
-  let _mockGroupVisibilityService: jasmine.SpyObj<DataManagementGroupVisibilityService>;
-  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
+    let component: GroupScopeComponent;
+    let fixture: ComponentFixture<GroupScopeComponent>;
+    let _mockSettingsService: any;
+    let _mockGroupService: any;
+    let _mockGroupVisibilityService: any;
+    let _mockTranslateService: any;
 
-  const mockGroups = [
-    {
-      id: '1',
-      name: 'Group 1',
-      parentId: null,
-      isVisible: true,
-    },
-    {
-      id: '2',
-      name: 'Group 2',
-      parentId: '1',
-      isVisible: false,
-    },
-  ];
-
-  beforeEach(async () => {
-    const settingsServiceSpy = jasmine.createSpyObj(
-      'DataManagementSettingsService',
-      ['loadSettings']
-    );
-
-    const groupServiceSpy = jasmine.createSpyObj('DataManagementGroupService', [
-      'loadGroups',
-    ]);
-
-    const groupVisibilityServiceSpy = jasmine.createSpyObj(
-      'DataManagementGroupVisibilityService',
-      ['loadVisibility', 'updateVisibility'],
-      {
-        rootList: signal(mockGroups),
-      }
-    );
-
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-    ]);
-    translateServiceSpy.instant.and.returnValue('Translated text');
-
-    await TestBed.configureTestingModule({
-      imports: [GroupScopeComponent, TranslateModule.forRoot()],
-      providers: [
+    const mockGroups = [
         {
-          provide: DataManagementSettingsService,
-          useValue: settingsServiceSpy,
+            id: '1',
+            name: 'Group 1',
+            parentId: null,
+            isVisible: true,
         },
-        { provide: DataManagementGroupService, useValue: groupServiceSpy },
         {
-          provide: DataManagementGroupVisibilityService,
-          useValue: groupVisibilityServiceSpy,
+            id: '2',
+            name: 'Group 2',
+            parentId: '1',
+            isVisible: false,
         },
-        { provide: TranslateService, useValue: translateServiceSpy },
-      ],
-    }).compileComponents();
+    ];
 
-    _mockSettingsService = TestBed.inject(
-      DataManagementSettingsService
-    ) as jasmine.SpyObj<DataManagementSettingsService>;
-    _mockGroupService = TestBed.inject(
-      DataManagementGroupService
-    ) as jasmine.SpyObj<DataManagementGroupService>;
-    _mockGroupVisibilityService = TestBed.inject(
-      DataManagementGroupVisibilityService
-    ) as jasmine.SpyObj<DataManagementGroupVisibilityService>;
-    _mockTranslateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
+    beforeEach(async () => {
+        const settingsServiceSpy = {
+            loadSettings: vi.fn()
+        };
 
-    fixture = TestBed.createComponent(GroupScopeComponent);
-    component = fixture.componentInstance;
-  });
+        const groupServiceSpy = {
+            loadGroups: vi.fn()
+        };
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+        const groupVisibilityServiceSpy = {
+            loadVisibility: vi.fn(),
+            updateVisibility: vi.fn(),
+            rootList: signal(mockGroups)
+        };
 
-  describe('Group Visibility', () => {
-    it('should have access to root list from visibility service', () => {
-      // Arrange
-      fixture.detectChanges();
+        const translateServiceSpy = {
+            instant: vi.fn()
+        };
+        translateServiceSpy.instant.mockReturnValue('Translated text');
 
-      // Act
-      const rootList = component.rootList();
+        await TestBed.configureTestingModule({
+            imports: [GroupScopeComponent, TranslateModule.forRoot()],
+            providers: [
+                {
+                    provide: DataManagementSettingsService,
+                    useValue: settingsServiceSpy,
+                },
+                { provide: DataManagementGroupService, useValue: groupServiceSpy },
+                {
+                    provide: DataManagementGroupVisibilityService,
+                    useValue: groupVisibilityServiceSpy,
+                },
+                { provide: TranslateService, useValue: translateServiceSpy },
+            ],
+        }).compileComponents();
 
-      // Assert
-      expect(rootList).toBeDefined();
-      expect(rootList.length).toBe(2);
+        _mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
+        _mockGroupService = TestBed.inject(DataManagementGroupService) as any;
+        _mockGroupVisibilityService = TestBed.inject(DataManagementGroupVisibilityService) as any;
+        _mockTranslateService = TestBed.inject(TranslateService) as any;
+
+        fixture = TestBed.createComponent(GroupScopeComponent);
+        component = fixture.componentInstance;
     });
-  });
+
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
+
+    describe('Group Visibility', () => {
+        it('should have access to root list from visibility service', () => {
+            // Arrange
+            fixture.detectChanges();
+
+            // Act
+            const rootList = component.rootList();
+
+            // Assert
+            expect(rootList).toBeDefined();
+            expect(rootList.length).toBe(2);
+        });
+    });
 });

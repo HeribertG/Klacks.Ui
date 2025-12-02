@@ -7,25 +7,25 @@ import { GridSettingsService } from 'src/app/presentation/shared/grid/services/g
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 describe('ScheduleDataService', () => {
-  let service: ScheduleDataService;
+    let service: ScheduleDataService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        ScheduleDataService,
-        { provide: ScrollService, useValue: { maxRows: 0, maxCols: 0 } },
-        { provide: HolidayCollectionService, useValue: { holidays: { holidayList: [] } } },
-        { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
-        { provide: DataManagementScheduleService, useValue: { 
-          workFilter: { dayVisibleBeforeMonth: 0, dayVisibleAfterMonth: 0, currentYear: 2024, currentMonth: 0 },
-          clients: []
-        }}
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [
+                ScheduleDataService,
+                { provide: ScrollService, useValue: { maxRows: 0, maxCols: 0 } },
+                { provide: HolidayCollectionService, useValue: { holidays: { holidayList: [] } } },
+                { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
+                { provide: DataManagementScheduleService, useValue: {
+                        workFilter: { dayVisibleBeforeMonth: 0, dayVisibleAfterMonth: 0, currentYear: 2024, currentMonth: 0 },
+                        clients: []
+                    } }
+            ]
+        });
+        service = TestBed.inject(ScheduleDataService);
     });
-    service = TestBed.inject(ScheduleDataService);
-  });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

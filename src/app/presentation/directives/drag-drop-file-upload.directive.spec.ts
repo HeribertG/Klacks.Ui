@@ -3,74 +3,74 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DragDropFileUploadDirective } from './drag-drop-file-upload.directive';
 
+const createDragEvent = (type: string, dataTransfer?: any): DragEvent => {
+    const event = new Event(type, { bubbles: true, cancelable: true }) as unknown as DragEvent;
+    Object.defineProperty(event, 'dataTransfer', {
+        value: dataTransfer ?? { files: [], length: 0 },
+        writable: false,
+    });
+    return event;
+};
+
 @Component({
-  standalone: true,
-  imports: [DragDropFileUploadDirective],
-  template: `<div
+    standalone: true,
+    imports: [DragDropFileUploadDirective],
+    template: `<div
     appDragDropFileUpload
     (fileDropped)="onFileDropped($event)"
   ></div>`,
 })
 class TestComponent {
-  droppedFiles: any;
+    droppedFiles: any;
 
-  onFileDropped(files: any) {
-    this.droppedFiles = files;
-  }
+    onFileDropped(files: any) {
+        this.droppedFiles = files;
+    }
 }
 
 describe('DragDropFileUploadDirective', () => {
-  let fixture: ComponentFixture<TestComponent>;
-  let component: TestComponent;
-  let divEl: HTMLElement;
+    let fixture: ComponentFixture<TestComponent>;
+    let component: TestComponent;
+    let divEl: HTMLElement;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [TestComponent],
-    }).compileComponents();
+    beforeEach(async () => {
+        await TestBed.configureTestingModule({
+            imports: [TestComponent],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(TestComponent);
-    component = fixture.componentInstance;
-    divEl = fixture.nativeElement.querySelector('div') as HTMLElement;
-    fixture.detectChanges();
-  });
-
-  it('should create an instance', () => {
-    const directive = new DragDropFileUploadDirective();
-    expect(directive).toBeTruthy();
-  });
-
-  it('should change background on dragover', () => {
-    const dragOverEvent = new DragEvent('dragover', {
-      bubbles: true,
-      cancelable: true,
+        fixture = TestBed.createComponent(TestComponent);
+        component = fixture.componentInstance;
+        divEl = fixture.nativeElement.querySelector('div') as HTMLElement;
+        fixture.detectChanges();
     });
-    // Prevent default and propagation as in directive
-    spyOn(dragOverEvent, 'preventDefault');
-    spyOn(dragOverEvent, 'stopPropagation');
 
-    divEl.dispatchEvent(dragOverEvent);
-    fixture.detectChanges();
-
-    expect(divEl.style.backgroundColor).toBe('rgb(226, 238, 253)');
-  });
-
-  it('should emit fileDropped event on drop', () => {
-    spyOn(component, 'onFileDropped');
-    const dropEvent = new DragEvent('drop', {
-      bubbles: true,
-      cancelable: true,
+    it('should create an instance', () => {
+        const directive = new DragDropFileUploadDirective();
+        expect(directive).toBeTruthy();
     });
-    Object.defineProperty(dropEvent, 'dataTransfer', {
-      value: { files: ['file1.txt'], length: 1 },
+
+    it('should change background on dragover', () => {
+        // Arrange
+        const dragOverEvent = createDragEvent('dragover');
+
+        // Act
+        divEl.dispatchEvent(dragOverEvent);
+        fixture.detectChanges();
+
+        // Assert
+        expect(divEl.style.backgroundColor).toBe('rgb(226, 238, 253)');
     });
-    // Prevent default and propagation
-    spyOn(dropEvent, 'preventDefault');
-    spyOn(dropEvent, 'stopPropagation');
 
-    divEl.dispatchEvent(dropEvent);
-    fixture.detectChanges();
+    it('should emit fileDropped event on drop', () => {
+        // Arrange
+        vi.spyOn(component, 'onFileDropped');
+        const dropEvent = createDragEvent('drop', { files: ['file1.txt'], length: 1 });
 
-    expect(component.onFileDropped).toHaveBeenCalledWith(['file1.txt']);
-  });
+        // Act
+        divEl.dispatchEvent(dropEvent);
+        fixture.detectChanges();
+
+        // Assert
+        expect(component.onFileDropped).toHaveBeenCalledWith(['file1.txt']);
+    });
 });

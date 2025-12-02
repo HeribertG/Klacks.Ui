@@ -5,20 +5,20 @@ import { DataShiftCutsService } from './data-shift-cuts.service';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 
 describe('DataShiftCutsService', () => {
-  let service: DataShiftCutsService;
+    let service: DataShiftCutsService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        WorkTimeCalculationService
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                WorkTimeCalculationService
+            ]
+        });
+        service = TestBed.inject(DataShiftCutsService);
     });
-    service = TestBed.inject(DataShiftCutsService);
-  });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

@@ -1,14 +1,15 @@
-/* To learn more about this file see: https://angular.io/config/tsconfig. */
+/* To learn more about this file see: https://angular.dev/config/tsconfig. */
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
     "types": [
-      "jasmine",
-      "@angular/localize"
+      "@angular/localize",
+      "vitest/globals"
     ]
   },
   "include": [
+    "src/test-setup.ts",
     "src/**/*.spec.ts",
     "src/**/*.d.ts"
   ]

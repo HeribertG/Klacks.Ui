@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { UserAdministrationManagementService } from './user-administration-management.service';
@@ -7,310 +8,244 @@ import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentif
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
 describe('UserAdministrationManagementService', () => {
-  let service: UserAdministrationManagementService;
-  let mockUserAdministrationService: jasmine.SpyObj<UserAdministrationService>;
-  let mockEventBus: jasmine.SpyObj<IEventBus>;
+    let service: UserAdministrationManagementService;
+    let mockUserAdministrationService: any;
+    let mockEventBus: any;
 
-  beforeEach(() => {
-    mockUserAdministrationService = jasmine.createSpyObj('UserAdministrationService', [
-      'readAccountsList',
-      'addAccount',
-      'deleteAccount',
-      'changeRole',
-      'ChangePassword',
-      'requestPasswordReset',
-    ]);
+    beforeEach(() => {
+        mockUserAdministrationService = {
+            readAccountsList: vi.fn(),
+            addAccount: vi.fn(),
+            deleteAccount: vi.fn(),
+            changeRole: vi.fn(),
+            ChangePassword: vi.fn(),
+            requestPasswordReset: vi.fn()
+        };
 
-    mockEventBus = jasmine.createSpyObj('IEventBus', ['emit', 'on', 'onAny']);
+        mockEventBus = {
+            emit: vi.fn(),
+            on: vi.fn(),
+            onAny: vi.fn()
+        };
 
-    mockUserAdministrationService.readAccountsList.and.returnValue(of([]));
+        mockUserAdministrationService.readAccountsList.mockReturnValue(of([]));
 
-    TestBed.configureTestingModule({
-      providers: [
-        UserAdministrationManagementService,
-        { provide: UserAdministrationService, useValue: mockUserAdministrationService },
-        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
-      ],
-    });
-  });
-
-  it('should be created', () => {
-    service = TestBed.inject(UserAdministrationManagementService);
-    expect(service).toBeTruthy();
-  });
-
-  describe('loadAccountsList', () => {
-    it('should load and sort accounts list', (done) => {
-      const mockAccounts: IAuthentication[] = [
-        { id: '2', firstName: 'Bob', lastName: 'Smith', email: 'bob@test.com' } as IAuthentication,
-        { id: '1', firstName: 'Alice', lastName: 'Johnson', email: 'alice@test.com' } as IAuthentication,
-      ];
-
-      mockUserAdministrationService.readAccountsList.and.returnValue(of(mockAccounts));
-
-      service = TestBed.inject(UserAdministrationManagementService);
-
-      setTimeout(() => {
-        const accounts = service.accountsList();
-        expect(accounts.length).toBe(2);
-        expect(accounts[0].firstName).toBe('Alice');
-        expect(accounts[1].firstName).toBe('Bob');
-        done();
-      }, 100);
+        TestBed.configureTestingModule({
+            providers: [
+                UserAdministrationManagementService,
+                { provide: UserAdministrationService, useValue: mockUserAdministrationService },
+                { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+            ],
+        });
     });
 
-    it('should emit error event on load failure', (done) => {
-      mockUserAdministrationService.readAccountsList.and.returnValue(
-        throwError(() => new Error('Network error'))
-      );
-
-      service = TestBed.inject(UserAdministrationManagementService);
-
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.ERROR,
-          jasmine.objectContaining({
-            code: 'ACCOUNTS_LOAD_ERROR',
-          })
-        );
-        done();
-      }, 3500);
-    });
-  });
-
-  describe('addAccount', () => {
-    it('should add account and reload list on success', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
-
-      const newAccount: IAuthentication = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@test.com',
-      } as IAuthentication;
-
-      mockUserAdministrationService.addAccount.and.returnValue(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        of({ id: '123', mailSuccess: true } as any)
-      );
-
-      service.addAccount(newAccount);
-
-      setTimeout(() => {
-        expect(mockUserAdministrationService.addAccount).toHaveBeenCalledWith(newAccount);
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.INFO,
-          jasmine.objectContaining({ context: 'REGISTER' })
-        );
-        done();
-      }, 100);
+    it('should be created', () => {
+        service = TestBed.inject(UserAdministrationManagementService);
+        expect(service).toBeTruthy();
     });
 
-    it('should handle 400 error with validation message', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+    describe('loadAccountsList', () => {
+        it('should load and sort accounts list', async () => {
+            const mockAccounts: IAuthentication[] = [
+                { id: '2', firstName: 'Bob', lastName: 'Smith', email: 'bob@test.com' } as IAuthentication,
+                { id: '1', firstName: 'Alice', lastName: 'Johnson', email: 'alice@test.com' } as IAuthentication,
+            ];
 
-      const newAccount: IAuthentication = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'invalid-email',
-      } as IAuthentication;
+            mockUserAdministrationService.readAccountsList.mockReturnValue(of(mockAccounts));
 
-      const error = { status: 400, error: 'Invalid email' };
-      mockUserAdministrationService.addAccount.and.returnValue(
-        throwError(() => error)
-      );
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      service.addAccount(newAccount);
+            await new Promise(resolve => setTimeout(resolve, 110));
+            const accounts = service.accountsList();
+            expect(accounts.length).toBe(2);
+            expect(accounts[0].firstName).toBe('Alice');
+            expect(accounts[1].firstName).toBe('Bob');
+        });
 
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.ERROR,
-          jasmine.objectContaining({
-            code: jasmine.any(String),
-          })
-        );
-        done();
-      }, 3500);
-    });
-  });
+        it('should emit error event on load failure', async () => {
+            mockUserAdministrationService.readAccountsList.mockReturnValue(throwError(() => new Error('Network error')));
 
-  describe('deleteAccount', () => {
-    it('should delete account and reload list', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      mockUserAdministrationService.deleteAccount.and.returnValue(of({} as IAuthentication));
-
-      service.deleteAccount('123');
-
-      setTimeout(() => {
-        expect(mockUserAdministrationService.deleteAccount).toHaveBeenCalledWith('123');
-        expect(mockUserAdministrationService.readAccountsList).toHaveBeenCalled();
-        done();
-      }, 100);
+            await new Promise(resolve => setTimeout(resolve, 3510));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
+                code: 'ACCOUNTS_LOAD_ERROR',
+            }));
+        });
     });
 
-    it('should emit error event on delete failure', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+    describe('addAccount', () => {
+        it('should add account and reload list on success', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      mockUserAdministrationService.deleteAccount.and.returnValue(
-        throwError(() => new Error('Delete failed'))
-      );
+            const newAccount: IAuthentication = {
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'john@test.com',
+            } as IAuthentication;
 
-      service.deleteAccount('123');
+            mockUserAdministrationService.addAccount.mockReturnValue(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            of({ id: '123', mailSuccess: true } as any));
 
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.ERROR,
-          jasmine.objectContaining({
-            code: 'ACCOUNT_DELETE_ERROR',
-          })
-        );
-        done();
-      }, 3500);
-    });
-  });
+            service.addAccount(newAccount);
 
-  describe('updateAccountRole', () => {
-    it('should update admin role', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockUserAdministrationService.addAccount).toHaveBeenCalledWith(newAccount);
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'REGISTER' }));
+        });
 
-      const account: IAuthentication = { id: '123' } as IAuthentication;
-      mockUserAdministrationService.changeRole.and.returnValue(of(true));
+        it('should handle 400 error with validation message', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      service.updateAccountRole(account, 'Admin', true);
+            const newAccount: IAuthentication = {
+                firstName: 'John',
+                lastName: 'Doe',
+                email: 'invalid-email',
+            } as IAuthentication;
 
-      setTimeout(() => {
-        expect(mockUserAdministrationService.changeRole).toHaveBeenCalledWith(
-          jasmine.objectContaining({
-            userId: '123',
-            roleName: 'Admin',
-            isSelected: true,
-          })
-        );
-        done();
-      }, 100);
-    });
+            const error = { status: 400, error: 'Invalid email' };
+            mockUserAdministrationService.addAccount.mockReturnValue(throwError(() => error));
 
-    it('should emit error on role update failure', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+            service.addAccount(newAccount);
 
-      const account: IAuthentication = { id: '123' } as IAuthentication;
-      mockUserAdministrationService.changeRole.and.returnValue(
-        throwError(() => new Error('Update failed'))
-      );
-
-      service.updateAccountRole(account, 'Authorised', false);
-
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.ERROR,
-          jasmine.objectContaining({
-            code: 'ACCOUNT_ROLE_UPDATE_ERROR',
-          })
-        );
-        done();
-      }, 3500);
-    });
-  });
-
-  describe('sendPasswordResetEmail', () => {
-    it('should send password reset email successfully', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
-
-      const passwordChange: ChangePassword = {
-        email: 'test@test.com',
-      } as ChangePassword;
-
-      mockUserAdministrationService.ChangePassword.and.returnValue(
-        of({ success: true, expires: undefined, isAdmin: false, isAuthorised: false })
-      );
-
-      service.sendPasswordResetEmail(passwordChange);
-
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.INFO,
-          jasmine.objectContaining({ context: 'REGISTER_SEND_PASSWORD' })
-        );
-        done();
-      }, 100);
+            await new Promise(resolve => setTimeout(resolve, 3510));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
+                code: expect.any(String),
+            }));
+        });
     });
 
-    it('should handle password reset email failure', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+    describe('deleteAccount', () => {
+        it('should delete account and reload list', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      const passwordChange: ChangePassword = {
-        email: 'test@test.com',
-      } as ChangePassword;
+            mockUserAdministrationService.deleteAccount.mockReturnValue(of({} as IAuthentication));
 
-      mockUserAdministrationService.ChangePassword.and.returnValue(
-        of({ success: false, expires: undefined, isAdmin: false, isAuthorised: false })
-      );
+            service.deleteAccount('123');
 
-      service.sendPasswordResetEmail(passwordChange);
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockUserAdministrationService.deleteAccount).toHaveBeenCalledWith('123');
+            expect(mockUserAdministrationService.readAccountsList).toHaveBeenCalled();
+        });
 
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.INFO,
-          jasmine.objectContaining({ context: 'REGISTER_SEND_PASSWORD_ERROR' })
-        );
-        done();
-      }, 100);
-    });
-  });
+        it('should emit error event on delete failure', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-  describe('requestPasswordReset', () => {
-    it('should request password reset successfully', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+            mockUserAdministrationService.deleteAccount.mockReturnValue(throwError(() => new Error('Delete failed')));
 
-      mockUserAdministrationService.requestPasswordReset.and.returnValue(of(null));
+            service.deleteAccount('123');
 
-      service.requestPasswordReset('test@test.com');
-
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.INFO,
-          jasmine.objectContaining({ context: 'PASSWORD_RESET_EMAIL_SENT' })
-        );
-        done();
-      }, 100);
+            await new Promise(resolve => setTimeout(resolve, 3510));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
+                code: 'ACCOUNT_DELETE_ERROR',
+            }));
+        });
     });
 
-    it('should handle password reset request failure', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+    describe('updateAccountRole', () => {
+        it('should update admin role', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      mockUserAdministrationService.requestPasswordReset.and.returnValue(
-        throwError(() => new Error('Reset failed'))
-      );
+            const account: IAuthentication = { id: '123' } as IAuthentication;
+            mockUserAdministrationService.changeRole.mockReturnValue(of(true));
 
-      service.requestPasswordReset('test@test.com');
+            service.updateAccountRole(account, 'Admin', true);
 
-      setTimeout(() => {
-        expect(mockEventBus.emit).toHaveBeenCalledWith(
-          DomainEventType.INFO,
-          jasmine.objectContaining({ context: 'PASSWORD_RESET_EMAIL_ERROR' })
-        );
-        done();
-      }, 3500);
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockUserAdministrationService.changeRole).toHaveBeenCalledWith(expect.objectContaining({
+                userId: '123',
+                roleName: 'Admin',
+                isSelected: true,
+            }));
+        });
+
+        it('should emit error on role update failure', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+
+            const account: IAuthentication = { id: '123' } as IAuthentication;
+            mockUserAdministrationService.changeRole.mockReturnValue(throwError(() => new Error('Update failed')));
+
+            service.updateAccountRole(account, 'Authorised', false);
+
+            await new Promise(resolve => setTimeout(resolve, 3510));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
+                code: 'ACCOUNT_ROLE_UPDATE_ERROR',
+            }));
+        });
     });
-  });
 
-  describe('isLoading signal', () => {
-    it('should set isLoading to true during operations', (done) => {
-      service = TestBed.inject(UserAdministrationManagementService);
+    describe('sendPasswordResetEmail', () => {
+        it('should send password reset email successfully', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
 
-      let wasLoadingSet = false;
-      mockUserAdministrationService.deleteAccount.and.callFake(() => {
-        wasLoadingSet = service.isLoading();
-        return of({} as IAuthentication);
-      });
+            const passwordChange: ChangePassword = {
+                email: 'test@test.com',
+            } as ChangePassword;
 
-      expect(service.isLoading()).toBe(false);
-      service.deleteAccount('123');
+            mockUserAdministrationService.ChangePassword.mockReturnValue(of({ success: true, expires: undefined, isAdmin: false, isAuthorised: false }));
 
-      setTimeout(() => {
-        expect(wasLoadingSet).toBe(true);
-        done();
-      }, 50);
+            service.sendPasswordResetEmail(passwordChange);
+
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'REGISTER_SEND_PASSWORD' }));
+        });
+
+        it('should handle password reset email failure', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+
+            const passwordChange: ChangePassword = {
+                email: 'test@test.com',
+            } as ChangePassword;
+
+            mockUserAdministrationService.ChangePassword.mockReturnValue(of({ success: false, expires: undefined, isAdmin: false, isAuthorised: false }));
+
+            service.sendPasswordResetEmail(passwordChange);
+
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'REGISTER_SEND_PASSWORD_ERROR' }));
+        });
     });
-  });
+
+    describe('requestPasswordReset', () => {
+        it('should request password reset successfully', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+
+            mockUserAdministrationService.requestPasswordReset.mockReturnValue(of(null));
+
+            service.requestPasswordReset('test@test.com');
+
+            await new Promise(resolve => setTimeout(resolve, 110));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'PASSWORD_RESET_EMAIL_SENT' }));
+        });
+
+        it('should handle password reset request failure', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+
+            mockUserAdministrationService.requestPasswordReset.mockReturnValue(throwError(() => new Error('Reset failed')));
+
+            service.requestPasswordReset('test@test.com');
+
+            await new Promise(resolve => setTimeout(resolve, 3510));
+            expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.INFO, expect.objectContaining({ context: 'PASSWORD_RESET_EMAIL_ERROR' }));
+        });
+    });
+
+    describe('isLoading signal', () => {
+        it('should set isLoading to true during operations', async () => {
+            service = TestBed.inject(UserAdministrationManagementService);
+
+            let wasLoadingSet = false;
+            mockUserAdministrationService.deleteAccount.mockImplementation(() => {
+                wasLoadingSet = service.isLoading();
+                return of({} as IAuthentication);
+            });
+
+            expect(service.isLoading()).toBe(false);
+            service.deleteAccount('123');
+
+            await new Promise(resolve => setTimeout(resolve, 60));
+            expect(wasLoadingSet).toBe(true);
+        });
+    });
 });

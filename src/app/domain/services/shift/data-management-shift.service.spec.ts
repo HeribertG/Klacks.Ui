@@ -8,42 +8,42 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { of } from 'rxjs';
 
 class MockEventBus implements IEventBus {
-  emit<_T>(_eventType: string, _payload: _T): void {}
-  on<_T>(_eventType: string) {
-    return of();
-  }
-  onAny() {
-    return of();
-  }
+    emit<_T>(_eventType: string, _payload: _T): void { }
+    on<_T>(_eventType: string) {
+        return of();
+    }
+    onAny() {
+        return of();
+    }
 }
 
 describe('DataManagementShiftService', () => {
-  let service: DataManagementShiftService;
-  let mockEventBus: MockEventBus;
+    let service: DataManagementShiftService;
+    let mockEventBus: MockEventBus;
 
-  beforeEach(() => {
-    mockEventBus = new MockEventBus();
-    const mockRegistry = {
-      register: jasmine.createSpy('register'),
-      get: jasmine.createSpy('get').and.returnValue(null),
-      has: jasmine.createSpy('has').and.returnValue(false),
-      clear: jasmine.createSpy('clear'),
-      getRegisteredRoutes: jasmine.createSpy('getRegisteredRoutes').and.returnValue([])
-    };
+    beforeEach(() => {
+        mockEventBus = new MockEventBus();
+        const mockRegistry = {
+            register: vi.fn(),
+            get: vi.fn().mockReturnValue(null),
+            has: vi.fn().mockReturnValue(false),
+            clear: vi.fn(),
+            getRegisteredRoutes: vi.fn().mockReturnValue([])
+        };
 
-    TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        WorkTimeCalculationService,
-        { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
-        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry }
-      ]
+        TestBed.configureTestingModule({
+            providers: [
+                provideHttpClient(),
+                provideHttpClientTesting(),
+                WorkTimeCalculationService,
+                { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+                { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry }
+            ]
+        });
+        service = TestBed.inject(DataManagementShiftService);
     });
-    service = TestBed.inject(DataManagementShiftService);
-  });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

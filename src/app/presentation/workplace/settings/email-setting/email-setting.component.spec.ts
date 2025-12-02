@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -12,295 +13,255 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
 
 describe('EmailSettingComponent', () => {
-  let component: EmailSettingComponent;
-  let fixture: ComponentFixture<EmailSettingComponent>;
-  let mockSettingsService: jasmine.SpyObj<DataManagementSettingsService>;
-  let mockDataSettingsService: jasmine.SpyObj<DataSettingsVariousService>;
-  let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let _mockTranslateService: jasmine.SpyObj<TranslateService>;
+    let component: EmailSettingComponent;
+    let fixture: ComponentFixture<EmailSettingComponent>;
+    let mockSettingsService: any;
+    let mockDataSettingsService: any;
+    let mockToastService: any;
+    let _mockTranslateService: any;
 
-  beforeEach(async () => {
-    const settingsServiceSpy = jasmine.createSpyObj(
-      'DataManagementSettingsService',
-      ['loadSettings'],
-      {
-        settingsChangeTrigger: signal(0),
-        isReset: signal(false),
-        outgoingServer: 'smtp.example.com',
-        outgoingServerPort: 587,
-        enabledSSL: true,
-        authenticationType: 'Login',
-        outgoingserverUsername: 'test@example.com',
-        outgoingserverPassword: 'password123',
-        replyTo: 'noreply@example.com',
-      }
-    );
-
-    const dataSettingsServiceSpy = jasmine.createSpyObj(
-      'DataSettingsVariousService',
-      ['testEmailConfiguration']
-    );
-    dataSettingsServiceSpy.testEmailConfiguration.and.returnValue(of({ success: true, message: 'Default success' }));
-
-    const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
-      'showSuccess',
-      'showError',
-    ]);
-
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-    ], {
-      onLangChange: of({ lang: 'en' }),
-      onTranslationChange: of({}),
-      onDefaultLangChange: of({ lang: 'en' })
-    });
-    translateServiceSpy.instant.and.returnValue('Translated text');
-    translateServiceSpy.get = jasmine.createSpy('get').and.returnValue(of('Translated text'));
-
-    await TestBed.configureTestingModule({
-      imports: [EmailSettingComponent, TranslateModule.forRoot(), FormsModule],
-      providers: [
-        {
-          provide: DataManagementSettingsService,
-          useValue: settingsServiceSpy,
-        },
-        {
-          provide: DataSettingsVariousService,
-          useValue: dataSettingsServiceSpy,
-        },
-        { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: TranslateService, useValue: translateServiceSpy },
-      ],
-    }).compileComponents();
-
-    mockSettingsService = TestBed.inject(
-      DataManagementSettingsService
-    ) as jasmine.SpyObj<DataManagementSettingsService>;
-    mockDataSettingsService = TestBed.inject(
-      DataSettingsVariousService
-    ) as jasmine.SpyObj<DataSettingsVariousService>;
-    mockToastService = TestBed.inject(
-      ToastShowService
-    ) as jasmine.SpyObj<ToastShowService>;
-    _mockTranslateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
-
-    fixture = TestBed.createComponent(EmailSettingComponent);
-    component = fixture.componentInstance;
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  describe('Initialization', () => {
-    it('should call readSignals on ngOnInit', () => {
-      // Arrange
-      spyOn<any>(component, 'readSignals');
-
-      // Act
-      component.ngOnInit();
-
-      // Assert
-      expect(component['readSignals']).toHaveBeenCalled();
-    });
-
-    it('should have default values', () => {
-      // Act
-      fixture.detectChanges();
-
-      // Assert
-      expect(component.showPassword).toBe(false);
-      expect(component.isDataLoaded).toBe(false);
-      expect(component.isTestingEmail).toBe(false);
-      expect(component.testResult).toBeNull();
-    });
-  });
-
-  describe('Email Configuration Test', () => {
-    it('should test email configuration successfully', (done) => {
-      // Arrange
-      const successResult: EmailTestResult = {
-        success: true,
-        message: 'Email configuration test successful',
-      };
-      mockDataSettingsService.testEmailConfiguration.and.returnValue(
-        of(successResult)
-      );
-
-      // Act
-      component.testEmailConfiguration();
-
-      // Assert
-      setTimeout(() => {
-        expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalled();
-        expect(mockToastService.showSuccess).toHaveBeenCalledWith(
-          successResult.message,
-          'Translated text'
-        );
-        expect(component.isTestingEmail).toBe(false);
-        done();
-      }, 50);
-    });
-
-    it('should handle email configuration test failure', (done) => {
-      // Arrange
-      const errorResult: EmailTestResult = {
-        success: false,
-        message: 'Email configuration test failed',
-        errorDetails: 'SMTP authentication error',
-      };
-      mockDataSettingsService.testEmailConfiguration.and.returnValue(
-        of(errorResult)
-      );
-
-      // Act
-      component.testEmailConfiguration();
-
-      // Assert
-      setTimeout(() => {
-        expect(mockToastService.showError).toHaveBeenCalledWith(
-          errorResult.message,
-          'Translated text',
-          errorResult.errorDetails
-        );
-        expect(component.isTestingEmail).toBe(false);
-        done();
-      }, 50);
-    });
-
-    it('should validate email address before testing', () => {
-      // Arrange
-      Object.defineProperty(mockSettingsService, 'outgoingserverUsername', {
-        value: 'invalid-email',
-        writable: true,
-        configurable: true
-      });
-
-      // Act
-      component.testEmailConfiguration();
-
-      // Assert
-      expect(mockDataSettingsService.testEmailConfiguration).not.toHaveBeenCalled();
-      expect(mockToastService.showError).toHaveBeenCalled();
-      expect(component.isTestingEmail).toBe(false);
-    });
-
-    it('should handle unexpected errors during email test', (done) => {
-      // Arrange
-      const error = new Error('Network error');
-      mockDataSettingsService.testEmailConfiguration.and.returnValue(
-        throwError(() => error)
-      );
-
-      // Act
-      component.testEmailConfiguration();
-
-      // Assert
-      setTimeout(() => {
-        expect(mockToastService.showError).toHaveBeenCalled();
-        expect(component.isTestingEmail).toBe(false);
-        done();
-      }, 50);
-    });
-
-    it('should send correct email configuration to service', (done) => {
-      // Arrange
-      const successResult: EmailTestResult = {
-        success: true,
-        message: 'Success',
-      };
-      mockDataSettingsService.testEmailConfiguration.and.returnValue(
-        of(successResult)
-      );
-
-      // Act
-      component.testEmailConfiguration();
-
-      // Assert
-      setTimeout(() => {
-        const expectedConfig = {
-          server: 'smtp.example.com',
-          port: 587,
-          enableSSL: true,
-          authType: 'Login',
-          username: 'test@example.com',
-          password: 'password123',
-          replyTo: 'noreply@example.com',
+    beforeEach(async () => {
+        const settingsServiceSpy = {
+            loadSettings: vi.fn(),
+            settingsChangeTrigger: signal(0),
+            isReset: signal(false),
+            outgoingServer: 'smtp.example.com',
+            outgoingServerPort: 587,
+            enabledSSL: true,
+            authenticationType: 'Login',
+            outgoingserverUsername: 'test@example.com',
+            outgoingserverPassword: 'password123',
+            replyTo: 'noreply@example.com'
         };
-        expect(
-          mockDataSettingsService.testEmailConfiguration
-        ).toHaveBeenCalledWith(expectedConfig);
-        done();
-      }, 50);
-    });
-  });
 
-  describe('Form Changes', () => {
-    it('should setup form subscription when data is loaded', (done) => {
-      // Arrange
-      const setupSpy = spyOn<any>(component, 'setupFormSubscription');
-      component.isDataLoaded = false;
-      component.ngOnInit();
-      fixture.detectChanges();
+        const dataSettingsServiceSpy = {
+            testEmailConfiguration: vi.fn()
+        };
+        dataSettingsServiceSpy.testEmailConfiguration.mockReturnValue(of({ success: true, message: 'Default success' }));
 
-      // Act
-      mockSettingsService.isReset.set(true);
-      fixture.detectChanges();
+        const toastServiceSpy = {
+            showSuccess: vi.fn(),
+            showError: vi.fn()
+        };
 
-      // Assert
-      setTimeout(() => {
-        expect(setupSpy).toHaveBeenCalled();
-        expect(component.isDataLoaded).toBe(true);
-        done();
-      }, 150);
-    });
-  });
+        const translateServiceSpy: any = {
+            instant: vi.fn(),
+            get: vi.fn().mockReturnValue(of('Translated text')),
+            onLangChange: of({ lang: 'en' }),
+            onTranslationChange: of({}),
+            onDefaultLangChange: of({ lang: 'en' })
+        };
+        translateServiceSpy.instant.mockReturnValue('Translated text');
 
-  describe('Password Visibility', () => {
-    it('should toggle password visibility', () => {
-      // Arrange
-      component.showPassword = false;
+        await TestBed.configureTestingModule({
+            imports: [EmailSettingComponent, TranslateModule.forRoot(), FormsModule],
+            providers: [
+                {
+                    provide: DataManagementSettingsService,
+                    useValue: settingsServiceSpy,
+                },
+                {
+                    provide: DataSettingsVariousService,
+                    useValue: dataSettingsServiceSpy,
+                },
+                { provide: ToastShowService, useValue: toastServiceSpy },
+                { provide: TranslateService, useValue: translateServiceSpy },
+            ],
+        }).compileComponents();
 
-      // Act
-      component.showPassword = true;
+        mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
+        mockDataSettingsService = TestBed.inject(DataSettingsVariousService) as any;
+        mockToastService = TestBed.inject(ToastShowService) as any;
+        _mockTranslateService = TestBed.inject(TranslateService) as any;
 
-      // Assert
-      expect(component.showPassword).toBe(true);
-    });
-  });
-
-  describe('Component Lifecycle', () => {
-    it('should unsubscribe on destroy', () => {
-      // Arrange
-      const nextSpy = spyOn(component['ngUnsubscribe'], 'next');
-      const completeSpy = spyOn(component['ngUnsubscribe'], 'complete');
-
-      // Act
-      component.ngOnDestroy();
-
-      // Assert
-      expect(nextSpy).toHaveBeenCalled();
-      expect(completeSpy).toHaveBeenCalled();
+        fixture = TestBed.createComponent(EmailSettingComponent);
+        component = fixture.componentInstance;
     });
 
-    it('should destroy all effects on component destroy', () => {
-      // Arrange
-      fixture.detectChanges();
-      component.ngOnInit();
-
-      const mockEffect = {
-        destroy: jasmine.createSpy('destroy'),
-      };
-      component['effects'] = [mockEffect as any];
-
-      // Act
-      component.ngOnDestroy();
-
-      // Assert
-      expect(mockEffect.destroy).toHaveBeenCalled();
-      expect(component['effects'].length).toBe(0);
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
-  });
+
+    describe('Initialization', () => {
+        it('should call readSignals on ngOnInit', () => {
+            // Arrange
+            vi.spyOn(component as any, 'readSignals');
+
+            // Act
+            component.ngOnInit();
+
+            // Assert
+            expect(component['readSignals']).toHaveBeenCalled();
+        });
+
+        it('should have default values', () => {
+            // Act
+            fixture.detectChanges();
+
+            // Assert
+            expect(component.showPassword).toBe(false);
+            expect(component.isDataLoaded).toBe(false);
+            expect(component.isTestingEmail).toBe(false);
+            expect(component.testResult).toBeNull();
+        });
+    });
+
+    describe('Email Configuration Test', () => {
+        it('should test email configuration successfully', async () => {
+            // Arrange
+            const successResult: EmailTestResult = {
+                success: true,
+                message: 'Email configuration test successful',
+            };
+            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+
+            // Act
+            component.testEmailConfiguration();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalled();
+            expect(mockToastService.showSuccess).toHaveBeenCalledWith(successResult.message, 'Translated text');
+            expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should handle email configuration test failure', async () => {
+            // Arrange
+            const errorResult: EmailTestResult = {
+                success: false,
+                message: 'Email configuration test failed',
+                errorDetails: 'SMTP authentication error',
+            };
+            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(errorResult));
+
+            // Act
+            component.testEmailConfiguration();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(mockToastService.showError).toHaveBeenCalledWith(errorResult.message, 'Translated text', errorResult.errorDetails);
+            expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should validate email address before testing', () => {
+            // Arrange
+            Object.defineProperty(mockSettingsService, 'outgoingserverUsername', {
+                value: 'invalid-email',
+                writable: true,
+                configurable: true
+            });
+
+            // Act
+            component.testEmailConfiguration();
+
+            // Assert
+            expect(mockDataSettingsService.testEmailConfiguration).not.toHaveBeenCalled();
+            expect(mockToastService.showError).toHaveBeenCalled();
+            expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should handle unexpected errors during email test', async () => {
+            // Arrange
+            const error = new Error('Network error');
+            mockDataSettingsService.testEmailConfiguration.mockReturnValue(throwError(() => error));
+
+            // Act
+            component.testEmailConfiguration();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(mockToastService.showError).toHaveBeenCalled();
+            expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should send correct email configuration to service', async () => {
+            // Arrange
+            const successResult: EmailTestResult = {
+                success: true,
+                message: 'Success',
+            };
+            mockDataSettingsService.testEmailConfiguration.mockReturnValue(of(successResult));
+
+            // Act
+            component.testEmailConfiguration();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 50));
+            const expectedConfig = {
+                server: 'smtp.example.com',
+                port: 587,
+                enableSSL: true,
+                authType: 'Login',
+                username: 'test@example.com',
+                password: 'password123',
+                replyTo: 'noreply@example.com',
+            };
+            expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalledWith(expectedConfig);
+        });
+    });
+
+    describe('Form Changes', () => {
+        it('should setup form subscription when data is loaded', async () => {
+            // Arrange
+            const setupSpy = vi.spyOn(component as any, 'setupFormSubscription');
+            component.isDataLoaded = false;
+            component.ngOnInit();
+            fixture.detectChanges();
+
+            // Act
+            mockSettingsService.isReset.set(true);
+            fixture.detectChanges();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 150));
+            expect(setupSpy).toHaveBeenCalled();
+            expect(component.isDataLoaded).toBe(true);
+        });
+    });
+
+    describe('Password Visibility', () => {
+        it('should toggle password visibility', () => {
+            // Arrange
+            component.showPassword = false;
+
+            // Act
+            component.showPassword = true;
+
+            // Assert
+            expect(component.showPassword).toBe(true);
+        });
+    });
+
+    describe('Component Lifecycle', () => {
+        it('should unsubscribe on destroy', () => {
+            // Arrange
+            const nextSpy = vi.spyOn(component['ngUnsubscribe'], 'next');
+            const completeSpy = vi.spyOn(component['ngUnsubscribe'], 'complete');
+
+            // Act
+            component.ngOnDestroy();
+
+            // Assert
+            expect(nextSpy).toHaveBeenCalled();
+            expect(completeSpy).toHaveBeenCalled();
+        });
+
+        it('should destroy all effects on component destroy', () => {
+            // Arrange
+            fixture.detectChanges();
+            component.ngOnInit();
+
+            const mockEffect = {
+                destroy: vi.fn(),
+            };
+            component['effects'] = [mockEffect as any];
+
+            // Act
+            component.ngOnDestroy();
+
+            // Assert
+            expect(mockEffect.destroy).toHaveBeenCalled();
+            expect(component['effects'].length).toBe(0);
+        });
+    });
 });

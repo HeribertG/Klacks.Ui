@@ -3,16 +3,16 @@ import { TestBed } from '@angular/core/testing';
 import { BreakLayerService } from './break-layer.service';
 
 describe('BreakLayerService', () => {
-  let service: BreakLayerService;
+    let service: BreakLayerService;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [BreakLayerService]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [BreakLayerService]
+        });
+        service = TestBed.inject(BreakLayerService);
     });
-    service = TestBed.inject(BreakLayerService);
-  });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+    it('should be created', () => {
+        expect(service).toBeTruthy();
+    });
 });

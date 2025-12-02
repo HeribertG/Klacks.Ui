@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';
@@ -10,100 +11,103 @@ import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 
 describe('DataManagementGroupService', () => {
-  let service: DataManagementGroupService;
-  let dataGroupServiceSpy: jasmine.SpyObj<DataGroupService>;
-  let groupSelectionServiceSpy: jasmine.SpyObj<GroupSelectionService>;
+    let service: DataManagementGroupService;
+    let dataGroupServiceSpy: any;
+    let groupSelectionServiceSpy: any;
 
-  beforeEach(() => {
-    const dataGroupSpy = jasmine.createSpyObj('DataGroupService', ['getAll']);
-    const selectionSpy = jasmine.createSpyObj('GroupSelectionService', [
-      'selectNode',
-    ]);
-    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
-    const eventBusSpy = jasmine.createSpyObj('EventBus', ['emit']);
-    const registrySpy = jasmine.createSpyObj('ManageableServiceRegistry', [
-      'register',
-    ]);
+    beforeEach(() => {
+        const dataGroupSpy = {
+            getAll: vi.fn()
+        };
+        const selectionSpy = {
+            selectNode: vi.fn()
+        };
+        const httpClientSpy = {
+            get: vi.fn(),
+            post: vi.fn()
+        };
+        const eventBusSpy = {
+            emit: vi.fn()
+        };
+        const registrySpy = {
+            register: vi.fn()
+        };
 
-    TestBed.configureTestingModule({
-      providers: [
-        DataManagementGroupService,
-        { provide: DataGroupService, useValue: dataGroupSpy },
-        { provide: GroupSelectionService, useValue: selectionSpy },
-        { provide: HttpClient, useValue: httpClientSpy },
-        { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
-        { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: registrySpy },
-      ],
+        TestBed.configureTestingModule({
+            providers: [
+                DataManagementGroupService,
+                { provide: DataGroupService, useValue: dataGroupSpy },
+                { provide: GroupSelectionService, useValue: selectionSpy },
+                { provide: HttpClient, useValue: httpClientSpy },
+                { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
+                { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: registrySpy },
+            ],
+        });
+
+        service = TestBed.inject(DataManagementGroupService);
+        dataGroupServiceSpy = TestBed.inject(DataGroupService) as any;
+        groupSelectionServiceSpy = TestBed.inject(GroupSelectionService) as any;
     });
 
-    service = TestBed.inject(DataManagementGroupService);
-    dataGroupServiceSpy = TestBed.inject(
-      DataGroupService
-    ) as jasmine.SpyObj<DataGroupService>;
-    groupSelectionServiceSpy = TestBed.inject(
-      GroupSelectionService
-    ) as jasmine.SpyObj<GroupSelectionService>;
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-
-  describe('hasGroups', () => {
-    it('should return true when flatNodeList has items', () => {
-      // Arrange
-      const mockGroup = new Group();
-      mockGroup.id = 'test-id';
-      mockGroup.name = 'Test Group';
-      service.flatNodeList = [mockGroup];
-
-      // Act
-      const result = service.hasGroups();
-
-      // Assert
-      expect(result).toBe(true);
+    it('should be created', () => {
+        expect(service).toBeTruthy();
     });
 
-    it('should return false when flatNodeList is empty', () => {
-      // Arrange
-      service.flatNodeList = [];
+    describe('hasGroups', () => {
+        it('should return true when flatNodeList has items', () => {
+            // Arrange
+            const mockGroup = new Group();
+            mockGroup.id = 'test-id';
+            mockGroup.name = 'Test Group';
+            service.flatNodeList = [mockGroup];
 
-      // Act
-      const result = service.hasGroups();
+            // Act
+            const result = service.hasGroups();
 
-      // Assert
-      expect(result).toBe(false);
+            // Assert
+            expect(result).toBe(true);
+        });
+
+        it('should return false when flatNodeList is empty', () => {
+            // Arrange
+            service.flatNodeList = [];
+
+            // Act
+            const result = service.hasGroups();
+
+            // Assert
+            expect(result).toBe(false);
+        });
+
+        it('should return false when flatNodeList is undefined', () => {
+            // Arrange
+            service.flatNodeList = undefined as any;
+
+            // Act
+            const result = service.hasGroups();
+
+            // Assert
+            expect(result).toBe(false);
+        });
+
+        it('should return true when flatNodeList has multiple items', () => {
+            // Arrange
+            const mockGroup1 = new Group();
+            mockGroup1.id = 'test-id-1';
+            mockGroup1.name = 'Test Group 1';
+
+            const mockGroup2 = new Group();
+            mockGroup2.id = 'test-id-2';
+            mockGroup2.name = 'Test Group 2';
+
+            service.flatNodeList = [mockGroup1, mockGroup2];
+
+            // Act
+            const result = service.hasGroups();
+
+            // Assert
+            expect(result).toBe(true);
+            expect(service.flatNodeList.length).toBe(2);
+        });
     });
-
-    it('should return false when flatNodeList is undefined', () => {
-      // Arrange
-      service.flatNodeList = undefined as any;
-
-      // Act
-      const result = service.hasGroups();
-
-      // Assert
-      expect(result).toBe(false);
-    });
-
-    it('should return true when flatNodeList has multiple items', () => {
-      // Arrange
-      const mockGroup1 = new Group();
-      mockGroup1.id = 'test-id-1';
-      mockGroup1.name = 'Test Group 1';
-
-      const mockGroup2 = new Group();
-      mockGroup2.id = 'test-id-2';
-      mockGroup2.name = 'Test Group 2';
-
-      service.flatNodeList = [mockGroup1, mockGroup2];
-
-      // Act
-      const result = service.hasGroups();
-
-      // Assert
-      expect(result).toBe(true);
-      expect(service.flatNodeList.length).toBe(2);
-    });
-  });
 });

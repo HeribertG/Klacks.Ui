@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -18,187 +19,171 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
 describe('LoginComponent', () => {
-  let component: LoginComponent;
-  let fixture: ComponentFixture<LoginComponent>;
-  let authService: jasmine.SpyObj<AuthService>;
-  let authorizationService: jasmine.SpyObj<AuthorizationService>;
-  let localStorageService: jasmine.SpyObj<LocalStorageService>;
-  let navigationService: jasmine.SpyObj<NavigationService>;
-  let translateService: jasmine.SpyObj<TranslateService>;
-  let userAdministrationService: jasmine.SpyObj<UserAdministrationService>;
-  let toastService: jasmine.SpyObj<ToastShowService>;
+    let component: LoginComponent;
+    let fixture: ComponentFixture<LoginComponent>;
+    let authService: any;
+    let authorizationService: any;
+    let localStorageService: any;
+    let navigationService: any;
+    let translateService: any;
+    let userAdministrationService: any;
+    let toastService: any;
 
-  beforeEach(async () => {
-    const authServiceSpy = jasmine.createSpyObj('AuthService', [
-      'logIn',
-      'checkIfTokenIsValid',
-    ]);
-    const authorizationServiceSpy = jasmine.createSpyObj(
-      'AuthorizationService',
-      ['refresh']
-    );
-    const localStorageServiceSpy = jasmine.createSpyObj('LocalStorageService', [
-      'get',
-    ]);
-    const navigationServiceSpy = jasmine.createSpyObj('NavigationService', [
-      'navigateToWorkplace',
-    ]);
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'setDefaultLang',
-      'use',
-      'instant',
-    ]);
-    const userAdministrationServiceSpy = jasmine.createSpyObj(
-      'UserAdministrationService',
-      ['sendResetPasswordEmail']
-    );
-    const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
-      'showSuccess',
-      'showError',
-    ]);
+    beforeEach(async () => {
+        const authServiceSpy = {
+            logIn: vi.fn(),
+            checkIfTokenIsValid: vi.fn()
+        };
+        const authorizationServiceSpy = {
+            refresh: vi.fn()
+        };
+        const localStorageServiceSpy = {
+            get: vi.fn()
+        };
+        const navigationServiceSpy = {
+            navigateToWorkplace: vi.fn()
+        };
+        const translateServiceSpy = {
+            setDefaultLang: vi.fn(),
+            use: vi.fn(),
+            instant: vi.fn()
+        };
+        const userAdministrationServiceSpy = {
+            sendResetPasswordEmail: vi.fn()
+        };
+        const toastServiceSpy = {
+            showSuccess: vi.fn(),
+            showError: vi.fn()
+        };
 
-    await TestBed.configureTestingModule({
-      imports: [
-        LoginComponent,
-        TranslateModule.forRoot(),
-        FontAwesomeModule,
-        FormsModule,
-        RouterTestingModule,
-        HttpClientTestingModule,
-        NgbModule,
-      ],
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: AuthorizationService, useValue: authorizationServiceSpy },
-        { provide: LocalStorageService, useValue: localStorageServiceSpy },
-        { provide: NavigationService, useValue: navigationServiceSpy },
-        { provide: TranslateService, useValue: translateServiceSpy },
-        {
-          provide: UserAdministrationService,
-          useValue: userAdministrationServiceSpy,
-        },
-        { provide: ToastShowService, useValue: toastServiceSpy },
-      ],
-    }).compileComponents();
+        await TestBed.configureTestingModule({
+            imports: [
+                LoginComponent,
+                TranslateModule.forRoot(),
+                FontAwesomeModule,
+                FormsModule,
+                RouterTestingModule,
+                HttpClientTestingModule,
+                NgbModule,
+            ],
+            providers: [
+                { provide: AuthService, useValue: authServiceSpy },
+                { provide: AuthorizationService, useValue: authorizationServiceSpy },
+                { provide: LocalStorageService, useValue: localStorageServiceSpy },
+                { provide: NavigationService, useValue: navigationServiceSpy },
+                { provide: TranslateService, useValue: translateServiceSpy },
+                {
+                    provide: UserAdministrationService,
+                    useValue: userAdministrationServiceSpy,
+                },
+                { provide: ToastShowService, useValue: toastServiceSpy },
+            ],
+        }).compileComponents();
 
-    fixture = TestBed.createComponent(LoginComponent);
-    component = fixture.componentInstance;
+        fixture = TestBed.createComponent(LoginComponent);
+        component = fixture.componentInstance;
 
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    authorizationService = TestBed.inject(
-      AuthorizationService
-    ) as jasmine.SpyObj<AuthorizationService>;
-    localStorageService = TestBed.inject(
-      LocalStorageService
-    ) as jasmine.SpyObj<LocalStorageService>;
-    navigationService = TestBed.inject(
-      NavigationService
-    ) as jasmine.SpyObj<NavigationService>;
-    translateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
-    userAdministrationService = TestBed.inject(
-      UserAdministrationService
-    ) as jasmine.SpyObj<UserAdministrationService>;
-    toastService = TestBed.inject(
-      ToastShowService
-    ) as jasmine.SpyObj<ToastShowService>;
-  });
+        authService = TestBed.inject(AuthService) as any;
+        authorizationService = TestBed.inject(AuthorizationService) as any;
+        localStorageService = TestBed.inject(LocalStorageService) as any;
+        navigationService = TestBed.inject(NavigationService) as any;
+        translateService = TestBed.inject(TranslateService) as any;
+        userAdministrationService = TestBed.inject(UserAdministrationService) as any;
+        toastService = TestBed.inject(ToastShowService) as any;
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create', () => {
+        expect(component).toBeTruthy();
+    });
 
-  it('should initialize with default values', () => {
-    expect(component.username).toBe('');
-    expect(component.password).toBe('');
-    expect(component.isClicked).toBe(false);
-    expect(component.showPassword).toBe(false);
-  });
+    it('should initialize with default values', () => {
+        expect(component.username).toBe('');
+        expect(component.password).toBe('');
+        expect(component.isClicked).toBe(false);
+        expect(component.showPassword).toBe(false);
+    });
 
-  it('should set default language on ngOnInit', () => {
-    localStorageService.get.and.returnValue(null);
+    it('should set default language on ngOnInit', () => {
+        localStorageService.get.mockReturnValue(null);
 
-    component.ngOnInit();
+        component.ngOnInit();
 
-    expect(translateService.setDefaultLang).toHaveBeenCalledWith(
-      MessageLibrary.DEFAULT_LANG
-    );
-  });
+        expect(translateService.setDefaultLang).toHaveBeenCalledWith(MessageLibrary.DEFAULT_LANG);
+    });
 
-  it('should use saved language if available', () => {
-    const savedLang = 'de';
-    localStorageService.get.and.returnValue(savedLang);
+    it('should use saved language if available', () => {
+        const savedLang = 'de';
+        localStorageService.get.mockReturnValue(savedLang);
 
-    component.ngOnInit();
+        component.ngOnInit();
 
-    expect(translateService.use).toHaveBeenCalledWith(savedLang);
-  });
+        expect(translateService.use).toHaveBeenCalledWith(savedLang);
+    });
 
-  it('should check token validity on ngAfterViewInit', () => {
-    authService.checkIfTokenIsValid.and.returnValue();
+    it('should check token validity on ngAfterViewInit', () => {
+        authService.checkIfTokenIsValid.mockReturnValue();
 
-    component.ngAfterViewInit();
+        component.ngAfterViewInit();
 
-    expect(authService.checkIfTokenIsValid).toHaveBeenCalled();
-  });
+        expect(authService.checkIfTokenIsValid).toHaveBeenCalled();
+    });
 
-  it('should handle successful login', async () => {
-    component.username = 'testuser';
-    component.password = 'testpass';
+    it('should handle successful login', async () => {
+        component.username = 'testuser';
+        component.password = 'testpass';
 
-    // Mock the loginForm
-    component.loginForm = {
-      form: {
-        valid: true,
-      },
-    } as any;
+        // Mock the loginForm
+        component.loginForm = {
+            form: {
+                valid: true,
+            },
+        } as any;
 
-    authService.logIn.and.returnValue(Promise.resolve(true));
+        authService.logIn.mockReturnValue(Promise.resolve(true));
 
-    await component.onSave();
+        await component.onSave();
 
-    expect(authService.logIn).toHaveBeenCalledWith('testuser', 'testpass');
-    expect(navigationService.navigateToWorkplace).toHaveBeenCalled();
-    expect(authorizationService.refresh).toHaveBeenCalled();
-    expect(component.isClicked).toBe(false);
-  });
+        expect(authService.logIn).toHaveBeenCalledWith('testuser', 'testpass');
+        expect(navigationService.navigateToWorkplace).toHaveBeenCalled();
+        expect(authorizationService.refresh).toHaveBeenCalled();
+        expect(component.isClicked).toBe(false);
+    });
 
-  it('should handle failed login', async () => {
-    component.username = 'testuser';
-    component.password = 'wrongpass';
+    it('should handle failed login', async () => {
+        component.username = 'testuser';
+        component.password = 'wrongpass';
 
-    // Mock the loginForm
-    component.loginForm = {
-      form: {
-        valid: true,
-      },
-    } as any;
+        // Mock the loginForm
+        component.loginForm = {
+            form: {
+                valid: true,
+            },
+        } as any;
 
-    authService.logIn.and.returnValue(Promise.resolve(false));
+        authService.logIn.mockReturnValue(Promise.resolve(false));
 
-    await component.onSave();
+        await component.onSave();
 
-    expect(authService.logIn).toHaveBeenCalledWith('testuser', 'wrongpass');
-    expect(navigationService.navigateToWorkplace).not.toHaveBeenCalled();
-    expect(authorizationService.refresh).toHaveBeenCalled();
-    expect(component.isClicked).toBe(false);
-  });
+        expect(authService.logIn).toHaveBeenCalledWith('testuser', 'wrongpass');
+        expect(navigationService.navigateToWorkplace).not.toHaveBeenCalled();
+        expect(authorizationService.refresh).toHaveBeenCalled();
+        expect(component.isClicked).toBe(false);
+    });
 
-  it('should set isClicked to true during login process', async () => {
-    // Mock the loginForm
-    component.loginForm = {
-      form: {
-        valid: true,
-      },
-    } as any;
+    it('should set isClicked to true during login process', async () => {
+        // Mock the loginForm
+        component.loginForm = {
+            form: {
+                valid: true,
+            },
+        } as any;
 
-    authService.logIn.and.returnValue(Promise.resolve(true));
+        authService.logIn.mockReturnValue(Promise.resolve(true));
 
-    const savePromise = component.onSave();
-    expect(component.isClicked).toBe(true);
+        const savePromise = component.onSave();
+        expect(component.isClicked).toBe(true);
 
-    await savePromise;
-    expect(component.isClicked).toBe(false);
-  });
+        await savePromise;
+        expect(component.isClicked).toBe(false);
+    });
 });

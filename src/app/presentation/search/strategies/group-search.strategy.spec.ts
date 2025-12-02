@@ -1,50 +1,52 @@
+import type { MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { GroupSearchStrategy } from './group-search.strategy';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 describe('GroupSearchStrategy', () => {
-  let strategy: GroupSearchStrategy;
-  let mockGroupService: jasmine.SpyObj<DataManagementGroupService>;
+    let strategy: GroupSearchStrategy;
+    let mockGroupService: any;
 
-  beforeEach(() => {
-    const spy = jasmine.createSpyObj('DataManagementGroupService', ['readPage'], {
-      currentFilter: { searchString: '' },
-      onExternalFilterChange: jasmine.createSpy()
+    beforeEach(() => {
+        const spy = {
+            readPage: vi.fn(),
+            currentFilter: { searchString: '' },
+            onExternalFilterChange: vi.fn()
+        };
+
+        TestBed.configureTestingModule({
+            providers: [
+                GroupSearchStrategy,
+                { provide: DataManagementGroupService, useValue: spy }
+            ]
+        });
+
+        strategy = TestBed.inject(GroupSearchStrategy);
+        mockGroupService = TestBed.inject(DataManagementGroupService) as any;
     });
 
-    TestBed.configureTestingModule({
-      providers: [
-        GroupSearchStrategy,
-        { provide: DataManagementGroupService, useValue: spy }
-      ]
+    it('should be created', () => {
+        expect(strategy).toBeTruthy();
     });
 
-    strategy = TestBed.inject(GroupSearchStrategy);
-    mockGroupService = TestBed.inject(DataManagementGroupService) as jasmine.SpyObj<DataManagementGroupService>;
-  });
+    it('should return correct entity name', () => {
+        expect(strategy.getEntityName()).toBe(EntityName.GROUP);
+    });
 
-  it('should be created', () => {
-    expect(strategy).toBeTruthy();
-  });
+    it('should search with correct parameters', () => {
+        strategy.search('test group');
 
-  it('should return correct entity name', () => {
-    expect(strategy.getEntityName()).toBe(EntityName.GROUP);
-  });
+        expect(mockGroupService.currentFilter.searchString).toBe('test group');
+        expect(mockGroupService.onExternalFilterChange).toHaveBeenCalled();
+        expect(mockGroupService.readPage).toHaveBeenCalled();
+    });
 
-  it('should search with correct parameters', () => {
-    strategy.search('test group');
+    it('should reset filter correctly', () => {
+        strategy.resetFilter();
 
-    expect(mockGroupService.currentFilter.searchString).toBe('test group');
-    expect(mockGroupService.onExternalFilterChange).toHaveBeenCalled();
-    expect(mockGroupService.readPage).toHaveBeenCalled();
-  });
-
-  it('should reset filter correctly', () => {
-    strategy.resetFilter();
-
-    expect(mockGroupService.currentFilter.searchString).toBe('');
-    expect(mockGroupService.onExternalFilterChange).toHaveBeenCalled();
-    expect(mockGroupService.readPage).toHaveBeenCalled();
-  });
+        expect(mockGroupService.currentFilter.searchString).toBe('');
+        expect(mockGroupService.onExternalFilterChange).toHaveBeenCalled();
+        expect(mockGroupService.readPage).toHaveBeenCalled();
+    });
 });

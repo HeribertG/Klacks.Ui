@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -14,496 +15,466 @@ import { signal } from '@angular/core';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 
 describe('LLMProvidersComponent', () => {
-  let component: LLMProvidersComponent;
-  let fixture: ComponentFixture<LLMProvidersComponent>;
-  let mockProviderService: jasmine.SpyObj<DataManagementLLMProviderService>;
-  let mockLLMService: jasmine.SpyObj<DataManagementLLMService>;
-  let mockToastService: jasmine.SpyObj<ToastShowService>;
-  let mockNgbModal: jasmine.SpyObj<NgbModal>;
-  let mockModalService: ModalService;
-  let mockTranslateService: jasmine.SpyObj<TranslateService>;
+    let component: LLMProvidersComponent;
+    let fixture: ComponentFixture<LLMProvidersComponent>;
+    let mockProviderService: any;
+    let mockLLMService: any;
+    let mockToastService: any;
+    let mockNgbModal: any;
+    let mockModalService: ModalService;
+    let mockTranslateService: any;
 
-  const mockProviders: ILLMProvider[] = [
-    {
-      id: '1',
-      providerId: 'openai',
-      providerName: 'OpenAI',
-      baseUrl: 'https://api.openai.com',
-      apiVersion: 'v1',
-      apiKey: 'sk-test123',
-      isEnabled: true,
-      priority: 1,
-    },
-    {
-      id: '2',
-      providerId: 'anthropic',
-      providerName: 'Anthropic',
-      baseUrl: 'https://api.anthropic.com',
-      apiVersion: 'v1',
-      apiKey: 'sk-ant-test',
-      isEnabled: false,
-      priority: 2,
-    },
-    {
-      id: '3',
-      providerId: 'google',
-      providerName: 'Google',
-      baseUrl: 'https://generativelanguage.googleapis.com',
-      apiVersion: 'v1',
-      isEnabled: true,
-      priority: 3,
-    },
-  ];
-
-  beforeEach(async () => {
-    const providerServiceSpy = jasmine.createSpyObj(
-      'DataManagementLLMProviderService',
-      [
-        'loadProviders',
-        'createProvider',
-        'updateProvider',
-        'deleteProvider',
-        'toggleProviderStatus',
-        'getProviders',
-      ],
-      {
-        providers$: of(mockProviders),
-        isLoading: signal(false),
-      }
-    );
-
-    const llmServiceSpy = jasmine.createSpyObj('DataManagementLLMService', [
-      'reloadModels',
-      'getDefaultModel',
-    ]);
-
-    const toastServiceSpy = jasmine.createSpyObj('ToastShowService', [
-      'showError',
-      'showSuccess',
-    ]);
-
-    const ngbModalSpy = jasmine.createSpyObj('NgbModal', ['open']);
-
-    const translateServiceSpy = jasmine.createSpyObj('TranslateService', [
-      'instant',
-    ]);
-    translateServiceSpy.instant.and.returnValue('Translated text');
-
-    providerServiceSpy.loadProviders.and.returnValue(Promise.resolve());
-    providerServiceSpy.getProviders.and.returnValue(of(mockProviders));
-    llmServiceSpy.getDefaultModel.and.returnValue(null);
-
-    await TestBed.configureTestingModule({
-      imports: [LLMProvidersComponent, TranslateModule.forRoot()],
-      providers: [
+    const mockProviders: ILLMProvider[] = [
         {
-          provide: DataManagementLLMProviderService,
-          useValue: providerServiceSpy,
+            id: '1',
+            providerId: 'openai',
+            providerName: 'OpenAI',
+            baseUrl: 'https://api.openai.com',
+            apiVersion: 'v1',
+            apiKey: 'sk-test123',
+            isEnabled: true,
+            priority: 1,
         },
-        { provide: DataManagementLLMService, useValue: llmServiceSpy },
-        { provide: ToastShowService, useValue: toastServiceSpy },
-        { provide: NgbModal, useValue: ngbModalSpy },
-        ModalService,
-        { provide: TranslateService, useValue: translateServiceSpy },
-      ],
-    }).compileComponents();
+        {
+            id: '2',
+            providerId: 'anthropic',
+            providerName: 'Anthropic',
+            baseUrl: 'https://api.anthropic.com',
+            apiVersion: 'v1',
+            apiKey: 'sk-ant-test',
+            isEnabled: false,
+            priority: 2,
+        },
+        {
+            id: '3',
+            providerId: 'google',
+            providerName: 'Google',
+            baseUrl: 'https://generativelanguage.googleapis.com',
+            apiVersion: 'v1',
+            isEnabled: true,
+            priority: 3,
+        },
+    ];
 
-    mockProviderService = TestBed.inject(
-      DataManagementLLMProviderService
-    ) as jasmine.SpyObj<DataManagementLLMProviderService>;
-    mockLLMService = TestBed.inject(
-      DataManagementLLMService
-    ) as jasmine.SpyObj<DataManagementLLMService>;
-    mockToastService = TestBed.inject(
-      ToastShowService
-    ) as jasmine.SpyObj<ToastShowService>;
-    mockNgbModal = TestBed.inject(NgbModal) as jasmine.SpyObj<NgbModal>;
-    mockModalService = TestBed.inject(ModalService);
-    mockTranslateService = TestBed.inject(
-      TranslateService
-    ) as jasmine.SpyObj<TranslateService>;
+    beforeEach(async () => {
+        const providerServiceSpy = {
+            loadProviders: vi.fn(),
+            createProvider: vi.fn(),
+            updateProvider: vi.fn(),
+            deleteProvider: vi.fn(),
+            toggleProviderStatus: vi.fn(),
+            getProviders: vi.fn(),
+            providers$: of(mockProviders),
+            isLoading: signal(false)
+        };
 
-    fixture = TestBed.createComponent(LLMProvidersComponent);
-    component = fixture.componentInstance;
-  });
+        const llmServiceSpy = {
+            reloadModels: vi.fn(),
+            getDefaultModel: vi.fn()
+        };
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+        const toastServiceSpy = {
+            showError: vi.fn(),
+            showSuccess: vi.fn()
+        };
 
-  describe('Initialization', () => {
-    it('should load providers on init', async () => {
-      fixture.detectChanges();
-      await fixture.whenStable();
+        const ngbModalSpy = {
+            open: vi.fn()
+        };
 
-      expect(mockProviderService.loadProviders).toHaveBeenCalled();
+        const translateServiceSpy = {
+            instant: vi.fn()
+        };
+        translateServiceSpy.instant.mockReturnValue('Translated text');
+
+        providerServiceSpy.loadProviders.mockReturnValue(Promise.resolve());
+        providerServiceSpy.getProviders.mockReturnValue(of(mockProviders));
+        llmServiceSpy.getDefaultModel.mockReturnValue(null);
+
+        await TestBed.configureTestingModule({
+            imports: [LLMProvidersComponent, TranslateModule.forRoot()],
+            providers: [
+                {
+                    provide: DataManagementLLMProviderService,
+                    useValue: providerServiceSpy,
+                },
+                { provide: DataManagementLLMService, useValue: llmServiceSpy },
+                { provide: ToastShowService, useValue: toastServiceSpy },
+                { provide: NgbModal, useValue: ngbModalSpy },
+                ModalService,
+                { provide: TranslateService, useValue: translateServiceSpy },
+            ],
+        }).compileComponents();
+
+        mockProviderService = TestBed.inject(DataManagementLLMProviderService) as any;
+        mockLLMService = TestBed.inject(DataManagementLLMService) as any;
+        mockToastService = TestBed.inject(ToastShowService) as any;
+        mockNgbModal = TestBed.inject(NgbModal) as any;
+        mockModalService = TestBed.inject(ModalService);
+        mockTranslateService = TestBed.inject(TranslateService) as any;
+
+        fixture = TestBed.createComponent(LLMProvidersComponent);
+        component = fixture.componentInstance;
     });
 
-    it('should subscribe to providers$', (done) => {
-      fixture.detectChanges();
-
-      setTimeout(() => {
-        expect(component.providers.length).toBe(3);
-        expect(component.providers).toEqual(mockProviders);
-        done();
-      }, 50);
-    });
-  });
-
-  describe('Add Provider', () => {
-    it('should initialize new provider with default values', () => {
-      component.onClickAdd();
-
-      expect(component.isNewProvider).toBe(true);
-      expect(component.editingProvider).toBeTruthy();
-      expect(component.editingProvider?.providerId).toBe('');
-      expect(component.editingProvider?.isEnabled).toBe(true);
-      expect(component.editingProvider?.priority).toBe(10);
-      expect(component.providerApiKey).toBe('');
-    });
-  });
-
-  describe('Edit Provider', () => {
-    it('should set editing provider and API key', () => {
-      const providerToEdit = mockProviders[0];
-
-      component.onClickEdit(providerToEdit);
-
-      expect(component.isNewProvider).toBe(false);
-      expect(component.editingProvider).toEqual(providerToEdit);
-      expect(component.providerApiKey).toBe('sk-test123');
+    it('should create', () => {
+        expect(component).toBeTruthy();
     });
 
-    it('should handle provider without API key', () => {
-      const providerWithoutKey = mockProviders[2];
+    describe('Initialization', () => {
+        it('should load providers on init', async () => {
+            fixture.detectChanges();
+            await fixture.whenStable();
 
-      component.onClickEdit(providerWithoutKey);
+            expect(mockProviderService.loadProviders).toHaveBeenCalled();
+        });
 
-      expect(component.providerApiKey).toBe('');
-    });
-  });
+        it('should subscribe to providers$', async () => {
+            fixture.detectChanges();
 
-  describe('Delete Provider', () => {
-    beforeEach(() => {
-      component.providers = [...mockProviders];
-      fixture.detectChanges();
-    });
-
-    it('should open delete modal with correct context', () => {
-      // Arrange
-      const providerToDelete = mockProviders[0];
-
-      // Act
-      component.openDeleteProvider(providerToDelete);
-
-      // Assert
-      expect(mockModalService.componentContext).toBe('llm-providers');
-      expect(mockModalService.Filing).toBe(providerToDelete.id as string);
+            await new Promise(resolve => setTimeout(resolve, 50));
+            expect(component.providers.length).toBe(3);
+            expect(component.providers).toEqual(mockProviders);
+        });
     });
 
-    it('should not open delete modal if provider has no id', () => {
-      // Arrange
-      const providerWithoutId: ILLMProvider = {
-        id: '',
-        providerId: 'test',
-        providerName: 'Test',
-        baseUrl: 'https://test.com',
-        apiVersion: 'v1',
-        isEnabled: true,
-        priority: 1
-      };
+    describe('Add Provider', () => {
+        it('should initialize new provider with default values', () => {
+            component.onClickAdd();
 
-      // Act
-      component.openDeleteProvider(providerWithoutId);
-
-      // Assert
-      expect(mockModalService.Filing).toBe('');
+            expect(component.isNewProvider).toBe(true);
+            expect(component.editingProvider).toBeTruthy();
+            expect(component.editingProvider?.providerId).toBe('');
+            expect(component.editingProvider?.isEnabled).toBe(true);
+            expect(component.editingProvider?.priority).toBe(10);
+            expect(component.providerApiKey).toBe('');
+        });
     });
 
-    it('should delete provider when modal service confirms', async () => {
-      // Arrange
-      const providerToDelete = mockProviders[0];
-      mockProviderService.deleteProvider.and.returnValue(Promise.resolve(true));
+    describe('Edit Provider', () => {
+        it('should set editing provider and API key', () => {
+            const providerToEdit = mockProviders[0];
 
-      // Act
-      component.openDeleteProvider(providerToDelete);
-      mockModalService.result(ModalType.Delete);
+            component.onClickEdit(providerToEdit);
 
-      // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 50));
+            expect(component.isNewProvider).toBe(false);
+            expect(component.editingProvider).toEqual(providerToEdit);
+            expect(component.providerApiKey).toBe('sk-test123');
+        });
 
-      // Assert
-      expect(mockProviderService.deleteProvider).toHaveBeenCalledWith(providerToDelete.id);
-    });
-  });
+        it('should handle provider without API key', () => {
+            const providerWithoutKey = mockProviders[2];
 
-  describe('Toggle Provider Status', () => {
-    beforeEach(() => {
-      component.providers = [...mockProviders];
+            component.onClickEdit(providerWithoutKey);
+
+            expect(component.providerApiKey).toBe('');
+        });
     });
 
-    it('should toggle provider status', async () => {
-      mockProviderService.toggleProviderStatus.and.returnValue(
-        Promise.resolve(true)
-      );
+    describe('Delete Provider', () => {
+        beforeEach(() => {
+            component.providers = [...mockProviders];
+            fixture.detectChanges();
+        });
 
-      await component.onClickToggleEnable(0);
+        it('should open delete modal with correct context', () => {
+            // Arrange
+            const providerToDelete = mockProviders[0];
 
-      expect(mockProviderService.toggleProviderStatus).toHaveBeenCalledWith(
-        '1',
-        false
-      );
+            // Act
+            component.openDeleteProvider(providerToDelete);
+
+            // Assert
+            expect(mockModalService.componentContext).toBe('llm-providers');
+            expect(mockModalService.Filing).toBe(providerToDelete.id as string);
+        });
+
+        it('should not open delete modal if provider has no id', () => {
+            // Arrange
+            const providerWithoutId: ILLMProvider = {
+                id: '',
+                providerId: 'test',
+                providerName: 'Test',
+                baseUrl: 'https://test.com',
+                apiVersion: 'v1',
+                isEnabled: true,
+                priority: 1
+            };
+
+            // Act
+            component.openDeleteProvider(providerWithoutId);
+
+            // Assert
+            expect(mockModalService.Filing).toBe('');
+        });
+
+        it('should delete provider when modal service confirms', async () => {
+            // Arrange
+            const providerToDelete = mockProviders[0];
+            mockProviderService.deleteProvider.mockReturnValue(Promise.resolve(true));
+
+            // Act
+            component.openDeleteProvider(providerToDelete);
+            mockModalService.result(ModalType.Delete);
+
+            // Wait for async operations
+            await new Promise(resolve => setTimeout(resolve, 50));
+
+            // Assert
+            expect(mockProviderService.deleteProvider).toHaveBeenCalledWith(providerToDelete.id);
+        });
     });
 
+    describe('Toggle Provider Status', () => {
+        beforeEach(() => {
+            component.providers = [...mockProviders];
+        });
 
-    it('should not toggle if index is invalid', async () => {
-      await component.onClickToggleEnable(-1);
+        it('should toggle provider status', async () => {
+            mockProviderService.toggleProviderStatus.mockReturnValue(Promise.resolve(true));
 
-      expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
+            await component.onClickToggleEnable(0);
+
+            expect(mockProviderService.toggleProviderStatus).toHaveBeenCalledWith('1', false);
+        });
+
+
+        it('should not toggle if index is invalid', async () => {
+            await component.onClickToggleEnable(-1);
+
+            expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
+        });
+
+        it('should not toggle if provider has no ID', async () => {
+            const providerWithoutId = { ...mockProviders[0], id: undefined } as any;
+            component.providers = [providerWithoutId];
+
+            await component.onClickToggleEnable(0);
+
+            expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
+        });
     });
 
-    it('should not toggle if provider has no ID', async () => {
-      const providerWithoutId = { ...mockProviders[0], id: undefined } as any;
-      component.providers = [providerWithoutId];
+    describe('Save Provider', () => {
+        let mockModal: any;
 
-      await component.onClickToggleEnable(0);
+        beforeEach(() => {
+            mockModal = { close: vi.fn() };
+        });
 
-      expect(mockProviderService.toggleProviderStatus).not.toHaveBeenCalled();
-    });
-  });
+        it('should create new provider', async () => {
+            component.isNewProvider = true;
+            component.editingProvider = {
+                id: '',
+                providerId: 'new-provider',
+                providerName: 'New Provider',
+                baseUrl: 'https://api.new.com',
+                apiVersion: 'v1',
+                isEnabled: true,
+                priority: 10,
+            };
+            component.providerApiKey = 'new-api-key';
+            mockProviderService.createProvider.mockReturnValue(Promise.resolve(component.editingProvider));
 
-  describe('Save Provider', () => {
-    let mockModal: any;
+            await component.onSaveModal(mockModal);
 
-    beforeEach(() => {
-      mockModal = { close: jasmine.createSpy('close') };
-    });
+            expect(mockProviderService.createProvider).toHaveBeenCalled();
+            expect(mockLLMService.reloadModels).toHaveBeenCalled();
+            expect(mockModal.close).toHaveBeenCalled();
+        });
 
-    it('should create new provider', async () => {
-      component.isNewProvider = true;
-      component.editingProvider = {
-        id: '',
-        providerId: 'new-provider',
-        providerName: 'New Provider',
-        baseUrl: 'https://api.new.com',
-        apiVersion: 'v1',
-        isEnabled: true,
-        priority: 10,
-      };
-      component.providerApiKey = 'new-api-key';
-      mockProviderService.createProvider.and.returnValue(
-        Promise.resolve(component.editingProvider)
-      );
+        it('should update existing provider', async () => {
+            component.isNewProvider = false;
+            component.editingProvider = { ...mockProviders[0], priority: 5 };
+            component.providerApiKey = 'updated-key';
+            mockProviderService.updateProvider.mockReturnValue(Promise.resolve(component.editingProvider));
 
-      await component.onSaveModal(mockModal);
+            await component.onSaveModal(mockModal);
 
-      expect(mockProviderService.createProvider).toHaveBeenCalled();
-      expect(mockLLMService.reloadModels).toHaveBeenCalled();
-      expect(mockModal.close).toHaveBeenCalled();
-    });
+            expect(mockProviderService.updateProvider).toHaveBeenCalled();
+            expect(mockLLMService.reloadModels).toHaveBeenCalled();
+            expect(mockModal.close).toHaveBeenCalled();
+        });
 
-    it('should update existing provider', async () => {
-      component.isNewProvider = false;
-      component.editingProvider = { ...mockProviders[0], priority: 5 };
-      component.providerApiKey = 'updated-key';
-      mockProviderService.updateProvider.and.returnValue(
-        Promise.resolve(component.editingProvider)
-      );
+        it('should not save if form is invalid', async () => {
+            component.editingProvider = {
+                id: '',
+                providerId: '',
+                providerName: '',
+                baseUrl: '',
+                apiVersion: '',
+                isEnabled: true,
+                priority: 10,
+            };
+            component.providerApiKey = '';
 
-      await component.onSaveModal(mockModal);
+            await component.onSaveModal(mockModal);
 
-      expect(mockProviderService.updateProvider).toHaveBeenCalled();
-      expect(mockLLMService.reloadModels).toHaveBeenCalled();
-      expect(mockModal.close).toHaveBeenCalled();
-    });
+            expect(mockProviderService.createProvider).not.toHaveBeenCalled();
+            expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
+        });
 
-    it('should not save if form is invalid', async () => {
-      component.editingProvider = {
-        id: '',
-        providerId: '',
-        providerName: '',
-        baseUrl: '',
-        apiVersion: '',
-        isEnabled: true,
-        priority: 10,
-      };
-      component.providerApiKey = '';
+        it('should not update provider without ID', async () => {
+            component.isNewProvider = false;
+            component.editingProvider = {
+                id: '',
+                providerId: 'test',
+                providerName: 'Test',
+                baseUrl: 'https://test.com',
+                apiVersion: 'v1',
+                isEnabled: true,
+                priority: 10,
+            };
+            component.providerApiKey = 'key';
 
-      await component.onSaveModal(mockModal);
+            await component.onSaveModal(mockModal);
 
-      expect(mockProviderService.createProvider).not.toHaveBeenCalled();
-      expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
-    });
+            expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
+        });
 
-    it('should not update provider without ID', async () => {
-      component.isNewProvider = false;
-      component.editingProvider = {
-        id: '',
-        providerId: 'test',
-        providerName: 'Test',
-        baseUrl: 'https://test.com',
-        apiVersion: 'v1',
-        isEnabled: true,
-        priority: 10,
-      };
-      component.providerApiKey = 'key';
+        it('should not close modal if save fails', async () => {
+            component.isNewProvider = true;
+            component.editingProvider = {
+                id: '',
+                providerId: 'test',
+                providerName: 'Test',
+                baseUrl: 'https://test.com',
+                apiVersion: 'v1',
+                isEnabled: true,
+                priority: 10,
+            };
+            component.providerApiKey = 'key';
+            mockProviderService.createProvider.mockReturnValue(Promise.resolve(undefined));
 
-      await component.onSaveModal(mockModal);
+            await component.onSaveModal(mockModal);
 
-      expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
-    });
-
-    it('should not close modal if save fails', async () => {
-      component.isNewProvider = true;
-      component.editingProvider = {
-        id: '',
-        providerId: 'test',
-        providerName: 'Test',
-        baseUrl: 'https://test.com',
-        apiVersion: 'v1',
-        isEnabled: true,
-        priority: 10,
-      };
-      component.providerApiKey = 'key';
-      mockProviderService.createProvider.and.returnValue(
-        Promise.resolve(undefined)
-      );
-
-      await component.onSaveModal(mockModal);
-
-      expect(mockModal.close).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Form Validation', () => {
-    beforeEach(() => {
-      component.editingProvider = {
-        id: '1',
-        providerId: 'test',
-        providerName: 'Test Provider',
-        baseUrl: 'https://api.test.com',
-        apiVersion: 'v1',
-        isEnabled: true,
-        priority: 10,
-      };
-      component.providerApiKey = 'test-key';
+            expect(mockModal.close).not.toHaveBeenCalled();
+        });
     });
 
-    it('should validate complete provider', () => {
-      expect(component.isFormValid()).toBe(true);
+    describe('Form Validation', () => {
+        beforeEach(() => {
+            component.editingProvider = {
+                id: '1',
+                providerId: 'test',
+                providerName: 'Test Provider',
+                baseUrl: 'https://api.test.com',
+                apiVersion: 'v1',
+                isEnabled: true,
+                priority: 10,
+            };
+            component.providerApiKey = 'test-key';
+        });
+
+        it('should validate complete provider', () => {
+            expect(component.isFormValid()).toBe(true);
+        });
+
+        it('should fail validation if providerName is missing', () => {
+            component.editingProvider!.providerName = '';
+
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should fail validation if baseUrl is missing', () => {
+            component.editingProvider!.baseUrl = '';
+
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should fail validation if apiKey is missing', () => {
+            component.providerApiKey = '';
+
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should require providerId for new providers', () => {
+            component.isNewProvider = true;
+            component.editingProvider!.providerId = '';
+
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should not require providerId for existing providers', () => {
+            component.isNewProvider = false;
+            component.editingProvider!.providerId = '';
+
+            expect(component.isFormValid()).toBe(true);
+        });
+
+        it('should return validation error messages', () => {
+            component.editingProvider!.providerName = '';
+            component.providerApiKey = '';
+
+            const errors = component.getValidationErrors();
+
+            expect(errors.length).toBeGreaterThan(0);
+            expect(mockTranslateService.instant).toHaveBeenCalled();
+        });
     });
 
-    it('should fail validation if providerName is missing', () => {
-      component.editingProvider!.providerName = '';
+    describe('Helper Methods', () => {
+        it('should generate provider class name', () => {
+            const className = component.getProviderClass('OpenAI');
 
-      expect(component.isFormValid()).toBe(false);
+            expect(className).toBe('provider-openai');
+        });
+
+        it('should determine status class', () => {
+            expect(component.getStatusClass(true, true)).toBe('status-enabled');
+            expect(component.getStatusClass(false, true)).toBe('status-disabled');
+            expect(component.getStatusClass(true, false)).toBe('status-no-key');
+        });
+
+        it('should get status text', () => {
+            component.getStatusText(true, true);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('settings.llm-providers.status.enabled');
+
+            component.getStatusText(false, true);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('settings.llm-providers.status.disabled');
+
+            component.getStatusText(true, false);
+            expect(mockTranslateService.instant).toHaveBeenCalledWith('settings.llm-providers.status.no-key');
+        });
+
+        it('should check if provider has API key', () => {
+            const providerWithKey = mockProviders[0];
+            const providerWithoutKey = mockProviders[2];
+
+            expect(component.hasApiKey(providerWithKey)).toBe(true);
+            expect(component.hasApiKey(providerWithoutKey)).toBe(false);
+        });
+
+        it('should determine if provider can be deleted', () => {
+            mockLLMService.getDefaultModel.mockReturnValue({
+                id: '1',
+                modelId: 'test',
+                apiModelId: 'test',
+                modelName: 'Test',
+                providerId: 'openai',
+                contextWindow: 4096,
+                maxTokens: 4096,
+                costPerInputToken: 0.01,
+                costPerOutputToken: 0.02,
+                isEnabled: true,
+                isDefault: true,
+                capabilities: ['chat'],
+            });
+
+            const canDeleteOpenAI = component.canDeleteProvider(mockProviders[0]);
+            const canDeleteAnthropic = component.canDeleteProvider(mockProviders[1]);
+
+            expect(canDeleteOpenAI).toBe(false);
+            expect(canDeleteAnthropic).toBe(true);
+        });
+
+        it('should allow deletion if no default model exists', () => {
+            mockLLMService.getDefaultModel.mockReturnValue(undefined);
+
+            const canDelete = component.canDeleteProvider(mockProviders[0]);
+
+            expect(canDelete).toBe(true);
+        });
     });
-
-    it('should fail validation if baseUrl is missing', () => {
-      component.editingProvider!.baseUrl = '';
-
-      expect(component.isFormValid()).toBe(false);
-    });
-
-    it('should fail validation if apiKey is missing', () => {
-      component.providerApiKey = '';
-
-      expect(component.isFormValid()).toBe(false);
-    });
-
-    it('should require providerId for new providers', () => {
-      component.isNewProvider = true;
-      component.editingProvider!.providerId = '';
-
-      expect(component.isFormValid()).toBe(false);
-    });
-
-    it('should not require providerId for existing providers', () => {
-      component.isNewProvider = false;
-      component.editingProvider!.providerId = '';
-
-      expect(component.isFormValid()).toBe(true);
-    });
-
-    it('should return validation error messages', () => {
-      component.editingProvider!.providerName = '';
-      component.providerApiKey = '';
-
-      const errors = component.getValidationErrors();
-
-      expect(errors.length).toBeGreaterThan(0);
-      expect(mockTranslateService.instant).toHaveBeenCalled();
-    });
-  });
-
-  describe('Helper Methods', () => {
-    it('should generate provider class name', () => {
-      const className = component.getProviderClass('OpenAI');
-
-      expect(className).toBe('provider-openai');
-    });
-
-    it('should determine status class', () => {
-      expect(component.getStatusClass(true, true)).toBe('status-enabled');
-      expect(component.getStatusClass(false, true)).toBe('status-disabled');
-      expect(component.getStatusClass(true, false)).toBe('status-no-key');
-    });
-
-    it('should get status text', () => {
-      component.getStatusText(true, true);
-      expect(mockTranslateService.instant).toHaveBeenCalledWith(
-        'settings.llm-providers.status.enabled'
-      );
-
-      component.getStatusText(false, true);
-      expect(mockTranslateService.instant).toHaveBeenCalledWith(
-        'settings.llm-providers.status.disabled'
-      );
-
-      component.getStatusText(true, false);
-      expect(mockTranslateService.instant).toHaveBeenCalledWith(
-        'settings.llm-providers.status.no-key'
-      );
-    });
-
-    it('should check if provider has API key', () => {
-      const providerWithKey = mockProviders[0];
-      const providerWithoutKey = mockProviders[2];
-
-      expect(component.hasApiKey(providerWithKey)).toBe(true);
-      expect(component.hasApiKey(providerWithoutKey)).toBe(false);
-    });
-
-    it('should determine if provider can be deleted', () => {
-      mockLLMService.getDefaultModel.and.returnValue({
-        id: '1',
-        modelId: 'test',
-        apiModelId: 'test',
-        modelName: 'Test',
-        providerId: 'openai',
-        contextWindow: 4096,
-        maxTokens: 4096,
-        costPerInputToken: 0.01,
-        costPerOutputToken: 0.02,
-        isEnabled: true,
-        isDefault: true,
-        capabilities: ['chat'],
-      });
-
-      const canDeleteOpenAI = component.canDeleteProvider(mockProviders[0]);
-      const canDeleteAnthropic = component.canDeleteProvider(mockProviders[1]);
-
-      expect(canDeleteOpenAI).toBe(false);
-      expect(canDeleteAnthropic).toBe(true);
-    });
-
-    it('should allow deletion if no default model exists', () => {
-      mockLLMService.getDefaultModel.and.returnValue(undefined);
-
-      const canDelete = component.canDeleteProvider(mockProviders[0]);
-
-      expect(canDelete).toBe(true);
-    });
-  });
 
 });

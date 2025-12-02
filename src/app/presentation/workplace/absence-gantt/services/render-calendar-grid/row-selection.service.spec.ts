@@ -1,3 +1,4 @@
+import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { RowSelectionService } from './row-selection.service';
@@ -13,455 +14,431 @@ import { signal } from '@angular/core';
 import { Break } from 'src/app/domain/models/break-class';
 
 describe('RowSelectionService', () => {
-  let service: RowSelectionService;
-  let mockGanttCanvasManager: jasmine.SpyObj<GanttCanvasManagerService>;
-  let mockGridColors: jasmine.SpyObj<GridColorService>;
-  let mockDataManagementBreak: jasmine.SpyObj<DataManagementBreakService>;
-  let mockDataManagementAbsence: jasmine.SpyObj<DataManagementAbsenceGanttService>;
-  let mockScroll: jasmine.SpyObj<ScrollService>;
-  let mockCalendarSetting: jasmine.SpyObj<CalendarSettingService>;
-  let mockCalculationService: jasmine.SpyObj<CalendarCalculationService>;
-  let mockBreakRenderingService: jasmine.SpyObj<BreakRenderingService>;
-  let mockCtx: jasmine.SpyObj<CanvasRenderingContext2D>;
-  let mockRows: number;
-  let mockFirstVisibleRow: number;
-  let mockVisibleRow: number;
-  let mockFirstVisibleColumn: number;
-  let mockLastVisibleColumn: number;
-  let mockVerticalScrollPosition: number;
-  let mockHorizontalScrollPosition: number;
+    let service: RowSelectionService;
+    let mockGanttCanvasManager: any;
+    let mockGridColors: any;
+    let mockDataManagementBreak: any;
+    let mockDataManagementAbsence: any;
+    let mockScroll: any;
+    let mockCalendarSetting: any;
+    let mockCalculationService: any;
+    let mockBreakRenderingService: any;
+    let mockCtx: any;
+    let mockRows: number;
+    let mockFirstVisibleRow: number;
+    let mockVisibleRow: number;
+    let mockFirstVisibleColumn: number;
+    let mockLastVisibleColumn: number;
+    let mockVerticalScrollPosition: number;
+    let mockHorizontalScrollPosition: number;
 
-  beforeEach(() => {
-    mockCtx = jasmine.createSpyObj('CanvasRenderingContext2D', [
-      'save',
-      'restore',
-      'beginPath',
-      'rect',
-      'clip',
-      'fillRect',
-    ]);
+    beforeEach(() => {
+        mockCtx = {
+            save: vi.fn(),
+            restore: vi.fn(),
+            beginPath: vi.fn(),
+            rect: vi.fn(),
+            clip: vi.fn(),
+            fillRect: vi.fn()
+        };
 
-    const mockCanvas = document.createElement('canvas');
-    mockCanvas.width = 800;
-    mockCanvas.height = 600;
+        const mockCanvas = document.createElement('canvas');
+        mockCanvas.width = 800;
+        mockCanvas.height = 600;
 
-    mockGanttCanvasManager = jasmine.createSpyObj(
-      'GanttCanvasManagerService',
-      ['isCanvasAvailable'],
-      {
-        ctx: mockCtx,
-        canvas: mockCanvas,
-        width: 800,
-        height: 600,
-      }
-    );
-    mockGanttCanvasManager.isCanvasAvailable.and.returnValue(true);
+        mockGanttCanvasManager = {
+            isCanvasAvailable: vi.fn(),
+            ctx: mockCtx,
+            canvas: mockCanvas,
+            width: 800,
+            height: 600
+        };
+        mockGanttCanvasManager.isCanvasAvailable.mockReturnValue(true);
 
-    mockGridColors = jasmine.createSpyObj('GridColorService', [], {
-      focusBorderColor: '#0000ff',
+        mockGridColors = {
+            focusBorderColor: '#0000ff'
+        };
+
+        mockRows = 100;
+        mockFirstVisibleRow = 0;
+        mockVisibleRow = 20;
+        mockFirstVisibleColumn = 0;
+        mockLastVisibleColumn = 365;
+        mockVerticalScrollPosition = 0;
+        mockHorizontalScrollPosition = 0;
+
+        mockDataManagementBreak = {
+            readData: vi.fn()
+        };
+
+        Object.defineProperty(mockDataManagementBreak, 'rows', {
+            get: () => mockRows,
+            set: (value: number) => { mockRows = value; },
+            configurable: true
+        });
+
+        mockDataManagementAbsence = {
+            absenceList: signal([
+                { id: '1', color: '#ff0000', name: 'Vacation' },
+                { id: '2', color: '#00ff00', name: 'Sick Leave' },
+            ])
+        };
+
+        mockScroll = {
+            dummy: vi.fn()
+        };
+        Object.defineProperty(mockScroll, 'verticalScrollPosition', {
+            get: () => mockVerticalScrollPosition,
+            set: (value: number) => { mockVerticalScrollPosition = value; },
+            configurable: true
+        });
+        Object.defineProperty(mockScroll, 'horizontalScrollPosition', {
+            get: () => mockHorizontalScrollPosition,
+            set: (value: number) => { mockHorizontalScrollPosition = value; },
+            configurable: true
+        });
+
+        mockCalendarSetting = {
+            cellWidth: 10,
+            cellHeight: 30,
+            cellHeaderHeight: 50
+        };
+
+        mockCalculationService = {
+            calcDateRectangle: vi.fn(),
+            firstVisibleColumn: vi.fn(),
+            lastVisibleColumn: vi.fn(),
+            visibleRow: vi.fn()
+        };
+
+        Object.defineProperty(mockCalculationService, 'firstVisibleRow', {
+            get: () => mockFirstVisibleRow,
+            configurable: true
+        });
+
+        mockCalculationService.firstVisibleColumn.mockReturnValue(mockFirstVisibleColumn);
+        mockCalculationService.lastVisibleColumn.mockReturnValue(mockLastVisibleColumn);
+        mockCalculationService.visibleRow.mockReturnValue(mockVisibleRow);
+
+        mockBreakRenderingService = {
+            drawBreakIntern: vi.fn(),
+            drawBreakSelectBorderIntern: vi.fn(),
+            drawBreakSelectBorderInternAnchor: vi.fn()
+        };
+
+        TestBed.configureTestingModule({
+            providers: [
+                RowSelectionService,
+                {
+                    provide: GanttCanvasManagerService,
+                    useValue: mockGanttCanvasManager,
+                },
+                { provide: GridColorService, useValue: mockGridColors },
+                {
+                    provide: DataManagementBreakService,
+                    useValue: mockDataManagementBreak,
+                },
+                {
+                    provide: DataManagementAbsenceGanttService,
+                    useValue: mockDataManagementAbsence,
+                },
+                { provide: ScrollService, useValue: mockScroll },
+                { provide: CalendarSettingService, useValue: mockCalendarSetting },
+                {
+                    provide: CalendarCalculationService,
+                    useValue: mockCalculationService,
+                },
+                {
+                    provide: BreakRenderingService,
+                    useValue: mockBreakRenderingService,
+                },
+            ],
+        });
+
+        service = TestBed.inject(RowSelectionService);
     });
 
-    mockRows = 100;
-    mockFirstVisibleRow = 0;
-    mockVisibleRow = 20;
-    mockFirstVisibleColumn = 0;
-    mockLastVisibleColumn = 365;
-    mockVerticalScrollPosition = 0;
-    mockHorizontalScrollPosition = 0;
-
-    mockDataManagementBreak = jasmine.createSpyObj(
-      'DataManagementBreakService',
-      ['readData'],
-      {}
-    );
-
-    Object.defineProperty(mockDataManagementBreak, 'rows', {
-      get: () => mockRows,
-      set: (value: number) => { mockRows = value; },
-      configurable: true
+    it('should be created', () => {
+        expect(service).toBeTruthy();
     });
 
-    mockDataManagementAbsence = jasmine.createSpyObj(
-      'DataManagementAbsenceGanttService',
-      [],
-      {
-        absenceList: signal([
-          { id: '1', color: '#ff0000', name: 'Vacation' },
-          { id: '2', color: '#00ff00', name: 'Sick Leave' },
-        ]),
-      }
-    );
+    describe('selectedRow', () => {
+        it('should set selected row within valid range', () => {
+            service.selectedRow = 5;
 
-    mockScroll = jasmine.createSpyObj('ScrollService', ['dummy']);
-    Object.defineProperty(mockScroll, 'verticalScrollPosition', {
-      get: () => mockVerticalScrollPosition,
-      set: (value: number) => { mockVerticalScrollPosition = value; },
-      configurable: true
-    });
-    Object.defineProperty(mockScroll, 'horizontalScrollPosition', {
-      get: () => mockHorizontalScrollPosition,
-      set: (value: number) => { mockHorizontalScrollPosition = value; },
-      configurable: true
-    });
+            expect(service.selectedRow).toBe(5);
+        });
 
-    mockCalendarSetting = jasmine.createSpyObj('CalendarSettingService', [], {
-      cellWidth: 10,
-      cellHeight: 30,
-      cellHeaderHeight: 50,
-    });
+        it('should reset selectedBreakIndex when changing row', () => {
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 2;
 
-    mockCalculationService = jasmine.createSpyObj('CalendarCalculationService', [
-      'calcDateRectangle',
-      'firstVisibleColumn',
-      'lastVisibleColumn',
-      'visibleRow',
-    ]);
+            service.selectedRow = 10;
 
-    Object.defineProperty(mockCalculationService, 'firstVisibleRow', {
-      get: () => mockFirstVisibleRow,
-      configurable: true
-    });
+            expect(service.selectedBreakIndex).toBe(-1);
+        });
 
-    mockCalculationService.firstVisibleColumn.and.returnValue(mockFirstVisibleColumn);
-    mockCalculationService.lastVisibleColumn.and.returnValue(mockLastVisibleColumn);
-    mockCalculationService.visibleRow.and.returnValue(mockVisibleRow);
+        it('should not change if setting same value', () => {
+            service.selectedRow = 5;
+            const spy = vi.spyOn(service, 'selectedBreakIndex', 'set');
 
-    mockBreakRenderingService = jasmine.createSpyObj('BreakRenderingService', [
-      'drawBreakIntern',
-      'drawBreakSelectBorderIntern',
-      'drawBreakSelectBorderInternAnchor',
-    ]);
+            service.selectedRow = 5;
 
-    TestBed.configureTestingModule({
-      providers: [
-        RowSelectionService,
-        {
-          provide: GanttCanvasManagerService,
-          useValue: mockGanttCanvasManager,
-        },
-        { provide: GridColorService, useValue: mockGridColors },
-        {
-          provide: DataManagementBreakService,
-          useValue: mockDataManagementBreak,
-        },
-        {
-          provide: DataManagementAbsenceGanttService,
-          useValue: mockDataManagementAbsence,
-        },
-        { provide: ScrollService, useValue: mockScroll },
-        { provide: CalendarSettingService, useValue: mockCalendarSetting },
-        {
-          provide: CalendarCalculationService,
-          useValue: mockCalculationService,
-        },
-        {
-          provide: BreakRenderingService,
-          useValue: mockBreakRenderingService,
-        },
-      ],
+            expect(spy).not.toHaveBeenCalled();
+        });
+
+        it('should clamp negative values to 0', () => {
+            service.selectedRow = -5;
+
+            expect(service.selectedRow).toBe(0);
+        });
+
+        it('should clamp values exceeding max rows', () => {
+            mockRows = 50;
+
+            service.selectedRow = 100;
+
+            expect(service.selectedRow).toBe(50);
+        });
     });
 
-    service = TestBed.inject(RowSelectionService);
-  });
+    describe('selectedBreakIndex', () => {
+        it('should set selected break index', () => {
+            service.selectedBreakIndex = 3;
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+            expect(service.selectedBreakIndex).toBe(3);
+        });
 
-  describe('selectedRow', () => {
-    it('should set selected row within valid range', () => {
-      service.selectedRow = 5;
+        it('should not change if setting same value', () => {
+            service.selectedBreakIndex = 3;
+            const initialValue = service.selectedBreakIndex;
 
-      expect(service.selectedRow).toBe(5);
+            service.selectedBreakIndex = 3;
+
+            expect(service.selectedBreakIndex).toBe(initialValue);
+        });
     });
 
-    it('should reset selectedBreakIndex when changing row', () => {
-      service.selectedRow = 5;
-      service.selectedBreakIndex = 2;
+    describe('selectedBreak', () => {
+        it('should return selected break from data', () => {
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as Break;
 
-      service.selectedRow = 10;
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 2;
+            mockDataManagementBreak.readData.mockReturnValue([
+                null as any,
+                null as any,
+                mockBreak,
+            ]);
 
-      expect(service.selectedBreakIndex).toBe(-1);
+            const result = service.selectedBreak;
+
+            expect(result).toBe(mockBreak);
+            expect(mockDataManagementBreak.readData).toHaveBeenCalledWith(5);
+        });
+
+        it('should return undefined for invalid row', () => {
+            service.selectedRow = -1;
+
+            const result = service.selectedBreak;
+
+            expect(result).toBeUndefined();
+        });
+
+        it('should return undefined for row exceeding max', () => {
+            mockRows = 50;
+            service.selectedRow = 100;
+
+            const result = service.selectedBreak;
+
+            expect(result).toBeUndefined();
+        });
     });
 
-    it('should not change if setting same value', () => {
-      service.selectedRow = 5;
-      const spy = spyOnProperty(service, 'selectedBreakIndex', 'set');
+    describe('drawSelectionRow', () => {
+        it('should draw selection overlay for valid row', () => {
+            // Arrange
+            service.selectedRow = 5;
+            mockScroll.verticalScrollPosition = 2;
+            mockFirstVisibleColumn = 0;
+            mockLastVisibleColumn = 80;
+            mockCalculationService.firstVisibleColumn.mockReturnValue(mockFirstVisibleColumn);
+            mockCalculationService.lastVisibleColumn.mockReturnValue(mockLastVisibleColumn);
 
-      service.selectedRow = 5;
+            // Act
+            service.drawSelectionRow();
 
-      expect(spy).not.toHaveBeenCalled();
+            // Assert
+            expect(mockCtx.save).toHaveBeenCalled();
+            expect(mockCtx.beginPath).toHaveBeenCalled();
+            expect(mockCtx.rect).toHaveBeenCalled();
+            expect(mockCtx.clip).toHaveBeenCalled();
+            expect(mockCtx.fillRect).toHaveBeenCalled();
+            expect(mockCtx.restore).toHaveBeenCalled();
+        });
+
+        it('should not draw for invalid row', () => {
+            service.selectedRow = -1;
+
+            service.drawSelectionRow();
+
+            expect(mockCtx.save).not.toHaveBeenCalled();
+        });
+
+        it('should use correct position based on scroll', () => {
+            // Arrange
+            service.selectedRow = 10;
+            mockVerticalScrollPosition = 5;
+            mockFirstVisibleColumn = 0;
+            mockLastVisibleColumn = 80;
+            mockCalculationService.firstVisibleColumn.mockReturnValue(mockFirstVisibleColumn);
+            mockCalculationService.lastVisibleColumn.mockReturnValue(mockLastVisibleColumn);
+
+            // Act
+            service.drawSelectionRow();
+
+            // Assert
+            const dy = 10 - 5;
+            const expectedTop = Math.floor(dy * mockCalendarSetting.cellHeight) +
+                mockCalendarSetting.cellHeaderHeight;
+
+            expect(mockCtx.fillRect).toHaveBeenCalledWith(0, expectedTop, expect.any(Number), mockCalendarSetting.cellHeight);
+        });
+
+        it('should use calculated width when available', () => {
+            // Arrange
+            service.selectedRow = 5;
+            mockFirstVisibleColumn = 10;
+            mockLastVisibleColumn = 50;
+            mockCalculationService.firstVisibleColumn.mockReturnValue(mockFirstVisibleColumn);
+            mockCalculationService.lastVisibleColumn.mockReturnValue(mockLastVisibleColumn);
+
+            // Act
+            service.drawSelectionRow();
+
+            // Assert
+            const expectedWidth = (50 - 10) * mockCalendarSetting.cellWidth;
+
+            expect(mockCtx.fillRect).toHaveBeenCalledWith(0, expect.any(Number), expectedWidth, mockCalendarSetting.cellHeight);
+        });
+
+        it('should fallback to canvas width if calculated width is 0', () => {
+            // Arrange
+            service.selectedRow = 5;
+            mockFirstVisibleColumn = 10;
+            mockLastVisibleColumn = 10;
+            mockCalculationService.firstVisibleColumn.mockReturnValue(mockFirstVisibleColumn);
+            mockCalculationService.lastVisibleColumn.mockReturnValue(mockLastVisibleColumn);
+
+            // Act
+            service.drawSelectionRow();
+
+            // Assert
+            expect(mockCtx.fillRect).toHaveBeenCalledWith(0, expect.any(Number), mockGanttCanvasManager.width, mockCalendarSetting.cellHeight);
+        });
     });
 
-    it('should clamp negative values to 0', () => {
-      service.selectedRow = -5;
+    describe('isSelectedRowVisible', () => {
+        it('should return true when row is visible', () => {
+            // Arrange
+            service.selectedRow = 15;
+            mockFirstVisibleRow = 10;
+            mockVisibleRow = 20;
+            mockRows = 100;
+            mockCalculationService.visibleRow.mockReturnValue(mockVisibleRow);
 
-      expect(service.selectedRow).toBe(0);
+            // Act & Assert
+            expect(service.isSelectedRowVisible()).toBe(true);
+        });
+
+        it('should return false when row is before visible area', () => {
+            // Arrange
+            service.selectedRow = 5;
+            mockFirstVisibleRow = 10;
+            mockVisibleRow = 20;
+            mockCalculationService.visibleRow.mockReturnValue(mockVisibleRow);
+
+            // Act & Assert
+            expect(service.isSelectedRowVisible()).toBe(false);
+        });
+
+        it('should return false when row is after visible area', () => {
+            // Arrange
+            service.selectedRow = 50;
+            mockFirstVisibleRow = 10;
+            mockVisibleRow = 20;
+            mockCalculationService.visibleRow.mockReturnValue(mockVisibleRow);
+
+            // Act & Assert
+            expect(service.isSelectedRowVisible()).toBe(false);
+        });
+
+        it('should return false when row exceeds total rows', () => {
+            // Arrange
+            service.selectedRow = 150;
+            mockFirstVisibleRow = 10;
+            mockVisibleRow = 20;
+            mockRows = 100;
+            mockCalculationService.visibleRow.mockReturnValue(mockVisibleRow);
+
+            // Act & Assert
+            expect(service.isSelectedRowVisible()).toBe(false);
+        });
     });
 
-    it('should clamp values exceeding max rows', () => {
-      mockRows = 50;
+    describe('checkSelectedRowVisibility', () => {
+        it('should reset selectedRow if exceeds total rows', () => {
+            // Arrange
+            service.selectedRow = 150;
+            mockRows = 100;
 
-      service.selectedRow = 100;
+            // Act
+            service.checkSelectedRowVisibility();
 
-      expect(service.selectedRow).toBe(50);
-    });
-  });
+            // Assert
+            expect(service.selectedRow).toBe(100);
+        });
 
-  describe('selectedBreakIndex', () => {
-    it('should set selected break index', () => {
-      service.selectedBreakIndex = 3;
+        it('should not change selectedRow if within valid range', () => {
+            // Arrange
+            service.selectedRow = 50;
+            mockRows = 100;
 
-      expect(service.selectedBreakIndex).toBe(3);
-    });
+            // Act
+            service.checkSelectedRowVisibility();
 
-    it('should not change if setting same value', () => {
-      service.selectedBreakIndex = 3;
-      const initialValue = service.selectedBreakIndex;
-
-      service.selectedBreakIndex = 3;
-
-      expect(service.selectedBreakIndex).toBe(initialValue);
-    });
-  });
-
-  describe('selectedBreak', () => {
-    it('should return selected break from data', () => {
-      const mockBreak = {
-        id: 'break-1',
-        from: new Date(2024, 0, 1),
-        until: new Date(2024, 0, 5),
-      } as unknown as Break;
-
-      service.selectedRow = 5;
-      service.selectedBreakIndex = 2;
-      mockDataManagementBreak.readData.and.returnValue([
-        null as any,
-        null as any,
-        mockBreak,
-      ]);
-
-      const result = service.selectedBreak;
-
-      expect(result).toBe(mockBreak);
-      expect(mockDataManagementBreak.readData).toHaveBeenCalledWith(5);
+            // Assert
+            expect(service.selectedRow).toBe(50);
+        });
     });
 
-    it('should return undefined for invalid row', () => {
-      service.selectedRow = -1;
+    describe('isSelectedBreak_Dirty', () => {
+        it('should return false when no break is selected', () => {
+            // Arrange
+            service.selectedRow = -1;
 
-      const result = service.selectedBreak;
+            // Act & Assert
+            expect(service.isSelectedBreak_Dirty()).toBe(false);
+        });
 
-      expect(result).toBeUndefined();
+        it('should return true when break is selected', () => {
+            // Arrange
+            const mockBreak = {
+                id: 'break-1',
+                from: new Date(2024, 0, 1),
+                until: new Date(2024, 0, 5),
+            } as unknown as Break;
+
+            service.selectedRow = 5;
+            service.selectedBreakIndex = 0;
+            mockDataManagementBreak.readData.mockReturnValue([mockBreak]);
+
+            // Act & Assert
+            expect(service.isSelectedBreak_Dirty()).toBe(true);
+        });
     });
-
-    it('should return undefined for row exceeding max', () => {
-      mockRows = 50;
-      service.selectedRow = 100;
-
-      const result = service.selectedBreak;
-
-      expect(result).toBeUndefined();
-    });
-  });
-
-  describe('drawSelectionRow', () => {
-    it('should draw selection overlay for valid row', () => {
-      // Arrange
-      service.selectedRow = 5;
-      mockScroll.verticalScrollPosition = 2;
-      mockFirstVisibleColumn = 0;
-      mockLastVisibleColumn = 80;
-      mockCalculationService.firstVisibleColumn.and.returnValue(mockFirstVisibleColumn);
-      mockCalculationService.lastVisibleColumn.and.returnValue(mockLastVisibleColumn);
-
-      // Act
-      service.drawSelectionRow();
-
-      // Assert
-      expect(mockCtx.save).toHaveBeenCalled();
-      expect(mockCtx.beginPath).toHaveBeenCalled();
-      expect(mockCtx.rect).toHaveBeenCalled();
-      expect(mockCtx.clip).toHaveBeenCalled();
-      expect(mockCtx.fillRect).toHaveBeenCalled();
-      expect(mockCtx.restore).toHaveBeenCalled();
-    });
-
-    it('should not draw for invalid row', () => {
-      service.selectedRow = -1;
-
-      service.drawSelectionRow();
-
-      expect(mockCtx.save).not.toHaveBeenCalled();
-    });
-
-    it('should use correct position based on scroll', () => {
-      // Arrange
-      service.selectedRow = 10;
-      mockVerticalScrollPosition = 5;
-      mockFirstVisibleColumn = 0;
-      mockLastVisibleColumn = 80;
-      mockCalculationService.firstVisibleColumn.and.returnValue(mockFirstVisibleColumn);
-      mockCalculationService.lastVisibleColumn.and.returnValue(mockLastVisibleColumn);
-
-      // Act
-      service.drawSelectionRow();
-
-      // Assert
-      const dy = 10 - 5;
-      const expectedTop =
-        Math.floor(dy * mockCalendarSetting.cellHeight) +
-        mockCalendarSetting.cellHeaderHeight;
-
-      expect(mockCtx.fillRect).toHaveBeenCalledWith(
-        0,
-        expectedTop,
-        jasmine.any(Number),
-        mockCalendarSetting.cellHeight
-      );
-    });
-
-    it('should use calculated width when available', () => {
-      // Arrange
-      service.selectedRow = 5;
-      mockFirstVisibleColumn = 10;
-      mockLastVisibleColumn = 50;
-      mockCalculationService.firstVisibleColumn.and.returnValue(mockFirstVisibleColumn);
-      mockCalculationService.lastVisibleColumn.and.returnValue(mockLastVisibleColumn);
-
-      // Act
-      service.drawSelectionRow();
-
-      // Assert
-      const expectedWidth =
-        (50 - 10) * mockCalendarSetting.cellWidth;
-
-      expect(mockCtx.fillRect).toHaveBeenCalledWith(
-        0,
-        jasmine.any(Number),
-        expectedWidth,
-        mockCalendarSetting.cellHeight
-      );
-    });
-
-    it('should fallback to canvas width if calculated width is 0', () => {
-      // Arrange
-      service.selectedRow = 5;
-      mockFirstVisibleColumn = 10;
-      mockLastVisibleColumn = 10;
-      mockCalculationService.firstVisibleColumn.and.returnValue(mockFirstVisibleColumn);
-      mockCalculationService.lastVisibleColumn.and.returnValue(mockLastVisibleColumn);
-
-      // Act
-      service.drawSelectionRow();
-
-      // Assert
-      expect(mockCtx.fillRect).toHaveBeenCalledWith(
-        0,
-        jasmine.any(Number),
-        mockGanttCanvasManager.width,
-        mockCalendarSetting.cellHeight
-      );
-    });
-  });
-
-  describe('isSelectedRowVisible', () => {
-    it('should return true when row is visible', () => {
-      // Arrange
-      service.selectedRow = 15;
-      mockFirstVisibleRow = 10;
-      mockVisibleRow = 20;
-      mockRows = 100;
-      mockCalculationService.visibleRow.and.returnValue(mockVisibleRow);
-
-      // Act & Assert
-      expect(service.isSelectedRowVisible()).toBe(true);
-    });
-
-    it('should return false when row is before visible area', () => {
-      // Arrange
-      service.selectedRow = 5;
-      mockFirstVisibleRow = 10;
-      mockVisibleRow = 20;
-      mockCalculationService.visibleRow.and.returnValue(mockVisibleRow);
-
-      // Act & Assert
-      expect(service.isSelectedRowVisible()).toBe(false);
-    });
-
-    it('should return false when row is after visible area', () => {
-      // Arrange
-      service.selectedRow = 50;
-      mockFirstVisibleRow = 10;
-      mockVisibleRow = 20;
-      mockCalculationService.visibleRow.and.returnValue(mockVisibleRow);
-
-      // Act & Assert
-      expect(service.isSelectedRowVisible()).toBe(false);
-    });
-
-    it('should return false when row exceeds total rows', () => {
-      // Arrange
-      service.selectedRow = 150;
-      mockFirstVisibleRow = 10;
-      mockVisibleRow = 20;
-      mockRows = 100;
-      mockCalculationService.visibleRow.and.returnValue(mockVisibleRow);
-
-      // Act & Assert
-      expect(service.isSelectedRowVisible()).toBe(false);
-    });
-  });
-
-  describe('checkSelectedRowVisibility', () => {
-    it('should reset selectedRow if exceeds total rows', () => {
-      // Arrange
-      service.selectedRow = 150;
-      mockRows = 100;
-
-      // Act
-      service.checkSelectedRowVisibility();
-
-      // Assert
-      expect(service.selectedRow).toBe(100);
-    });
-
-    it('should not change selectedRow if within valid range', () => {
-      // Arrange
-      service.selectedRow = 50;
-      mockRows = 100;
-
-      // Act
-      service.checkSelectedRowVisibility();
-
-      // Assert
-      expect(service.selectedRow).toBe(50);
-    });
-  });
-
-  describe('isSelectedBreak_Dirty', () => {
-    it('should return false when no break is selected', () => {
-      // Arrange
-      service.selectedRow = -1;
-
-      // Act & Assert
-      expect(service.isSelectedBreak_Dirty()).toBe(false);
-    });
-
-    it('should return true when break is selected', () => {
-      // Arrange
-      const mockBreak = {
-        id: 'break-1',
-        from: new Date(2024, 0, 1),
-        until: new Date(2024, 0, 5),
-      } as unknown as Break;
-
-      service.selectedRow = 5;
-      service.selectedBreakIndex = 0;
-      mockDataManagementBreak.readData.and.returnValue([mockBreak]);
-
-      // Act & Assert
-      expect(service.isSelectedBreak_Dirty()).toBe(true);
-    });
-  });
 });
