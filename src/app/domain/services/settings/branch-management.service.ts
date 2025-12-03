@@ -1,6 +1,6 @@
-import { Injectable, inject, signal, effect } from '@angular/core';
-import { Subject, debounceTime } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { IBranch } from 'src/app/domain/models/branch';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -11,29 +11,34 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 })
 export class BranchManagementService {
   private dataBranchService = inject(DataBranchService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   public branchesList = signal<IBranch[]>([]);
   public isLoading = signal<boolean>(false);
 
   private branchesListDummy: IBranch[] = [];
   private pendingBranchOperations = 0;
-  private autoSaveSubject = new Subject<void>();
+  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
       this.branchesList();
-      this.autoSaveSubject.next();
+
+      untracked(() => {
+        if (this.autoSaveTimer) {
+          clearTimeout(this.autoSaveTimer);
+        }
+        this.autoSaveTimer = setTimeout(() => {
+          this.autoSave();
+        }, 1500);
+      });
     });
 
-    this.autoSaveSubject
-      .pipe(
-        debounceTime(1500),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.autoSave();
-      });
+    this.destroyRef.onDestroy(() => {
+      if (this.autoSaveTimer) {
+        clearTimeout(this.autoSaveTimer);
+      }
+    });
   }
 
   private autoSave(): void {
@@ -47,7 +52,7 @@ export class BranchManagementService {
 
     this.dataBranchService.getBranchList()
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
@@ -91,7 +96,7 @@ export class BranchManagementService {
     delete branchToAdd.id;
 
     this.dataBranchService.addBranch(branchToAdd)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingBranchOperations--;
@@ -109,7 +114,7 @@ export class BranchManagementService {
     this.pendingBranchOperations++;
 
     this.dataBranchService.updateBranch(branch)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingBranchOperations--;
@@ -127,7 +132,7 @@ export class BranchManagementService {
     this.pendingBranchOperations++;
 
     this.dataBranchService.deleteBranch(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingBranchOperations--;
@@ -149,7 +154,7 @@ export class BranchManagementService {
 
   private reloadBranches(): void {
     this.dataBranchService.getBranchList()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((branches) => {
         if (branches) {
           this.branchesList.set(branches as IBranch[]);
@@ -180,10 +185,5 @@ export class BranchManagementService {
 
   private isBranchEmpty(branch: IBranch): boolean {
     return branch.name === '' && branch.address === '' && branch.phone === '' && branch.email === '';
-  }
-
-  destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

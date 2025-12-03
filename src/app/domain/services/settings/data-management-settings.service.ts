@@ -403,8 +403,6 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
   public destroy(): void {
     this.userAdminService.destroy();
-    this.appSettingsService.destroy();
     this.macroService.destroy();
-    this.branchService.destroy();
   }
 }

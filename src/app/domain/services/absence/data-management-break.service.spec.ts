@@ -232,6 +232,59 @@ describe('DataManagementBreakService', () => {
         });
     });
 
+    describe('resetScrollPositionTrigger Signal', () => {
+        it('should have resetScrollPositionTrigger signal initialized to 0', () => {
+            // Assert
+            expect(service.resetScrollPositionTrigger).toBeDefined();
+            expect(typeof service.resetScrollPositionTrigger).toBe('function');
+            expect(service.resetScrollPositionTrigger()).toBe(0);
+        });
+
+        it('should increment resetScrollPositionTrigger when update is called', () => {
+            // Arrange
+            const initialValue = service.resetScrollPositionTrigger();
+
+            // Act
+            service.resetScrollPositionTrigger.update(v => v + 1);
+
+            // Assert
+            expect(service.resetScrollPositionTrigger()).toBe(initialValue + 1);
+        });
+
+        it('should allow tracking multiple increments', () => {
+            // Arrange
+            const initialValue = service.resetScrollPositionTrigger();
+
+            // Act
+            service.resetScrollPositionTrigger.update(v => v + 1);
+            service.resetScrollPositionTrigger.update(v => v + 1);
+            service.resetScrollPositionTrigger.update(v => v + 1);
+
+            // Assert
+            expect(service.resetScrollPositionTrigger()).toBe(initialValue + 3);
+        });
+    });
+
+    describe('Signal state management', () => {
+        it('should have isRead signal initialized to false', () => {
+            // Assert
+            expect(service.isRead).toBeDefined();
+            expect(service.isRead()).toBe(false);
+        });
+
+        it('should have isUpdate signal initialized to undefined', () => {
+            // Assert
+            expect(service.isUpdate).toBeDefined();
+            expect(service.isUpdate()).toBeUndefined();
+        });
+
+        it('should have isAbsenceHeaderInit signal initialized to false', () => {
+            // Assert
+            expect(service.isAbsenceHeaderInit).toBeDefined();
+            expect(service.isAbsenceHeaderInit()).toBe(false);
+        });
+    });
+
     describe('updateBreak validation', () => {
         let clientWithMembership: IClientBreak;
         let invalidBreak: IBreak;

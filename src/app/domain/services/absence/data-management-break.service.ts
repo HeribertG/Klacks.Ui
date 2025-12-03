@@ -1,4 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   Break,
   BreakFilter,
@@ -13,8 +14,6 @@ import { RouteName } from '../../models/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 
 @Injectable({
@@ -25,7 +24,7 @@ export class DataManagementBreakService implements ILoadable {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private translateService = inject(TranslateService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   public isRead = signal(false);
   private _showProgressSpinner = signal(false);
@@ -34,7 +33,7 @@ export class DataManagementBreakService implements ILoadable {
   }
   public isUpdate = signal<IBreak | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
-  public resetScrollPosition$ = new Subject<void>();
+  public resetScrollPositionTrigger = signal<number>(0);
 
   public breakFilter: IBreakFilter = new BreakFilter();
   public get currentFilter(): IBreakFilter {
@@ -91,11 +90,11 @@ export class DataManagementBreakService implements ILoadable {
       this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
       this._autoLoadEnabled = true;
 
-      this.resetScrollPosition$.next();
+      this.resetScrollPositionTrigger.update((v) => v + 1);
 
       this.dataBreakService
         .getClientList(this.breakFilter)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (response) => {
             this.clients = this.processClientBreaks(response.clients);
@@ -130,7 +129,7 @@ export class DataManagementBreakService implements ILoadable {
 
     this.dataBreakService
       .getClientList(this.breakFilter)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           const newClients = this.processClientBreaks(response.clients);
@@ -166,7 +165,7 @@ export class DataManagementBreakService implements ILoadable {
 
     this.dataBreakService
       .getClientList(this.breakFilter)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           const newClients = this.processClientBreaks(response.clients);
@@ -253,7 +252,7 @@ export class DataManagementBreakService implements ILoadable {
       delete tmp.absence;
       this.dataBreakService
         .addBreak(tmp)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((x: IBreak) => {
           client.breaks.push(x);
           client.breaks = this.sortBreaks(client.breaks);
@@ -269,7 +268,7 @@ export class DataManagementBreakService implements ILoadable {
     if (value.id) {
       this.dataBreakService
         .deleteBreak(value.id!)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           const client = this.clients[index];
           client.breaks = this.sortBreaks(
@@ -308,7 +307,7 @@ export class DataManagementBreakService implements ILoadable {
 
     return this.dataBreakService
       .updateBreak(value as Break)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         client.breaks = this.sortBreaks(client.breaks);
         this.isUpdate.set(value);
@@ -355,7 +354,7 @@ export class DataManagementBreakService implements ILoadable {
     if (membershipValidFrom && breakFrom < membershipValidFrom) {
       this.translateService
         .get('absence-gantt.validation.membership.before-start')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
@@ -374,7 +373,7 @@ export class DataManagementBreakService implements ILoadable {
     if (membershipValidUntil && breakUntil > membershipValidUntil) {
       this.translateService
         .get('absence-gantt.validation.membership.after-end')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((message) => {
           const formattedMessage = message.replace(
             '{0}',
@@ -397,7 +396,7 @@ export class DataManagementBreakService implements ILoadable {
     ) {
       this.translateService
         .get('absence-gantt.validation.membership.outside-period')
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe((message) => {
           const formattedMessage = message
             .replace('{0}', membershipValidFrom.toLocaleDateString())
@@ -423,10 +422,5 @@ export class DataManagementBreakService implements ILoadable {
       return true;
     }
     return false;
-  }
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

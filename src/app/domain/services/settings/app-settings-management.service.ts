@@ -1,6 +1,5 @@
-import { Injectable, inject, signal, computed, effect } from '@angular/core';
-import { Subject, debounceTime } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings-various-class';
 import {
@@ -16,7 +15,7 @@ import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/objec
 })
 export class AppSettingsManagementService {
   private dataSettingsService = inject(DataSettingsVariousService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
@@ -29,23 +28,30 @@ export class AppSettingsManagementService {
 
   private settingsList: ISetting[] = [];
   private saveCounter = 0;
-  private autoSaveSubject = new Subject<void>();
+  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
-    // Auto-save when settings change
     effect(() => {
       this.contactSettings();
       this.emailSettings();
-      this.autoSaveSubject.next();
+
+      untracked(() => {
+        if (this.autoSaveTimer) {
+          clearTimeout(this.autoSaveTimer);
+        }
+        this.autoSaveTimer = setTimeout(() => {
+          if (this.isDirty()) {
+            this.save();
+          }
+        }, 1500);
+      });
     });
 
-    this.autoSaveSubject
-      .pipe(debounceTime(1500), takeUntil(this.destroy$))
-      .subscribe(() => {
-        if (this.isDirty()) {
-          this.save();
-        }
-      });
+    this.destroyRef.onDestroy(() => {
+      if (this.autoSaveTimer) {
+        clearTimeout(this.autoSaveTimer);
+      }
+    });
   }
 
   loadSettings(): void {
@@ -53,7 +59,7 @@ export class AppSettingsManagementService {
 
     this.dataSettingsService
       .readSettingList()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (settings) => {
           if (settings) {
@@ -196,7 +202,7 @@ export class AppSettingsManagementService {
       existingSetting.value = value;
       this.dataSettingsService
         .updateSetting(existingSetting)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.saveCounter--;
           this.checkSaveComplete();
@@ -208,7 +214,7 @@ export class AppSettingsManagementService {
       this.saveCounter++;
       this.dataSettingsService
         .addSetting(newSetting)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.saveCounter--;
           this.checkSaveComplete();
@@ -238,10 +244,5 @@ export class AppSettingsManagementService {
 
   resetData(): void {
     this.loadSettings();
-  }
-
-  public destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

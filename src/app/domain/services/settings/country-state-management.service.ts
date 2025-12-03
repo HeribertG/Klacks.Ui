@@ -1,6 +1,7 @@
-import { Injectable, inject, signal, effect } from '@angular/core';
-import { Subject, forkJoin, debounceTime } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -12,7 +13,7 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 })
 export class CountryStateManagementService {
   private dataCountryStateService = inject(DataCountryStateService);
-  private destroy$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
 
   public countriesList = signal<ICountry[]>([]);
   public statesList = signal<IState[]>([]);
@@ -24,23 +25,28 @@ export class CountryStateManagementService {
   private pendingCountryOperations = 0;
   private pendingStateOperations = 0;
 
-  private autoSaveSubject = new Subject<void>();
+  private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     effect(() => {
       this.countriesList();
       this.statesList();
-      this.autoSaveSubject.next();
+
+      untracked(() => {
+        if (this.autoSaveTimer) {
+          clearTimeout(this.autoSaveTimer);
+        }
+        this.autoSaveTimer = setTimeout(() => {
+          this.autoSave();
+        }, 1500);
+      });
     });
 
-    this.autoSaveSubject
-      .pipe(
-        debounceTime(1500),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => {
-        this.autoSave();
-      });
+    this.destroyRef.onDestroy(() => {
+      if (this.autoSaveTimer) {
+        clearTimeout(this.autoSaveTimer);
+      }
+    });
   }
 
   private autoSave(): void {
@@ -60,7 +66,7 @@ export class CountryStateManagementService {
       states: this.dataCountryStateService.GetStateList()
     })
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntilDestroyed(this.destroyRef),
         finalize(() => this.isLoading.set(false))
       )
       .subscribe({
@@ -130,7 +136,7 @@ export class CountryStateManagementService {
     delete countryToAdd.id;
 
     this.dataCountryStateService.addCountry(countryToAdd)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingCountryOperations--;
@@ -148,7 +154,7 @@ export class CountryStateManagementService {
     this.pendingCountryOperations++;
 
     this.dataCountryStateService.updateCountry(country)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingCountryOperations--;
@@ -166,7 +172,7 @@ export class CountryStateManagementService {
     this.pendingCountryOperations++;
 
     this.dataCountryStateService.deleteCountry(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingCountryOperations--;
@@ -186,7 +192,7 @@ export class CountryStateManagementService {
     delete stateToAdd.id;
 
     this.dataCountryStateService.addState(stateToAdd)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingStateOperations--;
@@ -204,7 +210,7 @@ export class CountryStateManagementService {
     this.pendingStateOperations++;
 
     this.dataCountryStateService.updateState(state)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingStateOperations--;
@@ -222,7 +228,7 @@ export class CountryStateManagementService {
     this.pendingStateOperations++;
 
     this.dataCountryStateService.deleteState(id)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
           this.pendingStateOperations--;
@@ -250,7 +256,7 @@ export class CountryStateManagementService {
 
   private reloadCountries(): void {
     this.dataCountryStateService.getCountryList()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((countries) => {
         if (countries) {
           this.countriesList.set(countries as ICountry[]);
@@ -261,7 +267,7 @@ export class CountryStateManagementService {
 
   private reloadStates(): void {
     this.dataCountryStateService.GetStateList()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((states) => {
         if (states) {
           this.statesList.set(states as IState[]);
@@ -318,10 +324,5 @@ export class CountryStateManagementService {
 
     const isNotEmpty = value.de! + value.en! + value.fr! + value.it!;
     return isNotEmpty === '';
-  }
-
-  destroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 }

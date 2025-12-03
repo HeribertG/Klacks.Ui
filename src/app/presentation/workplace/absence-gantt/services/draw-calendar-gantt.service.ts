@@ -1,4 +1,4 @@
-import { Injectable, NgZone, inject } from '@angular/core';
+import { Injectable, NgZone, inject, signal } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -11,7 +11,6 @@ import { DataManagementBreakService } from 'src/app/domain/services/absence/data
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
-import { Subject } from 'rxjs';
 import { GanttCanvasManagerService } from './gantt-canvas-manager.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { RenderCalendarGridService } from './render-calendar-grid';
@@ -28,8 +27,8 @@ export class DrawCalendarGanttService {
   private scroll = inject(ScrollService);
   private zone = inject(NgZone);
 
-  public vScrollbarRefreshEvent = new Subject<boolean>();
-  public hScrollbarRefreshEvent = new Subject<boolean>();
+  public vScrollbarRefreshTrigger = signal<number>(0);
+  public hScrollbarRefreshTrigger = signal<number>(0);
 
   public pixelRatio = 1;
   public isBusy = false;
@@ -408,8 +407,8 @@ export class DrawCalendarGanttService {
 
   @CanvasAvailable('queue')
   public setMetrics(): void {
-    this.vScrollbarRefreshEvent.next(true);
-    this.hScrollbarRefreshEvent.next(true);
+    this.vScrollbarRefreshTrigger.update((v) => v + 1);
+    this.hScrollbarRefreshTrigger.update((v) => v + 1);
   }
 
   visibleCol(): number {

@@ -82,7 +82,8 @@ export class AbsenceGanttContainerComponent {
       this.updateScrollbarSizes();
     });
 
-    this.dataManagementBreakService.resetScrollPosition$.subscribe(() => {
+    effect(() => {
+      this.dataManagementBreakService.resetScrollPositionTrigger();
       this.scrollService.verticalScrollPosition = 0;
       this.vScrollbarValue.set(0);
     });

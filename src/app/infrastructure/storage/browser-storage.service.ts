@@ -7,79 +7,72 @@ import { IFilterStorage } from '../../application/interfaces/filter-storage.inte
 export class BrowserStorageService implements IFilterStorage {
   private readonly storageKeyPrefix = 'klacks_filter_';
 
-  async saveFilter<T>(key: string, filter: T): Promise<boolean> {
-    if (!(await this.isAvailable())) {
+  saveFilter<T>(key: string, filter: T): Promise<boolean> {
+    if (!this.checkAvailability()) {
       console.warn('localStorage is not available. Filter could not be saved.');
-      return false;
+      return Promise.resolve(false);
     }
 
     try {
       const storageKey = this.getStorageKey(key);
       const serializedValue = JSON.stringify(filter);
       localStorage.setItem(storageKey, serializedValue);
-      return true;
+      return Promise.resolve(true);
     } catch (error) {
       console.error('Error saving filter to localStorage:', error);
-      return false;
+      return Promise.resolve(false);
     }
   }
 
-  async restoreFilter<T>(key: string): Promise<T | null> {
-    if (!(await this.isAvailable())) {
+  restoreFilter<T>(key: string): Promise<T | null> {
+    if (!this.checkAvailability()) {
       console.warn('localStorage is not available. Filter could not be restored.');
-      return null;
+      return Promise.resolve(null);
     }
 
     try {
       const storageKey = this.getStorageKey(key);
       const serializedValue = localStorage.getItem(storageKey);
-      
+
       if (serializedValue === null) {
-        return null;
+        return Promise.resolve(null);
       }
 
-      return JSON.parse(serializedValue) as T;
+      return Promise.resolve(JSON.parse(serializedValue) as T);
     } catch (error) {
       console.error('Error restoring filter from localStorage:', error);
-      return null;
+      return Promise.resolve(null);
     }
   }
 
-  async removeFilter(key: string): Promise<boolean> {
-    if (!(await this.isAvailable())) {
+  removeFilter(key: string): Promise<boolean> {
+    if (!this.checkAvailability()) {
       console.warn('localStorage is not available. Filter could not be removed.');
-      return false;
+      return Promise.resolve(false);
     }
 
     try {
       const storageKey = this.getStorageKey(key);
       localStorage.removeItem(storageKey);
-      return true;
+      return Promise.resolve(true);
     } catch (error) {
       console.error('Error removing filter from localStorage:', error);
-      return false;
+      return Promise.resolve(false);
     }
   }
 
-  async isAvailable(): Promise<boolean> {
-    try {
-      const testKey = '__test_storage__';
-      localStorage.setItem(testKey, testKey);
-      localStorage.removeItem(testKey);
-      return true;
-    } catch {
-      return false;
-    }
+  isAvailable(): Promise<boolean> {
+    return Promise.resolve(this.checkAvailability());
   }
 
-  async getKeys(prefix?: string): Promise<string[]> {
-    if (!(await this.isAvailable())) {
-      return [];
+  getKeys(prefix?: string): Promise<string[]> {
+    if (!this.checkAvailability()) {
+      return Promise.resolve([]);
     }
 
     try {
       const keys: string[] = [];
-      const searchPrefix = prefix 
+      const searchPrefix = prefix
         ? this.getStorageKey(prefix)
         : this.storageKeyPrefix;
 
@@ -91,29 +84,49 @@ export class BrowserStorageService implements IFilterStorage {
         }
       }
 
-      return keys;
+      return Promise.resolve(keys);
     } catch (error) {
       console.error('Error getting keys from localStorage:', error);
-      return [];
+      return Promise.resolve([]);
     }
   }
 
-  async clear(prefix?: string): Promise<boolean> {
-    if (!(await this.isAvailable())) {
-      return false;
+  clear(prefix?: string): Promise<boolean> {
+    if (!this.checkAvailability()) {
+      return Promise.resolve(false);
     }
 
     try {
-      const keysToRemove = await this.getKeys(prefix);
-      
-      for (const key of keysToRemove) {
-        const storageKey = this.getStorageKey(key);
-        localStorage.removeItem(storageKey);
+      const keys: string[] = [];
+      const searchPrefix = prefix
+        ? this.getStorageKey(prefix)
+        : this.storageKeyPrefix;
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(searchPrefix)) {
+          keys.push(key);
+        }
       }
 
-      return true;
+      for (const key of keys) {
+        localStorage.removeItem(key);
+      }
+
+      return Promise.resolve(true);
     } catch (error) {
       console.error('Error clearing filters from localStorage:', error);
+      return Promise.resolve(false);
+    }
+  }
+
+  private checkAvailability(): boolean {
+    try {
+      const testKey = '__test_storage__';
+      localStorage.setItem(testKey, testKey);
+      localStorage.removeItem(testKey);
+      return true;
+    } catch {
       return false;
     }
   }
