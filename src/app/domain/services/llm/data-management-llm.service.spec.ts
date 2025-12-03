@@ -1,5 +1,5 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';

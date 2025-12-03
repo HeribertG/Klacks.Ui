@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
@@ -81,7 +80,7 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
             }
         };
 
-        const formatDuration = (minutes: number): string => {
+        const _formatDuration = (minutes: number): string => {
             const hours = Math.floor(minutes / 60);
             const mins = minutes % 60;
             return `${hours}:${mins.toString().padStart(2, '0')}`;

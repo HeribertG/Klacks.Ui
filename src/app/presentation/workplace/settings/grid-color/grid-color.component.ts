@@ -27,7 +27,7 @@ export class GridColorComponent implements OnInit {
   public translate = inject(TranslateService);
   public gridColorService = inject(GridColorService);
 
-  ngOnInit(): void {
-    this.gridColorService.readData();
+  async ngOnInit(): Promise<void> {
+    await this.gridColorService.readDataAsync();
   }
 }

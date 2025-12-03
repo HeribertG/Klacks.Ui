@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllAddressListComponent } from './all-address-list.component';
@@ -12,8 +11,8 @@ import { AllAddressStateService } from '../services/all-address-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
-import { MANAGEABLE_SERVICE_REGISTRY_TOKEN, IManageableServiceRegistry } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { FILTER_STORAGE_TOKEN, IFilterStorage } from 'src/app/application/interfaces/filter-storage.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
+import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 

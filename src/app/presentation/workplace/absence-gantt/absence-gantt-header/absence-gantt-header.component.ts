@@ -3,6 +3,7 @@ import {
   inject,
   OnInit,
   ViewChild,
+  viewChild,
   signal,
   computed,
   effect,
@@ -46,6 +47,8 @@ import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calen
 })
 export class AbsenceGanttHeaderComponent implements OnInit {
   @ViewChild('dropdownSetting') dropdownSetting!: NgbDropdown;
+
+  absenceList = viewChild<AbsenceGanttAbsenceListComponent>('absenceList');
 
   // Event Emitter für PDF Export
   pdfExportRequested = output<void>();
@@ -92,7 +95,6 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentLang.set(this.translateService.currentLang as Language);
-    this.holidayCollection.readData();
   }
 
   changeYear(event: number) {
@@ -138,5 +140,12 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   get sliderOptions() {
     return this.options();
+  }
+
+  async initAsync(): Promise<void> {
+    const absenceListComponent = this.absenceList();
+    if (absenceListComponent) {
+      absenceListComponent.fillImageMap();
+    }
   }
 }

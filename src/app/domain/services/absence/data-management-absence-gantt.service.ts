@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.service';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
@@ -30,6 +30,13 @@ export class DataManagementAbsenceGanttService {
         );
       }
     });
+  }
+
+  async readDataAsync(): Promise<void> {
+    const absences = await firstValueFrom(this.dataAbsence.readAbsenceList());
+    if (absences) {
+      this.absenceList.set(absences);
+    }
   }
 
   get currentYear(): number {

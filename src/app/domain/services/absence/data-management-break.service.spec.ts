@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
@@ -6,7 +5,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { DataManagementBreakService } from './data-management-break.service';
-import { IEventBus, EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { DataBreakService } from '../../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../../models/client-class';

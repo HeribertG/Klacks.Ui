@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ScheduleSearchStrategy } from './schedule-search.strategy';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';

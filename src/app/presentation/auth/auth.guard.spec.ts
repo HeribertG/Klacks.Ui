@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, } from '@angular/router';
 import { AuthService } from './auth.service';

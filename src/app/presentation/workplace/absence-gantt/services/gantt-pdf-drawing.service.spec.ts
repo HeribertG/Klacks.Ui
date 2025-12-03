@@ -1,10 +1,7 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { jsPDF } from 'jspdf';
 import { GanttPdfDrawingService, GanttDrawingConfig, } from './gantt-pdf-drawing.service';
-import { HolidaysListHelper } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { signal } from '@angular/core';
 

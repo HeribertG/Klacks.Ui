@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, computed, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings-various-class';
 import {
@@ -75,6 +76,14 @@ export class AppSettingsManagementService {
           this.isLoading.set(false);
         },
       });
+  }
+
+  async loadSettingsAsync(): Promise<void> {
+    const settings = await firstValueFrom(this.dataSettingsService.readSettingList());
+    if (settings) {
+      this.settingsList = settings as ISetting[];
+      this.applySettingsToModels(settings as ISetting[]);
+    }
   }
 
   private applySettingsToModels(settings: ISetting[]): void {

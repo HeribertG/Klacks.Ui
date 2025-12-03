@@ -1,4 +1,5 @@
-import type { Mock, MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Mock } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { RenderRowHeaderService } from './render-row-header.service';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';

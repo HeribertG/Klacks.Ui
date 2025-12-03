@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,7 @@ describe('GridColorComponent', () => {
 
     beforeEach(async () => {
         const gridColorServiceSpy = {
-            readData: vi.fn(),
+            readDataAsync: vi.fn().mockResolvedValue(undefined),
             saveData: vi.fn(),
             resetColors: vi.fn()
         };
@@ -44,12 +44,12 @@ describe('GridColorComponent', () => {
     });
 
     describe('Initialization', () => {
-        it('should load grid color data on ngOnInit', () => {
+        it('should load grid color data on ngOnInit', async () => {
             // Arrange & Act
-            component.ngOnInit();
+            await component.ngOnInit();
 
             // Assert
-            expect(mockGridColorService.readData).toHaveBeenCalled();
+            expect(mockGridColorService.readDataAsync).toHaveBeenCalled();
         });
     });
 });

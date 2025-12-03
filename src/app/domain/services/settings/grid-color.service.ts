@@ -6,7 +6,7 @@ import {
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ConstantKeys } from 'src/app/domain/constants/grid-constants';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Injectable({
@@ -56,12 +56,22 @@ export class GridColorService {
     return false;
   }
 
-  readData(): void {
-    this.readSettingList();
-  }
+  async readDataAsync(): Promise<void> {
+    const settings = await firstValueFrom(
+      this.dataSettingsVariousService.readSettingList()
+    );
+    this.settingList = [];
+    this.settingListDummy = [];
+    this.resetSettingList();
 
-  resetData() {
-    this.readData();
+    if (settings) {
+      (settings as ISetting[]).forEach((x) => {
+        if (x) {
+          this.setSetting(x);
+        }
+      });
+      this.settingListDummy = cloneObject<ISetting[]>(this.settingList);
+    }
   }
 
   save() {

@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TestBed } from '@angular/core/testing';

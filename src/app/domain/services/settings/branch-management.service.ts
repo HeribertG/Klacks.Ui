@@ -1,5 +1,6 @@
 import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
 import { IBranch } from 'src/app/domain/models/branch';
@@ -66,6 +67,14 @@ export class BranchManagementService {
           console.error('Failed to load branches:', error);
         }
       });
+  }
+
+  async loadBranchesAsync(): Promise<void> {
+    const branches = await firstValueFrom(this.dataBranchService.getBranchList());
+    if (branches) {
+      this.branchesList.set(branches as IBranch[]);
+      this.branchesListDummy = cloneObject<IBranch[]>(this.branchesList());
+    }
   }
 
   saveBranches(): void {

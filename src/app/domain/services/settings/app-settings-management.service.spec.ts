@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { AppSettingsManagementService } from './app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';

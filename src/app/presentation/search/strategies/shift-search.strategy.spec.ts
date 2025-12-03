@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ShiftSearchStrategy } from './shift-search.strategy';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';

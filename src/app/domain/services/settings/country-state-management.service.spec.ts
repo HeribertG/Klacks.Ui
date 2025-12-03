@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { CountryStateManagementService } from './country-state-management.service';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';

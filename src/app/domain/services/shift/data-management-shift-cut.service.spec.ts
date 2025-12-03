@@ -1,10 +1,10 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataManagementShiftCutService } from './data-management-shift-cut.service';
 import { DataShiftCutsService } from 'src/app/infrastructure/api/data-shift-cuts.service';
-import { IEventBus, EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
 

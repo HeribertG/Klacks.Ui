@@ -1,5 +1,5 @@
 
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { AbsenceGanttHeaderComponent } from '../absence-gantt-header/absence-gantt-header.component';
 import { AbsenceGanttContainerComponent } from '../absence-gantt-container/absence-gantt-container.component';
 import { DrawCalendarGanttService } from '../services/draw-calendar-gantt.service';
@@ -29,6 +29,8 @@ import { GanttPdfExportService } from '../services/gantt-pdf-export.service';
 import { GanttPdfDrawingService } from '../services/gantt-pdf-drawing.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 @Component({
   selector: 'app-absence-gantt-home',
@@ -65,17 +67,33 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
     GanttPdfDrawingService,
   ],
 })
-export class AbsenceGanttHomeComponent implements OnInit {
+export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private allAbsenceStateService = inject(AllAbsenceStateService);
+  private gridColors = inject(GridColorService);
+  private gridFonts = inject(GridFontsService);
+  private holidayCollection = inject(HolidayCollectionService);
+  private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
 
+  ganttHeader = viewChild.required<AbsenceGanttHeaderComponent>('ganttHeader');
   ganttContainer = viewChild.required<AbsenceGanttContainerComponent>('ganttContainer');
 
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
     this.allAbsenceStateService.initializeWorkplaceState();
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    await Promise.all([
+      this.gridColors.readDataAsync(),
+      this.gridFonts.readDataAsync(),
+      this.holidayCollection.readDataAsync(),
+      this.dataManagementAbsence.readDataAsync(),
+    ]);
+
+    await this.ganttHeader().initAsync();
   }
 
   async onPdfExportRequested(): Promise<void> {

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataMacroService } from 'src/app/infrastructure/api/data-macro.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
@@ -44,6 +44,15 @@ export class MacroManagementService {
           this.isLoading.set(false);
         },
       });
+  }
+
+  async loadMacrosAsync(): Promise<void> {
+    const macros = await firstValueFrom(this.dataMacroService.readMacroList());
+    if (macros) {
+      const sortedMacros = this.sortMacros(macros as IMacro[]);
+      this.macroList.set(sortedMacros);
+      this.macroListOriginal.set(cloneObject(sortedMacros));
+    }
   }
 
   private sortMacros(macros: IMacro[]): IMacro[] {
@@ -167,6 +176,10 @@ export class MacroManagementService {
 
   resetData(): void {
     this.loadMacros();
+  }
+
+  async resetDataAsync(): Promise<void> {
+    await this.loadMacrosAsync();
   }
 
   public destroy(): void {

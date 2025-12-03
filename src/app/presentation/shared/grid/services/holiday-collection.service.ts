@@ -7,6 +7,7 @@ import {
   ICalendarRule,
 } from 'src/app/domain/models/calendar-rule-class';
 import { DataCalendarRuleService } from 'src/app/infrastructure/api/data-calendar-rule.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class HolidayCollectionService {
@@ -44,6 +45,22 @@ export class HolidayCollectionService {
         });
       }
     });
+  }
+
+  async readDataAsync(): Promise<void> {
+    const rules = await firstValueFrom(
+      this.dataCalendarRule.readCalendarRuleList()
+    );
+    this.possibleHolidayRule.clear;
+    if (rules) {
+      rules.forEach((rule) => {
+        const item = new PossibleHolidayRule();
+        item.country = rule.country;
+        item.state = rule.state;
+        item.rule = rule;
+        this.possibleHolidayRule.add(item);
+      });
+    }
   }
 
   setSelection(values: StateCountryToken[]): void {

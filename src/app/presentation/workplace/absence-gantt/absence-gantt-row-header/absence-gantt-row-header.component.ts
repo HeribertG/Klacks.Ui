@@ -86,9 +86,6 @@ export class AbsenceGanttRowHeaderComponent
   }
 
   ngAfterViewInit(): void {
-    this.gridColorService.readData();
-    this.gridFontsService.readData();
-
     this.initializeDrawRowHeader();
   }
 

@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { AbsenceSearchStrategy } from './absence-search.strategy';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';

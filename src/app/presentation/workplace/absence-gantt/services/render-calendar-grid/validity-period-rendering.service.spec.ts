@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ValidityPeriodRenderingService } from './validity-period-rendering.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';

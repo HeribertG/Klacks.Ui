@@ -1,5 +1,6 @@
-import type { Mock, MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CdkDragDrop, CdkDragMove, DragDropModule, } from '@angular/cdk/drag-drop';

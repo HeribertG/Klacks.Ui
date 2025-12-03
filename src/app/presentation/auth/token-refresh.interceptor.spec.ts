@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController, } from '@angular/common/http/testing';
 import { HTTP_INTERCEPTORS, HttpClient, HttpErrorResponse, } from '@angular/common/http';

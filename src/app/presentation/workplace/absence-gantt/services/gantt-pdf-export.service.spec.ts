@@ -1,8 +1,6 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { jsPDF } from 'jspdf';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';

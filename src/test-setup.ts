@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Global test setup for Vitest
 // This file is loaded before any test file runs
 
@@ -41,7 +42,7 @@ Object.defineProperty(window, 'matchMedia', {
 (window as any).IntersectionObserver = class IntersectionObserver {
     readonly root: Element | Document | null = null;
     readonly rootMargin: string = '';
-    readonly thresholds: ReadonlyArray<number> = [];
+    readonly thresholds: readonly number[] = [];
     private callback: IntersectionObserverCallback;
 
     constructor(callback: IntersectionObserverCallback, _options?: IntersectionObserverInit) {

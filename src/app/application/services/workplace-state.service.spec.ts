@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 import { TestBed } from '@angular/core/testing';
 import { WorkplaceStateService } from './workplace-state.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
@@ -7,7 +6,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN, IManageableServiceRegistry } from 's
 describe('WorkplaceStateService', () => {
     let service: WorkplaceStateService;
     let mockLoadingIndicator: ILoadingIndicator;
-    let mockRegistry: any;
+    let mockRegistry: IManageableServiceRegistry;
 
     beforeEach(() => {
         mockLoadingIndicator = { showProgressSpinner: false };

@@ -375,23 +375,26 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     }
   }
 
-  readData(): void {
-    this.appSettingsService.loadSettings();
-    this.countryStateService.loadCountriesAndStates();
-    this.branchService.loadBranches();
-    this.macroService.loadMacros();
-    // UserAdministrationManagementService loads automatically in constructor
+  async readData(): Promise<void> {
+    await Promise.all([
+      this.appSettingsService.loadSettingsAsync(),
+      this.countryStateService.loadCountriesAndStatesAsync(),
+      this.branchService.loadBranchesAsync(),
+      this.macroService.loadMacrosAsync(),
+    ]);
 
     this.isReset.set(true);
     setTimeout(() => this.isReset.set(false), 100);
   }
 
-  resetData(): void {
+  async resetData(): Promise<void> {
     this.appSettingsService.resetData();
-    this.countryStateService.loadCountriesAndStates();
-    this.branchService.loadBranches();
-    this.macroService.resetData();
-    this.gridColorService.readData();
+    await Promise.all([
+      this.countryStateService.loadCountriesAndStatesAsync(),
+      this.branchService.loadBranchesAsync(),
+      this.macroService.resetDataAsync(),
+      this.gridColorService.readDataAsync(),
+    ]);
 
     this.isReset.set(true);
     setTimeout(() => this.isReset.set(false), 100);

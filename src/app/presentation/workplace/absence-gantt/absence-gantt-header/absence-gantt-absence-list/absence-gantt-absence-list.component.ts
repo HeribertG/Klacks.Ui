@@ -3,11 +3,7 @@ import {
   OnInit,
   AfterViewInit,
   OnDestroy,
-  effect,
-  EffectRef,
   inject,
-  Injector,
-  runInInjectionContext,
 } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -36,17 +32,14 @@ export class AbsenceGanttAbsenceListComponent
   public calendarSetting = inject(CalendarSettingService);
   private dataManagementBreak = inject(DataManagementBreakService);
   private translateService = inject(TranslateService);
-  private injector = inject(Injector);
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
   checkmark = '&#10003;';
 
   private imageMap = new Map<string, HTMLImageElement>();
   private ngUnsubscribe = new Subject<void>();
-  private effectRef: EffectRef | null = null;
 
   ngOnInit(): void {
-    this.readSignals();
     this.currentLang = this.translateService.currentLang as Language;
   }
 
@@ -61,11 +54,6 @@ export class AbsenceGanttAbsenceListComponent
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-
-    if (this.effectRef) {
-      this.effectRef.destroy();
-      this.effectRef = null;
-    }
   }
 
   onColor(value: IAbsence): string {
@@ -116,7 +104,7 @@ export class AbsenceGanttAbsenceListComponent
     }
   }
 
-  private fillImageMap() {
+  public fillImageMap() {
     this.dataManagementBreak.isAbsenceHeaderInit.set(false);
     this.imageMap.clear();
 
@@ -163,16 +151,5 @@ export class AbsenceGanttAbsenceListComponent
       this.calendarSetting.cellWidth *
       (item.defaultLength === 0 ? 1 : item.defaultLength)
     );
-  }
-
-  private readSignals(): void {
-    runInInjectionContext(this.injector, () => {
-      this.effectRef = effect(() => {
-        const isReset = this.dataManagementAbsence.isReset();
-        if (isReset) {
-          this.fillImageMap();
-        }
-      });
-    });
   }
 }

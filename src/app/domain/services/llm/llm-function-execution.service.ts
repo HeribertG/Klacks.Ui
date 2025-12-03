@@ -468,7 +468,7 @@ export class LLMFunctionExecutionService {
   private searchAndNavigateClient(
     callId: string,
     searchQuery: string,
-    action?: string
+    _action?: string
   ): Observable<ILLMFunctionResult> {
     const route = '/workplace/client';
 
@@ -495,7 +495,7 @@ export class LLMFunctionExecutionService {
   private searchAndNavigateShift(
     callId: string,
     searchQuery: string,
-    action?: string
+    _action?: string
   ): Observable<ILLMFunctionResult> {
     const route = '/workplace/shift';
 
@@ -522,7 +522,7 @@ export class LLMFunctionExecutionService {
   private searchAndNavigateGroup(
     callId: string,
     searchQuery: string,
-    action?: string
+    _action?: string
   ): Observable<ILLMFunctionResult> {
     const route = '/workplace/group';
 

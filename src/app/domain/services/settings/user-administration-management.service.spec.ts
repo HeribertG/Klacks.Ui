@@ -1,9 +1,9 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { UserAdministrationManagementService } from './user-administration-management.service';
 import { UserAdministrationService } from 'src/app/infrastructure/api/user-administration.service';
-import { EVENT_BUS_TOKEN, IEventBus } from 'src/app/domain/interfaces/event-bus.interface';
+import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 
@@ -85,7 +85,6 @@ describe('UserAdministrationManagementService', () => {
             } as IAuthentication;
 
             mockUserAdministrationService.addAccount.mockReturnValue(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             of({ id: '123', mailSuccess: true } as any));
 
             service.addAccount(newAccount);

@@ -1,5 +1,5 @@
-import type { Mock, MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Mock } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HScrollbarComponent } from './h-scrollbar.component';
 import { DomSanitizer } from '@angular/platform-browser';

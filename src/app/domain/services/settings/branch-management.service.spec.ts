@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { BranchManagementService } from './branch-management.service';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';

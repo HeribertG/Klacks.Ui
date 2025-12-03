@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ShiftTableComponent } from './shift-table.component';
 import { TranslateModule } from '@ngx-translate/core';

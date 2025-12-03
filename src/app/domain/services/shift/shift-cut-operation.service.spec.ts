@@ -1,4 +1,4 @@
-import type { MockedObject } from "vitest";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { ShiftCutOperationService, CutByDateParams, CutByTimeParams, CutByWeekdaysParams, CutByStaffParams, CutByTaskParams, } from './shift-cut-operation.service';
 import { Shift, ShiftStatus } from 'src/app/domain/models/shift-class';

@@ -1,4 +1,3 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AllGroupListComponent } from './all-group-list.component';
@@ -11,8 +10,8 @@ import { AllGroupStateService } from '../services/all-group-state.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 import { LOADING_INDICATOR_TOKEN, ILoadingIndicator } from 'src/app/domain/interfaces/loading-indicator.interface';
-import { MANAGEABLE_SERVICE_REGISTRY_TOKEN, IManageableServiceRegistry } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { FILTER_STORAGE_TOKEN, IFilterStorage } from 'src/app/application/interfaces/filter-storage.interface';
+import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
+import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
 import { signal } from '@angular/core';
 import { of } from 'rxjs';
 
@@ -69,9 +68,9 @@ describe('AllGroupListComponent', () => {
         mockAllGroupStateService = {
             saveCurrentFilter: vi.fn(),
             prepareFilterForRequest: vi.fn(),
-            restoreFilterFromStorage: vi.fn(),
+            restoreFilterFromStorage: vi.fn().mockResolvedValue(false),
             isResizeCalculationAllowed: vi.fn(),
-            initializeWorkplaceState: vi.fn()
+            initializeWorkplaceState: vi.fn().mockResolvedValue(undefined)
         };
         mockNavigationService = {
             navigateToEditGroup: vi.fn()
@@ -154,9 +153,10 @@ describe('AllGroupListComponent', () => {
             expect(mockAllGroupStateService.initializeWorkplaceState).toHaveBeenCalled();
         });
 
-        it('should initialize TableSortingService with correct config', () => {
+        it('should initialize TableSortingService with correct config', async () => {
             vi.spyOn(sortingService, 'initialize');
             fixture.detectChanges();
+            await fixture.whenStable();
 
             expect(sortingService.initialize).toHaveBeenCalledWith({
                 columns: ['name', 'description', 'valid_from', 'valid_until'],

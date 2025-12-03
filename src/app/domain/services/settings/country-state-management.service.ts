@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, effect, DestroyRef, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin } from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { ICountry, IState } from 'src/app/domain/models/client-class';
@@ -84,6 +84,22 @@ export class CountryStateManagementService {
           console.error('Failed to load countries and states:', error);
         }
       });
+  }
+
+  async loadCountriesAndStatesAsync(): Promise<void> {
+    const result = await firstValueFrom(forkJoin({
+      countries: this.dataCountryStateService.getCountryList(),
+      states: this.dataCountryStateService.GetStateList()
+    }));
+
+    if (result.countries) {
+      this.countriesList.set(result.countries as ICountry[]);
+      this.countriesListDummy = cloneObject<ICountry[]>(this.countriesList());
+    }
+    if (result.states) {
+      this.statesList.set(result.states as IState[]);
+      this.statesListDummy = cloneObject<IState[]>(this.statesList());
+    }
   }
 
   saveCountries(): void {

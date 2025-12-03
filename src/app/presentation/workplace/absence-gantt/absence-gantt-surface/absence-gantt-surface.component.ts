@@ -29,8 +29,6 @@ import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.he
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
@@ -95,8 +93,6 @@ export class AbsenceGanttSurfaceComponent
   public scroll = inject(ScrollService);
   public drawCalendarGantt = inject(DrawCalendarGanttService);
   private renderer = inject(Renderer2);
-  private gridColors = inject(GridColorService);
-  private gridFonts = inject(GridFontsService);
   private translateService = inject(TranslateService);
   private el = inject(ElementRef);
   private clipboard = inject(Clipboard);
@@ -116,7 +112,6 @@ export class AbsenceGanttSurfaceComponent
   private mouseToBarAlpha: { x: number; y: number } | undefined;
   private copiedBreaks: IBreak[] = [];
   private isAbsenceHeaderInit = false;
-  private countServices = 0;
   private eventListeners = new Array<() => void>();
 
   private originalBreakPosition:
@@ -155,8 +150,6 @@ export class AbsenceGanttSurfaceComponent
     this.resizeSubject.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
       this.resize();
     });
-
-    this.readServices();
 
     this.calendarSetting.zoomChangingEvent
       .pipe(takeUntil(this.ngUnsubscribe))
@@ -712,23 +705,6 @@ export class AbsenceGanttSurfaceComponent
     return bodyStyles.getPropertyValue(name);
   }
 
-  private readServices() {
-    this.countServices = 0;
-    this.gridColors.readData();
-    this.gridFonts.readData();
-    this.holidayCollection.readData();
-    this.dataManagementAbsence.readData();
-  }
-
-  private addServicesCount(): void {
-    this.countServices++;
-
-    if (this.countServices === 4) {
-      this.countServices = 0;
-      this.drawCalendarGantt.resetAll();
-    }
-  }
-
   private correctName(value: MultiLanguage): string {
     const lang = this.translateService.currentLang;
 
@@ -1088,20 +1064,6 @@ export class AbsenceGanttSurfaceComponent
       });
       this.effects.push(effect1);
 
-      const effect2 = effect(() => {
-        if (this.gridColors.isReset()) {
-          this.addServicesCount();
-        }
-      });
-      this.effects.push(effect2);
-
-      const effect3 = effect(() => {
-        if (this.gridFonts.isReset()) {
-          this.addServicesCount();
-        }
-      });
-      this.effects.push(effect3);
-
       const effect4 = effect(() => {
         if (this.holidayCollection.isReset()) {
           this.drawCalendarGantt.selectedRow = -1;
@@ -1129,6 +1091,9 @@ export class AbsenceGanttSurfaceComponent
           this.dataManagementBreak.isAbsenceHeaderInit();
         if (this.isAbsenceHeaderInit) {
           this.drawCalendarGantt.selectedRow = -1;
+          this.drawCalendarGantt.updateStartDate =
+            this.holidayCollection.currentYear;
+          this.drawCalendarGantt.resetAll();
           this.dataManagementBreak.canReadBreaks = true;
           this.dataManagementBreak.readYear();
           this.cd.detectChanges();

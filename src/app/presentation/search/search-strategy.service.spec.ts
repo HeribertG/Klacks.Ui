@@ -1,5 +1,5 @@
-import type { MockedObject } from "vitest";
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { SearchStrategyService } from './search-strategy.service';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
