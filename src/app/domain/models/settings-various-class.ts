@@ -32,6 +32,8 @@ export class AppSetting {
   public static APP_OUTGOING_SERVER_PORT = 'outgoingserverPort';
   public static APP_OUTGOING_SERVER_USERNAME = 'outgoingserverUsername';
   public static APP_OUTGOING_SERVER_PASSWORD = 'outgoingserverPassword';
+
+  public static OPENROUTESERVICE_API_KEY = 'OPENROUTESERVICE_API_KEY';
 }
 
 export interface IMacroType {

@@ -20,9 +20,11 @@ export class AppSettingsManagementService {
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
+  public openRouteServiceApiKey = signal<string>('');
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
+  private openRouteServiceApiKeyOriginal = signal<string>('');
 
   public isLoading = signal<boolean>(false);
   public isDirty = computed(() => this.checkIfDirty());
@@ -35,6 +37,7 @@ export class AppSettingsManagementService {
     effect(() => {
       this.contactSettings();
       this.emailSettings();
+      this.openRouteServiceApiKey();
 
       untracked(() => {
         if (this.autoSaveTimer) {
@@ -89,6 +92,7 @@ export class AppSettingsManagementService {
   private applySettingsToModels(settings: ISetting[]): void {
     const contact = new AppContactSettings();
     const email = new EmailServerSettings();
+    let openRouteServiceApiKey = '';
 
     settings.forEach((setting) => {
       switch (setting.type) {
@@ -153,15 +157,21 @@ export class AppSettingsManagementService {
         case AppSetting.APP_OUTGOING_SERVER_PASSWORD:
           email.password = setting.value;
           break;
+
+        case AppSetting.OPENROUTESERVICE_API_KEY:
+          openRouteServiceApiKey = setting.value;
+          break;
       }
     });
 
     this.contactSettings.set(contact);
     this.emailSettings.set(email);
+    this.openRouteServiceApiKey.set(openRouteServiceApiKey);
 
     // Save original state for dirty tracking
     this.contactSettingsOriginal.set(cloneObject(contact));
     this.emailSettingsOriginal.set(cloneObject(email));
+    this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
   }
 
   save(): void {
@@ -197,6 +207,9 @@ export class AppSettingsManagementService {
     this.saveSetting(email.dispositionNotification, emailOriginal.dispositionNotification, AppSetting.APP_DISPOSITION_NOTIFICATION);
     this.saveSetting(email.username, emailOriginal.username, AppSetting.APP_OUTGOING_SERVER_USERNAME);
     this.saveSetting(email.password, emailOriginal.password, AppSetting.APP_OUTGOING_SERVER_PASSWORD);
+
+    // Save OpenRouteService API Key
+    this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
   }
 
   private saveSetting(value: string, originalValue: string, type: string): void {
@@ -236,6 +249,7 @@ export class AppSettingsManagementService {
       // Update original state after successful save
       this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
+      this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
     }
   }
 
@@ -247,7 +261,8 @@ export class AppSettingsManagementService {
 
     return (
       !compareComplexObjects(contact, contactOriginal) ||
-      !compareComplexObjects(email, emailOriginal)
+      !compareComplexObjects(email, emailOriginal) ||
+      this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal()
     );
   }
 

@@ -4,7 +4,6 @@ import { Title } from '@angular/platform-browser';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
-
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';

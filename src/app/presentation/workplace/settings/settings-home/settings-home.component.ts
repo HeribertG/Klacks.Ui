@@ -28,6 +28,7 @@ import { GroupScopeComponent } from '../group-scope/group-scope.component';
 import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
+import { OpenrouteComponent } from '../openroute/openroute.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -53,7 +54,8 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
     GroupScopeComponent,
     ContractsComponent,
     LLMModelsComponent,
-    LLMProvidersComponent
+    LLMProvidersComponent,
+    OpenrouteComponent
 ],
 })
 export class SettingsHomeComponent implements OnInit {

@@ -1,0 +1,34 @@
+<form id="openroute-form">
+  <div id="openroute-header" class="container-header">
+    {{ translate.instant("setting.openroute.headline") }}
+  </div>
+
+  <div id="openroute-line" class="container-line"></div>
+
+  <div class="openroute-info first">
+    <p class="info-text">
+      {{ translate.instant("setting.openroute.description") }}
+    </p>
+    <p class="info-text">
+      {{ translate.instant("setting.openroute.register") }}
+      <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener noreferrer">
+        openrouteservice.org
+      </a>
+    </p>
+  </div>
+
+  <div class="form-group first">
+    <label for="openroute-apikey">{{
+      translate.instant("setting.openroute.apikey")
+    }}</label>
+    <input
+      id="openroute-apikey"
+      type="password"
+      class="form-control"
+      [(ngModel)]="openRouteServiceApiKey"
+      aria-label="openRouteServiceApiKey"
+      name="openRouteServiceApiKey"
+      placeholder="5b3ce3597851110001cf6248..."
+    />
+  </div>
+</form>

@@ -1,0 +1,26 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/colors.scss";
+
+.first {
+  padding-top: 10px;
+  margin-left: 30px;
+  padding-right: 40px;
+}
+
+.openroute-info {
+  .info-text {
+    font-size: 13px;
+    color: var(--colorSubHeadline);
+    margin-bottom: 8px;
+
+    a {
+      color: var(--colorLink, #e57373);
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

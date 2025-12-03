@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 
 export interface ILocation {
   name: string;
@@ -39,12 +40,16 @@ export class RouteOptimizationService {
     weekday: number,
     isHoliday: boolean,
     startBase?: string,
-    endBase?: string
+    endBase?: string,
+    transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
   ): Observable<IRouteOptimizationResult> {
+    console.log('RouteOptimizationService.optimizeRoute - transportMode:', transportMode, 'as string:', transportMode.toString());
+
     let params = new HttpParams()
       .set('containerId', containerId)
       .set('weekday', weekday.toString())
-      .set('isHoliday', isHoliday.toString());
+      .set('isHoliday', isHoliday.toString())
+      .set('transportMode', transportMode.toString());
 
     if (startBase) {
       params = params.set('startBase', startBase);
@@ -52,6 +57,8 @@ export class RouteOptimizationService {
     if (endBase) {
       params = params.set('endBase', endBase);
     }
+
+    console.log('RouteOptimizationService - Full URL params:', params.toString());
 
     return this.http.get<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,

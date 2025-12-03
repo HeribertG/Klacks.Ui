@@ -954,6 +954,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       isHoliday: this.isHoliday,
       startBase: this.selectedStartBase,
       endBase: this.selectedEndBase,
+      transportMode: this.selectedTransportMode,
       itemsCount: items.length,
     });
 
@@ -971,7 +972,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         weekdayNumber,
         this.isHoliday,
         this.selectedStartBase || undefined,
-        this.selectedEndBase || undefined
+        this.selectedEndBase || undefined,
+        this.selectedTransportMode
       )
       .pipe(takeUntil(this.destroy$))
       .subscribe({
