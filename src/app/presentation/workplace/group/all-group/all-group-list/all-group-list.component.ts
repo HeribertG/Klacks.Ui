@@ -104,9 +104,9 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ngUnsubscribe = new Subject<void>();
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.dataManagementGroupService.init();
-    this.allGroupStateService.initializeWorkplaceState();
+    await this.allGroupStateService.initializeWorkplaceState();
 
     this.sortingService.initialize({
       columns: ['name', 'description', 'valid_from', 'valid_until'],
@@ -116,6 +116,14 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.readSignals();
+
+    const wasRestored =
+      await this.allGroupStateService.restoreFilterFromStorage();
+    if (wasRestored) {
+      this.page =
+        this.dataManagementGroupService.currentFilter.requiredPage + 1;
+    }
+    this.readPage();
   }
 
   ngAfterViewInit(): void {
@@ -371,37 +379,14 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
       this.effectRef = effect(() => {
         const isRead = this.dataManagementGroupService.isRead();
         if (isRead) {
-          const storedRowOrder =
-            this.localStorageService.get('SELECTED_ROW_ORDER');
-
           if (this.isFirstRead) {
             this.isFirstRead = false;
           } else {
             this.resizeDirective?.triggerMeasurement();
           }
         }
-
-        const initIsRead = this.dataManagementGroupService.initIsRead();
-        if (initIsRead) {
-          this.isInit().catch((error) =>
-            console.error('Failed to initialize:', error)
-          );
-        }
       });
     });
-  }
-
-  private async isInit(): Promise<void> {
-    const wasRestored =
-      await this.allGroupStateService.restoreFilterFromStorage();
-
-    if (wasRestored) {
-      setTimeout(() => {
-        this.page =
-          this.dataManagementGroupService.currentFilter.requiredPage + 1;
-        this.readPage();
-      }, 100);
-    }
   }
 
   private setupTableResize(): void {

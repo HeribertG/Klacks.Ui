@@ -99,7 +99,7 @@ export class AllAddressListComponent
   private ngUnsubscribe = new Subject<void>();
 
   // Lifecycle hooks
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)) {
       this.isAuthorised = JSON.parse(
         this.localStorageService.get(MessageLibrary.TOKEN_AUTHORISED)!
@@ -114,6 +114,15 @@ export class AllAddressListComponent
     });
 
     this.readSignals();
+
+    this.setLastChangeMetaData();
+    const wasRestored =
+      await this.allAddressStateService.restoreFilterFromStorage();
+    if (wasRestored) {
+      this.page =
+        this.dataManagementClientService.currentFilter.requiredPage + 1;
+    }
+    this.readPage();
   }
 
   ngAfterViewInit(): void {
@@ -340,21 +349,6 @@ export class AllAddressListComponent
     );
   }
 
-  private async isInit(): Promise<void> {
-    this.setLastChangeMetaData();
-
-    const wasRestored =
-      await this.allAddressStateService.restoreFilterFromStorage();
-
-    if (wasRestored) {
-      setTimeout(() => {
-        this.page =
-          this.dataManagementClientService.currentFilter.requiredPage + 1;
-        this.readPage();
-      }, 100);
-    }
-  }
-
   private readPage(isSecondRead = false): void {
     this.setFilter();
     this.dataManagementClientService.readPage(isSecondRead);
@@ -396,18 +390,6 @@ export class AllAddressListComponent
       });
     });
     this.effects.push(readEffect);
-
-    const initEffect = runInInjectionContext(this.injector, () => {
-      return effect(() => {
-        const initIsRead = this.dataManagementClientService.initIsRead();
-        if (initIsRead) {
-          this.isInit().catch((error) =>
-            console.error('Failed to initialize:', error)
-          );
-        }
-      });
-    });
-    this.effects.push(initEffect);
   }
 
   private setupTableResize(): void {
