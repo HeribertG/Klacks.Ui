@@ -13,13 +13,115 @@ import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
 export type RouteInfo = IRouteInfo;
 export type RouteLocation = IRouteLocation;
 
+const PDF_MARGIN = 14;
+const PDF_TITLE_Y = 15;
+const PDF_GENERATED_Y = 22;
+const PDF_TIME_RANGE_Y = 29;
+const PDF_SUMMARY_TITLE_Y = 32;
+const PDF_SUMMARY_START_Y = 40;
+const PDF_LINE_SPACING = 6;
+const PDF_SECTION_SPACING = 8;
+const PDF_PAGE_START_Y = 20;
+const PDF_PAGE_NUMBER_OFFSET_X = 40;
+const PDF_PAGE_NUMBER_OFFSET_Y = 10;
+
+const FONT_SIZE_TITLE = 16;
+const FONT_SIZE_SECTION = 12;
+const FONT_SIZE_HEADER = 11;
+const FONT_SIZE_NORMAL = 10;
+const FONT_SIZE_SMALL = 9;
+const FONT_SIZE_TINY = 8;
+
+const TABLE_HEADER_COLOR: [number, number, number] = [66, 139, 202];
+const TABLE_TEXT_COLOR_WHITE = 255;
+const TEXT_COLOR_GRAY = 100;
+
+const COLUMN_WIDTH_NARROW = 10;
+const COLUMN_WIDTH_MEDIUM = 25;
+const COLUMN_WIDTH_WIDE = 40;
+const COLUMN_WIDTH_EXTRA_WIDE = 60;
+const CELL_PADDING_NORMAL = 3;
+const CELL_PADDING_SMALL = 2;
+
+const MAP_WIDTH = 1200;
+const MAP_HEIGHT = 720;
+const MAP_PDF_MARGIN = 85;
+const MAP_PADDING_PERCENT = 0.05;
+const MAP_PADDING_MIN = 0.005;
+const MAP_MARKER_PROXIMITY = 20;
+
+const ROUTE_LINE_WIDTH_OUTER = 6;
+const ROUTE_LINE_WIDTH_INNER = 4;
+const ROUTE_LINE_COLOR_OUTER = '#0044AA';
+const ROUTE_LINE_COLOR_INNER = '#3388FF';
+const MARKER_STROKE_WIDTH = 3;
+const MARKER_RADIUS_NORMAL = 14;
+const MARKER_RADIUS_COMBINED = 18;
+const MARKER_COLOR_BOTH = '#8822AA';
+const MARKER_COLOR_START = '#22AA22';
+const MARKER_COLOR_END = '#AA2222';
+const MARKER_COLOR_DEFAULT = '#CC4444';
+
+const TILE_SIZE = 256;
+const OSM_ATTRIBUTION_WIDTH = 160;
+const OSM_ATTRIBUTION_HEIGHT = 18;
+const OSM_ATTRIBUTION_MARGIN = 5;
+const OSM_ATTRIBUTION_TEXT_OFFSET = 8;
+
+const DIRECTION_BOX_HEIGHT = 10;
+const DIRECTION_BOX_MARGIN = 6;
+const DIRECTION_STEP_SPACING = 5;
+const DIRECTION_TEXT_OFFSET = 18;
+const DIRECTION_INSTRUCTION_OFFSET = 26;
+const DIRECTION_PAGE_BREAK_THRESHOLD = 50;
+const DIRECTION_STEP_PAGE_BREAK_THRESHOLD = 20;
+const DIRECTION_NEW_PAGE_START_Y = 15;
+
+const METERS_PER_KM = 1000;
+const MINUTES_PER_HOUR = 60;
+const HOURS_PER_DAY = 24;
+
+const ZOOM_THRESHOLDS = [
+  { span: 2, zoom: 8 },
+  { span: 1, zoom: 9 },
+  { span: 0.5, zoom: 10 },
+  { span: 0.2, zoom: 11 },
+  { span: 0.1, zoom: 12 },
+  { span: 0.05, zoom: 13 },
+  { span: 0.02, zoom: 14 },
+];
+const ZOOM_DEFAULT = 15;
+
+const PDF_ORIENTATION_LANDSCAPE = 'landscape' as const;
+const PDF_IMAGE_FORMAT_PNG = 'PNG' as const;
+const PDF_TABLE_THEME_STRIPED = 'striped' as const;
+const PDF_RECT_FILL = 'F' as const;
+
+const FONT_FAMILY_HELVETICA = 'helvetica';
+const FONT_STYLE_BOLD = 'bold' as const;
+const FONT_STYLE_NORMAL = 'normal' as const;
+
+const CANVAS_FONT_BOLD_10 = 'bold 10px Arial';
+const CANVAS_FONT_BOLD_12 = 'bold 12px Arial';
+const CANVAS_FONT_NORMAL_10 = '10px Arial';
+
+const COLOR_WHITE = '#FFFFFF';
+const COLOR_GRAY_LIGHT = '#e8e8e8';
+const COLOR_GRAY_MEDIUM = '#999999';
+const COLOR_GRAY_DARK = '#333333';
+const COLOR_SHADOW = 'rgba(0, 0, 0, 0.3)';
+const COLOR_ATTRIBUTION_BG = 'rgba(255, 255, 255, 0.9)';
+const COLOR_TRANSPARENT = 'transparent';
+
+const OSM_SUBDOMAINS = ['a', 'b', 'c'];
+const OSM_ATTRIBUTION_TEXT = '© OpenStreetMap contributors';
+const OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
+
 @Injectable({
   providedIn: 'root',
 })
 export class ContainerTemplatePdfExportService {
   private translateService = inject(TranslateService);
-  private readonly MAP_WIDTH = 1200;
-  private readonly MAP_HEIGHT = 720;
 
   exportContainerTemplateToPdf(
     items: IContainerTemplateItem[],
@@ -28,27 +130,27 @@ export class ContainerTemplatePdfExportService {
     timeFrom: string,
     timeTo: string
   ): void {
-    const pdf = new jsPDF('landscape');
+    const pdf = new jsPDF(PDF_ORIENTATION_LANDSCAPE);
 
     const translatedWeekday = this.translateWeekday(weekday);
     const title = `${containerName} - ${translatedWeekday}`;
-    pdf.setFontSize(16);
-    pdf.text(title, 14, 15);
+    pdf.setFontSize(FONT_SIZE_TITLE);
+    pdf.text(title, PDF_MARGIN, PDF_TITLE_Y);
 
-    pdf.setFontSize(10);
+    pdf.setFontSize(FONT_SIZE_NORMAL);
     pdf.text(
       `${this.translateService.instant(
         'pdf.generated'
       )}: ${new Date().toLocaleDateString()}`,
-      14,
-      22
+      PDF_MARGIN,
+      PDF_GENERATED_Y
     );
     pdf.text(
       `${this.translateService.instant(
         'shift.container-template.time-range'
       )}: ${timeFrom} - ${timeTo}`,
-      14,
-      29
+      PDF_MARGIN,
+      PDF_TIME_RANGE_Y
     );
 
     const tableData = items.map((item) => [
@@ -72,24 +174,24 @@ export class ContainerTemplatePdfExportService {
     autoTable(pdf, {
       head: [headers],
       body: tableData,
-      startY: 40,
-      theme: 'striped',
+      startY: PDF_SUMMARY_START_Y,
+      theme: PDF_TABLE_THEME_STRIPED,
       headStyles: {
-        fillColor: [66, 139, 202],
-        textColor: 255,
-        fontSize: 11,
-        fontStyle: 'bold',
+        fillColor: TABLE_HEADER_COLOR,
+        textColor: TABLE_TEXT_COLOR_WHITE,
+        fontSize: FONT_SIZE_HEADER,
+        fontStyle: FONT_STYLE_BOLD,
       },
       styles: {
-        fontSize: 10,
-        cellPadding: 3,
+        fontSize: FONT_SIZE_NORMAL,
+        cellPadding: CELL_PADDING_NORMAL,
       },
       columnStyles: {
-        0: { cellWidth: 60 },
+        0: { cellWidth: COLUMN_WIDTH_EXTRA_WIDE },
         1: { cellWidth: 'auto' },
-        2: { cellWidth: 40, halign: 'center' },
-        3: { cellWidth: 40, halign: 'center' },
-        4: { cellWidth: 40, halign: 'center' },
+        2: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
+        3: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
+        4: { cellWidth: COLUMN_WIDTH_WIDE, halign: 'center' },
         5: { cellWidth: 'auto' },
       },
     });
@@ -97,13 +199,13 @@ export class ContainerTemplatePdfExportService {
     const pageCount = (pdf as any).internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
-      pdf.setFontSize(8);
+      pdf.setFontSize(FONT_SIZE_TINY);
       pdf.text(
         `${this.translateService.instant(
           'pdf.page'
         )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
-        pdf.internal.pageSize.width - 40,
-        pdf.internal.pageSize.height - 10
+        pdf.internal.pageSize.width - PDF_PAGE_NUMBER_OFFSET_X,
+        pdf.internal.pageSize.height - PDF_PAGE_NUMBER_OFFSET_Y
       );
     }
 
@@ -168,7 +270,7 @@ export class ContainerTemplatePdfExportService {
   private formatDuration(item: IContainerTemplateItem): string {
     if (item.shift?.workTime) {
       const hours = Math.floor(item.shift.workTime);
-      const minutes = Math.round((item.shift.workTime - hours) * 60);
+      const minutes = Math.round((item.shift.workTime - hours) * MINUTES_PER_HOUR);
       return `${hours.toString().padStart(2, '0')}:${minutes
         .toString()
         .padStart(2, '0')}`;
@@ -211,64 +313,63 @@ export class ContainerTemplatePdfExportService {
     weekday: string,
     timeFrom: string
   ): Promise<void> {
-    const pdf = new jsPDF('landscape');
+    const pdf = new jsPDF(PDF_ORIENTATION_LANDSCAPE);
 
     const translatedWeekday = this.translateWeekday(weekday);
     const title = `${containerName} - ${translatedWeekday}`;
-    pdf.setFontSize(16);
-    pdf.text(title, 14, 15);
+    pdf.setFontSize(FONT_SIZE_TITLE);
+    pdf.text(title, PDF_MARGIN, PDF_TITLE_Y);
 
-    pdf.setFontSize(10);
+    pdf.setFontSize(FONT_SIZE_NORMAL);
     pdf.text(
       `${this.translateService.instant(
         'pdf.generated'
       )}: ${new Date().toLocaleDateString()}`,
-      14,
-      22
+      PDF_MARGIN,
+      PDF_GENERATED_Y
     );
 
-    pdf.setFontSize(12);
+    pdf.setFontSize(FONT_SIZE_SECTION);
     pdf.text(
       this.translateService.instant('pdf.route-summary') || 'Route Summary',
-      14,
-      32
+      PDF_MARGIN,
+      PDF_SUMMARY_TITLE_Y
     );
 
-    pdf.setFontSize(10);
-    const summaryY = 40;
+    pdf.setFontSize(FONT_SIZE_NORMAL);
     pdf.text(
       `${this.translateService.instant('pdf.start-base') || 'Start'}: ${
         routeInfo.startBase
       }`,
-      14,
-      summaryY
+      PDF_MARGIN,
+      PDF_SUMMARY_START_Y
     );
     pdf.text(
       `${this.translateService.instant('pdf.end-base') || 'End'}: ${
         routeInfo.endBase
       }`,
-      14,
-      summaryY + 6
+      PDF_MARGIN,
+      PDF_SUMMARY_START_Y + PDF_LINE_SPACING
     );
     pdf.text(
       `${
         this.translateService.instant('pdf.total-distance') || 'Total Distance'
       }: ${routeInfo.totalDistanceKm.toFixed(2)} km`,
-      14,
-      summaryY + 12
+      PDF_MARGIN,
+      PDF_SUMMARY_START_Y + PDF_LINE_SPACING * 2
     );
     pdf.text(
       `${
         this.translateService.instant('pdf.total-travel-time') ||
         'Total Travel Time'
       }: ${this.formatTimeSpan(routeInfo.estimatedTravelTime)}`,
-      14,
-      summaryY + 18
+      PDF_MARGIN,
+      PDF_SUMMARY_START_Y + PDF_LINE_SPACING * 3
     );
 
     const coordinates = this.extractCoordinatesFromItems(items, routeInfo);
 
-    let currentY = summaryY + 30;
+    let currentY = PDF_SUMMARY_START_Y + PDF_LINE_SPACING * 5;
 
     if (coordinates.length > 0) {
       try {
@@ -276,31 +377,31 @@ export class ContainerTemplatePdfExportService {
 
         if (mapCanvas) {
           const pageWidth = pdf.internal.pageSize.width;
-          const maxMapWidth = pageWidth - 85;
+          const maxMapWidth = pageWidth - MAP_PDF_MARGIN;
           const aspectRatio = mapCanvas.width / mapCanvas.height;
           const mapWidth = maxMapWidth;
           const mapHeight = mapWidth / aspectRatio;
 
           const mapDataUrl = mapCanvas.toDataURL('image/png');
-          pdf.addImage(mapDataUrl, 'PNG', 14, currentY, mapWidth, mapHeight);
+          pdf.addImage(mapDataUrl, PDF_IMAGE_FORMAT_PNG, PDF_MARGIN, currentY, mapWidth, mapHeight);
         }
       } catch (error) {
         console.error('Error generating route map:', error);
-        pdf.setFontSize(10);
-        pdf.text('Map could not be generated', 14, currentY);
+        pdf.setFontSize(FONT_SIZE_NORMAL);
+        pdf.text('Map could not be generated', PDF_MARGIN, currentY);
       }
     }
 
-    pdf.addPage('landscape');
-    currentY = 20;
+    pdf.addPage(PDF_ORIENTATION_LANDSCAPE);
+    currentY = PDF_PAGE_START_Y;
 
-    pdf.setFontSize(12);
+    pdf.setFontSize(FONT_SIZE_SECTION);
     pdf.text(
       this.translateService.instant('pdf.route-details') || 'Route Details',
-      14,
+      PDF_MARGIN,
       currentY
     );
-    currentY += 8;
+    currentY += PDF_SECTION_SPACING;
 
     const routeData = this.buildRouteTableData(items, routeInfo, timeFrom);
 
@@ -317,24 +418,24 @@ export class ContainerTemplatePdfExportService {
       ],
       body: routeData,
       startY: currentY,
-      theme: 'striped',
+      theme: PDF_TABLE_THEME_STRIPED,
       headStyles: {
-        fillColor: [66, 139, 202],
-        textColor: 255,
-        fontSize: 9,
-        fontStyle: 'bold',
+        fillColor: TABLE_HEADER_COLOR,
+        textColor: TABLE_TEXT_COLOR_WHITE,
+        fontSize: FONT_SIZE_SMALL,
+        fontStyle: FONT_STYLE_BOLD,
       },
       styles: {
-        fontSize: 8,
-        cellPadding: 2,
+        fontSize: FONT_SIZE_TINY,
+        cellPadding: CELL_PADDING_SMALL,
       },
       columnStyles: {
-        0: { cellWidth: 10, halign: 'center' },
+        0: { cellWidth: COLUMN_WIDTH_NARROW, halign: 'center' },
         1: { cellWidth: 'auto' },
-        2: { cellWidth: 25, halign: 'center' },
-        3: { cellWidth: 25, halign: 'center' },
-        4: { cellWidth: 25, halign: 'center' },
-        5: { cellWidth: 25, halign: 'right' },
+        2: { cellWidth: COLUMN_WIDTH_MEDIUM, halign: 'center' },
+        3: { cellWidth: COLUMN_WIDTH_MEDIUM, halign: 'center' },
+        4: { cellWidth: COLUMN_WIDTH_MEDIUM, halign: 'center' },
+        5: { cellWidth: COLUMN_WIDTH_MEDIUM, halign: 'right' },
       },
     });
 
@@ -345,13 +446,13 @@ export class ContainerTemplatePdfExportService {
     const pageCount = (pdf as any).internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
-      pdf.setFontSize(8);
+      pdf.setFontSize(FONT_SIZE_TINY);
       pdf.text(
         `${this.translateService.instant(
           'pdf.page'
         )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
-        pdf.internal.pageSize.width - 40,
-        pdf.internal.pageSize.height - 10
+        pdf.internal.pageSize.width - PDF_PAGE_NUMBER_OFFSET_X,
+        pdf.internal.pageSize.height - PDF_PAGE_NUMBER_OFFSET_Y
       );
     }
 
@@ -363,101 +464,100 @@ export class ContainerTemplatePdfExportService {
   }
 
   private addDirectionsSection(pdf: jsPDF, segmentDirections: any[]): void {
-    pdf.addPage('landscape');
+    pdf.addPage(PDF_ORIENTATION_LANDSCAPE);
 
-    let currentY = 20;
-    pdf.setFontSize(16);
-    pdf.setFont('helvetica', 'bold');
+    let currentY = PDF_PAGE_START_Y;
+    pdf.setFontSize(FONT_SIZE_TITLE);
+    pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_BOLD);
     pdf.text(
       this.translateService.instant('pdf.directions') || 'Wegbeschreibung',
-      14,
+      PDF_MARGIN,
       currentY
     );
-    pdf.setFont('helvetica', 'normal');
-    currentY += 12;
+    pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_NORMAL);
+    currentY += FONT_SIZE_SECTION;
 
     for (const segment of segmentDirections) {
-      if (currentY > pdf.internal.pageSize.height - 50) {
-        pdf.addPage('landscape');
-        currentY = 20;
+      if (currentY > pdf.internal.pageSize.height - DIRECTION_PAGE_BREAK_THRESHOLD) {
+        pdf.addPage(PDF_ORIENTATION_LANDSCAPE);
+        currentY = PDF_PAGE_START_Y;
       }
 
-      const boxHeight = 10;
-      pdf.setFillColor(66, 139, 202);
+      pdf.setFillColor(...TABLE_HEADER_COLOR);
       pdf.rect(
-        14,
-        currentY - 6,
-        pdf.internal.pageSize.width - 28,
-        boxHeight,
-        'F'
+        PDF_MARGIN,
+        currentY - DIRECTION_BOX_MARGIN,
+        pdf.internal.pageSize.width - PDF_MARGIN * 2,
+        DIRECTION_BOX_HEIGHT,
+        PDF_RECT_FILL
       );
 
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(11);
-      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(TABLE_TEXT_COLOR_WHITE, TABLE_TEXT_COLOR_WHITE, TABLE_TEXT_COLOR_WHITE);
+      pdf.setFontSize(FONT_SIZE_HEADER);
+      pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_BOLD);
 
       const segmentHeader = `${segment.fromName}  -->  ${segment.toName}  (${segment.transportMode})`;
-      pdf.text(segmentHeader, 18, currentY + 1);
+      pdf.text(segmentHeader, DIRECTION_TEXT_OFFSET, currentY + 1);
 
       const distanceText = `${segment.distanceKm.toFixed(2)} km`;
       pdf.text(
         distanceText,
-        pdf.internal.pageSize.width - 18 - pdf.getTextWidth(distanceText),
+        pdf.internal.pageSize.width - DIRECTION_TEXT_OFFSET - pdf.getTextWidth(distanceText),
         currentY + 1
       );
 
       pdf.setTextColor(0, 0, 0);
-      currentY += 14;
+      currentY += PDF_MARGIN;
 
       if (segment.steps && segment.steps.length > 0) {
-        pdf.setFont('helvetica', 'normal');
-        pdf.setFontSize(9);
+        pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_NORMAL);
+        pdf.setFontSize(FONT_SIZE_SMALL);
 
         for (let i = 0; i < segment.steps.length; i++) {
           const step = segment.steps[i];
 
-          if (currentY > pdf.internal.pageSize.height - 20) {
-            pdf.addPage('landscape');
-            currentY = 15;
+          if (currentY > pdf.internal.pageSize.height - DIRECTION_STEP_PAGE_BREAK_THRESHOLD) {
+            pdf.addPage(PDF_ORIENTATION_LANDSCAPE);
+            currentY = DIRECTION_NEW_PAGE_START_Y;
           }
 
           const stepNumber = `${i + 1}.`;
           const distanceStr =
-            step.distanceMeters >= 1000
-              ? `${(step.distanceMeters / 1000).toFixed(1)} km`
+            step.distanceMeters >= METERS_PER_KM
+              ? `${(step.distanceMeters / METERS_PER_KM).toFixed(1)} km`
               : `${Math.round(step.distanceMeters)} m`;
 
-          pdf.setFont('helvetica', 'bold');
-          pdf.text(stepNumber, 18, currentY);
-          pdf.setFont('helvetica', 'normal');
-          pdf.text(step.instruction, 26, currentY);
+          pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_BOLD);
+          pdf.text(stepNumber, DIRECTION_TEXT_OFFSET, currentY);
+          pdf.setFont(FONT_FAMILY_HELVETICA, FONT_STYLE_NORMAL);
+          pdf.text(step.instruction, DIRECTION_INSTRUCTION_OFFSET, currentY);
 
-          pdf.setTextColor(100, 100, 100);
+          pdf.setTextColor(TEXT_COLOR_GRAY, TEXT_COLOR_GRAY, TEXT_COLOR_GRAY);
           const distanceX =
-            pdf.internal.pageSize.width - 14 - pdf.getTextWidth(distanceStr);
+            pdf.internal.pageSize.width - PDF_MARGIN - pdf.getTextWidth(distanceStr);
           pdf.text(distanceStr, distanceX, currentY);
           pdf.setTextColor(0, 0, 0);
 
-          currentY += 5;
+          currentY += DIRECTION_STEP_SPACING;
         }
       } else {
-        pdf.setFontSize(9);
-        pdf.setTextColor(100, 100, 100);
+        pdf.setFontSize(FONT_SIZE_SMALL);
+        pdf.setTextColor(TEXT_COLOR_GRAY, TEXT_COLOR_GRAY, TEXT_COLOR_GRAY);
         pdf.text(
-          'Keine detaillierten Wegbeschreibungen verfügbar',
-          18,
+          this.translateService.instant('pdf.no-directions-available'),
+          DIRECTION_TEXT_OFFSET,
           currentY
         );
         pdf.setTextColor(0, 0, 0);
-        currentY += 5;
+        currentY += DIRECTION_STEP_SPACING;
       }
 
-      currentY += 8;
+      currentY += PDF_SECTION_SPACING;
     }
   }
 
   private extractCoordinatesFromItems(
-    items: IContainerTemplateItem[],
+    _items: IContainerTemplateItem[],
     routeInfo: RouteInfo
   ): { lat: number; lon: number; name: string }[] {
     if (!routeInfo.optimizedRoute || routeInfo.optimizedRoute.length === 0) {
@@ -481,8 +581,8 @@ export class ContainerTemplatePdfExportService {
     }
 
     const canvas = document.createElement('canvas');
-    canvas.width = this.MAP_WIDTH;
-    canvas.height = this.MAP_HEIGHT;
+    canvas.width = MAP_WIDTH;
+    canvas.height = MAP_HEIGHT;
     const ctx = canvas.getContext('2d');
 
     if (!ctx) {
@@ -505,9 +605,8 @@ export class ContainerTemplatePdfExportService {
     const minLon = Math.min(...lons);
     const maxLon = Math.max(...lons);
 
-    const padding = 0.05;
-    const latPadding = (maxLat - minLat) * padding || 0.005;
-    const lonPadding = (maxLon - minLon) * padding || 0.005;
+    const latPadding = (maxLat - minLat) * MAP_PADDING_PERCENT || MAP_PADDING_MIN;
+    const lonPadding = (maxLon - minLon) * MAP_PADDING_PERCENT || MAP_PADDING_MIN;
 
     const paddedMinLat = minLat - latPadding;
     const paddedMaxLat = maxLat + latPadding;
@@ -521,15 +620,13 @@ export class ContainerTemplatePdfExportService {
     const lonSpan = paddedMaxLon - paddedMinLon;
     const maxSpan = Math.max(latSpan, lonSpan);
 
-    let zoom = 15;
-    if (maxSpan > 2) zoom = 8;
-    else if (maxSpan > 1) zoom = 9;
-    else if (maxSpan > 0.5) zoom = 10;
-    else if (maxSpan > 0.2) zoom = 11;
-    else if (maxSpan > 0.1) zoom = 12;
-    else if (maxSpan > 0.05) zoom = 13;
-    else if (maxSpan > 0.02) zoom = 14;
-    else zoom = 15;
+    let zoom = ZOOM_DEFAULT;
+    for (const threshold of ZOOM_THRESHOLDS) {
+      if (maxSpan > threshold.span) {
+        zoom = threshold.zoom;
+        break;
+      }
+    }
 
     try {
       await this.loadOsmTiles(
@@ -542,10 +639,10 @@ export class ContainerTemplatePdfExportService {
       );
     } catch (error) {
       console.error('Error loading OSM tiles:', error);
-      ctx.fillStyle = '#e8e8e8';
+      ctx.fillStyle = COLOR_GRAY_LIGHT;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#999999';
-      ctx.font = '14px Arial';
+      ctx.fillStyle = COLOR_GRAY_MEDIUM;
+      ctx.font = `${MARKER_RADIUS_NORMAL}px Arial`;
       ctx.textAlign = 'center';
       ctx.fillText(
         'Map tiles could not be loaded',
@@ -560,8 +657,8 @@ export class ContainerTemplatePdfExportService {
       this.latToPixelY(lat, zoom, centerLat, canvas.height);
 
     if (routeGeometry.length > 0) {
-      ctx.strokeStyle = '#0044AA';
-      ctx.lineWidth = 6;
+      ctx.strokeStyle = ROUTE_LINE_COLOR_OUTER;
+      ctx.lineWidth = ROUTE_LINE_WIDTH_OUTER;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       ctx.beginPath();
@@ -576,8 +673,8 @@ export class ContainerTemplatePdfExportService {
       });
       ctx.stroke();
 
-      ctx.strokeStyle = '#3388FF';
-      ctx.lineWidth = 4;
+      ctx.strokeStyle = ROUTE_LINE_COLOR_INNER;
+      ctx.lineWidth = ROUTE_LINE_WIDTH_INNER;
       ctx.beginPath();
       routeGeometry.forEach((point, i) => {
         const x = toPixelX(point.lon);
@@ -591,13 +688,6 @@ export class ContainerTemplatePdfExportService {
       ctx.stroke();
     }
 
-    const firstCoord = coordinates[0];
-    const lastCoord = coordinates[coordinates.length - 1];
-    const startEndSameLocation =
-      coordinates.length > 1 &&
-      Math.abs(firstCoord.lat - lastCoord.lat) < 0.0001 &&
-      Math.abs(firstCoord.lon - lastCoord.lon) < 0.0001;
-
     const drawnPositions: { x: number; y: number; labels: string[] }[] = [];
 
     coordinates.forEach((coord, i) => {
@@ -605,7 +695,7 @@ export class ContainerTemplatePdfExportService {
       const y = toPixelY(coord.lat);
 
       const existingPos = drawnPositions.find(
-        (p) => Math.abs(p.x - x) < 20 && Math.abs(p.y - y) < 20
+        (p) => Math.abs(p.x - x) < MAP_MARKER_PROXIMITY && Math.abs(p.y - y) < MAP_MARKER_PROXIMITY
       );
 
       if (existingPos) {
@@ -615,49 +705,58 @@ export class ContainerTemplatePdfExportService {
       }
     });
 
-    drawnPositions.forEach((pos, idx) => {
+    drawnPositions.forEach((pos) => {
       const isStart = pos.labels.includes('0');
       const isEnd = pos.labels.includes((coordinates.length - 1).toString());
       const isBoth = isStart && isEnd;
 
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+      ctx.shadowColor = COLOR_SHADOW;
       ctx.shadowBlur = 4;
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
 
       ctx.fillStyle = isBoth
-        ? '#8822AA'
+        ? MARKER_COLOR_BOTH
         : isStart
-        ? '#22AA22'
+        ? MARKER_COLOR_START
         : isEnd
-        ? '#AA2222'
-        : '#CC4444';
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 3;
+        ? MARKER_COLOR_END
+        : MARKER_COLOR_DEFAULT;
+      ctx.strokeStyle = COLOR_WHITE;
+      ctx.lineWidth = MARKER_STROKE_WIDTH;
       ctx.beginPath();
-      const radius = pos.labels.length > 1 ? 18 : 14;
+      const radius = pos.labels.length > 1 ? MARKER_RADIUS_COMBINED : MARKER_RADIUS_NORMAL;
       ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.stroke();
 
-      ctx.shadowColor = 'transparent';
+      ctx.shadowColor = COLOR_TRANSPARENT;
       ctx.shadowBlur = 0;
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
 
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = pos.labels.length > 1 ? 'bold 10px Arial' : 'bold 12px Arial';
+      ctx.fillStyle = COLOR_WHITE;
+      ctx.font = pos.labels.length > 1 ? CANVAS_FONT_BOLD_10 : CANVAS_FONT_BOLD_12;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(pos.labels.join('|'), pos.x, pos.y);
     });
 
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillRect(5, canvas.height - 22, 160, 18);
-    ctx.fillStyle = '#333333';
-    ctx.font = '10px Arial';
+    ctx.fillStyle = COLOR_ATTRIBUTION_BG;
+    ctx.fillRect(
+      OSM_ATTRIBUTION_MARGIN,
+      canvas.height - OSM_ATTRIBUTION_HEIGHT - OSM_ATTRIBUTION_MARGIN + 1,
+      OSM_ATTRIBUTION_WIDTH,
+      OSM_ATTRIBUTION_HEIGHT
+    );
+    ctx.fillStyle = COLOR_GRAY_DARK;
+    ctx.font = CANVAS_FONT_NORMAL_10;
     ctx.textAlign = 'left';
-    ctx.fillText('© OpenStreetMap contributors', 8, canvas.height - 10);
+    ctx.fillText(
+      OSM_ATTRIBUTION_TEXT,
+      OSM_ATTRIBUTION_TEXT_OFFSET,
+      canvas.height - PDF_PAGE_NUMBER_OFFSET_Y
+    );
 
     return canvas;
   }
@@ -670,7 +769,7 @@ export class ContainerTemplatePdfExportService {
     }
 
     const coordString = coordinates.map((c) => `${c.lon},${c.lat}`).join(';');
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson`;
+    const url = `${OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
 
     const response = await fetch(url);
     if (!response.ok) {
@@ -697,7 +796,6 @@ export class ContainerTemplatePdfExportService {
     canvasWidth: number,
     canvasHeight: number
   ): Promise<void> {
-    const tileSize = 256;
     const n = Math.pow(2, zoom);
 
     const centerTileX = ((centerLon + 180) / 360) * n;
@@ -711,14 +809,14 @@ export class ContainerTemplatePdfExportService {
         2) *
       n;
 
-    const tilesX = Math.ceil(canvasWidth / tileSize) + 1;
-    const tilesY = Math.ceil(canvasHeight / tileSize) + 1;
+    const tilesX = Math.ceil(canvasWidth / TILE_SIZE) + 1;
+    const tilesY = Math.ceil(canvasHeight / TILE_SIZE) + 1;
 
     const startTileX = Math.floor(centerTileX - tilesX / 2);
     const startTileY = Math.floor(centerTileY - tilesY / 2);
 
-    const offsetX = canvasWidth / 2 - (centerTileX - startTileX) * tileSize;
-    const offsetY = canvasHeight / 2 - (centerTileY - startTileY) * tileSize;
+    const offsetX = canvasWidth / 2 - (centerTileX - startTileX) * TILE_SIZE;
+    const offsetY = canvasHeight / 2 - (centerTileY - startTileY) * TILE_SIZE;
 
     const tilePromises: Promise<void>[] = [];
 
@@ -728,8 +826,8 @@ export class ContainerTemplatePdfExportService {
         const tileY = startTileY + y;
 
         if (tileX >= 0 && tileX < n && tileY >= 0 && tileY < n) {
-          const drawX = offsetX + x * tileSize;
-          const drawY = offsetY + y * tileSize;
+          const drawX = offsetX + x * TILE_SIZE;
+          const drawY = offsetY + y * TILE_SIZE;
 
           tilePromises.push(
             this.loadAndDrawTile(
@@ -738,8 +836,7 @@ export class ContainerTemplatePdfExportService {
               tileY,
               zoom,
               drawX,
-              drawY,
-              tileSize
+              drawY
             )
           );
         }
@@ -755,26 +852,24 @@ export class ContainerTemplatePdfExportService {
     tileY: number,
     zoom: number,
     drawX: number,
-    drawY: number,
-    tileSize: number
+    drawY: number
   ): Promise<void> {
     return new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
 
       img.onload = () => {
-        ctx.drawImage(img, drawX, drawY, tileSize, tileSize);
+        ctx.drawImage(img, drawX, drawY, TILE_SIZE, TILE_SIZE);
         resolve();
       };
 
       img.onerror = () => {
-        ctx.fillStyle = '#e8e8e8';
-        ctx.fillRect(drawX, drawY, tileSize, tileSize);
+        ctx.fillStyle = COLOR_GRAY_LIGHT;
+        ctx.fillRect(drawX, drawY, TILE_SIZE, TILE_SIZE);
         resolve();
       };
 
-      const subdomains = ['a', 'b', 'c'];
-      const subdomain = subdomains[(tileX + tileY) % 3];
+      const subdomain = OSM_SUBDOMAINS[(tileX + tileY) % OSM_SUBDOMAINS.length];
       img.src = `https://${subdomain}.tile.openstreetmap.org/${zoom}/${tileX}/${tileY}.png`;
     });
   }
@@ -786,9 +881,8 @@ export class ContainerTemplatePdfExportService {
     canvasWidth: number
   ): number {
     const n = Math.pow(2, zoom);
-    const tileSize = 256;
-    const centerPixelX = ((centerLon + 180) / 360) * n * tileSize;
-    const pixelX = ((lon + 180) / 360) * n * tileSize;
+    const centerPixelX = ((centerLon + 180) / 360) * n * TILE_SIZE;
+    const pixelX = ((lon + 180) / 360) * n * TILE_SIZE;
     return canvasWidth / 2 + (pixelX - centerPixelX);
   }
 
@@ -799,7 +893,6 @@ export class ContainerTemplatePdfExportService {
     canvasHeight: number
   ): number {
     const n = Math.pow(2, zoom);
-    const tileSize = 256;
     const centerPixelY =
       ((1 -
         Math.log(
@@ -809,7 +902,7 @@ export class ContainerTemplatePdfExportService {
           Math.PI) /
         2) *
       n *
-      tileSize;
+      TILE_SIZE;
     const pixelY =
       ((1 -
         Math.log(
@@ -818,7 +911,7 @@ export class ContainerTemplatePdfExportService {
           Math.PI) /
         2) *
       n *
-      tileSize;
+      TILE_SIZE;
     return canvasHeight / 2 + (pixelY - centerPixelY);
   }
 
@@ -864,7 +957,7 @@ export class ContainerTemplatePdfExportService {
       const arrivalTime = this.minutesToTimeString(arrivalMinutes);
 
       const workMinutes = item.shift?.workTime
-        ? Math.round(item.shift.workTime * 60)
+        ? Math.round(item.shift.workTime * MINUTES_PER_HOUR)
         : 0;
       const departureMinutes = arrivalMinutes + workMinutes;
       const departureTime = this.minutesToTimeString(departureMinutes);
@@ -929,7 +1022,7 @@ export class ContainerTemplatePdfExportService {
     if (parts.length >= 2) {
       const hours = parseInt(parts[0], 10) || 0;
       const minutes = parseInt(parts[1], 10) || 0;
-      return hours * 60 + minutes;
+      return hours * MINUTES_PER_HOUR + minutes;
     }
     return 0;
   }
@@ -937,14 +1030,14 @@ export class ContainerTemplatePdfExportService {
   private timeStringToMinutes(timeString: string): number {
     const parts = timeString.split(':');
     if (parts.length >= 2) {
-      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+      return parseInt(parts[0], 10) * MINUTES_PER_HOUR + parseInt(parts[1], 10);
     }
     return 0;
   }
 
   private minutesToTimeString(minutes: number): string {
-    const hours = Math.floor(minutes / 60) % 24;
-    const mins = minutes % 60;
+    const hours = Math.floor(minutes / MINUTES_PER_HOUR) % HOURS_PER_DAY;
+    const mins = minutes % MINUTES_PER_HOUR;
     return `${hours.toString().padStart(2, '0')}:${mins
       .toString()
       .padStart(2, '0')}`;

@@ -537,6 +537,7 @@
   "pdf.travel-time": "Fahrzeit",
   "pdf.distance": "Distanz",
   "pdf.directions": "Wegbeschreibung",
+  "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
 
   "schedule.row-header.headline": "Name",
   "schedule.schedule-header.schedule-header.month": "Monat: ",

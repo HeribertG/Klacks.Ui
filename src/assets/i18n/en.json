@@ -548,6 +548,7 @@
   "pdf.travel-time": "Travel Time",
   "pdf.distance": "Distance",
   "pdf.directions": "Directions",
+  "pdf.no-directions-available": "No detailed directions available",
 
   "schedule.row-header.headline": "Name",
   "schedule.schedule-header.schedule-header.month": "Month: ",
