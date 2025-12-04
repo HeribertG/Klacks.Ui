@@ -36,8 +36,20 @@ export class ContainerTemplatePdfExportService {
     pdf.text(title, 14, 15);
 
     pdf.setFontSize(10);
-    pdf.text(`${this.translateService.instant('pdf.generated')}: ${new Date().toLocaleDateString()}`, 14, 22);
-    pdf.text(`${this.translateService.instant('shift.container-template.time-range')}: ${timeFrom} - ${timeTo}`, 14, 29);
+    pdf.text(
+      `${this.translateService.instant(
+        'pdf.generated'
+      )}: ${new Date().toLocaleDateString()}`,
+      14,
+      22
+    );
+    pdf.text(
+      `${this.translateService.instant(
+        'shift.container-template.time-range'
+      )}: ${timeFrom} - ${timeTo}`,
+      14,
+      29
+    );
 
     const tableData = items.map((item) => [
       item.shift?.name || '',
@@ -87,28 +99,32 @@ export class ContainerTemplatePdfExportService {
       pdf.setPage(i);
       pdf.setFontSize(8);
       pdf.text(
-        `${this.translateService.instant('pdf.page')} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
+        `${this.translateService.instant(
+          'pdf.page'
+        )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
         pdf.internal.pageSize.width - 40,
         pdf.internal.pageSize.height - 10
       );
     }
 
     const timestamp = new Date().getTime();
-    const sanitizedName = containerName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const sanitizedName = containerName
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase();
     pdf.save(`container-template-${sanitizedName}-${weekday}-${timestamp}.pdf`);
   }
 
   private formatStartTime(item: IContainerTemplateItem): string {
     const timeString = item.shift?.isTimeRange
-      ? (item.timeRangeStartShift || item.startShift || '')
-      : (item.startShift || '');
+      ? item.timeRangeStartShift || item.startShift || ''
+      : item.startShift || '';
     return this.formatTimeToHHMM(timeString);
   }
 
   private formatEndTime(item: IContainerTemplateItem): string {
     const timeString = item.shift?.isTimeRange
-      ? (item.timeRangeEndShift || item.endShift || '')
-      : (item.endShift || '');
+      ? item.timeRangeEndShift || item.endShift || ''
+      : item.endShift || '';
     return this.formatTimeToHHMM(timeString);
   }
 
@@ -123,25 +139,26 @@ export class ContainerTemplatePdfExportService {
 
   private translateWeekday(weekday: string): string {
     const weekdayMap: Record<string, string> = {
-      'Mo': 'shift.container-template.weekday-full.monday',
-      'Di': 'shift.container-template.weekday-full.tuesday',
-      'Mi': 'shift.container-template.weekday-full.wednesday',
-      'Do': 'shift.container-template.weekday-full.thursday',
-      'Fr': 'shift.container-template.weekday-full.friday',
-      'Sa': 'shift.container-template.weekday-full.saturday',
-      'So': 'shift.container-template.weekday-full.sunday',
-      'Feiertag': 'shift.container-template.weekday.holiday',
-      'monday': 'shift.container-template.weekday-full.monday',
-      'tuesday': 'shift.container-template.weekday-full.tuesday',
-      'wednesday': 'shift.container-template.weekday-full.wednesday',
-      'thursday': 'shift.container-template.weekday-full.thursday',
-      'friday': 'shift.container-template.weekday-full.friday',
-      'saturday': 'shift.container-template.weekday-full.saturday',
-      'sunday': 'shift.container-template.weekday-full.sunday',
-      'holiday': 'shift.container-template.weekday.holiday',
+      Mo: 'shift.container-template.weekday-full.monday',
+      Di: 'shift.container-template.weekday-full.tuesday',
+      Mi: 'shift.container-template.weekday-full.wednesday',
+      Do: 'shift.container-template.weekday-full.thursday',
+      Fr: 'shift.container-template.weekday-full.friday',
+      Sa: 'shift.container-template.weekday-full.saturday',
+      So: 'shift.container-template.weekday-full.sunday',
+      Feiertag: 'shift.container-template.weekday.holiday',
+      monday: 'shift.container-template.weekday-full.monday',
+      tuesday: 'shift.container-template.weekday-full.tuesday',
+      wednesday: 'shift.container-template.weekday-full.wednesday',
+      thursday: 'shift.container-template.weekday-full.thursday',
+      friday: 'shift.container-template.weekday-full.friday',
+      saturday: 'shift.container-template.weekday-full.saturday',
+      sunday: 'shift.container-template.weekday-full.sunday',
+      holiday: 'shift.container-template.weekday.holiday',
     };
 
-    const translationKey = weekdayMap[weekday.toLowerCase()] || weekdayMap[weekday];
+    const translationKey =
+      weekdayMap[weekday.toLowerCase()] || weekdayMap[weekday];
     if (translationKey) {
       return this.translateService.instant(translationKey);
     }
@@ -152,7 +169,9 @@ export class ContainerTemplatePdfExportService {
     if (item.shift?.workTime) {
       const hours = Math.floor(item.shift.workTime);
       const minutes = Math.round((item.shift.workTime - hours) * 60);
-      return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      return `${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')}`;
     }
     return '';
   }
@@ -200,17 +219,52 @@ export class ContainerTemplatePdfExportService {
     pdf.text(title, 14, 15);
 
     pdf.setFontSize(10);
-    pdf.text(`${this.translateService.instant('pdf.generated')}: ${new Date().toLocaleDateString()}`, 14, 22);
+    pdf.text(
+      `${this.translateService.instant(
+        'pdf.generated'
+      )}: ${new Date().toLocaleDateString()}`,
+      14,
+      22
+    );
 
     pdf.setFontSize(12);
-    pdf.text(this.translateService.instant('pdf.route-summary') || 'Route Summary', 14, 32);
+    pdf.text(
+      this.translateService.instant('pdf.route-summary') || 'Route Summary',
+      14,
+      32
+    );
 
     pdf.setFontSize(10);
     const summaryY = 40;
-    pdf.text(`${this.translateService.instant('pdf.start-base') || 'Start'}: ${routeInfo.startBase}`, 14, summaryY);
-    pdf.text(`${this.translateService.instant('pdf.end-base') || 'End'}: ${routeInfo.endBase}`, 14, summaryY + 6);
-    pdf.text(`${this.translateService.instant('pdf.total-distance') || 'Total Distance'}: ${routeInfo.totalDistanceKm.toFixed(2)} km`, 14, summaryY + 12);
-    pdf.text(`${this.translateService.instant('pdf.total-travel-time') || 'Total Travel Time'}: ${this.formatTimeSpan(routeInfo.estimatedTravelTime)}`, 14, summaryY + 18);
+    pdf.text(
+      `${this.translateService.instant('pdf.start-base') || 'Start'}: ${
+        routeInfo.startBase
+      }`,
+      14,
+      summaryY
+    );
+    pdf.text(
+      `${this.translateService.instant('pdf.end-base') || 'End'}: ${
+        routeInfo.endBase
+      }`,
+      14,
+      summaryY + 6
+    );
+    pdf.text(
+      `${
+        this.translateService.instant('pdf.total-distance') || 'Total Distance'
+      }: ${routeInfo.totalDistanceKm.toFixed(2)} km`,
+      14,
+      summaryY + 12
+    );
+    pdf.text(
+      `${
+        this.translateService.instant('pdf.total-travel-time') ||
+        'Total Travel Time'
+      }: ${this.formatTimeSpan(routeInfo.estimatedTravelTime)}`,
+      14,
+      summaryY + 18
+    );
 
     const coordinates = this.extractCoordinatesFromItems(items, routeInfo);
 
@@ -222,38 +276,45 @@ export class ContainerTemplatePdfExportService {
 
         if (mapCanvas) {
           const pageWidth = pdf.internal.pageSize.width;
-          const maxMapWidth = pageWidth - 28;
+          const maxMapWidth = pageWidth - 85;
           const aspectRatio = mapCanvas.width / mapCanvas.height;
           const mapWidth = maxMapWidth;
           const mapHeight = mapWidth / aspectRatio;
 
           const mapDataUrl = mapCanvas.toDataURL('image/png');
           pdf.addImage(mapDataUrl, 'PNG', 14, currentY, mapWidth, mapHeight);
-          currentY += mapHeight + 10;
         }
       } catch (error) {
         console.error('Error generating route map:', error);
         pdf.setFontSize(10);
         pdf.text('Map could not be generated', 14, currentY);
-        currentY += 10;
       }
     }
 
+    pdf.addPage('landscape');
+    currentY = 20;
+
     pdf.setFontSize(12);
-    pdf.text(this.translateService.instant('pdf.route-details') || 'Route Details', 14, currentY);
+    pdf.text(
+      this.translateService.instant('pdf.route-details') || 'Route Details',
+      14,
+      currentY
+    );
     currentY += 8;
 
     const routeData = this.buildRouteTableData(items, routeInfo, timeFrom);
 
     autoTable(pdf, {
-      head: [[
-        '#',
-        this.translateService.instant('pdf.location') || 'Location',
-        this.translateService.instant('pdf.arrival') || 'Arrival',
-        this.translateService.instant('pdf.departure') || 'Departure',
-        this.translateService.instant('pdf.travel-time') || 'Travel Time',
-        this.translateService.instant('pdf.distance') || 'Distance',
-      ]],
+      head: [
+        [
+          '#',
+          this.translateService.instant('pdf.location') || 'Location',
+          this.translateService.instant('pdf.arrival') || 'Arrival',
+          this.translateService.instant('pdf.departure') || 'Departure',
+          this.translateService.instant('pdf.travel-time') || 'Travel Time',
+          this.translateService.instant('pdf.distance') || 'Distance',
+        ],
+      ],
       body: routeData,
       startY: currentY,
       theme: 'striped',
@@ -286,14 +347,18 @@ export class ContainerTemplatePdfExportService {
       pdf.setPage(i);
       pdf.setFontSize(8);
       pdf.text(
-        `${this.translateService.instant('pdf.page')} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
+        `${this.translateService.instant(
+          'pdf.page'
+        )} ${i} ${this.translateService.instant('pdf.of')} ${pageCount}`,
         pdf.internal.pageSize.width - 40,
         pdf.internal.pageSize.height - 10
       );
     }
 
     const timestamp = new Date().getTime();
-    const sanitizedName = containerName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const sanitizedName = containerName
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase();
     pdf.save(`route-${sanitizedName}-${weekday}-${timestamp}.pdf`);
   }
 
@@ -303,7 +368,11 @@ export class ContainerTemplatePdfExportService {
     let currentY = 20;
     pdf.setFontSize(16);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(this.translateService.instant('pdf.directions') || 'Wegbeschreibung', 14, currentY);
+    pdf.text(
+      this.translateService.instant('pdf.directions') || 'Wegbeschreibung',
+      14,
+      currentY
+    );
     pdf.setFont('helvetica', 'normal');
     currentY += 12;
 
@@ -315,7 +384,13 @@ export class ContainerTemplatePdfExportService {
 
       const boxHeight = 10;
       pdf.setFillColor(66, 139, 202);
-      pdf.rect(14, currentY - 6, pdf.internal.pageSize.width - 28, boxHeight, 'F');
+      pdf.rect(
+        14,
+        currentY - 6,
+        pdf.internal.pageSize.width - 28,
+        boxHeight,
+        'F'
+      );
 
       pdf.setTextColor(255, 255, 255);
       pdf.setFontSize(11);
@@ -325,7 +400,11 @@ export class ContainerTemplatePdfExportService {
       pdf.text(segmentHeader, 18, currentY + 1);
 
       const distanceText = `${segment.distanceKm.toFixed(2)} km`;
-      pdf.text(distanceText, pdf.internal.pageSize.width - 18 - pdf.getTextWidth(distanceText), currentY + 1);
+      pdf.text(
+        distanceText,
+        pdf.internal.pageSize.width - 18 - pdf.getTextWidth(distanceText),
+        currentY + 1
+      );
 
       pdf.setTextColor(0, 0, 0);
       currentY += 14;
@@ -343,9 +422,10 @@ export class ContainerTemplatePdfExportService {
           }
 
           const stepNumber = `${i + 1}.`;
-          const distanceStr = step.distanceMeters >= 1000
-            ? `${(step.distanceMeters / 1000).toFixed(1)} km`
-            : `${Math.round(step.distanceMeters)} m`;
+          const distanceStr =
+            step.distanceMeters >= 1000
+              ? `${(step.distanceMeters / 1000).toFixed(1)} km`
+              : `${Math.round(step.distanceMeters)} m`;
 
           pdf.setFont('helvetica', 'bold');
           pdf.text(stepNumber, 18, currentY);
@@ -353,7 +433,8 @@ export class ContainerTemplatePdfExportService {
           pdf.text(step.instruction, 26, currentY);
 
           pdf.setTextColor(100, 100, 100);
-          const distanceX = pdf.internal.pageSize.width - 14 - pdf.getTextWidth(distanceStr);
+          const distanceX =
+            pdf.internal.pageSize.width - 14 - pdf.getTextWidth(distanceStr);
           pdf.text(distanceStr, distanceX, currentY);
           pdf.setTextColor(0, 0, 0);
 
@@ -362,7 +443,11 @@ export class ContainerTemplatePdfExportService {
       } else {
         pdf.setFontSize(9);
         pdf.setTextColor(100, 100, 100);
-        pdf.text('Keine detaillierten Wegbeschreibungen verfügbar', 18, currentY);
+        pdf.text(
+          'Keine detaillierten Wegbeschreibungen verfügbar',
+          18,
+          currentY
+        );
         pdf.setTextColor(0, 0, 0);
         currentY += 5;
       }
@@ -447,7 +532,14 @@ export class ContainerTemplatePdfExportService {
     else zoom = 15;
 
     try {
-      await this.loadOsmTiles(ctx, centerLat, centerLon, zoom, canvas.width, canvas.height);
+      await this.loadOsmTiles(
+        ctx,
+        centerLat,
+        centerLon,
+        zoom,
+        canvas.width,
+        canvas.height
+      );
     } catch (error) {
       console.error('Error loading OSM tiles:', error);
       ctx.fillStyle = '#e8e8e8';
@@ -455,11 +547,17 @@ export class ContainerTemplatePdfExportService {
       ctx.fillStyle = '#999999';
       ctx.font = '14px Arial';
       ctx.textAlign = 'center';
-      ctx.fillText('Map tiles could not be loaded', canvas.width / 2, canvas.height / 2);
+      ctx.fillText(
+        'Map tiles could not be loaded',
+        canvas.width / 2,
+        canvas.height / 2
+      );
     }
 
-    const toPixelX = (lon: number) => this.lonToPixelX(lon, zoom, centerLon, canvas.width);
-    const toPixelY = (lat: number) => this.latToPixelY(lat, zoom, centerLat, canvas.height);
+    const toPixelX = (lon: number) =>
+      this.lonToPixelX(lon, zoom, centerLon, canvas.width);
+    const toPixelY = (lat: number) =>
+      this.latToPixelY(lat, zoom, centerLat, canvas.height);
 
     if (routeGeometry.length > 0) {
       ctx.strokeStyle = '#0044AA';
@@ -495,7 +593,8 @@ export class ContainerTemplatePdfExportService {
 
     const firstCoord = coordinates[0];
     const lastCoord = coordinates[coordinates.length - 1];
-    const startEndSameLocation = coordinates.length > 1 &&
+    const startEndSameLocation =
+      coordinates.length > 1 &&
       Math.abs(firstCoord.lat - lastCoord.lat) < 0.0001 &&
       Math.abs(firstCoord.lon - lastCoord.lon) < 0.0001;
 
@@ -526,7 +625,13 @@ export class ContainerTemplatePdfExportService {
       ctx.shadowOffsetX = 2;
       ctx.shadowOffsetY = 2;
 
-      ctx.fillStyle = isBoth ? '#8822AA' : isStart ? '#22AA22' : isEnd ? '#AA2222' : '#CC4444';
+      ctx.fillStyle = isBoth
+        ? '#8822AA'
+        : isStart
+        ? '#22AA22'
+        : isEnd
+        ? '#AA2222'
+        : '#CC4444';
       ctx.strokeStyle = '#FFFFFF';
       ctx.lineWidth = 3;
       ctx.beginPath();
@@ -597,7 +702,14 @@ export class ContainerTemplatePdfExportService {
 
     const centerTileX = ((centerLon + 180) / 360) * n;
     const centerTileY =
-      ((1 - Math.log(Math.tan((centerLat * Math.PI) / 180) + 1 / Math.cos((centerLat * Math.PI) / 180)) / Math.PI) / 2) * n;
+      ((1 -
+        Math.log(
+          Math.tan((centerLat * Math.PI) / 180) +
+            1 / Math.cos((centerLat * Math.PI) / 180)
+        ) /
+          Math.PI) /
+        2) *
+      n;
 
     const tilesX = Math.ceil(canvasWidth / tileSize) + 1;
     const tilesY = Math.ceil(canvasHeight / tileSize) + 1;
@@ -619,7 +731,17 @@ export class ContainerTemplatePdfExportService {
           const drawX = offsetX + x * tileSize;
           const drawY = offsetY + y * tileSize;
 
-          tilePromises.push(this.loadAndDrawTile(ctx, tileX, tileY, zoom, drawX, drawY, tileSize));
+          tilePromises.push(
+            this.loadAndDrawTile(
+              ctx,
+              tileX,
+              tileY,
+              zoom,
+              drawX,
+              drawY,
+              tileSize
+            )
+          );
         }
       }
     }
@@ -657,7 +779,12 @@ export class ContainerTemplatePdfExportService {
     });
   }
 
-  private lonToPixelX(lon: number, zoom: number, centerLon: number, canvasWidth: number): number {
+  private lonToPixelX(
+    lon: number,
+    zoom: number,
+    centerLon: number,
+    canvasWidth: number
+  ): number {
     const n = Math.pow(2, zoom);
     const tileSize = 256;
     const centerPixelX = ((centerLon + 180) / 360) * n * tileSize;
@@ -665,15 +792,33 @@ export class ContainerTemplatePdfExportService {
     return canvasWidth / 2 + (pixelX - centerPixelX);
   }
 
-  private latToPixelY(lat: number, zoom: number, centerLat: number, canvasHeight: number): number {
+  private latToPixelY(
+    lat: number,
+    zoom: number,
+    centerLat: number,
+    canvasHeight: number
+  ): number {
     const n = Math.pow(2, zoom);
     const tileSize = 256;
     const centerPixelY =
-      ((1 - Math.log(Math.tan((centerLat * Math.PI) / 180) + 1 / Math.cos((centerLat * Math.PI) / 180)) / Math.PI) / 2) *
+      ((1 -
+        Math.log(
+          Math.tan((centerLat * Math.PI) / 180) +
+            1 / Math.cos((centerLat * Math.PI) / 180)
+        ) /
+          Math.PI) /
+        2) *
       n *
       tileSize;
     const pixelY =
-      ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) * n * tileSize;
+      ((1 -
+        Math.log(
+          Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)
+        ) /
+          Math.PI) /
+        2) *
+      n *
+      tileSize;
     return canvasHeight / 2 + (pixelY - centerPixelY);
   }
 
@@ -684,15 +829,18 @@ export class ContainerTemplatePdfExportService {
   ): string[][] {
     const data: string[][] = [];
 
-    const distanceFromStart = routeInfo.distanceFromStartBaseKm > 0
-      ? `${routeInfo.distanceFromStartBaseKm.toFixed(2)} km`
-      : '-';
+    const distanceFromStart =
+      routeInfo.distanceFromStartBaseKm > 0
+        ? `${routeInfo.distanceFromStartBaseKm.toFixed(2)} km`
+        : '-';
 
     const formattedTimeFrom = this.formatTimeToHHMM(timeFrom);
 
     data.push([
       '0',
-      `${this.translateService.instant('pdf.start-base') || 'Start'}: ${routeInfo.startBase}`,
+      `${this.translateService.instant('pdf.start-base') || 'Start'}: ${
+        routeInfo.startBase
+      }`,
       formattedTimeFrom,
       formattedTimeFrom,
       this.formatTimeSpan(routeInfo.travelTimeFromStartBase),
@@ -715,7 +863,9 @@ export class ContainerTemplatePdfExportService {
       const arrivalMinutes = currentTimeMinutes + travelMinutes;
       const arrivalTime = this.minutesToTimeString(arrivalMinutes);
 
-      const workMinutes = item.shift?.workTime ? Math.round(item.shift.workTime * 60) : 0;
+      const workMinutes = item.shift?.workTime
+        ? Math.round(item.shift.workTime * 60)
+        : 0;
       const departureMinutes = arrivalMinutes + workMinutes;
       const departureTime = this.minutesToTimeString(departureMinutes);
 
@@ -739,12 +889,16 @@ export class ContainerTemplatePdfExportService {
     });
 
     if (routeInfo.distanceToEndBaseKm > 0) {
-      const returnTravelMinutes = this.parseTravelTime(routeInfo.travelTimeToEndBase);
+      const returnTravelMinutes = this.parseTravelTime(
+        routeInfo.travelTimeToEndBase
+      );
       const arrivalAtBase = currentTimeMinutes + returnTravelMinutes;
 
       data.push([
         (items.length + 1).toString(),
-        `${this.translateService.instant('pdf.end-base') || 'End'}: ${routeInfo.endBase}`,
+        `${this.translateService.instant('pdf.end-base') || 'End'}: ${
+          routeInfo.endBase
+        }`,
         this.minutesToTimeString(arrivalAtBase),
         '-',
         this.formatTimeSpan(routeInfo.travelTimeToEndBase),
@@ -791,6 +945,8 @@ export class ContainerTemplatePdfExportService {
   private minutesToTimeString(minutes: number): string {
     const hours = Math.floor(minutes / 60) % 24;
     const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${mins
+      .toString()
+      .padStart(2, '0')}`;
   }
 }
