@@ -18,6 +18,23 @@ export interface IRouteStep extends ILocation {
   travelTimeToNext: string;
 }
 
+export interface IDirectionStep {
+  instruction: string;
+  streetName: string;
+  distanceMeters: number;
+  durationSeconds: number;
+  maneuverType: string;
+}
+
+export interface IRouteSegmentDirections {
+  fromName: string;
+  toName: string;
+  transportMode: string;
+  distanceKm: number;
+  duration: string;
+  steps: IDirectionStep[];
+}
+
 export interface IRouteOptimizationResult {
   optimizedRoute: IRouteStep[];
   totalDistanceKm: number;
@@ -26,6 +43,7 @@ export interface IRouteOptimizationResult {
   distanceFromStartBaseKm: number;
   distanceToEndBaseKm: number;
   travelTimeToEndBase: string;
+  segmentDirections?: IRouteSegmentDirections[];
 }
 
 @Injectable({
@@ -43,8 +61,6 @@ export class RouteOptimizationService {
     endBase?: string,
     transportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar
   ): Observable<IRouteOptimizationResult> {
-    console.log('RouteOptimizationService.optimizeRoute - transportMode:', transportMode, 'as string:', transportMode.toString());
-
     let params = new HttpParams()
       .set('containerId', containerId)
       .set('weekday', weekday.toString())
@@ -57,8 +73,6 @@ export class RouteOptimizationService {
     if (endBase) {
       params = params.set('endBase', endBase);
     }
-
-    console.log('RouteOptimizationService - Full URL params:', params.toString());
 
     return this.http.get<IRouteOptimizationResult>(
       `${this.apiUrl}/optimize-route`,

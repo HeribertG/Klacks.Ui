@@ -138,8 +138,12 @@
             type="button"
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 1"
-            (click)="selectTransportMode(1)"
-            [ngbTooltip]="'shift.container-template.transport-mode.by-bicycle' | translate"
+            [class.disabled]="!hasOpenRouteServiceApiKey"
+            [disabled]="!hasOpenRouteServiceApiKey"
+            (click)="hasOpenRouteServiceApiKey && selectTransportMode(1)"
+            [ngbTooltip]="hasOpenRouteServiceApiKey
+              ? ('shift.container-template.transport-mode.by-bicycle' | translate)
+              : ('shift.container-template.transport-mode.api-key-required' | translate)"
           >
             <app-icon-by-bicycle></app-icon-by-bicycle>
           </button>
@@ -147,8 +151,12 @@
             type="button"
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 2"
-            (click)="selectTransportMode(2)"
-            [ngbTooltip]="'shift.container-template.transport-mode.by-foot' | translate"
+            [class.disabled]="!hasOpenRouteServiceApiKey"
+            [disabled]="!hasOpenRouteServiceApiKey"
+            (click)="hasOpenRouteServiceApiKey && selectTransportMode(2)"
+            [ngbTooltip]="hasOpenRouteServiceApiKey
+              ? ('shift.container-template.transport-mode.by-foot' | translate)
+              : ('shift.container-template.transport-mode.api-key-required' | translate)"
           >
             <app-icon-by-foot></app-icon-by-foot>
           </button>
@@ -156,8 +164,12 @@
             type="button"
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 3"
-            (click)="selectTransportMode(3)"
-            [ngbTooltip]="'shift.container-template.transport-mode.mix' | translate"
+            [class.disabled]="!hasOpenRouteServiceApiKey"
+            [disabled]="!hasOpenRouteServiceApiKey"
+            (click)="hasOpenRouteServiceApiKey && selectTransportMode(3)"
+            [ngbTooltip]="hasOpenRouteServiceApiKey
+              ? ('shift.container-template.transport-mode.mix' | translate)
+              : ('shift.container-template.transport-mode.api-key-required' | translate)"
           >
             <app-icon-transport-mix></app-icon-transport-mix>
           </button>

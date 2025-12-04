@@ -10,34 +10,56 @@
   padding-right: 40px;
 }
 
-.password-field-container {
-  position: relative;
+.my-password {
+  display: flex;
+  flex-wrap: wrap;
   width: 420px;
 
-  input {
-    width: 420px;
-    height: 32px;
-    padding-right: 40px;
+  label {
+    width: 100%;
+    margin-bottom: 5px;
   }
 
-  .password-toggle-icon {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
+  .form-control {
+    flex: 1;
+    height: 32px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+  }
+
+  .input-group-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 32px;
+    border: 1px solid #ced4da;
+    border-left: none;
+    background-color: #e9ecef;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
     cursor: pointer;
-    color: var(--standartTextColor);
-    opacity: 0.7;
 
     &:hover {
-      opacity: 1;
+      background-color: #dee2e6;
     }
+
+    &:focus {
+      outline: 2px solid var(--focusBorderColor);
+      outline-offset: 2px;
+    }
+  }
+
+  .password-icon {
+    font-size: 16px;
+    color: #464e5f;
   }
 }
 
 input {
   width: 420px;
-  height: 32px;
 }
 
 input:-webkit-autofill,
@@ -51,7 +73,6 @@ input:-webkit-autofill:active {
 
 select {
   width: 420px;
-  height: 32px;
 }
 
 .test-email-section {

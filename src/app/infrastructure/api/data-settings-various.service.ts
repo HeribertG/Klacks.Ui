@@ -46,7 +46,7 @@ export class DataSettingsVariousService {
       port: config.port?.trim() || '',
       username: config.username?.trim() || '',
       password: config.password || '', // Don't trim password
-      enableSSL: config.enableSSL === 'true',
+      enableSSL: config.enableSSL?.toLowerCase() === 'true',
       authenticationType: config.authType?.trim() || '',
       timeout: 45000, // 45 seconds timeout for email test
     };

@@ -1,3 +1,5 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <form id="openroute-form">
   <div id="openroute-header" class="container-header">
     {{ translate.instant("setting.openroute.headline") }}
@@ -11,24 +13,40 @@
     </p>
     <p class="info-text">
       {{ translate.instant("setting.openroute.register") }}
-      <a href="https://openrouteservice.org/dev/#/signup" target="_blank" rel="noopener noreferrer">
+      <a
+        href="https://openrouteservice.org/dev/#/signup"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         openrouteservice.org
       </a>
     </p>
   </div>
 
   <div class="form-group first">
-    <label for="openroute-apikey">{{
-      translate.instant("setting.openroute.apikey")
-    }}</label>
-    <input
-      id="openroute-apikey"
-      type="password"
-      class="form-control"
-      [(ngModel)]="openRouteServiceApiKey"
-      aria-label="openRouteServiceApiKey"
-      name="openRouteServiceApiKey"
-      placeholder="5b3ce3597851110001cf6248..."
-    />
+    <div class="input-group my-password">
+      <label for="openroute-apikey">{{
+        translate.instant("setting.openroute.apikey")
+      }}</label>
+      <input
+        id="openroute-apikey"
+        [type]="showApiKey ? 'text' : 'password'"
+        class="form-control api-input"
+        [(ngModel)]="openRouteServiceApiKey"
+        aria-label="openRouteServiceApiKey"
+        name="openRouteServiceApiKey"
+        placeholder="5b3ce3597851110001cf6248..."
+      />
+      <span
+        id="openroute-apikey-toggle"
+        class="input-group-text"
+        (click)="showApiKey = !showApiKey"
+      >
+        <fa-icon
+          [icon]="showApiKey ? faEye : faEyeSlash"
+          class="password-icon"
+        ></fa-icon>
+      </span>
+    </div>
   </div>
 </form>

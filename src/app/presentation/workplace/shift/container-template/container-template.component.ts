@@ -188,6 +188,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     return this.lastRouteInfo !== null;
   }
 
+  get hasOpenRouteServiceApiKey(): boolean {
+    return !!this.appSettingsService.openRouteServiceApiKey();
+  }
+
   public containerShift: IShift | null = null;
   public templateGrid: IContainerTemplateGrid | null = null;
   public isLoading = false;
@@ -948,16 +952,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.selectedWeekday
     );
 
-    console.log('Starting route optimization:', {
-      containerId: this.containerShift.id,
-      weekday: weekdayNumber,
-      isHoliday: this.isHoliday,
-      startBase: this.selectedStartBase,
-      endBase: this.selectedEndBase,
-      transportMode: this.selectedTransportMode,
-      itemsCount: items.length,
-    });
-
     this.spinnerService.showProgressSpinner = true;
     this.toastService.showInfo(
       this.translateService.instant('shift.container-template.toast.optimizing-route'),
@@ -979,7 +973,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (result) => {
           this.spinnerService.showProgressSpinner = false;
-          console.log('Route optimization successful:', result);
 
           this.lastRouteInfo = {
             startBase: this.selectedStartBase,
@@ -991,6 +984,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
             distanceToEndBaseKm: result.distanceToEndBaseKm,
             travelTimeToEndBase: result.travelTimeToEndBase,
             optimizedRoute: result.optimizedRoute,
+            segmentDirections: result.segmentDirections,
           };
 
           this.saveRouteInfoToTemplate();
@@ -1034,8 +1028,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
     let currentStartTimeMinutes = timeToMinutes(startTimeString);
 
-    console.log(`\n${startTimeString} (StartBase)`);
-
     for (let i = 0; i < optimizedRoute.length; i++) {
       const routeStep = optimizedRoute[i];
       const item = itemsByShiftId.get(routeStep.shiftId);
@@ -1060,25 +1052,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           shiftStartAfterTravel + shiftWorkTimeMinutes
         );
 
-        const travelTimeFormatted = this.formatMinutesToTime(
-          travelTimeToThisShiftMinutes
-        );
-        const workTimeFormatted =
-          this.formatMinutesToTime(shiftWorkTimeMinutes);
-
-        console.log(
-          `  + ${travelTimeFormatted} (Reisezeit zu ${item.shift.client?.name})`
-        );
-        console.log(
-          `  = ${newStartShift} (${item.shift.client?.name} timeRangeStartShift)`
-        );
-        console.log(
-          `  + ${workTimeFormatted} (${item.shift.client?.name} workTime)`
-        );
-        console.log(
-          `  = ${newEndShift} (${item.shift.client?.name} timeRangeEndShift)\n`
-        );
-
         const travelTimeBeforeHHMM = this.formatMinutesToHHMM(
           travelTimeToThisShiftMinutes
         );
@@ -1092,10 +1065,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
         reorderedItems.push(newItem);
         currentStartTimeMinutes = shiftStartAfterTravel + shiftWorkTimeMinutes;
-
-        if (i < optimizedRoute.length - 1) {
-          console.log(`${newEndShift} (Ende ${item.shift.client?.name})`);
-        }
       }
     }
 
@@ -1114,28 +1083,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       lastItem.travelTimeAfter = travelTimeAfterHHMM;
     }
 
-    if (result.distanceToEndBaseKm > 0 && result.travelTimeToEndBase) {
-      const travelTimeToEndBaseMinutes = this.parseTimeSpan(
-        result.travelTimeToEndBase
-      );
-      const arrivalAtEndBaseMinutes =
-        currentStartTimeMinutes + travelTimeToEndBaseMinutes;
-      const arrivalAtEndBase = formatTimeFromMinutes(arrivalAtEndBaseMinutes);
-      const travelTimeFormatted = this.formatMinutesToTime(
-        travelTimeToEndBaseMinutes
-      );
-
-      console.log(
-        `  + ${travelTimeFormatted} (Rückfahrt zu Base, ${result.distanceToEndBaseKm.toFixed(
-          2
-        )} km)`
-      );
-      console.log(`  = ${arrivalAtEndBase} (Ankunft Base)\n`);
-    }
-
     if (reorderedItems.length > 0) {
-      console.log('Setting reordered items directly...');
-
       const weekdayNumber = this.containerService.getWeekdayNumber(
         this.selectedWeekday!
       );
@@ -1149,14 +1097,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       this.workplaceStateService.areObjectsDirty();
 
       this.sortingService.restoreSortState('startShift', 'asc');
-
-      console.log('Done! Items reordered and saved.');
-      console.log(
-        'New order in UI:',
-        reorderedItems.map((i) => i.shift?.client?.name)
-      );
-    } else {
-      console.error('No reordered items to apply!');
     }
   }
 
@@ -1464,9 +1404,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private openPropertiesDialog(): void {
-    if (this.contextMenuTargetItem) {
-      console.log('Properties for:', this.contextMenuTargetItem);
-    }
   }
 
   onContainerContextMenu(event: MouseEvent): void {

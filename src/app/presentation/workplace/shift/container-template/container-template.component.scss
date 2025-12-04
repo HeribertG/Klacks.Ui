@@ -145,6 +145,16 @@
             color: var(--coloPaginationSelected);
           }
 
+          &.disabled,
+          &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+
+            &:hover {
+              opacity: 0.4;
+            }
+          }
+
           svg {
             width: 20px;
             height: 20px;

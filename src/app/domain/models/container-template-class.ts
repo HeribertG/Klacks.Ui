@@ -12,6 +12,23 @@ export interface IRouteLocation {
   order: number;
 }
 
+export interface IDirectionStep {
+  instruction: string;
+  streetName: string;
+  distanceMeters: number;
+  durationSeconds: number;
+  maneuverType: string;
+}
+
+export interface IRouteSegmentDirections {
+  fromName: string;
+  toName: string;
+  transportMode: string;
+  distanceKm: number;
+  duration: string;
+  steps: IDirectionStep[];
+}
+
 export interface IRouteInfo {
   startBase: string;
   endBase: string;
@@ -22,6 +39,7 @@ export interface IRouteInfo {
   distanceToEndBaseKm: number;
   travelTimeToEndBase: string;
   optimizedRoute: IRouteLocation[];
+  segmentDirections?: IRouteSegmentDirections[];
 }
 
 export interface IContainerTemplate {
