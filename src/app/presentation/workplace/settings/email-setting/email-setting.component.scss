@@ -116,3 +116,12 @@ select {
 .secondColumn {
   margin-left: 40px;
 }
+
+.password-input {
+  border-top-left-radius: 5px !important;
+  border-bottom-left-radius: 5px !important;
+}
+
+.password-label {
+  margin-bottom: 0 !important;
+}

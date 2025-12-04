@@ -205,10 +205,12 @@
       </div>
       <div class="form-group secondColumn">
         <div class="input-group my-password">
-          <label for="outgoingServerAuthKey">SMTP Authentication Key</label>
+          <label class="password-label" for="outgoingServerAuthKey"
+            >SMTP Authentication Key</label
+          >
           <input
             [type]="showPassword ? 'text' : 'password'"
-            class="form-control"
+            class="form-control password-input"
             [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
             name="outgoingServerAuthKey"
             id="outgoingServerAuthKey"
