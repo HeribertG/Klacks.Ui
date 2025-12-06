@@ -200,4 +200,37 @@ export class TimeRangeService {
 
     return { hours, minutes };
   }
+
+  parseTimeToMinutes(timeString: string | undefined): number {
+    if (!timeString) return 0;
+    const time = this.parseTimeString(timeString);
+    if (!time) return 0;
+    return time.hours * this.MINUTES_PER_HOUR + time.minutes;
+  }
+
+  getEffectiveStartMinutes(item: IContainerTemplateItem): number {
+    const shiftStart = this.getShiftStartMinutes(item);
+    const travelTimeBefore = this.parseTimeToMinutes(item.travelTimeBefore);
+    const briefingTime = this.parseTimeToMinutes(item.briefingTime);
+    return shiftStart - travelTimeBefore - briefingTime;
+  }
+
+  getEffectiveEndMinutes(item: IContainerTemplateItem): number {
+    const shiftEnd = this.getShiftEndMinutes(item);
+    const debriefingTime = this.parseTimeToMinutes(item.debriefingTime);
+    const travelTimeAfter = this.parseTimeToMinutes(item.travelTimeAfter);
+    return shiftEnd + debriefingTime + travelTimeAfter;
+  }
+
+  getTotalPreShiftMinutes(item: IContainerTemplateItem): number {
+    const travelTimeBefore = this.parseTimeToMinutes(item.travelTimeBefore);
+    const briefingTime = this.parseTimeToMinutes(item.briefingTime);
+    return travelTimeBefore + briefingTime;
+  }
+
+  getTotalPostShiftMinutes(item: IContainerTemplateItem): number {
+    const debriefingTime = this.parseTimeToMinutes(item.debriefingTime);
+    const travelTimeAfter = this.parseTimeToMinutes(item.travelTimeAfter);
+    return debriefingTime + travelTimeAfter;
+  }
 }

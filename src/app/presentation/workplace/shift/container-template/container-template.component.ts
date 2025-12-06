@@ -8,6 +8,7 @@ import {
   effect,
   computed,
   ViewChild,
+  TemplateRef,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -55,6 +56,7 @@ import { ContainerTemplateShiftService } from 'src/app/domain/services/container
 import { ShiftArrangementService } from './services/shift-arrangement.service';
 import { TimeRulerDragDropService } from 'src/app/presentation/shared/time-ruler/services/time-ruler-drag-drop.service';
 import { ContainerTemplatePdfExportService } from './services/container-template-pdf-export.service';
+import { ContainerTemplateItemManipulationService } from './services/container-template-item-manipulation.service';
 import {
   formatTime,
   timeToString,
@@ -79,7 +81,7 @@ import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.compo
 import { IconByFootComponent } from 'src/app/presentation/icons/icon-by-foot.component';
 import { IconByBicycleComponent } from 'src/app/presentation/icons/icon-by-bicycle.component';
 import { IconTransportMixComponent } from 'src/app/presentation/icons/icon-transport-mix.component';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-container-template',
@@ -165,6 +167,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
   private arrangementService = inject(ShiftArrangementService);
+  private itemManipulationService = inject(ContainerTemplateItemManipulationService);
   private pdfExportService = inject(ContainerTemplatePdfExportService);
   public addressProvider = inject(AddressProviderService);
   private appSettingsService = inject(AppSettingsManagementService);
@@ -172,17 +175,27 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private routeOptimizationService = inject(RouteOptimizationService);
   private toastService = inject(ToastShowService);
   private spinnerService = inject(SpinnerService);
+  private ngbModal = inject(NgbModal);
   private destroy$ = new Subject<void>();
   private timeChange$ = new Subject<void>();
 
   @ViewChild('contextMenu', { static: false })
   contextMenu!: ContextMenuComponent;
+  @ViewChild('propertiesModal', { static: false })
+  propertiesModal!: TemplateRef<unknown>;
 
   public selectedStartBase = '';
   public selectedEndBase = '';
   public selectedTransportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar;
   private lastRouteInfo: IRouteInfo | null = null;
-  private contextMenuTargetItem: IContainerTemplateItem | null = null;
+  public contextMenuTargetItem: IContainerTemplateItem | null = null;
+  private editedProperties: {
+    timeRangeStartShift: string;
+    briefingTime: string;
+    debriefingTime: string;
+    travelTimeBefore: string;
+    travelTimeAfter: string;
+  } | null = null;
 
   get hasRouteInfo(): boolean {
     return this.lastRouteInfo !== null;
@@ -284,83 +297,15 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   onTimeRangeStartChange(item: IContainerTemplateItem, newTime: OwnTime): void {
     const desiredStartMinutes =
       parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
-    const workTimeMinutes = Math.round((item.shift?.workTime || 0) * 60);
-    const desiredEndMinutes = desiredStartMinutes + workTimeMinutes;
-
     const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
 
-    const updatedItem: IContainerTemplateItem = {
-      ...item,
-      timeRangeStartShift: this.minutesToTimeString(desiredStartMinutes),
-      timeRangeEndShift: this.minutesToTimeString(desiredEndMinutes),
-    };
-
-    const updatedItems = this.pushOverlappingShifts(updatedItem, allItems);
+    const updatedItems = this.itemManipulationService.updateItemTimeRangeStart(
+      item,
+      desiredStartMinutes,
+      allItems
+    );
 
     this.shiftService.setSelectedContainerTemplateItems(updatedItems);
-  }
-
-  private pushOverlappingShifts(
-    changedItem: IContainerTemplateItem,
-    allItems: IContainerTemplateItem[]
-  ): IContainerTemplateItem[] {
-    const result = [...allItems];
-    const changedIndex = result.findIndex((s) => s.id === changedItem.id);
-
-    if (changedIndex === -1) {
-      return result;
-    }
-
-    result[changedIndex] = changedItem;
-
-    const changedStartMinutes =
-      this.timeRangeService.getShiftStartMinutes(changedItem);
-    const changedEndMinutes =
-      this.timeRangeService.getShiftEndMinutes(changedItem);
-
-    for (let i = 0; i < result.length; i++) {
-      if (i === changedIndex || !result[i].shift?.isTimeRange) continue;
-
-      const currentItem = result[i];
-      const currentStartMinutes =
-        this.timeRangeService.getShiftStartMinutes(currentItem);
-      const currentEndMinutes =
-        this.timeRangeService.getShiftEndMinutes(currentItem);
-
-      const hasOverlap =
-        changedStartMinutes < currentEndMinutes &&
-        changedEndMinutes > currentStartMinutes;
-
-      if (hasOverlap && currentStartMinutes >= changedStartMinutes) {
-        const workTimeMinutes = Math.round(
-          (currentItem.shift?.workTime || 0) * 60
-        );
-        const newStartMinutes = changedEndMinutes;
-        const newEndMinutes = newStartMinutes + workTimeMinutes;
-
-        result[i] = {
-          ...currentItem,
-          timeRangeStartShift: this.minutesToTimeString(newStartMinutes),
-          timeRangeEndShift: this.minutesToTimeString(newEndMinutes),
-        };
-
-        const pushedItem = result[i];
-        const recursiveResult = this.pushOverlappingShifts(pushedItem, result);
-        return recursiveResult;
-      }
-    }
-
-    return result;
-  }
-
-  private minutesToTimeString(totalMinutes: number): string {
-    const normalizedMinutes = totalMinutes % (24 * 60);
-    const hours = Math.floor(normalizedMinutes / 60);
-    const minutes = normalizedMinutes % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes
-      .toString()
-      .padStart(2, '0')}:00`;
   }
 
   get selectedContainerTemplateItems(): IContainerTemplateItem[] {
@@ -897,6 +842,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       travelTimeAfter: '00:00',
     }));
     this.compactAndSetSelectedContainerTemplateItems(itemsWithResetTravelTimes);
+    this.shiftService.setSelectedShift(null);
   }
 
   private compactAndSetSelectedContainerTemplateItems(
@@ -1012,76 +958,22 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     result: any,
     currentItems: IContainerTemplateItem[]
   ): void {
-    const optimizedRoute = result.optimizedRoute;
-    const reorderedItems: IContainerTemplateItem[] = [];
-    const itemsByShiftId = new Map<string, IContainerTemplateItem>();
-
-    currentItems.forEach((item) => {
-      if (item.shiftId) {
-        itemsByShiftId.set(item.shiftId, item);
-      }
-    });
-
     const startTimeString = timeToString(
       parseInt(this.timeFrom.hours),
       parseInt(this.timeFrom.minutes)
     );
-    let currentStartTimeMinutes = timeToMinutes(startTimeString);
+    const containerStartTimeMinutes = timeToMinutes(startTimeString);
 
-    for (let i = 0; i < optimizedRoute.length; i++) {
-      const routeStep = optimizedRoute[i];
-      const item = itemsByShiftId.get(routeStep.shiftId);
-
-      if (item && item.shift) {
-        let travelTimeToThisShiftMinutes = 0;
-        if (i === 0) {
-          travelTimeToThisShiftMinutes = this.parseTimeSpan(
-            result.travelTimeFromStartBase
-          );
-        } else {
-          travelTimeToThisShiftMinutes = this.parseTimeSpan(
-            optimizedRoute[i - 1].travelTimeToNext
-          );
-        }
-
-        const shiftWorkTimeMinutes = Math.round(item.shift.workTime * 60);
-        const shiftStartAfterTravel =
-          currentStartTimeMinutes + travelTimeToThisShiftMinutes;
-        const newStartShift = formatTimeFromMinutes(shiftStartAfterTravel);
-        const newEndShift = formatTimeFromMinutes(
-          shiftStartAfterTravel + shiftWorkTimeMinutes
-        );
-
-        const travelTimeBeforeHHMM = this.formatMinutesToHHMM(
-          travelTimeToThisShiftMinutes
-        );
-
-        const newItem: IContainerTemplateItem = {
-          ...item,
-          timeRangeStartShift: newStartShift,
-          timeRangeEndShift: newEndShift,
-          travelTimeBefore: travelTimeBeforeHHMM,
-        };
-
-        reorderedItems.push(newItem);
-        currentStartTimeMinutes = shiftStartAfterTravel + shiftWorkTimeMinutes;
-      }
-    }
-
-    if (
-      result.distanceToEndBaseKm > 0 &&
-      result.travelTimeToEndBase &&
-      reorderedItems.length > 0
-    ) {
-      const travelTimeToEndBaseMinutes = this.parseTimeSpan(
-        result.travelTimeToEndBase
-      );
-      const travelTimeAfterHHMM = this.formatMinutesToHHMM(
-        travelTimeToEndBaseMinutes
-      );
-      const lastItem = reorderedItems[reorderedItems.length - 1];
-      lastItem.travelTimeAfter = travelTimeAfterHHMM;
-    }
+    const reorderedItems = this.itemManipulationService.applyOptimizedRoute(
+      {
+        optimizedRoute: result.optimizedRoute,
+        travelTimeFromStartBase: result.travelTimeFromStartBase,
+        travelTimeToEndBase: result.travelTimeToEndBase,
+        distanceToEndBaseKm: result.distanceToEndBaseKm,
+      },
+      currentItems,
+      containerStartTimeMinutes
+    );
 
     if (reorderedItems.length > 0) {
       const weekdayNumber = this.containerService.getWeekdayNumber(
@@ -1100,16 +992,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     }
   }
 
-  private parseTimeSpan(timeSpan: string): number {
-    const parts = timeSpan.split(':');
-    if (parts.length === 3) {
-      const hours = parseInt(parts[0], 10);
-      const minutes = parseInt(parts[1], 10);
-      return hours * 60 + minutes;
-    }
-    return 0;
-  }
-
   private formatMinutesToTime(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
@@ -1117,14 +999,6 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       return `${hours}h${mins > 0 ? ' ' + mins + 'm' : ''}`;
     }
     return `${mins}m`;
-  }
-
-  private formatMinutesToHHMM(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins
-      .toString()
-      .padStart(2, '0')}`;
   }
 
   exportSelectedShiftsToPdf(): void {
@@ -1404,6 +1278,116 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   private openPropertiesDialog(): void {
+    if (!this.contextMenuTargetItem) return;
+
+    this.editedProperties = {
+      timeRangeStartShift: this.contextMenuTargetItem.timeRangeStartShift || '',
+      briefingTime: this.contextMenuTargetItem.briefingTime || '00:00',
+      debriefingTime: this.contextMenuTargetItem.debriefingTime || '00:00',
+      travelTimeBefore: this.contextMenuTargetItem.travelTimeBefore || '00:00',
+      travelTimeAfter: this.contextMenuTargetItem.travelTimeAfter || '00:00',
+    };
+
+    this.ngbModal.open(this.propertiesModal, { centered: true }).result.then(
+      () => {
+        this.applyPropertiesChanges();
+      },
+      () => {}
+    );
+  }
+
+  private applyPropertiesChanges(): void {
+    if (!this.contextMenuTargetItem || !this.editedProperties) return;
+
+    const items = this.shiftService.selectedContainerTemplateItemsSignal();
+
+    const updatedItems = this.itemManipulationService.applyTimeChanges(
+      this.contextMenuTargetItem,
+      {
+        briefingTime: this.editedProperties.briefingTime,
+        debriefingTime: this.editedProperties.debriefingTime,
+        travelTimeBefore: this.editedProperties.travelTimeBefore,
+        travelTimeAfter: this.editedProperties.travelTimeAfter,
+        timeRangeStartShift: this.editedProperties.timeRangeStartShift,
+      },
+      items
+    );
+
+    this.shiftService.setSelectedContainerTemplateItems(updatedItems);
+
+    if (this.selectedWeekday) {
+      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
+      this.containerService.updateTaskOrderInTemplates(updatedItems, weekdayNumber, this.isHoliday);
+    }
+
+    this.workplaceStateService.areObjectsDirty();
+  }
+
+  getPropertiesTimeRangeStart(): OwnTime {
+    if (!this.editedProperties?.timeRangeStartShift) {
+      return OwnTime.forTime('00', '00');
+    }
+    const parsed = this.timeRangeService.parseTimeString(this.editedProperties.timeRangeStartShift);
+    if (!parsed) {
+      return OwnTime.forTime('00', '00');
+    }
+    return OwnTime.forTime(
+      parsed.hours.toString().padStart(2, '0'),
+      parsed.minutes.toString().padStart(2, '0')
+    );
+  }
+
+  onPropertiesTimeRangeStartChange(time: OwnTime): void {
+    if (this.editedProperties) {
+      this.editedProperties.timeRangeStartShift = `${time.hours}:${time.minutes}:00`;
+    }
+  }
+
+  getPropertiesBriefingTime(): OwnTime {
+    return this.parseTimeToOwnTime(this.editedProperties?.briefingTime || '00:00');
+  }
+
+  onPropertiesBriefingTimeChange(time: OwnTime): void {
+    if (this.editedProperties) {
+      this.editedProperties.briefingTime = `${time.hours}:${time.minutes}`;
+    }
+  }
+
+  getPropertiesDebriefingTime(): OwnTime {
+    return this.parseTimeToOwnTime(this.editedProperties?.debriefingTime || '00:00');
+  }
+
+  onPropertiesDebriefingTimeChange(time: OwnTime): void {
+    if (this.editedProperties) {
+      this.editedProperties.debriefingTime = `${time.hours}:${time.minutes}`;
+    }
+  }
+
+  getPropertiesTravelTimeBefore(): OwnTime {
+    return this.parseTimeToOwnTime(this.editedProperties?.travelTimeBefore || '00:00');
+  }
+
+  onPropertiesTravelTimeBeforeChange(time: OwnTime): void {
+    if (this.editedProperties) {
+      this.editedProperties.travelTimeBefore = `${time.hours}:${time.minutes}`;
+    }
+  }
+
+  getPropertiesTravelTimeAfter(): OwnTime {
+    return this.parseTimeToOwnTime(this.editedProperties?.travelTimeAfter || '00:00');
+  }
+
+  onPropertiesTravelTimeAfterChange(time: OwnTime): void {
+    if (this.editedProperties) {
+      this.editedProperties.travelTimeAfter = `${time.hours}:${time.minutes}`;
+    }
+  }
+
+  private parseTimeToOwnTime(timeString: string): OwnTime {
+    const parts = timeString.split(':');
+    const hours = parts[0] || '00';
+    const minutes = parts[1] || '00';
+    return OwnTime.forDuration(hours.padStart(2, '0'), minutes.padStart(2, '0'));
   }
 
   onContainerContextMenu(event: MouseEvent): void {

@@ -135,6 +135,10 @@ export class DataManagementClientService
         this.currentFilter.filteredStateToken =
           this.clientConfigService.stateList();
         this.currentFilter.countriesHaveBeenReadIn = true;
+
+        if (this.startToReadPage()) {
+          this.clientListService.readPage(this.currentFilter, this.clientAttribute);
+        }
       }
     });
   }

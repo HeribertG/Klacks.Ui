@@ -1,6 +1,7 @@
 @use "../../../../../assets/standard-styles/colors.scss";
 @use "../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../assets/standard-styles/standard-grid.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
 
 :host {
   display: block;
@@ -657,5 +658,77 @@
       width: 50px;
       padding: 0.75rem 0.5rem;
     }
+  }
+}
+
+.row-line-modal {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    margin-bottom: 5px;
+  }
+}
+
+.row-line-modal-inline1 {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.property-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--colorLabel);
+    margin-bottom: 5px;
+  }
+
+  .readonly-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--standartTextColor);
+    padding: 6px 0;
+  }
+}
+
+.time-range-info-box {
+  background-color: var(--gridBackgroundColorInfo);
+  border: 1px solid #f0c36d;
+  border-radius: 4px;
+  padding: 10px 15px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--gridColorText);
+}
+
+.filler {
+  flex: 1;
+}
+
+.close {
+  cursor: pointer;
+  padding: 0 10px;
+
+  &:hover {
+    opacity: 0.7;
+  }
+}
+
+.link-button {
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
   }
 }

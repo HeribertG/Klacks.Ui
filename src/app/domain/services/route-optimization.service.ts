@@ -10,6 +10,8 @@ export interface ILocation {
   latitude: number;
   longitude: number;
   shiftId: string;
+  briefingTime: string;
+  debriefingTime: string;
 }
 
 export interface IRouteStep extends ILocation {
@@ -44,6 +46,7 @@ export interface IRouteOptimizationResult {
   distanceToEndBaseKm: number;
   travelTimeToEndBase: string;
   segmentDirections?: IRouteSegmentDirections[];
+  totalBriefingDebriefingTime: string;
 }
 
 @Injectable({

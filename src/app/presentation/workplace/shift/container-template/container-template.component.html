@@ -504,3 +504,122 @@
   #contextMenu
   (hasClicked)="onContextMenuClick($event)"
 ></app-context-menu>
+
+<!-- Properties Modal -->
+<ng-template #propertiesModal let-modal>
+  <div class="modal-header">
+    <div class="container-header-modal modal-title">
+      {{ "shift.container-template.context-menu.properties" | translate }}
+    </div>
+    <span class="filler"></span>
+    <div
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss()"
+    >
+      <span
+        aria-hidden="true"
+        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
+      >&times;</span>
+    </div>
+  </div>
+  <div class="modal-body first-modal">
+    @if (contextMenuTargetItem) {
+      @if (contextMenuTargetItem.shift?.isTimeRange) {
+        <div class="row-line-modal-inline1">
+          <div class="property-field">
+            <label for="timeRangeStartShift">
+              {{ "shift.container-template.properties.time-range-start" | translate }}
+            </label>
+            <app-time-input
+              id="timeRangeStartShift"
+              [value]="getPropertiesTimeRangeStart()"
+              (valueChange)="onPropertiesTimeRangeStartChange($event)"
+              [showLabel]="false"
+              [forDuration]="false"
+            ></app-time-input>
+          </div>
+          <div class="property-field">
+            <label>
+              {{ "shift.container-template.properties.work-time" | translate }}
+            </label>
+            <div class="readonly-value">
+              {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
+            </div>
+          </div>
+        </div>
+      }
+      <div class="row-line-modal-inline1">
+        <div class="property-field">
+          <label for="briefingTime">
+            {{ "shift.container-template.properties.briefing-time" | translate }}
+          </label>
+          <app-time-input
+            id="briefingTime"
+            [value]="getPropertiesBriefingTime()"
+            (valueChange)="onPropertiesBriefingTimeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+        <div class="property-field">
+          <label for="debriefingTime">
+            {{ "shift.container-template.properties.debriefing-time" | translate }}
+          </label>
+          <app-time-input
+            id="debriefingTime"
+            [value]="getPropertiesDebriefingTime()"
+            (valueChange)="onPropertiesDebriefingTimeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+      </div>
+      <div class="row-line-modal-inline1">
+        <div class="property-field">
+          <label for="travelTimeBefore">
+            {{ "shift.container-template.properties.travel-time-before" | translate }}
+          </label>
+          <app-time-input
+            id="travelTimeBefore"
+            [value]="getPropertiesTravelTimeBefore()"
+            (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+        <div class="property-field">
+          <label for="travelTimeAfter">
+            {{ "shift.container-template.properties.travel-time-after" | translate }}
+          </label>
+          <app-time-input
+            id="travelTimeAfter"
+            [value]="getPropertiesTravelTimeAfter()"
+            (valueChange)="onPropertiesTravelTimeAfterChange($event)"
+            [showLabel]="false"
+            [forDuration]="true"
+          ></app-time-input>
+        </div>
+      </div>
+      @if (contextMenuTargetItem.shift?.isTimeRange) {
+        <div class="time-range-info-box">
+          {{ "shift.container-template.properties.time-range-info" | translate: {
+            startShift: formatTime(contextMenuTargetItem.shift?.startShift),
+            endShift: formatTime(contextMenuTargetItem.shift?.endShift)
+          } }}
+        </div>
+      }
+    }
+  </div>
+  <div class="modal-footer">
+    <span
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss()"
+    >{{ "cancel" | translate }}</span>
+    <button type="button" class="btn save-btn" (click)="modal.close()">
+      {{ "save" | translate }}
+    </button>
+  </div>
+</ng-template>

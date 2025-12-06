@@ -17,7 +17,6 @@ import {
   Injector,
 } from '@angular/core';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
-import { IShift } from 'src/app/domain/models/shift-class';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from '../../helpers/draw-helper';
@@ -92,6 +91,7 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   private readonly SHIFT_BOX_BORDER_DEPTH = 4;
   private readonly SHIFT_BOX_SELECTION_OPACITY = 0.2;
   private readonly TRAVEL_TIME_BACKGROUND_COLOR = '#F5F5DC';
+  private readonly BRIEFING_TIME_BACKGROUND_COLOR = 'rgb(149, 185, 208)';
 
   private readonly MINUTES_PER_DAY = 24 * 60;
 
@@ -116,7 +116,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   constructor() {
     effect(
       () => {
-        const newShifts = this.shiftService.selectedContainerTemplateItemsSignal();
+        const newShifts =
+          this.shiftService.selectedContainerTemplateItemsSignal();
         this.shifts = newShifts;
 
         if (this.inboxCanvasRef) {
@@ -241,8 +242,11 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     this.drawFromCache(inboxCtx);
 
     if (this.selectedShift) {
-      const { range: shiftRange, boxWidth, marginLeftRight } =
-        this.calculateShiftBoxParameters(boundaryWidth, height);
+      const {
+        range: shiftRange,
+        boxWidth,
+        marginLeftRight,
+      } = this.calculateShiftBoxParameters(boundaryWidth, height);
 
       const selectedRect = this.drawSingleShiftBox(
         inboxCtx,
@@ -475,7 +479,9 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   ): void {
     if (!item.shift?.startShift || !item.shift?.endShift) return;
 
-    const startTime = this.timeRangeService.parseTimeString(item.shift.startShift);
+    const startTime = this.timeRangeService.parseTimeString(
+      item.shift.startShift
+    );
     const endTime = this.timeRangeService.parseTimeString(item.shift.endShift);
 
     if (!startTime || !endTime) return;
@@ -526,7 +532,10 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     height: number,
     isSelected = false
   ): Rectangle | null {
-    const hasTimeRange = item.shift?.isTimeRange && item.timeRangeStartShift && item.timeRangeEndShift;
+    const hasTimeRange =
+      item.shift?.isTimeRange &&
+      item.timeRangeStartShift &&
+      item.timeRangeEndShift;
     const hasFixedTime = item.startShift && item.endShift;
 
     if (!hasTimeRange && !hasFixedTime) {
@@ -548,7 +557,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       const endTime = this.timeRangeService.parseTimeString(item.endShift);
 
       if (startTime && endTime) {
-        startMinutes = startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
+        startMinutes =
+          startTime.hours * this.MINUTES_PER_HOUR + startTime.minutes;
         endMinutes = endTime.hours * this.MINUTES_PER_HOUR + endTime.minutes;
 
         if (endMinutes < startMinutes) {
@@ -567,30 +577,44 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
     const pixelsPerMinute = height / range.totalMinutes;
     const durationMinutes = bodyEndMinutes - bodyStartMinutes;
 
-    if (item.travelTimeBefore) {
-      const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeBefore);
-      if (travelMinutes > 0) {
-        const travelStartMinutes = bodyStartMinutes - travelMinutes;
-        const travelStartY =
-          ((travelStartMinutes - range.displayFromMinutes) / range.totalMinutes) *
-          height;
+    const briefingMinutes = this.parseTravelTimeToMinutes(item.briefingTime);
+    const debriefingMinutes = this.parseTravelTimeToMinutes(item.debriefingTime);
+    const travelBeforeMinutes = this.parseTravelTimeToMinutes(item.travelTimeBefore);
+    const travelAfterMinutes = this.parseTravelTimeToMinutes(item.travelTimeAfter);
 
-        const travelRect = new Rectangle(
-          marginLeftRight,
-          travelStartY,
-          marginLeftRight + boxWidth,
-          startY
-        );
+    if (travelBeforeMinutes > 0) {
+      const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
+      const travelStartMinutes = briefingStartMinutes - travelBeforeMinutes;
+      const travelStartY =
+        ((travelStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+      const travelEndY =
+        ((briefingStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
 
-        DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+      const travelRect = new Rectangle(
+        marginLeftRight,
+        travelStartY,
+        marginLeftRight + boxWidth,
+        travelEndY
+      );
 
-        DrawHelper.drawBaseBorder(
-          ctx,
-          this.gridColorService.borderColor,
-          1,
-          travelRect
-        );
-      }
+      DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, travelRect);
+    }
+
+    if (briefingMinutes > 0) {
+      const briefingStartMinutes = bodyStartMinutes - briefingMinutes;
+      const briefingStartY =
+        ((briefingStartMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+
+      const briefingRect = new Rectangle(
+        marginLeftRight,
+        briefingStartY,
+        marginLeftRight + boxWidth,
+        startY
+      );
+
+      DrawHelper.fillRectangle(ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, briefingRect);
+      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, briefingRect);
     }
 
     const rect = new Rectangle(
@@ -604,16 +628,16 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       this.shiftRectangles.set(item, rect);
     }
 
-    const hasOverlap = this.checkShiftOverlap(item, bodyStartMinutes, bodyEndMinutes);
+    const hasOverlap = this.checkShiftOverlap(
+      item,
+      bodyStartMinutes,
+      bodyEndMinutes
+    );
     const backgroundColor = hasOverlap
       ? this.gridColorService.warningColor
       : this.gridColorService.controlBackGroundColor;
 
-    DrawHelper.fillRectangle(
-      ctx,
-      backgroundColor,
-      rect
-    );
+    DrawHelper.fillRectangle(ctx, backgroundColor, rect);
 
     if (isSelected) {
       ctx.save();
@@ -670,30 +694,39 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       BaselineAlignmentEnum.Center
     );
 
-    if (item.travelTimeAfter) {
-      const travelMinutes = this.parseTravelTimeToMinutes(item.travelTimeAfter);
-      if (travelMinutes > 0) {
-        const travelEndMinutes = bodyEndMinutes + travelMinutes;
-        const travelEndY =
-          ((travelEndMinutes - range.displayFromMinutes) / range.totalMinutes) *
-          height;
+    if (debriefingMinutes > 0) {
+      const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
+      const debriefingEndY =
+        ((debriefingEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
 
-        const travelRect = new Rectangle(
-          marginLeftRight,
-          endY,
-          marginLeftRight + boxWidth,
-          travelEndY
-        );
+      const debriefingRect = new Rectangle(
+        marginLeftRight,
+        endY,
+        marginLeftRight + boxWidth,
+        debriefingEndY
+      );
 
-        DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+      DrawHelper.fillRectangle(ctx, this.BRIEFING_TIME_BACKGROUND_COLOR, debriefingRect);
+      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, debriefingRect);
+    }
 
-        DrawHelper.drawBaseBorder(
-          ctx,
-          this.gridColorService.borderColor,
-          1,
-          travelRect
-        );
-      }
+    if (travelAfterMinutes > 0) {
+      const debriefingEndMinutes = bodyEndMinutes + debriefingMinutes;
+      const travelEndMinutes = debriefingEndMinutes + travelAfterMinutes;
+      const travelStartY =
+        ((debriefingEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+      const travelEndY =
+        ((travelEndMinutes - range.displayFromMinutes) / range.totalMinutes) * height;
+
+      const travelRect = new Rectangle(
+        marginLeftRight,
+        travelStartY,
+        marginLeftRight + boxWidth,
+        travelEndY
+      );
+
+      DrawHelper.fillRectangle(ctx, this.TRAVEL_TIME_BACKGROUND_COLOR, travelRect);
+      DrawHelper.drawBaseBorder(ctx, this.gridColorService.borderColor, 1, travelRect);
     }
 
     return rect;
@@ -744,45 +777,6 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
       boundaryWidth,
       height
     );
-  }
-
-  private drawShiftBoxes(
-    ctx: CanvasRenderingContext2D,
-    width: number,
-    height: number
-  ): void {
-    if (!this.shifts || this.shifts.length === 0) return;
-
-    this.shiftRectangles.clear();
-
-    const { range, boxWidth, marginLeftRight } =
-      this.calculateShiftBoxParameters(width, height);
-
-    this.shifts.forEach((shift) => {
-      if (shift === this.selectedShift) {
-        return;
-      }
-      this.drawSingleShiftBox(
-        ctx,
-        shift,
-        range,
-        boxWidth,
-        marginLeftRight,
-        height
-      );
-    });
-
-    if (this.selectedShift) {
-      this.drawSingleShiftBox(
-        ctx,
-        this.selectedShift,
-        range,
-        boxWidth,
-        marginLeftRight,
-        height,
-        true
-      );
-    }
   }
 
   private setupResizeObserver(): void {
@@ -939,8 +933,8 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
   }
 
   private sortShiftsByTime(): void {
-    const itemsToSort = this.shifts.filter(item => item.shift?.isTimeRange);
-    const otherItems = this.shifts.filter(item => !item.shift?.isTimeRange);
+    const itemsToSort = this.shifts.filter((item) => item.shift?.isTimeRange);
+    const otherItems = this.shifts.filter((item) => !item.shift?.isTimeRange);
 
     itemsToSort.sort((a, b) => {
       const aStart = this.timeRangeService.getShiftStartMinutes(a);
@@ -1069,10 +1063,22 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           height
         );
 
-        const logicalDimensions = DrawImageHelper.getLogicalDimensions(this.renderCanvas);
-        this.renderCtx.clearRect(0, 0, logicalDimensions.width, logicalDimensions.height);
+        const logicalDimensions = DrawImageHelper.getLogicalDimensions(
+          this.renderCanvas
+        );
+        this.renderCtx.clearRect(
+          0,
+          0,
+          logicalDimensions.width,
+          logicalDimensions.height
+        );
         this.renderCtx.fillStyle = this.gridColorService.backGroundColor;
-        this.renderCtx.fillRect(0, 0, logicalDimensions.width, logicalDimensions.height);
+        this.renderCtx.fillRect(
+          0,
+          0,
+          logicalDimensions.width,
+          logicalDimensions.height
+        );
         this.drawRedBoundaryLines(this.renderCtx, boundaryWidth, height);
 
         this.shifts.forEach((shift) => {
@@ -1112,8 +1118,15 @@ export class TimeRulerComponent implements AfterViewInit, OnDestroy, OnChanges {
           this.shiftRectangles.set(draggedShift, draggedRect);
         }
 
-        const renderLogicalDimensions = DrawImageHelper.getLogicalDimensions(this.renderCanvas);
-        this.renderCtx.clearRect(0, 0, renderLogicalDimensions.width, renderLogicalDimensions.height);
+        const renderLogicalDimensions = DrawImageHelper.getLogicalDimensions(
+          this.renderCanvas
+        );
+        this.renderCtx.clearRect(
+          0,
+          0,
+          renderLogicalDimensions.width,
+          renderLogicalDimensions.height
+        );
         DrawImageHelper.drawCanvasLogical(
           this.renderCtx,
           tempCanvas,
