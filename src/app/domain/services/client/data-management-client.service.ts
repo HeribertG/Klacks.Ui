@@ -147,6 +147,8 @@ export class DataManagementClientService
     if (!isSecondRead) this.startToReadPage.set(true);
     if (this.clientConfigService.isInit()) {
       this.clientListService.readPage(this.currentFilter, this.clientAttribute);
+    } else {
+      this.clientConfigService.init();
     }
   };
   public deleteClient = (key: string) =>

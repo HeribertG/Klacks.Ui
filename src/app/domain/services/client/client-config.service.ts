@@ -40,7 +40,7 @@ export class ClientConfigService {
     this.init();
   }
 
-  private init() {
+  public init() {
     if (this.isInit()) {
       return;
     }
@@ -59,7 +59,7 @@ export class ClientConfigService {
           this.hasRootGroups.set(results.rootGroups.length > 0);
         }),
         catchError((error) => {
-          console.error('Error initializing data:', error);
+          console.error('ClientConfigService: Error initializing data:', error);
           return EMPTY;
         })
       )
