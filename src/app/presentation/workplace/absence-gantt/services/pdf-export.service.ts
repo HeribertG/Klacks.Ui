@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DatePipe } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -14,10 +14,10 @@ export class PdfExportService {
   private translateService = inject(TranslateService);
 
   exportBreaksTableToPdf(
-    breaks: IBreak[],
+    breaks: IBreakPlaceholder[],
     clientName: string,
-    absenceNameResolver: (breakItem: IBreak) => string,
-    absenceValueResolver: (breakItem: IBreak) => number | string
+    absenceNameResolver: (breakItem: IBreakPlaceholder) => string,
+    absenceValueResolver: (breakItem: IBreakPlaceholder) => number | string
   ): void {
     const pdf = new jsPDF('landscape');
 

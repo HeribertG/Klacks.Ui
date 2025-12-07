@@ -3,7 +3,7 @@ import { Absence } from './absence-class';
 import { Client } from './client-class';
 import { IBaseFilter } from './general-class';
 
-export interface IBreak {
+export interface IBreakPlaceholder {
   id: string | undefined;
   clientId: string;
   client: Client | undefined;
@@ -16,7 +16,7 @@ export interface IBreak {
   information: string | undefined;
 }
 
-export class Break implements IBreak {
+export class BreakPlaceholder implements IBreakPlaceholder {
   id = undefined;
   clientId = '';
   client: Client | undefined = undefined;
@@ -28,6 +28,7 @@ export class Break implements IBreak {
   absence: Absence | undefined = undefined;
   information: string | undefined = undefined;
 }
+
 
 export interface IAbsenceTokenFilter {
   id: string;

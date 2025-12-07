@@ -9,7 +9,7 @@ import {
 } from './general-class';
 import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { IContract } from './contract-class';
-import { IBreak } from './break-class';
+import { IBreakPlaceholder } from './break-class';
 import { MultiLanguage } from './multi-language-class';
 import { StateCountryToken } from './calendar-rule-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
@@ -574,7 +574,7 @@ export interface IClientBreak {
   gender: string;
   legalEntity: boolean;
   type: number | string;
-  breaks: IBreak[];
+  breakPlaceholders: IBreakPlaceholder[];
 }
 
 export class ClientBreak implements IClientBreak {
@@ -592,7 +592,7 @@ export class ClientBreak implements IClientBreak {
   type = 0;
 
   membership = new Membership();
-  breaks: IBreak[] = [];
+  breakPlaceholders: IBreakPlaceholder[] = [];
 }
 
 export { MultiLanguage };

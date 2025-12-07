@@ -130,7 +130,9 @@
             class="transport-mode-btn"
             [class.active]="selectedTransportMode === 0"
             (click)="selectTransportMode(0)"
-            [ngbTooltip]="'shift.container-template.transport-mode.by-car' | translate"
+            [ngbTooltip]="
+              'shift.container-template.transport-mode.by-car' | translate
+            "
           >
             <app-icon-by-car></app-icon-by-car>
           </button>
@@ -141,9 +143,13 @@
             [class.disabled]="!hasOpenRouteServiceApiKey"
             [disabled]="!hasOpenRouteServiceApiKey"
             (click)="hasOpenRouteServiceApiKey && selectTransportMode(1)"
-            [ngbTooltip]="hasOpenRouteServiceApiKey
-              ? ('shift.container-template.transport-mode.by-bicycle' | translate)
-              : ('shift.container-template.transport-mode.api-key-required' | translate)"
+            [ngbTooltip]="
+              hasOpenRouteServiceApiKey
+                ? ('shift.container-template.transport-mode.by-bicycle'
+                  | translate)
+                : ('shift.container-template.transport-mode.api-key-required'
+                  | translate)
+            "
           >
             <app-icon-by-bicycle></app-icon-by-bicycle>
           </button>
@@ -154,9 +160,13 @@
             [class.disabled]="!hasOpenRouteServiceApiKey"
             [disabled]="!hasOpenRouteServiceApiKey"
             (click)="hasOpenRouteServiceApiKey && selectTransportMode(2)"
-            [ngbTooltip]="hasOpenRouteServiceApiKey
-              ? ('shift.container-template.transport-mode.by-foot' | translate)
-              : ('shift.container-template.transport-mode.api-key-required' | translate)"
+            [ngbTooltip]="
+              hasOpenRouteServiceApiKey
+                ? ('shift.container-template.transport-mode.by-foot'
+                  | translate)
+                : ('shift.container-template.transport-mode.api-key-required'
+                  | translate)
+            "
           >
             <app-icon-by-foot></app-icon-by-foot>
           </button>
@@ -167,16 +177,18 @@
             [class.disabled]="!hasOpenRouteServiceApiKey"
             [disabled]="!hasOpenRouteServiceApiKey"
             (click)="hasOpenRouteServiceApiKey && selectTransportMode(3)"
-            [ngbTooltip]="hasOpenRouteServiceApiKey
-              ? ('shift.container-template.transport-mode.mix' | translate)
-              : ('shift.container-template.transport-mode.api-key-required' | translate)"
+            [ngbTooltip]="
+              hasOpenRouteServiceApiKey
+                ? ('shift.container-template.transport-mode.mix' | translate)
+                : ('shift.container-template.transport-mode.api-key-required'
+                  | translate)
+            "
           >
             <app-icon-transport-mix></app-icon-transport-mix>
           </button>
         </div>
       </div>
-      }
-      }
+      } }
     </div>
   </div>
 
@@ -211,25 +223,37 @@
                 <app-icon-route
                   class="icon-table"
                   (click)="optimizeRoute()"
-                  [ngbTooltip]="'shift.container-template.tooltip.optimize-route' | translate"
+                  [ngbTooltip]="
+                    'shift.container-template.tooltip.optimize-route'
+                      | translate
+                  "
                 ></app-icon-route>
                 @if (hasRouteInfo) {
                 <app-icon-route-file
                   class="icon-table"
                   (click)="exportRouteToPdf()"
-                  [ngbTooltip]="'shift.container-template.tooltip.export-route-pdf' | translate"
+                  [ngbTooltip]="
+                    'shift.container-template.tooltip.export-route-pdf'
+                      | translate
+                  "
                 ></app-icon-route-file>
                 }
                 <app-icon-pdf-icon
                   class="icon-table"
                   (click)="exportSelectedShiftsToPdf()"
-                  [ngbTooltip]="'shift.container-template.tooltip.export-shifts-pdf' | translate"
+                  [ngbTooltip]="
+                    'shift.container-template.tooltip.export-shifts-pdf'
+                      | translate
+                  "
                 ></app-icon-pdf-icon>
                 }
                 <app-icon-compact
                   class="icon-table"
                   (click)="compactSelectedShifts()"
-                  [ngbTooltip]="'shift.container-template.tooltip.compact-shifts' | translate"
+                  [ngbTooltip]="
+                    'shift.container-template.tooltip.compact-shifts'
+                      | translate
+                  "
                 ></app-icon-compact>
               </div>
 
@@ -378,6 +402,14 @@
                     {{ getTabLabel($index) }}
                   </button>
                   }
+                  <span class="filler"></span>
+                  <button
+                    class="tab permanent-tab"
+                    [class.active]="isEmploymentTabActive"
+                    (click)="selectEmploymentTab()"
+                  >
+                    {{ "shift.container-template.tab.employment" | translate }}
+                  </button>
                 </div>
               </div>
 
@@ -520,104 +552,169 @@
     >
       <span
         aria-hidden="true"
-        style="font-size: 13px; border: 1px transparent solid; color: var(--colorWorkplaceHeadline)"
-      >&times;</span>
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
     </div>
   </div>
   <div class="modal-body first-modal">
-    @if (contextMenuTargetItem) {
-      @if (contextMenuTargetItem.shift?.isTimeRange) {
-        <div class="row-line-modal-inline1">
-          <div class="property-field">
-            <label for="timeRangeStartShift">
-              {{ "shift.container-template.properties.time-range-start" | translate }}
-            </label>
-            <app-time-input
-              id="timeRangeStartShift"
-              [value]="getPropertiesTimeRangeStart()"
-              (valueChange)="onPropertiesTimeRangeStartChange($event)"
-              [showLabel]="false"
-              [forDuration]="false"
-            ></app-time-input>
-          </div>
-          <div class="property-field">
-            <label>
-              {{ "shift.container-template.properties.work-time" | translate }}
-            </label>
-            <div class="readonly-value">
-              {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
-            </div>
-          </div>
-        </div>
-      }
-      <div class="row-line-modal-inline1">
-        <div class="property-field">
-          <label for="briefingTime">
-            {{ "shift.container-template.properties.briefing-time" | translate }}
-          </label>
-          <app-time-input
-            id="briefingTime"
-            [value]="getPropertiesBriefingTime()"
-            (valueChange)="onPropertiesBriefingTimeChange($event)"
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-        <div class="property-field">
-          <label for="debriefingTime">
-            {{ "shift.container-template.properties.debriefing-time" | translate }}
-          </label>
-          <app-time-input
-            id="debriefingTime"
-            [value]="getPropertiesDebriefingTime()"
-            (valueChange)="onPropertiesDebriefingTimeChange($event)"
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
+    @if (contextMenuTargetItem) { @if (contextMenuTargetItem.shift?.isTimeRange)
+    {
+    <div class="row-line-modal-inline1">
+      <div class="property-field">
+        <label for="timeRangeStartShift">
+          {{
+            "shift.container-template.properties.time-range-start" | translate
+          }}
+        </label>
+        <app-time-input
+          id="timeRangeStartShift"
+          [value]="getPropertiesTimeRangeStart()"
+          (valueChange)="onPropertiesTimeRangeStartChange($event)"
+          [showLabel]="false"
+          [forDuration]="false"
+        ></app-time-input>
+      </div>
+      <div class="property-field">
+        <label>
+          {{ "shift.container-template.properties.work-time" | translate }}
+        </label>
+        <div class="readonly-value">
+          {{ formatWorkTime(contextMenuTargetItem.shift?.workTime || 0) }}
         </div>
       </div>
-      <div class="row-line-modal-inline1">
-        <div class="property-field">
-          <label for="travelTimeBefore">
-            {{ "shift.container-template.properties.travel-time-before" | translate }}
-          </label>
-          <app-time-input
-            id="travelTimeBefore"
-            [value]="getPropertiesTravelTimeBefore()"
-            (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-        <div class="property-field">
-          <label for="travelTimeAfter">
-            {{ "shift.container-template.properties.travel-time-after" | translate }}
-          </label>
-          <app-time-input
-            id="travelTimeAfter"
-            [value]="getPropertiesTravelTimeAfter()"
-            (valueChange)="onPropertiesTravelTimeAfterChange($event)"
-            [showLabel]="false"
-            [forDuration]="true"
-          ></app-time-input>
-        </div>
-      </div>
-      @if (contextMenuTargetItem.shift?.isTimeRange) {
-        <div class="time-range-info-box">
-          {{ "shift.container-template.properties.time-range-info" | translate: {
-            startShift: formatTime(contextMenuTargetItem.shift?.startShift),
-            endShift: formatTime(contextMenuTargetItem.shift?.endShift)
-          } }}
-        </div>
-      }
+    </div>
     }
+    <div class="row-line-modal-inline1">
+      <div class="property-field">
+        <label for="briefingTime">
+          {{ "shift.container-template.properties.briefing-time" | translate }}
+        </label>
+        <app-time-input
+          id="briefingTime"
+          [value]="getPropertiesBriefingTime()"
+          (valueChange)="onPropertiesBriefingTimeChange($event)"
+          [showLabel]="false"
+          [forDuration]="true"
+        ></app-time-input>
+      </div>
+      <div class="property-field">
+        <label for="debriefingTime">
+          {{
+            "shift.container-template.properties.debriefing-time" | translate
+          }}
+        </label>
+        <app-time-input
+          id="debriefingTime"
+          [value]="getPropertiesDebriefingTime()"
+          (valueChange)="onPropertiesDebriefingTimeChange($event)"
+          [showLabel]="false"
+          [forDuration]="true"
+        ></app-time-input>
+      </div>
+    </div>
+    <div class="row-line-modal-inline1">
+      <div class="property-field">
+        <label for="travelTimeBefore">
+          {{
+            "shift.container-template.properties.travel-time-before" | translate
+          }}
+        </label>
+        <app-time-input
+          id="travelTimeBefore"
+          [value]="getPropertiesTravelTimeBefore()"
+          (valueChange)="onPropertiesTravelTimeBeforeChange($event)"
+          [showLabel]="false"
+          [forDuration]="true"
+        ></app-time-input>
+      </div>
+      <div class="property-field">
+        <label for="travelTimeAfter">
+          {{
+            "shift.container-template.properties.travel-time-after" | translate
+          }}
+        </label>
+        <app-time-input
+          id="travelTimeAfter"
+          [value]="getPropertiesTravelTimeAfter()"
+          (valueChange)="onPropertiesTravelTimeAfterChange($event)"
+          [showLabel]="false"
+          [forDuration]="true"
+        ></app-time-input>
+      </div>
+    </div>
+
+    @if (isTransportModeMix) {
+    <div class="transport-mode-group">
+      <label>
+        {{ "shift.container-template.transport-mode" | translate }}
+      </label>
+      <div class="transport-mode-buttons">
+        <button
+          type="button"
+          class="transport-mode-btn"
+          [class.active]="
+            getPropertiesTransportMode() === TransportModeEnum.byCar
+          "
+          (click)="selectPropertiesTransportMode(TransportModeEnum.byCar)"
+          [ngbTooltip]="
+            'shift.container-template.transport-mode.by-car' | translate
+          "
+        >
+          <app-icon-by-car></app-icon-by-car>
+        </button>
+        <button
+          type="button"
+          class="transport-mode-btn"
+          [class.active]="
+            getPropertiesTransportMode() === TransportModeEnum.byBicycle
+          "
+          (click)="selectPropertiesTransportMode(TransportModeEnum.byBicycle)"
+          [ngbTooltip]="
+            'shift.container-template.transport-mode.by-bicycle' | translate
+          "
+        >
+          <app-icon-by-bicycle></app-icon-by-bicycle>
+        </button>
+        <button
+          type="button"
+          class="transport-mode-btn"
+          [class.active]="
+            getPropertiesTransportMode() === TransportModeEnum.byFoot
+          "
+          (click)="selectPropertiesTransportMode(TransportModeEnum.byFoot)"
+          [ngbTooltip]="
+            'shift.container-template.transport-mode.by-foot' | translate
+          "
+        >
+          <app-icon-by-foot></app-icon-by-foot>
+        </button>
+      </div>
+    </div>
+    } @if (contextMenuTargetItem.shift?.isTimeRange) {
+    <div class="time-range-info-box">
+      {{
+        "shift.container-template.properties.time-range-info"
+          | translate
+            : {
+                startShift: formatTime(contextMenuTargetItem.shift?.startShift),
+                endShift: formatTime(contextMenuTargetItem.shift?.endShift)
+              }
+      }}
+    </div>
+    } }
   </div>
   <div class="modal-footer">
     <span
       type="button"
       class="link-button red-font"
       (click)="modal.dismiss()"
-    >{{ "cancel" | translate }}</span>
+      >{{ "cancel" | translate }}</span
+    >
     <button type="button" class="btn save-btn" (click)="modal.close()">
       {{ "save" | translate }}
     </button>

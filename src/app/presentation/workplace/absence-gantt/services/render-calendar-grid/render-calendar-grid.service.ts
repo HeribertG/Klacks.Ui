@@ -8,7 +8,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { CalendarDayRenderingService } from './calendar-day-rendering.service';
 import { CalendarMonthRenderingService } from './calendar-month-rendering.service';
@@ -45,7 +45,7 @@ export class RenderCalendarGridService {
     this.selectionService.selectedBreakRec = value;
   }
 
-  public selectedBreak_dummy: IBreak | undefined;
+  public selectedBreak_dummy: IBreakPlaceholder | undefined;
 
   public isCanvasAvailable(): boolean {
     return this.ganttCanvasManager.isCanvasAvailable();
@@ -209,7 +209,7 @@ export class RenderCalendarGridService {
     }
   }
 
-  public get selectedBreak(): IBreak | undefined {
+  public get selectedBreak(): IBreakPlaceholder | undefined {
     return this.selectionService.selectedBreak;
   }
 
@@ -371,7 +371,7 @@ export class RenderCalendarGridService {
   }
 
   @CanvasAvailable('queue')
-  public drawRow(index: number, selectedBreak: IBreak | undefined): void {
+  public drawRow(index: number, selectedBreak: IBreakPlaceholder | undefined): void {
     const rec = this.calculationService.calcRowRec(
       index,
       this.scroll.verticalScrollPosition,
@@ -385,7 +385,7 @@ export class RenderCalendarGridService {
   private drawRowSub(
     index: number,
     rec: Rectangle,
-    selectedBreak: IBreak | undefined
+    selectedBreak: IBreakPlaceholder | undefined
   ): void {
     this.ganttCanvasManager.rowCtx!.drawImage(
       this.ganttCanvasManager.backgroundRowCanvas!,

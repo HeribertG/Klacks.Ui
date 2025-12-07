@@ -943,6 +943,7 @@
   "shift.container-template.grid.work-time": "Arbeitszeit",
   "shift.container-template.grid.client": "Kunde",
   "shift.container-template.grid.no-shifts": "Keine Schichten verfügbar",
+  "shift.container-template.tab.employment": "Beschäftigung",
   "shift.container-template.no-container-selected": "Kein Container ausgewählt",
   "shift.container-template.selected-tasks.title": "Zugewiesene Aufgaben",
   "shift.container-template.selected-tasks.placeholder": "Ziehen Sie Aufgaben hierher",

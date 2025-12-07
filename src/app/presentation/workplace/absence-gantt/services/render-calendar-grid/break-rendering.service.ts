@@ -3,7 +3,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakLayerService } from '../break-layer.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
@@ -16,7 +16,7 @@ export class BreakRenderingService {
   private breakLayerService = inject(BreakLayerService);
   private calculationService = inject(CalendarCalculationService);
 
-  public drawRowBreaks(index: number, selectedBreak: IBreak | undefined): void {
+  public drawRowBreaks(index: number, selectedBreak: IBreakPlaceholder | undefined): void {
     const breaks = this.dataManagementBreak.readData(index);
     if (breaks && Array.isArray(breaks) && breaks.length > 0) {
       const validBreaks = breaks.filter(

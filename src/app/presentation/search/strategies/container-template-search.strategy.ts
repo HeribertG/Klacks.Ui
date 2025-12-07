@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import {
   IEntitySearchStrategy,
@@ -14,7 +13,7 @@ export class ContainerTemplateSearchStrategy implements IEntitySearchStrategy {
   private searchStateService = inject(SearchStateService);
 
   search(value: string, options: EntitySearchOptions = {}): void {
-    this.searchStateService.setContainerTemplateSearch(value);
+    this.searchStateService.setContainerTemplateSearch(value, options.includeAddress ?? false);
   }
 
   resetFilter(): void {

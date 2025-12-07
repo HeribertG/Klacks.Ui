@@ -27,7 +27,7 @@ export class SearchService {
   // Computed signals for checkbox visibility
   public showIncludeAddress = computed(() => {
     const entity = this.workplaceState.nameOfVisibleEntity();
-    return entity === EntityName.CLIENT;
+    return entity === EntityName.CLIENT || entity === EntityName.SHIFT_CONTAINER_TEMPLATE;
   });
   
   public showIncludeClient = computed(() => {

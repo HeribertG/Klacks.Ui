@@ -6,7 +6,7 @@ import {
   viewChild,
   output,
 } from '@angular/core';
-import { Break, IBreak } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
@@ -120,8 +120,8 @@ export class AbsenceGanttContainerComponent {
     );
   }
 
-  onUpdate(index: number, selectedBreak: IBreak) {
-    this.dataManagementBreakService.updateBreak(index, selectedBreak as Break);
+  onUpdate(index: number, selectedBreak: IBreakPlaceholder) {
+    this.dataManagementBreakService.updateBreak(index, selectedBreak as BreakPlaceholder);
   }
 
   onChangeIndex(index: number): void {
@@ -153,7 +153,7 @@ export class AbsenceGanttContainerComponent {
     return this.absenceBody().drawCalendarGantt.selectedRowBreaksMaxIndex;
   }
 
-  get selectedBreak(): IBreak | undefined {
+  get selectedBreak(): IBreakPlaceholder | undefined {
     return this.absenceBody().drawCalendarGantt.selectedBreak;
   }
 

@@ -16,7 +16,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
@@ -37,7 +37,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 export class AbsenceGanttGridComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @Input() selectedRowData: IBreak[] | undefined;
+  @Input() selectedRowData: IBreakPlaceholder[] | undefined;
   @Input() selectedRow = -1;
   @Output() exportPDF = new EventEmitter<void>();
   @Output() breakSelected = new EventEmitter<string>();
@@ -90,7 +90,7 @@ export class AbsenceGanttGridComponent
     }
   }
 
-  onAbsenceName(value: IBreak): string {
+  onAbsenceName(value: IBreakPlaceholder): string {
     if (value) {
       const abs = this.absence.find((x) => x.id === value.absenceId);
       if (abs) {
@@ -100,7 +100,7 @@ export class AbsenceGanttGridComponent
     return 'undefined';
   }
 
-  onAbsenceValue(value: IBreak): number | string {
+  onAbsenceValue(value: IBreakPlaceholder): number | string {
     if (value) {
       const abs = this.absence.find((x) => x.id === value.absenceId);
       if (abs) {
@@ -115,14 +115,14 @@ export class AbsenceGanttGridComponent
     return '';
   }
 
-  getPlainTextNote(value: IBreak): string {
+  getPlainTextNote(value: IBreakPlaceholder): string {
     if (!value?.information) {
       return '';
     }
     return this.textFormatterService.stripFormatting(value.information);
   }
 
-  onClickedRow(value: IBreak) {
+  onClickedRow(value: IBreakPlaceholder) {
     this.highlightRowId = value.id;
     if (value.id) {
       this.breakSelected.emit(value.id);
@@ -170,7 +170,7 @@ export class AbsenceGanttGridComponent
     return d1.getTime() - d2.getTime();
   }
 
-  private compareAbsences(a: IBreak, b: IBreak): number {
+  private compareAbsences(a: IBreakPlaceholder, b: IBreakPlaceholder): number {
     const absenceA = this.absence.find(x => x.id === a.absenceId);
     const absenceB = this.absence.find(x => x.id === b.absenceId);
     

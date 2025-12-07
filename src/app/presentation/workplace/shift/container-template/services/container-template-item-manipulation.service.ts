@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { IContainerTemplateItem } from 'src/app/domain/models/container-template-class';
+import { TransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import {
   formatTimeFromMinutes,
   timeToMinutes,
-  timeToString,
 } from 'src/app/shared/helpers/time-format.helper';
 
 export interface ItemTimeChange {
@@ -13,13 +13,15 @@ export interface ItemTimeChange {
   debriefingTime?: string;
   travelTimeBefore?: string;
   travelTimeAfter?: string;
+  transportMode?: TransportModeEnum;
 }
 
 export interface RouteOptimizationData {
-  optimizedRoute: Array<{
+  optimizedRoute: {
     shiftId: string;
     travelTimeToNext: string;
-  }>;
+    transportMode?: TransportModeEnum;
+  }[];
   travelTimeFromStartBase: string;
   travelTimeToEndBase: string;
   distanceToEndBaseKm: number;
@@ -32,6 +34,9 @@ export class ContainerTemplateItemManipulationService {
   private timeRangeService = inject(TimeRangeService);
 
   private readonly MINUTES_PER_DAY = 24 * 60;
+  private readonly MIN_TRAVEL_TIME_BY_CAR = 5;
+  private readonly MIN_TRAVEL_TIME_BY_BICYCLE = 3;
+  private readonly MIN_TRAVEL_TIME_BY_FOOT = 1;
 
   applyTimeChanges(
     targetItem: IContainerTemplateItem,
@@ -50,7 +55,7 @@ export class ContainerTemplateItemManipulationService {
     const oldItem = allItems[itemIndex];
     const needsPushDown = this.checkIfPushDownNeeded(oldItem, changes);
 
-    let updatedItem: IContainerTemplateItem = { ...oldItem };
+    const updatedItem: IContainerTemplateItem = { ...oldItem };
 
     if (changes.briefingTime !== undefined) {
       updatedItem.briefingTime = changes.briefingTime;
@@ -64,8 +69,14 @@ export class ContainerTemplateItemManipulationService {
     if (changes.travelTimeAfter !== undefined) {
       updatedItem.travelTimeAfter = changes.travelTimeAfter;
     }
+    if (changes.transportMode !== undefined) {
+      updatedItem.transportMode = changes.transportMode;
+    }
 
-    if (changes.timeRangeStartShift !== undefined && oldItem.shift?.isTimeRange) {
+    if (
+      changes.timeRangeStartShift !== undefined &&
+      oldItem.shift?.isTimeRange
+    ) {
       updatedItem.timeRangeStartShift = changes.timeRangeStartShift;
       const workTimeMinutes = Math.round((oldItem.shift?.workTime || 0) * 60);
       const startMinutes = this.timeRangeService.getShiftStartMinutes({
@@ -212,14 +223,17 @@ export class ContainerTemplateItemManipulationService {
       const item = itemsByShiftId.get(routeStep.shiftId);
 
       if (item && item.shift) {
+        const itemTransportMode = item.transportMode ?? TransportModeEnum.byCar;
         let travelTimeToThisShiftMinutes = 0;
         if (i === 0) {
           travelTimeToThisShiftMinutes = this.parseTimeSpan(
-            routeData.travelTimeFromStartBase
+            routeData.travelTimeFromStartBase,
+            itemTransportMode
           );
         } else {
           travelTimeToThisShiftMinutes = this.parseTimeSpan(
-            routeData.optimizedRoute[i - 1].travelTimeToNext
+            routeData.optimizedRoute[i - 1].travelTimeToNext,
+            itemTransportMode
           );
         }
 
@@ -257,13 +271,16 @@ export class ContainerTemplateItemManipulationService {
       routeData.travelTimeToEndBase &&
       reorderedItems.length > 0
     ) {
+      const lastItem = reorderedItems[reorderedItems.length - 1];
+      const returnTransportMode =
+        lastItem.transportMode ?? TransportModeEnum.byCar;
       const travelTimeToEndBaseMinutes = this.parseTimeSpan(
-        routeData.travelTimeToEndBase
+        routeData.travelTimeToEndBase,
+        returnTransportMode
       );
       const travelTimeAfterHHMM = this.formatMinutesToHHMM(
         travelTimeToEndBaseMinutes
       );
-      const lastItem = reorderedItems[reorderedItems.length - 1];
       reorderedItems[reorderedItems.length - 1] = {
         ...lastItem,
         travelTimeAfter: travelTimeAfterHHMM,
@@ -315,13 +332,36 @@ export class ContainerTemplateItemManipulationService {
       .padStart(2, '0')}`;
   }
 
-  private parseTimeSpan(timeSpan: string): number {
+  private parseTimeSpan(
+    timeSpan: string,
+    transportMode?: TransportModeEnum
+  ): number {
     const parts = timeSpan.split(':');
     if (parts.length >= 2) {
       const hours = parseInt(parts[0], 10);
       const minutes = parseInt(parts[1], 10);
-      return hours * 60 + minutes;
+      const seconds = parts.length >= 3 ? parseInt(parts[2], 10) : 0;
+      const totalMinutes = hours * 60 + minutes + seconds / 60;
+
+      if (totalMinutes > 0) {
+        const minTime = this.getMinTravelTime(transportMode);
+        return Math.max(minTime, Math.ceil(totalMinutes));
+      }
+      return 0;
     }
     return 0;
+  }
+
+  private getMinTravelTime(transportMode?: TransportModeEnum): number {
+    switch (transportMode) {
+      case TransportModeEnum.byCar:
+        return this.MIN_TRAVEL_TIME_BY_CAR;
+      case TransportModeEnum.byBicycle:
+        return this.MIN_TRAVEL_TIME_BY_BICYCLE;
+      case TransportModeEnum.byFoot:
+        return this.MIN_TRAVEL_TIME_BY_FOOT;
+      default:
+        return this.MIN_TRAVEL_TIME_BY_CAR;
+    }
   }
 }

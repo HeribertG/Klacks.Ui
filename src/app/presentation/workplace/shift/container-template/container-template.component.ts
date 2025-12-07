@@ -49,7 +49,10 @@ import {
   IContainerTemplateItem,
   IRouteInfo,
 } from 'src/app/domain/models/container-template-class';
-import { ContainerTransportModeEnum } from 'src/app/domain/enums/transport-mode.enum';
+import {
+  ContainerTransportModeEnum,
+  TransportModeEnum,
+} from 'src/app/domain/enums/transport-mode.enum';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { DataManagementContainerService } from 'src/app/domain/services/container/data-management.container.service';
 import { ContainerTemplateShiftService } from 'src/app/domain/services/container/container-template-shift.service';
@@ -60,7 +63,6 @@ import { ContainerTemplateItemManipulationService } from './services/container-t
 import {
   formatTime,
   timeToString,
-  formatTimeFromMinutes,
   timeToMinutes,
 } from 'src/app/shared/helpers/time-format.helper';
 import { IconCompactComponent } from 'src/app/presentation/icons/icon-compact.component';
@@ -71,10 +73,16 @@ import { BranchManagementService } from 'src/app/domain/services/settings/branch
 import { IconRouteComponent } from 'src/app/presentation/icons/icon-route.component';
 import { RouteOptimizationService } from 'src/app/domain/services/route-optimization.service';
 import { IconRouteFileComponent } from 'src/app/presentation/icons/icon-route-file.component';
-import { ToastShowService, TOAST_ICONS } from 'src/app/presentation/toast/toast-show.service';
+import {
+  ToastShowService,
+  TOAST_ICONS,
+} from 'src/app/presentation/toast/toast-show.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import {
+  Menu,
+  MenuItem,
+} from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { IShiftContextMenuEvent } from 'src/app/presentation/shared/time-ruler/time-ruler.component';
 import { SpinnerService } from 'src/app/presentation/spinner/spinner.service';
 import { IconByCarComponent } from 'src/app/presentation/icons/icon-by-car.component';
@@ -110,7 +118,11 @@ import { NgbTooltipModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './container-template.component.html',
   styleUrl: './container-template.component.scss',
   standalone: true,
-  providers: [TableSortingService, TimeRulerDragDropService, ContextMenuService],
+  providers: [
+    TableSortingService,
+    TimeRulerDragDropService,
+    ContextMenuService,
+  ],
 })
 export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private _timeFrom = OwnTime.forTime('06', '00');
@@ -167,7 +179,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   private containerService = inject(DataManagementContainerService);
   private shiftService = inject(ContainerTemplateShiftService);
   private arrangementService = inject(ShiftArrangementService);
-  private itemManipulationService = inject(ContainerTemplateItemManipulationService);
+  private itemManipulationService = inject(
+    ContainerTemplateItemManipulationService
+  );
   private pdfExportService = inject(ContainerTemplatePdfExportService);
   public addressProvider = inject(AddressProviderService);
   private appSettingsService = inject(AppSettingsManagementService);
@@ -186,7 +200,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   public selectedStartBase = '';
   public selectedEndBase = '';
-  public selectedTransportMode: ContainerTransportModeEnum = ContainerTransportModeEnum.byCar;
+  public selectedTransportMode: ContainerTransportModeEnum =
+    ContainerTransportModeEnum.byCar;
   private lastRouteInfo: IRouteInfo | null = null;
   public contextMenuTargetItem: IContainerTemplateItem | null = null;
   private editedProperties: {
@@ -195,6 +210,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     debriefingTime: string;
     travelTimeBefore: string;
     travelTimeAfter: string;
+    transportMode: TransportModeEnum;
   } | null = null;
 
   get hasRouteInfo(): boolean {
@@ -209,8 +225,10 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   public templateGrid: IContainerTemplateGrid | null = null;
   public isLoading = false;
   public selectedTabIndex = 0;
+  public isEmploymentTabActive = false;
   public availableTasks: IShift[] = [];
   private currentSearchString = '';
+  private currentIncludeAddress = false;
 
   formatTime = formatTime;
 
@@ -298,6 +316,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const desiredStartMinutes =
       parseInt(newTime.hours) * 60 + parseInt(newTime.minutes);
     const allItems = this.shiftService.selectedContainerTemplateItemsSignal();
+    const targetItemId = item.id || item.tmpId;
 
     const updatedItems = this.itemManipulationService.updateItemTimeRangeStart(
       item,
@@ -306,6 +325,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     );
 
     this.shiftService.setSelectedContainerTemplateItems(updatedItems);
+
+    this.shiftService.setSelectedShift(null);
+    const updatedItem = updatedItems.find(
+      (i) => (i.id || i.tmpId) === targetItemId
+    );
+    if (updatedItem) {
+      this.shiftService.setSelectedShift(updatedItem);
+    }
   }
 
   get selectedContainerTemplateItems(): IContainerTemplateItem[] {
@@ -333,8 +360,14 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   constructor() {
     effect(() => {
       const searchString = this.searchStateService.containerTemplateSearch();
-      if (this.currentSearchString !== searchString) {
+      const includeAddress =
+        this.searchStateService.containerTemplateIncludeAddress();
+      if (
+        this.currentSearchString !== searchString ||
+        this.currentIncludeAddress !== includeAddress
+      ) {
         this.currentSearchString = searchString;
+        this.currentIncludeAddress = includeAddress;
         this.onSearchChanged();
       }
     });
@@ -593,11 +626,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   selectTab(index: number): void {
     this.selectedTabIndex = index;
-    this.shiftService.clearTasks();
+    this.isEmploymentTabActive = false;
     this.shiftService.setSelectedShift(null);
     this.updateAvailableTasks();
     this.updateCurrentWeekdayAndSlot();
     this.loadStartEndBaseForCurrentTemplate();
+  }
+
+  selectEmploymentTab(): void {
+    this.isEmploymentTabActive = true;
+    this.selectedTabIndex = -1;
+    this.shiftService.setSelectedShift(null);
+    this.availableTasks = [];
   }
 
   private updateAvailableTasks(): void {
@@ -632,7 +672,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     uniqueShifts = this.containerService.filterAvailableTasksBySearch(
       uniqueShifts,
-      this.currentSearchString
+      this.currentSearchString,
+      this.currentIncludeAddress
     );
 
     const orderBy = this.sortingService.getCurrentOrderBy();
@@ -836,7 +877,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   compactSelectedShifts(): void {
     const currentItems =
       this.shiftService.selectedContainerTemplateItemsSignal();
-    const itemsWithResetTravelTimes = currentItems.map(item => ({
+    const itemsWithResetTravelTimes = currentItems.map((item) => ({
       ...item,
       travelTimeBefore: '00:00',
       travelTimeAfter: '00:00',
@@ -849,7 +890,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     containerTemplateItems: IContainerTemplateItem[]
   ): void {
     if (containerTemplateItems.length === 0) {
-      this.shiftService.setSelectedContainerTemplateItems(containerTemplateItems);
+      this.shiftService.setSelectedContainerTemplateItems(
+        containerTemplateItems
+      );
       return;
     }
 
@@ -882,14 +925,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     if (items.length < 2) {
       this.toastService.showInfo(
-        this.translateService.instant('shift.container-template.toast.min-shifts-required')
+        this.translateService.instant(
+          'shift.container-template.toast.min-shifts-required'
+        )
       );
       return;
     }
 
     if (!this.containerShift?.id || !this.selectedWeekday) {
       this.toastService.showInfo(
-        this.translateService.instant('shift.container-template.toast.no-container-weekday')
+        this.translateService.instant(
+          'shift.container-template.toast.no-container-weekday'
+        )
       );
       return;
     }
@@ -900,7 +947,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     this.spinnerService.showProgressSpinner = true;
     this.toastService.showInfo(
-      this.translateService.instant('shift.container-template.toast.optimizing-route'),
+      this.translateService.instant(
+        'shift.container-template.toast.optimizing-route'
+      ),
       '',
       '',
       TOAST_ICONS.ROUTE
@@ -936,11 +985,16 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
           this.saveRouteInfoToTemplate();
           this.applyOptimizedRoute(result, items);
           this.toastService.showSuccess(
-            this.translateService.instant('shift.container-template.toast.route-optimized-details', {
-              distance: result.totalDistanceKm.toFixed(2),
-              time: result.estimatedTravelTime
-            }),
-            this.translateService.instant('shift.container-template.toast.route-optimized')
+            this.translateService.instant(
+              'shift.container-template.toast.route-optimized-details',
+              {
+                distance: result.totalDistanceKm.toFixed(2),
+                time: result.estimatedTravelTime,
+              }
+            ),
+            this.translateService.instant(
+              'shift.container-template.toast.route-optimized'
+            )
           );
         },
         error: (error) => {
@@ -1033,14 +1087,18 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
     if (items.length === 0) {
       this.toastService.showInfo(
-        this.translateService.instant('shift.container-template.toast.no-shifts-export')
+        this.translateService.instant(
+          'shift.container-template.toast.no-shifts-export'
+        )
       );
       return;
     }
 
     if (!this.lastRouteInfo) {
       this.toastService.showInfo(
-        this.translateService.instant('shift.container-template.toast.optimize-first')
+        this.translateService.instant(
+          'shift.container-template.toast.optimize-first'
+        )
       );
       return;
     }
@@ -1215,7 +1273,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
         this.selectedStartBase = startBaseAddress?.address || '';
         this.selectedEndBase = endBaseAddress?.address || '';
-        this.selectedTransportMode = template.transportMode ?? ContainerTransportModeEnum.byCar;
+        this.selectedTransportMode =
+          template.transportMode ?? ContainerTransportModeEnum.byCar;
 
         this.lastRouteInfo = template.routeInfo || null;
       } else {
@@ -1261,7 +1320,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const menuData = new Menu();
     const propertiesItem = new MenuItem(
       'properties',
-      this.translateService.instant('shift.container-template.context-menu.properties'),
+      this.translateService.instant(
+        'shift.container-template.context-menu.properties'
+      ),
       false
     );
     menuData.list.push(propertiesItem);
@@ -1286,6 +1347,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
       debriefingTime: this.contextMenuTargetItem.debriefingTime || '00:00',
       travelTimeBefore: this.contextMenuTargetItem.travelTimeBefore || '00:00',
       travelTimeAfter: this.contextMenuTargetItem.travelTimeAfter || '00:00',
+      transportMode: this.contextMenuTargetItem.transportMode ?? TransportModeEnum.byCar,
     };
 
     this.ngbModal.open(this.propertiesModal, { centered: true }).result.then(
@@ -1300,6 +1362,8 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     if (!this.contextMenuTargetItem || !this.editedProperties) return;
 
     const items = this.shiftService.selectedContainerTemplateItemsSignal();
+    const targetItemId =
+      this.contextMenuTargetItem.id || this.contextMenuTargetItem.tmpId;
 
     const updatedItems = this.itemManipulationService.applyTimeChanges(
       this.contextMenuTargetItem,
@@ -1309,15 +1373,30 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
         travelTimeBefore: this.editedProperties.travelTimeBefore,
         travelTimeAfter: this.editedProperties.travelTimeAfter,
         timeRangeStartShift: this.editedProperties.timeRangeStartShift,
+        transportMode: this.editedProperties.transportMode,
       },
       items
     );
 
     this.shiftService.setSelectedContainerTemplateItems(updatedItems);
 
+    this.shiftService.setSelectedShift(null);
+    const updatedItem = updatedItems.find(
+      (item) => (item.id || item.tmpId) === targetItemId
+    );
+    if (updatedItem) {
+      this.shiftService.setSelectedShift(updatedItem);
+    }
+
     if (this.selectedWeekday) {
-      const weekdayNumber = this.containerService.getWeekdayNumber(this.selectedWeekday);
-      this.containerService.updateTaskOrderInTemplates(updatedItems, weekdayNumber, this.isHoliday);
+      const weekdayNumber = this.containerService.getWeekdayNumber(
+        this.selectedWeekday
+      );
+      this.containerService.updateTaskOrderInTemplates(
+        updatedItems,
+        weekdayNumber,
+        this.isHoliday
+      );
     }
 
     this.workplaceStateService.areObjectsDirty();
@@ -1327,7 +1406,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     if (!this.editedProperties?.timeRangeStartShift) {
       return OwnTime.forTime('00', '00');
     }
-    const parsed = this.timeRangeService.parseTimeString(this.editedProperties.timeRangeStartShift);
+    const parsed = this.timeRangeService.parseTimeString(
+      this.editedProperties.timeRangeStartShift
+    );
     if (!parsed) {
       return OwnTime.forTime('00', '00');
     }
@@ -1344,7 +1425,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getPropertiesBriefingTime(): OwnTime {
-    return this.parseTimeToOwnTime(this.editedProperties?.briefingTime || '00:00');
+    return this.parseTimeToOwnTime(
+      this.editedProperties?.briefingTime || '00:00'
+    );
   }
 
   onPropertiesBriefingTimeChange(time: OwnTime): void {
@@ -1354,7 +1437,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getPropertiesDebriefingTime(): OwnTime {
-    return this.parseTimeToOwnTime(this.editedProperties?.debriefingTime || '00:00');
+    return this.parseTimeToOwnTime(
+      this.editedProperties?.debriefingTime || '00:00'
+    );
   }
 
   onPropertiesDebriefingTimeChange(time: OwnTime): void {
@@ -1364,7 +1449,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getPropertiesTravelTimeBefore(): OwnTime {
-    return this.parseTimeToOwnTime(this.editedProperties?.travelTimeBefore || '00:00');
+    return this.parseTimeToOwnTime(
+      this.editedProperties?.travelTimeBefore || '00:00'
+    );
   }
 
   onPropertiesTravelTimeBeforeChange(time: OwnTime): void {
@@ -1374,7 +1461,9 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
   }
 
   getPropertiesTravelTimeAfter(): OwnTime {
-    return this.parseTimeToOwnTime(this.editedProperties?.travelTimeAfter || '00:00');
+    return this.parseTimeToOwnTime(
+      this.editedProperties?.travelTimeAfter || '00:00'
+    );
   }
 
   onPropertiesTravelTimeAfterChange(time: OwnTime): void {
@@ -1387,10 +1476,35 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
     const parts = timeString.split(':');
     const hours = parts[0] || '00';
     const minutes = parts[1] || '00';
-    return OwnTime.forDuration(hours.padStart(2, '0'), minutes.padStart(2, '0'));
+    return OwnTime.forDuration(
+      hours.padStart(2, '0'),
+      minutes.padStart(2, '0')
+    );
   }
 
   onContainerContextMenu(event: MouseEvent): void {
     event.preventDefault();
+  }
+
+  get TransportModeEnum(): typeof TransportModeEnum {
+    return TransportModeEnum;
+  }
+
+  get ContainerTransportModeEnum(): typeof ContainerTransportModeEnum {
+    return ContainerTransportModeEnum;
+  }
+
+  get isTransportModeMix(): boolean {
+    return this.selectedTransportMode === ContainerTransportModeEnum.mix;
+  }
+
+  getPropertiesTransportMode(): TransportModeEnum {
+    return this.editedProperties?.transportMode ?? TransportModeEnum.byCar;
+  }
+
+  selectPropertiesTransportMode(mode: TransportModeEnum): void {
+    if (this.editedProperties) {
+      this.editedProperties.transportMode = mode;
+    }
   }
 }

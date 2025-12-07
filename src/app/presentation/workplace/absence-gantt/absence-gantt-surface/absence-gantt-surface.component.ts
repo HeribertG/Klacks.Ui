@@ -33,7 +33,7 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { Break, IBreak } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { AbsenceGanttMaskComponent } from '../absence-gantt-mask/absence-gantt-mask.component';
@@ -110,7 +110,7 @@ export class AbsenceGanttSurfaceComponent
 
   private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
-  private copiedBreaks: IBreak[] = [];
+  private copiedBreaks: IBreakPlaceholder[] = [];
   private isAbsenceHeaderInit = false;
   private eventListeners = new Array<() => void>();
 
@@ -931,7 +931,7 @@ export class AbsenceGanttSurfaceComponent
     const absence = this.dataManagementAbsence
       .absenceList()
       .find((x) => x.id === absenceId);
-    const newBreak = new Break();
+    const newBreak = new BreakPlaceholder();
     newBreak.clientId = client.id!;
     delete newBreak.client;
     delete newBreak.absence;
@@ -988,9 +988,9 @@ export class AbsenceGanttSurfaceComponent
       this.drawCalendarGantt.selectedRow > -1 &&
       this.drawCalendarGantt.selectedBreak
     ) {
-      const tmp = cloneObject<IBreak>(
+      const tmp = cloneObject<IBreakPlaceholder>(
         this.drawCalendarGantt.selectedBreak
-      ) as Break;
+      ) as BreakPlaceholder;
 
       delete tmp.client;
       delete tmp.absence;

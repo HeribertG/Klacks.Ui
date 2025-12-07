@@ -20,7 +20,7 @@ export class DataManagementAbsenceGanttService {
   private static readonly RESET_DELAY = 100;
 
   readData(): void {
-    this.dataAbsence.readAbsenceList().pipe(takeUntil(this.destroy$)).subscribe((absences) => {
+    this.dataAbsence.readVisibleAbsenceList().pipe(takeUntil(this.destroy$)).subscribe((absences) => {
       if (absences) {
         this.isReset.set(true);
         this.absenceList.set(absences);
@@ -33,7 +33,7 @@ export class DataManagementAbsenceGanttService {
   }
 
   async readDataAsync(): Promise<void> {
-    const absences = await firstValueFrom(this.dataAbsence.readAbsenceList());
+    const absences = await firstValueFrom(this.dataAbsence.readVisibleAbsenceList());
     if (absences) {
       this.absenceList.set(absences);
     }

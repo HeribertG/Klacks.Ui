@@ -958,6 +958,7 @@
   "shift.container-template.grid.work-time": "Work Time",
   "shift.container-template.grid.client": "Client",
   "shift.container-template.grid.no-shifts": "No shifts available",
+  "shift.container-template.tab.employment": "Employment",
   "shift.container-template.no-container-selected": "No container selected",
   "shift.container-template.selected-tasks.title": "Assigned Tasks",
   "shift.container-template.selected-tasks.placeholder": "Drag tasks here",

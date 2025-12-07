@@ -48,6 +48,12 @@ export class DataAbsenceService {
       .pipe(retry(3));
   }
 
+  readVisibleAbsenceList() {
+    return this.httpClient
+      .get<IAbsence[]>(`${environment.baseUrl}Absences/visible`)
+      .pipe(retry(3));
+  }
+
   deleteAbsence(id: string) {
     return this.httpClient
       .delete<IAbsence>(`${environment.baseUrl}Absences/` + id)

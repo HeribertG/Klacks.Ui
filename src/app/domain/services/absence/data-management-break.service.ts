@@ -1,9 +1,9 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  Break,
+  BreakPlaceholder,
   BreakFilter,
-  IBreak,
+  IBreakPlaceholder,
   IBreakFilter,
 } from 'src/app/domain/models/break-class';
 import { IClientBreak } from 'src/app/domain/models/client-class';
@@ -31,7 +31,7 @@ export class DataManagementBreakService implements ILoadable {
   get showProgressSpinner(): boolean {
     return this._showProgressSpinner();
   }
-  public isUpdate = signal<IBreak | undefined>(undefined);
+  public isUpdate = signal<IBreakPlaceholder | undefined>(undefined);
   public isAbsenceHeaderInit = signal(false);
   public resetScrollPositionTrigger = signal<number>(0);
 
@@ -196,8 +196,8 @@ export class DataManagementBreakService implements ILoadable {
 
   private processClientBreaks(clientBreaks: IClientBreak[]): IClientBreak[] {
     return clientBreaks.map((client) => {
-      if (client.breaks && Array.isArray(client.breaks)) {
-        client.breaks = client.breaks.filter(
+      if (client.breakPlaceholders && Array.isArray(client.breakPlaceholders)) {
+        client.breakPlaceholders = client.breakPlaceholders.filter(
           (brk) =>
             brk &&
             typeof brk === 'object' &&
@@ -206,7 +206,7 @@ export class DataManagementBreakService implements ILoadable {
             brk.until
         );
       } else {
-        client.breaks = [];
+        client.breakPlaceholders = [];
       }
       return client;
     });
@@ -224,11 +224,11 @@ export class DataManagementBreakService implements ILoadable {
     return result;
   }
 
-  readData(index: number): IBreak[] | undefined {
+  readData(index: number): IBreakPlaceholder[] | undefined {
     if (index < this.clients.length) {
       const client = this.clients[index];
-      if (client && client.breaks) {
-        return client.breaks;
+      if (client && client.breakPlaceholders) {
+        return client.breakPlaceholders;
       }
     }
     return undefined;
@@ -238,7 +238,7 @@ export class DataManagementBreakService implements ILoadable {
     return this.clients.length;
   }
 
-  addBreak(index: number, value: IBreak): boolean {
+  addBreak(index: number, value: IBreakPlaceholder): boolean {
     if (index < this.clients.length) {
       const client = this.clients[index];
 
@@ -246,16 +246,16 @@ export class DataManagementBreakService implements ILoadable {
         return false;
       }
 
-      const tmp = value as Break;
+      const tmp = value as BreakPlaceholder;
       value.clientId = client.id!;
       delete tmp.id;
       delete tmp.absence;
       this.dataBreakService
         .addBreak(tmp)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe((x: IBreak) => {
-          client.breaks.push(x);
-          client.breaks = this.sortBreaks(client.breaks);
+        .subscribe((x: IBreakPlaceholder) => {
+          client.breakPlaceholders.push(x);
+          client.breakPlaceholders = this.sortBreaks(client.breakPlaceholders);
 
           this.isUpdate.set(x);
         });
@@ -264,15 +264,15 @@ export class DataManagementBreakService implements ILoadable {
     return false;
   }
 
-  deleteBreak(index: number, value: IBreak) {
+  deleteBreak(index: number, value: IBreakPlaceholder) {
     if (value.id) {
       this.dataBreakService
         .deleteBreak(value.id!)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           const client = this.clients[index];
-          client.breaks = this.sortBreaks(
-            client.breaks.filter((obj) => obj.id !== value.id)
+          client.breakPlaceholders = this.sortBreaks(
+            client.breakPlaceholders.filter((obj) => obj.id !== value.id)
           );
           this.isUpdate.set(value);
           setTimeout(() => this.isUpdate.set(undefined), 100);
@@ -290,7 +290,7 @@ export class DataManagementBreakService implements ILoadable {
     return undefined;
   }
 
-  async updateBreak(index: number, value: IBreak) {
+  async updateBreak(index: number, value: IBreakPlaceholder) {
     if (index < 0 || index >= this.clients.length) {
       return;
     }
@@ -306,25 +306,25 @@ export class DataManagementBreakService implements ILoadable {
     }
 
     return this.dataBreakService
-      .updateBreak(value as Break)
+      .updateBreak(value as BreakPlaceholder)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        client.breaks = this.sortBreaks(client.breaks);
+        client.breakPlaceholders = this.sortBreaks(client.breakPlaceholders);
         this.isUpdate.set(value);
         setTimeout(() => this.isUpdate.set(undefined), 100);
       });
   }
 
-  indexOfBreak(value: IBreak): number {
+  indexOfBreak(value: IBreakPlaceholder): number {
     const client = this.clients.find((x) => x.id === value.clientId);
     if (client) {
-      return client.breaks.findIndex((x) => x.id === value.id);
+      return client.breakPlaceholders.findIndex((x) => x.id === value.id);
     }
     return -1;
   }
 
-  private sortBreaks(value: IBreak[]): IBreak[] {
-    return value.sort((a: IBreak, b: IBreak) => {
+  private sortBreaks(value: IBreakPlaceholder[]): IBreakPlaceholder[] {
+    return value.sort((a: IBreakPlaceholder, b: IBreakPlaceholder) => {
       const da = new Date(a.from!).getTime();
       const db = new Date(b.from!).getTime();
 
@@ -334,7 +334,7 @@ export class DataManagementBreakService implements ILoadable {
 
   private validateBreakDatesAgainstMembership(
     client: IClientBreak,
-    breakItem: IBreak
+    breakItem: IBreakPlaceholder
   ): boolean {
     if (!client.membership) {
       return true;

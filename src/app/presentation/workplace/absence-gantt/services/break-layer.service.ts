@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 
-export interface IBreakWithLayer extends IBreak {
+export interface IBreakPlaceholderWithLayer extends IBreakPlaceholder {
   layer: number;
 }
 
@@ -21,7 +21,7 @@ export class BreakLayerService {
    * @param breaks Array von Breaks einer Row
    * @returns Array von Breaks mit berechneten Layer-Werten
    */
-  public calculateBreakLayers(breaks: IBreak[]): IBreakWithLayer[] {
+  public calculateBreakLayers(breaks: IBreakPlaceholder[]): IBreakPlaceholderWithLayer[] {
     if (!breaks || breaks.length === 0) {
       return [];
     }
@@ -45,14 +45,14 @@ export class BreakLayerService {
    * @param breaks Array von Breaks
    * @returns Array von Breaks mit optimierten Layer-Werten
    */
-  public calculateOptimizedBreakLayers(breaks: IBreak[]): IBreakWithLayer[] {
+  public calculateOptimizedBreakLayers(breaks: IBreakPlaceholder[]): IBreakPlaceholderWithLayer[] {
     if (!breaks || breaks.length === 0) {
       return [];
     }
 
     const validBreaks = this.filterValidBreaks(breaks);
     const sortedBreaks = this.sortBreaksByStartDate(validBreaks);
-    const breaksWithLayers: IBreakWithLayer[] = [];
+    const breaksWithLayers: IBreakPlaceholderWithLayer[] = [];
 
     for (const currentBreak of sortedBreaks) {
       let layer = 0;
@@ -87,7 +87,7 @@ export class BreakLayerService {
    * @param breaks Array von Breaks
    * @returns Maximale Anzahl gleichzeitiger Overlaps
    */
-  public getMaxSimultaneousOverlaps(breaks: IBreak[]): number {
+  public getMaxSimultaneousOverlaps(breaks: IBreakPlaceholder[]): number {
     if (!breaks || breaks.length === 0) {
       return 0;
     }
@@ -96,7 +96,7 @@ export class BreakLayerService {
     let maxOverlaps = 0;
 
     // Erstelle Events für Start und Ende jedes Breaks
-    const events: { date: Date; type: 'start' | 'end'; break: IBreak }[] = [];
+    const events: { date: Date; type: 'start' | 'end'; break: IBreakPlaceholder }[] = [];
 
     validBreaks.forEach((breakItem) => {
       events.push({
@@ -138,7 +138,7 @@ export class BreakLayerService {
    * @param allBreaks Alle Breaks zum Vergleich
    * @returns Anzahl der überdeckenden Breaks
    */
-  public getOverlapCount(targetBreak: IBreak, allBreaks: IBreak[]): number {
+  public getOverlapCount(targetBreak: IBreakPlaceholder, allBreaks: IBreakPlaceholder[]): number {
     return this.calculateLayerForBreak(targetBreak, allBreaks);
   }
 
@@ -150,7 +150,7 @@ export class BreakLayerService {
    * @returns Empfohlene Gesamthöhe
    */
   public calculateRecommendedRowHeight(
-    breaks: IBreak[],
+    breaks: IBreakPlaceholder[],
     baseCellHeight: number,
     layerHeight: number = baseCellHeight / 4
   ): number {
@@ -164,8 +164,8 @@ export class BreakLayerService {
    * Berechnet die Layer-Nummer für einen einzelnen Break
    */
   private calculateLayerForBreak(
-    currentBreak: IBreak,
-    allBreaks: IBreak[]
+    currentBreak: IBreakPlaceholder,
+    allBreaks: IBreakPlaceholder[]
   ): number {
     let overlapCount = 0;
 
@@ -187,7 +187,7 @@ export class BreakLayerService {
   /**
    * Prüft, ob zwei Breaks zeitlich überschneiden
    */
-  private hasOverlap(break1: IBreak, break2: IBreak): boolean {
+  private hasOverlap(break1: IBreakPlaceholder, break2: IBreakPlaceholder): boolean {
     if (!break1.from || !break1.until || !break2.from || !break2.until) {
       return false;
     }
@@ -205,7 +205,7 @@ export class BreakLayerService {
   /**
    * Prüft ob zwei Breaks identisch sind
    */
-  private isSameBreak(break1: IBreak, break2: IBreak): boolean {
+  private isSameBreak(break1: IBreakPlaceholder, break2: IBreakPlaceholder): boolean {
     // Wenn beide IDs haben, vergleiche IDs
     if (break1.id && break2.id) {
       return break1.id === break2.id;
@@ -223,7 +223,7 @@ export class BreakLayerService {
   /**
    * Filtert ungültige Breaks heraus
    */
-  private filterValidBreaks(breaks: IBreak[]): IBreak[] {
+  private filterValidBreaks(breaks: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return breaks.filter(
       (breakItem) =>
         breakItem &&
@@ -236,7 +236,7 @@ export class BreakLayerService {
   /**
    * Sortiert Breaks nach Startdatum
    */
-  private sortBreaksByStartDate(breaks: IBreak[]): IBreak[] {
+  private sortBreaksByStartDate(breaks: IBreakPlaceholder[]): IBreakPlaceholder[] {
     return [...breaks].sort((a, b) => {
       if (!a.from || !b.from) return 0;
       return new Date(a.from).getTime() - new Date(b.from).getTime();

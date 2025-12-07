@@ -3,7 +3,7 @@ import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
-import { IBreak } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
@@ -168,11 +168,11 @@ export class DrawCalendarGanttService {
     this.renderCalendarGrid.drawSelectedBreak();
   }
 
-  public drawRow(index: number, selectedBreak: IBreak | undefined): void {
+  public drawRow(index: number, selectedBreak: IBreakPlaceholder | undefined): void {
     this.renderCalendarGrid.drawRow(index, selectedBreak);
   }
 
-  public get selectedBreak(): IBreak | undefined {
+  public get selectedBreak(): IBreakPlaceholder | undefined {
     return this.renderCalendarGrid.selectedBreak;
   }
 

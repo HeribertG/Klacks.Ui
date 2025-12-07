@@ -15,7 +15,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
-import { Break, IBreak } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
@@ -79,7 +79,7 @@ export class AbsenceGanttMaskComponent
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   public faCalendar = faCalendar;
 
-  private selectedBreak_dummy: IBreak | undefined;
+  private selectedBreak_dummy: IBreakPlaceholder | undefined;
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
@@ -114,8 +114,8 @@ export class AbsenceGanttMaskComponent
     }
     this.selectedBreak_dummy = undefined;
     if (this.selectedBreak) {
-      this.selectedBreak_dummy = cloneObject<Break>(
-        this.selectedBreak as Break
+      this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(
+        this.selectedBreak as BreakPlaceholder
       );
     }
   }
@@ -141,7 +141,7 @@ export class AbsenceGanttMaskComponent
           currentDate.getDate()
         );
         const endDate = addDays(startDate, absence?.defaultLength ?? 1);
-        const newBreak = new Break();
+        const newBreak = new BreakPlaceholder();
         newBreak.absenceId = id!;
         newBreak.from = startDate;
         newBreak.until = endDate;
@@ -150,7 +150,7 @@ export class AbsenceGanttMaskComponent
     }
   }
 
-  get selectedRowData(): IBreak[] | undefined {
+  get selectedRowData(): IBreakPlaceholder[] | undefined {
     if (
       this.selectedRow > -1 &&
       this.selectedRow < this.dataManagementBreak.rows
@@ -160,7 +160,7 @@ export class AbsenceGanttMaskComponent
     return undefined;
   }
 
-  get selectedBreak(): IBreak | undefined {
+  get selectedBreak(): IBreakPlaceholder | undefined {
     if (
       this.selectedRow > -1 &&
       this.selectedRow < this.dataManagementBreak.rows
@@ -232,8 +232,8 @@ export class AbsenceGanttMaskComponent
 
   public isSelectedBreak_Dirty(): boolean {
     if (this.selectedBreak) {
-      const a = this.selectedBreak as Break;
-      const b = this.selectedBreak_dummy as Break;
+      const a = this.selectedBreak as BreakPlaceholder;
+      const b = this.selectedBreak_dummy as BreakPlaceholder;
 
       if (!compareComplexObjects(a, b)) {
         return true;
@@ -248,13 +248,13 @@ export class AbsenceGanttMaskComponent
         this.selectedRow,
         this.selectedBreak!
       );
-      this.selectedBreak_dummy = cloneObject<Break>(
-        this.selectedBreak as Break
+      this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(
+        this.selectedBreak as BreakPlaceholder
       );
     }
   }
 
-  addBreak(value: IBreak) {
+  addBreak(value: IBreakPlaceholder) {
     this.dataManagementBreak.readData(this.selectedRow);
     const id = this.dataManagementBreak.readClientId(this.selectedRow);
     if (id && this.selectedRow > -1) {

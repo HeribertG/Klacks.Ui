@@ -5,7 +5,7 @@ import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
-import { IBreak, Break } from 'src/app/domain/models/break-class';
+import { IBreakPlaceholder, BreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { CalendarCalculationService } from './calendar-calculation.service';
@@ -26,9 +26,9 @@ export class RowSelectionService {
   private _selectedBreakIndex = -1;
 
   public selectedBreakRec: Rectangle | undefined;
-  public selectedBreak_dummy: IBreak | undefined;
+  public selectedBreak_dummy: IBreakPlaceholder | undefined;
 
-  public get selectedBreak(): IBreak | undefined {
+  public get selectedBreak(): IBreakPlaceholder | undefined {
     if (
       this.selectedRow > -1 &&
       this.selectedRow < this.dataManagementBreak.rows
@@ -38,7 +38,7 @@ export class RowSelectionService {
       ];
       this.selectedBreak_dummy = undefined;
       if (br) {
-        this.selectedBreak_dummy = cloneObject<Break>(br as Break);
+        this.selectedBreak_dummy = cloneObject<BreakPlaceholder>(br as BreakPlaceholder);
       }
       return br;
     }
@@ -181,8 +181,8 @@ export class RowSelectionService {
 
   public isSelectedBreak_Dirty(): boolean {
     if (this.selectedBreak) {
-      const a = this.selectedBreak as Break;
-      const b = this.selectedBreak_dummy as Break;
+      const a = this.selectedBreak as BreakPlaceholder;
+      const b = this.selectedBreak_dummy as BreakPlaceholder;
 
       if (!compareComplexObjects(a, b)) {
         return true;

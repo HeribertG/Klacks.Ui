@@ -676,44 +676,90 @@ export class DataManagementContainerService
 
   updateStartBase(weekday: number, isHoliday: boolean, startBase: string): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
-      if (template.weekday === weekday && template.isHoliday === isHoliday) {
-        return {
-          ...template,
-          startBase: startBase
-        };
-      }
-      return template;
-    });
-    this.editTemplates.set(updated);
+    const existingTemplate = templates.find(
+      t => t.weekday === weekday && t.isHoliday === isHoliday
+    );
+
+    if (existingTemplate) {
+      const updated = templates.map(template => {
+        if (template.weekday === weekday && template.isHoliday === isHoliday) {
+          return { ...template, startBase };
+        }
+        return template;
+      });
+      this.editTemplates.set(updated);
+    } else {
+      this.createOrUpdateTemplateProperty(weekday, isHoliday, { startBase });
+    }
   }
 
   updateEndBase(weekday: number, isHoliday: boolean, endBase: string): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
-      if (template.weekday === weekday && template.isHoliday === isHoliday) {
-        return {
-          ...template,
-          endBase: endBase
-        };
-      }
-      return template;
-    });
-    this.editTemplates.set(updated);
+    const existingTemplate = templates.find(
+      t => t.weekday === weekday && t.isHoliday === isHoliday
+    );
+
+    if (existingTemplate) {
+      const updated = templates.map(template => {
+        if (template.weekday === weekday && template.isHoliday === isHoliday) {
+          return { ...template, endBase };
+        }
+        return template;
+      });
+      this.editTemplates.set(updated);
+    } else {
+      this.createOrUpdateTemplateProperty(weekday, isHoliday, { endBase });
+    }
   }
 
   updateTransportMode(weekday: number, isHoliday: boolean, transportMode: ContainerTransportModeEnum): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
-      if (template.weekday === weekday && template.isHoliday === isHoliday) {
-        return {
-          ...template,
-          transportMode: transportMode
-        };
-      }
-      return template;
-    });
-    this.editTemplates.set(updated);
+    const existingTemplate = templates.find(
+      t => t.weekday === weekday && t.isHoliday === isHoliday
+    );
+
+    if (existingTemplate) {
+      const updated = templates.map(template => {
+        if (template.weekday === weekday && template.isHoliday === isHoliday) {
+          return { ...template, transportMode };
+        }
+        return template;
+      });
+      this.editTemplates.set(updated);
+    } else {
+      this.createOrUpdateTemplateProperty(weekday, isHoliday, { transportMode });
+    }
+  }
+
+  private createOrUpdateTemplateProperty(
+    weekday: number,
+    isHoliday: boolean,
+    properties: Partial<IContainerTemplate>
+  ): void {
+    const containerShift = this.currentContainerShiftSignal();
+    if (!containerShift?.id) return;
+
+    const grid = this.templateGridSignal();
+    if (!grid) return;
+
+    const slot = grid.slots.flat().find(
+      s => s.weekday === weekday && s.isHoliday === isHoliday
+    );
+    if (!slot) return;
+
+    const newTemplate: IContainerTemplate = {
+      containerId: containerShift.id,
+      weekday,
+      fromTime: slot.fromTime,
+      untilTime: slot.untilTime,
+      isHoliday,
+      isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+      containerTemplateItems: [],
+      ...properties
+    };
+
+    const templates = this.editTemplates();
+    this.editTemplates.set([...templates, newTemplate]);
   }
 
   getTemplateForWeekday(weekday: number, isHoliday: boolean): IContainerTemplate | undefined {
@@ -832,7 +878,8 @@ export class DataManagementContainerService
 
   filterAvailableTasksBySearch(
     shifts: IShift[],
-    searchString: string
+    searchString: string,
+    includeAddress = false
   ): IShift[] {
     if (!searchString || searchString.trim() === '') {
       return shifts;
@@ -845,11 +892,28 @@ export class DataManagementContainerService
       const abbreviation = shift.abbreviation?.toLowerCase() || '';
       const clientName = shift.client?.name?.toLowerCase() || '';
 
-      return (
+      let matchesBasicSearch =
         name.includes(search) ||
         abbreviation.includes(search) ||
-        clientName.includes(search)
-      );
+        clientName.includes(search);
+
+      if (matchesBasicSearch) {
+        return true;
+      }
+
+      if (includeAddress && shift.client?.addresses) {
+        for (const address of shift.client.addresses) {
+          const street = address.street?.toLowerCase() || '';
+          const zip = address.zip?.toLowerCase() || '';
+          const city = address.city?.toLowerCase() || '';
+
+          if (street.includes(search) || zip.includes(search) || city.includes(search)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
     });
   }
 
