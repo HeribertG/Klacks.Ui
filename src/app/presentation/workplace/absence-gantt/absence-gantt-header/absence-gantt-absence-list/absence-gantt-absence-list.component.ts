@@ -10,7 +10,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { AbsenceTokenFilter } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { invertColor } from 'src/app/shared/helpers/number.helper';
@@ -30,7 +30,7 @@ export class AbsenceGanttAbsenceListComponent
 {
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public calendarSetting = inject(CalendarSettingService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;

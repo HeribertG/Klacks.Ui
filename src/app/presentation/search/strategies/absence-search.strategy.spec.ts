@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { AbsenceSearchStrategy } from './absence-search.strategy';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 
 describe('AbsenceSearchStrategy', () => {
@@ -18,12 +18,12 @@ describe('AbsenceSearchStrategy', () => {
         TestBed.configureTestingModule({
             providers: [
                 AbsenceSearchStrategy,
-                { provide: DataManagementBreakService, useValue: spy }
+                { provide: DataManagementBreakPlaceholderService, useValue: spy }
             ]
         });
 
         strategy = TestBed.inject(AbsenceSearchStrategy);
-        mockBreakService = TestBed.inject(DataManagementBreakService) as any;
+        mockBreakService = TestBed.inject(DataManagementBreakPlaceholderService) as any;
     });
 
     it('should be created', () => {

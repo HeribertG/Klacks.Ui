@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IBreakFilter } from 'src/app/domain/models/break-class';
@@ -7,11 +7,11 @@ import { IBreakFilter } from 'src/app/domain/models/break-class';
 @Injectable()
 export class AllAbsenceStateService extends BaseStateService<
   IBreakFilter,
-  DataManagementBreakService
+  DataManagementBreakPlaceholderService
 > {
   constructor() {
     super(
-      inject(DataManagementBreakService),
+      inject(DataManagementBreakPlaceholderService),
       RouteName.ABSENCE,
       'absence-gantt-filter'
     );

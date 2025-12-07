@@ -7,7 +7,7 @@ import {
   output,
 } from '@angular/core';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { HScrollbarComponent } from 'src/app/presentation/shared/h-scrollbar/h-scrollbar.component';
@@ -50,7 +50,7 @@ export class AbsenceGanttContainerComponent {
   absenceMask = viewChild.required<AbsenceGanttMaskComponent>('absenceMask');
   contextMenu = viewChild.required<ContextMenuComponent>('contextMenu');
 
-  private dataManagementBreakService = inject(DataManagementBreakService);
+  private dataManagementBreakService = inject(DataManagementBreakPlaceholderService);
   private workplaceStateService = inject(WorkplaceStateService);
   private toastShowService = inject(ToastShowService);
   private scrollService = inject(ScrollService);
@@ -128,8 +128,8 @@ export class AbsenceGanttContainerComponent {
     this.absenceBody().onChangeIndex(index);
   }
 
-  onBreakIdSelected(breakId: string): void {
-    this.absenceBody().selectBreakById(breakId);
+  onBreakIdSelected(breakPlaceholderId: string): void {
+    this.absenceBody().selectBreakById(breakPlaceholderId);
     this.absenceBody().showSelectedBreak();
   }
 

@@ -31,7 +31,7 @@ import { CalendarSettingService } from 'src/app/presentation/workplace/absence-g
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
@@ -87,7 +87,7 @@ export class AbsenceGanttSurfaceComponent
 
   public calendarSetting = inject(CalendarSettingService);
   public holidayCollection = inject(HolidayCollectionService);
-  public dataManagementBreak = inject(DataManagementBreakService);
+  public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   public drawRowHeader = inject(DrawRowHeaderService);
   public scroll = inject(ScrollService);
@@ -510,12 +510,12 @@ export class AbsenceGanttSurfaceComponent
     }
   }
 
-  selectBreakById(breakId: string): void {
+  selectBreakById(breakPlaceholderId: string): void {
     // Alle Zeilen durchsuchen
     for (let row = 0; row < this.dataManagementBreak.rows; row++) {
       const breaks = this.dataManagementBreak.readData(row);
       if (breaks) {
-        const breakIndex = breaks.findIndex((b) => b.id === breakId);
+        const breakIndex = breaks.findIndex((b) => b.id === breakPlaceholderId);
         if (breakIndex !== -1) {
           // Break gefunden - Zeile und Index setzen
           this.drawCalendarGantt.selectedRow = row;

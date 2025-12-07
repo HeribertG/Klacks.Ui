@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { RowSelectionService } from './row-selection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
@@ -134,7 +134,7 @@ describe('RowSelectionService', () => {
                 },
                 { provide: GridColorService, useValue: mockGridColors },
                 {
-                    provide: DataManagementBreakService,
+                    provide: DataManagementBreakPlaceholderService,
                     useValue: mockDataManagementBreak,
                 },
                 {

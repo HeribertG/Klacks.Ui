@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
@@ -64,14 +64,14 @@ export class AbsenceGanttMaskComponent
   @Output() ErrorMessageEvent = new EventEmitter<string>();
   @Output() selectedBreakIndexEvent = new EventEmitter<number>();
   @Output() UpdateEvent = new EventEmitter();
-  @Output() breakIdSelected = new EventEmitter<string>();
+  @Output() breakPlaceholderIdSelected = new EventEmitter<string>();
   @Input() selectedRow = -1;
   @Input() selectedRowBreaksMaxIndex: number | undefined;
   @Input() selectedBreakIndex = -1;
   @ViewChild(AbsenceGanttGridComponent) gridComponent!: AbsenceGanttGridComponent;
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
-  public dataManagementBreak = inject(DataManagementBreakService);
+  public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
 
   public page = 1;
@@ -278,8 +278,8 @@ export class AbsenceGanttMaskComponent
     console.log('PDF exported successfully');
   }
 
-  onBreakSelected(breakId: string): void {
-    this.breakIdSelected.emit(breakId);
+  onBreakSelected(breakPlaceholderId: string): void {
+    this.breakPlaceholderIdSelected.emit(breakPlaceholderId);
   }
 
   onInformationChange(content: string): void {

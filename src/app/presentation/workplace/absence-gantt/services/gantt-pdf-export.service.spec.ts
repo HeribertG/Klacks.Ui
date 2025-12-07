@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 import { GanttPdfExportService, GanttExportOptions } from './gantt-pdf-export.service';
@@ -70,7 +70,7 @@ describe('GanttPdfExportService', () => {
             providers: [
                 GanttPdfExportService,
                 { provide: TranslateService, useValue: translateSpy },
-                { provide: DataManagementBreakService, useValue: dataBreakSpy },
+                { provide: DataManagementBreakPlaceholderService, useValue: dataBreakSpy },
                 {
                     provide: DataManagementAbsenceGanttService,
                     useValue: dataAbsenceSpy,
@@ -81,7 +81,7 @@ describe('GanttPdfExportService', () => {
 
         service = TestBed.inject(GanttPdfExportService);
         mockTranslateService = TestBed.inject(TranslateService) as any;
-        mockDataManagementBreak = TestBed.inject(DataManagementBreakService) as any;
+        mockDataManagementBreak = TestBed.inject(DataManagementBreakPlaceholderService) as any;
         mockDataManagementAbsence = TestBed.inject(DataManagementAbsenceGanttService) as any;
         mockGanttPdfDrawingService = TestBed.inject(GanttPdfDrawingService) as any;
 

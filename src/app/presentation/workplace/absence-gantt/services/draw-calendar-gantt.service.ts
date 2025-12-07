@@ -7,7 +7,7 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
@@ -22,7 +22,7 @@ export class DrawCalendarGanttService {
   private gridColors = inject(GridColorService);
   private holidayCollection = inject(HolidayCollectionService);
   private calendarSetting = inject(CalendarSettingService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private dataManagementAbsence = inject(DataManagementAbsenceGanttService);
   private scroll = inject(ScrollService);
   private zone = inject(NgZone);

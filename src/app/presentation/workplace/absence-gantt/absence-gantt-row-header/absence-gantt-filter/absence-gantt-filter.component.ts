@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { IconAscComponent } from 'src/app/presentation/icons/icon-asc.component';
 import { IconDescComponent } from 'src/app/presentation/icons/icon-desc.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -14,7 +14,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
   providers: [TableSortingService],
 })
 export class AbsenceGanttFilterComponent implements OnInit {
-  public dataManagementBreak = inject(DataManagementBreakService);
+  public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   public sortingService = inject(TableSortingService);
 
   ngOnInit(): void {

@@ -5,7 +5,7 @@ import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { daysBetweenDates, isLeapYear } from 'src/app/shared/helpers/date.helper';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 
 @Injectable()
 export class CalendarCalculationService {
@@ -13,7 +13,7 @@ export class CalendarCalculationService {
   private scroll = inject(ScrollService);
   private holidayCollection = inject(HolidayCollectionService);
   private ganttCanvasManager = inject(GanttCanvasManagerService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
 
   public startDate: Date = new Date(new Date().getFullYear(), 0, 1);
 

@@ -18,7 +18,7 @@ import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
@@ -50,7 +50,7 @@ export class AbsenceGanttRowHeaderComponent
   public scroll = inject(ScrollService);
   private gridColorService = inject(GridColorService);
   private gridFontsService = inject(GridFontsService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private drawCalendarGanttService = inject(DrawCalendarGanttService);
   private drawRowHeader = inject(DrawRowHeaderService);
   private injector = inject(Injector);

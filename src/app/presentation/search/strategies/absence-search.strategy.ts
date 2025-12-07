@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { EntityName } from 'src/app/domain/models/entity-names.enum';
 import { EntitySearchOptions } from './interfaces/entity-search-strategy.interface';
 
@@ -9,8 +9,8 @@ import { EntitySearchOptions } from './interfaces/entity-search-strategy.interfa
   providedIn: 'root',
 })
 export class AbsenceSearchStrategy extends BaseEntitySearchStrategy {
-  protected dataManagementService: DataManagementBreakService = inject(
-    DataManagementBreakService
+  protected dataManagementService: DataManagementBreakPlaceholderService = inject(
+    DataManagementBreakPlaceholderService
   );
   protected entityName = EntityName.ABSENCE;
 

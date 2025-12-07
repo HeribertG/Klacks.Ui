@@ -6,7 +6,7 @@ import { RenderCalendarGridService } from './render-calendar-grid';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 
@@ -85,7 +85,7 @@ describe('DrawCalendarGanttService', () => {
                 { provide: GridColorService, useValue: mockGridColors },
                 { provide: HolidayCollectionService, useValue: mockHolidayCollection },
                 { provide: CalendarSettingService, useValue: mockCalendarSetting },
-                { provide: DataManagementBreakService, useValue: mockDataManagementBreak },
+                { provide: DataManagementBreakPlaceholderService, useValue: mockDataManagementBreak },
                 { provide: DataManagementAbsenceGanttService, useValue: mockDataManagementAbsence },
                 { provide: ScrollService, useValue: mockScrollService }
             ]

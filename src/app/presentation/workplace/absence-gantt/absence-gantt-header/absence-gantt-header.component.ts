@@ -12,7 +12,7 @@ import {
 import { NgxSliderModule, Options } from '@angular-slider/ngx-slider';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import {
   NgbDropdown,
   NgbDropdownModule,
@@ -55,7 +55,7 @@ export class AbsenceGanttHeaderComponent implements OnInit {
 
   private calendarSetting = inject(CalendarSettingService);
   private holidayCollection = inject(HolidayCollectionService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private translateService = inject(TranslateService);
   private dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService

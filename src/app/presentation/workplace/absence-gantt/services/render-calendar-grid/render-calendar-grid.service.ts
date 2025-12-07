@@ -6,7 +6,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CalendarCalculationService } from './calendar-calculation.service';
@@ -22,7 +22,7 @@ export class RenderCalendarGridService {
   private ganttCanvasManager = inject(GanttCanvasManagerService);
   private gridColors = inject(GridColorService);
   private calendarSetting = inject(CalendarSettingService);
-  private dataManagementBreak = inject(DataManagementBreakService);
+  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private scroll = inject(ScrollService);
 
   private calculationService = inject(CalendarCalculationService);

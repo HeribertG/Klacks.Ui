@@ -5,7 +5,7 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import {
   BaselineAlignmentEnum,
   TextAlignmentEnum,
@@ -22,7 +22,7 @@ export class RenderRowHeaderService {
   private scroll = inject(ScrollService);
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
-  dataManagementBreak = inject(DataManagementBreakService);
+  dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private renderRowHeaderCell = inject(RenderRowHeaderCellService);
 
   public recFilterIcon!: Rectangle;

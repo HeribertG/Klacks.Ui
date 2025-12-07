@@ -5,7 +5,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { HolidayCollectionService } from '../../../../shared/grid/services/holiday-collection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 
 describe('CalendarCalculationService', () => {
@@ -93,7 +93,7 @@ describe('CalendarCalculationService', () => {
                 { provide: HolidayCollectionService, useValue: mockHolidayCollection },
                 { provide: GanttCanvasManagerService, useValue: mockGanttCanvasManager },
                 {
-                    provide: DataManagementBreakService,
+                    provide: DataManagementBreakPlaceholderService,
                     useValue: mockDataManagementBreak,
                 },
             ],

@@ -18,7 +18,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { DataManagementBreakService } from 'src/app/domain/services/absence/data-management-break.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -43,7 +43,7 @@ export class AbsenceGanttGridComponent
   @Output() breakSelected = new EventEmitter<string>();
 
   public dataManagementAbsence = inject(DataManagementAbsenceGanttService);
-  public dataManagementBreak = inject(DataManagementBreakService);
+  public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   public sortingService = inject(TableSortingService);
   private translateService = inject(TranslateService);
   private injector = inject(Injector);

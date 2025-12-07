@@ -4,15 +4,15 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { DataManagementBreakService } from './data-management-break.service';
+import { DataManagementBreakPlaceholderService } from './data-management-break-placeholder.service';
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
 import { DataBreakService } from '../../../infrastructure/api/data-break.service';
 import { IClientBreak, IMembership } from '../../models/client-class';
 import { IBreak } from '../../models/break-class';
 
-describe('DataManagementBreakService', () => {
-    let service: DataManagementBreakService;
+describe('DataManagementBreakPlaceholderService', () => {
+    let service: DataManagementBreakPlaceholderService;
     let mockEventBus: any;
     let mockDataBreakService: any;
     let mockTranslateService: any;
@@ -44,7 +44,7 @@ describe('DataManagementBreakService', () => {
             providers: [
                 provideHttpClient(),
                 provideHttpClientTesting(),
-                DataManagementBreakService,
+                DataManagementBreakPlaceholderService,
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
                 { provide: DataBreakService, useValue: dataSpy },
                 { provide: TranslateService, useValue: translateSpy },
@@ -52,7 +52,7 @@ describe('DataManagementBreakService', () => {
             ],
         });
 
-        service = TestBed.inject(DataManagementBreakService);
+        service = TestBed.inject(DataManagementBreakPlaceholderService);
         mockEventBus = TestBed.inject(EVENT_BUS_TOKEN) as any;
         mockDataBreakService = TestBed.inject(DataBreakService) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
