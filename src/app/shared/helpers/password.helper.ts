@@ -18,7 +18,7 @@ export function generatePassword(length = 8): string {
   const charsetLower = 'abcdefghijklmnopqrstuvwxyz';
   const charsetUpper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const digits = '0123456789';
-  const specialChars = '@#?!';
+  const specialChars = '@$!%*?&';
 
   const randomLower = charsetLower.charAt(
     Math.floor(Math.random() * charsetLower.length)

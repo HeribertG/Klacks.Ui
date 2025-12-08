@@ -18,6 +18,7 @@
       [id]="'state-row-' + i"
       [data]="c"
       (isDeleteEvent)="openDeleteState(i)"
+      (isChangingEvent)="onIsChanging()"
     >
     </app-state-row>
     } }

@@ -18,6 +18,7 @@
       [id]="'countries-row-' + i"
       [data]="c"
       (isDeleteEvent)="openDeleteCountry(i)"
+      (isChangingEvent)="onIsChanging()"
     >
     </app-countries-row>
     } }

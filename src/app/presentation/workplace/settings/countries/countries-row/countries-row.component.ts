@@ -31,6 +31,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 export class CountriesRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: ICountry | undefined;
   @Output() isDeleteEvent = new EventEmitter<void>();
+  @Output() isChangingEvent = new EventEmitter<void>();
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
@@ -76,6 +77,7 @@ export class CountriesRowComponent implements OnInit, AfterViewInit, OnDestroy {
       ) {
         this.data.isDirty = CreateEntriesEnum.rewrite;
       }
+      this.isChangingEvent.emit();
     }
   }
 }

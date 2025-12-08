@@ -31,6 +31,7 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() data: IState | undefined;
   @Output() isDeleteEvent = new EventEmitter<void>();
+  @Output() isChangingEvent = new EventEmitter<void>();
 
   currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
@@ -67,9 +68,6 @@ export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
     this.updateDataDirtyState();
   }
 
-  /**
-   * Update the dirty state of the data object
-   */
   private updateDataDirtyState(): void {
     if (this.data) {
       if (
@@ -78,6 +76,7 @@ export class StateRowComponent implements OnInit, AfterViewInit, OnDestroy {
       ) {
         this.data.isDirty = CreateEntriesEnum.rewrite;
       }
+      this.isChangingEvent.emit();
     }
   }
 }

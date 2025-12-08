@@ -63,6 +63,7 @@ export class ModalService {
   }
 
   openModel(kind: ModalType) {
+    this.resultSignal.set(null);
     this.openModelSignal.set(kind);
   }
 
