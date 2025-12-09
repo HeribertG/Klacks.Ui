@@ -144,7 +144,7 @@ export class ContainerTemplateComponent implements OnInit, OnDestroy {
 
   public selectedWeekday: string | null = null;
   public isHoliday = false;
-  public isWeekdayOrHoliday = false;
+  public isWeekdayAndHoliday = false;
   public duration: OwnTime = OwnTime.forDuration('00', '00');
 
   public weekdays = [

@@ -57,7 +57,7 @@ export interface IShift {
   isThursday: boolean;
   isTuesday: boolean;
   isWednesday: boolean;
-  isWeekdayOrHoliday: boolean;
+  isWeekdayAndHoliday: boolean;
   isSporadic: boolean;
   sporadicScope: ShiftSporadic;
   isTimeRange: boolean;
@@ -118,7 +118,7 @@ export class Shift implements IShift {
   isThursday = false;
   isTuesday = false;
   isWednesday = false;
-  isWeekdayOrHoliday = false;
+  isWeekdayAndHoliday = false;
   isSporadic = false;
   sporadicScope: ShiftSporadic = ShiftSporadic.Week;
   isTimeRange = false;

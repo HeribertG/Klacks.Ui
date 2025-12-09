@@ -51,7 +51,7 @@ export class ContainerTemplateSlotCalculationService {
             containerShift,
             weekday,
             holidayVariant.isHoliday,
-            holidayVariant.isWeekdayOrHoliday,
+            holidayVariant.isWeekdayAndHoliday,
             dayIndex,
             crossesMidnight
           ));
@@ -82,20 +82,20 @@ export class ContainerTemplateSlotCalculationService {
     return weekdays;
   }
 
-  private getHolidayVariants(shift: IShift): {isHoliday: boolean, isWeekdayOrHoliday: boolean, label: string}[] {
-    const variants: {isHoliday: boolean, isWeekdayOrHoliday: boolean, label: string}[] = [];
+  private getHolidayVariants(shift: IShift): {isHoliday: boolean, isWeekdayAndHoliday: boolean, label: string}[] {
+    const variants: {isHoliday: boolean, isWeekdayAndHoliday: boolean, label: string}[] = [];
 
-    if (!shift.isHoliday && !shift.isWeekdayOrHoliday) {
-      variants.push({ isHoliday: false, isWeekdayOrHoliday: false, label: HOLIDAY_LABELS.NORMAL });
+    if (!shift.isHoliday && !shift.isWeekdayAndHoliday) {
+      variants.push({ isHoliday: false, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.NORMAL });
     }
 
-    if (shift.isWeekdayOrHoliday) {
-      variants.push({ isHoliday: false, isWeekdayOrHoliday: false, label: HOLIDAY_LABELS.WEEKDAY });
-      variants.push({ isHoliday: true, isWeekdayOrHoliday: true, label: HOLIDAY_LABELS.HOLIDAY });
+    if (shift.isWeekdayAndHoliday) {
+      variants.push({ isHoliday: false, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.WEEKDAY });
+      variants.push({ isHoliday: true, isWeekdayAndHoliday: true, label: HOLIDAY_LABELS.HOLIDAY });
     }
 
-    if (shift.isHoliday && !shift.isWeekdayOrHoliday) {
-      variants.push({ isHoliday: true, isWeekdayOrHoliday: false, label: HOLIDAY_LABELS.HOLIDAY });
+    if (shift.isHoliday && !shift.isWeekdayAndHoliday) {
+      variants.push({ isHoliday: true, isWeekdayAndHoliday: false, label: HOLIDAY_LABELS.HOLIDAY });
     }
 
     return variants;
@@ -120,12 +120,12 @@ export class ContainerTemplateSlotCalculationService {
     containerShift: IShift,
     weekday: number,
     isHoliday: boolean,
-    isWeekdayOrHoliday: boolean,
+    isWeekdayAndHoliday: boolean,
     dayIndex: number,
     crossesMidnight: boolean
   ): IContainerTemplateSlot {
     const weekdayName = WEEKDAY_NAMES[weekday];
-    const holidayLabel = this.getHolidayLabel(isHoliday, isWeekdayOrHoliday);
+    const holidayLabel = this.getHolidayLabel(isHoliday, isWeekdayAndHoliday);
     const dayLabel = crossesMidnight ? ` - Day ${dayIndex + 1}` : '';
 
     const { fromTime, untilTime } = this.calculateTimeWindow(
@@ -139,7 +139,7 @@ export class ContainerTemplateSlotCalculationService {
       weekday,
       weekdayName,
       isHoliday,
-      isWeekdayOrHoliday,
+      isWeekdayAndHoliday,
       dayIndex,
       label: `${weekdayName} (${holidayLabel})${dayLabel}`,
       fromTime,
@@ -147,11 +147,11 @@ export class ContainerTemplateSlotCalculationService {
     };
   }
 
-  private getHolidayLabel(isHoliday: boolean, isWeekdayOrHoliday: boolean): string {
-    if (isHoliday && isWeekdayOrHoliday) {
+  private getHolidayLabel(isHoliday: boolean, isWeekdayAndHoliday: boolean): string {
+    if (isHoliday && isWeekdayAndHoliday) {
       return HOLIDAY_LABELS.HOLIDAY;
     }
-    if (isWeekdayOrHoliday) {
+    if (isWeekdayAndHoliday) {
       return HOLIDAY_LABELS.WEEKDAY;
     }
     if (isHoliday) {

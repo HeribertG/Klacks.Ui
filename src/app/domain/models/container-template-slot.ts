@@ -4,7 +4,7 @@ export interface IContainerTemplateSlot {
   weekday: number;
   weekdayName: string;
   isHoliday: boolean;
-  isWeekdayOrHoliday: boolean;
+  isWeekdayAndHoliday: boolean;
   dayIndex: number;
   label: string;
   fromTime: string;

@@ -110,7 +110,7 @@ export class EditShiftWeekdayComponent
 
     // If holiday is selected, unselect weekdayOrHoliday
     if (shift.isHoliday) {
-      shift.isWeekdayOrHoliday = false;
+      shift.isWeekdayAndHoliday = false;
     }
 
     this.isChangingEvent.emit(true);
@@ -122,7 +122,7 @@ export class EditShiftWeekdayComponent
     if (!shift) return;
 
     // If weekdayOrHoliday is selected, unselect holiday
-    if (shift.isWeekdayOrHoliday) {
+    if (shift.isWeekdayAndHoliday) {
       shift.isHoliday = false;
     }
 
@@ -174,9 +174,9 @@ export class EditShiftWeekdayComponent
     const allWeekdaysSelected = shift.isMonday && shift.isTuesday && shift.isWednesday && 
                                shift.isThursday && shift.isFriday && shift.isSaturday && shift.isSunday;
 
-    // If all weekdays are selected, automatically set isWeekdayOrHoliday and disable isHoliday
+    // If all weekdays are selected, automatically set isWeekdayAndHoliday and disable isHoliday
     if (allWeekdaysSelected) {
-      shift.isWeekdayOrHoliday = true;
+      shift.isWeekdayAndHoliday = true;
       shift.isHoliday = false;
       this.isHolidayDisabled = true;
     } else {
@@ -192,7 +192,7 @@ export class EditShiftWeekdayComponent
       shift.isSaturday ||
       shift.isSunday ||
       shift.isHoliday ||
-      shift.isWeekdayOrHoliday;
+      shift.isWeekdayAndHoliday;
 
     this.areWeekdaysValid = hasAnyWeekdaySelected;
   }

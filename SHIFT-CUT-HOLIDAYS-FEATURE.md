@@ -31,8 +31,8 @@ Das Shift-Cut-Feature wurde erweitert um einen separaten Button zum Trennen von 
       <input type="checkbox" [(ngModel)]="holidays.isHoliday" />
       {{ "holiday" | translate }}
     </div>
-    <div class="form-group" *ngIf="isWeekdayOrHolidayEnabledForCut">
-      <input type="checkbox" [(ngModel)]="holidays.isWeekdayOrHoliday" />
+    <div class="form-group" *ngIf="isWeekdayAndHolidayEnabledForCut">
+      <input type="checkbox" [(ngModel)]="holidays.isWeekdayAndHoliday" />
       {{ "weekday-or-holiday" | translate }}
     </div>
   </div>
@@ -67,7 +67,7 @@ weekdays = {
 
 holidays = {
   isHoliday: false,
-  isWeekdayOrHoliday: false,
+  isWeekdayAndHoliday: false,
 };
 ```
 
@@ -75,7 +75,7 @@ holidays = {
 ```typescript
 @Input() isCutHolidaysEnabled = true;
 @Input() isHolidayEnabledForCut = true;
-@Input() isWeekdayOrHolidayEnabledForCut = true;
+@Input() isWeekdayAndHolidayEnabledForCut = true;
 ```
 
 **Neue Methoden**
@@ -150,7 +150,7 @@ private analyzeCutByWeekdays(shift: Shift): void {
 private analyzeCutByHolidays(shift: Shift): void {
   let holidayCount = 0;
   if (shift.isHoliday) holidayCount++;
-  if (shift.isWeekdayOrHoliday) holidayCount++;
+  if (shift.isWeekdayAndHoliday) holidayCount++;
 
   if (holidayCount >= 2) {
     const wouldCreateDuplicate = this.wouldHolidayCutCreateDuplicate(shift);
@@ -158,17 +158,17 @@ private analyzeCutByHolidays(shift: Shift): void {
     if (!wouldCreateDuplicate) {
       this.isCutHolidaysEnabled = true;
       this.holidays.isHoliday = false;
-      this.holidays.isWeekdayOrHoliday = false;
+      this.holidays.isWeekdayAndHoliday = false;
       this.isHolidayEnabledForCut = shift.isHoliday;
-      this.isWeekdayOrHolidayEnabledForCut = shift.isWeekdayOrHoliday;
+      this.isWeekdayAndHolidayEnabledForCut = shift.isWeekdayAndHoliday;
     }
   }
 }
 ```
 
 **Beispiele:**
-- Shift mit isHoliday=true + isWeekdayOrHoliday=true → holidayCount=2 → Prüfe Duplicates
-- Shift mit nur isWeekdayOrHoliday=true → holidayCount=1 → Button disabled ❌
+- Shift mit isHoliday=true + isWeekdayAndHoliday=true → holidayCount=2 → Prüfe Duplicates
+- Shift mit nur isWeekdayAndHoliday=true → holidayCount=1 → Button disabled ❌
 
 #### Duplicate-Prevention (`wouldHolidayCutCreateDuplicate()`)
 
@@ -184,9 +184,9 @@ private wouldHolidayCutCreateDuplicate(selectedShift: Shift): boolean {
     }
 
     if (
-      selectedShift.isWeekdayOrHoliday &&
+      selectedShift.isWeekdayAndHoliday &&
       compareComplexObjects(selectedShift, existingShift, [
-        'isWeekdayOrHoliday',
+        'isWeekdayAndHoliday',
         'id',
         'parentId',
         'name',
@@ -223,13 +223,13 @@ private wouldHolidayCutCreateDuplicate(selectedShift: Shift): boolean {
 **Logik:**
 - Geht durch alle existierenden Shifts in `cutShifts`
 - Verwendet `compareComplexObjects` mit Excluded-Properties-Liste
-- **Check 1:** Vergleicht alle Properties außer `isWeekdayOrHoliday` (+ Metadaten)
-  - Wenn `true` → Shifts sind identisch außer `isWeekdayOrHoliday` → Würde Dublette erzeugen
+- **Check 1:** Vergleicht alle Properties außer `isWeekdayAndHoliday` (+ Metadaten)
+  - Wenn `true` → Shifts sind identisch außer `isWeekdayAndHoliday` → Würde Dublette erzeugen
 - **Check 2:** Vergleicht alle Properties außer `isHoliday` (+ Metadaten)
   - Wenn `true` → Shifts sind identisch außer `isHoliday` → Würde Dublette erzeugen
 
 **Excluded Properties (dürfen unterschiedlich sein):**
-- `isWeekdayOrHoliday` / `isHoliday` - Die Property, die getrennt werden soll
+- `isWeekdayAndHoliday` / `isHoliday` - Die Property, die getrennt werden soll
 - `id` - Jeder Shift hat eine unique ID
 - `parentId` - Child-Shifts haben unterschiedliche Parents
 - `name`, `description`, `abbreviation` - Können bei Child-Shifts angepasst sein
@@ -237,12 +237,12 @@ private wouldHolidayCutCreateDuplicate(selectedShift: Shift): boolean {
 
 **Beispiel:**
 ```
-Shift A: Mo-Fr, 07:00-15:00, 2 MA, isHoliday=true, isWeekdayOrHoliday=true
-Shift B: Mo-Fr, 07:00-15:00, 2 MA, isHoliday=true, isWeekdayOrHoliday=false (existiert bereits)
+Shift A: Mo-Fr, 07:00-15:00, 2 MA, isHoliday=true, isWeekdayAndHoliday=true
+Shift B: Mo-Fr, 07:00-15:00, 2 MA, isHoliday=true, isWeekdayAndHoliday=false (existiert bereits)
 
-→ Wenn man Shift A nach isWeekdayOrHoliday trennt:
-  - Original A: isWeekdayOrHoliday=false
-  - Kopie A: isWeekdayOrHoliday=true
+→ Wenn man Shift A nach isWeekdayAndHoliday trennt:
+  - Original A: isWeekdayAndHoliday=false
+  - Kopie A: isWeekdayAndHoliday=true
   - Original A wäre identisch zu Shift B → Dublette!
   - Button bleibt disabled ✓
 ```
@@ -255,7 +255,7 @@ Shift B: Mo-Fr, 07:00-15:00, 2 MA, isHoliday=true, isWeekdayOrHoliday=false (exi
 isHolidayCutValid(): boolean {
   const selectedCount =
     (this.holidays.isHoliday ? 1 : 0) +
-    (this.holidays.isWeekdayOrHoliday ? 1 : 0);
+    (this.holidays.isWeekdayAndHoliday ? 1 : 0);
   return selectedCount === 1;
 }
 ```
@@ -349,7 +349,7 @@ weekdays = {
   isMonday: false,
   // ...
   isHoliday: false,          // ❌ Gehört nicht zu Wochentagen
-  isWeekdayOrHoliday: false, // ❌ Gehört nicht zu Wochentagen
+  isWeekdayAndHoliday: false, // ❌ Gehört nicht zu Wochentagen
 };
 ```
 
@@ -362,7 +362,7 @@ weekdays = {
 
 holidays = {
   isHoliday: false,
-  isWeekdayOrHoliday: false,
+  isWeekdayAndHoliday: false,
 };
 ```
 
@@ -407,8 +407,8 @@ Das neue Holiday-Feature folgt dem gleichen Pattern wie die existierenden Cut-Fe
 - [ ] Wochentag abtrennen → Original verliert Wochentag, Kopie erhält ihn
 
 #### 2. Feiertage-Trennung
-- [ ] Shift mit isHoliday=true + isWeekdayOrHoliday=true → Button enabled (holidayCount=2)
-- [ ] Shift mit nur isWeekdayOrHoliday=true → Button disabled (holidayCount=1)
+- [ ] Shift mit isHoliday=true + isWeekdayAndHoliday=true → Button enabled (holidayCount=2)
+- [ ] Shift mit nur isWeekdayAndHoliday=true → Button disabled (holidayCount=1)
 - [ ] Shift mit identischem existierendem Child → Button disabled (Duplicate-Prevention)
 - [ ] Modal öffnen → Nur vorhandene Holiday-Optionen sichtbar
 - [ ] Modal: Keine Checkbox ausgewählt → Save disabled
@@ -459,7 +459,7 @@ Das neue Holiday-Feature folgt dem gleichen Pattern wie die existierenden Cut-Fe
 **Initial-Implementierung:**
 ```typescript
 compareComplexObjects(selectedShift, existingShift, [
-  'isWeekdayOrHoliday',
+  'isWeekdayAndHoliday',
   'id',
   'parentId',
   'name',
@@ -478,7 +478,7 @@ compareComplexObjects(selectedShift, existingShift, [
 **Lösung:**
 ```typescript
 compareComplexObjects(selectedShift, existingShift, [
-  'isWeekdayOrHoliday',
+  'isWeekdayAndHoliday',
   'id',
   'parentId',
   'name',
@@ -495,16 +495,16 @@ compareComplexObjects(selectedShift, existingShift, [
 
 **Initial-Implementierung:**
 ```typescript
-if (selectedShift.isWeekdayOrHoliday) {
+if (selectedShift.isWeekdayAndHoliday) {
   compareComplexObjects(selectedShift, existingShift, [
-    'isHoliday',  // ❌ FALSCH! Sollte 'isWeekdayOrHoliday' sein
+    'isHoliday',  // ❌ FALSCH! Sollte 'isWeekdayAndHoliday' sein
     // ...
   ])
 }
 
 if (selectedShift.isHoliday) {
   compareComplexObjects(selectedShift, existingShift, [
-    'isWeekdayOrHoliday',  // ❌ FALSCH! Sollte 'isHoliday' sein
+    'isWeekdayAndHoliday',  // ❌ FALSCH! Sollte 'isHoliday' sein
     // ...
   ])
 }
@@ -514,9 +514,9 @@ if (selectedShift.isHoliday) {
 
 **Lösung:** Die Property, die in der Condition geprüft wird, muss auch excluded werden:
 ```typescript
-if (selectedShift.isWeekdayOrHoliday) {
+if (selectedShift.isWeekdayAndHoliday) {
   compareComplexObjects(selectedShift, existingShift, [
-    'isWeekdayOrHoliday',  // ✅ Korrekt
+    'isWeekdayAndHoliday',  // ✅ Korrekt
     // ...
   ])
 }
@@ -537,14 +537,14 @@ if (selectedShift.isHoliday) {
 
 **Erkenntnis:**
 - Die Excluded-Liste enthält ALLE Properties, die unterschiedlich sein dürfen
-- Das sind sowohl die zu trennende Property (z.B. `isWeekdayOrHoliday`)
+- Das sind sowohl die zu trennende Property (z.B. `isWeekdayAndHoliday`)
 - Als auch Metadaten-Properties (`id`, `parentId`, `name`, etc.) die bei Child-Shifts anders sind
 - Und Nested-Set-Properties (`lft`, `rgt`) die bei allen Parent/Child-Beziehungen unterschiedlich sind
 
 **Finale Excluded-Liste:**
 ```typescript
 [
-  'isWeekdayOrHoliday',  // Die zu trennende Property
+  'isWeekdayAndHoliday',  // Die zu trennende Property
   'id',                  // Unique ID
   'parentId',            // Parent-Beziehung
   'name',                // Kann bei Cuts angepasst werden

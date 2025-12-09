@@ -48,7 +48,7 @@ export interface IContainerTemplate {
   fromTime: string;
   untilTime: string;
   weekday: number;
-  isWeekdayOrHoliday: boolean;
+  isWeekdayAndHoliday: boolean;
   isHoliday: boolean;
   startBase?: string;
   endBase?: string;

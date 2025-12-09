@@ -67,9 +67,9 @@
             "shift.container-template.weekday.holiday" | translate
           }}</span>
         </label>
-        } @if (containerShift?.isWeekdayOrHoliday) {
+        } @if (containerShift?.isWeekdayAndHoliday) {
         <label class="holiday-checkbox">
-          <input type="checkbox" [(ngModel)]="isWeekdayOrHoliday" />
+          <input type="checkbox" [(ngModel)]="isWeekdayAndHoliday" />
           <span>{{
             "shift.container-template.weekday.holiday-plus" | translate
           }}</span>

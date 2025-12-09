@@ -149,7 +149,7 @@ export class DataManagementContainerService
         searchString,
         undefined,
         slot.isHoliday,
-        slot.isWeekdayOrHoliday
+        slot.isWeekdayAndHoliday
       )
       .pipe(
         tap((tasks) => {
@@ -507,7 +507,7 @@ export class DataManagementContainerService
       fromTime: slot.fromTime,
       untilTime: slot.untilTime,
       isHoliday: slot.isHoliday,
-      isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+      isWeekdayAndHoliday: slot.isWeekdayAndHoliday,
       containerTemplateItems: containerTemplateItems,
     };
 
@@ -560,7 +560,7 @@ export class DataManagementContainerService
         fromTime: existingTemplate?.fromTime ?? slot.fromTime,
         untilTime: existingTemplate?.untilTime ?? slot.untilTime,
         isHoliday: slot.isHoliday,
-        isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+        isWeekdayAndHoliday: slot.isWeekdayAndHoliday,
         startBase: existingTemplate?.startBase,
         endBase: existingTemplate?.endBase,
         routeInfo: existingTemplate?.routeInfo,
@@ -753,7 +753,7 @@ export class DataManagementContainerService
       fromTime: slot.fromTime,
       untilTime: slot.untilTime,
       isHoliday,
-      isWeekdayOrHoliday: slot.isWeekdayOrHoliday,
+      isWeekdayAndHoliday: slot.isWeekdayAndHoliday,
       containerTemplateItems: [],
       ...properties
     };
@@ -827,7 +827,7 @@ export class DataManagementContainerService
         fromTime: slot?.fromTime || '00:00',
         untilTime: slot?.untilTime || '23:59',
         isHoliday: isHoliday,
-        isWeekdayOrHoliday: slot?.isWeekdayOrHoliday || false,
+        isWeekdayAndHoliday: slot?.isWeekdayAndHoliday || false,
         routeInfo: routeInfo,
         containerTemplateItems: [],
       };

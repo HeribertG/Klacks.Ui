@@ -19,7 +19,7 @@ export class DataContainerTemplateService {
     searchString?: string,
     excludeContainerId?: string,
     isHoliday?: boolean,
-    isWeekdayOrHoliday?: boolean
+    isWeekdayAndHoliday?: boolean
   ) {
     let params = new HttpParams();
     params = params.append('containerId', containerId);
@@ -35,10 +35,10 @@ export class DataContainerTemplateService {
     if (isHoliday !== undefined) {
       params = params.append('isHoliday', isHoliday.toString());
     }
-    if (isWeekdayOrHoliday !== undefined) {
+    if (isWeekdayAndHoliday !== undefined) {
       params = params.append(
-        'isWeekdayOrHoliday',
-        isWeekdayOrHoliday.toString()
+        'isWeekdayAndHoliday',
+        isWeekdayAndHoliday.toString()
       );
     }
 
