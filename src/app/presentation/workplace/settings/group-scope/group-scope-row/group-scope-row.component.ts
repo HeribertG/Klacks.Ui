@@ -159,7 +159,6 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          console.log('Group visibilities saved successfully');
           this.dataManagementGroupVisibilityService.groupVisibilityList.set(
             updatedVisibilities
           );

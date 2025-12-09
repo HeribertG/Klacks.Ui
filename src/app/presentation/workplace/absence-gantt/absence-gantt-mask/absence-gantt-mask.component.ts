@@ -275,7 +275,6 @@ export class AbsenceGanttMaskComponent
   }
 
   onPDFExported(): void {
-    console.log('PDF exported successfully');
   }
 
   onBreakSelected(breakPlaceholderId: string): void {

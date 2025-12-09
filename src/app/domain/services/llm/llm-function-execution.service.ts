@@ -203,10 +203,6 @@ export class LLMFunctionExecutionService {
     try {
       const { dialogType, data } = call.arguments;
 
-      // This would integrate with your dialog service
-      // For now, we'll simulate it
-      console.log(`Opening dialog: ${dialogType}`, data);
-
       return of({
         id: call.id,
         success: true,

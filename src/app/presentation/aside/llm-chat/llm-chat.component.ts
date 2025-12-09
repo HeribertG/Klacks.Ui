@@ -219,7 +219,6 @@ export class LLMChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   async startVoiceInput(): Promise<void> {
     const diagnostics = this.speechService.getDiagnostics();
-    console.log('Speech Recognition Diagnostics:', diagnostics);
 
     if (!this.speechService.isSupported$()) {
       const errorMsg = diagnostics.isArmProcessor

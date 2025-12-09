@@ -146,7 +146,6 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
         ) {
           const user = this.userAdminService.accountsList()[this.pendingDeleteIndex];
           if (user?.id) {
-            console.log('UserAdmin: Deleting user with ID:', user.id);
             this.userAdminService.deleteAccount(user.id);
           }
           this.pendingDeleteIndex = -1;

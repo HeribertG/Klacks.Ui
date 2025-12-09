@@ -60,8 +60,6 @@ export class BreakRenderingService {
                 abs.color,
                 breakWithLayer.layer
               );
-            } else {
-              console.log(`Break ${i}: No absence found or no color`);
             }
           } catch (error) {
             console.error(
