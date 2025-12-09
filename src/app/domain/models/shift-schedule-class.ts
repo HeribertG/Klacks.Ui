@@ -3,6 +3,10 @@ export interface IShiftSchedule {
   date: Date;
   dayOfWeek: number;
   shiftName: string;
+  abbreviation: string;
+  startShift: string;
+  endShift: string;
+  workTime: number;
   isSporadic: boolean;
   isTimeRange: boolean;
   shiftType: number;
@@ -13,6 +17,10 @@ export class ShiftSchedule implements IShiftSchedule {
   date: Date = new Date();
   dayOfWeek = 0;
   shiftName = '';
+  abbreviation = '';
+  startShift = '';
+  endShift = '';
+  workTime = 0;
   isSporadic = false;
   isTimeRange = false;
   shiftType = 0;

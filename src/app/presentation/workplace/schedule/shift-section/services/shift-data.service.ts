@@ -8,6 +8,8 @@ import {
   EqualDate,
   getDaysInMonth,
 } from 'src/app/shared/helpers/date.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
+import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   CellTypeEnum,
@@ -21,6 +23,10 @@ import { HolidayCollectionService } from 'src/app/presentation/shared/grid/servi
 interface ShiftRow {
   shiftId: string;
   shiftName: string;
+  abbreviation: string;
+  startShift: string;
+  endShift: string;
+  workTime: number;
   activeDays: Set<string>;
   isSporadic: boolean;
   isTimeRange: boolean;
@@ -57,7 +63,8 @@ export class ShiftDataService extends BaseDataService {
       const dateKey = this.getDateKeyForColumn(col);
 
       if (shiftRow.activeDays.has(dateKey)) {
-        c.mainText = shiftRow.shiftName;
+        c.mainText = shiftRow.abbreviation;
+        c.firstSubText = `${formatTime(shiftRow.startShift)} - ${formatTime(shiftRow.endShift)}`;
         c.cellType = CellTypeEnum.Standard;
       } else {
         c.mainText = '';
@@ -147,6 +154,10 @@ export class ShiftDataService extends BaseDataService {
         shiftMap.set(schedule.shiftId, {
           shiftId: schedule.shiftId,
           shiftName: schedule.shiftName,
+          abbreviation: schedule.abbreviation,
+          startShift: schedule.startShift,
+          endShift: schedule.endShift,
+          workTime: schedule.workTime,
           activeDays: new Set<string>(),
           isSporadic: schedule.isSporadic,
           isTimeRange: schedule.isTimeRange,
@@ -284,6 +295,20 @@ export class ShiftDataService extends BaseDataService {
       return this.shiftRows[row].shiftType;
     }
     return 0;
+  }
+
+  getShiftWorkTime(row: number): number {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].workTime;
+    }
+    return 0;
+  }
+
+  formatWorkTime(workTime: number): string {
+    const ownTime = transformNumberToOwnTime(workTime, true);
+    const hours = ownTime.hours.padStart(2, '0');
+    const minutes = ownTime.minutes.padStart(2, '0');
+    return `${hours}:${minutes}`;
   }
 
   getInfo1(index: number): string {

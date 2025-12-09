@@ -105,11 +105,14 @@ export class ShiftCreateRowHeaderService {
 
   private drawShiftName(ctx: CanvasRenderingContext2D, row: number, rec: Rectangle): void {
     const shiftName = this.shiftData.getShiftName(row);
+    const workTime = this.shiftData.getShiftWorkTime(row);
+    const formattedWorkTime = this.shiftData.formatWorkTime(workTime);
+    const displayText = `${shiftName} (${formattedWorkTime})`;
     const textStartX = rec.left + this.margin + this.iconWidth + this.margin;
 
     DrawHelper.drawText(
       ctx,
-      shiftName,
+      displayText,
       textStartX,
       rec.top,
       rec.width - textStartX - this.margin,
