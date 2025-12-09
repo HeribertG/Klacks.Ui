@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
+import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
   addDays,
@@ -18,6 +18,15 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 
+interface ShiftRow {
+  shiftId: string;
+  shiftName: string;
+  activeDays: Set<string>;
+  isSporadic: boolean;
+  isTimeRange: boolean;
+  shiftType: number;
+}
+
 @Injectable()
 export class ShiftDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
@@ -30,10 +39,11 @@ export class ShiftDataService extends BaseDataService {
 
   private rowsNumber = 0;
   private columnsNumber = 0;
+  private shiftRows: ShiftRow[] = [];
 
   public override setMetrics(): void {
     this.initializeDateAndColumns();
-    this.initializeIndices();
+    this.initializeShiftRows();
 
     this.refreshSignal.set(true);
     setTimeout(() => this.refreshSignal.set(false), 0);
@@ -42,9 +52,18 @@ export class ShiftDataService extends BaseDataService {
   public override getCell(row: number, col: number): GridCell {
     const c = new GridCell();
 
-    c.mainText = 'Shift ' + (row * this.columns + col).toString();
-    c.firstSubText = row.toString() + ' / ' + col.toString();
-    c.cellType = CellTypeEnum.Standard;
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+
+      if (shiftRow.activeDays.has(dateKey)) {
+        c.mainText = shiftRow.shiftName;
+        c.cellType = CellTypeEnum.Standard;
+      } else {
+        c.mainText = '';
+        c.cellType = CellTypeEnum.Empty;
+      }
+    }
 
     return c;
   }
@@ -52,6 +71,7 @@ export class ShiftDataService extends BaseDataService {
   public getGroupIndex(index: number) {
     return index;
   }
+
   public override initializeDateAndColumns(): void {
     const dayVisibleBeforeMonth =
       this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
@@ -69,11 +89,19 @@ export class ShiftDataService extends BaseDataService {
   }
 
   public override isLastGroupRow(row: number): boolean {
-    return true;
+    return row === this.rows - 1;
   }
 
   public override getItemMainText(row: number, col: number): string {
-    return 'Shift ' + (row * this.columns + col).toString();
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+
+      if (shiftRow.activeDays.has(dateKey)) {
+        return shiftRow.shiftName;
+      }
+    }
+    return '';
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
@@ -107,32 +135,53 @@ export class ShiftDataService extends BaseDataService {
     return false;
   }
 
-  private initializeIndices(): void {
+  private initializeShiftRows(): void {
+    this.shiftRows = [];
     this.rowGroupIndex = [];
     this.indexGroupRow = [];
-    let count = 0;
-    let index = -1;
 
-    for (
-      let client = 0;
-      client < this.dataManagementSchedule.clients.length;
-      client++
-    ) {
-      if (index < count) {
-        index = count;
-        this.indexGroupRow.push(count);
+    const shiftMap = new Map<string, ShiftRow>();
+
+    for (const schedule of this.dataManagementSchedule.shiftSchedules) {
+      if (!shiftMap.has(schedule.shiftId)) {
+        shiftMap.set(schedule.shiftId, {
+          shiftId: schedule.shiftId,
+          shiftName: schedule.shiftName,
+          activeDays: new Set<string>(),
+          isSporadic: schedule.isSporadic,
+          isTimeRange: schedule.isTimeRange,
+          shiftType: schedule.shiftType,
+        });
       }
 
-      for (
-        let row = 0;
-        row < this.dataManagementSchedule.clients[client].neededRows;
-        row++
-      ) {
-        this.rowGroupIndex.push(client);
-        count += 1;
-      }
+      const shiftRow = shiftMap.get(schedule.shiftId)!;
+      const dateKey = this.formatDateKey(schedule.date);
+      shiftRow.activeDays.add(dateKey);
     }
-    this.rows = count;
+
+    this.shiftRows = Array.from(shiftMap.values()).sort((a, b) =>
+      a.shiftName.localeCompare(b.shiftName)
+    );
+
+    for (let i = 0; i < this.shiftRows.length; i++) {
+      this.rowGroupIndex.push(i);
+      this.indexGroupRow.push(i);
+    }
+
+    this.rows = this.shiftRows.length;
+  }
+
+  private formatDateKey(date: Date | string): string {
+    const d = new Date(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  private getDateKeyForColumn(col: number): string {
+    if (this.startDate) {
+      const date = addDays(this.startDate, col);
+      return this.formatDateKey(date);
+    }
+    return '';
   }
 
   private set rows(value: number) {
@@ -209,15 +258,43 @@ export class ShiftDataService extends BaseDataService {
     return undefined;
   }
 
+  getShiftName(row: number): string {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].shiftName;
+    }
+    return '';
+  }
+
+  getShiftIsSporadic(row: number): boolean {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].isSporadic;
+    }
+    return false;
+  }
+
+  getShiftIsTimeRange(row: number): boolean {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].isTimeRange;
+    }
+    return false;
+  }
+
+  getShiftType(row: number): number {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].shiftType;
+    }
+    return 0;
+  }
+
   getInfo1(index: number): string {
-    return 'Shift-Info1-' + index;
+    return this.getShiftName(index);
   }
 
   getInfo2(index: number): string {
-    return 'Shift-Info2-' + index;
+    return '';
   }
 
   getInfo3(index: number): string {
-    return 'Shift-Info3-' + index;
+    return '';
   }
 }

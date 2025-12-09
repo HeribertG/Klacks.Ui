@@ -345,6 +345,18 @@ export class ScheduleSurfaceTemplateComponent
         this.cdr.detectChanges();
       });
       this.effects.push(refreshEffect);
+
+      const holidayResetEffect = effect(() => {
+        if (this.dataService.holidayCollection?.isReset()) {
+          setTimeout(() => {
+            if (this.drawSchedule.isCanvasAvailable()) {
+              this.drawSchedule.rebuild();
+              this.drawSchedule.redraw();
+            }
+          }, 0);
+        }
+      });
+      this.effects.push(holidayResetEffect);
     });
   }
 }

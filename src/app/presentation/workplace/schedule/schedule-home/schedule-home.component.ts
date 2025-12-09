@@ -4,6 +4,7 @@ import {
   inject,
   OnInit,
   OnDestroy,
+  AfterViewInit,
   effect,
   Injector,
   runInInjectionContext,
@@ -24,6 +25,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -41,7 +43,7 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
     AllScheduleStateService,
   ],
 })
-export class ScheduleHomeComponent implements OnInit, OnDestroy {
+export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
@@ -50,6 +52,7 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
   private dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
+  private dataManagementSchedule = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private allScheduleStateService = inject(AllScheduleStateService);
 
@@ -64,16 +67,29 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
 
     this.allScheduleStateService.initializeWorkplaceState();
 
-    this.holidayCollection.readData();
-
-    setTimeout(() => {
-      const chips = this.dataManagementCalendarSelectionService.chips;
-      if (chips && chips.length > 0) {
-        this.holidayCollection.setSelection(chips);
-      }
-    }, 300);
-
     this.setupEffects();
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    await this.initializeHolidays();
+  }
+
+  private async initializeHolidays(): Promise<void> {
+    await Promise.all([
+      this.holidayCollection.readDataAsync(),
+      this.dataManagementCalendarSelectionService.readData(),
+    ]);
+
+    this.dataManagementCalendarSelectionService.readSChips();
+    const chips = this.dataManagementCalendarSelectionService.chips;
+
+    if (chips && chips.length > 0) {
+      this.holidayCollection.setSelection(chips);
+    }
+
+    this.updateHolidayDates();
+    this.dataManagementSchedule.readShiftSchedule();
+    this.refreshTrigger = !this.refreshTrigger;
   }
 
   ngOnDestroy(): void {
@@ -85,11 +101,31 @@ export class ScheduleHomeComponent implements OnInit, OnDestroy {
     runInInjectionContext(this.injector, () => {
       const holidayEffect = effect(() => {
         if (this.holidayCollection.isReset()) {
+          this.updateHolidayDates();
           this.refreshTrigger = !this.refreshTrigger;
         }
       });
       this.effects.push(holidayEffect);
+
+      const chipsLoadedEffect = effect(() => {
+        if (this.dataManagementCalendarSelectionService.chipsLoaded()) {
+          const chips = this.dataManagementCalendarSelectionService.chips;
+          if (chips && chips.length > 0) {
+            this.holidayCollection.setSelection(chips);
+            this.updateHolidayDates();
+            this.dataManagementSchedule.readShiftSchedule();
+          }
+        }
+      });
+      this.effects.push(chipsLoadedEffect);
     });
+  }
+
+  private updateHolidayDates(): void {
+    const holidays = this.holidayCollection.holidays.holidayList;
+    this.dataManagementSchedule.holidayDates = holidays.map(
+      (h) => h.currentDate
+    );
   }
 
   onZoomChange(zoomValue: number) {

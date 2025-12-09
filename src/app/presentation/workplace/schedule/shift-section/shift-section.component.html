@@ -5,7 +5,9 @@
   unit="pixel"
 >
   <as-split-area [size]="horizontalSize" [minSize]="100">
-    <app-schedule-shift-row-header></app-schedule-shift-row-header>
+    <app-schedule-shift-row-header
+      [valueChangeVScrollbar]="vScrollbarShift.value"
+    ></app-schedule-shift-row-header>
   </as-split-area>
 
   <as-split-area>

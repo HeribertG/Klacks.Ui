@@ -336,6 +336,117 @@ export abstract class DrawHelper {
     }
   }
 
+  private static svgCanvasCache = new Map<string, HTMLCanvasElement>();
+  private static cachedPixelRatio: number | undefined;
+
+  private static checkPixelRatioChanged(): void {
+    const currentRatio = this.pixelRatio();
+    if (this.cachedPixelRatio !== undefined && this.cachedPixelRatio !== currentRatio) {
+      this.svgCanvasCache.clear();
+    }
+    this.cachedPixelRatio = currentRatio;
+  }
+
+  public static createCanvasFromSvgString(
+    svgString: string,
+    width: number,
+    height: number
+  ): Promise<HTMLCanvasElement> {
+    this.checkPixelRatioChanged();
+    const cacheKey = `${svgString}_${width}_${height}`;
+    const cached = this.svgCanvasCache.get(cacheKey);
+    if (cached) {
+      return Promise.resolve(cached);
+    }
+
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const dpr = this.pixelRatio();
+
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) {
+        reject(new Error('Could not get canvas context'));
+        return;
+      }
+
+      ctx.scale(dpr, dpr);
+      this.setAntiAliasing(ctx);
+
+      const img = new Image();
+      const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      img.onload = () => {
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+        this.svgCanvasCache.set(cacheKey, canvas);
+        resolve(canvas);
+      };
+
+      img.onerror = (error) => {
+        URL.revokeObjectURL(url);
+        reject(error);
+      };
+
+      img.src = url;
+    });
+  }
+
+  public static createCanvasFromSvgStringSync(
+    svgString: string,
+    width: number,
+    height: number,
+    callback: (canvas: HTMLCanvasElement) => void
+  ): HTMLCanvasElement {
+    this.checkPixelRatioChanged();
+    const cacheKey = `${svgString}_${width}_${height}`;
+    const cached = this.svgCanvasCache.get(cacheKey);
+    if (cached) {
+      callback(cached);
+      return cached;
+    }
+
+    const canvas = document.createElement('canvas');
+    const dpr = this.pixelRatio();
+
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) {
+      return canvas;
+    }
+
+    ctx.scale(dpr, dpr);
+    this.setAntiAliasing(ctx);
+
+    const img = new Image();
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      this.svgCanvasCache.set(cacheKey, canvas);
+      callback(canvas);
+    };
+
+    img.src = url;
+
+    return canvas;
+  }
+
+  public static clearSvgCanvasCache(): void {
+    this.svgCanvasCache.clear();
+  }
+
   public static fillRectangle(
     ctx: CanvasRenderingContext2D,
     backGroundColor: string,

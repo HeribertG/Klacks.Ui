@@ -1,1 +1,13 @@
-<p>schedule-shift-row-header works!</p>
+<div
+  #box
+  id="shift-row-header-box"
+  class="box-row-header"
+  appResize
+  (resizeElement)="onResize($event)"
+>
+  <canvas
+    id="shiftRowHeaderCanvas"
+    class="row-header-canvas"
+    aria-labelledby="Row Header of the Shift Section"
+  ></canvas>
+</div>

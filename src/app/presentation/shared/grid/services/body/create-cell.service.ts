@@ -27,6 +27,7 @@ export class BaseCreateCellService {
   reset() {
     this.init();
   }
+
   private init() {
     const width = this.settings.cellWidth + this.settings.increaseBorder;
     const height = this.settings.cellHeight + this.settings.increaseBorder;

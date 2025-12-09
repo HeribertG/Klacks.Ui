@@ -4,7 +4,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 @Injectable()
 export class ShiftSettingsService extends BaseSettingsService {
   override hasHeader = false;
-  override cellHeight = 35;
+  override cellHeight = 40;
   override cellHeaderHeight = 0;
 
   constructor() {

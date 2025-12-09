@@ -12,6 +12,7 @@ import { HeaderCellTypeEnum } from '../../enums/cell-settings.enum';
 export abstract class BaseDataService {
   protected gridScroll = inject(ScrollService);
   public refreshSignal = signal<boolean>(false);
+  public rebuildSignal = signal<boolean>(false);
   public holidayCollection = inject(HolidayCollectionService);
 
   abstract rowGroupIndex: number[];

@@ -120,7 +120,7 @@ export class ShiftSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        if (this.dataManagement.isRead()) {
+        if (this.dataManagement.isShiftScheduleRead()) {
           this.shiftSurface.Refresh();
         }
       });

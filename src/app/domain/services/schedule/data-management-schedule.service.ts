@@ -6,7 +6,12 @@ import {
   Work,
   WorkFilter,
 } from 'src/app/domain/models/schedule-class';
+import {
+  IShiftSchedule,
+  IShiftScheduleFilter,
+} from 'src/app/domain/models/shift-schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
 import {
   cloneObject,
   compareComplexObjects,
@@ -22,6 +27,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class DataManagementScheduleService implements ILoadable {
   private dataSchedule = inject(DataScheduleService);
+  private dataShiftSchedule = inject(DataShiftScheduleService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroy$ = new Subject<void>();
 
@@ -36,11 +42,14 @@ export class DataManagementScheduleService implements ILoadable {
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
   public isRead = signal(false);
-  public isUpdate = signal<IWork | undefined>(undefined); //Zeichnet die selektierte Zeile neu
+  public isShiftScheduleRead = signal(false);
+  public isUpdate = signal<IWork | undefined>(undefined);
 
   public workFilter: IWorkFilter = new WorkFilter();
   public get currentFilter(): IWorkFilter { return this.workFilter; }
   public clients: IClientWork[] = [];
+  public shiftSchedules: IShiftSchedule[] = [];
+  public holidayDates: Date[] = [];
   private _restoreSearchSignal = signal('');
   public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
   public onExternalFilterChange?: () => void;
@@ -55,6 +64,24 @@ export class DataManagementScheduleService implements ILoadable {
       this.isRead.set(true);
       this._showProgressSpinner.set(false);
       setTimeout(() => this.isRead.set(false), 100);
+    });
+
+    this.readShiftSchedule();
+  }
+
+  readShiftSchedule() {
+    const filter: IShiftScheduleFilter = {
+      dayVisibleBeforeMonth: this.workFilter.dayVisibleBeforeMonth,
+      dayVisibleAfterMonth: this.workFilter.dayVisibleAfterMonth,
+      currentMonth: this.workFilter.currentMonth,
+      currentYear: this.workFilter.currentYear,
+      holidayDates: this.holidayDates.length > 0 ? this.holidayDates : undefined,
+    };
+
+    this.dataShiftSchedule.getShiftSchedule(filter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
+      this.shiftSchedules = x;
+      this.isShiftScheduleRead.set(true);
+      setTimeout(() => this.isShiftScheduleRead.set(false), 100);
     });
   }
   readData(index: number): IWork[] | undefined {

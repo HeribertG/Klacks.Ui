@@ -1,0 +1,12 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.box-row-header {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.row-header-canvas {
+  background-color: colors.$gridBackgroundColor;
+}

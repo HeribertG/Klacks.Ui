@@ -1,0 +1,21 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { retry } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import {
+  IShiftSchedule,
+  IShiftScheduleFilter,
+} from 'src/app/domain/models/shift-schedule-class';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DataShiftScheduleService {
+  private httpClient = inject(HttpClient);
+
+  getShiftSchedule(filter: IShiftScheduleFilter) {
+    return this.httpClient
+      .post<IShiftSchedule[]>(`${environment.baseUrl}Shifts/Schedule`, filter)
+      .pipe(retry(3));
+  }
+}

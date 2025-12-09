@@ -28,6 +28,7 @@ export class DataManagementCalendarSelectionService {
   public isRead = signal(false);
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
+  public chipsLoaded = signal(false);
 
   public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
@@ -79,7 +80,7 @@ export class DataManagementCalendarSelectionService {
 
   async readData(): Promise<void> {
     this.isRead.set(false);
-    
+
     try {
       const x = await lastValueFrom(this.dataCalendarSelectionService.getList());
       this.calendarsSelections = [
@@ -92,9 +93,17 @@ export class DataManagementCalendarSelectionService {
           DomainMessages.CALENDAR_SELECTION_ID
       ) as string | null;
       if (savedId) {
-        this.currentCalendarSelection =
-          this.calendarsSelections.find((c) => c.id === savedId) ||
-          this.emptyCalendarSelection();
+        const found = this.calendarsSelections.find((c) => c.id === savedId);
+        if (found && !found.internal) {
+          const fullSelection = await lastValueFrom(this.dataCalendarSelectionService.getCalendarSelection(savedId));
+          if (fullSelection) {
+            this.currentCalendarSelection = fullSelection;
+          } else {
+            this.currentCalendarSelection = found || this.emptyCalendarSelection();
+          }
+        } else {
+          this.currentCalendarSelection = found || this.emptyCalendarSelection();
+        }
       }
       this.isRead.set(true);
     } catch (error) {
@@ -175,6 +184,7 @@ export class DataManagementCalendarSelectionService {
     }
 
     this.chips = [];
+    this.chipsLoaded.set(false);
 
     if (this.currentCalendarSelection) {
       this.currentCalendarSelection!.selectedCalendars.forEach((x) => {
@@ -184,6 +194,10 @@ export class DataManagementCalendarSelectionService {
 
         this.chips.push(item);
       });
+
+      if (this.chips.length > 0) {
+        this.chipsLoaded.set(true);
+      }
 
       if (checkIfDirty) {
         this.chipsDummy = cloneObject<StateCountryToken[]>(this.chips);
