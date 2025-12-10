@@ -11,9 +11,11 @@ import { Overlay } from '@angular/cdk/overlay';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/schedule-surface-template.component';
 import { HolidayCollectionService } from '../../services/holiday-collection.service';
+import { GridSelectionModeEnum } from '../../enums/divers';
 
 @Directive({
   selector: '[appScheduleTemplateEvents]',
@@ -25,6 +27,7 @@ export class ScheduleTemplateEventsDirective {
   public overlay = inject(Overlay);
   public viewContainerRef = inject(ViewContainerRef);
   private gridData = inject(BaseDataService);
+  private gridSettings = inject(BaseSettingsService);
   private scrollGrid = inject(ScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
 
@@ -99,7 +102,7 @@ export class ScheduleTemplateEventsDirective {
     this.lastPageDownTime = 0;
     this.lastPageUpTime = 0;
 
-    if (this.hasCollection) {
+    if (this.hasCollection && !this.isMultiselectBlocked()) {
       const pos: MyPosition =
         this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
       if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
@@ -114,6 +117,10 @@ export class ScheduleTemplateEventsDirective {
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
     if (event.buttons === 1 && this.isDrawing) {
+      if (this.isMultiselectBlocked()) {
+        return;
+      }
+
       const pos: MyPosition =
         this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
@@ -624,5 +631,10 @@ export class ScheduleTemplateEventsDirective {
 
     this.gridSurface.valueVScrollbar.emit(previousRow);
     this.gridSurface.drawSchedule.drawGridSelectedCell();
+  }
+
+  private isMultiselectBlocked(): boolean {
+    return this.gridSettings.selectionMode === GridSelectionModeEnum.Row ||
+           this.gridSettings.selectionMode === GridSelectionModeEnum.RowActiveOnly;
   }
 }
