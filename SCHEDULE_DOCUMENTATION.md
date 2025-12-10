@@ -310,7 +310,8 @@ private drawHighlightOnMainCanvas(ctx): void {
 | `settings.service.ts` | Base-Klasse mit `selectionMode` Property |
 | `shift-settings.service.ts` | Override zu `RowActiveOnly` |
 | `grid-render.service.ts` | `drawGridSelectedCell()` mit Row-Highlight Logik |
-| `draw-schedule.service.ts` | `createSelection()` blockiert Multiselect, `isPositionValid()` |
+| `draw-schedule.service.ts` | `isPositionValid()` für Zellen-Validierung |
+| `schedule-template-events.directive.ts` | Multiselect-Block in Mouse-Events |
 | `data.service.ts` | `isCellActive(row, col)` Methode |
 | `shift-draw-row-header.service.ts` | Row-Header Highlight auf MainCanvas |
 
@@ -336,7 +337,7 @@ private drawHighlightOnMainCanvas(ctx): void {
 - `settings.service.ts` - selectionMode Property
 - `shift-settings.service.ts` - RowActiveOnly Override
 - `grid-render.service.ts` - Row Highlight Logik
-- `draw-schedule.service.ts` - Multiselect Block
+- `schedule-template-events.directive.ts` - Multiselect-Block in Mouse-Events
 - `data.service.ts` - isCellActive() Methode
 - `assets/i18n/*.json` - Tab Übersetzungen
 
