@@ -18,6 +18,7 @@
           #shiftSurface
           class="box-shift"
           [valueChangeHScrollbar]="hScrollPositionValue"
+          (valueHScrollbar)="onHScrollChange($event)"
           [valueChangeVScrollbar]="vScrollbarShift.value"
           (valueVScrollbar)="vScrollbarShift.value = $event"
           (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"

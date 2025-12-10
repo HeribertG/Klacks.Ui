@@ -93,6 +93,7 @@ export class ScheduleSectionComponent
   private effects: EffectRef[] = [];
   private scheduleDataLoaded = false;
   private shiftDataLoaded = false;
+  private initialSyncDone = false;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['zoom'] && !changes['zoom'].firstChange) {
@@ -105,6 +106,7 @@ export class ScheduleSectionComponent
   }
 
   ngAfterViewInit() {
+    this.hScrollService.lock();
     this.readSignals();
     this.dataManagement.readDatas();
 
@@ -153,7 +155,10 @@ export class ScheduleSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        if (this.dataManagement.isRead()) {
+        const isRead = this.dataManagement.isRead();
+        console.log(`[ScheduleSection] dataReadEffect: isRead=${isRead}`);
+        if (isRead) {
+          console.log('[ScheduleSection] Calling scheduleSurface.Refresh()');
           this.scheduleSurface.Refresh();
           this.scheduleDataLoaded = true;
           this.onBothGridsReady();
@@ -162,7 +167,9 @@ export class ScheduleSectionComponent
       this.effects.push(dataReadEffect);
 
       const shiftReadEffect = effect(() => {
-        if (this.dataManagement.isShiftScheduleRead()) {
+        const isShiftRead = this.dataManagement.isShiftScheduleRead();
+        console.log(`[ScheduleSection] shiftReadEffect: isShiftScheduleRead=${isShiftRead}`);
+        if (isShiftRead) {
           this.shiftDataLoaded = true;
           this.onBothGridsReady();
         }
@@ -182,6 +189,17 @@ export class ScheduleSectionComponent
         this.updateScrollbarSizes();
       });
       this.effects.push(hScrollbarSizeEffect);
+
+      const hScrollPositionEffect = effect(() => {
+        const position = this.hScrollService.horizontalPosition();
+        console.log(`[ScheduleSection] hScrollPositionEffect: position=${position} initialSyncDone=${this.initialSyncDone} hScrollbar.value=${this.hScrollbar.value}`);
+        if (this.initialSyncDone && this.hScrollbar.value !== position) {
+          console.log(`[ScheduleSection] Updating hScrollbar.value to ${position}`);
+          this.hScrollbar.value = position;
+          this.scrollService.horizontalScrollPosition = position;
+        }
+      });
+      this.effects.push(hScrollPositionEffect);
     });
   }
 
@@ -191,14 +209,25 @@ export class ScheduleSectionComponent
   }
 
   private onBothGridsReady(): void {
+    console.log(`[ScheduleSection] onBothGridsReady: scheduleDataLoaded=${this.scheduleDataLoaded} shiftDataLoaded=${this.shiftDataLoaded}`);
     if (this.scheduleDataLoaded && this.shiftDataLoaded) {
       const dayVisibleBeforeMonth =
         this.dataManagement.workFilter.dayVisibleBeforeMonth;
 
+      console.log(`[ScheduleSection] Both grids ready! dayVisibleBeforeMonth=${dayVisibleBeforeMonth}`);
+
       setTimeout(() => {
+        console.log(`[ScheduleSection] setTimeout executing - setting position to ${dayVisibleBeforeMonth}`);
         this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
         this.hScrollbar.value = dayVisibleBeforeMonth;
-        this.hScrollService.setPosition(dayVisibleBeforeMonth);
+        this.hScrollService.forceSetPosition(dayVisibleBeforeMonth);
+        this.initialSyncDone = true;
+        console.log(`[ScheduleSection] Position set, initialSyncDone=true`);
+
+        setTimeout(() => {
+          console.log('[ScheduleSection] Delayed unlock - all pulses should be done');
+          this.hScrollService.unlock();
+        }, 500);
       }, 300);
 
       this.scheduleDataLoaded = false;

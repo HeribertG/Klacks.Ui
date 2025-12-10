@@ -106,6 +106,15 @@ export class ShiftSectionComponent
     this.effects = [];
   }
 
+  onHScrollChange(value: number): void {
+    console.log(`[ShiftSection] onHScrollChange(${value}) locked=${this.hScrollService.isLocked()}`);
+    if (this.hScrollService.isLocked()) {
+      console.log('[ShiftSection] BLOCKED - service is locked, ignoring emit from Refresh()');
+      return;
+    }
+    this.hScrollService.setPosition(value);
+  }
+
   private updateScrollbarSizes() {
     const hostElement = document.querySelector(
       'app-shift-section'
@@ -121,10 +130,15 @@ export class ShiftSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        if (this.dataManagement.isShiftScheduleRead()) {
+        const isShiftRead = this.dataManagement.isShiftScheduleRead();
+        console.log(`[ShiftSection] dataReadEffect: isShiftScheduleRead=${isShiftRead}`);
+        if (isShiftRead) {
+          console.log('[ShiftSection] Calling shiftSurface.Refresh()');
           this.shiftSurface.Refresh();
           const position = this.hScrollService.horizontalPosition();
+          console.log(`[ShiftSection] After Refresh: position from service=${position}`);
           if (position > 0) {
+            console.log(`[ShiftSection] Restoring position to ${position}`);
             this.hScrollPositionValue = position;
             this.scrollService.horizontalScrollPosition = position;
           }
@@ -141,6 +155,7 @@ export class ShiftSectionComponent
 
       const hScrollEffect = effect(() => {
         const position = this.hScrollService.horizontalPosition();
+        console.log(`[ShiftSection] hScrollEffect: position=${position} current hScrollPositionValue=${this.hScrollPositionValue}`);
         this.hScrollPositionValue = position;
         this.scrollService.horizontalScrollPosition = position;
         this.cdr.detectChanges();
