@@ -18,7 +18,7 @@
             [valueChangeHScrollbar]="hScrollbar.value"
             (valueHScrollbar)="hScrollbar.value = $event"
             (maxValueHScrollbar)="hScrollbar.maxValue = $event"
-            (visibleValueHScrollbar)="hScrollbar.visibleValue = $event"
+            (visibleValueHScrollbar)="onVisibleValueHScrollbarChange($event)"
             [valueChangeVScrollbar]="vScrollbar.value"
             (valueVScrollbar)="vScrollbar.value = $event"
             (maxValueVScrollbar)="vScrollbar.maxValue = $event"

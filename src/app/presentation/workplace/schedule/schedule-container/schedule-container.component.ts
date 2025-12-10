@@ -19,19 +19,9 @@ export class ScheduleContainerComponent {
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
   public horizontalSize = 205;
-  public hScrollbarMaxValue = 0;
-  public hScrollbarValue = 0;
   public IsInfoVisible = false;
 
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
-  }
-
-  onMaxValueHScrollbarChange(newValue: number): void {
-    this.hScrollbarMaxValue = newValue;
-  }
-
-  onValueHScrollbarChange(newValue: number): void {
-    this.hScrollbarValue = newValue;
   }
 }

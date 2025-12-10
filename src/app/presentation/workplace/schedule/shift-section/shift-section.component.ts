@@ -1,16 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   effect,
   EffectRef,
-  EventEmitter,
   inject,
   Injector,
   Input,
   OnChanges,
   OnDestroy,
-  Output,
   runInInjectionContext,
   SimpleChanges,
   ViewChild,
@@ -34,6 +33,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -71,13 +71,14 @@ export class ShiftSectionComponent
   private injector = inject(Injector);
   private scrollService = inject(ScrollService);
   private settings = inject(BaseSettingsService);
+  private hScrollService = inject(ScheduleHorizontalScrollService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() horizontalSize!: number;
-  @Input() hScrollbarValue!: number;
-  @Input() hScrollbarMaxValue!: number;
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
 
+  public hScrollPositionValue = 0;
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarShift = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
@@ -122,6 +123,11 @@ export class ShiftSectionComponent
       const dataReadEffect = effect(() => {
         if (this.dataManagement.isShiftScheduleRead()) {
           this.shiftSurface.Refresh();
+          const position = this.hScrollService.horizontalPosition();
+          if (position > 0) {
+            this.hScrollPositionValue = position;
+            this.scrollService.horizontalScrollPosition = position;
+          }
         }
       });
       this.effects.push(dataReadEffect);
@@ -131,6 +137,15 @@ export class ShiftSectionComponent
         this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
         this.updateScrollbarSizes();
       });
+      this.effects.push(vScrollbarSizeEffect);
+
+      const hScrollEffect = effect(() => {
+        const position = this.hScrollService.horizontalPosition();
+        this.hScrollPositionValue = position;
+        this.scrollService.horizontalScrollPosition = position;
+        this.cdr.detectChanges();
+      });
+      this.effects.push(hScrollEffect);
     });
   }
 }

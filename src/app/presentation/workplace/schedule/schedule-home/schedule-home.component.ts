@@ -26,6 +26,7 @@ import { WorkplaceStateService } from 'src/app/application/services/workplace-st
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 
 @Component({
   selector: 'app-schedule-home',
@@ -41,6 +42,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
     ScrollbarService,
     BaseSettingsService,
     AllScheduleStateService,
+    ScheduleHorizontalScrollService,
   ],
 })
 export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {

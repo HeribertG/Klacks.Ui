@@ -32,6 +32,7 @@ import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/se
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -71,11 +72,8 @@ export class ScheduleSectionComponent
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
-  @Input() hScrollbarValue = 0;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
-  @Output() valueHScrollbarChange = new EventEmitter<number>();
-  @Output() maxValueHScrollbarChange = new EventEmitter<number>();
 
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -86,12 +84,15 @@ export class ScheduleSectionComponent
   private scrollService = inject(ScrollService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
+  private hScrollService = inject(ScheduleHorizontalScrollService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
+  private scheduleDataLoaded = false;
+  private shiftDataLoaded = false;
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['zoom'] && !changes['zoom'].firstChange) {
@@ -100,10 +101,6 @@ export class ScheduleSectionComponent
 
     if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
       this.scheduleSurface.Refresh();
-    }
-
-    if (changes['hScrollbarValue']) {
-      this.hScrollbar.value = this.hScrollbarValue;
     }
   }
 
@@ -119,13 +116,13 @@ export class ScheduleSectionComponent
     this.scheduleHScrollbar.valueChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
-        this.valueHScrollbarChange.emit(value);
+        this.hScrollService.setPosition(value);
       });
 
     this.scheduleHScrollbar.maxValueChange
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
-        this.maxValueHScrollbarChange.emit(value);
+        this.hScrollService.setMaxValue(value);
       });
   }
 
@@ -158,18 +155,19 @@ export class ScheduleSectionComponent
       const dataReadEffect = effect(() => {
         if (this.dataManagement.isRead()) {
           this.scheduleSurface.Refresh();
-
-          const dayVisibleBeforeMonth =
-            this.dataManagement.workFilter.dayVisibleBeforeMonth;
-
-          setTimeout(() => {
-            this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
-            this.hScrollbar.value = dayVisibleBeforeMonth;
-            this.valueHScrollbarChange.emit(dayVisibleBeforeMonth);
-          }, 500);
+          this.scheduleDataLoaded = true;
+          this.onBothGridsReady();
         }
       });
       this.effects.push(dataReadEffect);
+
+      const shiftReadEffect = effect(() => {
+        if (this.dataManagement.isShiftScheduleRead()) {
+          this.shiftDataLoaded = true;
+          this.onBothGridsReady();
+        }
+      });
+      this.effects.push(shiftReadEffect);
 
       const vScrollbarSizeEffect = effect(() => {
         const isLocked = this.scrollService.lockedRows();
@@ -185,5 +183,26 @@ export class ScheduleSectionComponent
       });
       this.effects.push(hScrollbarSizeEffect);
     });
+  }
+
+  onVisibleValueHScrollbarChange(value: number): void {
+    this.hScrollbar.visibleValue = value;
+    this.hScrollService.setVisibleValue(value);
+  }
+
+  private onBothGridsReady(): void {
+    if (this.scheduleDataLoaded && this.shiftDataLoaded) {
+      const dayVisibleBeforeMonth =
+        this.dataManagement.workFilter.dayVisibleBeforeMonth;
+
+      setTimeout(() => {
+        this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
+        this.hScrollbar.value = dayVisibleBeforeMonth;
+        this.hScrollService.setPosition(dayVisibleBeforeMonth);
+      }, 300);
+
+      this.scheduleDataLoaded = false;
+      this.shiftDataLoaded = false;
+    }
   }
 }
