@@ -46,7 +46,7 @@ export enum EditableModeEnum {
 export enum GridSelectionModeEnum {
   Cell = 1,
   Row = 2,
-  CellCtrl = 3,
+  RowActiveOnly = 3,
 }
 
 export enum PositionStateEnum {

@@ -1,39 +1,64 @@
-<as-split
-  direction="horizontal"
-  [disabled]="true"
-  [gutterSize]="1"
-  unit="pixel"
->
-  <as-split-area [size]="horizontalSize" [minSize]="100">
-    <app-schedule-shift-row-header
-      [valueChangeVScrollbar]="vScrollbarShift.value"
-    ></app-schedule-shift-row-header>
-  </as-split-area>
+<div class="shift-section-container">
+  <div class="shift-tabs-header">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a
+          class="nav-link active"
+          role="tab"
+          aria-selected="true"
+          tabindex="0"
+        >
+          {{ "schedule.shift-section.tab.shifts" | translate }}
+        </a>
+      </li>
+    </ul>
+  </div>
 
-  <as-split-area>
-    <div class="container-box-shift">
-      <div class="surface-shift">
-        <app-schedule-surface-template
-          [nameId]="'shift'"
-          #shiftSurface
-          class="box-shift"
-          [valueChangeHScrollbar]="hScrollPositionValue"
-          (valueHScrollbar)="onHScrollChange($event)"
+  <div class="shift-tabs-content">
+    <div
+      class="shift-content-header"
+      [style.background-color]="gridColorService.controlBackGroundColor"
+    ></div>
+    <as-split
+      direction="horizontal"
+      [disabled]="true"
+      [gutterSize]="1"
+      unit="pixel"
+    >
+      <as-split-area [size]="horizontalSize" [minSize]="100">
+        <app-schedule-shift-row-header
           [valueChangeVScrollbar]="vScrollbarShift.value"
-          (valueVScrollbar)="vScrollbarShift.value = $event"
-          (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
-          (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
-        >
-        </app-schedule-surface-template>
+          [selectedRow]="selectedRow"
+          [isSelectedRowActive]="isSelectedRowActive"
+        ></app-schedule-shift-row-header>
+      </as-split-area>
 
-        <app-v-scrollbar 
-          class="vScrollAreaShift"
-          [(value)]="vScrollbarShift.value"
-          [maxValue]="vScrollbarShift.maxValue"
-          [visibleValue]="vScrollbarShift.visibleValue"
-        >
-        </app-v-scrollbar>
-      </div>
-    </div>
-  </as-split-area>
-</as-split>
+      <as-split-area>
+        <div class="container-box-shift">
+          <div class="surface-shift">
+            <app-schedule-surface-template
+              [nameId]="'shift'"
+              #shiftSurface
+              class="box-shift"
+              [valueChangeHScrollbar]="hScrollPositionValue"
+              (valueHScrollbar)="onHScrollChange($event)"
+              [valueChangeVScrollbar]="vScrollbarShift.value"
+              (valueVScrollbar)="vScrollbarShift.value = $event"
+              (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
+              (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
+            >
+            </app-schedule-surface-template>
+
+            <app-v-scrollbar
+              class="vScrollAreaShift"
+              [(value)]="vScrollbarShift.value"
+              [maxValue]="vScrollbarShift.maxValue"
+              [visibleValue]="vScrollbarShift.visibleValue"
+            >
+            </app-v-scrollbar>
+          </div>
+        </div>
+      </as-split-area>
+    </as-split>
+  </div>
+</div>

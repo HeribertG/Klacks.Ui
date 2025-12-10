@@ -37,4 +37,13 @@ export abstract class BaseDataService {
   abstract getInfo2(index: number): string;
   abstract getInfo3(index: number): string;
   abstract columnStatus(column: number): HeaderCellTypeEnum;
+
+  isCellActive(row: number, col: number): boolean {
+    try {
+      const cell = this.getCell(row, col);
+      return cell?.mainText !== undefined && cell.mainText !== '';
+    } catch {
+      return false;
+    }
+  }
 }

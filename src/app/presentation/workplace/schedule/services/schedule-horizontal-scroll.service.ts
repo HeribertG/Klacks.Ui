@@ -9,12 +9,10 @@ export class ScheduleHorizontalScrollService {
   private locked = false;
 
   public lock(): void {
-    console.log('[HScrollService] LOCK');
     this.locked = true;
   }
 
   public unlock(): void {
-    console.log('[HScrollService] UNLOCK');
     this.locked = false;
   }
 
@@ -23,19 +21,15 @@ export class ScheduleHorizontalScrollService {
   }
 
   public setPosition(value: number): void {
-    console.log(`[HScrollService] setPosition(${value}) locked=${this.locked} current=${this.horizontalPosition()}`);
     if (this.locked) {
-      console.log('[HScrollService] BLOCKED - service is locked');
       return;
     }
     if (this.horizontalPosition() !== value) {
-      console.log(`[HScrollService] Setting position to ${value}`);
       this.horizontalPosition.set(value);
     }
   }
 
   public forceSetPosition(value: number): void {
-    console.log(`[HScrollService] forceSetPosition(${value})`);
     this.horizontalPosition.set(value);
   }
 

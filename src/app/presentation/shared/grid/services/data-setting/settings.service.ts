@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { ClipboardModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
+import { ClipboardModeEnum, GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 @Injectable()
@@ -9,6 +9,7 @@ export class BaseSettingsService {
   public zoomSignal = signal<number>(1);
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;
+  selectionMode: GridSelectionModeEnum = GridSelectionModeEnum.Cell;
 
   private _zoom = 1;
 

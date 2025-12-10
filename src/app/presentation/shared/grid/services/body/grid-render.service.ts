@@ -9,6 +9,7 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseCanvasManagerService } from './canvas-manager.service';
 import { BaseCreateCellService } from './create-cell.service';
 import { BaseCreateHeaderService } from './create-header.service';
+import { GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 
 @Injectable({
   providedIn: 'root',
@@ -181,6 +182,36 @@ export class BaseGridRenderService {
     );
     ctx.clip();
 
+    const col: number =
+      (position.column - firstVisibleCol) * this.settings.cellWidth;
+    const row: number =
+      (position.row - firstVisibleRow) * this.settings.cellHeight +
+      this.settings.cellHeaderHeight;
+
+    const isRowMode = this.settings.selectionMode === GridSelectionModeEnum.Row ||
+      this.settings.selectionMode === GridSelectionModeEnum.RowActiveOnly;
+    const showRowHighlight = isRowMode &&
+      (this.settings.selectionMode !== GridSelectionModeEnum.RowActiveOnly ||
+       this.gridData.isCellActive(position.row, position.column));
+
+    if (showRowHighlight) {
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle = this.gridColors.focusBorderColor;
+      ctx.fillRect(
+        0,
+        row,
+        col,
+        this.settings.cellHeight
+      );
+      ctx.fillRect(
+        col + this.settings.cellWidth,
+        row,
+        this.canvasManager.canvas!.width - col - this.settings.cellWidth,
+        this.settings.cellHeight
+      );
+      ctx.globalAlpha = 1.0;
+    }
+
     if (isFocused) {
       ctx.strokeStyle = this.gridColors.focusBorderColor;
       ctx.setLineDash([]);
@@ -189,18 +220,13 @@ export class BaseGridRenderService {
       ctx.strokeStyle = 'grey';
     }
 
-    const col: number =
-      (position.column - firstVisibleCol) * this.settings.cellWidth;
-    const row: number =
-      (position.row - firstVisibleRow) * this.settings.cellHeight +
-      this.settings.cellHeaderHeight;
-
     ctx.strokeRect(
       col - 1,
       row - 1,
       this.settings.cellWidth + 3,
       this.settings.cellHeight + 1
     );
+
     ctx.restore();
   }
 

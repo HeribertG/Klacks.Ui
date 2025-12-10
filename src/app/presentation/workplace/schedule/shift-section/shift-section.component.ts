@@ -14,6 +14,8 @@ import {
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { AngularSplitModule } from 'angular-split';
 import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
@@ -34,11 +36,14 @@ import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-shift-section',
   standalone: true,
   imports: [
+    CommonModule,
+    TranslateModule,
     AngularSplitModule,
     ScheduleShiftRowHeaderComponent,
     VScrollbarComponent,
@@ -73,6 +78,9 @@ export class ShiftSectionComponent
   private settings = inject(BaseSettingsService);
   private hScrollService = inject(ScheduleHorizontalScrollService);
   private cdr = inject(ChangeDetectorRef);
+  private cellManipulation = inject(BaseCellManipulationService);
+  private dataService = inject(BaseDataService);
+  public gridColorService = inject(GridColorService);
 
   @Input() horizontalSize!: number;
   @Input() zoom = 1.0;
@@ -82,6 +90,8 @@ export class ShiftSectionComponent
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarShift = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbarSize = 17;
+  public selectedRow = -1;
+  public isSelectedRowActive = false;
 
   private defaultVScrollbarSize = 17;
 
@@ -107,9 +117,7 @@ export class ShiftSectionComponent
   }
 
   onHScrollChange(value: number): void {
-    console.log(`[ShiftSection] onHScrollChange(${value}) locked=${this.hScrollService.isLocked()}`);
     if (this.hScrollService.isLocked()) {
-      console.log('[ShiftSection] BLOCKED - service is locked, ignoring emit from Refresh()');
       return;
     }
     this.hScrollService.setPosition(value);
@@ -131,14 +139,10 @@ export class ShiftSectionComponent
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
         const isShiftRead = this.dataManagement.isShiftScheduleRead();
-        console.log(`[ShiftSection] dataReadEffect: isShiftScheduleRead=${isShiftRead}`);
         if (isShiftRead) {
-          console.log('[ShiftSection] Calling shiftSurface.Refresh()');
           this.shiftSurface.Refresh();
           const position = this.hScrollService.horizontalPosition();
-          console.log(`[ShiftSection] After Refresh: position from service=${position}`);
           if (position > 0) {
-            console.log(`[ShiftSection] Restoring position to ${position}`);
             this.hScrollPositionValue = position;
             this.scrollService.horizontalScrollPosition = position;
           }
@@ -155,12 +159,23 @@ export class ShiftSectionComponent
 
       const hScrollEffect = effect(() => {
         const position = this.hScrollService.horizontalPosition();
-        console.log(`[ShiftSection] hScrollEffect: position=${position} current hScrollPositionValue=${this.hScrollPositionValue}`);
         this.hScrollPositionValue = position;
         this.scrollService.horizontalScrollPosition = position;
         this.cdr.detectChanges();
       });
       this.effects.push(hScrollEffect);
+
+      const positionEffect = effect(() => {
+        const pos = this.cellManipulation.positionSignal();
+        this.selectedRow = pos.row;
+        if (pos.row >= 0 && pos.column >= 0) {
+          this.isSelectedRowActive = this.dataService.isCellActive(pos.row, pos.column);
+        } else {
+          this.isSelectedRowActive = false;
+        }
+        this.cdr.detectChanges();
+      });
+      this.effects.push(positionEffect);
     });
   }
 }

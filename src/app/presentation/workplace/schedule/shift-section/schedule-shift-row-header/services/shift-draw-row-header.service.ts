@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
-import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ShiftRowHeaderCanvasService } from './shift-row-header-canvas.service';
 import { ShiftCreateRowHeaderService } from './shift-create-row-header.service';
 
@@ -12,10 +12,13 @@ export class ShiftDrawRowHeaderService {
   private createRowHeader = inject(ShiftCreateRowHeaderService);
   private scroll = inject(ScrollService);
   private settings = inject(BaseSettingsService);
-  private dataService = inject(BaseDataService);
+  private gridColors = inject(GridColorService);
 
   private canvasId = 'shiftRowHeaderCanvas';
   private lastVerticalScrollPosition = 0;
+
+  public selectedRow = -1;
+  public isSelectedRowActive = false;
 
   public set width(value: number) {
     this.canvasManager.width = value;
@@ -80,10 +83,12 @@ export class ShiftDrawRowHeaderService {
   private drawGrid(): void {
     if (!this.canvasManager.renderCanvasCtx) return;
 
+    const ctx = this.canvasManager.renderCanvasCtx;
     const visibleRows = this.visibleRows();
     const firstRow = this.scroll.verticalScrollPosition;
+    const pixelRatio = DrawHelper.pixelRatio();
 
-    this.canvasManager.renderCanvasCtx.clearRect(
+    ctx.clearRect(
       0,
       0,
       this.canvasManager.renderCanvas!.width,
@@ -99,13 +104,15 @@ export class ShiftDrawRowHeaderService {
   }
 
   private renderGrid(): void {
-    if (!this.canvasManager.ctx || !this.canvasManager.renderCanvas) return;
+    if (!this.canvasManager.ctx || !this.canvasManager.renderCanvas || !this.canvasManager.canvas) return;
 
+    const ctx = this.canvasManager.ctx;
     const pixelRatio = DrawHelper.pixelRatio();
     const srcW = this.canvasManager.renderCanvas.width;
     const srcH = this.canvasManager.renderCanvas.height;
 
-    this.canvasManager.ctx.drawImage(
+    ctx.clearRect(0, 0, this.canvasManager.canvas.width, this.canvasManager.canvas.height);
+    ctx.drawImage(
       this.canvasManager.renderCanvas,
       0,
       0,
@@ -116,6 +123,25 @@ export class ShiftDrawRowHeaderService {
       srcW / pixelRatio,
       srcH / pixelRatio
     );
+
+    this.drawHighlightOnMainCanvas(ctx);
+  }
+
+  private drawHighlightOnMainCanvas(ctx: CanvasRenderingContext2D): void {
+    if (!this.isSelectedRowActive) return;
+
+    const firstRow = this.scroll.verticalScrollPosition;
+    const visibleRows = this.visibleRows();
+
+    if (this.selectedRow < firstRow || this.selectedRow >= firstRow + visibleRows + 1) return;
+
+    const rowIndex = this.selectedRow - firstRow;
+    const yPosition = rowIndex * this.settings.cellHeight;
+
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = this.gridColors.focusBorderColor;
+    ctx.fillRect(0, yPosition, this.canvasManager.canvas!.width, this.settings.cellHeight);
+    ctx.globalAlpha = 1.0;
   }
 
   private visibleRows(): number {

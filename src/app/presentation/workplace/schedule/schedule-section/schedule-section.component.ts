@@ -156,9 +156,7 @@ export class ScheduleSectionComponent
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
         const isRead = this.dataManagement.isRead();
-        console.log(`[ScheduleSection] dataReadEffect: isRead=${isRead}`);
         if (isRead) {
-          console.log('[ScheduleSection] Calling scheduleSurface.Refresh()');
           this.scheduleSurface.Refresh();
           this.scheduleDataLoaded = true;
           this.onBothGridsReady();
@@ -168,7 +166,6 @@ export class ScheduleSectionComponent
 
       const shiftReadEffect = effect(() => {
         const isShiftRead = this.dataManagement.isShiftScheduleRead();
-        console.log(`[ScheduleSection] shiftReadEffect: isShiftScheduleRead=${isShiftRead}`);
         if (isShiftRead) {
           this.shiftDataLoaded = true;
           this.onBothGridsReady();
@@ -192,9 +189,7 @@ export class ScheduleSectionComponent
 
       const hScrollPositionEffect = effect(() => {
         const position = this.hScrollService.horizontalPosition();
-        console.log(`[ScheduleSection] hScrollPositionEffect: position=${position} initialSyncDone=${this.initialSyncDone} hScrollbar.value=${this.hScrollbar.value}`);
         if (this.initialSyncDone && this.hScrollbar.value !== position) {
-          console.log(`[ScheduleSection] Updating hScrollbar.value to ${position}`);
           this.hScrollbar.value = position;
           this.scrollService.horizontalScrollPosition = position;
         }
@@ -209,23 +204,17 @@ export class ScheduleSectionComponent
   }
 
   private onBothGridsReady(): void {
-    console.log(`[ScheduleSection] onBothGridsReady: scheduleDataLoaded=${this.scheduleDataLoaded} shiftDataLoaded=${this.shiftDataLoaded}`);
     if (this.scheduleDataLoaded && this.shiftDataLoaded) {
       const dayVisibleBeforeMonth =
         this.dataManagement.workFilter.dayVisibleBeforeMonth;
 
-      console.log(`[ScheduleSection] Both grids ready! dayVisibleBeforeMonth=${dayVisibleBeforeMonth}`);
-
       setTimeout(() => {
-        console.log(`[ScheduleSection] setTimeout executing - setting position to ${dayVisibleBeforeMonth}`);
         this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
         this.hScrollbar.value = dayVisibleBeforeMonth;
         this.hScrollService.forceSetPosition(dayVisibleBeforeMonth);
         this.initialSyncDone = true;
-        console.log(`[ScheduleSection] Position set, initialSyncDone=true`);
 
         setTimeout(() => {
-          console.log('[ScheduleSection] Delayed unlock - all pulses should be done');
           this.hScrollService.unlock();
         }, 500);
       }, 300);

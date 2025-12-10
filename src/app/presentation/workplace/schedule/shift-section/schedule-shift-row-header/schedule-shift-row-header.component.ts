@@ -42,6 +42,8 @@ export class ScheduleShiftRowHeaderComponent
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
 
   @Input() valueChangeVScrollbar!: number;
+  @Input() selectedRow = -1;
+  @Input() isSelectedRowActive = false;
 
   private injector = inject(Injector);
   private scroll = inject(ScrollService);
@@ -76,6 +78,13 @@ export class ScheduleShiftRowHeaderComponent
       const currV = changes['valueChangeVScrollbar'].currentValue;
       if (currV !== prevV) {
         this.scroll.verticalScrollPosition = currV;
+      }
+    }
+    if (changes['selectedRow'] || changes['isSelectedRowActive']) {
+      this.drawRowHeader.selectedRow = this.selectedRow;
+      this.drawRowHeader.isSelectedRowActive = this.isSelectedRowActive;
+      if (this.drawRowHeader.isCanvasAvailable()) {
+        this.drawRowHeader.refresh();
       }
     }
   }

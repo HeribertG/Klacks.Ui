@@ -14,6 +14,7 @@ import { BaseGridRenderService } from './grid-render.service';
 import { BaseCreateCellService } from './create-cell.service';
 import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
+import { GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/divers';
 
 @Injectable()
 export class BaseDrawScheduleService {
@@ -561,6 +562,11 @@ export class BaseDrawScheduleService {
   }
 
   createSelection(pos: MyPosition): void {
+    if (this.settings.selectionMode === GridSelectionModeEnum.Row ||
+        this.settings.selectionMode === GridSelectionModeEnum.RowActiveOnly) {
+      return;
+    }
+
     if (this.position) {
       const minCol: number =
         this.position.column < pos.column ? this.position.column : pos.column;
