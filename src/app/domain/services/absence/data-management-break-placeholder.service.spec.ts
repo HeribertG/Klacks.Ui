@@ -7,14 +7,14 @@ import { of } from 'rxjs';
 import { DataManagementBreakPlaceholderService } from './data-management-break-placeholder.service';
 import { EVENT_BUS_TOKEN } from '../../interfaces/event-bus.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
-import { DataBreakService } from '../../../infrastructure/api/data-break.service';
+import { DataBreakPlaceholderService } from '../../../infrastructure/api/data-break-placeholder.service';
 import { IClientBreak, IMembership } from '../../models/client-class';
-import { IBreak } from '../../models/break-class';
+import { IBreakPlaceholder } from '../../models/break-class';
 
 describe('DataManagementBreakPlaceholderService', () => {
     let service: DataManagementBreakPlaceholderService;
     let mockEventBus: any;
-    let mockDataBreakService: any;
+    let mockDataBreakPlaceholderService: any;
     let mockTranslateService: any;
 
     beforeEach(() => {
@@ -46,7 +46,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 provideHttpClientTesting(),
                 DataManagementBreakPlaceholderService,
                 { provide: EVENT_BUS_TOKEN, useValue: eventBusSpy },
-                { provide: DataBreakService, useValue: dataSpy },
+                { provide: DataBreakPlaceholderService, useValue: dataSpy },
                 { provide: TranslateService, useValue: translateSpy },
                 { provide: MANAGEABLE_SERVICE_REGISTRY_TOKEN, useValue: mockRegistry },
             ],
@@ -54,11 +54,11 @@ describe('DataManagementBreakPlaceholderService', () => {
 
         service = TestBed.inject(DataManagementBreakPlaceholderService);
         mockEventBus = TestBed.inject(EVENT_BUS_TOKEN) as any;
-        mockDataBreakService = TestBed.inject(DataBreakService) as any;
+        mockDataBreakPlaceholderService = TestBed.inject(DataBreakPlaceholderService) as any;
         mockTranslateService = TestBed.inject(TranslateService) as any;
 
         mockTranslateService.get.mockReturnValue(of('Translated message {0} {1}'));
-        mockDataBreakService.addBreak.mockReturnValue(of({ id: '1', from: new Date(), until: new Date() } as IBreak));
+        mockDataBreakPlaceholderService.addBreak.mockReturnValue(of({ id: '1', from: new Date(), until: new Date() } as IBreakPlaceholder));
     });
 
     it('should be created', () => {
@@ -68,9 +68,9 @@ describe('DataManagementBreakPlaceholderService', () => {
     describe('Membership validation', () => {
         let clientWithMembership: IClientBreak;
         let clientWithoutMembership: IClientBreak;
-        let validBreak: IBreak;
-        let invalidBreakBefore: IBreak;
-        let invalidBreakAfter: IBreak;
+        let validBreak: IBreakPlaceholder;
+        let invalidBreakBefore: IBreakPlaceholder;
+        let invalidBreakAfter: IBreakPlaceholder;
 
         beforeEach(() => {
             const membership: IMembership = {
@@ -97,7 +97,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 gender: '0',
                 legalEntity: false,
                 type: 0,
-                breaks: [],
+                breakPlaceholders: [],
                 membership: membership,
             } as IClientBreak;
 
@@ -114,7 +114,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 gender: '0',
                 legalEntity: false,
                 type: 0,
-                breaks: [],
+                breakPlaceholders: [],
                 membership: undefined,
             } as IClientBreak;
 
@@ -124,7 +124,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 from: new Date('2024-06-01'),
                 until: new Date('2024-06-07'),
                 absenceId: 'absence1',
-            } as IBreak;
+            } as IBreakPlaceholder;
 
             invalidBreakBefore = {
                 id: undefined,
@@ -132,7 +132,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 from: new Date('2024-01-01'),
                 until: new Date('2024-01-07'),
                 absenceId: 'absence1',
-            } as IBreak;
+            } as IBreakPlaceholder;
 
             invalidBreakAfter = {
                 id: undefined,
@@ -140,7 +140,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 from: new Date('2024-12-01'),
                 until: new Date('2024-12-07'),
                 absenceId: 'absence1',
-            } as IBreak;
+            } as IBreakPlaceholder;
 
             service.clients = [clientWithMembership, clientWithoutMembership];
         });
@@ -149,7 +149,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(1, validBreak);
 
             expect(result).toBe(true);
-            expect(mockDataBreakService.addBreak).toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).toHaveBeenCalled();
             expect(mockEventBus.emit).not.toHaveBeenCalled();
         });
 
@@ -157,7 +157,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(0, validBreak);
 
             expect(result).toBe(true);
-            expect(mockDataBreakService.addBreak).toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).toHaveBeenCalled();
             expect(mockEventBus.emit).not.toHaveBeenCalled();
         });
 
@@ -165,7 +165,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(0, invalidBreakBefore);
 
             expect(result).toBe(false);
-            expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).not.toHaveBeenCalled();
             expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
             expect(mockEventBus.emit).toHaveBeenCalled();
         });
@@ -174,24 +174,24 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(0, invalidBreakAfter);
 
             expect(result).toBe(false);
-            expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).not.toHaveBeenCalled();
             expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.after-end');
             expect(mockEventBus.emit).toHaveBeenCalled();
         });
 
         it('should reject break spanning outside membership period', () => {
-            const invalidBreakSpanning: IBreak = {
+            const invalidBreakSpanning: IBreakPlaceholder = {
                 id: undefined,
                 clientId: 'client1',
                 from: new Date('2024-02-01'),
                 until: new Date('2024-12-31'),
                 absenceId: 'absence1',
-            } as IBreak;
+            } as IBreakPlaceholder;
 
             const result = service.addBreak(0, invalidBreakSpanning);
 
             expect(result).toBe(false);
-            expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).not.toHaveBeenCalled();
             // The validation logic checks for "before-start" first, so spanning breaks get that message
             expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
             expect(mockEventBus.emit).toHaveBeenCalled();
@@ -201,7 +201,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(999, validBreak);
 
             expect(result).toBe(false);
-            expect(mockDataBreakService.addBreak).not.toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).not.toHaveBeenCalled();
             expect(mockEventBus.emit).not.toHaveBeenCalled();
         });
 
@@ -218,7 +218,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(0, validBreak);
 
             expect(result).toBe(true);
-            expect(mockDataBreakService.addBreak).toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).toHaveBeenCalled();
         });
 
         it('should validate membership with only validUntil date', () => {
@@ -227,7 +227,7 @@ describe('DataManagementBreakPlaceholderService', () => {
             const result = service.addBreak(0, validBreak);
 
             expect(result).toBe(true);
-            expect(mockDataBreakService.addBreak).toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.addBreak).toHaveBeenCalled();
         });
     });
 
@@ -286,7 +286,7 @@ describe('DataManagementBreakPlaceholderService', () => {
 
     describe('updateBreak validation', () => {
         let clientWithMembership: IClientBreak;
-        let invalidBreak: IBreak;
+        let invalidBreak: IBreakPlaceholder;
 
         beforeEach(() => {
             const membership: IMembership = {
@@ -313,7 +313,7 @@ describe('DataManagementBreakPlaceholderService', () => {
                 gender: '0',
                 legalEntity: false,
                 type: 0,
-                breaks: [],
+                breakPlaceholders: [],
                 membership: membership,
             } as IClientBreak;
 
@@ -323,16 +323,16 @@ describe('DataManagementBreakPlaceholderService', () => {
                 from: new Date('2024-01-01'),
                 until: new Date('2024-01-07'),
                 absenceId: 'absence1',
-            } as IBreak;
+            } as IBreakPlaceholder;
 
             service.clients = [clientWithMembership];
-            mockDataBreakService.updateBreak.mockReturnValue(of({} as IBreak));
+            mockDataBreakPlaceholderService.updateBreak.mockReturnValue(of({} as IBreakPlaceholder));
         });
 
         it('should reject break update outside membership period', async () => {
             await service.updateBreak(0, invalidBreak);
 
-            expect(mockDataBreakService.updateBreak).not.toHaveBeenCalled();
+            expect(mockDataBreakPlaceholderService.updateBreak).not.toHaveBeenCalled();
             expect(mockTranslateService.get).toHaveBeenCalledWith('absence-gantt.validation.membership.before-start');
             expect(mockEventBus.emit).toHaveBeenCalled();
         });

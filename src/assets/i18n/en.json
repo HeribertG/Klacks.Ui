@@ -554,6 +554,10 @@
   "schedule.schedule-header.schedule-header.month": "Month: ",
   "schedule.selector.select-calendar": "Select Month and Year",
   "schedule.shift-section.tab.shifts": "Shifts",
+  "schedule.shift-filter.title": "Shift Filter",
+  "schedule.shift-filter.search-placeholder": "Search Name/Abbreviation",
+  "schedule.shift-filter.type": "Type",
+  "schedule.shift-filter.clear": "Clear Filters",
 
 
   "setting.absence.add": "+ Add Absence",

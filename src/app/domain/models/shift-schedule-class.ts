@@ -33,6 +33,12 @@ export interface IShiftScheduleFilter {
   currentYear: number;
   holidayDates?: Date[];
   selectedGroup?: string;
+  searchString?: string;
+  orderBy?: string;
+  sortOrder?: string;
+  shiftType?: number;
+  isSporadic?: boolean;
+  isTimeRange?: boolean;
 }
 
 export class ShiftScheduleFilter implements IShiftScheduleFilter {
@@ -42,4 +48,10 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   currentYear: number = new Date().getFullYear();
   holidayDates?: Date[];
   selectedGroup?: string;
+  searchString?: string;
+  orderBy?: string;
+  sortOrder?: string;
+  shiftType?: number;
+  isSporadic?: boolean;
+  isTimeRange?: boolean;
 }

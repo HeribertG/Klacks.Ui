@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CounterComponent } from 'src/app/presentation/shared/counter/counter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 export interface CalendarResetData {
   selectedMonth: number;
@@ -17,13 +18,13 @@ export interface CalendarResetData {
   templateUrl: './schedule-header-calendar.component.html',
   styleUrls: ['./schedule-header-calendar.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, CounterComponent],
+  imports: [FormsModule, TranslateModule, CounterComponent, NgbDropdownModule],
 })
 export class ScheduleHeaderCalendarComponent implements OnInit {
   @Output() resetData = new EventEmitter<CalendarResetData>();
 
   public gridSettingsService = inject(GridSettingsService);
-  private dataManagementSchedule = inject(DataManagementScheduleService);
+  public dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService);
 
   currentYear: number = new Date().getFullYear();
@@ -56,5 +57,22 @@ export class ScheduleHeaderCalendarComponent implements OnInit {
       selectedMonth: this.selectedMonth,
       currentYear: this.currentYear,
     });
+  }
+
+  onShiftFilterChange() {
+    this.dataManagementSchedule.readShiftSchedule();
+  }
+
+  onShiftTypeChange(value: number | undefined) {
+    this.dataManagementSchedule.shiftScheduleFilter.shiftType = value;
+    this.onShiftFilterChange();
+  }
+
+  clearShiftFilters() {
+    this.dataManagementSchedule.shiftScheduleFilter.searchString = undefined;
+    this.dataManagementSchedule.shiftScheduleFilter.shiftType = undefined;
+    this.dataManagementSchedule.shiftScheduleFilter.isSporadic = undefined;
+    this.dataManagementSchedule.shiftScheduleFilter.isTimeRange = undefined;
+    this.onShiftFilterChange();
   }
 }

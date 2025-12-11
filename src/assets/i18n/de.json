@@ -543,6 +543,10 @@
   "schedule.schedule-header.schedule-header.month": "Monat: ",
   "schedule.selector.select-calendar": "Monat und Jahr selektieren",
   "schedule.shift-section.tab.shifts": "Dienste",
+  "schedule.shift-filter.title": "Dienst-Filter",
+  "schedule.shift-filter.search-placeholder": "Suche Name/Abkürzung",
+  "schedule.shift-filter.type": "Typ",
+  "schedule.shift-filter.clear": "Filter zurücksetzen",
 
   "setting.absence.add": "+ Absenz hinzufügen",
   "setting.absence.headline": "Absenzen",

@@ -10,7 +10,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { CalendarCalculationService } from './calendar-calculation.service';
 import { BreakRenderingService } from './break-rendering.service';
 import { signal } from '@angular/core';
-import { Break } from 'src/app/domain/models/break-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break-class';
 
 describe('RowSelectionService', () => {
     let service: RowSelectionService;
@@ -224,7 +224,7 @@ describe('RowSelectionService', () => {
                 id: 'break-1',
                 from: new Date(2024, 0, 1),
                 until: new Date(2024, 0, 5),
-            } as unknown as Break;
+            } as unknown as BreakPlaceholder;
 
             service.selectedRow = 5;
             service.selectedBreakIndex = 2;
@@ -430,7 +430,7 @@ describe('RowSelectionService', () => {
                 id: 'break-1',
                 from: new Date(2024, 0, 1),
                 until: new Date(2024, 0, 5),
-            } as unknown as Break;
+            } as unknown as BreakPlaceholder;
 
             service.selectedRow = 5;
             service.selectedBreakIndex = 0;

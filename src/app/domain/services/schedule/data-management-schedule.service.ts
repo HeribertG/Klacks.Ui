@@ -9,6 +9,7 @@ import {
 import {
   IShiftSchedule,
   IShiftScheduleFilter,
+  ShiftScheduleFilter,
 } from 'src/app/domain/models/shift-schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
@@ -47,6 +48,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   public workFilter: IWorkFilter = new WorkFilter();
   public get currentFilter(): IWorkFilter { return this.workFilter; }
+  public shiftScheduleFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
   public clients: IClientWork[] = [];
   public shiftSchedules: IShiftSchedule[] = [];
   public holidayDates: Date[] = [];
@@ -70,16 +72,14 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   readShiftSchedule() {
-    const filter: IShiftScheduleFilter = {
-      dayVisibleBeforeMonth: this.workFilter.dayVisibleBeforeMonth,
-      dayVisibleAfterMonth: this.workFilter.dayVisibleAfterMonth,
-      currentMonth: this.workFilter.currentMonth,
-      currentYear: this.workFilter.currentYear,
-      holidayDates: this.holidayDates.length > 0 ? this.holidayDates : undefined,
-      selectedGroup: this.workFilter.selectedGroup || undefined,
-    };
+    this.shiftScheduleFilter.dayVisibleBeforeMonth = this.workFilter.dayVisibleBeforeMonth;
+    this.shiftScheduleFilter.dayVisibleAfterMonth = this.workFilter.dayVisibleAfterMonth;
+    this.shiftScheduleFilter.currentMonth = this.workFilter.currentMonth;
+    this.shiftScheduleFilter.currentYear = this.workFilter.currentYear;
+    this.shiftScheduleFilter.holidayDates = this.holidayDates.length > 0 ? this.holidayDates : undefined;
+    this.shiftScheduleFilter.selectedGroup = this.workFilter.selectedGroup || undefined;
 
-    this.dataShiftSchedule.getShiftSchedule(filter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
+    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
       this.shiftSchedules = x;
       this.isShiftScheduleRead.set(true);
       setTimeout(() => this.isShiftScheduleRead.set(false), 100);
