@@ -76,6 +76,7 @@ export class DataManagementScheduleService implements ILoadable {
       currentMonth: this.workFilter.currentMonth,
       currentYear: this.workFilter.currentYear,
       holidayDates: this.holidayDates.length > 0 ? this.holidayDates : undefined,
+      selectedGroup: this.workFilter.selectedGroup || undefined,
     };
 
     this.dataShiftSchedule.getShiftSchedule(filter).pipe(takeUntil(this.destroy$)).subscribe((x) => {

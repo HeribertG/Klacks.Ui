@@ -8,6 +8,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
 import { IBaseFilter } from 'src/app/domain/models/general-class';
 import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 
 export interface IDataManagementService<T extends IBaseFilter> {
   currentFilter: T;
@@ -24,6 +25,7 @@ export abstract class BaseStateService<
   protected localStorageService = inject(LocalStorageService);
   protected searchStateService = inject(SearchStateService);
   protected filterStorage = inject(FILTER_STORAGE_TOKEN);
+  protected groupSelectionService = inject(GroupSelectionService);
 
   protected lastSavedFilter: T | null = null;
 
@@ -42,6 +44,13 @@ export abstract class BaseStateService<
     };
 
     await this.restoreFilterFromStorage();
+  }
+
+  protected applyGlobalGroupSelection(): void {
+    const selectedGroupId = this.groupSelectionService.selectedGroupId;
+    if (selectedGroupId !== undefined) {
+      (this.dataManagementService.currentFilter as IBaseFilter & { selectedGroup?: string }).selectedGroup = selectedGroupId;
+    }
   }
 
   async saveCurrentFilter(key = this.editRouteName): Promise<void> {
@@ -78,6 +87,7 @@ export abstract class BaseStateService<
       if (!storedFilter) {
         this.searchStateService.clearRestoreSearch();
         this.lastSavedFilter = null;
+        this.applyGlobalGroupSelection();
         return false;
       }
 
@@ -85,6 +95,7 @@ export abstract class BaseStateService<
         this.lastSavedFilter = cloneObject(
           this.dataManagementService.currentFilter
         );
+        this.applyGlobalGroupSelection();
         return false;
       }
 
@@ -92,11 +103,13 @@ export abstract class BaseStateService<
       if (wasApplied) {
         this.lastSavedFilter = cloneObject(storedFilter);
       }
+      this.applyGlobalGroupSelection();
       return wasApplied;
     } catch (error) {
       console.error('Failed to restore filter:', error);
       this.searchStateService.clearRestoreSearch();
       this.lastSavedFilter = null;
+      this.applyGlobalGroupSelection();
       return false;
     }
   }

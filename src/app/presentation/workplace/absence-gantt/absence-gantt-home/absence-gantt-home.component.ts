@@ -79,10 +79,10 @@ export class AbsenceGanttHomeComponent implements OnInit, AfterViewInit {
   ganttHeader = viewChild.required<AbsenceGanttHeaderComponent>('ganttHeader');
   ganttContainer = viewChild.required<AbsenceGanttContainerComponent>('ganttContainer');
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
-    this.allAbsenceStateService.initializeWorkplaceState();
+    await this.allAbsenceStateService.initializeWorkplaceState();
   }
 
   async ngAfterViewInit(): Promise<void> {

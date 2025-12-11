@@ -63,11 +63,11 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private effects: EffectRef[] = [];
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.savebarService.setSavebarVisibility(false);
     this.layoutService.setContainerToFullSize();
 
-    this.allScheduleStateService.initializeWorkplaceState();
+    await this.allScheduleStateService.initializeWorkplaceState();
 
     this.setupEffects();
   }

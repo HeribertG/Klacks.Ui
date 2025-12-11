@@ -33,6 +33,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
+import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -85,6 +86,7 @@ export class ScheduleSectionComponent
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private hScrollService = inject(ScheduleHorizontalScrollService);
+  private groupSelectionService = inject(GroupSelectionService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -108,6 +110,7 @@ export class ScheduleSectionComponent
   ngAfterViewInit() {
     this.hScrollService.lock();
     this.readSignals();
+    this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
@@ -126,6 +129,13 @@ export class ScheduleSectionComponent
       .subscribe((value: number) => {
         this.hScrollService.setMaxValue(value);
       });
+  }
+
+  private applyGlobalGroupSelection(): void {
+    const globalGroupId = this.groupSelectionService.selectedGroupId;
+    if (globalGroupId !== undefined) {
+      this.dataManagement.workFilter.selectedGroup = globalGroupId;
+    }
   }
 
   ngOnDestroy(): void {

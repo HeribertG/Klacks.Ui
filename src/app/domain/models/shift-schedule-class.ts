@@ -32,6 +32,7 @@ export interface IShiftScheduleFilter {
   currentMonth: number;
   currentYear: number;
   holidayDates?: Date[];
+  selectedGroup?: string;
 }
 
 export class ShiftScheduleFilter implements IShiftScheduleFilter {
@@ -40,4 +41,5 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
   holidayDates?: Date[];
+  selectedGroup?: string;
 }
