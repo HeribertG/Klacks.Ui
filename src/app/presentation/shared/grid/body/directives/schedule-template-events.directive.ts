@@ -14,7 +14,6 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/schedule-surface-template.component';
-import { HolidayCollectionService } from '../../services/holiday-collection.service';
 import { GridSelectionModeEnum } from '../../enums/divers';
 
 @Directive({
@@ -55,12 +54,12 @@ export class ScheduleTemplateEventsDirective {
     this.gridSurface.destroyToolTip();
   }
 
-  @HostListener('mousewheel', ['$event']) onMouseWheel(
-    event: Event
-  ): void {
+  @HostListener('mousewheel', ['$event']) onMouseWheel(event: Event): void {
     const wheelEvent = event as WheelEvent;
-    const moveY: number = wheelEvent.deltaY === 0 ? 0 : wheelEvent.deltaY > 0 ? 1 : -1;
-    const moveX: number = wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
+    const moveY: number =
+      wheelEvent.deltaY === 0 ? 0 : wheelEvent.deltaY > 0 ? 1 : -1;
+    const moveX: number =
+      wheelEvent.deltaX === 0 ? 0 : wheelEvent.deltaX > 0 ? 1 : -1;
 
     if (moveX !== 0) {
       const newValue = this.gridSurface.valueChangeHScrollbar + moveX;
@@ -634,7 +633,9 @@ export class ScheduleTemplateEventsDirective {
   }
 
   private isMultiselectBlocked(): boolean {
-    return this.gridSettings.selectionMode === GridSelectionModeEnum.Row ||
-           this.gridSettings.selectionMode === GridSelectionModeEnum.RowActiveOnly;
+    return (
+      this.gridSettings.selectionMode === GridSelectionModeEnum.Row ||
+      this.gridSettings.selectionMode === GridSelectionModeEnum.RowActiveOnly
+    );
   }
 }

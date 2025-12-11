@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
   addDays,
@@ -64,7 +64,9 @@ export class ShiftDataService extends BaseDataService {
 
       if (shiftRow.activeDays.has(dateKey)) {
         c.mainText = shiftRow.abbreviation;
-        c.firstSubText = `${formatTime(shiftRow.startShift)} - ${formatTime(shiftRow.endShift)}`;
+        c.firstSubText = `${formatTime(shiftRow.startShift)} - ${formatTime(
+          shiftRow.endShift
+        )}`;
         c.cellType = CellTypeEnum.Standard;
       } else {
         c.mainText = '';
@@ -184,7 +186,10 @@ export class ShiftDataService extends BaseDataService {
 
   private formatDateKey(date: Date | string): string {
     const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   private getDateKeyForColumn(col: number): string {

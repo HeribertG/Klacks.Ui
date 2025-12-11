@@ -86,7 +86,6 @@ export class ShiftDrawRowHeaderService {
     const ctx = this.canvasManager.renderCanvasCtx;
     const visibleRows = this.visibleRows();
     const firstRow = this.scroll.verticalScrollPosition;
-    const pixelRatio = DrawHelper.pixelRatio();
 
     ctx.clearRect(
       0,
@@ -104,14 +103,24 @@ export class ShiftDrawRowHeaderService {
   }
 
   private renderGrid(): void {
-    if (!this.canvasManager.ctx || !this.canvasManager.renderCanvas || !this.canvasManager.canvas) return;
+    if (
+      !this.canvasManager.ctx ||
+      !this.canvasManager.renderCanvas ||
+      !this.canvasManager.canvas
+    )
+      return;
 
     const ctx = this.canvasManager.ctx;
     const pixelRatio = DrawHelper.pixelRatio();
     const srcW = this.canvasManager.renderCanvas.width;
     const srcH = this.canvasManager.renderCanvas.height;
 
-    ctx.clearRect(0, 0, this.canvasManager.canvas.width, this.canvasManager.canvas.height);
+    ctx.clearRect(
+      0,
+      0,
+      this.canvasManager.canvas.width,
+      this.canvasManager.canvas.height
+    );
     ctx.drawImage(
       this.canvasManager.renderCanvas,
       0,
@@ -133,14 +142,23 @@ export class ShiftDrawRowHeaderService {
     const firstRow = this.scroll.verticalScrollPosition;
     const visibleRows = this.visibleRows();
 
-    if (this.selectedRow < firstRow || this.selectedRow >= firstRow + visibleRows + 1) return;
+    if (
+      this.selectedRow < firstRow ||
+      this.selectedRow >= firstRow + visibleRows + 1
+    )
+      return;
 
     const rowIndex = this.selectedRow - firstRow;
     const yPosition = rowIndex * this.settings.cellHeight;
 
     ctx.globalAlpha = 0.2;
     ctx.fillStyle = this.gridColors.focusBorderColor;
-    ctx.fillRect(0, yPosition, this.canvasManager.canvas!.width, this.settings.cellHeight);
+    ctx.fillRect(
+      0,
+      yPosition,
+      this.canvasManager.canvas!.width,
+      this.settings.cellHeight
+    );
     ctx.globalAlpha = 1.0;
   }
 

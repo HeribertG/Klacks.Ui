@@ -246,8 +246,10 @@ export class TimeRulerDragDropService {
     newEndMinutes: number;
   } {
     const duration = endMinutes - startMinutes;
-    const preShiftTime = this.timeRangeService.getTotalPreShiftMinutes(currentItem);
-    const postShiftTime = this.timeRangeService.getTotalPostShiftMinutes(currentItem);
+    const preShiftTime =
+      this.timeRangeService.getTotalPreShiftMinutes(currentItem);
+    const postShiftTime =
+      this.timeRangeService.getTotalPostShiftMinutes(currentItem);
 
     const otherItems = allItems.filter(
       (item) => item !== currentItem && item.shift?.isTimeRange
@@ -324,8 +326,8 @@ export class TimeRulerDragDropService {
     endMinutes: number,
     duration: number,
     otherShifts: IContainerTemplateItem[],
-    preShiftTime: number = 0,
-    postShiftTime: number = 0
+    preShiftTime = 0,
+    postShiftTime = 0
   ): { newStartMinutes: number; newEndMinutes: number } | null {
     const effectiveStart = startMinutes - preShiftTime;
     const effectiveEnd = endMinutes + postShiftTime;
@@ -357,11 +359,19 @@ export class TimeRulerDragDropService {
     const maxIterations = 100;
 
     while (
-      this.hasEffectiveOverlap(candidateEffectiveStart, candidateEffectiveEnd, otherShifts) &&
+      this.hasEffectiveOverlap(
+        candidateEffectiveStart,
+        candidateEffectiveEnd,
+        otherShifts
+      ) &&
       iterations < maxIterations
     ) {
       const blockingShifts = otherShifts.filter((shift) =>
-        this.effectiveShiftsOverlap(candidateEffectiveStart, candidateEffectiveEnd, shift)
+        this.effectiveShiftsOverlap(
+          candidateEffectiveStart,
+          candidateEffectiveEnd,
+          shift
+        )
       );
 
       if (blockingShifts.length === 0) break;
@@ -388,7 +398,13 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    if (!this.hasEffectiveOverlap(candidateEffectiveStart, candidateEffectiveEnd, otherShifts)) {
+    if (
+      !this.hasEffectiveOverlap(
+        candidateEffectiveStart,
+        candidateEffectiveEnd,
+        otherShifts
+      )
+    ) {
       return {
         newStartMinutes: candidateStart,
         newEndMinutes: candidateEnd,
@@ -403,8 +419,8 @@ export class TimeRulerDragDropService {
     endMinutes: number,
     duration: number,
     otherShifts: IContainerTemplateItem[],
-    preShiftTime: number = 0,
-    postShiftTime: number = 0
+    preShiftTime = 0,
+    postShiftTime = 0
   ): { newStartMinutes: number; newEndMinutes: number } | null {
     const effectiveStart = startMinutes - preShiftTime;
     const effectiveEnd = endMinutes + postShiftTime;
@@ -439,11 +455,19 @@ export class TimeRulerDragDropService {
     const maxIterations = 100;
 
     while (
-      this.hasEffectiveOverlap(candidateEffectiveStart, candidateEffectiveEnd, otherShifts) &&
+      this.hasEffectiveOverlap(
+        candidateEffectiveStart,
+        candidateEffectiveEnd,
+        otherShifts
+      ) &&
       iterations < maxIterations
     ) {
       const blockingShifts = otherShifts.filter((shift) =>
-        this.effectiveShiftsOverlap(candidateEffectiveStart, candidateEffectiveEnd, shift)
+        this.effectiveShiftsOverlap(
+          candidateEffectiveStart,
+          candidateEffectiveEnd,
+          shift
+        )
       );
 
       if (blockingShifts.length === 0) break;
@@ -473,7 +497,13 @@ export class TimeRulerDragDropService {
       return null;
     }
 
-    if (!this.hasEffectiveOverlap(candidateEffectiveStart, candidateEffectiveEnd, otherShifts)) {
+    if (
+      !this.hasEffectiveOverlap(
+        candidateEffectiveStart,
+        candidateEffectiveEnd,
+        otherShifts
+      )
+    ) {
       return {
         newStartMinutes: candidateStart,
         newEndMinutes: candidateEnd,
@@ -513,9 +543,13 @@ export class TimeRulerDragDropService {
     effectiveEnd: number,
     otherShift: IContainerTemplateItem
   ): boolean {
-    const otherEffectiveStart = this.timeRangeService.getEffectiveStartMinutes(otherShift);
-    const otherEffectiveEnd = this.timeRangeService.getEffectiveEndMinutes(otherShift);
-    return effectiveStart < otherEffectiveEnd && effectiveEnd > otherEffectiveStart;
+    const otherEffectiveStart =
+      this.timeRangeService.getEffectiveStartMinutes(otherShift);
+    const otherEffectiveEnd =
+      this.timeRangeService.getEffectiveEndMinutes(otherShift);
+    return (
+      effectiveStart < otherEffectiveEnd && effectiveEnd > otherEffectiveStart
+    );
   }
 
   private shiftsOverlap(

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -169,7 +168,10 @@ export class ShiftSectionComponent
         const pos = this.cellManipulation.positionSignal();
         this.selectedRow = pos.row;
         if (pos.row >= 0 && pos.column >= 0) {
-          this.isSelectedRowActive = this.dataService.isCellActive(pos.row, pos.column);
+          this.isSelectedRowActive = this.dataService.isCellActive(
+            pos.row,
+            pos.column
+          );
         } else {
           this.isSelectedRowActive = false;
         }

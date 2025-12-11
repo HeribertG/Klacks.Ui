@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,7 +12,11 @@ import {
 } from '../../models/llm-function-definitions.interface';
 import { LLMFunctionRegistryService } from './llm-function-registry.service';
 import { environment } from 'src/environments/environment';
-import { ClientContract, Filter, ITruncatedClient } from '../../models/client-class';
+import {
+  ClientContract,
+  Filter,
+  ITruncatedClient,
+} from '../../models/client-class';
 import { ITruncatedShift, ShiftFilter } from '../../models/shift-data-class';
 import { GroupFilter, ITruncatedGroup } from '../../models/group-class';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
@@ -670,13 +675,15 @@ export class LLMFunctionExecutionService {
     call: ILLMFunctionCall
   ): Observable<ILLMFunctionResult> {
     return this.httpClient
-      .post<{ success: boolean; result?: any; error?: string; message?: string }>(
-        `${this.apiBaseUrl}assistant/chat/execute-function`,
-        {
-          functionName: call.name,
-          parameters: call.arguments,
-        }
-      )
+      .post<{
+        success: boolean;
+        result?: any;
+        error?: string;
+        message?: string;
+      }>(`${this.apiBaseUrl}assistant/chat/execute-function`, {
+        functionName: call.name,
+        parameters: call.arguments,
+      })
       .pipe(
         map((response) => ({
           id: call.id,
@@ -700,16 +707,29 @@ export class LLMFunctionExecutionService {
     }
     if (this.dataManagementGroupService.flatNodeList.length === 0) {
       this.dataManagementGroupService.initTree();
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
 
   private executeCreateClient(
     call: ILLMFunctionCall
   ): Observable<ILLMFunctionResult> {
-    const { firstName, lastName, gender, birthdate, street, postalCode, city, canton, country, contractType, groupPath } = call.arguments;
+    const {
+      firstName,
+      lastName,
+      gender,
+      birthdate,
+      street,
+      postalCode,
+      city,
+      canton,
+      country,
+      contractType,
+      groupPath,
+    } = call.arguments;
 
-    const clientEditService = this.dataManagementClientService.clientEditService;
+    const clientEditService =
+      this.dataManagementClientService.clientEditService;
 
     clientEditService.createClient();
 
@@ -734,7 +754,8 @@ export class LLMFunctionExecutionService {
             address.street = street || '';
             address.zip = postalCode || '';
             address.city = city || '';
-            address.state = canton || this.getCantonFromPostalCode(postalCode) || '';
+            address.state =
+              canton || this.getCantonFromPostalCode(postalCode) || '';
             address.country = this.getCountryAbbreviation(country) || 'CH';
           }
 
@@ -755,8 +776,12 @@ export class LLMFunctionExecutionService {
             const savedClient = clientEditService.editClient();
             this.router.navigate(['/workplace/edit-address', savedClient?.id]);
 
-            const assignedContract = savedClient?.clientContracts?.find(c => c.contract?.name?.includes(contractType));
-            const assignedGroup = savedClient?.groupItems?.find(g => g.groupName);
+            const assignedContract = savedClient?.clientContracts?.find((c) =>
+              c.contract?.name?.includes(contractType)
+            );
+            const assignedGroup = savedClient?.groupItems?.find(
+              (g) => g.groupName
+            );
 
             let message = `Mitarbeiter ${firstName} ${lastName} wurde erfolgreich erstellt.`;
             if (assignedContract) {
@@ -781,7 +806,7 @@ export class LLMFunctionExecutionService {
                 country: country || 'Schweiz',
                 contractAssigned: !!assignedContract || !!contractType,
                 groupAssigned: !!assignedGroup || !!groupPath,
-                message
+                message,
               },
             });
             observer.complete();
@@ -796,7 +821,9 @@ export class LLMFunctionExecutionService {
             observer.next({
               id: call.id,
               success: false,
-              error: clientEditService.lastSaveErrorMessage() || 'Error saving client',
+              error:
+                clientEditService.lastSaveErrorMessage() ||
+                'Error saving client',
             });
             observer.complete();
           }, 5000);
@@ -815,9 +842,10 @@ export class LLMFunctionExecutionService {
   private assignContractToClient(client: any, contractType: string): void {
     const contracts = this.dataManagementContractService.contracts;
 
-    const matchingContract = contracts.find(c =>
-      c.name?.toLowerCase().includes(contractType.toLowerCase()) ||
-      contractType.toLowerCase().includes(c.name?.toLowerCase() || '')
+    const matchingContract = contracts.find(
+      (c) =>
+        c.name?.toLowerCase().includes(contractType.toLowerCase()) ||
+        contractType.toLowerCase().includes(c.name?.toLowerCase() || '')
     );
 
     if (matchingContract && matchingContract.id) {
@@ -840,17 +868,18 @@ export class LLMFunctionExecutionService {
   private assignGroupToClient(client: any, groupPath: string): void {
     const flatNodeList = this.dataManagementGroupService.flatNodeList;
 
-    const pathParts = groupPath.split('->').map(p => p.trim().toLowerCase());
+    const pathParts = groupPath.split('->').map((p) => p.trim().toLowerCase());
     const lastPart = pathParts[pathParts.length - 1];
 
-    let matchingGroup = flatNodeList.find(g =>
-      g.name?.toLowerCase() === lastPart
+    let matchingGroup = flatNodeList.find(
+      (g) => g.name?.toLowerCase() === lastPart
     );
 
     if (!matchingGroup) {
-      matchingGroup = flatNodeList.find(g =>
-        g.name?.toLowerCase().includes(lastPart) ||
-        lastPart.includes(g.name?.toLowerCase() || '')
+      matchingGroup = flatNodeList.find(
+        (g) =>
+          g.name?.toLowerCase().includes(lastPart) ||
+          lastPart.includes(g.name?.toLowerCase() || '')
       );
     }
 
@@ -894,27 +923,27 @@ export class LLMFunctionExecutionService {
     const countryLower = country.toLowerCase().trim();
 
     const countryMap: Record<string, string> = {
-      'schweiz': 'CH',
-      'switzerland': 'CH',
-      'suisse': 'CH',
-      'svizzera': 'CH',
-      'ch': 'CH',
-      'deutschland': 'DE',
-      'germany': 'DE',
-      'de': 'DE',
-      'österreich': 'AT',
-      'oesterreich': 'AT',
-      'austria': 'AT',
-      'at': 'AT',
-      'frankreich': 'FR',
-      'france': 'FR',
-      'fr': 'FR',
-      'italien': 'IT',
-      'italy': 'IT',
-      'italia': 'IT',
-      'it': 'IT',
-      'liechtenstein': 'LI',
-      'li': 'LI',
+      schweiz: 'CH',
+      switzerland: 'CH',
+      suisse: 'CH',
+      svizzera: 'CH',
+      ch: 'CH',
+      deutschland: 'DE',
+      germany: 'DE',
+      de: 'DE',
+      österreich: 'AT',
+      oesterreich: 'AT',
+      austria: 'AT',
+      at: 'AT',
+      frankreich: 'FR',
+      france: 'FR',
+      fr: 'FR',
+      italien: 'IT',
+      italy: 'IT',
+      italia: 'IT',
+      it: 'IT',
+      liechtenstein: 'LI',
+      li: 'LI',
     };
 
     return countryMap[countryLower] || country.toUpperCase().substring(0, 2);
@@ -922,11 +951,16 @@ export class LLMFunctionExecutionService {
 
   private parseGender(gender: string): number {
     switch (gender?.toLowerCase()) {
-      case 'male': return 1;
-      case 'female': return 0;
-      case 'intersexuality': return 2;
-      case 'legalentity': return 3;
-      default: return 1;
+      case 'male':
+        return 1;
+      case 'female':
+        return 0;
+      case 'intersexuality':
+        return 2;
+      case 'legalentity':
+        return 3;
+      default:
+        return 1;
     }
   }
 }

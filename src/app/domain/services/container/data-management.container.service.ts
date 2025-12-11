@@ -362,7 +362,9 @@ export class DataManagementContainerService
   private hasUnsavedTasks(): boolean {
     const weekdayTasksMap = this.shiftService.getAllWeekdayTasks();
     for (const tasks of Object.values(weekdayTasksMap)) {
-      if (tasks.some((task: IContainerTemplateItem) => !task.id && task.tmpId)) {
+      if (
+        tasks.some((task: IContainerTemplateItem) => !task.id && task.tmpId)
+      ) {
         return true;
       }
     }
@@ -550,7 +552,7 @@ export class DataManagementContainerService
       );
 
       const existingTemplate = templates.find(
-        t => t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
+        (t) => t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
       );
 
       const newTemplate: IContainerTemplate = {
@@ -569,7 +571,7 @@ export class DataManagementContainerService
       };
 
       if (existingTemplate) {
-        templates = templates.map(t =>
+        templates = templates.map((t) =>
           t.weekday === weekdayNumber && t.isHoliday === slot.isHoliday
             ? newTemplate
             : t
@@ -598,15 +600,16 @@ export class DataManagementContainerService
       6: 'saturday',
     };
 
-    const weekdayContainerTemplateItemsMap: IWeekdayContainerTemplateItemsMap = {
-      monday: [],
-      tuesday: [],
-      wednesday: [],
-      thursday: [],
-      friday: [],
-      saturday: [],
-      sunday: [],
-    };
+    const weekdayContainerTemplateItemsMap: IWeekdayContainerTemplateItemsMap =
+      {
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
+        sunday: [],
+      };
 
     const allLoadedShifts = this.allLoadedShiftsSignal();
 
@@ -640,15 +643,19 @@ export class DataManagementContainerService
     this.editTemplates.set(updated);
   }
 
-  removeTaskItemFromTemplates(taskId: string, weekday: number, isHoliday: boolean): void {
+  removeTaskItemFromTemplates(
+    taskId: string,
+    weekday: number,
+    isHoliday: boolean
+  ): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
+    const updated = templates.map((template) => {
       if (template.weekday === weekday && template.isHoliday === isHoliday) {
         return {
           ...template,
-          containerTemplateItems: (template.containerTemplateItems || []).filter(
-            item => (item.id || item.tmpId) !== taskId
-          )
+          containerTemplateItems: (
+            template.containerTemplateItems || []
+          ).filter((item) => (item.id || item.tmpId) !== taskId),
         };
       }
       return template;
@@ -662,11 +669,11 @@ export class DataManagementContainerService
     isHoliday: boolean
   ): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
+    const updated = templates.map((template) => {
       if (template.weekday === weekday && template.isHoliday === isHoliday) {
         return {
           ...template,
-          containerTemplateItems: orderedTasks
+          containerTemplateItems: orderedTasks,
         };
       }
       return template;
@@ -674,14 +681,18 @@ export class DataManagementContainerService
     this.editTemplates.set(updated);
   }
 
-  updateStartBase(weekday: number, isHoliday: boolean, startBase: string): void {
+  updateStartBase(
+    weekday: number,
+    isHoliday: boolean,
+    startBase: string
+  ): void {
     const templates = this.editTemplates();
     const existingTemplate = templates.find(
-      t => t.weekday === weekday && t.isHoliday === isHoliday
+      (t) => t.weekday === weekday && t.isHoliday === isHoliday
     );
 
     if (existingTemplate) {
-      const updated = templates.map(template => {
+      const updated = templates.map((template) => {
         if (template.weekday === weekday && template.isHoliday === isHoliday) {
           return { ...template, startBase };
         }
@@ -696,11 +707,11 @@ export class DataManagementContainerService
   updateEndBase(weekday: number, isHoliday: boolean, endBase: string): void {
     const templates = this.editTemplates();
     const existingTemplate = templates.find(
-      t => t.weekday === weekday && t.isHoliday === isHoliday
+      (t) => t.weekday === weekday && t.isHoliday === isHoliday
     );
 
     if (existingTemplate) {
-      const updated = templates.map(template => {
+      const updated = templates.map((template) => {
         if (template.weekday === weekday && template.isHoliday === isHoliday) {
           return { ...template, endBase };
         }
@@ -712,14 +723,18 @@ export class DataManagementContainerService
     }
   }
 
-  updateTransportMode(weekday: number, isHoliday: boolean, transportMode: ContainerTransportModeEnum): void {
+  updateTransportMode(
+    weekday: number,
+    isHoliday: boolean,
+    transportMode: ContainerTransportModeEnum
+  ): void {
     const templates = this.editTemplates();
     const existingTemplate = templates.find(
-      t => t.weekday === weekday && t.isHoliday === isHoliday
+      (t) => t.weekday === weekday && t.isHoliday === isHoliday
     );
 
     if (existingTemplate) {
-      const updated = templates.map(template => {
+      const updated = templates.map((template) => {
         if (template.weekday === weekday && template.isHoliday === isHoliday) {
           return { ...template, transportMode };
         }
@@ -727,7 +742,9 @@ export class DataManagementContainerService
       });
       this.editTemplates.set(updated);
     } else {
-      this.createOrUpdateTemplateProperty(weekday, isHoliday, { transportMode });
+      this.createOrUpdateTemplateProperty(weekday, isHoliday, {
+        transportMode,
+      });
     }
   }
 
@@ -742,9 +759,9 @@ export class DataManagementContainerService
     const grid = this.templateGridSignal();
     if (!grid) return;
 
-    const slot = grid.slots.flat().find(
-      s => s.weekday === weekday && s.isHoliday === isHoliday
-    );
+    const slot = grid.slots
+      .flat()
+      .find((s) => s.weekday === weekday && s.isHoliday === isHoliday);
     if (!slot) return;
 
     const newTemplate: IContainerTemplate = {
@@ -755,27 +772,31 @@ export class DataManagementContainerService
       isHoliday,
       isWeekdayAndHoliday: slot.isWeekdayAndHoliday,
       containerTemplateItems: [],
-      ...properties
+      ...properties,
     };
 
     const templates = this.editTemplates();
     this.editTemplates.set([...templates, newTemplate]);
   }
 
-  getTemplateForWeekday(weekday: number, isHoliday: boolean): IContainerTemplate | undefined {
+  getTemplateForWeekday(
+    weekday: number,
+    isHoliday: boolean
+  ): IContainerTemplate | undefined {
     const templates = this.editTemplates();
     return templates.find(
-      template => template.weekday === weekday && template.isHoliday === isHoliday
+      (template) =>
+        template.weekday === weekday && template.isHoliday === isHoliday
     );
   }
 
   updateFromTime(weekday: number, isHoliday: boolean, fromTime: string): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
+    const updated = templates.map((template) => {
       if (template.weekday === weekday && template.isHoliday === isHoliday) {
         return {
           ...template,
-          fromTime: fromTime
+          fromTime: fromTime,
         };
       }
       return template;
@@ -783,13 +804,17 @@ export class DataManagementContainerService
     this.editTemplates.set(updated);
   }
 
-  updateUntilTime(weekday: number, isHoliday: boolean, untilTime: string): void {
+  updateUntilTime(
+    weekday: number,
+    isHoliday: boolean,
+    untilTime: string
+  ): void {
     const templates = this.editTemplates();
-    const updated = templates.map(template => {
+    const updated = templates.map((template) => {
       if (template.weekday === weekday && template.isHoliday === isHoliday) {
         return {
           ...template,
-          untilTime: untilTime
+          untilTime: untilTime,
         };
       }
       return template;
@@ -797,18 +822,22 @@ export class DataManagementContainerService
     this.editTemplates.set(updated);
   }
 
-  updateRouteInfo(weekday: number, isHoliday: boolean, routeInfo: IRouteInfo): void {
+  updateRouteInfo(
+    weekday: number,
+    isHoliday: boolean,
+    routeInfo: IRouteInfo
+  ): void {
     const templates = this.editTemplates();
     const existingTemplate = templates.find(
-      t => t.weekday === weekday && t.isHoliday === isHoliday
+      (t) => t.weekday === weekday && t.isHoliday === isHoliday
     );
 
     if (existingTemplate) {
-      const updated = templates.map(template => {
+      const updated = templates.map((template) => {
         if (template.weekday === weekday && template.isHoliday === isHoliday) {
           return {
             ...template,
-            routeInfo: routeInfo
+            routeInfo: routeInfo,
           };
         }
         return template;
@@ -819,7 +848,9 @@ export class DataManagementContainerService
       if (!containerShift?.id) return;
 
       const grid = this.templateGridSignal();
-      const slot = grid?.slots.flat().find(s => s.weekday === weekday && s.isHoliday === isHoliday);
+      const slot = grid?.slots
+        .flat()
+        .find((s) => s.weekday === weekday && s.isHoliday === isHoliday);
 
       const newTemplate: IContainerTemplate = {
         containerId: containerShift.id,
@@ -892,7 +923,7 @@ export class DataManagementContainerService
       const abbreviation = shift.abbreviation?.toLowerCase() || '';
       const clientName = shift.client?.name?.toLowerCase() || '';
 
-      let matchesBasicSearch =
+      const matchesBasicSearch =
         name.includes(search) ||
         abbreviation.includes(search) ||
         clientName.includes(search);
@@ -907,7 +938,11 @@ export class DataManagementContainerService
           const zip = address.zip?.toLowerCase() || '';
           const city = address.city?.toLowerCase() || '';
 
-          if (street.includes(search) || zip.includes(search) || city.includes(search)) {
+          if (
+            street.includes(search) ||
+            zip.includes(search) ||
+            city.includes(search)
+          ) {
             return true;
           }
         }
