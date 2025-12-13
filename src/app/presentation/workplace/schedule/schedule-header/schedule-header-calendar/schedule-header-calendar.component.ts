@@ -65,10 +65,10 @@ export class ScheduleHeaderCalendarComponent implements OnInit {
 
   clearShiftFilters() {
     this.dataManagementSchedule.shiftScheduleFilter.searchString = undefined;
-    this.dataManagementSchedule.shiftScheduleFilter.isSporadic = undefined;
-    this.dataManagementSchedule.shiftScheduleFilter.isTimeRange = undefined;
-    this.dataManagementSchedule.shiftScheduleFilter.container = undefined;
-    this.dataManagementSchedule.shiftScheduleFilter.isStandartShift = undefined;
+    this.dataManagementSchedule.shiftScheduleFilter.isSporadic = true;
+    this.dataManagementSchedule.shiftScheduleFilter.isTimeRange = true;
+    this.dataManagementSchedule.shiftScheduleFilter.container = true;
+    this.dataManagementSchedule.shiftScheduleFilter.isStandartShift = true;
     this.onShiftFilterChange();
   }
 }

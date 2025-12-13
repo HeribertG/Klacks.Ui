@@ -36,10 +36,10 @@ export class ShiftFilterComponent {
 
   clearShiftFilters(): void {
     this.dataManagement.shiftScheduleFilter.searchString = undefined;
-    this.dataManagement.shiftScheduleFilter.isSporadic = undefined;
-    this.dataManagement.shiftScheduleFilter.isTimeRange = undefined;
-    this.dataManagement.shiftScheduleFilter.container = undefined;
-    this.dataManagement.shiftScheduleFilter.isStandartShift = undefined;
+    this.dataManagement.shiftScheduleFilter.isSporadic = true;
+    this.dataManagement.shiftScheduleFilter.isTimeRange = true;
+    this.dataManagement.shiftScheduleFilter.container = true;
+    this.dataManagement.shiftScheduleFilter.isStandartShift = true;
     this.onShiftFilterChange();
   }
 }
