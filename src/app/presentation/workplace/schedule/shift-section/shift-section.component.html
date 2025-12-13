@@ -2,12 +2,7 @@
   <div class="shift-tabs-header">
     <ul class="nav nav-tabs">
       <li class="nav-item">
-        <a
-          class="nav-link active"
-          role="tab"
-          aria-selected="true"
-          tabindex="0"
-        >
+        <a class="nav-link active" role="tab" aria-selected="true" tabindex="0">
           {{ "schedule.shift-section.tab.shifts" | translate }}
         </a>
       </li>
@@ -15,10 +10,27 @@
   </div>
 
   <div class="shift-tabs-content">
-    <div
-      class="shift-content-header"
-      [style.background-color]="gridColorService.controlBackGroundColor"
-    ></div>
+    <div class="shift-content-header">
+      <div
+        ngbDropdown
+        #dropdownFilter="ngbDropdown"
+        display="dynamic"
+        container="body"
+      >
+        <button
+          class="btn btn-sm btn-filter"
+          id="dropdownFilter"
+          ngbDropdownToggle
+          aria-label="shift filter"
+          ngbTooltip="{{ 'schedule.shift-section.filter' | translate }}"
+        >
+          <app-icon-filter />
+        </button>
+        <div ngbDropdownMenu class="shift-filter-menu">
+          <app-shift-filter />
+        </div>
+      </div>
+    </div>
     <as-split
       direction="horizontal"
       [disabled]="true"

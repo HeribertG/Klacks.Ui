@@ -61,74 +61,6 @@
     />
   </div>
 
-  <div class="filter-row">
-    <div ngbDropdown>
-      <button
-        class="btn btn-outline-primary btn-sm"
-        id="shiftTypeDropdown"
-        ngbDropdownToggle
-      >
-        {{ "schedule.shift-filter.type" | translate }}
-      </button>
-      <div ngbDropdownMenu aria-labelledby="shiftTypeDropdown">
-        <div class="form-group px-2">
-          <div class="radio-container">
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="shiftTypeFilter"
-                [value]="undefined"
-                [checked]="dataManagementSchedule.shiftScheduleFilter.shiftType === undefined"
-                (change)="onShiftTypeChange(undefined)"
-              />
-              {{ "all" | translate }}
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="shiftTypeFilter"
-                [value]="0"
-                [checked]="dataManagementSchedule.shiftScheduleFilter.shiftType === 0"
-                (change)="onShiftTypeChange(0)"
-              />
-              {{ "shift.all-shift.nav.original" | translate }}
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="shiftTypeFilter"
-                [value]="1"
-                [checked]="dataManagementSchedule.shiftScheduleFilter.shiftType === 1"
-                (change)="onShiftTypeChange(1)"
-              />
-              {{ "shift.all-shift.nav.planbar" | translate }}
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="shiftTypeFilter"
-                [value]="2"
-                [checked]="dataManagementSchedule.shiftScheduleFilter.shiftType === 2"
-                (change)="onShiftTypeChange(2)"
-              />
-              Container
-            </label>
-            <label class="radio-label">
-              <input
-                type="radio"
-                name="shiftTypeFilter"
-                [value]="3"
-                [checked]="dataManagementSchedule.shiftScheduleFilter.shiftType === 3"
-                (change)="onShiftTypeChange(3)"
-              />
-              Absence
-            </label>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <div class="filter-row checkbox-row">
     <label class="checkbox-label">
       <input
@@ -147,6 +79,24 @@
         name="shiftIsTimeRange"
       />
       {{ "shift.all-shift.nav.time-range" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="dataManagementSchedule.shiftScheduleFilter.container"
+        (change)="onShiftFilterChange()"
+        name="shiftContainer"
+      />
+      {{ "shift.all-shift.nav.container" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [(ngModel)]="dataManagementSchedule.shiftScheduleFilter.isStandartShift"
+        (change)="onShiftFilterChange()"
+        name="shiftIsStandartShift"
+      />
+      {{ "shift.all-shift.nav.standart-shift" | translate }}
     </label>
   </div>
 

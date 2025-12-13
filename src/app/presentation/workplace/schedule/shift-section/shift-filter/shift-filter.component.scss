@@ -1,0 +1,42 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+
+.shift-filter-dropdown {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 15px;
+  background-color: var(--backgroundColorCard);
+  font-size: 13px;
+  color: var(--colorLabel);
+
+  .search-input-group {
+    width: 200px;
+    display: flex;
+
+    input.form-control {
+      background-color: var(--standartTextBackground);
+      color: var(--standartTextColor);
+      border-radius: 4px 0 0 4px;
+      border-right: none;
+    }
+
+    .search-button {
+      background-color: colors.$standartBlueColor !important;
+      color: colors.$standartWhiteColor !important;
+      font-size: 13px;
+      border-radius: 0 4px 4px 0;
+      border: 1px solid colors.$standartBlueColor;
+    }
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+
+  .btn {
+    width: fit-content;
+  }
+}

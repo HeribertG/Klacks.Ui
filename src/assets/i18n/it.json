@@ -841,6 +841,8 @@
   "shift.all-shift.nav.planbar": "Servizi Pianificabili",
   "shift.all-shift.nav.time-range": "Fascia oraria",
   "shift.all-shift.nav.sporadic": "Sporadico",
+  "shift.all-shift.nav.container": "Contenitore",
+  "shift.all-shift.nav.standart-shift": "Standard",
   "shift.all-shift.confirm-delete": "Vuoi davvero eliminare '{{name}}'?",
   "shift.all-shift.delete-success": "Servizio eliminato con successo",
   "shift.all-shift.delete-error": "Errore nell'eliminazione del servizio",

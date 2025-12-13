@@ -16,7 +16,9 @@ import {
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { AngularSplitModule } from 'angular-split';
+import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
+import { ShiftFilterComponent } from './shift-filter/shift-filter.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/create-row-header.service';
@@ -29,13 +31,13 @@ import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
+import { IconFilterComponent } from 'src/app/presentation/icons/icon-filter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
-import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -44,9 +46,13 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
     CommonModule,
     TranslateModule,
     AngularSplitModule,
+    NgbDropdownModule,
+    NgbTooltipModule,
     ScheduleShiftRowHeaderComponent,
     VScrollbarComponent,
     ScheduleSurfaceTemplateComponent,
+    IconFilterComponent,
+    ShiftFilterComponent,
   ],
   providers: [
     { provide: BaseDataService, useClass: ShiftDataService },
@@ -79,7 +85,6 @@ export class ShiftSectionComponent
   private cdr = inject(ChangeDetectorRef);
   private cellManipulation = inject(BaseCellManipulationService);
   private dataService = inject(BaseDataService);
-  public gridColorService = inject(GridColorService);
 
   @Input() horizontalSize!: number;
   @Input() zoom = 1.0;

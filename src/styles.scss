@@ -80,3 +80,9 @@ as-split-gutter {
 .bottom-border-space {
   height: 30px;
 }
+
+.shift-filter-menu {
+  background-color: var(--backgroundColorCard) !important;
+  padding: 0 !important;
+  border: 1px solid var(--cardBorderColor) !important;
+}

@@ -36,9 +36,10 @@ export interface IShiftScheduleFilter {
   searchString?: string;
   orderBy?: string;
   sortOrder?: string;
-  shiftType?: number;
+  container?: boolean;
   isSporadic?: boolean;
   isTimeRange?: boolean;
+  isStandartShift?: boolean;
 }
 
 export class ShiftScheduleFilter implements IShiftScheduleFilter {
@@ -51,7 +52,8 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   searchString?: string;
   orderBy?: string;
   sortOrder?: string;
-  shiftType?: number;
+  container?: boolean;
   isSporadic?: boolean;
   isTimeRange?: boolean;
+  isStandartShift?: boolean;
 }
