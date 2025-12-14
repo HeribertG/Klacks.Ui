@@ -11,6 +11,9 @@ export interface IShiftSchedule {
   isTimeRange: boolean;
   shiftType: number;
   isInTemplateContainer: boolean;
+  sumEmployees: number;
+  quantity: number;
+  sporadicScope: number;
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -26,6 +29,9 @@ export class ShiftSchedule implements IShiftSchedule {
   isTimeRange = false;
   shiftType = 0;
   isInTemplateContainer = false;
+  sumEmployees = 0;
+  quantity = 0;
+  sporadicScope = 0;
 }
 
 export interface IShiftScheduleFilter {

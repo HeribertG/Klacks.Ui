@@ -26,6 +26,9 @@ const CONTAINER_ICON = 'pp-icon-container';
 
 interface DayInfo {
   isInTemplateContainer: boolean;
+  sumEmployees: number;
+  quantity: number;
+  sporadicScope: number;
 }
 
 interface ShiftRow {
@@ -193,6 +196,9 @@ export class ShiftDataService extends BaseDataService {
       const dateKey = this.formatDateKey(schedule.date);
       shiftRow.activeDays.set(dateKey, {
         isInTemplateContainer: schedule.isInTemplateContainer,
+        sumEmployees: schedule.sumEmployees,
+        quantity: schedule.quantity,
+        sporadicScope: schedule.sporadicScope,
       });
     }
 
