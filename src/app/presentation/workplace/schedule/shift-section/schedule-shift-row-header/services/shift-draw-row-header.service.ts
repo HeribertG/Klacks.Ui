@@ -18,6 +18,7 @@ export class ShiftDrawRowHeaderService {
 
   private canvasId = 'shiftRowHeaderCanvas';
   private lastVerticalScrollPosition = 0;
+  private lastZoom = 1;
   private displayedProgress = 0;
   private animationFrameId: number | null = null;
 
@@ -62,14 +63,14 @@ export class ShiftDrawRowHeaderService {
 
   public refresh(): void {
     if (!this.isCanvasAvailable()) return;
-    this.createRowHeader.reset();
+    this.resetIfZoomChanged();
     this.drawGrid();
     this.renderGrid();
   }
 
   public redraw(): void {
     if (!this.isCanvasAvailable()) return;
-    this.createRowHeader.reset();
+    this.resetIfZoomChanged();
     this.drawGrid();
     this.renderGrid();
   }
@@ -86,8 +87,17 @@ export class ShiftDrawRowHeaderService {
       return;
     }
 
+    this.resetIfZoomChanged();
     this.drawGrid();
     this.renderGrid();
+  }
+
+  private resetIfZoomChanged(): void {
+    const currentZoom = this.settings.zoom;
+    if (currentZoom !== this.lastZoom) {
+      this.lastZoom = currentZoom;
+      this.createRowHeader.reset();
+    }
   }
 
   private drawGrid(): void {

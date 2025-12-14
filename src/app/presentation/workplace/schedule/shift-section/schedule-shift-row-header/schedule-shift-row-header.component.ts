@@ -18,6 +18,7 @@ import { ResizeDirective } from 'src/app/presentation/directives/resize.directiv
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ShiftRowHeaderCanvasService } from './services/shift-row-header-canvas.service';
 import { ShiftCreateRowHeaderService } from './services/shift-create-row-header.service';
 import { ShiftDrawRowHeaderService } from './services/shift-draw-row-header.service';
@@ -50,6 +51,7 @@ export class ScheduleShiftRowHeaderComponent
   private scrollEventService = inject(ScrollEventService);
   private drawRowHeader = inject(ShiftDrawRowHeaderService);
   private dataService = inject(BaseDataService);
+  private settings = inject(BaseSettingsService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -125,6 +127,14 @@ export class ScheduleShiftRowHeaderComponent
         }
       });
       this.effects.push(scrollEffect);
+
+      const zoomEffect = effect(() => {
+        this.settings.zoomSignal();
+        if (this.drawRowHeader.isCanvasAvailable()) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(zoomEffect);
     });
   }
 }
