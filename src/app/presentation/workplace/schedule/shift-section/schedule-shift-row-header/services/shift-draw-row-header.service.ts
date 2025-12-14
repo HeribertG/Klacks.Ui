@@ -62,12 +62,14 @@ export class ShiftDrawRowHeaderService {
 
   public refresh(): void {
     if (!this.isCanvasAvailable()) return;
+    this.createRowHeader.reset();
     this.drawGrid();
     this.renderGrid();
   }
 
   public redraw(): void {
     if (!this.isCanvasAvailable()) return;
+    this.createRowHeader.reset();
     this.drawGrid();
     this.renderGrid();
   }

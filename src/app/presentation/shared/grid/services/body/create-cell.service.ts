@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { CellBadge, DEFAULT_BADGE_HEIGHT, DEFAULT_BADGE_PADDING } from 'src/app/presentation/shared/grid/classes/cell-badge';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   BaselineAlignmentEnum,
@@ -24,7 +25,7 @@ export class BaseCreateCellService {
   private emptyCellList: HTMLCanvasElement[] = new Array(20);
   private readonly lastLine = 5;
   private readonly margin = 2;
-  private readonly iconMargin = 1;
+  private readonly iconMargin = 3;
 
   constructor() {}
 
@@ -226,17 +227,75 @@ export class BaseCreateCellService {
     if (gridCell.icons) {
       this.drawIcons(ctx, gridCell);
     }
+    if (gridCell.badges) {
+      this.drawBadges(ctx, gridCell);
+    }
+  }
+
+  private drawBadges(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {
+    if (!gridCell.badges) return;
+
+    for (const badge of gridCell.badges) {
+      this.drawBadge(ctx, badge);
+    }
+  }
+
+  private drawBadge(ctx: CanvasRenderingContext2D, badge: CellBadge): void {
+    const zoom = this.settings.zoom;
+    const fontSize = (DEFAULT_BADGE_HEIGHT - 4) * zoom;
+    ctx.font = `${fontSize}px Arial`;
+    const textWidth = ctx.measureText(badge.text).width;
+    const badgeWidth = textWidth + DEFAULT_BADGE_PADDING * 2 * zoom;
+    const badgeHeight = DEFAULT_BADGE_HEIGHT * zoom;
+    const borderRadius = badgeHeight / 2;
+
+    const position = this.calculateBadgePosition(badge.corner, badgeWidth, badgeHeight);
+
+    ctx.fillStyle = badge.backgroundColor;
+    ctx.beginPath();
+    ctx.roundRect(position.x, position.y, badgeWidth, badgeHeight, borderRadius);
+    ctx.fill();
+
+    ctx.fillStyle = badge.textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badge.text, position.x + badgeWidth / 2, position.y + badgeHeight / 2);
+  }
+
+  private calculateBadgePosition(
+    corner: IconCornerEnum,
+    width: number,
+    height: number
+  ): { x: number; y: number } {
+    const cellWidth = this.settings.cellWidth;
+    const cellHeight = this.settings.cellHeight;
+    const margin = this.iconMargin * this.settings.zoom;
+
+    switch (corner) {
+      case IconCornerEnum.TopLeft:
+        return { x: margin, y: margin };
+      case IconCornerEnum.TopRight:
+        return { x: cellWidth - width - margin, y: margin };
+      case IconCornerEnum.BottomLeft:
+        return { x: margin, y: cellHeight - height - margin };
+      case IconCornerEnum.BottomRight:
+        return { x: cellWidth - width - margin, y: cellHeight - height - margin };
+      default:
+        return { x: margin, y: margin };
+    }
   }
 
   private drawIcons(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {
     if (!gridCell.icons) return;
 
+    const zoom = this.settings.zoom;
     for (const cellIcon of gridCell.icons) {
-      const iconCanvas = this.cellIcons.getIcon(cellIcon.svgIcon, cellIcon.size);
+      const zoomedSize = cellIcon.size * zoom;
+      const iconCanvas = this.cellIcons.getIcon(cellIcon.svgIcon, zoomedSize);
       if (!iconCanvas) continue;
 
-      const position = this.calculateIconPosition(cellIcon.corner, cellIcon.size);
-      ctx.drawImage(iconCanvas, position.x, position.y, cellIcon.size, cellIcon.size);
+      const position = this.calculateIconPosition(cellIcon.corner, zoomedSize);
+      ctx.drawImage(iconCanvas, position.x, position.y, zoomedSize, zoomedSize);
     }
   }
 
@@ -246,18 +305,19 @@ export class BaseCreateCellService {
   ): { x: number; y: number } {
     const cellWidth = this.settings.cellWidth;
     const cellHeight = this.settings.cellHeight;
+    const margin = this.iconMargin * this.settings.zoom;
 
     switch (corner) {
       case IconCornerEnum.TopLeft:
-        return { x: this.iconMargin, y: this.iconMargin };
+        return { x: margin, y: margin };
       case IconCornerEnum.TopRight:
-        return { x: cellWidth - size - this.iconMargin, y: this.iconMargin };
+        return { x: cellWidth - size - margin, y: margin };
       case IconCornerEnum.BottomLeft:
-        return { x: this.iconMargin, y: cellHeight - size - this.iconMargin };
+        return { x: margin, y: cellHeight - size - margin };
       case IconCornerEnum.BottomRight:
-        return { x: cellWidth - size - this.iconMargin, y: cellHeight - size - this.iconMargin };
+        return { x: cellWidth - size - margin, y: cellHeight - size - margin };
       default:
-        return { x: this.iconMargin, y: this.iconMargin };
+        return { x: margin, y: margin };
     }
   }
 

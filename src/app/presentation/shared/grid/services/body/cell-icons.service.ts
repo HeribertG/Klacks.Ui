@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
+import { IconInContainerComponent } from 'src/app/presentation/icons/icon-in-container.component';
 import { DEFAULT_ICON_SIZE } from '../../classes/cell-icon';
 
 @Injectable()
@@ -36,6 +37,8 @@ export class CellIconsService {
     switch (iconName) {
       case 'pp-icon-container':
         return IconBoxContainerComponent.getSvg(color);
+      case 'pp-icon-in-container':
+        return IconInContainerComponent.getSvg(color);
       default:
         return undefined;
     }

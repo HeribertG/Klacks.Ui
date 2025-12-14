@@ -27,10 +27,22 @@ export class ShiftCreateRowHeaderService {
     return this.dataService as ShiftDataService;
   }
 
-  private margin = 4;
-  private borderWidth = 2;
-  private iconWidth = 24;
-  private iconHeight = 24;
+  private readonly baseMargin = 4;
+  private readonly borderWidth = 2;
+  private readonly baseIconWidth = 24;
+  private readonly baseIconHeight = 24;
+
+  private get margin(): number {
+    return this.baseMargin * this.settings.zoom;
+  }
+
+  private get iconWidth(): number {
+    return this.baseIconWidth * this.settings.zoom;
+  }
+
+  private get iconHeight(): number {
+    return this.baseIconHeight * this.settings.zoom;
+  }
 
   reset(): void {
     this.shiftIcons.reset(this.iconWidth, this.iconHeight);
@@ -117,8 +129,8 @@ export class ShiftCreateRowHeaderService {
       rec.top,
       rec.width - textStartX - this.margin,
       rec.height,
-      this.gridFonts.mainFontString,
-      +this.gridFonts.mainFontSize,
+      this.gridFonts.mainFontStringZoom,
+      +this.gridFonts.mainFontSizeZoom,
       this.gridColors.foreGroundColor,
       TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center

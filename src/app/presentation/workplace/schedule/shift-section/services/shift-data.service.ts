@@ -11,6 +11,7 @@ import {
 } from 'src/app/shared/helpers/date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
+import { CellBadge } from 'src/app/presentation/shared/grid/classes/cell-badge';
 import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
@@ -23,7 +24,7 @@ import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 
-const CONTAINER_ICON = 'pp-icon-container';
+const IN_CONTAINER_ICON = 'pp-icon-in-container';
 
 interface DayInfo {
   isInTemplateContainer: boolean;
@@ -83,7 +84,31 @@ export class ShiftDataService extends BaseDataService {
         )}`;
         c.cellType = CellTypeEnum.Standard;
         if (dayInfo.isInTemplateContainer) {
-          c.icons = [new CellIcon(CONTAINER_ICON, IconCornerEnum.TopRight)];
+          c.icons = [new CellIcon(IN_CONTAINER_ICON, IconCornerEnum.BottomLeft)];
+        }
+        const badges: CellBadge[] = [];
+        if (dayInfo.sumEmployees > 1) {
+          badges.push(
+            new CellBadge(
+              `${dayInfo.engaged}/${dayInfo.sumEmployees}`,
+              '#6993ff',
+              '#ffffff',
+              IconCornerEnum.TopLeft
+            )
+          );
+        }
+        if (dayInfo.quantity > 1) {
+          badges.push(
+            new CellBadge(
+              `${dayInfo.engaged}/${dayInfo.quantity}`,
+              '#1bc5bd',
+              '#ffffff',
+              IconCornerEnum.TopRight
+            )
+          );
+        }
+        if (badges.length > 0) {
+          c.badges = badges;
         }
       } else {
         c.mainText = '';

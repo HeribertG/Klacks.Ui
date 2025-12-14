@@ -1,4 +1,5 @@
 import { CellTypeEnum, TextAlignmentEnum } from '../enums/cell-settings.enum';
+import { CellBadge } from './cell-badge';
 import { CellIcon } from './cell-icon';
 
 export class GridCell {
@@ -9,6 +10,7 @@ export class GridCell {
   confirmed = false;
   sealed = false;
   icons?: CellIcon[];
+  badges?: CellBadge[];
   cellType: CellTypeEnum = CellTypeEnum.Standard;
   mainTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
   subTextAlignment: TextAlignmentEnum = TextAlignmentEnum.Center;
