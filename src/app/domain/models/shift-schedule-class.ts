@@ -1,3 +1,5 @@
+import { ShiftSporadic } from '../enums/shift-sporadic.enum';
+
 export interface IShiftSchedule {
   shiftId: string;
   date: Date;
@@ -13,7 +15,7 @@ export interface IShiftSchedule {
   isInTemplateContainer: boolean;
   sumEmployees: number;
   quantity: number;
-  sporadicScope: number;
+  sporadicScope: ShiftSporadic;
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -31,7 +33,7 @@ export class ShiftSchedule implements IShiftSchedule {
   isInTemplateContainer = false;
   sumEmployees = 0;
   quantity = 0;
-  sporadicScope = 0;
+  sporadicScope = ShiftSporadic.Week;
 }
 
 export interface IShiftScheduleFilter {

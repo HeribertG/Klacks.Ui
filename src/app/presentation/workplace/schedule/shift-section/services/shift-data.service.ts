@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
+import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
@@ -28,7 +29,7 @@ interface DayInfo {
   isInTemplateContainer: boolean;
   sumEmployees: number;
   quantity: number;
-  sporadicScope: number;
+  sporadicScope: ShiftSporadic;
 }
 
 interface ShiftRow {
