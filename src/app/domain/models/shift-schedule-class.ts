@@ -42,6 +42,13 @@ export interface IShiftScheduleFilter {
   isSporadic: boolean;
   isTimeRange: boolean;
   isStandartShift: boolean;
+  startRow: number;
+  rowCount: number;
+}
+
+export interface IShiftScheduleResponse {
+  shifts: IShiftSchedule[];
+  totalCount: number;
 }
 
 export class ShiftScheduleFilter implements IShiftScheduleFilter {
@@ -58,4 +65,6 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   isSporadic = true;
   isTimeRange = true;
   isStandartShift = true;
+  startRow = 0;
+  rowCount = 100;
 }

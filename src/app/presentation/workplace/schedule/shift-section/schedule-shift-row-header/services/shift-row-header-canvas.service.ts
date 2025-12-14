@@ -13,6 +13,7 @@ export class ShiftRowHeaderCanvasService {
 
   private _width = 10;
   private _height = 10;
+  public readonly progressBarHeight = 4;
 
   public createCanvas(canvasId: string): void {
     this.createMainCanvas(canvasId);

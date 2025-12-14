@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import {
-  IShiftSchedule,
   IShiftScheduleFilter,
+  IShiftScheduleResponse,
 } from 'src/app/domain/models/shift-schedule-class';
 
 @Injectable({
@@ -15,7 +15,7 @@ export class DataShiftScheduleService {
 
   getShiftSchedule(filter: IShiftScheduleFilter) {
     return this.httpClient
-      .post<IShiftSchedule[]>(`${environment.baseUrl}Shifts/Schedule`, filter)
+      .post<IShiftScheduleResponse>(`${environment.baseUrl}Shifts/Schedule`, filter)
       .pipe(retry(3));
   }
 }

@@ -3,6 +3,7 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ShiftRowHeaderCanvasService } from './shift-row-header-canvas.service';
 import { ShiftCreateRowHeaderService } from './shift-create-row-header.service';
 
@@ -13,9 +14,12 @@ export class ShiftDrawRowHeaderService {
   private scroll = inject(ScrollService);
   private settings = inject(BaseSettingsService);
   private gridColors = inject(GridColorService);
+  private dataManagement = inject(DataManagementScheduleService);
 
   private canvasId = 'shiftRowHeaderCanvas';
   private lastVerticalScrollPosition = 0;
+  private displayedProgress = 0;
+  private animationFrameId: number | null = null;
 
   public selectedRow = -1;
   public isSelectedRowActive = false;
@@ -45,6 +49,10 @@ export class ShiftDrawRowHeaderService {
   }
 
   public deleteCanvas(): void {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
     this.canvasManager.deleteCanvas();
   }
 
@@ -134,6 +142,7 @@ export class ShiftDrawRowHeaderService {
     );
 
     this.drawHighlightOnMainCanvas(ctx);
+    this.drawProgressBar(ctx);
   }
 
   private drawHighlightOnMainCanvas(ctx: CanvasRenderingContext2D): void {
@@ -164,5 +173,44 @@ export class ShiftDrawRowHeaderService {
 
   private visibleRows(): number {
     return Math.ceil(this.height / this.settings.cellHeight);
+  }
+
+  private drawProgressBar(ctx: CanvasRenderingContext2D): void {
+    const targetProgress = this.dataManagement.shiftLoadingProgress;
+
+    if (targetProgress >= 100 || targetProgress === 0) {
+      this.displayedProgress = 0;
+      return;
+    }
+
+    const diff = targetProgress - this.displayedProgress;
+    if (Math.abs(diff) > 0.5) {
+      this.displayedProgress += diff * 0.15;
+      this.scheduleProgressAnimation();
+    } else {
+      this.displayedProgress = targetProgress;
+    }
+
+    if (this.displayedProgress > 0) {
+      const barHeight = this.canvasManager.progressBarHeight;
+      const width = this.canvasManager.width;
+      const progressWidth = (width * this.displayedProgress) / 100;
+
+      ctx.save();
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(0, 0, progressWidth, barHeight);
+      ctx.restore();
+    }
+  }
+
+  private scheduleProgressAnimation(): void {
+    if (this.animationFrameId !== null) return;
+
+    this.animationFrameId = requestAnimationFrame(() => {
+      this.animationFrameId = null;
+      if (this.isCanvasAvailable()) {
+        this.renderGrid();
+      }
+    });
   }
 }

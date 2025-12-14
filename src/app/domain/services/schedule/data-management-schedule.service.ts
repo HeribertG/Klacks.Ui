@@ -1,4 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   IClientWork,
   IWork,
@@ -30,7 +31,15 @@ export class DataManagementScheduleService implements ILoadable {
   private dataSchedule = inject(DataScheduleService);
   private dataShiftSchedule = inject(DataShiftScheduleService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
+  private destroyRef = inject(DestroyRef);
   private destroy$ = new Subject<void>();
+
+  private readonly INITIAL_CHUNK_SIZE = 200;
+  private readonly LOAD_MORE_CHUNK_SIZE = 200;
+  private _totalAvailableShifts = 0;
+  private _isLoadingMore = signal(false);
+  private _currentChunkSize = 200;
+  private _autoLoadEnabled = true;
 
   constructor() {
     this.registry.register(
@@ -58,6 +67,25 @@ export class DataManagementScheduleService implements ILoadable {
 
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
+  get isLoadingMore(): boolean {
+    return this._isLoadingMore();
+  }
+
+  get hasMoreShifts(): boolean {
+    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    return uniqueShiftIds.size < this._totalAvailableShifts;
+  }
+
+  get shiftLoadingProgress(): number {
+    if (this._totalAvailableShifts === 0) return 0;
+    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    return Math.round((uniqueShiftIds.size / this._totalAvailableShifts) * 100);
+  }
+
+  get totalAvailableShifts(): number {
+    return this._totalAvailableShifts;
+  }
+
   readDatas() {
     this._showProgressSpinner.set(true);
     this.dataSchedule.getClientList(this.workFilter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
@@ -72,18 +100,75 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   readShiftSchedule() {
+    this.shiftSchedules = [];
     this.shiftScheduleFilter.dayVisibleBeforeMonth = this.workFilter.dayVisibleBeforeMonth;
     this.shiftScheduleFilter.dayVisibleAfterMonth = this.workFilter.dayVisibleAfterMonth;
     this.shiftScheduleFilter.currentMonth = this.workFilter.currentMonth;
     this.shiftScheduleFilter.currentYear = this.workFilter.currentYear;
     this.shiftScheduleFilter.holidayDates = this.holidayDates.length > 0 ? this.holidayDates : undefined;
     this.shiftScheduleFilter.selectedGroup = this.workFilter.selectedGroup || undefined;
+    this.shiftScheduleFilter.startRow = 0;
+    this.shiftScheduleFilter.rowCount = this.INITIAL_CHUNK_SIZE;
+    this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
+    this._autoLoadEnabled = true;
 
-    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
-      this.shiftSchedules = x;
-      this.isShiftScheduleRead.set(true);
-      setTimeout(() => this.isShiftScheduleRead.set(false), 100);
-    });
+    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.shiftSchedules = response.shifts;
+          this._totalAvailableShifts = response.totalCount;
+          this.isShiftScheduleRead.set(true);
+          setTimeout(() => this.isShiftScheduleRead.set(false), 100);
+
+          if (this._autoLoadEnabled && this.hasMoreShifts) {
+            setTimeout(() => this.autoLoadNextChunk(), 100);
+          }
+        },
+        error: (err) => {
+          console.error('Error loading shift schedules:', err);
+        },
+      });
+  }
+
+  private autoLoadNextChunk(): void {
+    if (!this._autoLoadEnabled || !this.hasMoreShifts || this._isLoadingMore()) {
+      return;
+    }
+
+    this._isLoadingMore.set(true);
+    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    this.shiftScheduleFilter.startRow = uniqueShiftIds.size;
+    this.shiftScheduleFilter.rowCount = this._currentChunkSize;
+
+    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.shiftSchedules.push(...response.shifts);
+
+          const newUniqueCount = new Set(response.shifts.map(s => s.shiftId)).size;
+          if (newUniqueCount < this._currentChunkSize) {
+            this._totalAvailableShifts = new Set(this.shiftSchedules.map(s => s.shiftId)).size;
+            this._autoLoadEnabled = false;
+          } else {
+            this._currentChunkSize = Math.min(this._currentChunkSize * 2, 400);
+          }
+
+          this._isLoadingMore.set(false);
+          this.isShiftScheduleRead.set(true);
+          setTimeout(() => this.isShiftScheduleRead.set(false), 100);
+
+          if (this._autoLoadEnabled && this.hasMoreShifts) {
+            setTimeout(() => this.autoLoadNextChunk(), 50);
+          }
+        },
+        error: (err) => {
+          console.error('Error auto-loading shift schedules:', err);
+          this._isLoadingMore.set(false);
+          this._autoLoadEnabled = false;
+        },
+      });
   }
   readData(index: number): IWork[] | undefined {
     if (index < this.clients.length) {
