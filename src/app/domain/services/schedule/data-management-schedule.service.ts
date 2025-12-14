@@ -118,6 +118,7 @@ export class DataManagementScheduleService implements ILoadable {
         next: (response) => {
           this.shiftSchedules = response.shifts;
           this._totalAvailableShifts = response.totalCount;
+
           this.isShiftScheduleRead.set(true);
           setTimeout(() => this.isShiftScheduleRead.set(false), 100);
 
@@ -148,6 +149,7 @@ export class DataManagementScheduleService implements ILoadable {
           this.shiftSchedules.push(...response.shifts);
 
           const newUniqueCount = new Set(response.shifts.map(s => s.shiftId)).size;
+
           if (newUniqueCount < this._currentChunkSize) {
             this._totalAvailableShifts = new Set(this.shiftSchedules.map(s => s.shiftId)).size;
             this._autoLoadEnabled = false;
