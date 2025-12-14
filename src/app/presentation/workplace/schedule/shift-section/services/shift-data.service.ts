@@ -30,6 +30,7 @@ interface DayInfo {
   sumEmployees: number;
   quantity: number;
   sporadicScope: ShiftSporadic;
+  engaged: number;
 }
 
 interface ShiftRow {
@@ -200,6 +201,7 @@ export class ShiftDataService extends BaseDataService {
         sumEmployees: schedule.sumEmployees,
         quantity: schedule.quantity,
         sporadicScope: schedule.sporadicScope,
+        engaged: schedule.engaged,
       });
     }
 

@@ -16,6 +16,7 @@ export interface IShiftSchedule {
   sumEmployees: number;
   quantity: number;
   sporadicScope: ShiftSporadic;
+  engaged: number;
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -34,6 +35,7 @@ export class ShiftSchedule implements IShiftSchedule {
   sumEmployees = 0;
   quantity = 0;
   sporadicScope = ShiftSporadic.Week;
+  engaged = 0;
 }
 
 export interface IShiftScheduleFilter {
