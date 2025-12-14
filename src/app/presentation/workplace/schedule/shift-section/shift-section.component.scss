@@ -73,6 +73,17 @@
         border: 1px solid var(--paginationBorderColor);
         background-color: var(--backgroundColoPaginationSelected);
       }
+
+      &.filtered {
+        color: colors.$standartGreenColor;
+        border-color: colors.$standartGreenColor;
+      }
+    }
+
+    .shift-row-count {
+      margin-left: 8px;
+      font-size: 13px;
+      color: var(--colorLabel);
     }
   }
 

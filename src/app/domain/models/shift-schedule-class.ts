@@ -10,6 +10,7 @@ export interface IShiftSchedule {
   isSporadic: boolean;
   isTimeRange: boolean;
   shiftType: number;
+  isInTemplateContainer: boolean;
 }
 
 export class ShiftSchedule implements IShiftSchedule {
@@ -24,6 +25,7 @@ export class ShiftSchedule implements IShiftSchedule {
   isSporadic = false;
   isTimeRange = false;
   shiftType = 0;
+  isInTemplateContainer = false;
 }
 
 export interface IShiftScheduleFilter {

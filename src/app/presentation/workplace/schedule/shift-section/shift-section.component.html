@@ -19,6 +19,7 @@
       >
         <button
           class="btn btn-sm btn-filter"
+          [class.filtered]="isShiftFiltered"
           id="dropdownFilter"
           ngbDropdownToggle
           aria-label="shift filter"
@@ -30,6 +31,7 @@
           <app-shift-filter />
         </div>
       </div>
+      <span class="shift-row-count">({{ shiftRowCount }})</span>
     </div>
     <as-split
       direction="horizontal"

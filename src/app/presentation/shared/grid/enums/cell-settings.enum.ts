@@ -125,3 +125,10 @@ export enum HeaderCellTypeEnum {
   Warning,
   Sealed,
 }
+
+export enum IconCornerEnum {
+  TopLeft,
+  TopRight,
+  BottomLeft,
+  BottomRight,
+}

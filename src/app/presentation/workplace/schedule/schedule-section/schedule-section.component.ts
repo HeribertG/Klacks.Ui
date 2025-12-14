@@ -29,6 +29,7 @@ import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/servi
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -57,6 +58,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
     BaseDrawScheduleService,
     BaseCanvasManagerService,
     BaseGridRenderService,
+    CellIconsService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],

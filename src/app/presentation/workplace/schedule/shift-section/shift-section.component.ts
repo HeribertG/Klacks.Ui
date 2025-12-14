@@ -30,6 +30,7 @@ import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/servic
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
+import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { IconFilterComponent } from 'src/app/presentation/icons/icon-filter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -67,6 +68,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
     BaseDrawScheduleService,
     BaseCanvasManagerService,
     BaseGridRenderService,
+    CellIconsService,
   ],
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
@@ -98,6 +100,21 @@ export class ShiftSectionComponent
   public isSelectedRowActive = false;
 
   private defaultVScrollbarSize = 17;
+
+  get shiftRowCount(): number {
+    return this.dataService.rows;
+  }
+
+  get isShiftFiltered(): boolean {
+    const filter = this.dataManagement.shiftScheduleFilter;
+    return (
+      !!filter.searchString ||
+      !filter.isSporadic ||
+      !filter.isTimeRange ||
+      !filter.container ||
+      !filter.isStandartShift
+    );
+  }
 
   private effects: EffectRef[] = [];
 

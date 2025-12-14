@@ -5,11 +5,13 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   BaselineAlignmentEnum,
+  IconCornerEnum,
   TextAlignmentEnum,
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { CellIconsService } from './cell-icons.service';
 
 @Injectable()
 export class BaseCreateCellService {
@@ -17,10 +19,12 @@ export class BaseCreateCellService {
   protected gridData = inject(BaseDataService);
   protected gridColors = inject(GridColorService);
   protected gridFonts = inject(GridFontsService);
+  protected cellIcons = inject(CellIconsService);
 
   private emptyCellList: HTMLCanvasElement[] = new Array(20);
   private readonly lastLine = 5;
   private readonly margin = 2;
+  private readonly iconMargin = 1;
 
   constructor() {}
 
@@ -218,6 +222,42 @@ export class BaseCreateCellService {
     }
     if (gridCell.secondSubText) {
       this.drawSecondSubText(ctx, gridCell.secondSubText);
+    }
+    if (gridCell.icons) {
+      this.drawIcons(ctx, gridCell);
+    }
+  }
+
+  private drawIcons(ctx: CanvasRenderingContext2D, gridCell: GridCell): void {
+    if (!gridCell.icons) return;
+
+    for (const cellIcon of gridCell.icons) {
+      const iconCanvas = this.cellIcons.getIcon(cellIcon.svgIcon, cellIcon.size);
+      if (!iconCanvas) continue;
+
+      const position = this.calculateIconPosition(cellIcon.corner, cellIcon.size);
+      ctx.drawImage(iconCanvas, position.x, position.y, cellIcon.size, cellIcon.size);
+    }
+  }
+
+  private calculateIconPosition(
+    corner: IconCornerEnum,
+    size: number
+  ): { x: number; y: number } {
+    const cellWidth = this.settings.cellWidth;
+    const cellHeight = this.settings.cellHeight;
+
+    switch (corner) {
+      case IconCornerEnum.TopLeft:
+        return { x: this.iconMargin, y: this.iconMargin };
+      case IconCornerEnum.TopRight:
+        return { x: cellWidth - size - this.iconMargin, y: this.iconMargin };
+      case IconCornerEnum.BottomLeft:
+        return { x: this.iconMargin, y: cellHeight - size - this.iconMargin };
+      case IconCornerEnum.BottomRight:
+        return { x: cellWidth - size - this.iconMargin, y: cellHeight - size - this.iconMargin };
+      default:
+        return { x: this.iconMargin, y: this.iconMargin };
     }
   }
 

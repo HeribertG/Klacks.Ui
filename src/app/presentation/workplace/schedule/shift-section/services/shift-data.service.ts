@@ -10,15 +10,23 @@ import {
 } from 'src/app/shared/helpers/date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
+import { CellIcon } from 'src/app/presentation/shared/grid/classes/cell-icon';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   CellTypeEnum,
   HeaderCellTypeEnum,
+  IconCornerEnum,
 } from 'src/app/presentation/shared/grid/enums/cell-settings.enum';
 import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+
+const CONTAINER_ICON = 'pp-icon-container';
+
+interface DayInfo {
+  isInTemplateContainer: boolean;
+}
 
 interface ShiftRow {
   shiftId: string;
@@ -27,7 +35,7 @@ interface ShiftRow {
   startShift: string;
   endShift: string;
   workTime: number;
-  activeDays: Set<string>;
+  activeDays: Map<string, DayInfo>;
   isSporadic: boolean;
   isTimeRange: boolean;
   shiftType: number;
@@ -61,13 +69,17 @@ export class ShiftDataService extends BaseDataService {
     if (row < this.shiftRows.length) {
       const shiftRow = this.shiftRows[row];
       const dateKey = this.getDateKeyForColumn(col);
+      const dayInfo = shiftRow.activeDays.get(dateKey);
 
-      if (shiftRow.activeDays.has(dateKey)) {
+      if (dayInfo) {
         c.mainText = shiftRow.abbreviation;
         c.firstSubText = `${formatTime(shiftRow.startShift)} - ${formatTime(
           shiftRow.endShift
         )}`;
         c.cellType = CellTypeEnum.Standard;
+        if (dayInfo.isInTemplateContainer) {
+          c.icons = [new CellIcon(CONTAINER_ICON, IconCornerEnum.TopRight)];
+        }
       } else {
         c.mainText = '';
         c.cellType = CellTypeEnum.Empty;
@@ -111,6 +123,16 @@ export class ShiftDataService extends BaseDataService {
       }
     }
     return '';
+  }
+
+  public isInTemplateContainer(row: number, col: number): boolean {
+    if (row < this.shiftRows.length) {
+      const shiftRow = this.shiftRows[row];
+      const dateKey = this.getDateKeyForColumn(col);
+      const dayInfo = shiftRow.activeDays.get(dateKey);
+      return dayInfo?.isInTemplateContainer ?? false;
+    }
+    return false;
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
@@ -160,7 +182,7 @@ export class ShiftDataService extends BaseDataService {
           startShift: schedule.startShift,
           endShift: schedule.endShift,
           workTime: schedule.workTime,
-          activeDays: new Set<string>(),
+          activeDays: new Map<string, DayInfo>(),
           isSporadic: schedule.isSporadic,
           isTimeRange: schedule.isTimeRange,
           shiftType: schedule.shiftType,
@@ -169,7 +191,9 @@ export class ShiftDataService extends BaseDataService {
 
       const shiftRow = shiftMap.get(schedule.shiftId)!;
       const dateKey = this.formatDateKey(schedule.date);
-      shiftRow.activeDays.add(dateKey);
+      shiftRow.activeDays.set(dateKey, {
+        isInTemplateContainer: schedule.isInTemplateContainer,
+      });
     }
 
     this.shiftRows = Array.from(shiftMap.values()).sort((a, b) =>
