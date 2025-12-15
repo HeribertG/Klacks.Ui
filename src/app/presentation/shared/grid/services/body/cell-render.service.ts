@@ -131,6 +131,7 @@ export class BaseCellRenderService {
     firstVisibleRow: number,
     firstVisibleCol: number
   ): void {
+    this.clearRenderCanvas();
     this.renderCellRange(
       0,
       visibleRows,
@@ -139,6 +140,14 @@ export class BaseCellRenderService {
       firstVisibleRow,
       firstVisibleCol
     );
+  }
+
+  private clearRenderCanvas(): void {
+    const ctx = this.canvasManager.renderCanvasCtx;
+    const canvas = this.canvasManager.renderCanvas;
+    if (ctx && canvas) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
   }
 
   public refreshCell(
@@ -164,6 +173,7 @@ export class BaseCellRenderService {
     firstVisibleRow: number,
     firstVisibleCol: number
   ): void {
+    this.clearRenderCanvas();
     this.renderCellRange(
       0,
       visibleRows,
