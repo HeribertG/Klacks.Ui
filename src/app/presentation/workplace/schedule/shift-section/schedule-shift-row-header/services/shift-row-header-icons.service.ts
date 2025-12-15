@@ -19,6 +19,9 @@ export class ShiftRowHeaderIconsService {
   private _containerPicto: HTMLCanvasElement | undefined;
 
   reset(width: number, height: number): void {
+    if (this._width === width && this._height === height) {
+      return;
+    }
     this._width = width;
     this._height = height;
     this._unknownTimePicto = undefined;
