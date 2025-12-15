@@ -5,11 +5,12 @@ import { GridSelectionModeEnum } from 'src/app/presentation/shared/grid/enums/di
 @Injectable()
 export class ShiftSettingsService extends BaseSettingsService {
   override hasHeader = false;
-  override cellHeight = 40;
+  override cellHeight = 38;
   override cellHeaderHeight = 0;
-  override selectionMode: GridSelectionModeEnum = GridSelectionModeEnum.RowActiveOnly;
+  override selectionMode: GridSelectionModeEnum =
+    GridSelectionModeEnum.RowActiveOnly;
 
-  private readonly baseCellHeight = 40;
+  private readonly baseCellHeight = 38;
 
   constructor() {
     super();

@@ -242,11 +242,11 @@ export class BaseCreateCellService {
 
   private drawBadge(ctx: CanvasRenderingContext2D, badge: CellBadge): void {
     const zoom = this.settings.zoom;
-    const fontSize = (DEFAULT_BADGE_HEIGHT - 4) * zoom;
+    const fontSize = (DEFAULT_BADGE_HEIGHT - 2) * zoom;
     ctx.font = `${fontSize}px Arial`;
     const textWidth = ctx.measureText(badge.text).width;
     const badgeWidth = textWidth + DEFAULT_BADGE_PADDING * 2 * zoom;
-    const badgeHeight = DEFAULT_BADGE_HEIGHT * zoom;
+    const badgeHeight = (DEFAULT_BADGE_HEIGHT + 2) * zoom;
     const borderRadius = badgeHeight / 2;
 
     const position = this.calculateBadgePosition(badge.corner, badgeWidth, badgeHeight);

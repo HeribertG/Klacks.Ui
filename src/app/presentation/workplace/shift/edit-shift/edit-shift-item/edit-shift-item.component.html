@@ -64,6 +64,7 @@
               required
               minlength="1"
               maxlength="6"
+              [disabled]="isFieldsDisabled"
             />
           </div>
         </div>
@@ -109,6 +110,7 @@
           (input)="onNameInput($event)"
           #shiftName="ngModel"
           required
+          [disabled]="isFieldsDisabled"
         />
       </div>
 

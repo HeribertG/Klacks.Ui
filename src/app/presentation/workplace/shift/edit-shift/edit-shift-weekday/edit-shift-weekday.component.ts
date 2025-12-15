@@ -42,6 +42,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 export class EditShiftWeekdayComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Input() isComplex = false;
 
@@ -224,6 +225,7 @@ export class EditShiftWeekdayComponent
   }
 
   get isFieldsDisabled(): boolean {
+    if (this.isReadOnly) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

@@ -72,6 +72,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public onSaveCompleted?: () => void;
   public onExternalFilterChange?: () => void;
   public isSaveAndClose = false;
+  public returnUrl: string | null = null;
 
   public shifts: IShift[] = [];
   public editShift: Shift | undefined;
@@ -614,6 +615,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   /* #endregion   temporary check is ShiftFilter dirty */
 
   goBack(): string {
+    if (this.returnUrl) {
+      return this.returnUrl;
+    }
     return '/workplace/shift';
   }
 

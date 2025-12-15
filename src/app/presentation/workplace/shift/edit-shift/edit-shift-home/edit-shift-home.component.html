@@ -7,6 +7,7 @@
     <app-edit-shift-item
       (isChangingEvent)="onIsChanging($event)"
       (isChangingMode)="onIsChangingMode()"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     ></app-edit-shift-item>
   </div>
@@ -15,6 +16,7 @@
   <div class="container-profilline">
     <app-edit-shift-group
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-shift-group>
@@ -25,6 +27,7 @@
     <app-edit-shift-weekday
       (isChangingEvent)="onIsChanging($event)"
       [isComplex]="isComplex"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-shift-weekday>
@@ -34,6 +37,7 @@
     @if (isComplex) {
     <app-edit-shift-macro
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     ></app-edit-shift-macro>
     }
@@ -43,6 +47,7 @@
   <div class="container-profilline">
     <app-edit-shift-address
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-shift-address>
@@ -53,6 +58,7 @@
     @if (isComplex || isContainer) {
     <app-edit-shift-special-feature
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-edit-shift-special-feature>

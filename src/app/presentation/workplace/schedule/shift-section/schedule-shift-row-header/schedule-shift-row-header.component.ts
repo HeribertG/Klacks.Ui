@@ -23,13 +23,14 @@ import { ShiftRowHeaderCanvasService } from './services/shift-row-header-canvas.
 import { ShiftCreateRowHeaderService } from './services/shift-create-row-header.service';
 import { ShiftDrawRowHeaderService } from './services/shift-draw-row-header.service';
 import { ShiftRowHeaderIconsService } from './services/shift-row-header-icons.service';
+import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-events.directive';
 
 @Component({
   selector: 'app-schedule-shift-row-header',
   templateUrl: './schedule-shift-row-header.component.html',
   styleUrls: ['./schedule-shift-row-header.component.scss'],
   standalone: true,
-  imports: [ResizeDirective],
+  imports: [ResizeDirective, ShiftRowHeaderEventsDirective],
   providers: [
     ShiftRowHeaderCanvasService,
     ShiftCreateRowHeaderService,

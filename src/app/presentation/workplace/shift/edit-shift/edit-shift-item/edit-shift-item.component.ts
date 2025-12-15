@@ -6,6 +6,7 @@ import {
   EventEmitter,
   inject,
   Injector,
+  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -54,6 +55,7 @@ import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-e
 export class EditShiftItemComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
   @Output() isChangingMode = new EventEmitter();
 
@@ -283,6 +285,7 @@ export class EditShiftItemComponent
   }
 
   get isFieldsDisabled(): boolean {
+    if (this.isReadOnly) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }

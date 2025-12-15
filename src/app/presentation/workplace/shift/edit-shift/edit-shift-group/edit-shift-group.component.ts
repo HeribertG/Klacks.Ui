@@ -7,6 +7,7 @@ import {
   EventEmitter,
   inject,
   Injector,
+  Input,
   OnDestroy,
   OnInit,
   Output,
@@ -45,6 +46,7 @@ import { AuthService } from 'src/app/presentation/auth/auth.service';
 export class EditShiftGroupComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
+  @Input() isReadOnly = false;
   @ViewChild('groupShiftForm', { static: false }) groupShiftForm:
     | NgForm
     | undefined;
@@ -148,6 +150,7 @@ export class EditShiftGroupComponent
   }
 
   get isFieldsDisabled(): boolean {
+    if (this.isReadOnly) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     const isNotOriginal =
       status !== undefined && status !== ShiftStatus.OriginalOrder;

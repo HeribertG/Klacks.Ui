@@ -7,7 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { combineLatest, Subject, takeUntil } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
@@ -56,6 +56,8 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   isComplex = false;
+  isReadOnly = false;
+  private returnUrl: string | null = null;
 
   // Getter to determine if nav should be hidden when shift status is IsCut
   get isNavVisible(): boolean {
@@ -76,9 +78,18 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
     this.searchService.setSearchVisibility(false);
     this.savebarService.setSavebarVisibility(true);
 
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = params['id'];
+    combineLatest([
+      this.activatedRoute.params,
+      this.activatedRoute.queryParams
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([params, queryParams]) => {
+      this.isReadOnly = queryParams['readonly'] === 'true';
+      this.returnUrl = queryParams['returnUrl'] || null;
 
+      if (this.returnUrl) {
+        this.dataManagementShiftService.returnUrl = this.returnUrl;
+      }
+
+      const id = params['id'];
       if (id) {
         this.workplaceStateService.setActiveManagerByRoute('edit-shift');
         this.dataManagementShiftService.readShift(id);
@@ -94,6 +105,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.dataManagementShiftService.returnUrl = null;
     this.destroy$.next();
     this.destroy$.complete();
   }

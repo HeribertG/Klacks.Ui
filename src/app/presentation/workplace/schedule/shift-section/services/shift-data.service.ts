@@ -332,6 +332,13 @@ export class ShiftDataService extends BaseDataService {
     return undefined;
   }
 
+  getShiftId(row: number): string | undefined {
+    if (row < this.shiftRows.length) {
+      return this.shiftRows[row].shiftId;
+    }
+    return undefined;
+  }
+
   getShiftName(row: number): string {
     if (row < this.shiftRows.length) {
       return this.shiftRows[row].shiftName;

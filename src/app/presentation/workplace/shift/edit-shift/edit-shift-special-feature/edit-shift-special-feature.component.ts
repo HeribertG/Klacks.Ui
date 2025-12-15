@@ -4,6 +4,7 @@ import {
   Component,
   EventEmitter,
   inject,
+  Input,
   OnDestroy,
   Output,
   ViewChild,
@@ -35,6 +36,7 @@ import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-
 export class EditShiftSpecialFeatureComponent
   implements AfterViewInit, OnDestroy
 {
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('specialFeatureShiftForm', { static: false })
@@ -135,6 +137,7 @@ export class EditShiftSpecialFeatureComponent
   }
 
   get isFieldsDisabled(): boolean {
+    if (this.isReadOnly) return true;
     const status = this.dataManagementShiftService.editShift?.status;
     return status !== undefined && status !== ShiftStatus.OriginalOrder;
   }
