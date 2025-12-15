@@ -9,7 +9,19 @@ export class ShiftSettingsService extends BaseSettingsService {
   override cellHeaderHeight = 0;
   override selectionMode: GridSelectionModeEnum = GridSelectionModeEnum.RowActiveOnly;
 
+  private readonly baseCellHeight = 40;
+
   constructor() {
     super();
+  }
+
+  override set zoom(value: number) {
+    super.zoom = value;
+    this.cellHeight = this.baseCellHeight * value;
+    this.cellHeaderHeight = 0;
+  }
+
+  override get zoom(): number {
+    return super.zoom;
   }
 }
