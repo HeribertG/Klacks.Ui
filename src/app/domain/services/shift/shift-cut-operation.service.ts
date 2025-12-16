@@ -102,17 +102,24 @@ export class ShiftCutOperationService {
 
     const selectedStartMinutes = selectedShift.internalStartShift.toMinutes();
     const selectedEndMinutes = selectedShift.internalEndShift?.toMinutes() || 0;
+    const cutStartMinutes = cutTime.toMinutes();
+
+    const midnightMinutes = 0;
+    const earlyMorningMinutes = 6 * 60;
+
+    selectedShift.cuttingAfterMidnight =
+      selectedStartMinutes >= midnightMinutes && selectedStartMinutes < earlyMorningMinutes;
 
     if (selectedEndMinutes < selectedStartMinutes && selectedShift.fromDate) {
-      selectedShift.cuttingAfterMidnight = false;
-
       const nextDayDate = new Date(selectedShift.fromDate);
       nextDayDate.setDate(nextDayDate.getDate() + 1);
 
       cutTimeProps.fromDate = nextDayDate;
       cutTimeProps.internalFromDate = transformDateToNgbDateStruct(nextDayDate);
-      cutTimeProps.cuttingAfterMidnight = true;
     }
+
+    cutTimeProps.cuttingAfterMidnight =
+      cutStartMinutes >= midnightMinutes && cutStartMinutes < earlyMorningMinutes;
 
     this.prepareCutShift(copiedShift, cutTimeProps);
 
@@ -130,15 +137,14 @@ export class ShiftCutOperationService {
     const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
     const copiedEndMinutes = copiedShift.internalEndShift?.toMinutes() || 0;
 
-    if (copiedEndMinutes < copiedStartMinutes && copiedShift.fromDate) {
-      copiedShift.cuttingAfterMidnight = true;
+    copiedShift.cuttingAfterMidnight =
+      copiedStartMinutes >= midnightMinutes && copiedStartMinutes < earlyMorningMinutes;
 
+    if (copiedEndMinutes < copiedStartMinutes && copiedShift.fromDate) {
       const adjustedDate = new Date(copiedShift.fromDate);
       adjustedDate.setDate(adjustedDate.getDate() + 1);
       copiedShift.fromDate = adjustedDate;
       copiedShift.internalFromDate = transformDateToNgbDateStruct(adjustedDate);
-    } else {
-      copiedShift.cuttingAfterMidnight = false;
     }
 
     return {

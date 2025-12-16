@@ -538,15 +538,11 @@ export class CutShiftListComponent implements OnInit {
 
     const originalStartMinutes =
       this.selectedShift.internalStartShift?.toMinutes() || 0;
-    const originalEndMinutes = this.selectedShift.internalEndShift.toMinutes();
-    if (
-      originalEndMinutes < originalStartMinutes &&
-      originalEndMinutes !== originalStartMinutes
-    ) {
-      this.selectedShift.cuttingAfterMidnight = true;
-    } else {
-      this.selectedShift.cuttingAfterMidnight = false;
-    }
+
+    const midnightMinutes = 0;
+    const earlyMorningMinutes = 6 * 60;
+    this.selectedShift.cuttingAfterMidnight =
+      originalStartMinutes >= midnightMinutes && originalStartMinutes < earlyMorningMinutes;
 
     const cutTimeProps: any = {
       startShift: `${this.cutTimeShift.hours
@@ -579,23 +575,12 @@ export class CutShiftListComponent implements OnInit {
     );
 
     const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
-    const copiedEndMinutes = copiedShift.internalEndShift?.toMinutes() || 0;
+
+    copiedShift.cuttingAfterMidnight =
+      copiedStartMinutes >= midnightMinutes && copiedStartMinutes < earlyMorningMinutes;
 
     if (
-      copiedEndMinutes < copiedStartMinutes &&
-      copiedEndMinutes !== copiedStartMinutes
-    ) {
-      copiedShift.cuttingAfterMidnight = true;
-    } else {
-      copiedShift.cuttingAfterMidnight = false;
-    }
-
-    const parentOriginalStartMinutes =
-      this.selectedShift.internalStartShift?.toMinutes() || 0;
-
-    if (
-      this.selectedShift.cuttingAfterMidnight &&
-      copiedStartMinutes < parentOriginalStartMinutes &&
+      copiedShift.cuttingAfterMidnight &&
       copiedShift.fromDate
     ) {
       const adjustedDate = new Date(copiedShift.fromDate);
