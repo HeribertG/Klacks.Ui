@@ -538,11 +538,14 @@ export class CutShiftListComponent implements OnInit {
 
     const originalStartMinutes =
       this.selectedShift.internalStartShift?.toMinutes() || 0;
+    const originalEndMinutes = originalInternalEndShift?.toMinutes() || 0;
 
-    const midnightMinutes = 0;
-    const earlyMorningMinutes = 6 * 60;
+    const crossesMidnight = originalEndMinutes < originalStartMinutes;
+
     this.selectedShift.cuttingAfterMidnight =
-      originalStartMinutes >= midnightMinutes && originalStartMinutes < earlyMorningMinutes;
+      crossesMidnight &&
+      originalStartMinutes >= 0 &&
+      originalStartMinutes < originalEndMinutes;
 
     const cutTimeProps: any = {
       startShift: `${this.cutTimeShift.hours
@@ -577,7 +580,9 @@ export class CutShiftListComponent implements OnInit {
     const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
 
     copiedShift.cuttingAfterMidnight =
-      copiedStartMinutes >= midnightMinutes && copiedStartMinutes < earlyMorningMinutes;
+      crossesMidnight &&
+      copiedStartMinutes >= 0 &&
+      copiedStartMinutes < originalEndMinutes;
 
     if (
       copiedShift.cuttingAfterMidnight &&

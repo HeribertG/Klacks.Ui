@@ -111,6 +111,130 @@ describe('ShiftCutOperationService', () => {
             expect(workTimeCalculator.calculateWorkTime).toHaveBeenCalled();
             expect(result.originalShift.status).toBe(ShiftStatus.SplitShift);
         });
+
+        describe('CuttingAfterMidnight', () => {
+            // Arrange
+            beforeEach(() => {
+                workTimeCalculator.calculateWorkTime.mockReturnValue(240);
+            });
+
+            it('should set CuttingAfterMidnight=true when split AFTER midnight (22:00-06:00, cut at 02:00)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '22:00:00';
+                selectedShift.endShift = '06:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('6', '0');
+
+                const cutTime = OwnTime.forTime('2', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.originalShift.cuttingAfterMidnight).toBe(false);
+                expect(result.newShift.cuttingAfterMidnight).toBe(true);
+                expect(new Date(result.newShift.fromDate!).getDate()).toBe(16);
+            });
+
+            it('should set CuttingAfterMidnight=false when split BEFORE midnight (22:00-06:00, cut at 23:00)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '22:00:00';
+                selectedShift.endShift = '06:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('6', '0');
+
+                const cutTime = OwnTime.forTime('23', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.originalShift.cuttingAfterMidnight).toBe(false);
+                expect(result.newShift.cuttingAfterMidnight).toBe(false);
+            });
+
+            it('should set CuttingAfterMidnight=false for daytime shift (08:00-16:00, cut at 12:00)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '08:00:00';
+                selectedShift.endShift = '16:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('8', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('16', '0');
+
+                const cutTime = OwnTime.forTime('12', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.originalShift.cuttingAfterMidnight).toBe(false);
+                expect(result.newShift.cuttingAfterMidnight).toBe(false);
+                expect(new Date(result.newShift.fromDate!).getDate()).toBe(15);
+            });
+
+            it('should set CuttingAfterMidnight=true for longer night shift (20:00-08:00, cut at 06:00)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '20:00:00';
+                selectedShift.endShift = '08:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('20', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('8', '0');
+
+                const cutTime = OwnTime.forTime('6', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.originalShift.cuttingAfterMidnight).toBe(false);
+                expect(result.newShift.cuttingAfterMidnight).toBe(true);
+                expect(new Date(result.newShift.fromDate!).getDate()).toBe(16);
+            });
+
+            it('should set CuttingAfterMidnight=true for short night shift (22:00-04:00, cut at 02:00)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '22:00:00';
+                selectedShift.endShift = '04:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('4', '0');
+
+                const cutTime = OwnTime.forTime('2', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.originalShift.cuttingAfterMidnight).toBe(false);
+                expect(result.newShift.cuttingAfterMidnight).toBe(true);
+                expect(new Date(result.newShift.fromDate!).getDate()).toBe(16);
+            });
+
+            it('should NOT set CuttingAfterMidnight=true when cut time exceeds original end (22:00-04:00, cut at 05:00 is invalid scenario)', () => {
+                // Arrange
+                const selectedShift = new Shift();
+                selectedShift.fromDate = new Date(2025, 0, 15);
+                selectedShift.startShift = '22:00:00';
+                selectedShift.endShift = '04:00:00';
+                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
+                selectedShift.internalEndShift = OwnTime.forTime('4', '0');
+
+                const cutTime = OwnTime.forTime('5', '0');
+
+                // Act
+                const result = service.cutByTime({ selectedShift, cutTime });
+
+                // Assert
+                expect(result.newShift.cuttingAfterMidnight).toBe(false);
+            });
+        });
     });
 
     describe('cutByWeekdays', () => {

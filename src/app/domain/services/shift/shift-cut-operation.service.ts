@@ -100,26 +100,29 @@ export class ShiftCutOperationService {
       internalStartShift: originalInternalEndShift,
     };
 
-    const selectedStartMinutes = selectedShift.internalStartShift.toMinutes();
-    const selectedEndMinutes = selectedShift.internalEndShift?.toMinutes() || 0;
+    const originalStartMinutes = selectedShift.internalStartShift.toMinutes();
+    const originalEndMinutes = originalInternalEndShift?.toMinutes() || 0;
     const cutStartMinutes = cutTime.toMinutes();
 
-    const midnightMinutes = 0;
-    const earlyMorningMinutes = 6 * 60;
+    const crossesMidnight = originalEndMinutes < originalStartMinutes;
 
     selectedShift.cuttingAfterMidnight =
-      selectedStartMinutes >= midnightMinutes && selectedStartMinutes < earlyMorningMinutes;
+      crossesMidnight &&
+      originalStartMinutes >= 0 &&
+      originalStartMinutes < originalEndMinutes;
 
-    if (selectedEndMinutes < selectedStartMinutes && selectedShift.fromDate) {
+    cutTimeProps.cuttingAfterMidnight =
+      crossesMidnight &&
+      cutStartMinutes >= 0 &&
+      cutStartMinutes < originalEndMinutes;
+
+    if (cutTimeProps.cuttingAfterMidnight && selectedShift.fromDate) {
       const nextDayDate = new Date(selectedShift.fromDate);
       nextDayDate.setDate(nextDayDate.getDate() + 1);
 
       cutTimeProps.fromDate = nextDayDate;
       cutTimeProps.internalFromDate = transformDateToNgbDateStruct(nextDayDate);
     }
-
-    cutTimeProps.cuttingAfterMidnight =
-      cutStartMinutes >= midnightMinutes && cutStartMinutes < earlyMorningMinutes;
 
     this.prepareCutShift(copiedShift, cutTimeProps);
 
@@ -133,19 +136,6 @@ export class ShiftCutOperationService {
       copiedShift.internalStartShift,
       copiedShift.internalEndShift
     );
-
-    const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
-    const copiedEndMinutes = copiedShift.internalEndShift?.toMinutes() || 0;
-
-    copiedShift.cuttingAfterMidnight =
-      copiedStartMinutes >= midnightMinutes && copiedStartMinutes < earlyMorningMinutes;
-
-    if (copiedEndMinutes < copiedStartMinutes && copiedShift.fromDate) {
-      const adjustedDate = new Date(copiedShift.fromDate);
-      adjustedDate.setDate(adjustedDate.getDate() + 1);
-      copiedShift.fromDate = adjustedDate;
-      copiedShift.internalFromDate = transformDateToNgbDateStruct(adjustedDate);
-    }
 
     return {
       originalShift: selectedShift,
