@@ -126,6 +126,10 @@ export class ShiftCutOperationService {
 
     this.prepareCutShift(copiedShift, cutTimeProps);
 
+    if (copiedShift.cuttingAfterMidnight) {
+      this.shiftWeekdaysForward(copiedShift);
+    }
+
     selectedShift.status = ShiftStatus.SplitShift;
 
     selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
@@ -340,5 +344,23 @@ export class ShiftCutOperationService {
     copiedShift.isFriday = weekdays.isFriday;
     copiedShift.isSaturday = weekdays.isSaturday;
     copiedShift.isSunday = weekdays.isSunday;
+  }
+
+  private shiftWeekdaysForward(shift: Shift): void {
+    const oldMonday = shift.isMonday;
+    const oldTuesday = shift.isTuesday;
+    const oldWednesday = shift.isWednesday;
+    const oldThursday = shift.isThursday;
+    const oldFriday = shift.isFriday;
+    const oldSaturday = shift.isSaturday;
+    const oldSunday = shift.isSunday;
+
+    shift.isMonday = oldSunday;
+    shift.isTuesday = oldMonday;
+    shift.isWednesday = oldTuesday;
+    shift.isThursday = oldWednesday;
+    shift.isFriday = oldThursday;
+    shift.isSaturday = oldFriday;
+    shift.isSunday = oldSaturday;
   }
 }

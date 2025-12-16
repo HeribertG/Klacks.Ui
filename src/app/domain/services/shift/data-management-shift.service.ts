@@ -24,7 +24,7 @@ import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/in
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',

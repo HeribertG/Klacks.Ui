@@ -592,6 +592,7 @@ export class CutShiftListComponent implements OnInit {
       adjustedDate.setDate(adjustedDate.getDate() + 1);
       copiedShift.fromDate = adjustedDate;
       copiedShift.internalFromDate = transformDateToNgbDateStruct(adjustedDate);
+      this.shiftWeekdaysForward(copiedShift);
     }
 
     this.dataManagementShiftCutService.addCutShift(copiedShift);
@@ -903,5 +904,23 @@ export class CutShiftListComponent implements OnInit {
       }
     }
     return value;
+  }
+
+  private shiftWeekdaysForward(shift: Shift): void {
+    const oldMonday = shift.isMonday;
+    const oldTuesday = shift.isTuesday;
+    const oldWednesday = shift.isWednesday;
+    const oldThursday = shift.isThursday;
+    const oldFriday = shift.isFriday;
+    const oldSaturday = shift.isSaturday;
+    const oldSunday = shift.isSunday;
+
+    shift.isMonday = oldSunday;
+    shift.isTuesday = oldMonday;
+    shift.isWednesday = oldTuesday;
+    shift.isThursday = oldWednesday;
+    shift.isFriday = oldThursday;
+    shift.isSaturday = oldFriday;
+    shift.isSunday = oldSaturday;
   }
 }
