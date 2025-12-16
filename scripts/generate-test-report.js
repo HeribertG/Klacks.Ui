@@ -37,12 +37,30 @@ function parseTestDataFromOutput() {
       let currentTestData = [];
 
       for (const line of lines) {
-        const testMatch = line.match(/Test (\d+):/);
-        if (testMatch) {
+        const testNumMatch = line.match(/Test (\d+):/);
+        if (testNumMatch) {
           if (currentTestKey && currentTestData.length > 0) {
             testDataMap[currentTestKey] = currentTestData;
           }
-          currentTestKey = `Test ${testMatch[1]}`;
+          currentTestKey = `Test ${testNumMatch[1]}`;
+          currentTestData = [];
+        }
+
+        const scriptTestMatch = line.match(/should interpret correctly for script: (.+)/);
+        if (scriptTestMatch) {
+          if (currentTestKey && currentTestData.length > 0) {
+            testDataMap[currentTestKey] = currentTestData;
+          }
+          currentTestKey = scriptTestMatch[1].trim();
+          currentTestData = [];
+        }
+
+        const stdoutMatch = line.match(/stdout\s*\|\s*.*>\s*(.+)/);
+        if (stdoutMatch && !testNumMatch && !scriptTestMatch) {
+          if (currentTestKey && currentTestData.length > 0) {
+            testDataMap[currentTestKey] = currentTestData;
+          }
+          currentTestKey = stdoutMatch[1].trim();
           currentTestData = [];
         }
 
@@ -74,10 +92,12 @@ function escapeHtml(text) {
 
 function formatTestData(data) {
   let formatted = escapeHtml(data);
-  formatted = formatted.replace(/^(Input|Original|Copied|Total|CuttingAfterMidnight):/g, '<span class="label">$1:</span>');
+  formatted = formatted.replace(/^(Input|Original|Copied|Total|CuttingAfterMidnight|Script|Result|Rule|Year|Date|isLeapYear|daysIntoYear|ISO Week):/g, '<span class="label">$1:</span>');
   formatted = formatted.replace(/= (\d+)min/g, '= <span class="value">$1min</span>');
-  formatted = formatted.replace(/\(expected: (\d+min)\)/g, '(expected: <span class="expected">$1</span>)');
+  formatted = formatted.replace(/\(expected: ([^)]+)\)/g, '(expected: <span class="expected">$1</span>)');
   formatted = formatted.replace(/(true|false)/g, '<span class="bool">$1</span>');
+  formatted = formatted.replace(/Result:<\/span> ([^ ]+)/g, 'Result:</span> <span class="value">$1</span>');
+  formatted = formatted.replace(/\| /g, '<br>');
   return formatted;
 }
 
@@ -111,17 +131,28 @@ function generateHtml(results, testDataMap) {
 
       testListHtml += `<div class="test ${statusClass}"><span class="icon">${statusIcon}</span> ${escapeHtml(test.title)}${duration}</div>\n`;
 
+      let testData = null;
+
       const testNumberMatch = test.title.match(/Test (\d+):/);
       if (testNumberMatch) {
-        const testKey = `Test ${testNumberMatch[1]}`;
-        const testData = testDataMap[testKey];
-        if (testData && testData.length > 0) {
-          testListHtml += `<div class="test-data">\n`;
-          for (const data of testData) {
-            testListHtml += `  <div class="data-line">${formatTestData(data)}</div>\n`;
-          }
-          testListHtml += `</div>\n`;
+        testData = testDataMap[`Test ${testNumberMatch[1]}`];
+      }
+
+      const scriptMatch = test.title.match(/should interpret correctly for script: (.+)/);
+      if (scriptMatch) {
+        testData = testDataMap[scriptMatch[1].trim()];
+      }
+
+      if (!testData) {
+        testData = testDataMap[test.title];
+      }
+
+      if (testData && testData.length > 0) {
+        testListHtml += `<div class="test-data">\n`;
+        for (const data of testData) {
+          testListHtml += `  <div class="data-line">${formatTestData(data)}</div>\n`;
         }
+        testListHtml += `</div>\n`;
       }
 
       if (status === 'failed' && test.failureMessages && test.failureMessages.length > 0) {

@@ -57,17 +57,27 @@ describe('ScriptService', () => {
 
     testCases.forEach((testCase) => {
         it(`should interpret correctly for script: ${testCase.script}`, () => {
+            // Arrange
             service.clearResult();
             service.clearDebugResult();
+
+            // Act
             const isCompiled = service.compile(testCase.script, false, false);
             expect(isCompiled).toBe(true);
             const result = service.run();
             expect(result).toBe(true);
+
+            // Assert
             const message = service.result();
+            const debugMessage = service.debugResult();
+            const actualResult = message.length > 0 ? message[0].message.toString() : debugMessage.length > 0 ? debugMessage[0].message.toString() : 'no result';
+
+            console.log(`[TEST-DATA] Script: ${testCase.script.replace(/\n/g, ' | ')}`);
+            console.log(`[TEST-DATA] Result: ${actualResult} (expected: ${testCase.result})`);
+
             if (message.length > 0) {
                 expect(message[0].message.toString()).toBe(testCase.result.toString());
             }
-            const debugMessage = service.debugResult();
             if (debugMessage.length > 0) {
                 expect(debugMessage[0].message.toString()).toBe(testCase.result.toString());
             }
