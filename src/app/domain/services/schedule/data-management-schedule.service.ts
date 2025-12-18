@@ -12,8 +12,13 @@ import {
   IShiftScheduleFilter,
   ShiftScheduleFilter,
 } from 'src/app/domain/models/shift-schedule-class';
+import {
+  IWorkScheduleEntry,
+  IWorkScheduleFilter,
+} from 'src/app/domain/models/work-schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
+import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
 import {
   cloneObject,
   compareComplexObjects,
@@ -30,6 +35,7 @@ import { takeUntil } from 'rxjs/operators';
 export class DataManagementScheduleService implements ILoadable {
   private dataSchedule = inject(DataScheduleService);
   private dataShiftSchedule = inject(DataShiftScheduleService);
+  private dataWorkSchedule = inject(DataWorkScheduleService);
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
   private destroyRef = inject(DestroyRef);
   private destroy$ = new Subject<void>();
@@ -60,7 +66,9 @@ export class DataManagementScheduleService implements ILoadable {
   public shiftScheduleFilter: IShiftScheduleFilter = new ShiftScheduleFilter();
   public clients: IClientWork[] = [];
   public shiftSchedules: IShiftSchedule[] = [];
+  public workScheduleEntries: IWorkScheduleEntry[] = [];
   public holidayDates: Date[] = [];
+  public isWorkScheduleRead = signal(false);
   private _restoreSearchSignal = signal('');
   public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
   public onExternalFilterChange?: () => void;
@@ -130,6 +138,55 @@ export class DataManagementScheduleService implements ILoadable {
           console.error('Error loading shift schedules:', err);
         },
       });
+  }
+
+  readWorkSchedule() {
+    this.workScheduleEntries = [];
+
+    const startDate = this.calculateStartDate();
+    const endDate = this.calculateEndDate();
+
+    const filter: IWorkScheduleFilter = {
+      startDate: this.formatDateOnly(startDate),
+      endDate: this.formatDateOnly(endDate),
+      selectedGroup: this.workFilter.selectedGroup || undefined,
+    };
+
+    this.dataWorkSchedule.getWorkSchedule(filter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          this.workScheduleEntries = response.entries;
+          this.isWorkScheduleRead.set(true);
+          setTimeout(() => this.isWorkScheduleRead.set(false), 100);
+        },
+        error: (err) => {
+          console.error('Error loading work schedule:', err);
+        },
+      });
+  }
+
+  private calculateStartDate(): Date {
+    const year = this.workFilter.currentYear;
+    const month = this.workFilter.currentMonth - 1;
+    const daysBefore = this.workFilter.dayVisibleBeforeMonth;
+    const firstOfMonth = new Date(year, month, 1);
+    return new Date(firstOfMonth.getTime() - daysBefore * 24 * 60 * 60 * 1000);
+  }
+
+  private calculateEndDate(): Date {
+    const year = this.workFilter.currentYear;
+    const month = this.workFilter.currentMonth - 1;
+    const daysAfter = this.workFilter.dayVisibleAfterMonth;
+    const lastOfMonth = new Date(year, month + 1, 0);
+    return new Date(lastOfMonth.getTime() + daysAfter * 24 * 60 * 60 * 1000);
+  }
+
+  private formatDateOnly(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private autoLoadNextChunk(): void {
