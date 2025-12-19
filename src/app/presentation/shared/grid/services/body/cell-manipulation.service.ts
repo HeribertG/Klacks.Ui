@@ -8,6 +8,12 @@ import { ClipboardModeEnum } from 'src/app/presentation/shared/grid/enums/divers
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 
+export interface HoveredCellInfo {
+  row: number;
+  column: number;
+  isEmpty: boolean;
+}
+
 @Injectable()
 export class BaseCellManipulationService {
   protected gridSetting = inject(BaseSettingsService);
@@ -17,6 +23,7 @@ export class BaseCellManipulationService {
 
   private _position: MyPosition = new MyPosition(-1, -1);
   public positionSignal = signal<MyPosition>(this._position);
+  public hoveredCell = signal<HoveredCellInfo | null>(null);
 
   public get Position(): MyPosition {
     return this._position;

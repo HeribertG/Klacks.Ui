@@ -51,6 +51,7 @@ export class ScheduleTemplateEventsDirective {
     if (!this.isOwnElement(event)) {
       return;
     }
+    this.cellManipulation.hoveredCell.set(null);
     this.gridSurface.destroyToolTip();
   }
 
@@ -115,13 +116,15 @@ export class ScheduleTemplateEventsDirective {
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
+    const pos: MyPosition =
+      this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+
+    this.updateHoveredCell(pos);
+
     if (event.buttons === 1 && this.isDrawing) {
       if (this.isMultiselectBlocked()) {
         return;
       }
-
-      const pos: MyPosition =
-        this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
       this.scrollOnPoint(pos);
       if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
@@ -134,8 +137,7 @@ export class ScheduleTemplateEventsDirective {
     }
 
     if (event.buttons === 0) {
-      const col: number =
-        this.gridSurface.drawSchedule.calcCorrectCoordinate(event).column;
+      const col: number = pos.column;
 
       if (col < this.gridData.columns && col >= 0) {
         const holiday = this.gridData.holidayInfo(col);
@@ -147,6 +149,20 @@ export class ScheduleTemplateEventsDirective {
       }
       this.gridSurface.hideToolTip();
     }
+  }
+
+  private updateHoveredCell(pos: MyPosition): void {
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      this.cellManipulation.hoveredCell.set(null);
+      return;
+    }
+
+    const isEmpty = !this.gridData.isCellActive(pos.row, pos.column);
+    this.cellManipulation.hoveredCell.set({
+      row: pos.row,
+      column: pos.column,
+      isEmpty,
+    });
   }
 
   @HostListener('window:keydown', ['$event']) onKeyDown(
