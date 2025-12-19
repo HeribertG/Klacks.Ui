@@ -487,8 +487,11 @@ export class BaseDrawRowHeaderService {
 
     if (verticalDiff > 0) {
       // Scrolling down - add new rows at bottom
-      for (let i = 0; i < verticalDiff; i++) {
-        const row = visibleRow - verticalDiff + i;
+      // Calculate where the empty area starts based on actual canvas height
+      const emptyAreaStartY = this.height - (verticalDiff * this.settings.cellHeight);
+      const startRow = Math.floor(emptyAreaStartY / this.settings.cellHeight);
+
+      for (let row = startRow; row < visibleRow; row++) {
         const tmpRow = row + this.firstVisibleRow;
         this.addCells(tmpRow, row);
       }
