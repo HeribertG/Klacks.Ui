@@ -9,12 +9,13 @@ import {
   Input,
   OnChanges,
   OnDestroy,
+  OnInit,
   runInInjectionContext,
   SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AngularSplitModule } from 'angular-split';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
@@ -28,7 +29,13 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
-import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import {
+  BaseCellManipulationService,
+  HoveredCellInfo,
+} from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
@@ -74,7 +81,7 @@ import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal
   styleUrls: ['./shift-section.component.scss'],
 })
 export class ShiftSectionComponent
-  implements AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('shiftSurface', { static: true })
   shiftSurface!: ScheduleSurfaceTemplateComponent;
@@ -87,6 +94,9 @@ export class ShiftSectionComponent
   private cdr = inject(ChangeDetectorRef);
   private cellManipulation = inject(BaseCellManipulationService);
   private dataService = inject(BaseDataService);
+  private translateService = inject(TranslateService);
+
+  private currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
   @Input() horizontalSize!: number;
   @Input() zoom = 1.0;
@@ -117,6 +127,10 @@ export class ShiftSectionComponent
   }
 
   private effects: EffectRef[] = [];
+
+  ngOnInit(): void {
+    this.currentLang = this.translateService.currentLang as Language;
+  }
 
   ngAfterViewInit(): void {
     this.readSignals();
@@ -200,6 +214,39 @@ export class ShiftSectionComponent
         this.cdr.detectChanges();
       });
       this.effects.push(positionEffect);
+
+      const hoveredCellEffect = effect(() => {
+        const hoveredCell = this.cellManipulation.hoveredCell();
+        this.handleHoveredCellChange(hoveredCell);
+      });
+      this.effects.push(hoveredCellEffect);
     });
+  }
+
+  private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {
+    if (!hoveredCell) {
+      this.shiftSurface.destroyToolTip();
+      return;
+    }
+
+    if (hoveredCell.isEmpty) {
+      const holiday = this.shiftSurface.dataService.holidayInfo(hoveredCell.column);
+      if (holiday?.currentName) {
+        const holidayName = this.getTranslatedText(holiday.currentName);
+        if (holidayName) {
+          this.shiftSurface.showToolTip({
+            value: holidayName,
+            event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
+          });
+          return;
+        }
+      }
+    }
+
+    this.shiftSurface.destroyToolTip();
+  }
+
+  private getTranslatedText(multiLanguage: MultiLanguage): string {
+    return multiLanguage[this.currentLang] || multiLanguage.de || '';
   }
 }

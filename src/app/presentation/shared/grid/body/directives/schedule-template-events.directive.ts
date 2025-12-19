@@ -119,7 +119,7 @@ export class ScheduleTemplateEventsDirective {
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
-    this.updateHoveredCell(pos);
+    this.updateHoveredCell(pos, event);
 
     if (event.buttons === 1 && this.isDrawing) {
       if (this.isMultiselectBlocked()) {
@@ -135,23 +135,9 @@ export class ScheduleTemplateEventsDirective {
 
       this.hasCollection = true;
     }
-
-    if (event.buttons === 0) {
-      const col: number = pos.column;
-
-      if (col < this.gridData.columns && col >= 0) {
-        const holiday = this.gridData.holidayInfo(col);
-        if (holiday) {
-          const holidayName = holiday.currentName;
-          this.gridSurface.showToolTip({ value: holidayName, event });
-          return;
-        }
-      }
-      this.gridSurface.hideToolTip();
-    }
   }
 
-  private updateHoveredCell(pos: MyPosition): void {
+  private updateHoveredCell(pos: MyPosition, event: MouseEvent): void {
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
       this.cellManipulation.hoveredCell.set(null);
       return;
@@ -162,6 +148,8 @@ export class ScheduleTemplateEventsDirective {
       row: pos.row,
       column: pos.column,
       isEmpty,
+      clientX: event.clientX,
+      clientY: event.clientY,
     });
   }
 

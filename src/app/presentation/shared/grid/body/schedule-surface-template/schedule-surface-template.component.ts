@@ -31,6 +31,7 @@ import { ScheduleTemplateEventsDirective } from '../directives/schedule-template
 @Component({
   selector: 'app-schedule-surface-template',
   templateUrl: './schedule-surface-template.component.html',
+  styleUrl: './schedule-surface-template.component.scss',
   standalone: true,
   imports: [ScheduleTemplateEventsDirective],
 })
@@ -52,6 +53,7 @@ export class ScheduleSurfaceTemplateComponent
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('tooltip') tooltipRef!: ElementRef<HTMLDivElement>;
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
@@ -66,7 +68,9 @@ export class ScheduleSurfaceTemplateComponent
   public isLeftMouseDown = false;
   public canvasId = `-${Math.random().toString(36).substring(2, 10)}`;
 
-  private tooltip: HTMLDivElement | undefined;
+  private get tooltip(): HTMLDivElement | undefined {
+    return this.tooltipRef?.nativeElement;
+  }
   private _pixelRatio = 1;
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -85,7 +89,6 @@ export class ScheduleSurfaceTemplateComponent
   }
 
   ngAfterViewInit(): void {
-    this.tooltip = document.getElementById('tooltip') as HTMLDivElement;
     this.drawSchedule.init('template-canvas' + this.canvasId);
     this.initializeDrawSchedule();
     this.observeParentResize();
@@ -266,7 +269,7 @@ export class ScheduleSurfaceTemplateComponent
     return Math.ceil(this.drawSchedule.height / this.settings.cellHeight);
   }
 
-  showToolTip({ value, event }: { value: any; event: MouseEvent }) {
+  showToolTip({ value, event }: { value: string; event: MouseEvent }) {
     if (this.tooltip && this.tooltip.innerHTML !== value) {
       this.tooltip.innerHTML = value;
       this.tooltip.style.top = `${event.clientY}px`;
@@ -283,17 +286,9 @@ export class ScheduleSurfaceTemplateComponent
 
   private fadeInToolTip() {
     if (!this.tooltip) return;
-    let op = 0.1;
     this.tooltip.style.display = 'block';
-    const timer = setInterval(() => {
-      if (op >= 0.9) {
-        clearInterval(timer);
-        this.tooltip!.style.opacity = '1';
-      } else {
-        this.tooltip!.style.opacity = op.toString();
-        op += op * 0.1;
-      }
-    }, 20);
+    this.tooltip.style.visibility = 'visible';
+    this.tooltip.style.opacity = '1';
   }
 
   private fadeOutToolTip() {
@@ -304,6 +299,7 @@ export class ScheduleSurfaceTemplateComponent
         clearInterval(timer);
         this.tooltip!.style.opacity = '0';
         this.tooltip!.style.display = 'none';
+        this.tooltip!.style.visibility = 'hidden';
         this.tooltip!.innerHTML = '';
         this.tooltip!.style.top = '-9000px';
         this.tooltip!.style.left = '-9000px';
@@ -318,6 +314,7 @@ export class ScheduleSurfaceTemplateComponent
     if (this.tooltip) {
       this.tooltip.style.opacity = '0';
       this.tooltip.style.display = 'none';
+      this.tooltip.style.visibility = 'hidden';
       this.tooltip.innerHTML = '';
       this.tooltip.style.top = '-9000px';
       this.tooltip.style.left = '-9000px';

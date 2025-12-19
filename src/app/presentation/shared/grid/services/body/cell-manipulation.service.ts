@@ -12,6 +12,8 @@ export interface HoveredCellInfo {
   row: number;
   column: number;
   isEmpty: boolean;
+  clientX: number;
+  clientY: number;
 }
 
 @Injectable()

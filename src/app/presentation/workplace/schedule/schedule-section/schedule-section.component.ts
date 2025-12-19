@@ -8,6 +8,7 @@ import {
   Input,
   effect,
   OnDestroy,
+  OnInit,
   runInInjectionContext,
   EffectRef,
   Injector,
@@ -28,13 +29,20 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
-import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import {
+  BaseCellManipulationService,
+  HoveredCellInfo,
+} from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { Subject, takeUntil } from 'rxjs';
 import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
+import { TranslateService } from '@ngx-translate/core';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
+import { Language } from 'src/app/application/helpers/sharedItems';
+import { MessageLibrary } from 'src/app/domain/constants/message-library';
 
 @Component({
   selector: 'app-schedule-section',
@@ -64,7 +72,7 @@ import { GroupSelectionService } from 'src/app/domain/services/group/group-selec
   styleUrls: ['./schedule-section.component.scss'],
 })
 export class ScheduleSectionComponent
-  implements AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('splitEl', { static: true }) splitEl!: SplitComponent;
   @ViewChild('scheduleHScrollbar', { static: true })
@@ -89,7 +97,10 @@ export class ScheduleSectionComponent
   private settings = inject(BaseSettingsService);
   private hScrollService = inject(ScheduleHorizontalScrollService);
   private groupSelectionService = inject(GroupSelectionService);
+  private cellManipulation = inject(BaseCellManipulationService);
+  private translateService = inject(TranslateService);
 
+  private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
 
@@ -99,6 +110,10 @@ export class ScheduleSectionComponent
   private shiftDataLoaded = false;
   private workScheduleLoaded = false;
   private initialSyncDone = false;
+
+  ngOnInit(): void {
+    this.currentLang = this.translateService.currentLang as Language;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['zoom'] && !changes['zoom'].firstChange) {
@@ -209,7 +224,40 @@ export class ScheduleSectionComponent
         }
       });
       this.effects.push(hScrollPositionEffect);
+
+      const hoveredCellEffect = effect(() => {
+        const hoveredCell = this.cellManipulation.hoveredCell();
+        this.handleHoveredCellChange(hoveredCell);
+      });
+      this.effects.push(hoveredCellEffect);
     });
+  }
+
+  private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {
+    if (!hoveredCell) {
+      this.scheduleSurface.destroyToolTip();
+      return;
+    }
+
+    if (hoveredCell.isEmpty) {
+      const holiday = this.scheduleSurface.dataService.holidayInfo(hoveredCell.column);
+      if (holiday?.currentName) {
+        const holidayName = this.getTranslatedText(holiday.currentName);
+        if (holidayName) {
+          this.scheduleSurface.showToolTip({
+            value: holidayName,
+            event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
+          });
+          return;
+        }
+      }
+    }
+
+    this.scheduleSurface.destroyToolTip();
+  }
+
+  private getTranslatedText(multiLanguage: MultiLanguage): string {
+    return multiLanguage[this.currentLang] || multiLanguage.de || '';
   }
 
   onVisibleValueHScrollbarChange(value: number): void {
