@@ -13,8 +13,11 @@ import {
   ShiftScheduleFilter,
 } from 'src/app/domain/models/shift-schedule-class';
 import {
+  IWorkScheduleClient,
   IWorkScheduleEntry,
   IWorkScheduleFilter,
+  WorkScheduleByClientAndDate,
+  WorkScheduleByDate,
 } from 'src/app/domain/models/work-schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
@@ -67,6 +70,7 @@ export class DataManagementScheduleService implements ILoadable {
   public clients: IClientWork[] = [];
   public shiftSchedules: IShiftSchedule[] = [];
   public workScheduleEntries: IWorkScheduleEntry[] = [];
+  public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public holidayDates: Date[] = [];
   public isWorkScheduleRead = signal(false);
   private _restoreSearchSignal = signal('');
@@ -96,14 +100,7 @@ export class DataManagementScheduleService implements ILoadable {
 
   readDatas() {
     this._showProgressSpinner.set(true);
-    this.dataSchedule.getClientList(this.workFilter).pipe(takeUntil(this.destroy$)).subscribe((x) => {
-      this.clients = x;
-      this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
-      this.isRead.set(true);
-      this._showProgressSpinner.set(false);
-      setTimeout(() => this.isRead.set(false), 100);
-    });
-
+    this.readWorkSchedule();
     this.readShiftSchedule();
   }
 
@@ -142,6 +139,8 @@ export class DataManagementScheduleService implements ILoadable {
 
   readWorkSchedule() {
     this.workScheduleEntries = [];
+    this.workScheduleByClientAndDate = new Map();
+    this.clients = [];
 
     const startDate = this.calculateStartDate();
     const endDate = this.calculateEndDate();
@@ -156,14 +155,97 @@ export class DataManagementScheduleService implements ILoadable {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
-          this.workScheduleEntries = response.entries;
+          this.workScheduleEntries = response.entries ?? [];
+          this.workScheduleByClientAndDate = this.groupWorkScheduleByClientAndDate(this.workScheduleEntries);
+          this.clients = this.convertToClientWork(response.clients ?? []);
+          this.updateClientNeededRows();
+          this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
+          this._showProgressSpinner.set(false);
+          this.isRead.set(true);
+          setTimeout(() => this.isRead.set(false), 100);
           this.isWorkScheduleRead.set(true);
           setTimeout(() => this.isWorkScheduleRead.set(false), 100);
         },
         error: (err) => {
           console.error('Error loading work schedule:', err);
+          this._showProgressSpinner.set(false);
         },
       });
+  }
+
+  private convertToClientWork(clients: IWorkScheduleClient[]): IClientWork[] {
+    return clients.map(c => ({
+      id: c.id,
+      company: c.company ?? undefined,
+      firstName: c.firstName ?? undefined,
+      name: c.name ?? undefined,
+      secondName: c.secondName ?? undefined,
+      title: c.title ?? undefined,
+      maidenName: c.maidenName ?? undefined,
+      gender: c.gender,
+      idNumber: c.idNumber,
+      legalEntity: c.legalEntity,
+      type: c.type,
+      membershipId: '',
+      neededRows: 2,
+      works: [],
+    }));
+  }
+
+  private updateClientNeededRows(): void {
+    const maxEntriesMap = this.getMaxEntriesPerClientAndDate();
+    const MIN_ROWS = 2;
+
+    for (const client of this.clients) {
+      if (client.id) {
+        const maxEntries = maxEntriesMap.get(client.id) || 0;
+        client.neededRows = Math.max(MIN_ROWS, maxEntries);
+      } else {
+        client.neededRows = MIN_ROWS;
+      }
+    }
+  }
+
+  private groupWorkScheduleByClientAndDate(entries: IWorkScheduleEntry[]): WorkScheduleByClientAndDate {
+    const result: WorkScheduleByClientAndDate = new Map();
+
+    for (const entry of entries) {
+      const clientId = entry.clientId;
+      const dateKey = this.formatDateOnly(new Date(entry.entryDate));
+
+      if (!result.has(clientId)) {
+        result.set(clientId, new Map());
+      }
+
+      const clientMap = result.get(clientId)!;
+      if (!clientMap.has(dateKey)) {
+        clientMap.set(dateKey, []);
+      }
+
+      clientMap.get(dateKey)!.push(entry);
+    }
+
+    return result;
+  }
+
+  getWorkScheduleForClientAndDate(clientId: string, date: Date): IWorkScheduleEntry[] {
+    const dateKey = this.formatDateOnly(date);
+    const clientMap = this.workScheduleByClientAndDate.get(clientId);
+    if (!clientMap) {
+      return [];
+    }
+    return clientMap.get(dateKey) || [];
+  }
+
+  getMaxEntriesPerClientAndDate(): Map<string, number> {
+    const result = new Map<string, number>();
+
+    for (const [clientId, dateMap] of this.workScheduleByClientAndDate) {
+      const lengths = Array.from(dateMap.values(), entries => entries.length);
+      result.set(clientId, Math.max(0, ...lengths));
+    }
+
+    return result;
   }
 
   private calculateStartDate(): Date {

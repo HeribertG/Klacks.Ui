@@ -97,6 +97,7 @@ export class ScheduleSectionComponent
   private effects: EffectRef[] = [];
   private scheduleDataLoaded = false;
   private shiftDataLoaded = false;
+  private workScheduleLoaded = false;
   private initialSyncDone = false;
 
   ngOnChanges(changes: SimpleChanges) {
@@ -171,7 +172,8 @@ export class ScheduleSectionComponent
         if (isRead) {
           this.scheduleSurface.Refresh();
           this.scheduleDataLoaded = true;
-          this.onBothGridsReady();
+          this.workScheduleLoaded = true;
+          this.onAllDataReady();
         }
       });
       this.effects.push(dataReadEffect);
@@ -180,7 +182,7 @@ export class ScheduleSectionComponent
         const isShiftRead = this.dataManagement.isShiftScheduleRead();
         if (isShiftRead) {
           this.shiftDataLoaded = true;
-          this.onBothGridsReady();
+          this.onAllDataReady();
         }
       });
       this.effects.push(shiftReadEffect);
@@ -215,8 +217,8 @@ export class ScheduleSectionComponent
     this.hScrollService.setVisibleValue(value);
   }
 
-  private onBothGridsReady(): void {
-    if (this.scheduleDataLoaded && this.shiftDataLoaded) {
+  private onAllDataReady(): void {
+    if (this.scheduleDataLoaded && this.shiftDataLoaded && this.workScheduleLoaded) {
       const dayVisibleBeforeMonth =
         this.dataManagement.workFilter.dayVisibleBeforeMonth;
 
@@ -233,6 +235,7 @@ export class ScheduleSectionComponent
 
       this.scheduleDataLoaded = false;
       this.shiftDataLoaded = false;
+      this.workScheduleLoaded = false;
     }
   }
 }

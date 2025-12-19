@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { IClientWork, IWork, IWorkFilter, Work } from 'src/app/domain/models/schedule-class';
+import { IWork, Work } from 'src/app/domain/models/schedule-class';
 import { environment } from 'src/environments/environment';
 import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
@@ -34,12 +34,6 @@ export class DataScheduleService {
   deleteWork(id: string) {
     return this.httpClient
       .delete<IWork>(`${environment.baseUrl}Works/` + id)
-      .pipe(retry(3));
-  }
-
-  getClientList(filter: IWorkFilter) {
-    return this.httpClient
-      .post<IClientWork[]>(`${environment.baseUrl}Works/GetClientList/`, filter)
       .pipe(retry(3));
   }
 

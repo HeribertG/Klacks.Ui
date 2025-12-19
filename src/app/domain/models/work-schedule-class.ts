@@ -44,8 +44,24 @@ export interface IWorkScheduleFilter {
   selectedGroup?: string;
 }
 
+export interface IWorkScheduleClient {
+  id: string;
+  company: string | null;
+  firstName: string | null;
+  name: string | null;
+  secondName: string | null;
+  title: string | null;
+  maidenName: string | null;
+  gender: number;
+  idNumber: number;
+  legalEntity: boolean;
+  type: number;
+  neededRows: number;
+}
+
 export interface IWorkScheduleResponse {
   entries: IWorkScheduleEntry[];
+  clients: IWorkScheduleClient[];
 }
 
 export enum WorkScheduleEntryType {
@@ -53,3 +69,6 @@ export enum WorkScheduleEntryType {
   WorkChange = 1,
   Expenses = 2,
 }
+
+export type WorkScheduleByDate = Map<string, IWorkScheduleEntry[]>;
+export type WorkScheduleByClientAndDate = Map<string, WorkScheduleByDate>;

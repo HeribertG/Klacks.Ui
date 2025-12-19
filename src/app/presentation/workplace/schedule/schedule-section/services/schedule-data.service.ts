@@ -1,6 +1,7 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
+import { IWorkScheduleEntry } from 'src/app/domain/models/work-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
   addDays,
@@ -40,13 +41,36 @@ export class ScheduleDataService extends BaseDataService {
 
   public override getCell(row: number, col: number): GridCell {
     const c = new GridCell();
+    const entry = this.getWorkScheduleEntryForCell(row, col);
 
-    c.mainText = 'Zelle ' + (row * this.columns + col).toString();
-    c.firstSubText = row.toString() + ' / ' + col.toString();
-    c.cellType = CellTypeEnum.Standard;
-    c.secondSubText = 'Lorem ipsum dolor sit amet';
+    if (entry) {
+      c.cellType = CellTypeEnum.Standard;
+      c.mainText = entry.shiftName || '';
+      c.firstSubText = entry.startShift + ' - ' + entry.endShift;
+    } else {
+      c.cellType = CellTypeEnum.Empty;
+      c.mainText = '';
+      c.firstSubText = '';
+    }
 
     return c;
+  }
+
+  getWorkScheduleEntryForCell(row: number, col: number): IWorkScheduleEntry | undefined {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) {
+      return undefined;
+    }
+
+    const firstRowOfClient = this.indexGroupRow[clientIndex];
+    const rowWithinClient = row - firstRowOfClient;
+
+    const entries = this.getWorkScheduleForCell(row, col);
+    if (rowWithinClient < entries.length) {
+      return entries[rowWithinClient];
+    }
+
+    return undefined;
   }
 
   public getGroupIndex(index: number) {
@@ -220,5 +244,31 @@ export class ScheduleDataService extends BaseDataService {
       }
     }
     return undefined;
+  }
+
+  getWorkScheduleForCell(row: number, col: number): IWorkScheduleEntry[] {
+    const clientIndex = this.rowGroupIndex[row];
+    if (clientIndex === undefined) {
+      return [];
+    }
+
+    const client = this.dataManagementSchedule.clients[clientIndex];
+    if (!client || !client.id) {
+      return [];
+    }
+
+    const date = this.getDateForColumn(col);
+    if (!date) {
+      return [];
+    }
+
+    return this.dataManagementSchedule.getWorkScheduleForClientAndDate(client.id, date);
+  }
+
+  getDateForColumn(col: number): Date | undefined {
+    if (!this.startDate) {
+      return undefined;
+    }
+    return addDays(this.startDate, col);
   }
 }
