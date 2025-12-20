@@ -7,29 +7,25 @@ import { IBaseFilter } from './general-class';
 export interface IWork {
   client?: IClient;
   clientId: string;
-  from: Date;
-  internalFrom: NgbDateStruct | undefined;
+  currentDate: Date;
   id?: string;
   information?: string;
   isSealed: boolean;
   shift?: IShift;
   shiftId: string;
-  until: Date;
-  internalUntil: NgbDateStruct | undefined;
+  workTime: number;
 }
 
 export class Work implements IWork {
   client?: IClient;
   clientId = '';
-  from: Date = new Date();
-  internalFrom: NgbDateStruct | undefined = undefined;
+  currentDate: Date = new Date();
   id?: string;
   information?: string;
   isSealed = false;
   shift?: IShift;
   shiftId = '';
-  until: Date = new Date();
-  internalUntil: NgbDateStruct | undefined = undefined;
+  workTime = 0;
 }
 
 export interface IClientWork {

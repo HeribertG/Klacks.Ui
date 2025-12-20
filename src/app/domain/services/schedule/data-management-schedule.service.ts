@@ -383,8 +383,8 @@ export class DataManagementScheduleService implements ILoadable {
 
   private sortWorks(value: IWork[]): IWork[] {
     return value.sort((a: IWork, b: IWork) => {
-      const da = new Date(a.from!).getTime();
-      const db = new Date(b.from!).getTime();
+      const da = new Date(a.currentDate).getTime();
+      const db = new Date(b.currentDate).getTime();
 
       return da < db ? -1 : da > db ? 1 : 0;
     });
@@ -410,13 +410,14 @@ export class DataManagementScheduleService implements ILoadable {
     endShift: string;
     workTime: number;
   }): void {
-    this.dataSchedule.createWork({
-      clientId: params.clientId,
-      shiftId: params.shiftId,
-      currentDate: params.date,
-      workTime: params.workTime,
-      isSealed: false,
-    })
+    const work = new Work();
+    work.clientId = params.clientId;
+    work.shiftId = params.shiftId;
+    work.currentDate = params.date;
+    work.workTime = params.workTime;
+    work.isSealed = false;
+
+    this.dataSchedule.addWork(work)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (createdWork) => {
@@ -428,6 +429,7 @@ export class DataManagementScheduleService implements ILoadable {
           entry.entryDate = params.date;
           entry.shiftId = params.shiftId;
           entry.shiftName = params.shiftName;
+          entry.abbreviation = params.abbreviation;
           entry.startShift = params.startShift;
           entry.endShift = params.endShift;
           entry.changeTime = params.workTime;

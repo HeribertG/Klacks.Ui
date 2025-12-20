@@ -14,6 +14,7 @@ export interface IWorkScheduleEntry {
   taxable: boolean | null;
   shiftId: string;
   shiftName: string | null;
+  abbreviation: string | null;
   replaceClientId: string | null;
   isReplacementEntry: boolean;
 }
@@ -34,6 +35,7 @@ export class WorkScheduleEntry implements IWorkScheduleEntry {
   taxable: boolean | null = null;
   shiftId = '';
   shiftName: string | null = null;
+  abbreviation: string | null = null;
   replaceClientId: string | null = null;
   isReplacementEntry = false;
 }

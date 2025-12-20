@@ -88,12 +88,12 @@ describe('DataScheduleService', () => {
     const mockWork = (): Work => {
         const work = new Work();
         work.clientId = 'client-123';
-        work.from = new Date(2020, 0, 1);
+        work.currentDate = new Date(2020, 0, 1);
         work.id = 'work-123';
         work.information = 'Test Information';
         work.isSealed = false;
         work.shiftId = 'shift-123';
-        work.until = new Date(2020, 0, 2);
+        work.workTime = 480;
         work.client = mockClient();
         return work;
     };

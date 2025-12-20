@@ -111,7 +111,8 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   public override getItemMainText(row: number, col: number): string {
-    return 'Zelle ' + (row * this.columns + col).toString();
+    const entry = this.getWorkScheduleEntryForCell(row, col);
+    return entry?.abbreviation || '';
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
