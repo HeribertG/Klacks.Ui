@@ -200,7 +200,7 @@ export class DataManagementScheduleService implements ILoadable {
 
     for (const client of this.clients) {
       if (client.id) {
-        const maxEntries = maxEntriesMap.get(client.id) || 0;
+        const maxEntries = (maxEntriesMap.get(client.id) || 0) + 1;
         client.neededRows = Math.max(MIN_ROWS, maxEntries);
       } else {
         client.neededRows = MIN_ROWS;
