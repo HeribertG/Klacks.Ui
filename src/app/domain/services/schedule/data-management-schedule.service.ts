@@ -427,6 +427,20 @@ export class DataManagementScheduleService implements ILoadable {
       });
   }
 
+  deleteWorkScheduleEntry(workId: string, clientId: string, date: Date): void {
+    this.dataSchedule.deleteWork(workId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.refreshClientScheduleForDays(clientId, date);
+          this.readShiftSchedule();
+        },
+        error: (err) => {
+          console.error('Error deleting work entry:', err);
+        },
+      });
+  }
+
   public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
     const startDate = addDays(centerDate, -1);
     const endDate = addDays(centerDate, 1);

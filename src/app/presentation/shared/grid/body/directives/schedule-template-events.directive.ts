@@ -17,6 +17,8 @@ import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/s
 import { GridSelectionModeEnum } from '../../enums/divers';
 import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
+import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Directive({
   selector: '[appScheduleTemplateEvents]',
@@ -32,6 +34,7 @@ export class ScheduleTemplateEventsDirective {
   private scrollGrid = inject(ScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
   private shiftDragService = inject(ShiftToScheduleDragDropService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;
@@ -371,12 +374,11 @@ export class ScheduleTemplateEventsDirective {
       return;
     }
 
-    // if (e.Key == Input.Key.Delete) {
-    //   zDelete();
-    //   e.Handled = true;
-    //   p_KeyDown = false;
-    //   return;
-    // }
+    if (event.key === 'Delete') {
+      this.handleDeleteKey();
+      this.stopEvent(event);
+      return;
+    }
 
     // if (e.Key == Key.X && IsCtrl) {
     //   try {
@@ -702,5 +704,29 @@ export class ScheduleTemplateEventsDirective {
       this.gridSettings.selectionMode === GridSelectionModeEnum.Row ||
       this.gridSettings.selectionMode === GridSelectionModeEnum.RowActiveOnly
     );
+  }
+
+  private handleDeleteKey(): void {
+    if (this.gridSurface.nameId !== 'surface') {
+      return;
+    }
+
+    const pos = this.gridSurface.drawSchedule.position;
+    if (!pos) {
+      return;
+    }
+
+    const scheduleDataService = this.gridData as ScheduleDataService;
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    if (!entry) {
+      return;
+    }
+
+    const date = scheduleDataService.getDateForColumn(pos.column);
+    if (!date) {
+      return;
+    }
+
+    this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, date);
   }
 }
