@@ -59,14 +59,14 @@ export class ScheduleDataService extends BaseDataService {
     return c;
   }
 
-  private formatWorkTime(minutes: number | null): string {
-    if (minutes === null || minutes === 0) return '';
-    const hours = Math.floor(Math.abs(minutes) / 60);
-    const mins = Math.abs(minutes) % 60;
-    const sign = minutes < 0 ? '-' : '';
-    if (hours === 0) return `${sign}${mins}m`;
-    if (mins === 0) return `${sign}${hours}h`;
-    return `${sign}${hours}h ${mins}m`;
+  private formatWorkTime(hours: number | null): string {
+    if (hours === null || hours === 0) return '';
+    const wholeHours = Math.floor(Math.abs(hours));
+    const mins = Math.round((Math.abs(hours) - wholeHours) * 60);
+    const sign = hours < 0 ? '-' : '';
+    if (wholeHours === 0) return `${sign}${mins}m`;
+    if (mins === 0) return `${sign}${wholeHours}h`;
+    return `${sign}${wholeHours}h ${mins}m`;
   }
 
   getWorkScheduleEntryForCell(row: number, col: number): IWorkScheduleEntry | undefined {
