@@ -1,4 +1,3 @@
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { IClient, Membership } from './client-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from './shift-class';

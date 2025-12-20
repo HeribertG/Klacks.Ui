@@ -33,6 +33,7 @@ import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/man
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { addDays } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -404,10 +405,6 @@ export class DataManagementScheduleService implements ILoadable {
     clientId: string;
     date: Date;
     shiftId: string;
-    shiftName: string;
-    abbreviation: string;
-    startShift: string;
-    endShift: string;
     workTime: number;
   }): void {
     const work = new Work();
@@ -420,42 +417,85 @@ export class DataManagementScheduleService implements ILoadable {
     this.dataSchedule.addWork(work)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (createdWork) => {
-          const entry = new WorkScheduleEntry();
-          entry.id = crypto.randomUUID();
-          entry.entryType = WorkScheduleEntryType.Work;
-          entry.workId = createdWork.id || '';
-          entry.clientId = params.clientId;
-          entry.entryDate = params.date;
-          entry.shiftId = params.shiftId;
-          entry.shiftName = params.shiftName;
-          entry.abbreviation = params.abbreviation;
-          entry.startShift = params.startShift;
-          entry.endShift = params.endShift;
-          entry.changeTime = params.workTime;
-          entry.isReplacementEntry = false;
+        next: () => {
+          this.refreshClientScheduleForDays(params.clientId, params.date);
+        },
+        error: (err) => {
+          console.error('Error creating work entry:', err);
+        },
+      });
+  }
 
-          this.workScheduleEntries.push(entry);
+  private refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
+    const startDate = addDays(centerDate, -1);
+    const endDate = addDays(centerDate, 1);
 
-          const dateKey = this.formatDateOnly(params.date);
-          if (!this.workScheduleByClientAndDate.has(params.clientId)) {
-            this.workScheduleByClientAndDate.set(params.clientId, new Map());
-          }
-          const clientMap = this.workScheduleByClientAndDate.get(params.clientId)!;
-          if (!clientMap.has(dateKey)) {
-            clientMap.set(dateKey, []);
-          }
-          clientMap.get(dateKey)!.push(entry);
+    const filter: IWorkScheduleFilter = {
+      startDate: this.formatDateOnly(startDate),
+      endDate: this.formatDateOnly(endDate),
+    };
 
+    this.dataWorkSchedule.getWorkSchedule(filter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const clientEntries = response.entries.filter(e => e.clientId === clientId);
+          this.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
           this.updateClientNeededRows();
 
           this.isRead.set(true);
           setTimeout(() => this.isRead.set(false), 100);
         },
         error: (err) => {
-          console.error('Error creating work entry:', err);
+          console.error('Error refreshing schedule:', err);
         },
       });
+  }
+
+  private replaceClientEntriesForDays(
+    clientId: string,
+    startDate: Date,
+    endDate: Date,
+    newEntries: IWorkScheduleEntry[]
+  ): void {
+    const dateKeys = this.getDateKeysBetween(startDate, endDate);
+
+    this.workScheduleEntries = this.workScheduleEntries.filter(entry => {
+      if (entry.clientId !== clientId) return true;
+      const entryDateKey = this.formatDateOnly(new Date(entry.entryDate));
+      return !dateKeys.includes(entryDateKey);
+    });
+
+    const clientMap = this.workScheduleByClientAndDate.get(clientId);
+    if (clientMap) {
+      for (const dateKey of dateKeys) {
+        clientMap.delete(dateKey);
+      }
+    }
+
+    for (const entry of newEntries) {
+      this.workScheduleEntries.push(entry);
+
+      const dateKey = this.formatDateOnly(new Date(entry.entryDate));
+      if (!this.workScheduleByClientAndDate.has(clientId)) {
+        this.workScheduleByClientAndDate.set(clientId, new Map());
+      }
+      const map = this.workScheduleByClientAndDate.get(clientId)!;
+      if (!map.has(dateKey)) {
+        map.set(dateKey, []);
+      }
+      map.get(dateKey)!.push(entry);
+    }
+  }
+
+  private getDateKeysBetween(startDate: Date, endDate: Date): string[] {
+    const keys: string[] = [];
+    let current = new Date(startDate);
+    while (current <= endDate) {
+      keys.push(this.formatDateOnly(current));
+      current = addDays(current, 1);
+    }
+    return keys;
   }
 
   public destroy(): void {

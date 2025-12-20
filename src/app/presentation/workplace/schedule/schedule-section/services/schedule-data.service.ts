@@ -8,6 +8,7 @@ import {
   EqualDate,
   getDaysInMonth,
 } from 'src/app/shared/helpers/date.helper';
+import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { GridCell } from 'src/app/presentation/shared/grid/classes/grid-cell';
 import {
   CellTypeEnum,
@@ -45,15 +46,27 @@ export class ScheduleDataService extends BaseDataService {
 
     if (entry) {
       c.cellType = CellTypeEnum.Standard;
-      c.mainText = entry.shiftName || '';
-      c.firstSubText = entry.startShift + ' - ' + entry.endShift;
+      c.mainText = entry.abbreviation || '';
+      c.firstSubText = this.formatWorkTime(entry.changeTime);
+      c.secondSubText = formatTime(entry.startShift) + ' - ' + formatTime(entry.endShift);
     } else {
       c.cellType = CellTypeEnum.Empty;
       c.mainText = '';
       c.firstSubText = '';
+      c.secondSubText = '';
     }
 
     return c;
+  }
+
+  private formatWorkTime(minutes: number | null): string {
+    if (minutes === null || minutes === 0) return '';
+    const hours = Math.floor(Math.abs(minutes) / 60);
+    const mins = Math.abs(minutes) % 60;
+    const sign = minutes < 0 ? '-' : '';
+    if (hours === 0) return `${sign}${mins}m`;
+    if (mins === 0) return `${sign}${hours}h`;
+    return `${sign}${hours}h ${mins}m`;
   }
 
   getWorkScheduleEntryForCell(row: number, col: number): IWorkScheduleEntry | undefined {

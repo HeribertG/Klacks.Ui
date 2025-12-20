@@ -1,4 +1,11 @@
-import { Component, HostListener, inject, Input, ViewChild } from '@angular/core';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import {
+  Component,
+  HostListener,
+  inject,
+  Input,
+  ViewChild,
+} from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { CommonModule } from '@angular/common';
 
@@ -63,7 +70,8 @@ export class ScheduleContainerComponent {
     }
 
     const rect = scheduleElement.getBoundingClientRect();
-    const isOverSchedule = event.clientY >= rect.top && event.clientY <= rect.bottom;
+    const isOverSchedule =
+      event.clientY >= rect.top && event.clientY <= rect.bottom;
 
     this.shiftDragService.setOverScheduleSection(isOverSchedule);
 

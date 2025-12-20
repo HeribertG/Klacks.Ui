@@ -369,7 +369,7 @@ export class BaseCreateCellService {
       this.gridFonts.secondSubFontStringZoom,
       +this.gridFonts.secondSubFontSizeZoom,
       this.gridColors.subFontColor,
-      TextAlignmentEnum.Left,
+      TextAlignmentEnum.Center,
       BaselineAlignmentEnum.Center
     );
   }

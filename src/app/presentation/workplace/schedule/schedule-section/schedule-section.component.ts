@@ -44,7 +44,6 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
-import { addDays } from 'src/app/shared/helpers/date.helper';
 import { ScheduleDataService } from './services/schedule-data.service';
 
 @Component({
@@ -346,13 +345,7 @@ export class ScheduleSectionComponent
       clientId: result.targetClientId,
       date: result.targetDate,
       shiftId: result.shiftId,
-      shiftName: result.shiftName,
-      abbreviation: result.abbreviation,
-      startShift: result.startShift,
-      endShift: result.endShift,
       workTime: result.workTime,
     });
-
-    this.scheduleSurface.Refresh();
   }
 }
