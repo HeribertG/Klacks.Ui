@@ -3,6 +3,7 @@
     <as-split direction="vertical" [gutterSize]="6" unit="percent">
       <as-split-area [size]="70" [minSize]="10">
         <app-schedule-section
+          #scheduleSection
           [zoom]="zoom"
           [refreshTrigger]="refreshTrigger"
           (horizontalSizeChange)="onHorizontalSizeChange($event)"
@@ -25,3 +26,15 @@
     <div class="info"></div>
   </as-split-area>
 </as-split>
+
+@if (shiftDragService.isDragging()) {
+  <div
+    class="drag-overlay"
+    [class.valid-drop]="shiftDragService.showValidIndicator()"
+    [class.invalid-drop]="shiftDragService.showInvalidIndicator()"
+    [style.left.px]="shiftDragService.dragStartX()"
+    [style.top.px]="shiftDragService.currentY()"
+  >
+    {{ shiftDragService.dragData()?.abbreviation }}
+  </div>
+}

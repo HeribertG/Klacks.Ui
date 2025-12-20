@@ -15,6 +15,8 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/schedule-surface-template.component';
 import { GridSelectionModeEnum } from '../../enums/divers';
+import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
+import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
 
 @Directive({
   selector: '[appScheduleTemplateEvents]',
@@ -29,6 +31,7 @@ export class ScheduleTemplateEventsDirective {
   private gridSettings = inject(BaseSettingsService);
   private scrollGrid = inject(ScrollService);
   private cellManipulation = inject(BaseCellManipulationService);
+  private shiftDragService = inject(ShiftToScheduleDragDropService);
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;
@@ -87,13 +90,44 @@ export class ScheduleTemplateEventsDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
+      if (this.tryStartShiftDrag(event)) {
+        return;
+      }
       this.respondToLeftButtonMouseDown(event);
     } else if (event.buttons === 2) {
       this.respondToRightButtonMouseDown(event);
     }
   }
 
+  private tryStartShiftDrag(event: MouseEvent): boolean {
+    if (this.gridSurface.nameId !== 'shift') {
+      return false;
+    }
+
+    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return false;
+    }
+
+    if (!this.gridData.isCellActive(pos.row, pos.column)) {
+      return false;
+    }
+
+    const shiftDataService = this.gridData as ShiftDataService;
+    const dragData = shiftDataService.getShiftDragData(pos.row, pos.column);
+    if (!dragData) {
+      return false;
+    }
+
+    this.shiftDragService.startDrag(event, dragData);
+    return true;
+  }
+
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
+    if (this.shiftDragService.isDragging()) {
+      return;
+    }
+
     this.isDrawing = false;
     this.lastGoRightTime = 0;
     this.lastGoLeftTime = 0;
@@ -116,6 +150,11 @@ export class ScheduleTemplateEventsDirective {
   }
 
   @HostListener('mousemove', ['$event']) onMouseMove(event: MouseEvent): void {
+    if (this.shiftDragService.isDragging()) {
+      this.shiftDragService.updateDragPosition(event.clientY);
+      return;
+    }
+
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 

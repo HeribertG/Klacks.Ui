@@ -5,6 +5,15 @@ import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { HttpClient } from '@angular/common/http';
 
+export interface CreateWorkRequest {
+  clientId: string;
+  shiftId: string;
+  currentDate: Date;
+  workTime: number;
+  isSealed: boolean;
+  information?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,6 +30,19 @@ export class DataScheduleService {
     this.setCorrectDate(value);
     return this.httpClient
       .post<IWork>(`${environment.baseUrl}Works/`, value)
+      .pipe(retry(3));
+  }
+
+  createWork(request: CreateWorkRequest) {
+    return this.httpClient
+      .post<IWork>(`${environment.baseUrl}Works/`, {
+        clientId: request.clientId,
+        shiftId: request.shiftId,
+        currentDate: dateWithLocalTimeCorrection(request.currentDate),
+        workTime: request.workTime,
+        isSealed: request.isSealed,
+        information: request.information,
+      })
       .pipe(retry(3));
   }
 

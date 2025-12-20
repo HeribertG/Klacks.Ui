@@ -43,6 +43,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
+import { addDays } from 'src/app/shared/helpers/date.helper';
+import { ScheduleDataService } from './services/schedule-data.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -285,5 +288,71 @@ export class ScheduleSectionComponent
       this.shiftDataLoaded = false;
       this.workScheduleLoaded = false;
     }
+  }
+
+  getDropTargetInfo(
+    mouseY: number,
+    column: number
+  ): { row: number; clientId: string; date: Date; isEmpty: boolean } | null {
+    const scheduleElement = document.querySelector('app-schedule-section .box');
+    if (!scheduleElement) {
+      return null;
+    }
+
+    const rect = scheduleElement.getBoundingClientRect();
+    const relativeY = mouseY - rect.top - this.settings.cellHeaderHeight;
+
+    if (relativeY < 0) {
+      return null;
+    }
+
+    const row =
+      Math.floor(relativeY / this.settings.cellHeight) +
+      this.scrollService.verticalScrollPosition;
+
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+
+    if (row < 0 || row >= dataService.rows) {
+      return null;
+    }
+
+    const clientIndex = dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) {
+      return null;
+    }
+
+    const client = this.dataManagement.clients[clientIndex];
+    if (!client || !client.id) {
+      return null;
+    }
+
+    const date = dataService.getDateForColumn(column);
+    if (!date) {
+      return null;
+    }
+
+    const isEmpty = !dataService.isCellActive(row, column);
+
+    return {
+      row,
+      clientId: client.id,
+      date,
+      isEmpty,
+    };
+  }
+
+  handleShiftDrop(result: ShiftDropResult): void {
+    this.dataManagement.addWorkScheduleEntry({
+      clientId: result.targetClientId,
+      date: result.targetDate,
+      shiftId: result.shiftId,
+      shiftName: result.shiftName,
+      abbreviation: result.abbreviation,
+      startShift: result.startShift,
+      endShift: result.endShift,
+      workTime: result.workTime,
+    });
+
+    this.scheduleSurface.Refresh();
   }
 }

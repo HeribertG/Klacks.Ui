@@ -2,6 +2,7 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
+import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
@@ -391,5 +392,28 @@ export class ShiftDataService extends BaseDataService {
 
   getInfo3(index: number): string {
     return '';
+  }
+
+  getShiftDragData(row: number, column: number): ShiftDragData | null {
+    if (row >= this.shiftRows.length) {
+      return null;
+    }
+
+    const shiftRow = this.shiftRows[row];
+    const dateKey = this.getDateKeyForColumn(column);
+
+    if (!shiftRow.activeDays.has(dateKey)) {
+      return null;
+    }
+
+    return {
+      shiftId: shiftRow.shiftId,
+      shiftName: shiftRow.shiftName,
+      abbreviation: shiftRow.abbreviation,
+      startShift: shiftRow.startShift,
+      endShift: shiftRow.endShift,
+      workTime: shiftRow.workTime,
+      sourceColumn: column,
+    };
   }
 }

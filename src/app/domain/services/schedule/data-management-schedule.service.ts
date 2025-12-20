@@ -18,6 +18,8 @@ import {
   IWorkScheduleFilter,
   WorkScheduleByClientAndDate,
   WorkScheduleByDate,
+  WorkScheduleEntry,
+  WorkScheduleEntryType,
 } from 'src/app/domain/models/work-schedule-class';
 import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 import { DataShiftScheduleService } from 'src/app/infrastructure/api/data-shift-schedule.service';
@@ -396,6 +398,62 @@ export class DataManagementScheduleService implements ILoadable {
       return true;
     }
     return false;
+  }
+
+  addWorkScheduleEntry(params: {
+    clientId: string;
+    date: Date;
+    shiftId: string;
+    shiftName: string;
+    abbreviation: string;
+    startShift: string;
+    endShift: string;
+    workTime: number;
+  }): void {
+    this.dataSchedule.createWork({
+      clientId: params.clientId,
+      shiftId: params.shiftId,
+      currentDate: params.date,
+      workTime: params.workTime,
+      isSealed: false,
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (createdWork) => {
+          const entry = new WorkScheduleEntry();
+          entry.id = crypto.randomUUID();
+          entry.entryType = WorkScheduleEntryType.Work;
+          entry.workId = createdWork.id || '';
+          entry.clientId = params.clientId;
+          entry.entryDate = params.date;
+          entry.shiftId = params.shiftId;
+          entry.shiftName = params.shiftName;
+          entry.startShift = params.startShift;
+          entry.endShift = params.endShift;
+          entry.changeTime = params.workTime;
+          entry.isReplacementEntry = false;
+
+          this.workScheduleEntries.push(entry);
+
+          const dateKey = this.formatDateOnly(params.date);
+          if (!this.workScheduleByClientAndDate.has(params.clientId)) {
+            this.workScheduleByClientAndDate.set(params.clientId, new Map());
+          }
+          const clientMap = this.workScheduleByClientAndDate.get(params.clientId)!;
+          if (!clientMap.has(dateKey)) {
+            clientMap.set(dateKey, []);
+          }
+          clientMap.get(dateKey)!.push(entry);
+
+          this.updateClientNeededRows();
+
+          this.isRead.set(true);
+          setTimeout(() => this.isRead.set(false), 100);
+        },
+        error: (err) => {
+          console.error('Error creating work entry:', err);
+        },
+      });
   }
 
   public destroy(): void {

@@ -5,3 +5,27 @@
   height: 100%;
   width: 100%;
 }
+
+.drag-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: #ffffff;
+  border: 2px solid #6993ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translate(-50%, -50%);
+
+  &.valid-drop {
+    border-color: #1bc5bd;
+    background: #f0fff7;
+  }
+
+  &.invalid-drop {
+    border-color: #f64e60;
+    background: #fff5f8;
+  }
+}
