@@ -33,9 +33,13 @@ export abstract class BaseDataService {
   abstract get rows(): number;
   abstract get columns(): number;
   abstract get indexes(): number;
-  abstract getInfo1(index: number): string;
-  abstract getInfo2(index: number): string;
-  abstract getInfo3(index: number): string;
+  // Row header info slots - displayed in the right side of each row header
+  // Slot 1: Top position (e.g., scheduled hours in schedule, shift name in shifts)
+  // Slot 2: Middle position (e.g., worked hours)
+  // Slot 3: Bottom position (e.g., additional hours)
+  abstract getRowHeaderSlot1Text(index: number): string;
+  abstract getRowHeaderSlot2Text(index: number): string;
+  abstract getRowHeaderSlot3Text(index: number): string;
   abstract columnStatus(column: number): HeaderCellTypeEnum;
 
   isCellActive(row: number, col: number): boolean {

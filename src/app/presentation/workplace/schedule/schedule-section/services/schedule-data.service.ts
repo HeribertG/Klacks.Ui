@@ -77,15 +77,15 @@ export class ScheduleDataService extends BaseDataService {
     return this.dataManagementSchedule.clients[index];
   }
 
-  public getInfo1(index: number): string {
+  public getRowHeaderSlot1Text(index: number): string {
     return 'Info1-' + index;
   }
 
-  public getInfo2(index: number): string {
+  public getRowHeaderSlot2Text(index: number): string {
     return 'Info2-' + index;
   }
 
-  public getInfo3(index: number): string {
+  public getRowHeaderSlot3Text(index: number): string {
     return 'Info3-' + index;
   }
 

@@ -338,21 +338,21 @@ export class BaseCreateRowHeaderService {
 
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo1(clientIndex),
+      this.gridData.getRowHeaderSlot1Text(clientIndex),
       scheduledHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo2(clientIndex),
+      this.gridData.getRowHeaderSlot2Text(clientIndex),
       workedHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised
     );
     this.drawInfoSpot(
       ctx,
-      this.gridData.getInfo3(clientIndex),
+      this.gridData.getRowHeaderSlot3Text(clientIndex),
       addHoursRect,
       InfoBackColor,
       Gradient3DBorderStyleEnum.Raised

@@ -382,15 +382,15 @@ export class ShiftDataService extends BaseDataService {
     return `${hours}:${minutes}`;
   }
 
-  getInfo1(index: number): string {
+  getRowHeaderSlot1Text(index: number): string {
     return this.getShiftName(index);
   }
 
-  getInfo2(index: number): string {
+  getRowHeaderSlot2Text(index: number): string {
     return '';
   }
 
-  getInfo3(index: number): string {
+  getRowHeaderSlot3Text(index: number): string {
     return '';
   }
 
