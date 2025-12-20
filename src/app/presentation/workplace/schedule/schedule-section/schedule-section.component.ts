@@ -45,6 +45,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
+import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -101,6 +102,7 @@ export class ScheduleSectionComponent
   private groupSelectionService = inject(GroupSelectionService);
   private cellManipulation = inject(BaseCellManipulationService);
   private translateService = inject(TranslateService);
+  private workNotificationService = inject(WorkNotificationService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
@@ -232,6 +234,14 @@ export class ScheduleSectionComponent
         this.handleHoveredCellChange(hoveredCell);
       });
       this.effects.push(hoveredCellEffect);
+
+      const scheduleUpdateEffect = effect(() => {
+        const updateId = this.workNotificationService.scheduleUpdateSignal();
+        if (updateId) {
+          this.scheduleSurface.Refresh();
+        }
+      });
+      this.effects.push(scheduleUpdateEffect);
     });
   }
 

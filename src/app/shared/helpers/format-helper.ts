@@ -117,10 +117,6 @@ export function isNumeric(value: any): boolean {
   return !isNaN(parseFloat(value)) && isFinite(value);
 }
 
-export function delay(ms: number): Promise<unknown> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export function getFileExtension(fileName: string): string {
   return fileName.slice(
     (Math.max(0, fileName.lastIndexOf('.')) || Infinity) + 1

@@ -50,4 +50,12 @@ export abstract class BaseDataService {
       return false;
     }
   }
+
+  isRowHighlighted(row: number): boolean {
+    return false;
+  }
+
+  isCellHighlighted(row: number, col: number): boolean {
+    return this.isRowHighlighted(row);
+  }
 }

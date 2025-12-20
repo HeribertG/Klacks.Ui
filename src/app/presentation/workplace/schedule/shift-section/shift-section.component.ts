@@ -46,6 +46,7 @@ import { ShiftSettingsService } from './services/shift-settings.service';
 import { ShiftDataService } from './services/shift-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
+import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -95,6 +96,7 @@ export class ShiftSectionComponent
   private cellManipulation = inject(BaseCellManipulationService);
   private dataService = inject(BaseDataService);
   private translateService = inject(TranslateService);
+  private workNotificationService = inject(WorkNotificationService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
@@ -220,6 +222,14 @@ export class ShiftSectionComponent
         this.handleHoveredCellChange(hoveredCell);
       });
       this.effects.push(hoveredCellEffect);
+
+      const shiftUpdateEffect = effect(() => {
+        const updateId = this.workNotificationService.shiftUpdateSignal();
+        if (updateId) {
+          this.shiftSurface.Refresh();
+        }
+      });
+      this.effects.push(shiftUpdateEffect);
     });
   }
 

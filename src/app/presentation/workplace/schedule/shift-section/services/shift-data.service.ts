@@ -24,6 +24,7 @@ import { WeekDaysEnum } from 'src/app/presentation/shared/grid/enums/divers';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
+import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 
 const IN_CONTAINER_ICON = 'pp-icon-in-container';
 
@@ -53,6 +54,7 @@ export class ShiftDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private workNotificationService = inject(WorkNotificationService);
 
   public override rowGroupIndex: number[] = new Array<number>();
   public override indexGroupRow: number[] = new Array<number>();
@@ -415,5 +417,48 @@ export class ShiftDataService extends BaseDataService {
       workTime: shiftRow.workTime,
       sourceColumn: column,
     };
+  }
+
+  isShiftAffectedByNotification(row: number): boolean {
+    if (row >= this.shiftRows.length) {
+      return false;
+    }
+    const shiftId = this.shiftRows[row].shiftId;
+    return this.workNotificationService.isShiftAffected(shiftId);
+  }
+
+  override isRowHighlighted(row: number): boolean {
+    return this.isShiftAffectedByNotification(row);
+  }
+
+  override isCellHighlighted(row: number, col: number): boolean {
+    if (this.isRowHighlighted(row)) {
+      return true;
+    }
+    if (row >= this.shiftRows.length) {
+      return false;
+    }
+    const shiftRow = this.shiftRows[row];
+    const dateKey = this.getDateKeyForColumn(col);
+    const dayInfo = shiftRow.activeDays.get(dateKey);
+    if (!dayInfo) {
+      return false;
+    }
+    const maxCapacity = dayInfo.sumEmployees * dayInfo.quantity;
+    return dayInfo.engaged >= maxCapacity;
+  }
+
+  override isCellActive(row: number, col: number): boolean {
+    if (row >= this.shiftRows.length) {
+      return false;
+    }
+    const shiftRow = this.shiftRows[row];
+    const dateKey = this.getDateKeyForColumn(col);
+    const dayInfo = shiftRow.activeDays.get(dateKey);
+    if (!dayInfo) {
+      return false;
+    }
+    const maxCapacity = dayInfo.sumEmployees * dayInfo.quantity;
+    return dayInfo.engaged < maxCapacity;
   }
 }

@@ -419,6 +419,7 @@ export class DataManagementScheduleService implements ILoadable {
       .subscribe({
         next: () => {
           this.refreshClientScheduleForDays(params.clientId, params.date);
+          this.readShiftSchedule();
         },
         error: (err) => {
           console.error('Error creating work entry:', err);
@@ -426,7 +427,7 @@ export class DataManagementScheduleService implements ILoadable {
       });
   }
 
-  private refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
+  public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
     const startDate = addDays(centerDate, -1);
     const endDate = addDays(centerDate, 1);
 

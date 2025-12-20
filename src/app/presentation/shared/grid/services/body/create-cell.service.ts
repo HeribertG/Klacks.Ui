@@ -176,8 +176,9 @@ export class BaseCreateCellService {
     const gridCell: GridCell = this.gridData.getCell(row, col);
     const weekDay = this.gridData.getWeekday(col);
     const isOverlay = this.gridData.isOverlayDay(col);
+    const isHighlighted = this.gridData.isCellHighlighted(row, col);
     const lastRowFlag = this.gridData.isLastGroupRow(row) ? this.lastLine : 0;
-    const canvas = this.getCellCanvas(weekDay, lastRowFlag, isOverlay);
+    const canvas = this.getCellCanvas(weekDay, lastRowFlag, isOverlay || isHighlighted);
 
     this.drawImage(ctx, canvas);
     this.drawCellTexts(ctx, gridCell);

@@ -9,21 +9,28 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private localStorageService = inject(LocalStorageService);
+  private signalRService = inject(SignalRService);
 
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     const token = this.localStorageService.get(MessageLibrary.TOKEN);
+    const connectionId = this.signalRService.connectionId;
 
     if (token) {
-      const authReq = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
-      });
+      let headers = req.headers.set('Authorization', `Bearer ${token}`);
+
+      if (connectionId) {
+        headers = headers.set('X-SignalR-ConnectionId', connectionId);
+      }
+
+      const authReq = req.clone({ headers });
       return next.handle(authReq);
     }
 

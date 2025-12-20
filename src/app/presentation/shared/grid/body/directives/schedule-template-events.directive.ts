@@ -48,6 +48,10 @@ export class ScheduleTemplateEventsDirective {
   private lastPageDownTime = 0;
   private lastPageUpTime = 0;
 
+  private dragDelayTimer: ReturnType<typeof setTimeout> | null = null;
+  private pendingDragEvent: MouseEvent | null = null;
+  private readonly DRAG_DELAY_MS = 150;
+
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
   @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
@@ -119,11 +123,29 @@ export class ScheduleTemplateEventsDirective {
       return false;
     }
 
-    this.shiftDragService.startDrag(event, dragData);
+    this.cancelPendingDrag();
+    this.pendingDragEvent = event;
+    this.dragDelayTimer = setTimeout(() => {
+      if (this.pendingDragEvent) {
+        this.shiftDragService.startDrag(this.pendingDragEvent, dragData);
+        this.pendingDragEvent = null;
+      }
+    }, this.DRAG_DELAY_MS);
+
     return true;
   }
 
+  private cancelPendingDrag(): void {
+    if (this.dragDelayTimer) {
+      clearTimeout(this.dragDelayTimer);
+      this.dragDelayTimer = null;
+    }
+    this.pendingDragEvent = null;
+  }
+
   @HostListener('mouseup', ['$event']) onMouseUp(event: MouseEvent): void {
+    this.cancelPendingDrag();
+
     if (this.shiftDragService.isDragging()) {
       return;
     }

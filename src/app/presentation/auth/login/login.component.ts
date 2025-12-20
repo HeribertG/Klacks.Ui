@@ -16,6 +16,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -52,6 +53,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(NgbModal);
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
+  private signalRService = inject(SignalRService);
 
   private destroy$ = new Subject<void>();
 
@@ -95,6 +97,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isClicked = true;
 
     if (await this.auth.logIn(this.username, this.password)) {
+      this.signalRService.startConnection();
       this.navigationService.navigateToWorkplace();
       this.isClicked = false;
     } else {
