@@ -2,6 +2,16 @@
 // Global test setup for Vitest
 // This file is loaded before any test file runs
 
+import 'zone.js';
+import 'zone.js/testing';
+import { TestBed } from '@angular/core/testing';
+import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
+
+TestBed.initTestEnvironment(
+  BrowserDynamicTestingModule,
+  platformBrowserDynamicTesting()
+);
+
 // Force override ResizeObserver - must be defined as a proper class
 (window as any).ResizeObserver = class ResizeObserver {
     callback: ResizeObserverCallback;

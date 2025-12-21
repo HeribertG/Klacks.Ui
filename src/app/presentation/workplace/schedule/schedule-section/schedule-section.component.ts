@@ -110,10 +110,7 @@ export class ScheduleSectionComponent
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
-  private scheduleDataLoaded = false;
-  private shiftDataLoaded = false;
-  private workScheduleLoaded = false;
-  private initialSyncDone = false;
+  private initialSyncDone = true;
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
@@ -190,21 +187,9 @@ export class ScheduleSectionComponent
         const isRead = this.dataManagement.isRead();
         if (isRead) {
           this.scheduleSurface.Refresh();
-          this.scheduleDataLoaded = true;
-          this.workScheduleLoaded = true;
-          this.onAllDataReady();
         }
       });
       this.effects.push(dataReadEffect);
-
-      const shiftReadEffect = effect(() => {
-        const isShiftRead = this.dataManagement.isShiftScheduleRead();
-        if (isShiftRead) {
-          this.shiftDataLoaded = true;
-          this.onAllDataReady();
-        }
-      });
-      this.effects.push(shiftReadEffect);
 
       const vScrollbarSizeEffect = effect(() => {
         const isLocked = this.scrollService.lockedRows();
@@ -275,28 +260,6 @@ export class ScheduleSectionComponent
   onVisibleValueHScrollbarChange(value: number): void {
     this.hScrollbar.visibleValue = value;
     this.hScrollService.setVisibleValue(value);
-  }
-
-  private onAllDataReady(): void {
-    if (this.scheduleDataLoaded && this.shiftDataLoaded && this.workScheduleLoaded) {
-      const dayVisibleBeforeMonth =
-        this.dataManagement.workFilter.dayVisibleBeforeMonth;
-
-      setTimeout(() => {
-        this.scrollService.horizontalScrollPosition = dayVisibleBeforeMonth;
-        this.hScrollbar.value = dayVisibleBeforeMonth;
-        this.hScrollService.forceSetPosition(dayVisibleBeforeMonth);
-        this.initialSyncDone = true;
-
-        setTimeout(() => {
-          this.hScrollService.unlock();
-        }, 500);
-      }, 300);
-
-      this.scheduleDataLoaded = false;
-      this.shiftDataLoaded = false;
-      this.workScheduleLoaded = false;
-    }
   }
 
   getDropTargetInfo(
