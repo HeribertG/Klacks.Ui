@@ -97,33 +97,31 @@ export class ScheduleTemplateEventsDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
-      if (this.tryStartShiftDrag(event)) {
-        return;
-      }
       this.respondToLeftButtonMouseDown(event);
+      this.tryPrepareShiftDrag(event);
     } else if (event.buttons === 2) {
       this.respondToRightButtonMouseDown(event);
     }
   }
 
-  private tryStartShiftDrag(event: MouseEvent): boolean {
+  private tryPrepareShiftDrag(event: MouseEvent): void {
     if (this.gridSurface.nameId !== 'shift') {
-      return false;
+      return;
     }
 
     const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
-      return false;
+      return;
     }
 
     if (!this.gridData.isCellActive(pos.row, pos.column)) {
-      return false;
+      return;
     }
 
     const shiftDataService = this.gridData as ShiftDataService;
     const dragData = shiftDataService.getShiftDragData(pos.row, pos.column);
     if (!dragData) {
-      return false;
+      return;
     }
 
     this.cancelPendingDrag();
@@ -134,8 +132,6 @@ export class ScheduleTemplateEventsDirective {
         this.pendingDragEvent = null;
       }
     }, this.DRAG_DELAY_MS);
-
-    return true;
   }
 
   private cancelPendingDrag(): void {

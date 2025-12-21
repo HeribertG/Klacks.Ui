@@ -127,7 +127,6 @@ export class ScheduleSectionComponent
   }
 
   ngAfterViewInit() {
-    this.hScrollService.lock();
     this.readSignals();
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();

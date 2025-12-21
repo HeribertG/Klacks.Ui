@@ -188,22 +188,6 @@ Die Schedule-Section und Shift-Section teilen sich die horizontale Scroll-Positi
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Lock-Mechanismus
-
-Der Service hat einen Lock-Mechanismus um Race-Conditions beim Initialisieren zu verhindern:
-
-```typescript
-// In schedule-section.component.ts
-ngOnInit() {
-  this.hScrollService.lock();  // Blockiert setPosition() während Init
-}
-
-onBothGridsReady() {
-  this.hScrollService.forceSetPosition(dayVisibleBeforeMonth);  // Bypasses Lock
-  setTimeout(() => this.hScrollService.unlock(), 500);
-}
-```
-
 ### Dateien
 
 | Datei | Zweck |
@@ -317,7 +301,110 @@ private drawHighlightOnMainCanvas(ctx): void {
 
 ---
 
+## Verfügbare Shifts Anzeige
+
+### Übersicht
+
+Die Header der Schedule-Section zeigen an, ob an einem Tag noch Shifts mit freier Kapazität verfügbar sind.
+
+### Logik
+
+- **Rote Schriftfarbe:** Es gibt noch verfügbare Shifts an diesem Tag
+- **Standard Schriftfarbe:** Alle Shifts sind vollständig besetzt
+
+Ein Shift gilt als verfügbar wenn: `engaged < sumEmployees * quantity`
+
+### Implementierung
+
+```typescript
+// In data-management-schedule.service.ts
+private _availableShiftsByDay = signal<readonly (readonly string[])[]>([]);
+
+private buildAvailableShiftsByDay(): void {
+  for (const shift of this.shiftSchedules) {
+    const maxCapacity = shift.sumEmployees * shift.quantity;
+    if (shift.engaged < maxCapacity) {
+      result[dayIndex].push(shift.abbreviation);
+    }
+  }
+}
+
+// In schedule-data.service.ts
+override getHeaderFontColor(column: number): string | null {
+  const availableShifts = this.dataManagementSchedule.availableShiftsByDay;
+  if (availableShifts[column]?.length > 0) {
+    return 'red';
+  }
+  return null;
+}
+```
+
+### Dateien
+
+| Datei | Zweck |
+|-------|-------|
+| `data-management-schedule.service.ts` | `availableShiftsByDay` 2D-Array mit Shift-Abkürzungen |
+| `schedule-data.service.ts` | `getHeaderFontColor()` Override für rote Schrift |
+| `data.service.ts` | `getHeaderFontColor()` Base-Methode |
+| `create-header.service.ts` | `chooseFontColor()` nutzt custom Farbe |
+
+---
+
+## Drag & Drop von Shifts
+
+### Übersicht
+
+Shifts können per Drag & Drop aus der Shift-Section in die Schedule-Section gezogen werden.
+
+### Ablauf
+
+1. **Mousedown** auf gefüllte Shift-Zelle → Zelle wird selektiert
+2. **Nach Verzögerung** (DRAG_DELAY_MS) → Drag startet
+3. **Mouseup vor Verzögerung** → Nur Selektion, kein Drag
+
+### Implementierung
+
+```typescript
+// In schedule-template-events.directive.ts
+@HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
+  if (event.buttons === 1) {
+    this.respondToLeftButtonMouseDown(event);  // Immer selektieren
+    this.tryPrepareShiftDrag(event);           // Drag vorbereiten (verzögert)
+  }
+}
+
+private tryPrepareShiftDrag(event: MouseEvent): void {
+  // Nur für shift-section mit aktiver Zelle
+  if (this.gridSurface.nameId !== 'shift') return;
+  if (!this.gridData.isCellActive(pos.row, pos.column)) return;
+
+  this.dragDelayTimer = setTimeout(() => {
+    this.shiftDragService.startDrag(event, dragData);
+  }, this.DRAG_DELAY_MS);
+}
+```
+
+---
+
 ## Changelog
+
+### 21.12.2025 - Verfügbare Shifts + Drag-Fix
+
+**Neue Features:**
+- Rote Header-Schriftfarbe wenn Shifts nicht vollständig besetzt
+- `availableShiftsByDay` 2D-Array für verfügbare Shifts pro Tag
+
+**Bugfixes:**
+- Zell-Selektion in Shift-Section funktioniert wieder
+- Horizontales Scrollen zwischen Sektionen synchronisiert korrekt
+
+**Betroffene Dateien:**
+- `data-management-schedule.service.ts` - availableShiftsByDay Signal
+- `schedule-data.service.ts` - getHeaderFontColor() Override
+- `data.service.ts` - getHeaderFontColor() Base-Methode
+- `create-header.service.ts` - chooseFontColor() nutzt custom Farbe
+- `schedule-template-events.directive.ts` - Drag/Selection Logik korrigiert
+- `schedule-section.component.ts` - lock() entfernt
 
 ### 10.12.2025 - Horizontal Scroll Sync + Tab + Row Selection
 
