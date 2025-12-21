@@ -42,6 +42,10 @@ export abstract class BaseDataService {
   abstract getRowHeaderSlot3Text(index: number): string;
   abstract columnStatus(column: number): HeaderCellTypeEnum;
 
+  getHeaderFontColor(_column: number): string | null {
+    return null;
+  }
+
   isCellActive(row: number, col: number): boolean {
     try {
       const cell = this.getCell(row, col);
@@ -51,11 +55,11 @@ export abstract class BaseDataService {
     }
   }
 
-  isRowHighlighted(row: number): boolean {
+  isRowHighlighted(_row: number): boolean {
     return false;
   }
 
-  isCellHighlighted(row: number, col: number): boolean {
+  isCellHighlighted(row: number, _col: number): boolean {
     return this.isRowHighlighted(row);
   }
 }

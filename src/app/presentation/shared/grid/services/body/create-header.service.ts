@@ -98,6 +98,10 @@ export class BaseCreateHeaderService {
     return undefined;
   }
   private chooseFontColor(column: number): string {
+    const customColor = this.gridData.getHeaderFontColor(column);
+    if (customColor) {
+      return customColor;
+    }
     const status = this.gridData.columnStatus(column);
     if (status === HeaderCellTypeEnum.Warning) {
       return this.gridColors.warningColor;
@@ -166,6 +170,7 @@ export class BaseCreateHeaderService {
       new Rectangle(0, 0, width, this.settings.cellHeaderHeight)
     );
   }
+
   private drawBorder(
     ctx: CanvasRenderingContext2D,
     deep = 2,

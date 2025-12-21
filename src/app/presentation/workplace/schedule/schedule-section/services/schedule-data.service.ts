@@ -158,6 +158,17 @@ export class ScheduleDataService extends BaseDataService {
     return false;
   }
 
+  override getHeaderFontColor(column: number): string | null {
+    const availableShifts = this.dataManagementSchedule.availableShiftsByDay;
+    if (column >= 0 && column < availableShifts.length) {
+      const shiftsForDay = availableShifts[column];
+      if (shiftsForDay && shiftsForDay.length > 0) {
+        return 'red';
+      }
+    }
+    return null;
+  }
+
   private initializeGroupIndices(): void {
     this.rowGroupIndex = [];
     this.indexGroupRow = [];
