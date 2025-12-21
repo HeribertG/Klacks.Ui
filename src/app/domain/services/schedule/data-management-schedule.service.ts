@@ -80,6 +80,11 @@ export class DataManagementScheduleService implements ILoadable {
   public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
   public onExternalFilterChange?: () => void;
 
+  private _availableShiftsByDay = signal<readonly (readonly string[])[]>([]);
+  public get availableShiftsByDay(): readonly (readonly string[])[] {
+    return this._availableShiftsByDay();
+  }
+
   private workFilterDummy: IWorkFilter | undefined = undefined;
 
   get isLoadingMore(): boolean {
@@ -126,6 +131,7 @@ export class DataManagementScheduleService implements ILoadable {
         next: (response) => {
           this.shiftSchedules = response.shifts;
           this._totalAvailableShifts = response.totalCount;
+          this.buildAvailableShiftsByDay();
 
           this.isShiftScheduleRead.set(true);
           setTimeout(() => this.isShiftScheduleRead.set(false), 100);
@@ -511,6 +517,44 @@ export class DataManagementScheduleService implements ILoadable {
       current = addDays(current, 1);
     }
     return keys;
+  }
+
+  private buildAvailableShiftsByDay(): void {
+    const startDate = this.calculateStartDate();
+    const totalDays = this.workFilter.dayVisibleBeforeMonth +
+      this.getDaysInCurrentMonth() +
+      this.workFilter.dayVisibleAfterMonth;
+
+    const result: string[][] = [];
+    for (let day = 0; day < totalDays; day++) {
+      result.push([]);
+    }
+
+    for (const shift of this.shiftSchedules) {
+      const maxCapacity = shift.sumEmployees * shift.quantity;
+      if (shift.engaged < maxCapacity) {
+        const shiftDate = new Date(shift.date);
+        const dayIndex = this.getDayIndex(startDate, shiftDate);
+        if (dayIndex >= 0 && dayIndex < totalDays) {
+          if (!result[dayIndex].includes(shift.abbreviation)) {
+            result[dayIndex].push(shift.abbreviation);
+          }
+        }
+      }
+    }
+
+    this._availableShiftsByDay.set(result);
+  }
+
+  private getDayIndex(startDate: Date, targetDate: Date): number {
+    const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+    const target = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+    const diffTime = target.getTime() - start.getTime();
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  private getDaysInCurrentMonth(): number {
+    return new Date(this.workFilter.currentYear, this.workFilter.currentMonth, 0).getDate();
   }
 
   public destroy(): void {
