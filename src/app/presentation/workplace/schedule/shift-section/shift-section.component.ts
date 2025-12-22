@@ -226,7 +226,7 @@ export class ShiftSectionComponent
       const shiftUpdateEffect = effect(() => {
         const updateId = this.workNotificationService.shiftUpdateSignal();
         if (updateId) {
-          this.shiftSurface.Refresh();
+          this.shiftSurface.Refresh(false);
         }
       });
       this.effects.push(shiftUpdateEffect);

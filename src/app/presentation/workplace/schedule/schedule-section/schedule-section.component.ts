@@ -227,7 +227,7 @@ export class ScheduleSectionComponent
       const scheduleUpdateEffect = effect(() => {
         const updateId = this.workNotificationService.scheduleUpdateSignal();
         if (updateId) {
-          this.scheduleSurface.Refresh();
+          this.scheduleSurface.Refresh(false);
         }
       });
       this.effects.push(scheduleUpdateEffect);

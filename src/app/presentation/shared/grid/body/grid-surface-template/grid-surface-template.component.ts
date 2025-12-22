@@ -191,12 +191,14 @@ export class GridSurfaceTemplateComponent
     }
   }
 
-  Refresh(): void {
+  Refresh(resetScroll = true): void {
     this.dataService.setMetrics();
-    this.scroll.horizontalScrollPosition = 0;
-    this.scroll.verticalScrollPosition = 0;
-    this.valueHScrollbar.emit(0);
-    this.valueVScrollbar.emit(0);
+    if (resetScroll) {
+      this.scroll.horizontalScrollPosition = 0;
+      this.scroll.verticalScrollPosition = 0;
+      this.valueHScrollbar.emit(0);
+      this.valueVScrollbar.emit(0);
+    }
     this.drawSchedule.redraw();
     this.updateScrollbarValues();
   }
