@@ -176,6 +176,13 @@ export class GridSurfaceTemplateComponent
     this.updateCellInputPosition(pos.row, pos.column);
   }
 
+  private updateCellInputOnZoom(): void {
+    if (!this.cellInputVisible) return;
+    const pos = this.cellManipulation.positionSignal();
+    this.updateCellInputPosition(pos.row, pos.column);
+    this.cdr.detectChanges();
+  }
+
   setFocus(): void {
     const x = this.el.nativeElement;
     if (x) {
@@ -364,7 +371,8 @@ export class GridSurfaceTemplateComponent
             this.drawSchedule.createCanvas();
             this.drawSchedule.rebuild();
             this.drawSchedule.redraw();
-            this.updateScrollbarValues(true); // Force update after zoom change
+            this.updateScrollbarValues(true);
+            this.updateCellInputOnZoom();
           }
         }, 0);
       });
