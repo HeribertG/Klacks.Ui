@@ -128,6 +128,10 @@ export class ScheduleDataService extends BaseDataService {
     return entry?.abbreviation || '';
   }
 
+  public override isCellEditable(row: number, col: number): boolean {
+    return this.isCellActive(row, col);
+  }
+
   public override columnStatus(column: number): HeaderCellTypeEnum {
     if (this.isColumnSealed(column)) {
       return HeaderCellTypeEnum.Sealed;
