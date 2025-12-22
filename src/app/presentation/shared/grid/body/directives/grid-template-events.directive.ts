@@ -2,12 +2,21 @@
 import {
   Directive,
   ElementRef,
+  EventEmitter,
   HostListener,
   inject,
+  Output,
   ViewContainerRef,
 } from '@angular/core';
 
 import { Overlay } from '@angular/cdk/overlay';
+
+export interface GridRightClickEvent {
+  row: number;
+  column: number;
+  clientX: number;
+  clientY: number;
+}
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -35,6 +44,8 @@ export class GridTemplateEventsDirective {
   private cellManipulation = inject(BaseCellManipulationService);
   private shiftDragService = inject(ShiftToScheduleDragDropService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+
+  @Output() rightClick = new EventEmitter<GridRightClickEvent>();
 
   private readonly INDEX_CORRECTION = 1;
   private readonly REPEAT_DELAY = 100;
@@ -552,7 +563,32 @@ export class GridTemplateEventsDirective {
   }
 
   private respondToRightButtonMouseDown(event: MouseEvent): void {
-    // this.gridSurface.showContextMenu(event);
+    this.gridSurface.setFocus();
+
+    const pos: MyPosition =
+      this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    if (this.gridSurface.drawSchedule.position !== pos) {
+      this.gridSurface.drawSchedule.position = pos;
+    }
+    this.gridSurface.drawSchedule.refresh();
+
+    this.rightClick.emit({
+      row: pos.row,
+      column: pos.column,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    });
+  }
+
+  @HostListener('contextmenu', ['$event'])
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   private stopEvent(event: Event): void {

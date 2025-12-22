@@ -26,10 +26,18 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
-import { GridTemplateEventsDirective } from '../directives/grid-template-events.directive';
-import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
+import { GridTemplateEventsDirective, GridRightClickEvent } from '../directives/grid-template-events.directive';
+import { CellInputEventsDirective, CellInputRightClickEvent } from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
+
+export interface GridSurfaceRightClickEvent {
+  row: number;
+  column: number;
+  clientX: number;
+  clientY: number;
+  source: 'canvas' | 'input';
+}
 
 export interface CellValueChangeEvent {
   row: number;
@@ -59,6 +67,7 @@ export class GridSurfaceTemplateComponent
   @Output() maxValueVScrollbar = new EventEmitter<number>();
   @Output() visibleValueVScrollbar = new EventEmitter<number>();
   @Output() cellValueChange = new EventEmitter<CellValueChangeEvent>();
+  @Output() rightClick = new EventEmitter<GridSurfaceRightClickEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
@@ -418,6 +427,26 @@ export class GridSurfaceTemplateComponent
 
   onCancelInput(): void {
     this.cancelCellInput();
+  }
+
+  onCanvasRightClick(event: GridRightClickEvent): void {
+    this.rightClick.emit({
+      row: event.row,
+      column: event.column,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      source: 'canvas',
+    });
+  }
+
+  onInputRightClick(event: CellInputRightClickEvent): void {
+    this.rightClick.emit({
+      row: this.lastEditedRow,
+      column: this.lastEditedColumn,
+      clientX: event.clientX,
+      clientY: event.clientY,
+      source: 'input',
+    });
   }
 
   private passEventToCanvas(originalEvent: KeyboardEvent): void {

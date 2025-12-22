@@ -7,6 +7,11 @@ import {
   Output,
 } from '@angular/core';
 
+export interface CellInputRightClickEvent {
+  clientX: number;
+  clientY: number;
+}
+
 @Directive({
   selector: '[appCellInputEvents]',
   standalone: true,
@@ -17,6 +22,7 @@ export class CellInputEventsDirective {
   @Output() navigationKey = new EventEmitter<KeyboardEvent>();
   @Output() saveInput = new EventEmitter<void>();
   @Output() cancelInput = new EventEmitter<void>();
+  @Output() rightClick = new EventEmitter<CellInputRightClickEvent>();
 
   private readonly verticalNavigationKeys = ['ArrowUp', 'ArrowDown', 'Home', 'End'];
   private readonly alwaysSaveKeys = ['Enter', 'Tab'];
@@ -86,6 +92,16 @@ export class CellInputEventsDirective {
       return;
     }
     this.saveInput.emit();
+  }
+
+  @HostListener('contextmenu', ['$event'])
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.rightClick.emit({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    });
   }
 
   focus(): void {

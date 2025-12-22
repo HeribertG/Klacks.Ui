@@ -6,6 +6,7 @@
     [tabindex]="0"
     role="application"
     aria-label="grid canvas"
+    (rightClick)="onCanvasRightClick($event)"
   ></canvas>
   <input
     #cellInput
@@ -22,6 +23,7 @@
     (navigationKey)="onNavigationKey($event)"
     (saveInput)="onSaveInput()"
     (cancelInput)="onCancelInput()"
+    (rightClick)="onInputRightClick($event)"
   />
 </div>
 
