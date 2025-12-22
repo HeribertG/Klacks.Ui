@@ -51,7 +51,6 @@ export class ShiftScheduleLoaderService {
   }
 
   load(workFilter: IWorkFilter, holidayDates: Date[], onLoaded?: () => void): void {
-    this.shiftSchedules = [];
     this.shiftScheduleFilter.dayVisibleBeforeMonth = workFilter.dayVisibleBeforeMonth;
     this.shiftScheduleFilter.dayVisibleAfterMonth = workFilter.dayVisibleAfterMonth;
     this.shiftScheduleFilter.currentMonth = workFilter.currentMonth;
