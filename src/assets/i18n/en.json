@@ -558,7 +558,8 @@
   "schedule.shift-filter.search-placeholder": "Search Name/Abbreviation",
   "schedule.shift-filter.type": "Type",
   "schedule.shift-filter.clear": "Clear Filters",
-
+  "schedule.tooltip.available": "Available",
+  "schedule.tooltip.overbooked": "Overbooked",
 
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",

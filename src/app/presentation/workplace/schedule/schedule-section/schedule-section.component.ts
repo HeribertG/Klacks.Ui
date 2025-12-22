@@ -107,6 +107,7 @@ export class ScheduleSectionComponent
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
+  private lastHeaderColumn = -1;
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -231,9 +232,17 @@ export class ScheduleSectionComponent
 
   private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {
     if (!hoveredCell) {
+      this.lastHeaderColumn = -1;
       this.scheduleSurface.destroyToolTip();
       return;
     }
+
+    if (hoveredCell.isHeader) {
+      this.handleHeaderTooltip(hoveredCell);
+      return;
+    }
+
+    this.lastHeaderColumn = -1;
 
     if (hoveredCell.isEmpty) {
       const holiday = this.scheduleSurface.dataService.holidayInfo(hoveredCell.column);
@@ -250,6 +259,53 @@ export class ScheduleSectionComponent
     }
 
     this.scheduleSurface.destroyToolTip();
+  }
+
+  private handleHeaderTooltip(hoveredCell: HoveredCellInfo): void {
+    const columnChanged = this.lastHeaderColumn !== hoveredCell.column;
+    this.lastHeaderColumn = hoveredCell.column;
+
+    const column = hoveredCell.column;
+    const availableShifts = this.dataManagement.availableShiftsByDay;
+    const overbookedShifts = this.dataManagement.overbookedShiftsByDay;
+
+    const available = availableShifts?.[column] ?? [];
+    const overbooked = overbookedShifts?.[column] ?? [];
+
+    if (available.length === 0 && overbooked.length === 0) {
+      this.scheduleSurface.destroyToolTip();
+      return;
+    }
+
+    if (columnChanged) {
+      this.scheduleSurface.destroyToolTip();
+    }
+
+    const tooltipText = this.buildHeaderTooltipText(overbooked, available);
+    this.scheduleSurface.showToolTip({
+      value: tooltipText,
+      event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
+    });
+  }
+
+  private buildHeaderTooltipText(overbooked: readonly string[], available: readonly string[]): string {
+    const lines: string[] = [];
+
+    if (overbooked.length > 0) {
+      const label = this.translateService.instant('schedule.tooltip.overbooked');
+      lines.push(`${label}:<br>${overbooked.join(', ')}`);
+    }
+
+    if (overbooked.length > 0 && available.length > 0) {
+      lines.push('<br>');
+    }
+
+    if (available.length > 0) {
+      const label = this.translateService.instant('schedule.tooltip.available');
+      lines.push(`${label}:<br>${available.join(', ')}`);
+    }
+
+    return lines.join('');
   }
 
   private getTranslatedText(multiLanguage: MultiLanguage): string {

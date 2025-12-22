@@ -554,7 +554,8 @@
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",
-
+  "schedule.tooltip.available": "Disponible",
+  "schedule.tooltip.overbooked": "Surbooké",
 
   "setting.absence.add": "+ Ajouter une absence",
   "setting.absence.headline": "Absences",

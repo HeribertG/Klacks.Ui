@@ -176,6 +176,10 @@ export class ScheduleTemplateEventsDirective {
       return;
     }
 
+    if (this.handleHeaderHover(event)) {
+      return;
+    }
+
     const pos: MyPosition =
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
@@ -197,6 +201,38 @@ export class ScheduleTemplateEventsDirective {
     }
   }
 
+  private handleHeaderHover(event: MouseEvent): boolean {
+    if (!this.gridSettings.hasHeader) {
+      return false;
+    }
+
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const relativeY = event.clientY - rect.top;
+
+    if (relativeY >= this.gridSettings.cellHeaderHeight) {
+      return false;
+    }
+
+    const relativeX = event.clientX - rect.left;
+    const column = Math.floor(relativeX / this.gridSettings.cellWidth) + this.scrollGrid.horizontalScrollPosition;
+
+    if (column < 0 || column >= this.gridData.columns) {
+      this.cellManipulation.hoveredCell.set(null);
+      return true;
+    }
+
+    this.cellManipulation.hoveredCell.set({
+      row: -1,
+      column,
+      isEmpty: true,
+      isHeader: true,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    });
+
+    return true;
+  }
+
   private updateHoveredCell(pos: MyPosition, event: MouseEvent): void {
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
       this.cellManipulation.hoveredCell.set(null);
@@ -208,6 +244,7 @@ export class ScheduleTemplateEventsDirective {
       row: pos.row,
       column: pos.column,
       isEmpty,
+      isHeader: false,
       clientX: event.clientX,
       clientY: event.clientY,
     });

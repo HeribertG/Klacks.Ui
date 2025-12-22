@@ -12,6 +12,7 @@ export interface HoveredCellInfo {
   row: number;
   column: number;
   isEmpty: boolean;
+  isHeader: boolean;
   clientX: number;
   clientY: number;
 }

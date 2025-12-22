@@ -331,6 +331,8 @@
   "SHIFT_SPORADIC_SEMESTER": "Semester",
   "SHIFT_SPORADIC_WEEK": "Wöchendlich",
   "SHIFT_SPORADIC_YEAR": "Jährlich",
+  "SHIFT_AVAILABLE": "Verfügbar",
+  "SHIFT_OVERBOOKED": "Überbelegt",
   "STATISTIC": "Statistiken",
   "UPDATE_NOT_DONE": "Änderungen wurden von der Datenbank nicht übernommen",
   "VALID_FROM": "Gültig ab:",
@@ -547,6 +549,8 @@
   "schedule.shift-filter.search-placeholder": "Suche Name/Abkürzung",
   "schedule.shift-filter.type": "Typ",
   "schedule.shift-filter.clear": "Filter zurücksetzen",
+  "schedule.tooltip.available": "Verfügbar",
+  "schedule.tooltip.overbooked": "Überbelegt",
 
   "setting.absence.add": "+ Absenz hinzufügen",
   "setting.absence.headline": "Absenzen",
