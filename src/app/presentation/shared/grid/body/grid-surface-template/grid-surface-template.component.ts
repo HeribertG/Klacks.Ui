@@ -26,7 +26,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
-import { ScheduleTemplateEventsDirective } from '../directives/schedule-template-events.directive';
+import { GridTemplateEventsDirective } from '../directives/grid-template-events.directive';
 import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 
@@ -37,13 +37,13 @@ export interface CellValueChangeEvent {
 }
 
 @Component({
-  selector: 'app-schedule-surface-template',
-  templateUrl: './schedule-surface-template.component.html',
-  styleUrl: './schedule-surface-template.component.scss',
+  selector: 'app-grid-surface-template',
+  templateUrl: './grid-surface-template.component.html',
+  styleUrl: './grid-surface-template.component.scss',
   standalone: true,
-  imports: [ScheduleTemplateEventsDirective, CellInputEventsDirective],
+  imports: [GridTemplateEventsDirective, CellInputEventsDirective],
 })
-export class ScheduleSurfaceTemplateComponent
+export class GridSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() contextMenu?: ContextMenuComponent;

@@ -50,7 +50,7 @@
       <as-split-area>
         <div class="container-box-shift">
           <div class="surface-shift">
-            <app-schedule-surface-template
+            <app-grid-surface-template
               [nameId]="'shift'"
               #shiftSurface
               class="box-shift"
@@ -61,7 +61,7 @@
               (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
               (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
             >
-            </app-schedule-surface-template>
+            </app-grid-surface-template>
 
             <app-v-scrollbar
               class="vScrollAreaShift"

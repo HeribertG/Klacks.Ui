@@ -38,7 +38,7 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
-import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
+import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { IconFilterComponent } from 'src/app/presentation/icons/icon-filter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -59,7 +59,7 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
     NgbTooltipModule,
     ScheduleShiftRowHeaderComponent,
     VScrollbarComponent,
-    ScheduleSurfaceTemplateComponent,
+    GridSurfaceTemplateComponent,
     IconFilterComponent,
     ShiftFilterComponent,
   ],
@@ -85,7 +85,7 @@ export class ShiftSectionComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('shiftSurface', { static: true })
-  shiftSurface!: ScheduleSurfaceTemplateComponent;
+  shiftSurface!: GridSurfaceTemplateComponent;
 
   private dataManagement = inject(DataManagementScheduleService);
   private injector = inject(Injector);

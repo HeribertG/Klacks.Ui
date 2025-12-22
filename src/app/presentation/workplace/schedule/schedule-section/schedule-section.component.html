@@ -12,7 +12,7 @@
     <div class="container-box">
       <div class="surface">
         <div class="box">
-          <app-schedule-surface-template
+          <app-grid-surface-template
             #scheduleSurface
             [nameId]="'surface'"
             [valueChangeHScrollbar]="hScrollbar.value"
@@ -25,7 +25,7 @@
             (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
             (cellValueChange)="onCellValueChange($event)"
           >
-          </app-schedule-surface-template>
+          </app-grid-surface-template>
         </div>
         <app-v-scrollbar
           [class.hidden]="vScrollbarSize === 0"

@@ -37,8 +37,8 @@ import { CellIconsService } from 'src/app/presentation/shared/grid/services/body
 import { Subject, takeUntil } from 'rxjs';
 import {
   CellValueChangeEvent,
-  ScheduleSurfaceTemplateComponent,
-} from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
+  GridSurfaceTemplateComponent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -58,7 +58,7 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
     ScheduleScheduleRowHeaderComponent,
     HScrollbarComponent,
     VScrollbarComponent,
-    ScheduleSurfaceTemplateComponent,
+    GridSurfaceTemplateComponent,
   ],
   providers: [
     BaseSettingsService,
@@ -84,7 +84,7 @@ export class ScheduleSectionComponent
   @ViewChild('scheduleHScrollbar', { static: true })
   scheduleHScrollbar!: HScrollbarComponent;
   @ViewChild('scheduleSurface', { static: true })
-  scheduleSurface!: ScheduleSurfaceTemplateComponent;
+  scheduleSurface!: GridSurfaceTemplateComponent;
 
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;

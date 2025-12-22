@@ -13,7 +13,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { ScheduleSurfaceTemplateComponent } from '../schedule-surface-template/schedule-surface-template.component';
+import { GridSurfaceTemplateComponent } from '../grid-surface-template/grid-surface-template.component';
 import { GridSelectionModeEnum } from '../../enums/divers';
 import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
@@ -21,12 +21,12 @@ import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/sch
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Directive({
-  selector: '[appScheduleTemplateEvents]',
+  selector: '[appGridTemplateEvents]',
   standalone: true,
 })
-export class ScheduleTemplateEventsDirective {
+export class GridTemplateEventsDirective {
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
-  private gridSurface = inject(ScheduleSurfaceTemplateComponent);
+  private gridSurface = inject(GridSurfaceTemplateComponent);
   public overlay = inject(Overlay);
   public viewContainerRef = inject(ViewContainerRef);
   private gridData = inject(BaseDataService);
