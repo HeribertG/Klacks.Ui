@@ -1,0 +1,75 @@
+import { Injectable, signal } from '@angular/core';
+import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
+import { IWorkFilter } from 'src/app/domain/models/schedule-class';
+import { getDayIndex, getDaysInMonth } from 'src/app/shared/helpers/date.helper';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AvailableShiftsCalculatorService {
+  private _availableShiftsByDay = signal<readonly (readonly string[])[]>([]);
+  private _overbookedShiftsByDay = signal<readonly (readonly string[])[]>([]);
+
+  get availableShiftsByDay(): readonly (readonly string[])[] {
+    return this._availableShiftsByDay();
+  }
+
+  get overbookedShiftsByDay(): readonly (readonly string[])[] {
+    return this._overbookedShiftsByDay();
+  }
+
+  calculate(shiftSchedules: IShiftSchedule[], workFilter: IWorkFilter): void {
+    const startDate = this.calculateStartDate(workFilter);
+    const totalDays = this.getTotalDays(workFilter);
+
+    const hasCapacity = (shift: IShiftSchedule) =>
+      shift.engaged < shift.sumEmployees * shift.quantity;
+
+    const isOverbooked = (shift: IShiftSchedule) =>
+      shift.engaged > shift.sumEmployees * shift.quantity;
+
+    const toDayEntry = (shift: IShiftSchedule) => ({
+      dayIdx: getDayIndex(startDate, new Date(shift.date)),
+      abbreviation: shift.abbreviation,
+    });
+
+    const isInRange = (entry: { dayIdx: number }) =>
+      entry.dayIdx >= 0 && entry.dayIdx < totalDays;
+
+    const toUniqueAbbreviationsByDay = (entries: { dayIdx: number; abbreviation: string }[]) =>
+      Array.from({ length: totalDays }, (_, dayIdx) =>
+        [...new Set(
+          entries
+            .filter(s => s.dayIdx === dayIdx)
+            .map(s => s.abbreviation)
+        )]
+      );
+
+    const availableShifts = shiftSchedules
+      .filter(hasCapacity)
+      .map(toDayEntry)
+      .filter(isInRange);
+
+    const overbookedShifts = shiftSchedules
+      .filter(isOverbooked)
+      .map(toDayEntry)
+      .filter(isInRange);
+
+    this._availableShiftsByDay.set(toUniqueAbbreviationsByDay(availableShifts));
+    this._overbookedShiftsByDay.set(toUniqueAbbreviationsByDay(overbookedShifts));
+  }
+
+  private calculateStartDate(filter: IWorkFilter): Date {
+    const year = filter.currentYear;
+    const month = filter.currentMonth - 1;
+    const daysBefore = filter.dayVisibleBeforeMonth;
+    const firstOfMonth = new Date(year, month, 1);
+    return new Date(firstOfMonth.getTime() - daysBefore * 24 * 60 * 60 * 1000);
+  }
+
+  private getTotalDays(filter: IWorkFilter): number {
+    return filter.dayVisibleBeforeMonth +
+      getDaysInMonth(filter.currentYear, filter.currentMonth - 1) +
+      filter.dayVisibleAfterMonth;
+  }
+}
