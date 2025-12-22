@@ -62,4 +62,8 @@ export abstract class BaseDataService {
   isCellHighlighted(row: number, _col: number): boolean {
     return this.isRowHighlighted(row);
   }
+
+  isCellEditable(_row: number, _col: number): boolean {
+    return true;
+  }
 }

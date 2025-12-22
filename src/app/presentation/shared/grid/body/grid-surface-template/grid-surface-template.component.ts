@@ -440,6 +440,11 @@ export class GridSurfaceTemplateComponent
       return;
     }
 
+    if (!this.dataService.isCellEditable(row, column)) {
+      this.hideCellInput();
+      return;
+    }
+
     const firstVisibleRow = this.scroll.verticalScrollPosition;
     const firstVisibleCol = this.scroll.horizontalScrollPosition;
     const visibleRows = this.calculateVisibleRows();
