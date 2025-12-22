@@ -49,7 +49,6 @@ import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
-import { EqualDate } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-schedule-section',
@@ -408,7 +407,7 @@ export class ScheduleSectionComponent
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === abbreviation &&
-        EqualDate(shift.date, date) === 0
+        this.isSameDay(shift.date, date)
     );
 
     if (matchingShift) {
@@ -419,5 +418,15 @@ export class ScheduleSectionComponent
         workTime: matchingShift.workTime,
       });
     }
+  }
+
+  private isSameDay(date1: Date | string, date2: Date | string): boolean {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
   }
 }

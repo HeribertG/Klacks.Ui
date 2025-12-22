@@ -19,12 +19,24 @@ export class CellInputEventsDirective {
   @Output() cancelInput = new EventEmitter<void>();
 
   private readonly verticalNavigationKeys = ['ArrowUp', 'ArrowDown', 'Home', 'End'];
-  private readonly rightNavigationKeys = ['Tab', 'Enter', 'ArrowRight'];
+  private readonly alwaysSaveKeys = ['Enter', 'Tab'];
+  private readonly rightNavigationKeys = ['ArrowRight'];
   private readonly leftNavigationKeys = ['ArrowLeft', 'Backspace'];
+
+  private saveEmittedByKey = false;
 
   @HostListener('keydown', ['$event'])
   onKeydown(event: KeyboardEvent): void {
     if (this.verticalNavigationKeys.includes(event.key)) {
+      this.saveEmittedByKey = true;
+      this.saveInput.emit();
+      this.navigationKey.emit(event);
+      event.preventDefault();
+      return;
+    }
+
+    if (this.alwaysSaveKeys.includes(event.key)) {
+      this.saveEmittedByKey = true;
       this.saveInput.emit();
       this.navigationKey.emit(event);
       event.preventDefault();
@@ -33,6 +45,7 @@ export class CellInputEventsDirective {
 
     if (this.rightNavigationKeys.includes(event.key)) {
       if (this.isCaretAtEnd()) {
+        this.saveEmittedByKey = true;
         this.saveInput.emit();
         this.navigationKey.emit(event);
         event.preventDefault();
@@ -42,6 +55,7 @@ export class CellInputEventsDirective {
 
     if (this.leftNavigationKeys.includes(event.key)) {
       if (this.isCaretAtStart()) {
+        this.saveEmittedByKey = true;
         this.saveInput.emit();
         this.navigationKey.emit(event);
         event.preventDefault();
@@ -67,6 +81,10 @@ export class CellInputEventsDirective {
 
   @HostListener('blur')
   onBlur(): void {
+    if (this.saveEmittedByKey) {
+      this.saveEmittedByKey = false;
+      return;
+    }
     this.saveInput.emit();
   }
 
