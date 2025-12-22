@@ -48,7 +48,8 @@ export class ScheduleDataService extends BaseDataService {
       c.cellType = CellTypeEnum.Standard;
       c.mainText = entry.abbreviation || '';
       c.firstSubText = this.formatWorkTime(entry.changeTime);
-      c.secondSubText = formatTime(entry.startShift) + ' - ' + formatTime(entry.endShift);
+      c.secondSubText =
+        formatTime(entry.startShift) + ' - ' + formatTime(entry.endShift);
     } else {
       c.cellType = CellTypeEnum.Empty;
       c.mainText = '';
@@ -69,7 +70,10 @@ export class ScheduleDataService extends BaseDataService {
     return `${sign}${wholeHours}h ${mins}m`;
   }
 
-  getWorkScheduleEntryForCell(row: number, col: number): IWorkScheduleEntry | undefined {
+  getWorkScheduleEntryForCell(
+    row: number,
+    col: number
+  ): IWorkScheduleEntry | undefined {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) {
       return undefined;
@@ -129,7 +133,11 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   public override isCellEditable(row: number, col: number): boolean {
-    return this.isCellActive(row, col);
+    if (this.isColumnSealed(col)) {
+      return false;
+    }
+
+    return !this.isCellActive(row, col);
   }
 
   public override columnStatus(column: number): HeaderCellTypeEnum {
@@ -159,6 +167,11 @@ export class ScheduleDataService extends BaseDataService {
     return false;
   }
   override isColumnSealed(_column: number): boolean {
+    const dayVisibleBeforeMonth =
+      this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
+    if (_column < dayVisibleBeforeMonth) {
+      return true;
+    }
     return false;
   }
 
@@ -291,7 +304,10 @@ export class ScheduleDataService extends BaseDataService {
       return [];
     }
 
-    return this.dataManagementSchedule.getWorkScheduleForClientAndDate(client.id, date);
+    return this.dataManagementSchedule.getWorkScheduleForClientAndDate(
+      client.id,
+      date
+    );
   }
 
   getDateForColumn(col: number): Date | undefined {

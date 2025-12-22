@@ -49,6 +49,7 @@ import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
+import { EqualDate } from 'src/app/shared/helpers/date.helper';
 
 @Component({
   selector: 'app-schedule-section',
@@ -382,6 +383,41 @@ export class ScheduleSectionComponent
   }
 
   onCellValueChange(event: CellValueChangeEvent): void {
-    console.log('Cell value changed:', event);
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+
+    const clientIndex = dataService.rowGroupIndex[event.row];
+    if (clientIndex === undefined) {
+      return;
+    }
+
+    const client = this.dataManagement.clients[clientIndex];
+    if (!client?.id) {
+      return;
+    }
+
+    const date = dataService.getDateForColumn(event.column);
+    if (!date) {
+      return;
+    }
+
+    const abbreviation = event.value.trim().toUpperCase();
+    if (!abbreviation) {
+      return;
+    }
+
+    const matchingShift = this.dataManagement.shiftSchedules.find(
+      (shift) =>
+        shift.abbreviation.toUpperCase() === abbreviation &&
+        EqualDate(shift.date, date) === 0
+    );
+
+    if (matchingShift) {
+      this.dataManagement.addWorkScheduleEntry({
+        clientId: client.id,
+        date: date,
+        shiftId: matchingShift.shiftId,
+        workTime: matchingShift.workTime,
+      });
+    }
   }
 }
