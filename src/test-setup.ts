@@ -4,13 +4,16 @@
 
 import 'zone.js';
 import 'zone.js/testing';
-import { TestBed } from '@angular/core/testing';
+import { getTestBed, TestBed } from '@angular/core/testing';
 import { BrowserDynamicTestingModule, platformBrowserDynamicTesting } from '@angular/platform-browser-dynamic/testing';
 
-TestBed.initTestEnvironment(
-  BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting()
-);
+const testBed = getTestBed();
+if (!testBed.platform) {
+  TestBed.initTestEnvironment(
+    BrowserDynamicTestingModule,
+    platformBrowserDynamicTesting()
+  );
+}
 
 // Force override ResizeObserver - must be defined as a proper class
 (window as any).ResizeObserver = class ResizeObserver {

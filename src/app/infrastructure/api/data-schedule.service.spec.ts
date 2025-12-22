@@ -1,10 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { DataScheduleService } from './data-schedule.service';
-import { IClientWork, IWorkFilter, Work, WorkFilter, } from 'src/app/domain/models/schedule-class';
+import { Work } from 'src/app/domain/models/schedule-class';
 import { environment } from 'src/environments/environment';
-import { Client, Address, Communication, Annotation, Membership, } from 'src/app/domain/models/client-class';
-import { GenderEnum } from 'src/app/domain/enums/client-enum';
+import { Client, Address, Communication, Annotation } from 'src/app/domain/models/client-class';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('DataScheduleService', () => {
@@ -60,19 +59,20 @@ describe('DataScheduleService', () => {
         req.flush(updatedWork); // Simuliere die Antwort
     });
 
-    it('should retrieve a list of client works based on filter', () => {
-        const filter: IWorkFilter = new WorkFilter();
+    it('should delete a work item by id', () => {
+        // Arrange
+        const workId = 'work-123';
+        const deletedWork = mockWork();
 
-        const mockClientWorks = [mockClientWork(), mockClientWork()]; // Erzeuge eine Liste von Mock-IClientWorks
-
-        service.getClientList(filter).subscribe((clientWorks) => {
-            expect(clientWorks.length).toBe(2);
-            expect(clientWorks).toEqual(mockClientWorks); // Verifiziere die zurückgegebene Liste
+        // Act
+        service.deleteWork(workId).subscribe((work) => {
+            // Assert
+            expect(work).toEqual(deletedWork);
         });
 
-        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/GetClientList/`);
-        expect(req.request.method).toEqual('POST');
-        req.flush(mockClientWorks); // Simuliere die Antwort
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}`);
+        expect(req.request.method).toEqual('DELETE');
+        req.flush(deletedWork);
     });
 
     const mockClient = (): Client => {
@@ -96,25 +96,5 @@ describe('DataScheduleService', () => {
         work.workTime = 480;
         work.client = mockClient();
         return work;
-    };
-
-    const mockClientWork = (): IClientWork => {
-        return {
-            company: 'Test Company',
-            firstName: 'Test',
-            gender: GenderEnum.male,
-            id: 'cw-123',
-            idNumber: 12345,
-            legalEntity: true,
-            maidenName: 'Maiden',
-            membership: new Membership(),
-            membershipId: 'membership-123',
-            name: 'Test Name',
-            secondName: 'Second',
-            title: 'Dr.',
-            type: 1,
-            neededRows: 3,
-            works: [mockWork(), mockWork()],
-        };
     };
 });
