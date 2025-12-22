@@ -346,3 +346,47 @@ export function daysBetweenDates(
   const Difference_In_Time = bb.getTime() - aa.getTime();
   return Difference_In_Time / (1000 * 60 * 60 * 24);
 }
+
+/**
+ * Formats a date as ISO date string (yyyy-MM-dd).
+ *
+ * @param date - Date to format
+ * @returns Date string in format "yyyy-MM-dd"
+ */
+export function formatDateOnly(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Gets all date keys between two dates (inclusive).
+ *
+ * @param startDate - Start date
+ * @param endDate - End date
+ * @returns Array of date strings in format "yyyy-MM-dd"
+ */
+export function getDateKeysBetween(startDate: Date, endDate: Date): string[] {
+  const keys: string[] = [];
+  let current = new Date(startDate);
+  while (current <= endDate) {
+    keys.push(formatDateOnly(current));
+    current = addDays(current, 1);
+  }
+  return keys;
+}
+
+/**
+ * Calculates the day index between two dates.
+ *
+ * @param startDate - Reference start date
+ * @param targetDate - Target date
+ * @returns Number of days from start to target
+ */
+export function getDayIndex(startDate: Date, targetDate: Date): number {
+  const start = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+  const target = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+  const diffTime = target.getTime() - start.getTime();
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+}
