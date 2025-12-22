@@ -10,6 +10,7 @@ export class BaseSettingsService {
 
   clipboardMode: ClipboardModeEnum = ClipboardModeEnum.All;
   selectionMode: GridSelectionModeEnum = GridSelectionModeEnum.Cell;
+  editable = false;
 
   private _zoom = 1;
 

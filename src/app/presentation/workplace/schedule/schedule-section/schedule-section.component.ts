@@ -35,7 +35,10 @@ import {
 } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { Subject, takeUntil } from 'rxjs';
-import { ScheduleSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
+import {
+  CellValueChangeEvent,
+  ScheduleSurfaceTemplateComponent,
+} from 'src/app/presentation/shared/grid/body/schedule-surface-template/schedule-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
@@ -115,6 +118,7 @@ export class ScheduleSectionComponent
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
+    this.settings.editable = true;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -375,5 +379,9 @@ export class ScheduleSectionComponent
       shiftId: result.shiftId,
       workTime: result.workTime,
     });
+  }
+
+  onCellValueChange(event: CellValueChangeEvent): void {
+    console.log('Cell value changed:', event);
   }
 }

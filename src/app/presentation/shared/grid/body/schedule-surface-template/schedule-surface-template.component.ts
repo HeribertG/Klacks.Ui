@@ -27,13 +27,21 @@ import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/d
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/services/body/draw-schedule.service';
 import { ScheduleTemplateEventsDirective } from '../directives/schedule-template-events.directive';
+import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
+import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
+
+export interface CellValueChangeEvent {
+  row: number;
+  column: number;
+  value: string;
+}
 
 @Component({
   selector: 'app-schedule-surface-template',
   templateUrl: './schedule-surface-template.component.html',
   styleUrl: './schedule-surface-template.component.scss',
   standalone: true,
-  imports: [ScheduleTemplateEventsDirective],
+  imports: [ScheduleTemplateEventsDirective, CellInputEventsDirective],
 })
 export class ScheduleSurfaceTemplateComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -49,16 +57,19 @@ export class ScheduleSurfaceTemplateComponent
   @Output() valueVScrollbar = new EventEmitter<number>();
   @Output() maxValueVScrollbar = new EventEmitter<number>();
   @Output() visibleValueVScrollbar = new EventEmitter<number>();
+  @Output() cellValueChange = new EventEmitter<CellValueChangeEvent>();
 
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('tooltip') tooltipRef!: ElementRef<HTMLDivElement>;
+  @ViewChild(CellInputEventsDirective) cellInputDirective?: CellInputEventsDirective;
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
   public drawSchedule = inject(BaseDrawScheduleService);
   public settings = inject(BaseSettingsService);
+  private cellManipulation = inject(BaseCellManipulationService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
@@ -67,6 +78,12 @@ export class ScheduleSurfaceTemplateComponent
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
   public canvasId = `-${Math.random().toString(36).substring(2, 10)}`;
+
+  public cellInputVisible = false;
+  public cellInputX = 0;
+  public cellInputY = 0;
+  private lastEditedRow = -1;
+  private lastEditedColumn = -1;
 
   private get tooltip(): HTMLDivElement | undefined {
     return this.tooltipRef?.nativeElement;
@@ -139,7 +156,14 @@ export class ScheduleSurfaceTemplateComponent
 
     if (vDirection || hDirection) {
       this.drawSchedule.moveGrid();
+      this.updateCellInputOnScroll();
     }
+  }
+
+  private updateCellInputOnScroll(): void {
+    if (!this.cellInputVisible) return;
+    const pos = this.cellManipulation.positionSignal();
+    this.updateCellInputPosition(pos.row, pos.column);
   }
 
   setFocus(): void {
@@ -355,6 +379,114 @@ export class ScheduleSurfaceTemplateComponent
         }
       });
       this.effects.push(holidayResetEffect);
+
+      const cellInputEffect = effect(() => {
+        const pos = this.cellManipulation.positionSignal();
+        this.updateCellInputPosition(pos.row, pos.column);
+      });
+      this.effects.push(cellInputEffect);
     });
+  }
+
+  onNavigationKey(event: KeyboardEvent): void {
+    this.passEventToCanvas(event);
+  }
+
+  onSaveInput(): void {
+    this.saveCellInput();
+  }
+
+  onCancelInput(): void {
+    this.cancelCellInput();
+  }
+
+  private passEventToCanvas(originalEvent: KeyboardEvent): void {
+    const canvas = this.canvasRef?.nativeElement;
+    if (!canvas) return;
+
+    canvas.focus();
+    const newEvent = new KeyboardEvent('keydown', {
+      key: originalEvent.key,
+      code: originalEvent.code,
+      shiftKey: originalEvent.shiftKey,
+      ctrlKey: originalEvent.ctrlKey,
+      altKey: originalEvent.altKey,
+      bubbles: true,
+    });
+    canvas.dispatchEvent(newEvent);
+  }
+
+  private updateCellInputPosition(row: number, column: number): void {
+    if (!this.settings.editable || row < 0 || column < 0) {
+      this.hideCellInput();
+      return;
+    }
+
+    const firstVisibleRow = this.scroll.verticalScrollPosition;
+    const firstVisibleCol = this.scroll.horizontalScrollPosition;
+    const visibleRows = this.calculateVisibleRows();
+    const visibleCols = this.calculateVisibleColumns();
+
+    const isVisible =
+      row >= firstVisibleRow &&
+      row < firstVisibleRow + visibleRows &&
+      column >= firstVisibleCol &&
+      column < firstVisibleCol + visibleCols;
+
+    if (!isVisible) {
+      this.hideCellInput();
+      return;
+    }
+
+    const x = (column - firstVisibleCol) * this.settings.cellWidth;
+    const y = (row - firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
+
+    this.showCellInput(x, y, row, column);
+  }
+
+  private showCellInput(x: number, y: number, row: number, column: number): void {
+    const isNewCell = row !== this.lastEditedRow || column !== this.lastEditedColumn;
+
+    this.cellInputX = x;
+    this.cellInputY = y;
+    this.cellInputVisible = true;
+    this.lastEditedRow = row;
+    this.lastEditedColumn = column;
+
+    if (isNewCell && this.cellInputDirective) {
+      const content = this.dataService.getItemMainText(row, column);
+      this.cellInputDirective.value = content;
+      setTimeout(() => {
+        this.cellInputDirective?.focus();
+        this.cellInputDirective?.select();
+      }, 0);
+    }
+  }
+
+  private hideCellInput(): void {
+    this.cellInputVisible = false;
+    this.lastEditedRow = -1;
+    this.lastEditedColumn = -1;
+  }
+
+  private saveCellInput(): void {
+    if (!this.cellInputVisible || this.lastEditedRow < 0 || this.lastEditedColumn < 0) {
+      return;
+    }
+
+    const value = this.cellInputDirective?.value ?? '';
+    this.cellValueChange.emit({
+      row: this.lastEditedRow,
+      column: this.lastEditedColumn,
+      value,
+    });
+  }
+
+  private cancelCellInput(): void {
+    if (this.lastEditedRow >= 0 && this.lastEditedColumn >= 0 && this.cellInputDirective) {
+      const content = this.dataService.getItemMainText(this.lastEditedRow, this.lastEditedColumn);
+      this.cellInputDirective.value = content;
+    }
+    this.cellInputDirective?.blur();
   }
 }

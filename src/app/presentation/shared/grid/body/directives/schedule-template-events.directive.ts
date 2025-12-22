@@ -392,7 +392,7 @@ export class ScheduleTemplateEventsDirective {
       return;
     }
 
-    if (event.key === 'ArrowRight' || event.key === 'Tab') {
+    if (event.key === 'ArrowRight' || event.key === 'Tab' || event.key === 'Enter') {
       if (event.repeat) {
         const now = Date.now();
         if (now - this.lastGoRightTime < this.REPEAT_DELAY) {

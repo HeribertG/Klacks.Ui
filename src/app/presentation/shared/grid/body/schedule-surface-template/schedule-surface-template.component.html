@@ -7,6 +7,20 @@
     role="application"
     aria-label="schedule canvas"
   ></canvas>
+  <input
+    #cellInput
+    appCellInputEvents
+    type="text"
+    class="cell-input-overlay"
+    [style.display]="cellInputVisible ? 'block' : 'none'"
+    [style.left.px]="cellInputX"
+    [style.top.px]="cellInputY"
+    [style.width.px]="settings.cellWidth"
+    [style.height.px]="settings.cellHeight"
+    (navigationKey)="onNavigationKey($event)"
+    (saveInput)="onSaveInput()"
+    (cancelInput)="onCancelInput()"
+  />
 </div>
 
 <div #tooltip id="tooltip" class="div-tooltip"></div>
