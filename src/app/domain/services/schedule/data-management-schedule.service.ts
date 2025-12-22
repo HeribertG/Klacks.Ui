@@ -200,13 +200,9 @@ export class DataManagementScheduleService implements ILoadable {
     shiftId: string;
     workTime: number;
   }): void {
-    console.log('[DataManagement] addWorkScheduleEntry called', params);
     this.workCrud.createWork(params).then(() => {
-      console.log('[DataManagement] createWork completed');
       this.refreshClientScheduleForDays(params.clientId, params.date);
       this.readShiftSchedule();
-    }).catch((err) => {
-      console.error('[DataManagement] createWork error', err);
     });
   }
 

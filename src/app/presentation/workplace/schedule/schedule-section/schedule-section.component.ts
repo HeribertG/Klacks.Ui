@@ -404,12 +404,6 @@ export class ScheduleSectionComponent
       return;
     }
 
-    console.log('[ScheduleSection] searching', {
-      abbreviation,
-      date: date.toISOString(),
-      shiftSchedulesCount: this.dataManagement.shiftSchedules.length,
-    });
-
     const matchingShift = this.dataManagement.shiftSchedules.find(
       (shift) =>
         shift.abbreviation.toUpperCase() === abbreviation &&
@@ -417,20 +411,12 @@ export class ScheduleSectionComponent
     );
 
     if (matchingShift) {
-      console.log('[ScheduleSection] calling addWorkScheduleEntry', {
-        clientId: client.id,
-        date: date,
-        shiftId: matchingShift.shiftId,
-        workTime: matchingShift.workTime,
-      });
       this.dataManagement.addWorkScheduleEntry({
         clientId: client.id,
         date: date,
         shiftId: matchingShift.shiftId,
         workTime: matchingShift.workTime,
       });
-    } else {
-      console.log('[ScheduleSection] no matching shift found for', abbreviation, 'on', date.toISOString());
     }
   }
 
