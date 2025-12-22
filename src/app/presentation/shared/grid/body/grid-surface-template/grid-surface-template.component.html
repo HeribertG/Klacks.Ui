@@ -5,7 +5,7 @@
     id="template-canvas{{ canvasId }}"
     [tabindex]="0"
     role="application"
-    aria-label="schedule canvas"
+    aria-label="grid canvas"
   ></canvas>
   <input
     #cellInput
@@ -17,6 +17,8 @@
     [style.top.px]="cellInputY"
     [style.width.px]="settings.cellWidth"
     [style.height.px]="settings.cellHeight"
+    [style.font-size]="cellInputFontSize"
+    [style.font-family]="cellInputFontFamily"
     (navigationKey)="onNavigationKey($event)"
     (saveInput)="onSaveInput()"
     (cancelInput)="onCancelInput()"

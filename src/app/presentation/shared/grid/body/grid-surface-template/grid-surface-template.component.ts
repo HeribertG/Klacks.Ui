@@ -29,6 +29,7 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { GridTemplateEventsDirective } from '../directives/grid-template-events.directive';
 import { CellInputEventsDirective } from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
+import { GridFontsService } from '../../services/grid-fonts.service';
 
 export interface CellValueChangeEvent {
   row: number;
@@ -70,6 +71,7 @@ export class GridSurfaceTemplateComponent
   public drawSchedule = inject(BaseDrawScheduleService);
   public settings = inject(BaseSettingsService);
   private cellManipulation = inject(BaseCellManipulationService);
+  private gridFonts = inject(GridFontsService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
@@ -84,6 +86,14 @@ export class GridSurfaceTemplateComponent
   public cellInputY = 0;
   private lastEditedRow = -1;
   private lastEditedColumn = -1;
+
+  public get cellInputFontSize(): string {
+    return this.gridFonts.mainFontSizeZoom + 'pt';
+  }
+
+  public get cellInputFontFamily(): string {
+    return this.gridFonts.mainFontName;
+  }
 
   private get tooltip(): HTMLDivElement | undefined {
     return this.tooltipRef?.nativeElement;
