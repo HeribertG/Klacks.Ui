@@ -175,9 +175,9 @@ export class ShiftSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        const isShiftRead = this.dataManagement.isShiftScheduleRead();
-        if (isShiftRead) {
-          this.shiftSurface.Refresh();
+        const readState = this.dataManagement.isShiftScheduleRead();
+        if (readState.value) {
+          this.shiftSurface.Refresh(readState.resetScroll);
           const position = this.hScrollService.horizontalPosition();
           if (position > 0) {
             this.hScrollPositionValue = position;

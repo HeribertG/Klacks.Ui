@@ -53,7 +53,7 @@ export class DataManagementScheduleService implements ILoadable {
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
   public isRead = signal<{ value: boolean; resetScroll: boolean }>({ value: false, resetScroll: true });
-  public isShiftScheduleRead = signal(false);
+  public isShiftScheduleRead = signal<{ value: boolean; resetScroll: boolean }>({ value: false, resetScroll: true });
   public isWorkScheduleRead = signal(false);
 
   public workFilter: IWorkFilter = new WorkFilter();
@@ -124,14 +124,14 @@ export class DataManagementScheduleService implements ILoadable {
     this.readShiftSchedule();
   }
 
-  readShiftSchedule() {
+  readShiftSchedule(resetScroll = true) {
     this.shiftLoader.load(
       this.workFilter,
       this.holidayDates,
       () => {
         this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
-        this.isShiftScheduleRead.set(true);
-        setTimeout(() => this.isShiftScheduleRead.set(false), 100);
+        this.isShiftScheduleRead.set({ value: true, resetScroll });
+        setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll }), 100);
       }
     );
   }
@@ -202,14 +202,14 @@ export class DataManagementScheduleService implements ILoadable {
   }): void {
     this.workCrud.createWork(params).then(() => {
       this.refreshClientScheduleForDays(params.clientId, params.date);
-      this.readShiftSchedule();
+      this.readShiftSchedule(false);
     });
   }
 
   deleteWorkScheduleEntry(workId: string, clientId: string, date: Date): void {
     this.workCrud.deleteWorkById(workId).then(() => {
       this.refreshClientScheduleForDays(clientId, date);
-      this.readShiftSchedule();
+      this.readShiftSchedule(false);
     });
   }
 
