@@ -386,7 +386,189 @@ private tryPrepareShiftDrag(event: MouseEvent): void {
 
 ---
 
+## Work CRUD - Partielles Refresh
+
+### Übersicht
+
+Nach einem Work CRUD-Befehl (Create/Update/Delete) wird **nicht** die gesamte Tabelle neu geladen, sondern nur ein minimaler Bereich.
+
+### Refresh-Strategie
+
+| Was wird geladen | Umfang |
+|------------------|--------|
+| Zeitraum | 3 Tage (centerDate ± 1 Tag) |
+| Clients | Nur der betroffene Client |
+| Shifts | Komplettes Shift-Schedule (für Kapazitätsberechnung) |
+
+### Implementierung
+
+```typescript
+// In data-management-schedule.service.ts
+
+addWorkScheduleEntry(params: {...}): void {
+  this.workCrud.createWork(params).then(() => {
+    this.refreshClientScheduleForDays(params.clientId, params.date);
+    this.readShiftSchedule();
+  });
+}
+
+public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
+  const startDate = addDays(centerDate, -1);  // 1 Tag vorher
+  const endDate = addDays(centerDate, 1);      // 1 Tag nachher
+
+  // Lädt nur 3 Tage für diesen einen Client vom Backend
+  this.dataWorkSchedule.getWorkSchedule(filter).subscribe({
+    next: (response) => {
+      const clientEntries = response.entries.filter(e => e.clientId === clientId);
+      this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
+    }
+  });
+}
+```
+
+### Scroll-Position beibehalten
+
+Bei partiellem Refresh wird die Scroll-Position beibehalten:
+
+```typescript
+// isRead Signal mit resetScroll Flag
+this.isRead.set({ value: true, resetScroll: false });  // Bei Update
+this.isRead.set({ value: true, resetScroll: true });   // Bei initialem Laden
+```
+
+### Dateien
+
+| Datei | Zweck |
+|-------|-------|
+| `data-management-schedule.service.ts` | `refreshClientScheduleForDays()`, `isRead` Signal |
+| `work-schedule-loader.service.ts` | `replaceClientEntriesForDays()` |
+| `schedule-section.component.ts` | `dataReadEffect` mit `resetScroll` |
+
+---
+
+## Bulk Work Operations (Backend)
+
+### Übersicht
+
+Das Backend unterstützt Bulk-Operationen für Works, um mehrere Einträge in einem Request zu verarbeiten.
+
+### Endpoints
+
+| Endpoint | Methode | Beschreibung |
+|----------|---------|--------------|
+| `POST /Works/Bulk` | BulkAdd | Mehrere Works mit einem ShiftId erstellen |
+| `DELETE /Works/Bulk` | BulkDelete | Mehrere Works anhand ihrer IDs löschen |
+| `POST /Shifts/Schedule/Partial` | Partial Refresh | Nur bestimmte Shift/Date-Paare laden |
+
+### BulkAddWorksRequest
+
+```csharp
+public class BulkAddWorksRequest
+{
+    public Guid ShiftId { get; set; }
+    public decimal WorkTime { get; set; }
+    public List<WorkEntry> Entries { get; set; } = [];
+}
+
+public class WorkEntry
+{
+    public Guid ClientId { get; set; }
+    public DateTime CurrentDate { get; set; }
+}
+```
+
+### BulkDeleteWorksRequest
+
+```csharp
+public class BulkDeleteWorksRequest
+{
+    public List<Guid> WorkIds { get; set; } = [];
+}
+```
+
+### BulkWorksResponse
+
+```csharp
+public class BulkWorksResponse
+{
+    public int SuccessCount { get; set; }
+    public int FailedCount { get; set; }
+    public List<Guid> CreatedIds { get; set; } = [];
+    public List<Guid> DeletedIds { get; set; } = [];
+    public List<ShiftDatePair> AffectedShifts { get; set; } = [];
+}
+```
+
+### Partielles Shift-Refresh
+
+Statt das gesamte Shift-Schedule neu zu laden, können spezifische Shift/Date-Paare aktualisiert werden:
+
+```csharp
+// ShiftSchedulePartialFilter
+public class ShiftSchedulePartialFilter
+{
+    public List<ShiftDatePairFilter> ShiftDatePairs { get; set; } = [];
+}
+
+public class ShiftDatePairFilter
+{
+    public Guid ShiftId { get; set; }
+    public DateTime Date { get; set; }
+}
+```
+
+### Stored Procedure
+
+Die neue `get_shift_schedule_partial()` Funktion lädt nur die angegebenen Shift/Date-Paare:
+
+```sql
+SELECT * FROM get_shift_schedule_partial(
+    ARRAY[
+        ('shift-uuid-1'::UUID, '2025-01-15'::DATE),
+        ('shift-uuid-2'::UUID, '2025-01-16'::DATE)
+    ]::shift_date_pair[]
+);
+```
+
+### Dateien (Backend)
+
+| Datei | Zweck |
+|-------|-------|
+| `BulkAddWorksRequest.cs` | DTO für Bulk Add |
+| `BulkDeleteWorksRequest.cs` | DTO für Bulk Delete |
+| `BulkWorksResponse.cs` | Response mit AffectedShifts |
+| `ShiftSchedulePartialFilter.cs` | Filter für partielles Refresh |
+| `BulkAddWorksCommandHandler.cs` | Handler für Bulk Add |
+| `BulkDeleteWorksCommandHandler.cs` | Handler für Bulk Delete |
+| `GetShiftSchedulePartialQueryHandler.cs` | Handler für partielles Shift-Refresh |
+| `WorksController.cs` | Endpoints `/Bulk` |
+| `ShiftsController.cs` | Endpoint `/Schedule/Partial` |
+| `GetShiftSchedule.sql` | SP `get_shift_schedule_partial()` |
+
+---
+
 ## Changelog
+
+### 23.12.2025 - Scroll-Fix + Bulk Operations
+
+**Bugfixes:**
+- Scroll-Position wird bei addRow/deleteRow nicht mehr zurückgesetzt
+- `isRead` Signal erweitert zu Objekt mit `resetScroll` Flag
+
+**Neue Backend-Features:**
+- `POST /Works/Bulk` - Bulk Add Works (ein ShiftId, mehrere Client/Date-Paare)
+- `DELETE /Works/Bulk` - Bulk Delete Works (Array von WorkIds)
+- `POST /Shifts/Schedule/Partial` - Partielles Shift-Refresh (Array von ShiftId/Date-Paaren)
+- Neue Stored Procedure `get_shift_schedule_partial()`
+
+**Betroffene Dateien:**
+- `data-management-schedule.service.ts` - isRead Signal erweitert
+- `schedule-section.component.ts` - dataReadEffect nutzt resetScroll
+- `BulkAddWorksRequest.cs`, `BulkDeleteWorksRequest.cs` - Neue DTOs
+- `BulkAddWorksCommandHandler.cs`, `BulkDeleteWorksCommandHandler.cs` - Handler
+- `WorksController.cs` - Bulk Endpoints
+- `ShiftsController.cs` - Schedule/Partial Endpoint
+- `GetShiftSchedule.sql` - Neue SP
 
 ### 21.12.2025 - Verfügbare Shifts + Drag-Fix
 

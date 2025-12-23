@@ -188,9 +188,9 @@ export class ScheduleSectionComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const dataReadEffect = effect(() => {
-        const isRead = this.dataManagement.isRead();
-        if (isRead) {
-          this.scheduleSurface.Refresh();
+        const readState = this.dataManagement.isRead();
+        if (readState.value) {
+          this.scheduleSurface.Refresh(readState.resetScroll);
         }
       });
       this.effects.push(dataReadEffect);

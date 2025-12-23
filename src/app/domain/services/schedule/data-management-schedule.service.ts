@@ -52,7 +52,7 @@ export class DataManagementScheduleService implements ILoadable {
   private _showProgressSpinner = signal(false);
   get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
 
-  public isRead = signal(false);
+  public isRead = signal<{ value: boolean; resetScroll: boolean }>({ value: false, resetScroll: true });
   public isShiftScheduleRead = signal(false);
   public isWorkScheduleRead = signal(false);
 
@@ -142,8 +142,8 @@ export class DataManagementScheduleService implements ILoadable {
       () => {
         this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
         this._showProgressSpinner.set(false);
-        this.isRead.set(true);
-        setTimeout(() => this.isRead.set(false), 100);
+        this.isRead.set({ value: true, resetScroll: true });
+        setTimeout(() => this.isRead.set({ value: false, resetScroll: true }), 100);
         this.isWorkScheduleRead.set(true);
         setTimeout(() => this.isWorkScheduleRead.set(false), 100);
       }
@@ -229,8 +229,8 @@ export class DataManagementScheduleService implements ILoadable {
           const clientEntries = response.entries.filter(e => e.clientId === clientId);
           this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
 
-          this.isRead.set(true);
-          setTimeout(() => this.isRead.set(false), 100);
+          this.isRead.set({ value: true, resetScroll: false });
+          setTimeout(() => this.isRead.set({ value: false, resetScroll: false }), 100);
         },
         error: (err) => {
           console.error('Error refreshing schedule:', err);
