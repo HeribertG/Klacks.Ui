@@ -15,7 +15,7 @@ export class DataWorkScheduleService {
 
   getWorkSchedule(filter: IWorkScheduleFilter) {
     return this.httpClient
-      .post<IWorkScheduleResponse>(`${environment.baseUrl}WorkSchedule`, filter)
+      .post<IWorkScheduleResponse>(`${environment.baseUrl}Works/Schedule`, filter)
       .pipe(retry(3));
   }
 }

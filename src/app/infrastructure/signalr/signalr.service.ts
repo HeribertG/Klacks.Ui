@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
+import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +22,7 @@ export class SignalRService implements OnDestroy {
   public workCreated$ = new Subject<IWorkNotification>();
   public workUpdated$ = new Subject<IWorkNotification>();
   public workDeleted$ = new Subject<IWorkNotification>();
+  public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/v1/backend/', '/hubs/work-notifications');
@@ -92,6 +94,10 @@ export class SignalRService implements OnDestroy {
     this.hubConnection.on('WorkDeleted', (notification: IWorkNotification) => {
       this.workDeleted$.next(notification);
     });
+
+    this.hubConnection.on('ShiftStatsUpdated', (notification: IShiftStatsNotification) => {
+      this.shiftStatsUpdated$.next(notification);
+    });
   }
 
   private registerConnectionEvents(): void {
@@ -124,5 +130,6 @@ export class SignalRService implements OnDestroy {
     this.workCreated$.complete();
     this.workUpdated$.complete();
     this.workDeleted$.complete();
+    this.shiftStatsUpdated$.complete();
   }
 }

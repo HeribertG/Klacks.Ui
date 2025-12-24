@@ -796,6 +796,6 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, date);
+    this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, date, entry.shiftId);
   }
 }

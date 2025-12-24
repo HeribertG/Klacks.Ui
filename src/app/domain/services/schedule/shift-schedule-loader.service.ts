@@ -126,4 +126,29 @@ export class ShiftScheduleLoaderService {
         },
       });
   }
+
+  updateShiftEngaged(shiftId: string, date: Date, engaged: number): boolean {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+
+    let updated = false;
+    for (const shift of this.shiftSchedules) {
+      if (shift.shiftId !== shiftId) continue;
+
+      const shiftDate = new Date(shift.date);
+      shiftDate.setHours(0, 0, 0, 0);
+
+      if (shiftDate.getTime() === normalizedDate.getTime()) {
+        shift.engaged = engaged;
+        updated = true;
+      }
+    }
+
+    if (updated) {
+      this._isRead.set(true);
+      setTimeout(() => this._isRead.set(false), 100);
+    }
+
+    return updated;
+  }
 }

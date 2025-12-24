@@ -2,7 +2,10 @@ import { inject, Injectable, OnDestroy, signal, DestroyRef } from '@angular/core
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
+import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
 import { DataManagementScheduleService } from './data-management-schedule.service';
+import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
+import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +13,8 @@ import { DataManagementScheduleService } from './data-management-schedule.servic
 export class WorkNotificationService implements OnDestroy {
   private signalRService = inject(SignalRService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private shiftScheduleLoader = inject(ShiftScheduleLoaderService);
+  private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
   private destroyRef = inject(DestroyRef);
 
   public affectedShifts = signal<Map<string, boolean>>(new Map());
@@ -32,6 +37,10 @@ export class WorkNotificationService implements OnDestroy {
     this.signalRService.workDeleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((notification) => this.handleWorkNotification(notification));
+
+    this.signalRService.shiftStatsUpdated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => this.handleShiftStatsNotification(notification));
   }
 
   private handleWorkNotification(notification: IWorkNotification): void {
@@ -45,8 +54,27 @@ export class WorkNotificationService implements OnDestroy {
       setTimeout(() => this.scheduleUpdateSignal.set(null), 100);
     }
 
-    this.dataManagementSchedule.readShiftSchedule();
     this.markShiftAsAffected(notification.shiftId);
+  }
+
+  private handleShiftStatsNotification(notification: IShiftStatsNotification): void {
+    console.log('Received shift stats notification:', notification);
+
+    const updated = this.shiftScheduleLoader.updateShiftEngaged(
+      notification.shiftId,
+      new Date(notification.date),
+      notification.engaged
+    );
+
+    if (updated) {
+      this.availableShiftsCalc.calculate(
+        this.shiftScheduleLoader.shiftSchedules,
+        this.dataManagementSchedule.currentFilter
+      );
+
+      this.shiftUpdateSignal.set(notification.shiftId);
+      setTimeout(() => this.shiftUpdateSignal.set(null), 100);
+    }
   }
 
   private isClientDisplayed(clientId: string): boolean {

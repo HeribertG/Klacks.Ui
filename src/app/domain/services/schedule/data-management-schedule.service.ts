@@ -202,15 +202,36 @@ export class DataManagementScheduleService implements ILoadable {
   }): void {
     this.workCrud.createWork(params).then(() => {
       this.refreshClientScheduleForDays(params.clientId, params.date);
-      this.readShiftSchedule(false);
+      this.updateShiftEngagedLocally(params.shiftId, params.date, 1);
     });
   }
 
-  deleteWorkScheduleEntry(workId: string, clientId: string, date: Date): void {
+  deleteWorkScheduleEntry(workId: string, clientId: string, date: Date, shiftId: string): void {
     this.workCrud.deleteWorkById(workId).then(() => {
       this.refreshClientScheduleForDays(clientId, date);
-      this.readShiftSchedule(false);
+      this.updateShiftEngagedLocally(shiftId, date, -1);
     });
+  }
+
+  private updateShiftEngagedLocally(shiftId: string, date: Date, delta: number): void {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+
+    for (const shift of this.shiftLoader.shiftSchedules) {
+      if (shift.shiftId !== shiftId) continue;
+
+      const shiftDate = new Date(shift.date);
+      shiftDate.setHours(0, 0, 0, 0);
+
+      if (shiftDate.getTime() === normalizedDate.getTime()) {
+        shift.engaged = Math.max(0, shift.engaged + delta);
+      }
+    }
+
+    this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
+
+    this.isShiftScheduleRead.set({ value: true, resetScroll: false });
+    setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll: false }), 100);
   }
 
   public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
