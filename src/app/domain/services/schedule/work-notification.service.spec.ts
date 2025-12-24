@@ -4,7 +4,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { WorkNotificationService } from './work-notification.service';
 import { SignalRService } from '../../../infrastructure/signalr/signalr.service';
 import { DataManagementScheduleService } from './data-management-schedule.service';
+import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
+import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkNotification } from '../../interfaces/work-notification.interface';
+import { IShiftStatsNotification } from '../../interfaces/shift-stats-notification.interface';
 
 describe('WorkNotificationService', () => {
   let service: WorkNotificationService;
@@ -12,28 +15,51 @@ describe('WorkNotificationService', () => {
     readShiftSchedule: ReturnType<typeof vi.fn>;
     refreshClientScheduleForDays: ReturnType<typeof vi.fn>;
     clients: { id: string; name: string; neededRows: number }[];
+    currentFilter: unknown;
+  };
+
+  let shiftScheduleLoaderMock: {
+    updateShiftEngaged: ReturnType<typeof vi.fn>;
+    shiftSchedules: unknown[];
+  };
+
+  let availableShiftsCalcMock: {
+    calculate: ReturnType<typeof vi.fn>;
   };
 
   let workCreated$: Subject<IWorkNotification>;
   let workUpdated$: Subject<IWorkNotification>;
   let workDeleted$: Subject<IWorkNotification>;
+  let shiftStatsUpdated$: Subject<IShiftStatsNotification>;
 
   beforeEach(() => {
     // Arrange
     workCreated$ = new Subject<IWorkNotification>();
     workUpdated$ = new Subject<IWorkNotification>();
     workDeleted$ = new Subject<IWorkNotification>();
+    shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
 
     const signalRServiceMock = {
       workCreated$: workCreated$.asObservable(),
       workUpdated$: workUpdated$.asObservable(),
       workDeleted$: workDeleted$.asObservable(),
+      shiftStatsUpdated$: shiftStatsUpdated$.asObservable(),
     };
 
     dataManagementMock = {
       readShiftSchedule: vi.fn(),
       refreshClientScheduleForDays: vi.fn(),
       clients: [{ id: 'client-1', name: 'Test Client', neededRows: 1 }],
+      currentFilter: {},
+    };
+
+    shiftScheduleLoaderMock = {
+      updateShiftEngaged: vi.fn().mockReturnValue(false),
+      shiftSchedules: [],
+    };
+
+    availableShiftsCalcMock = {
+      calculate: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -41,6 +67,8 @@ describe('WorkNotificationService', () => {
         WorkNotificationService,
         { provide: SignalRService, useValue: signalRServiceMock },
         { provide: DataManagementScheduleService, useValue: dataManagementMock },
+        { provide: ShiftScheduleLoaderService, useValue: shiftScheduleLoaderMock },
+        { provide: AvailableShiftsCalculatorService, useValue: availableShiftsCalcMock },
       ],
     });
 
@@ -51,10 +79,11 @@ describe('WorkNotificationService', () => {
     workCreated$.complete();
     workUpdated$.complete();
     workDeleted$.complete();
+    shiftStatsUpdated$.complete();
   });
 
   describe('handleWorkNotification', () => {
-    it('should call readShiftSchedule when WorkCreated notification is received', async () => {
+    it('should call refreshClientScheduleForDays when WorkCreated notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -70,10 +99,10 @@ describe('WorkNotificationService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataManagementMock.readShiftSchedule).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
     });
 
-    it('should call readShiftSchedule when WorkUpdated notification is received', async () => {
+    it('should call refreshClientScheduleForDays when WorkUpdated notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -89,10 +118,10 @@ describe('WorkNotificationService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataManagementMock.readShiftSchedule).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
     });
 
-    it('should call readShiftSchedule when WorkDeleted notification is received', async () => {
+    it('should call refreshClientScheduleForDays when WorkDeleted notification is received for displayed client', async () => {
       // Arrange
       const notification: IWorkNotification = {
         workId: 'work-1',
@@ -108,7 +137,7 @@ describe('WorkNotificationService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataManagementMock.readShiftSchedule).toHaveBeenCalled();
+      expect(dataManagementMock.refreshClientScheduleForDays).toHaveBeenCalled();
     });
 
     it('should refresh client schedule when client is displayed', async () => {
@@ -216,6 +245,66 @@ describe('WorkNotificationService', () => {
     });
   });
 
+  describe('handleShiftStatsNotification', () => {
+    it('should update shift stats when notification is received', async () => {
+      // Arrange
+      shiftScheduleLoaderMock.updateShiftEngaged.mockReturnValue(true);
+      const notification: IShiftStatsNotification = {
+        shiftId: 'shift-1',
+        date: new Date(),
+        engaged: 5,
+        sourceConnectionId: 'other-connection',
+      };
+
+      // Act
+      shiftStatsUpdated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(shiftScheduleLoaderMock.updateShiftEngaged).toHaveBeenCalledWith(
+        'shift-1',
+        expect.any(Date),
+        5
+      );
+    });
+
+    it('should recalculate available shifts when update is successful', async () => {
+      // Arrange
+      shiftScheduleLoaderMock.updateShiftEngaged.mockReturnValue(true);
+      const notification: IShiftStatsNotification = {
+        shiftId: 'shift-1',
+        date: new Date(),
+        engaged: 5,
+        sourceConnectionId: 'other-connection',
+      };
+
+      // Act
+      shiftStatsUpdated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(availableShiftsCalcMock.calculate).toHaveBeenCalled();
+    });
+
+    it('should NOT recalculate available shifts when update returns false', async () => {
+      // Arrange
+      shiftScheduleLoaderMock.updateShiftEngaged.mockReturnValue(false);
+      const notification: IShiftStatsNotification = {
+        shiftId: 'shift-1',
+        date: new Date(),
+        engaged: 5,
+        sourceConnectionId: 'other-connection',
+      };
+
+      // Act
+      shiftStatsUpdated$.next(notification);
+      await new Promise(resolve => setTimeout(resolve, 10));
+
+      // Assert
+      expect(availableShiftsCalcMock.calculate).not.toHaveBeenCalled();
+    });
+  });
+
   describe('clearAffectedShifts', () => {
     it('should clear all affected shifts', async () => {
       // Arrange
@@ -270,7 +359,7 @@ describe('WorkNotificationService', () => {
       expect(service.isShiftAffected('shift-2')).toBe(true);
     });
 
-    it('should call readShiftSchedule for each notification', async () => {
+    it('should handle multiple notifications from different sources', async () => {
       // Arrange
       const notification1: IWorkNotification = {
         workId: 'work-1',
@@ -295,7 +384,8 @@ describe('WorkNotificationService', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       // Assert
-      expect(dataManagementMock.readShiftSchedule).toHaveBeenCalledTimes(2);
+      expect(service.isShiftAffected('shift-1')).toBe(true);
+      expect(service.isShiftAffected('shift-2')).toBe(true);
     });
   });
 });
