@@ -811,7 +811,193 @@ SELECT * FROM get_shift_schedule_partial(
 
 ---
 
+## Copy/Paste Funktionalität
+
+### Übersicht
+
+Die Schedule-Section unterstützt Excel-ähnliche Copy/Paste-Funktionen für Work-Einträge.
+
+### Tastenkombinationen
+
+| Taste | Funktion |
+|-------|----------|
+| `Ctrl+C` | Kopiert selektierte Zellen |
+| `Ctrl+V` | Fügt Clipboard-Inhalt ein |
+| `F2` | Öffnet Edit-Modus für aktuelle Zelle |
+| `Delete` | Löscht selektierte Work-Einträge |
+
+### Copy (Ctrl+C)
+
+Kopiert die Abbreviations der selektierten Zellen als Text in die Zwischenablage.
+
+**Format:**
+- **Spalten** werden durch Tab (`\t`) getrennt
+- **Zeilen** werden durch Newline (`\r\n`) getrennt
+
+**Beispiel:**
+```
+Selektion:     A1    B1    C1
+               A2    B2    C2
+
+Clipboard:     "FR\tSP\tNS\r\nFR\t\tNS"
+```
+
+### Paste (Ctrl+V) - Zwei Modi
+
+#### Modus 1: Excel-Paste (Grid-Daten)
+
+Wenn das Clipboard mehrere Werte enthält (Tab/Newline-getrennt), werden diese ab der aktuellen Position eingefügt.
+
+**Verhalten:**
+- Startet bei der aktuell selektierten Zelle
+- Fügt Zeile für Zeile, Spalte für Spalte ein
+- **Überspringt** gefüllte Zellen (nur leere Zellen werden befüllt)
+- **Überspringt** sealed Spalten (gesperrte Tage)
+- Sucht Shift anhand Abbreviation + Datum
+
+**Beispiel:**
+```
+Clipboard: "FR\tSP\r\nNS\tFR"
+Startposition: Zeile 3, Spalte 5
+
+Ergebnis:
+  [3,5]=FR  [3,6]=SP
+  [4,5]=NS  [4,6]=FR
+```
+
+#### Modus 2: Multi-Fill-Paste (Einzelwert auf Multi-Selection)
+
+Wenn das Clipboard **einen einzelnen Wert** enthält und **mehrere Zellen selektiert** sind, wird der Wert in alle leeren selektierten Zellen eingefügt.
+
+**Bedingungen:**
+- Clipboard enthält genau eine Abbreviation (kein Tab, kein Newline)
+- `PositionCollection.count() > 1` (Multi-Selection aktiv)
+
+**Verhalten:**
+- Iteriert durch alle selektierten Positionen
+- Fügt die Abbreviation in jede **leere** Zelle ein
+- **Überspringt** bereits gefüllte Zellen
+- **Überspringt** sealed Spalten
+
+**Beispiel:**
+```
+Clipboard: "FR"
+Selektion: [2,5], [2,6], [3,5], [3,6], [4,5]
+
+Ergebnis: Alle 5 Zellen (wenn leer) erhalten "FR"
+```
+
+### Zell-Editing
+
+#### Verhalten bei Klick
+
+| Aktion | Ergebnis |
+|--------|----------|
+| **Einfacher Klick** | Nur Selektion, kein Edit-Modus |
+| **Doppelklick** | Edit-Modus, bestehender Inhalt selektiert |
+| **F2-Taste** | Edit-Modus, bestehender Inhalt selektiert |
+| **Buchstabe/Zahl tippen** | Edit-Modus, getipptes Zeichen als Inhalt |
+
+#### Edit-Modus Steuerung
+
+Das `isEditing` Signal in `BaseCellManipulationService` kontrolliert, ob das Input-Feld angezeigt wird:
+
+```typescript
+// Position ändern → Edit-Modus beenden
+public set Position(value: MyPosition) {
+  this._position = value;
+  this.isEditing.set(false);
+  this.initialEditChar.set('');
+  this.positionSignal.set(value);
+}
+
+// Edit-Modus starten
+public startEditing(initialChar = ''): void {
+  this.initialEditChar.set(initialChar);
+  this.isEditing.set(true);
+}
+```
+
+### Implementierung
+
+#### Dateien
+
+| Datei | Zweck |
+|-------|-------|
+| `cell-manipulation.service.ts` | `copy()`, `paste()`, `isEditing` Signal |
+| `grid-template-events.directive.ts` | Keyboard-Handler (Ctrl+C/V, F2, Doppelklick) |
+| `grid-surface-template.component.ts` | `updateCellInputPosition()` prüft `isEditing` |
+| `cell-input-events.directive.ts` | Input-Feld Events, `moveCursorToEnd()` |
+| `schedule-data.service.ts` | `handlePaste()` - Shift-Lookup + Work-Erstellung |
+| `shift-data.service.ts` | `handlePaste()` - Leerer Stub (kein Paste in Shift-Grid) |
+| `data.service.ts` | Abstrakte `handlePaste()` Methode |
+
+#### Flow: Paste
+
+```
+1. Ctrl+V → grid-template-events.directive.ts
+   └─► cellManipulation.paste()
+
+2. paste() in cell-manipulation.service.ts
+   ├─► navigator.clipboard.readText()
+   ├─► parseClipboardData() → string[][]
+   │
+   ├─► Prüfung: Single Value + Multi-Select?
+   │   ├─► JA: Loop über alle Positionen
+   │   │       └─► gridData.handlePaste(pos.row, pos.column, [[value]])
+   │   └─► NEIN: gridData.handlePaste(startRow, startCol, data)
+   │
+   └─► handlePaste() in schedule-data.service.ts
+       ├─► Für jede Zelle in data[][]:
+       │   ├─► Prüfe: isColumnSealed? → Skip
+       │   ├─► Prüfe: isCellActive? → Skip
+       │   ├─► Hole Client aus rowGroupIndex
+       │   ├─► Hole Datum aus getDateForColumn
+       │   ├─► findShiftByAbbreviationAndDate()
+       │   └─► dataManagementSchedule.addWorkScheduleEntry()
+```
+
+#### Flow: Edit-Modus bei Tastatureingabe
+
+```
+1. Buchstabe gedrückt → grid-template-events.directive.ts
+   └─► isPrintableKey() → true
+       └─► cellManipulation.startEditing(event.key)
+
+2. startEditing() in cell-manipulation.service.ts
+   ├─► initialEditChar.set(key)
+   └─► isEditing.set(true)
+
+3. Effect in grid-surface-template.component.ts
+   └─► updateCellInputPosition(row, col, isEditing=true)
+       └─► showCellInput()
+           ├─► cellInputDirective.value = initialChar
+           └─► cellInputDirective.moveCursorToEnd()
+```
+
+---
+
 ## Changelog
+
+### 26.12.2025 - Copy/Paste + Cell Editing Verbesserungen
+
+**Neue Features:**
+- **Copy (Ctrl+C):** Kopiert selektierte Zellen-Abbreviations als Tab/Newline-separierter Text
+- **Paste Modus 1 (Excel):** Einfügen von Grid-Daten ab Startposition
+- **Paste Modus 2 (Multi-Fill):** Einzelne Abbreviation in alle selektierten leeren Zellen einfügen
+- **Verbessertes Zell-Editing:**
+  - Einfacher Klick = nur Selektion (kein Edit-Modus)
+  - Doppelklick oder F2 = Edit-Modus mit bestehendem Inhalt
+  - Buchstabe/Zahl tippen = Edit-Modus mit getipptem Zeichen
+
+**Betroffene Dateien:**
+- `cell-manipulation.service.ts` - `isEditing` Signal, `paste()` erweitert für Multi-Fill
+- `grid-template-events.directive.ts` - Doppelklick, F2, druckbare Zeichen Handler
+- `grid-surface-template.component.ts` - `updateCellInputPosition()` prüft `isEditing`
+- `cell-input-events.directive.ts` - `moveCursorToEnd()` hinzugefügt
+- `schedule-data.service.ts` - `handlePaste()` implementiert
+- `shift-data.service.ts` - `handlePaste()` Stub
+- `data.service.ts` - Abstrakte `handlePaste()` Methode
 
 ### 26.12.2025 - Bulk Delete + WorkScheduleCrudService Refactoring
 
