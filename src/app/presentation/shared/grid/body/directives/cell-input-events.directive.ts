@@ -116,6 +116,12 @@ export class CellInputEventsDirective {
     this.el.nativeElement.select();
   }
 
+  moveCursorToEnd(): void {
+    const input = this.el.nativeElement;
+    const len = input.value.length;
+    input.setSelectionRange(len, len);
+  }
+
   get value(): string {
     return this.el.nativeElement.value;
   }

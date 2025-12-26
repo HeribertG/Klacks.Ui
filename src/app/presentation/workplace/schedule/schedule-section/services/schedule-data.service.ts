@@ -316,4 +316,84 @@ export class ScheduleDataService extends BaseDataService {
     }
     return addDays(this.startDate, col);
   }
+
+  override handlePaste(startRow: number, startCol: number, data: string[][]): void {
+    for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
+      const rowData = data[rowOffset];
+      for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
+        const abbreviation = rowData[colOffset].trim();
+        if (!abbreviation) {
+          continue;
+        }
+
+        const targetRow = startRow + rowOffset;
+        const targetCol = startCol + colOffset;
+
+        if (this.isColumnSealed(targetCol)) {
+          continue;
+        }
+
+        if (this.isCellActive(targetRow, targetCol)) {
+          continue;
+        }
+
+        const clientIndex = this.rowGroupIndex[targetRow];
+        if (clientIndex === undefined) {
+          continue;
+        }
+
+        const client = this.dataManagementSchedule.clients[clientIndex];
+        if (!client || !client.id) {
+          continue;
+        }
+
+        const date = this.getDateForColumn(targetCol);
+        if (!date) {
+          continue;
+        }
+
+        const matchingShift = this.findShiftByAbbreviationAndDate(abbreviation, date);
+        if (!matchingShift) {
+          continue;
+        }
+
+        this.dataManagementSchedule.addWorkScheduleEntry({
+          clientId: client.id,
+          date: date,
+          shiftId: matchingShift.shiftId,
+          workTime: matchingShift.workTime,
+        });
+      }
+    }
+  }
+
+  private findShiftByAbbreviationAndDate(
+    abbreviation: string,
+    date: Date
+  ): { shiftId: string; workTime: number } | undefined {
+    const upperAbbr = abbreviation.toUpperCase();
+    const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
+      (shift) =>
+        shift.abbreviation.toUpperCase() === upperAbbr &&
+        this.isSameDay(shift.date, date)
+    );
+
+    if (matchingShift) {
+      return {
+        shiftId: matchingShift.shiftId,
+        workTime: matchingShift.workTime,
+      };
+    }
+    return undefined;
+  }
+
+  private isSameDay(date1: Date | string, date2: Date | string): boolean {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
 }

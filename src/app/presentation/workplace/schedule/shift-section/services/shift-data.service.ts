@@ -461,4 +461,8 @@ export class ShiftDataService extends BaseDataService {
     const maxCapacity = dayInfo.sumEmployees * dayInfo.quantity;
     return dayInfo.engaged < maxCapacity;
   }
+
+  override handlePaste(_startRow: number, _startCol: number, _data: string[][]): void {
+    // Paste not supported in shift grid
+  }
 }

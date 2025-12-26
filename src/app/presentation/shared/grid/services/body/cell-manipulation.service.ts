@@ -27,6 +27,8 @@ export class BaseCellManipulationService {
   private _position: MyPosition = new MyPosition(-1, -1);
   public positionSignal = signal<MyPosition>(this._position);
   public hoveredCell = signal<HoveredCellInfo | null>(null);
+  public isEditing = signal<boolean>(false);
+  public initialEditChar = signal<string>('');
 
   public get Position(): MyPosition {
     return this._position;
@@ -34,7 +36,19 @@ export class BaseCellManipulationService {
 
   public set Position(value: MyPosition) {
     this._position = value;
+    this.isEditing.set(false);
+    this.initialEditChar.set('');
     this.positionSignal.set(value);
+  }
+
+  public startEditing(initialChar = ''): void {
+    this.initialEditChar.set(initialChar);
+    this.isEditing.set(true);
+  }
+
+  public stopEditing(): void {
+    this.isEditing.set(false);
+    this.initialEditChar.set('');
   }
 
   isPositionInSelection(pos: MyPosition): boolean {
@@ -87,7 +101,54 @@ export class BaseCellManipulationService {
     }
   }
 
-  paste() {}
+  async paste(): Promise<void> {
+    const pasteEnabled: boolean =
+      this.gridSetting.clipboardMode === ClipboardModeEnum.All ||
+      this.gridSetting.clipboardMode === ClipboardModeEnum.Paste;
+
+    if (!pasteEnabled) {
+      return;
+    }
+
+    if (this.Position.isEmpty()) {
+      return;
+    }
+
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      if (!clipboardText || clipboardText.trim() === '') {
+        return;
+      }
+
+      const pasteData = this.parseClipboardData(clipboardText);
+      if (pasteData.length === 0) {
+        return;
+      }
+
+      const isSingleValue = pasteData.length === 1 && pasteData[0].length === 1;
+      const hasMultiSelect = this.PositionCollection.count() > 1;
+
+      if (isSingleValue && hasMultiSelect) {
+        for (let i = 0; i < this.PositionCollection.count(); i++) {
+          const pos = this.PositionCollection.item(i);
+          this.gridData.handlePaste(pos.row, pos.column, pasteData);
+        }
+      } else {
+        this.gridData.handlePaste(
+          this.Position.row,
+          this.Position.column,
+          pasteData
+        );
+      }
+    } catch (err) {
+      console.error('Failed to read clipboard:', err);
+    }
+  }
+
+  private parseClipboardData(text: string): string[][] {
+    const rows = text.split(/\r?\n/).filter((row) => row.length > 0);
+    return rows.map((row) => row.split('\t'));
+  }
 
   cut() {}
 

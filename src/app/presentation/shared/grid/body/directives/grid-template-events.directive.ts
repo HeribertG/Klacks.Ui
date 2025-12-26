@@ -68,6 +68,19 @@ export class GridTemplateEventsDirective {
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
+  @HostListener('dblclick', ['$event']) onDoubleClick(event: MouseEvent): void {
+    if (!this.isOwnElement(event)) {
+      return;
+    }
+
+    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    this.cellManipulation.startEditing();
+  }
+
   @HostListener('mouseleave', ['$event']) onMouseLeave(event: MouseEvent) {
     if (!this.isOwnElement(event)) {
       return;
@@ -439,42 +452,38 @@ export class GridTemplateEventsDirective {
     if (event.key === 'c' && event.ctrlKey) {
       this.cellManipulation.copy();
       this.keyDown = false;
-
       return;
     }
-    // // Paste
-    // if (e.Key == Key.V && IsCtrl) {
-    //   try {
-    //     zPaste();
-    //     e.Handled = true;
-    //     return;
-    //   }
-    //   catch (Exception ex)
-    //   {
-    //     Debug.Print("ucChildSimpleGrid.KeyDown: " + ex.Message);
-    //   }
-    // }
 
-    // if (!(e.Key == Key.C && IsCtrl)) {
-    //   if (!(e.Key == Key.V && IsCtrl)) {
-    //     if (!(e.Key == Key.X && IsCtrl)) {
-    //       if (!IsCtrl) {
-    //         if (IsEditable) {
-    //           if (EditMode == enEditableMode.Default | EditMode == enEditableMode.AnyKey) {
-    //             if (p_PositionCollection.Count == 0 || ((p_PositionCollection.First.Row == p_PositionCollection.Last.Row) && (p_PositionCollection.First.Column == p_PositionCollection.Last.Column))) {
-    //               if (!(e.OriginalSource) is System.Windows.Controls.TextBox)
-    //               {
-    //                 if (p_LastSelectedPositionState == enPositionState.None)
-    //                   zEditSelectedCell();
-    //               }
-    //             }
-    //           }
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    // Paste
+    if (event.key === 'v' && event.ctrlKey) {
+      this.cellManipulation.paste();
+      this.keyDown = false;
+      return;
+    }
+
+    // F2 - start editing
+    if (event.key === 'F2') {
+      this.cellManipulation.startEditing();
+      this.stopEvent(event);
+      return;
+    }
+
+    if (!event.ctrlKey && !event.altKey && !event.metaKey && this.isPrintableKey(event)) {
+      this.cellManipulation.startEditing(event.key);
+      this.stopEvent(event);
+      return;
+    }
+
     event.stopPropagation();
+  }
+
+  private isPrintableKey(event: KeyboardEvent): boolean {
+    if (event.key.length !== 1) {
+      return false;
+    }
+    const code = event.key.charCodeAt(0);
+    return code >= 32 && code <= 126;
   }
 
   @HostListener('window:keyup', ['$event']) onKeyUp(

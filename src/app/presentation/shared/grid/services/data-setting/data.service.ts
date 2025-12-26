@@ -30,6 +30,7 @@ export abstract class BaseDataService {
   abstract holidayInfo(column: number): HolidayDate | undefined;
   abstract isLastGroupRow(row: number): boolean;
   abstract getItemMainText(row: number, col: number): string;
+  abstract handlePaste(startRow: number, startCol: number, data: string[][]): void;
   abstract get rows(): number;
   abstract get columns(): number;
   abstract get indexes(): number;

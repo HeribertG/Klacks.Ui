@@ -182,13 +182,15 @@ export class GridSurfaceTemplateComponent
   private updateCellInputOnScroll(): void {
     if (!this.cellInputVisible) return;
     const pos = this.cellManipulation.positionSignal();
-    this.updateCellInputPosition(pos.row, pos.column);
+    const isEditing = this.cellManipulation.isEditing();
+    this.updateCellInputPosition(pos.row, pos.column, isEditing);
   }
 
   private updateCellInputOnZoom(): void {
     if (!this.cellInputVisible) return;
     const pos = this.cellManipulation.positionSignal();
-    this.updateCellInputPosition(pos.row, pos.column);
+    const isEditing = this.cellManipulation.isEditing();
+    this.updateCellInputPosition(pos.row, pos.column, isEditing);
     this.cdr.detectChanges();
   }
 
@@ -411,7 +413,8 @@ export class GridSurfaceTemplateComponent
 
       const cellInputEffect = effect(() => {
         const pos = this.cellManipulation.positionSignal();
-        this.updateCellInputPosition(pos.row, pos.column);
+        const isEditing = this.cellManipulation.isEditing();
+        this.updateCellInputPosition(pos.row, pos.column, isEditing);
       });
       this.effects.push(cellInputEffect);
     });
@@ -465,8 +468,13 @@ export class GridSurfaceTemplateComponent
     canvas.dispatchEvent(newEvent);
   }
 
-  private updateCellInputPosition(row: number, column: number): void {
+  private updateCellInputPosition(row: number, column: number, isEditing: boolean): void {
     if (!this.settings.editable || row < 0 || column < 0) {
+      this.hideCellInput();
+      return;
+    }
+
+    if (!isEditing) {
       this.hideCellInput();
       return;
     }
@@ -508,11 +516,20 @@ export class GridSurfaceTemplateComponent
     this.lastEditedColumn = column;
 
     if (isNewCell && this.cellInputDirective) {
-      const content = this.dataService.getItemMainText(row, column);
-      this.cellInputDirective.value = content;
+      const initialChar = this.cellManipulation.initialEditChar();
+      if (initialChar) {
+        this.cellInputDirective.value = initialChar;
+      } else {
+        const content = this.dataService.getItemMainText(row, column);
+        this.cellInputDirective.value = content;
+      }
       setTimeout(() => {
         this.cellInputDirective?.focus();
-        this.cellInputDirective?.select();
+        if (!initialChar) {
+          this.cellInputDirective?.select();
+        } else {
+          this.cellInputDirective?.moveCursorToEnd();
+        }
       }, 0);
     }
   }
