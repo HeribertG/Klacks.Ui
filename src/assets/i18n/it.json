@@ -34,6 +34,14 @@
   "accessibility.unchecked": "non spuntato",
   "accessibility.new-window": "Apre in una nuova finestra",
 
+  "contextMenu.copy": "Copia",
+  "contextMenu.cut": "Taglia",
+  "contextMenu.paste": "Incolla",
+  "contextMenu.delete": "Elimina",
+  "contextMenu.convert": "Converti...",
+  "contextMenu.showInShift": "Mostra nel piano turni",
+  "contextMenu.showInSchedule": "Mostra nel piano di lavoro",
+
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Anno: ",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Anno: ",
   "absence-gantt.absence-gantt-mask.absence-gantt-header.setting.chose-holiday": "Seleziona i giorni festivi",

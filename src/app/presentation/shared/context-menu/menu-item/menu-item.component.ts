@@ -4,13 +4,14 @@ import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
 import { Timer } from 'src/app/presentation/helpers/timer';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-menu-item',
   templateUrl: './menu-item.component.html',
   styleUrls: ['./menu-item.component.scss'],
   standalone: true,
-  imports: [CommonModule, forwardRef(() => MenuComponent)],
+  imports: [CommonModule, TranslateModule, forwardRef(() => MenuComponent)],
 })
 export class MenuItemComponent {
   private elementRef = inject(ElementRef);

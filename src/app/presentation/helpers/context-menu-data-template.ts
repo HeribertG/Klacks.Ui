@@ -88,4 +88,21 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static showInSchedule(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'showInSchedule',
+          MessageLibrary.SHOW_IN_SCHEDULE,
+          false,
+          '',
+          'fa-solid fa-arrow-down'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

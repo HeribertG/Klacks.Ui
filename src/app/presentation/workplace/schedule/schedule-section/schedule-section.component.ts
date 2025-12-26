@@ -56,6 +56,7 @@ import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-clas
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/work-schedule-crud.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
+import { ShowInScheduleService } from '../services/show-in-schedule.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -118,6 +119,7 @@ export class ScheduleSectionComponent
   private translateService = inject(TranslateService);
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
+  private showInScheduleService = inject(ShowInScheduleService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
@@ -250,6 +252,15 @@ export class ScheduleSectionComponent
         }
       });
       this.effects.push(scheduleUpdateEffect);
+
+      const showInScheduleEffect = effect(() => {
+        const request = this.showInScheduleService.request();
+        if (request) {
+          this.scrollToScheduleEntry(request.shiftId, request.column);
+          this.showInScheduleService.clear();
+        }
+      });
+      this.effects.push(showInScheduleEffect);
     });
   }
 
@@ -466,11 +477,11 @@ export class ScheduleSectionComponent
     const isCellFilled = dataService.isCellActive(row, column);
 
     if (isCellFilled) {
-      menuData.list.push(...MenuDataTemplate.showInShift());
-      menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.copyCutPaste());
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.delete());
+      menuData.list.push(...MenuDataTemplate.divider());
+      menuData.list.push(...MenuDataTemplate.showInShift());
     } else {
       menuData.list.push(...MenuDataTemplate.paste());
     }
@@ -579,5 +590,22 @@ export class ScheduleSectionComponent
       date: date,
       shiftId: entry.shiftId,
     };
+  }
+
+  private scrollToScheduleEntry(shiftId: string, column: number): void {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const rowIndex = dataService.findFirstRowByShiftIdAndColumn(shiftId, column);
+
+    if (rowIndex >= 0) {
+      const visibleRows = Math.floor(
+        (this.scheduleSurface.drawSchedule.height - this.settings.cellHeaderHeight) /
+          this.settings.cellHeight
+      );
+      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
+
+      this.vScrollbar.value = targetScroll;
+      this.scrollService.verticalScrollPosition = targetScroll;
+      this.scheduleSurface.drawSchedule.moveGrid();
+    }
   }
 }

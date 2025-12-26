@@ -60,8 +60,11 @@
               (valueVScrollbar)="vScrollbarShift.value = $event"
               (maxValueVScrollbar)="vScrollbarShift.maxValue = $event"
               (visibleValueVScrollbar)="vScrollbarShift.visibleValue = $event"
+              (rightClick)="onRightClick($event)"
             >
             </app-grid-surface-template>
+
+            <app-context-menu #contextMenu></app-context-menu>
 
             <app-v-scrollbar
               class="vScrollAreaShift"

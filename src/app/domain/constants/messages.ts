@@ -102,12 +102,13 @@ export class DomainMessages {
   public static LAST_STATE = 'letzter Stand:';
   public static EDITED_FROM = ', bearbeitet von ';
 
-  public static COPY = 'Kopieren';
-  public static CUT = 'Ausschneiden';
-  public static PASTE = 'Einfügen';
-  public static DELETE = 'Löschen';
-  public static CONVERT = 'Umwandeln...';
-  public static SHOW_IN_SHIFT = 'Im Dienstplan anzeigen';
+  public static COPY = 'contextMenu.copy';
+  public static CUT = 'contextMenu.cut';
+  public static PASTE = 'contextMenu.paste';
+  public static DELETE = 'contextMenu.delete';
+  public static CONVERT = 'contextMenu.convert';
+  public static SHOW_IN_SHIFT = 'contextMenu.showInShift';
+  public static SHOW_IN_SCHEDULE = 'contextMenu.showInSchedule';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

@@ -396,4 +396,14 @@ export class ScheduleDataService extends BaseDataService {
       d1.getDate() === d2.getDate()
     );
   }
+
+  findFirstRowByShiftIdAndColumn(shiftId: string, column: number): number {
+    for (let row = 0; row < this.rows; row++) {
+      const entry = this.getWorkScheduleEntryForCell(row, column);
+      if (entry && entry.shiftId === shiftId) {
+        return row;
+      }
+    }
+    return -1;
+  }
 }

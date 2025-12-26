@@ -100,6 +100,7 @@ export class MessageLibrary {
   public static DELETE = DomainMessages.DELETE;
   public static CONVERT = DomainMessages.CONVERT;
   public static SHOW_IN_SHIFT = DomainMessages.SHOW_IN_SHIFT;
+  public static SHOW_IN_SCHEDULE = DomainMessages.SHOW_IN_SCHEDULE;
 
   public static CALENDAR_SELECTION_ID = DomainMessages.CALENDAR_SELECTION_ID;
   public static CALENDAR_SELECTION_TYPE = DomainMessages.CALENDAR_SELECTION_TYPE;

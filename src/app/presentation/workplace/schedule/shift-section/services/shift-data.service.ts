@@ -478,4 +478,21 @@ export class ShiftDataService extends BaseDataService {
 
     return -1;
   }
+
+  getEngagedCount(row: number, column: number): number {
+    if (row >= this.shiftRows.length) {
+      return 0;
+    }
+    const shiftRow = this.shiftRows[row];
+    const dateKey = this.getDateKeyForColumn(column);
+    const dayInfo = shiftRow.activeDays.get(dateKey);
+    return dayInfo?.engaged ?? 0;
+  }
+
+  getDateForColumn(column: number): Date | null {
+    if (!this.startDate) {
+      return null;
+    }
+    return addDays(this.startDate, column);
+  }
 }

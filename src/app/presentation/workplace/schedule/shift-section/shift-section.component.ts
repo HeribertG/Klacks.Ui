@@ -18,6 +18,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AngularSplitModule } from 'angular-split';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { Subject, takeUntil } from 'rxjs';
 import { ScheduleShiftRowHeaderComponent } from './schedule-shift-row-header/schedule-shift-row-header.component';
 import { ShiftFilterComponent } from './shift-filter/shift-filter.component';
 import { VScrollbarComponent } from 'src/app/presentation/shared/v-scrollbar/v-scrollbar.component';
@@ -38,7 +39,10 @@ import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
-import { GridSurfaceTemplateComponent } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
+import {
+  GridSurfaceRightClickEvent,
+  GridSurfaceTemplateComponent,
+} from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { IconFilterComponent } from 'src/app/presentation/icons/icon-filter.component';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -48,6 +52,11 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
+import { ShowInScheduleService } from '../services/show-in-schedule.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 
 @Component({
   selector: 'app-shift-section',
@@ -63,6 +72,7 @@ import { ShowInShiftService } from '../services/show-in-shift.service';
     GridSurfaceTemplateComponent,
     IconFilterComponent,
     ShiftFilterComponent,
+    ContextMenuComponent,
   ],
   providers: [
     { provide: BaseDataService, useClass: ShiftDataService },
@@ -78,6 +88,7 @@ import { ShowInShiftService } from '../services/show-in-shift.service';
     BaseCanvasManagerService,
     BaseGridRenderService,
     CellIconsService,
+    ContextMenuService,
   ],
   templateUrl: './shift-section.component.html',
   styleUrls: ['./shift-section.component.scss'],
@@ -87,6 +98,8 @@ export class ShiftSectionComponent
 {
   @ViewChild('shiftSurface', { static: true })
   shiftSurface!: GridSurfaceTemplateComponent;
+  @ViewChild('contextMenu', { static: false })
+  contextMenu!: ContextMenuComponent;
 
   private dataManagement = inject(DataManagementScheduleService);
   private injector = inject(Injector);
@@ -99,8 +112,10 @@ export class ShiftSectionComponent
   private translateService = inject(TranslateService);
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
+  private showInScheduleService = inject(ShowInScheduleService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  private destroy$ = new Subject<void>();
 
   @Input() horizontalSize!: number;
   @Input() zoom = 1.0;
@@ -138,6 +153,12 @@ export class ShiftSectionComponent
 
   ngAfterViewInit(): void {
     this.readSignals();
+
+    this.contextMenu?.hasClicked
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((keys) => {
+        this.menuClicked(keys);
+      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -151,6 +172,9 @@ export class ShiftSectionComponent
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     this.effects.forEach((e) => e?.destroy());
     this.effects = [];
   }
@@ -287,5 +311,50 @@ export class ShiftSectionComponent
 
   private getTranslatedText(multiLanguage: MultiLanguage): string {
     return multiLanguage[this.currentLang] || multiLanguage.de || '';
+  }
+
+  onRightClick(event: GridSurfaceRightClickEvent): void {
+    if (!this.contextMenu) return;
+
+    this.contextMenu.closeMenu();
+    this.createContextMenu(event.row, event.column);
+    this.contextMenu.openMenu({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    } as MouseEvent);
+  }
+
+  private createContextMenu(row: number, column: number): void {
+    const menuData = new Menu();
+    const shiftDataService = this.dataService as ShiftDataService;
+    const engagedCount = shiftDataService.getEngagedCount(row, column);
+
+    if (engagedCount > 0) {
+      menuData.list.push(...MenuDataTemplate.showInSchedule());
+    }
+
+    this.contextMenu.menuData = menuData;
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    switch (keys[0]) {
+      case 'showInSchedule':
+        this.contextMenu.closeMenu(true);
+        this.showSelectedShiftInScheduleSection();
+        break;
+    }
+  }
+
+  private showSelectedShiftInScheduleSection(): void {
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty()) return;
+
+    const shiftDataService = this.dataService as ShiftDataService;
+    const shiftId = shiftDataService.getShiftId(pos.row);
+    if (!shiftId) return;
+
+    this.showInScheduleService.showSchedule(shiftId, pos.column);
   }
 }
