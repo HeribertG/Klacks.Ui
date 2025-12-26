@@ -15,7 +15,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { AngularSplitModule } from 'angular-split';
 import { NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, takeUntil } from 'rxjs';
@@ -30,13 +30,11 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
+import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import {
-  BaseCellManipulationService,
-  HoveredCellInfo,
-} from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+  ScheduleTooltipService,
+  TooltipState,
+} from '../services/schedule-tooltip.service';
 import { BaseCellRenderService } from 'src/app/presentation/shared/grid/services/body/cell-render.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import {
@@ -109,12 +107,12 @@ export class ShiftSectionComponent
   private cdr = inject(ChangeDetectorRef);
   private cellManipulation = inject(BaseCellManipulationService);
   private dataService = inject(BaseDataService);
-  private translateService = inject(TranslateService);
+  private tooltipService = inject(ScheduleTooltipService);
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
   private showInScheduleService = inject(ShowInScheduleService);
 
-  private currentLang: Language = MessageLibrary.DEFAULT_LANG;
+  private tooltipState: TooltipState = { lastHeaderColumn: -1 };
   private destroy$ = new Subject<void>();
 
   @Input() horizontalSize!: number;
@@ -148,7 +146,7 @@ export class ShiftSectionComponent
   private effects: EffectRef[] = [];
 
   ngOnInit(): void {
-    this.currentLang = this.translateService.currentLang as Language;
+    this.tooltipService.initLanguage();
   }
 
   ngAfterViewInit(): void {
@@ -245,7 +243,13 @@ export class ShiftSectionComponent
 
       const hoveredCellEffect = effect(() => {
         const hoveredCell = this.cellManipulation.hoveredCell();
-        this.handleHoveredCellChange(hoveredCell);
+        this.tooltipService.handleHoveredCell(
+          hoveredCell,
+          this.dataService,
+          this.shiftSurface,
+          this.tooltipState,
+          false
+        );
       });
       this.effects.push(hoveredCellEffect);
 
@@ -284,33 +288,6 @@ export class ShiftSectionComponent
       this.shiftSurface.drawSchedule.moveGrid();
       this.cdr.detectChanges();
     }
-  }
-
-  private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {
-    if (!hoveredCell) {
-      this.shiftSurface.destroyToolTip();
-      return;
-    }
-
-    if (hoveredCell.isEmpty) {
-      const holiday = this.shiftSurface.dataService.holidayInfo(hoveredCell.column);
-      if (holiday?.currentName) {
-        const holidayName = this.getTranslatedText(holiday.currentName);
-        if (holidayName) {
-          this.shiftSurface.showToolTip({
-            value: holidayName,
-            event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
-          });
-          return;
-        }
-      }
-    }
-
-    this.shiftSurface.destroyToolTip();
-  }
-
-  private getTranslatedText(multiLanguage: MultiLanguage): string {
-    return multiLanguage[this.currentLang] || multiLanguage.de || '';
   }
 
   onRightClick(event: GridSurfaceRightClickEvent): void {

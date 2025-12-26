@@ -29,10 +29,7 @@ import { BaseDrawScheduleService } from 'src/app/presentation/shared/grid/servic
 import { BaseCanvasManagerService } from 'src/app/presentation/shared/grid/services/body/canvas-manager.service';
 import { BaseCreateHeaderService } from 'src/app/presentation/shared/grid/services/body/create-header.service';
 import { BaseCreateCellService } from 'src/app/presentation/shared/grid/services/body/create-cell.service';
-import {
-  BaseCellManipulationService,
-  HoveredCellInfo,
-} from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
+import { BaseCellManipulationService } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { CellIconsService } from 'src/app/presentation/shared/grid/services/body/cell-icons.service';
 import { Subject, takeUntil } from 'rxjs';
 import {
@@ -43,10 +40,10 @@ import {
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { GroupSelectionService } from 'src/app/domain/services/group/group-selection.service';
-import { TranslateService } from '@ngx-translate/core';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { Language } from 'src/app/application/helpers/sharedItems';
-import { MessageLibrary } from 'src/app/domain/constants/message-library';
+import {
+  ScheduleTooltipService,
+  TooltipState,
+} from '../services/schedule-tooltip.service';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
@@ -116,22 +113,21 @@ export class ScheduleSectionComponent
   private hScrollService = inject(ScheduleHorizontalScrollService);
   private groupSelectionService = inject(GroupSelectionService);
   private cellManipulation = inject(BaseCellManipulationService);
-  private translateService = inject(TranslateService);
+  private tooltipService = inject(ScheduleTooltipService);
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
   private showInScheduleService = inject(ShowInScheduleService);
 
-  private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
-  private lastHeaderColumn = -1;
+  private tooltipState: TooltipState = { lastHeaderColumn: -1 };
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
   private initialSyncDone = true;
 
   ngOnInit(): void {
-    this.currentLang = this.translateService.currentLang as Language;
+    this.tooltipService.initLanguage();
     this.settings.editable = true;
   }
 
@@ -241,7 +237,13 @@ export class ScheduleSectionComponent
 
       const hoveredCellEffect = effect(() => {
         const hoveredCell = this.cellManipulation.hoveredCell();
-        this.handleHoveredCellChange(hoveredCell);
+        this.tooltipService.handleHoveredCell(
+          hoveredCell,
+          this.scheduleSurface.dataService,
+          this.scheduleSurface,
+          this.tooltipState,
+          true
+        );
       });
       this.effects.push(hoveredCellEffect);
 
@@ -262,88 +264,6 @@ export class ScheduleSectionComponent
       });
       this.effects.push(showInScheduleEffect);
     });
-  }
-
-  private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {
-    if (!hoveredCell) {
-      this.lastHeaderColumn = -1;
-      this.scheduleSurface.destroyToolTip();
-      return;
-    }
-
-    if (hoveredCell.isHeader) {
-      this.handleHeaderTooltip(hoveredCell);
-      return;
-    }
-
-    this.lastHeaderColumn = -1;
-
-    if (hoveredCell.isEmpty) {
-      const holiday = this.scheduleSurface.dataService.holidayInfo(hoveredCell.column);
-      if (holiday?.currentName) {
-        const holidayName = this.getTranslatedText(holiday.currentName);
-        if (holidayName) {
-          this.scheduleSurface.showToolTip({
-            value: holidayName,
-            event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
-          });
-          return;
-        }
-      }
-    }
-
-    this.scheduleSurface.destroyToolTip();
-  }
-
-  private handleHeaderTooltip(hoveredCell: HoveredCellInfo): void {
-    const columnChanged = this.lastHeaderColumn !== hoveredCell.column;
-    this.lastHeaderColumn = hoveredCell.column;
-
-    const column = hoveredCell.column;
-    const availableShifts = this.dataManagement.availableShiftsByDay;
-    const overbookedShifts = this.dataManagement.overbookedShiftsByDay;
-
-    const available = availableShifts?.[column] ?? [];
-    const overbooked = overbookedShifts?.[column] ?? [];
-
-    if (available.length === 0 && overbooked.length === 0) {
-      this.scheduleSurface.destroyToolTip();
-      return;
-    }
-
-    if (columnChanged) {
-      this.scheduleSurface.destroyToolTip();
-    }
-
-    const tooltipText = this.buildHeaderTooltipText(overbooked, available);
-    this.scheduleSurface.showToolTip({
-      value: tooltipText,
-      event: { clientX: hoveredCell.clientX, clientY: hoveredCell.clientY } as MouseEvent,
-    });
-  }
-
-  private buildHeaderTooltipText(overbooked: readonly string[], available: readonly string[]): string {
-    const lines: string[] = [];
-
-    if (overbooked.length > 0) {
-      const label = this.translateService.instant('schedule.tooltip.overbooked');
-      lines.push(`${label}:<br>${overbooked.join(', ')}`);
-    }
-
-    if (overbooked.length > 0 && available.length > 0) {
-      lines.push('<br>');
-    }
-
-    if (available.length > 0) {
-      const label = this.translateService.instant('schedule.tooltip.available');
-      lines.push(`${label}:<br>${available.join(', ')}`);
-    }
-
-    return lines.join('');
-  }
-
-  private getTranslatedText(multiLanguage: MultiLanguage): string {
-    return multiLanguage[this.currentLang] || multiLanguage.de || '';
   }
 
   onVisibleValueHScrollbarChange(value: number): void {

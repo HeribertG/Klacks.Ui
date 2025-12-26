@@ -326,8 +326,30 @@ export class GridSurfaceTemplateComponent
   showToolTip({ value, event }: { value: string; event: MouseEvent }) {
     if (this.tooltip && this.tooltip.innerHTML !== value) {
       this.tooltip.innerHTML = value;
-      this.tooltip.style.top = `${event.clientY}px`;
-      this.tooltip.style.left = `${event.clientX}px`;
+      this.tooltip.style.display = 'block';
+      this.tooltip.style.visibility = 'hidden';
+
+      const tooltipRect = this.tooltip.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+      const offset = 10;
+
+      let left = event.clientX + offset;
+      let top = event.clientY + offset;
+
+      if (left + tooltipRect.width > viewportWidth - offset) {
+        left = event.clientX - tooltipRect.width - offset;
+      }
+
+      if (top + tooltipRect.height > viewportHeight - offset) {
+        top = event.clientY - tooltipRect.height - offset;
+      }
+
+      left = Math.max(offset, left);
+      top = Math.max(offset, top);
+
+      this.tooltip.style.top = `${top}px`;
+      this.tooltip.style.left = `${left}px`;
       this.fadeInToolTip();
     }
   }
