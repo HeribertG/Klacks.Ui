@@ -71,4 +71,21 @@ export class MenuDataTemplate {
 
     return value;
   }
+
+  public static showInShift(): MenuItem[] {
+    const value: MenuItem[] = [];
+    value.push(
+      ...[
+        new MenuItem(
+          'showInShift',
+          MessageLibrary.SHOW_IN_SHIFT,
+          false,
+          '',
+          'fa-solid fa-arrow-up'
+        ),
+      ]
+    );
+
+    return value;
+  }
 }

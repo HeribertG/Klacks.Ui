@@ -465,4 +465,17 @@ export class ShiftDataService extends BaseDataService {
   override handlePaste(_startRow: number, _startCol: number, _data: string[][]): void {
     // Paste not supported in shift grid
   }
+
+  findRowByShiftIdAndColumn(shiftId: string, column: number): number {
+    const dateKey = this.getDateKeyForColumn(column);
+
+    for (let i = 0; i < this.shiftRows.length; i++) {
+      const shiftRow = this.shiftRows[i];
+      if (shiftRow.shiftId === shiftId && shiftRow.activeDays.has(dateKey)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
 }

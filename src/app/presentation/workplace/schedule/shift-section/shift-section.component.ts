@@ -47,6 +47,7 @@ import { ShiftDataService } from './services/shift-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ScheduleHorizontalScrollService } from '../services/schedule-horizontal-scroll.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
+import { ShowInShiftService } from '../services/show-in-shift.service';
 
 @Component({
   selector: 'app-shift-section',
@@ -97,6 +98,7 @@ export class ShiftSectionComponent
   private dataService = inject(BaseDataService);
   private translateService = inject(TranslateService);
   private workNotificationService = inject(WorkNotificationService);
+  private showInShiftService = inject(ShowInShiftService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
 
@@ -230,7 +232,34 @@ export class ShiftSectionComponent
         }
       });
       this.effects.push(shiftUpdateEffect);
+
+      const showInShiftEffect = effect(() => {
+        const request = this.showInShiftService.request();
+        if (request) {
+          this.scrollToShift(request.shiftId, request.column);
+          this.showInShiftService.clear();
+        }
+      });
+      this.effects.push(showInShiftEffect);
     });
+  }
+
+  private scrollToShift(shiftId: string, column: number): void {
+    const shiftDataService = this.dataService as ShiftDataService;
+    const rowIndex = shiftDataService.findRowByShiftIdAndColumn(shiftId, column);
+
+    if (rowIndex >= 0) {
+      const visibleRows = Math.floor(
+        (this.shiftSurface.drawSchedule.height - this.settings.cellHeaderHeight) /
+          this.settings.cellHeight
+      );
+      const targetScroll = Math.max(0, rowIndex - Math.floor(visibleRows / 2));
+
+      this.vScrollbar.value = targetScroll;
+      this.scrollService.verticalScrollPosition = targetScroll;
+      this.shiftSurface.drawSchedule.moveGrid();
+      this.cdr.detectChanges();
+    }
   }
 
   private handleHoveredCellChange(hoveredCell: HoveredCellInfo | null): void {

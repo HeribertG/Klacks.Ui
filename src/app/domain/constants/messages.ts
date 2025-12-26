@@ -107,6 +107,7 @@ export class DomainMessages {
   public static PASTE = 'Einfügen';
   public static DELETE = 'Löschen';
   public static CONVERT = 'Umwandeln...';
+  public static SHOW_IN_SHIFT = 'Im Dienstplan anzeigen';
 
   public static CALENDAR_SELECTION_ID = 'Calendar';
   public static CALENDAR_SELECTION_TYPE = 'Gantt';

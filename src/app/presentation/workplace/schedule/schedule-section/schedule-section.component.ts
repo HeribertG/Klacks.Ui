@@ -55,6 +55,7 @@ import { ContextMenuService } from 'src/app/presentation/shared/context-menu/con
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/work-schedule-crud.service';
+import { ShowInShiftService } from '../services/show-in-shift.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -116,6 +117,7 @@ export class ScheduleSectionComponent
   private cellManipulation = inject(BaseCellManipulationService);
   private translateService = inject(TranslateService);
   private workNotificationService = inject(WorkNotificationService);
+  private showInShiftService = inject(ShowInShiftService);
 
   private currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private defaultVScrollbarSize = 17;
@@ -464,6 +466,8 @@ export class ScheduleSectionComponent
     const isCellFilled = dataService.isCellActive(row, column);
 
     if (isCellFilled) {
+      menuData.list.push(...MenuDataTemplate.showInShift());
+      menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.copyCutPaste());
       menuData.list.push(...MenuDataTemplate.divider());
       menuData.list.push(...MenuDataTemplate.delete());
@@ -483,6 +487,10 @@ export class ScheduleSectionComponent
     if (!keys || keys.length === 0) return;
 
     switch (keys[0]) {
+      case 'showInShift':
+        this.contextMenu.closeMenu(true);
+        this.showSelectedShiftInShiftSection();
+        break;
       case 'copy':
         this.contextMenu.closeMenu(true);
         this.cellManipulation.copy();
@@ -501,6 +509,17 @@ export class ScheduleSectionComponent
         this.deleteSelectedEntries();
         break;
     }
+  }
+
+  private showSelectedShiftInShiftSection(): void {
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty()) return;
+
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const entry = dataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    if (!entry) return;
+
+    this.showInShiftService.showShift(entry.shiftId, pos.column);
   }
 
   private deleteSelectedEntries(): void {
