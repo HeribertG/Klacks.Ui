@@ -70,6 +70,11 @@ export class GridTemplateEventsDirective {
   private readonly FILL_HANDLE_RADIUS = 5;
   private readonly FILL_HANDLE_HIT_AREA = 12;
 
+  private autoScrollTimer: ReturnType<typeof setInterval> | null = null;
+  private autoScrollStartTime = 0;
+  private readonly AUTO_SCROLL_INITIAL_DELAY = 400;
+  private readonly AUTO_SCROLL_MIN_DELAY = 50;
+
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
   @HostListener('dblclick', ['$event']) onDoubleClick(event: MouseEvent): void {
@@ -904,7 +909,10 @@ export class GridTemplateEventsDirective {
   }
 
   private handleFillHandleDrag(event: MouseEvent): void {
+    this.handleAutoScrollOnEdge(event);
+
     const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+
     if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
       return;
     }
@@ -914,10 +922,71 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    if (pos.column > startPos.column) {
-      this.fillHandleService.updateDragColumn(pos.column);
+    this.fillHandleService.updateDragColumn(pos.column);
+
+    if (pos.column <= startPos.column) {
+      this.gridSurface.drawSchedule.refresh();
+    } else {
       this.drawFillHandleSelection();
     }
+  }
+
+  private handleAutoScrollOnEdge(event: MouseEvent): void {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const canvasWidth = rect.width;
+    const edgeThreshold = 30;
+
+    const isAtRightEdge = mouseX > canvasWidth - edgeThreshold;
+
+    if (!isAtRightEdge) {
+      this.stopAutoScroll();
+      return;
+    }
+
+    if (!this.autoScrollTimer) {
+      this.autoScrollStartTime = Date.now();
+      this.startAutoScroll();
+    }
+  }
+
+  private startAutoScroll(): void {
+    this.doAutoScrollStep();
+  }
+
+  private doAutoScrollStep(): void {
+    const maxScrollPos = this.gridData.columns - this.scrollGrid.visibleCols;
+    if (this.scrollGrid.horizontalScrollPosition >= maxScrollPos) {
+      this.stopAutoScroll();
+      return;
+    }
+
+    this.gridSurface.valueHScrollbar.emit(
+      this.scrollGrid.horizontalScrollPosition + 1
+    );
+
+    const currentCol = this.fillHandleService.state.currentColumn;
+    const maxCol = this.gridData.columns - 1;
+    if (currentCol < maxCol) {
+      this.fillHandleService.updateDragColumn(currentCol + 1);
+      this.drawFillHandleSelection();
+    }
+
+    const elapsed = Date.now() - this.autoScrollStartTime;
+    const acceleration = Math.min(elapsed / 2000, 1);
+    const delay =
+      this.AUTO_SCROLL_INITIAL_DELAY -
+      acceleration * (this.AUTO_SCROLL_INITIAL_DELAY - this.AUTO_SCROLL_MIN_DELAY);
+
+    this.autoScrollTimer = setTimeout(() => this.doAutoScrollStep(), delay);
+  }
+
+  private stopAutoScroll(): void {
+    if (this.autoScrollTimer) {
+      clearTimeout(this.autoScrollTimer);
+      this.autoScrollTimer = null;
+    }
+    this.autoScrollStartTime = 0;
   }
 
   private drawFillHandleSelection(): void {
@@ -949,6 +1018,7 @@ export class GridTemplateEventsDirective {
   }
 
   private handleFillHandleDrop(): void {
+    this.stopAutoScroll();
     const result = this.fillHandleService.endDrag();
     this.el.nativeElement.style.cursor = 'default';
 

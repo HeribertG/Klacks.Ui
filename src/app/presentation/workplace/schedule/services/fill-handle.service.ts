@@ -51,9 +51,9 @@ export class FillHandleService {
 
   updateDragColumn(column: number): void {
     if (!this._state.isDragging) return;
-    if (column <= this._state.startPosition!.column) return;
 
-    this._state.currentColumn = column;
+    const startCol = this._state.startPosition!.column;
+    this._state.currentColumn = column < startCol ? startCol : column;
     this.stateSignal.set({ ...this._state });
   }
 
