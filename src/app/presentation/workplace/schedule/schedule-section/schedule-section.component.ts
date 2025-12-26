@@ -54,6 +54,7 @@ import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/c
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
+import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/work-schedule-crud.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -464,6 +465,8 @@ export class ScheduleSectionComponent
 
     if (isCellFilled) {
       menuData.list.push(...MenuDataTemplate.copyCutPaste());
+      menuData.list.push(...MenuDataTemplate.divider());
+      menuData.list.push(...MenuDataTemplate.delete());
     } else {
       menuData.list.push(...MenuDataTemplate.paste());
     }
@@ -493,31 +496,69 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.cellManipulation.paste();
         break;
+      case 'del':
+        this.contextMenu.closeMenu(true);
+        this.deleteSelectedEntries();
+        break;
     }
   }
 
   private deleteSelectedEntries(): void {
-    const pos = this.cellManipulation.Position;
-    if (pos.isEmpty()) return;
-
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
-    const entry = dataService.getWorkScheduleEntryForCell(pos.row, pos.column);
-    if (!entry) return;
+    const positionCollection = this.cellManipulation.PositionCollection;
 
-    const clientIndex = dataService.rowGroupIndex[pos.row];
-    if (clientIndex === undefined) return;
+    if (positionCollection.count() > 1) {
+      const entries: DeleteWorkScheduleEntryParams[] = [];
+
+      for (let i = 0; i < positionCollection.count(); i++) {
+        const pos = positionCollection.item(i);
+        const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
+        if (deleteInfo) {
+          entries.push(deleteInfo);
+        }
+      }
+
+      if (entries.length > 0) {
+        this.dataManagement.bulkDeleteWorkScheduleEntries(entries);
+      }
+    } else {
+      const pos = this.cellManipulation.Position;
+      if (pos.isEmpty()) return;
+
+      const deleteInfo = this.getDeleteInfoForPosition(dataService, pos.row, pos.column);
+      if (deleteInfo) {
+        this.dataManagement.deleteWorkScheduleEntry(
+          deleteInfo.workId,
+          deleteInfo.clientId,
+          deleteInfo.date,
+          deleteInfo.shiftId
+        );
+      }
+    }
+  }
+
+  private getDeleteInfoForPosition(
+    dataService: ScheduleDataService,
+    row: number,
+    column: number
+  ): DeleteWorkScheduleEntryParams | null {
+    const entry = dataService.getWorkScheduleEntryForCell(row, column);
+    if (!entry) return null;
+
+    const clientIndex = dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) return null;
 
     const client = this.dataManagement.clients[clientIndex];
-    if (!client?.id) return;
+    if (!client?.id) return null;
 
-    const date = dataService.getDateForColumn(pos.column);
-    if (!date) return;
+    const date = dataService.getDateForColumn(column);
+    if (!date) return null;
 
-    this.dataManagement.deleteWorkScheduleEntry(
-      entry.workId,
-      client.id,
-      date,
-      entry.shiftId
-    );
+    return {
+      workId: entry.workId,
+      clientId: client.id,
+      date: date,
+      shiftId: entry.shiftId,
+    };
   }
 }
