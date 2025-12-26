@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-confusing-non-null-assertion */
 /* eslint-disable no-prototype-builtins */
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { environment } from 'src/environments/environment';
 import { MyToken } from 'src/app/domain/models/authentification-class';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { ToastShowService } from '../toast/toast-show.service';
@@ -11,6 +9,7 @@ import { EqualDate } from 'src/app/shared/helpers/date.helper';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
+import { DataAuthService } from '../../infrastructure/api/data-auth.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
@@ -18,19 +17,14 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 })
 export class AuthService {
   public toastShowService = inject(ToastShowService);
-  private httpClient = inject(HttpClient);
+  private dataAuthService = inject(DataAuthService);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
 
   async logIn(userName: string, password: string): Promise<boolean> {
-    const user = {
-      email: userName,
-      password,
-    };
-
     return await firstValueFrom(
-      this.httpClient.post<MyToken>(`${environment.baseUrl}Accounts/LoginUser`, user)
+      this.dataAuthService.login({ email: userName, password })
     ).then((tok) => {
         if (!tok) {
           this.toastShowService.showError(
@@ -262,16 +256,11 @@ export class AuthService {
 
     try {
       const response = await firstValueFrom(
-        this.httpClient.post<MyToken>(
-          `${environment.baseUrl}Accounts/RefreshToken`,
-          {
-            refreshToken,
-          }
-        )
+        this.dataAuthService.refreshToken({ refreshToken })
       );
 
       if (response) {
-        this.storeToken(response, true); // isRefresh = true
+        this.storeToken(response, true);
         return true;
       }
       return false;

@@ -3,12 +3,14 @@ import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { TranslateService } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import {
   IContainerTemplateItem,
   IRouteInfo,
   IRouteLocation,
 } from 'src/app/domain/models/container-template-class';
 import { AddressTypeEnum } from 'src/app/domain/enums/client-enum';
+import { DataRoutingService } from 'src/app/infrastructure/api/data-routing.service';
 
 export type RouteInfo = IRouteInfo;
 export type RouteLocation = IRouteLocation;
@@ -115,13 +117,13 @@ const COLOR_TRANSPARENT = 'transparent';
 
 const OSM_SUBDOMAINS = ['a', 'b', 'c'];
 const OSM_ATTRIBUTION_TEXT = '© OpenStreetMap contributors';
-const OSRM_ROUTE_URL = 'https://router.project-osrm.org/route/v1/driving/';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContainerTemplatePdfExportService {
   private translateService = inject(TranslateService);
+  private dataRoutingService = inject(DataRoutingService);
 
   exportContainerTemplateToPdf(
     items: IContainerTemplateItem[],
@@ -768,24 +770,7 @@ export class ContainerTemplatePdfExportService {
       return coordinates.map((c) => ({ lat: c.lat, lon: c.lon }));
     }
 
-    const coordString = coordinates.map((c) => `${c.lon},${c.lat}`).join(';');
-    const url = `${OSRM_ROUTE_URL}${coordString}?overview=full&geometries=geojson`;
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`OSRM request failed: ${response.status}`);
-    }
-
-    const data = await response.json();
-    if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-      throw new Error('No route found');
-    }
-
-    const routeCoords = data.routes[0].geometry.coordinates;
-    return routeCoords.map((coord: [number, number]) => ({
-      lon: coord[0],
-      lat: coord[1],
-    }));
+    return await firstValueFrom(this.dataRoutingService.getRoute(coordinates));
   }
 
   private async loadOsmTiles(
