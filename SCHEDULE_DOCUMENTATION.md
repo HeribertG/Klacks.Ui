@@ -977,7 +977,136 @@ public startEditing(initialChar = ''): void {
 
 ---
 
+## Fill Handle (Horizontales Kopieren)
+
+### Übersicht
+
+Die Schedule-Section unterstützt ein Excel-ähnliches "Fill Handle" zum schnellen horizontalen Kopieren von Shifts.
+
+### Funktionsweise
+
+1. **Anzeige:** Bei einer **einzeln selektierten, gefüllten Zelle** erscheint ein kleiner Kreis rechts unten an der Zelle (Zentrum = Ecke)
+2. **Hover:** Cursor ändert sich zu `e-resize` (horizontaler Pfeil) wenn Maus über dem Kreis ist
+3. **Drag:** Mit gedrückter linker Maustaste nach rechts ziehen markiert die Zellen (blau hervorgehoben)
+4. **Drop:** Beim Loslassen werden die Shifts in alle validen Zellen kopiert
+
+### Validierung beim Drop
+
+Für jede Ziel-Zelle wird geprüft:
+
+| Prüfung | Verhalten bei Fehlschlag |
+|---------|--------------------------|
+| Spalte ist sealed | Zelle wird übersprungen |
+| Zelle bereits gefüllt | Zelle wird übersprungen |
+| Shift an diesem Datum nicht verfügbar | Zelle wird übersprungen |
+| Kapazität überschritten (`engaged >= sumEmployees * quantity`) | Zelle wird übersprungen |
+
+### Zoom-Unterstützung
+
+- **Kreis-Radius:** Skaliert mit Zoom (`baseRadius * zoom`)
+- **Kreis-Linienstärke:** Skaliert mit Zoom
+- **Hit-Area (Mauserkennung):** Skaliert mit Zoom
+
+### Architektur
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          FillHandleService                                   │
+│  - stateSignal: Signal<FillHandleState>                                     │
+│  - startDrag(position, shiftId, workTime)                                   │
+│  - updateDragColumn(column)                                                 │
+│  - endDrag() → { startColumn, endColumn, row, shiftId, workTime }          │
+│  - reset()                                                                  │
+│  - isOverFillHandle(mouseX, mouseY, cellX, cellY, cellWidth, cellHeight)   │
+│  - getSelectedColumns() → number[]                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    grid-template-events.directive.ts                         │
+│  - tryStartFillHandleDrag(event) → boolean                                  │
+│  - handleFillHandleDrag(event)                                              │
+│  - handleFillHandleDrop()                                                   │
+│  - drawFillHandleSelection()                                                │
+│  - updateCursorForFillHandle(event)                                         │
+│  - isOverFillHandle(event, selectedPos) → boolean                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       grid-render.service.ts                                 │
+│  - drawGridSelectedCell(..., showFillHandle)                                │
+│  - drawFillHandle(ctx, cellX, cellY) ← Zeichnet den Kreis                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### FillHandleState Interface
+
+```typescript
+export interface FillHandleState {
+  isDragging: boolean;
+  startPosition: MyPosition | null;
+  currentColumn: number;
+  sourceShiftId: string | null;
+  sourceWorkTime: number;
+}
+```
+
+### Dateien
+
+| Datei | Zweck |
+|-------|-------|
+| `services/fill-handle.service.ts` | Zustandsverwaltung für Drag-Operation |
+| `grid-template-events.directive.ts` | Mouse-Event-Handler für Fill Handle |
+| `grid-render.service.ts` | Zeichnet den Fill Handle Kreis |
+| `draw-schedule.service.ts` | `showFillHandle` Property |
+| `schedule-section.component.ts` | Aktiviert Fill Handle |
+
+### Flow: Fill Handle Drag
+
+```
+1. Mousedown auf Fill Handle Kreis
+   └─► tryStartFillHandleDrag()
+       ├─► Prüft: nameId === 'surface', showFillHandle, single selection, cell active
+       ├─► Holt WorkScheduleEntry für die Zelle
+       ├─► Holt workTime aus entsprechendem Shift
+       └─► fillHandleService.startDrag(pos, shiftId, workTime)
+
+2. Mousemove während Drag
+   └─► handleFillHandleDrag()
+       ├─► Prüft: gleiche Zeile, Spalte > Startposition
+       ├─► fillHandleService.updateDragColumn(column)
+       └─► drawFillHandleSelection() → Blaue Markierung
+
+3. Mouseup
+   └─► handleFillHandleDrop()
+       ├─► fillHandleService.endDrag() → result
+       └─► Für jede Spalte (startColumn+1 bis endColumn):
+           ├─► Prüfe: isColumnSealed?
+           ├─► Prüfe: isCellActive?
+           ├─► Prüfe: Shift verfügbar an diesem Datum?
+           ├─► Prüfe: Kapazität nicht überschritten?
+           └─► dataManagementSchedule.addWorkScheduleEntry()
+```
+
+---
+
 ## Changelog
+
+### 26.12.2025 - Fill Handle Feature
+
+**Neue Features:**
+- **Fill Handle:** Kleiner Kreis an der unteren rechten Ecke einer selektierten gefüllten Zelle
+- **Horizontales Kopieren:** Nach rechts ziehen kopiert den Shift in alle validen Zellen
+- **Zoom-Unterstützung:** Kreis und Hit-Area skalieren mit dem Zoom-Level
+- **Validierung:** Prüft sealed, bereits gefüllt, Shift-Verfügbarkeit, Kapazität
+
+**Betroffene Dateien:**
+- `services/fill-handle.service.ts` - NEU, Zustandsverwaltung
+- `grid-template-events.directive.ts` - Mouse-Event-Handler
+- `grid-render.service.ts` - `drawFillHandle()` Methode
+- `draw-schedule.service.ts` - `showFillHandle` Property
+- `schedule-section.component.ts` - Aktiviert Fill Handle
 
 ### 26.12.2025 - Copy/Paste + Cell Editing Verbesserungen
 
