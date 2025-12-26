@@ -5,6 +5,23 @@ import { retry } from 'rxjs';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { HttpClient } from '@angular/common/http';
 
+export interface BulkDeleteWorksRequest {
+  workIds: string[];
+}
+
+export interface ShiftDatePair {
+  shiftId: string;
+  date: string;
+}
+
+export interface BulkWorksResponse {
+  successCount: number;
+  failedCount: number;
+  createdIds: string[];
+  deletedIds: string[];
+  affectedShifts: ShiftDatePair[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -34,6 +51,13 @@ export class DataScheduleService {
   deleteWork(id: string) {
     return this.httpClient
       .delete<IWork>(`${environment.baseUrl}Works/` + id)
+      .pipe(retry(3));
+  }
+
+  bulkDeleteWorks(workIds: string[]) {
+    const request: BulkDeleteWorksRequest = { workIds };
+    return this.httpClient
+      .delete<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, { body: request })
       .pipe(retry(3));
   }
 

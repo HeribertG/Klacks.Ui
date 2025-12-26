@@ -122,7 +122,7 @@ export class WorkScheduleLoaderService {
     }));
   }
 
-  private updateClientNeededRows(): void {
+  public updateClientNeededRows(): void {
     const maxEntriesMap = this.getMaxEntriesPerClientAndDate();
     const MIN_ROWS = 2;
 

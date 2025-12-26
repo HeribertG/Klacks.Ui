@@ -780,22 +780,61 @@ export class GridTemplateEventsDirective {
       return;
     }
 
-    const pos = this.gridSurface.drawSchedule.position;
-    if (!pos) {
-      return;
-    }
-
     const scheduleDataService = this.gridData as ScheduleDataService;
-    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    const entriesToDelete: { workId: string; clientId: string; date: Date; shiftId: string }[] = [];
+
+    const positionCollection = this.cellManipulation.PositionCollection;
+    const currentPos = this.gridSurface.drawSchedule.position;
+
+    if (positionCollection.count() > 0) {
+      for (let i = 0; i < positionCollection.count(); i++) {
+        const pos = positionCollection.item(i);
+        const deleteInfo = this.getDeleteInfoForPosition(scheduleDataService, pos.row, pos.column);
+        if (deleteInfo) {
+          entriesToDelete.push(deleteInfo);
+        }
+      }
+    }
+
+    if (currentPos && !positionCollection.contains(currentPos)) {
+      const deleteInfo = this.getDeleteInfoForPosition(scheduleDataService, currentPos.row, currentPos.column);
+      if (deleteInfo) {
+        entriesToDelete.push(deleteInfo);
+      }
+    }
+
+    if (entriesToDelete.length === 0) {
+      return;
+    }
+
+    if (entriesToDelete.length === 1) {
+      const entry = entriesToDelete[0];
+      this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, entry.date, entry.shiftId);
+    } else {
+      this.dataManagementSchedule.bulkDeleteWorkScheduleEntries(entriesToDelete);
+    }
+  }
+
+  private getDeleteInfoForPosition(
+    scheduleDataService: ScheduleDataService,
+    row: number,
+    column: number
+  ): { workId: string; clientId: string; date: Date; shiftId: string } | null {
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(row, column);
     if (!entry) {
-      return;
+      return null;
     }
 
-    const date = scheduleDataService.getDateForColumn(pos.column);
+    const date = scheduleDataService.getDateForColumn(column);
     if (!date) {
-      return;
+      return null;
     }
 
-    this.dataManagementSchedule.deleteWorkScheduleEntry(entry.workId, entry.clientId, date, entry.shiftId);
+    return {
+      workId: entry.workId,
+      clientId: entry.clientId,
+      date,
+      shiftId: entry.shiftId,
+    };
   }
 }

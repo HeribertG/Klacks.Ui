@@ -7,7 +7,7 @@ import {
   IWork,
   Work,
 } from 'src/app/domain/models/schedule-class';
-import { DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { BulkWorksResponse, DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
 
 @Injectable({
   providedIn: 'root',
@@ -94,6 +94,20 @@ export class WorkCrudService {
           next: () => resolve(),
           error: (err) => {
             console.error('Error deleting work entry:', err);
+            reject(err);
+          },
+        });
+    });
+  }
+
+  bulkDeleteWorks(workIds: string[]): Promise<BulkWorksResponse> {
+    return new Promise((resolve, reject) => {
+      this.dataSchedule.bulkDeleteWorks(workIds)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => resolve(response),
+          error: (err) => {
+            console.error('Error bulk deleting works:', err);
             reject(err);
           },
         });

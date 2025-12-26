@@ -1,5 +1,4 @@
-import { inject, Injectable, signal, DestroyRef, effect } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { inject, Injectable, signal, effect, Injector, runInInjectionContext } from '@angular/core';
 import {
   IClientWork,
   IWork,
@@ -12,10 +11,8 @@ import {
 } from 'src/app/domain/models/shift-schedule-class';
 import {
   IWorkScheduleEntry,
-  IWorkScheduleFilter,
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
-import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
 import {
   cloneObject,
   compareComplexObjects,
@@ -23,30 +20,49 @@ import {
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
-import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
+import { WorkScheduleCrudService, DeleteWorkScheduleEntryParams } from './work-schedule-crud.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class DataManagementScheduleService implements ILoadable {
   private registry = inject(MANAGEABLE_SERVICE_REGISTRY_TOKEN);
-  private destroyRef = inject(DestroyRef);
-  private dataWorkSchedule = inject(DataWorkScheduleService);
+  private injector = inject(Injector);
 
   private shiftLoader = inject(ShiftScheduleLoaderService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
   private workCrud = inject(WorkCrudService);
   private availableShiftsCalc = inject(AvailableShiftsCalculatorService);
+  private workScheduleCrud = inject(WorkScheduleCrudService);
 
   constructor() {
     this.registry.register(
       RouteName.SCHEDULE,
       DataManagementScheduleService
     );
+    this.setupCrudEffects();
+  }
+
+  private setupCrudEffects(): void {
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        if (this.workScheduleCrud.scheduleRefreshed()) {
+          this.isRead.set({ value: true, resetScroll: false });
+          setTimeout(() => this.isRead.set({ value: false, resetScroll: false }), 100);
+        }
+      });
+
+      effect(() => {
+        if (this.workScheduleCrud.shiftScheduleRefreshed()) {
+          this.isShiftScheduleRead.set({ value: true, resetScroll: false });
+          setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll: false }), 100);
+        }
+      });
+    });
   }
 
   private _showProgressSpinner = signal(false);
@@ -200,63 +216,19 @@ export class DataManagementScheduleService implements ILoadable {
     shiftId: string;
     workTime: number;
   }): void {
-    this.workCrud.createWork(params).then(() => {
-      this.refreshClientScheduleForDays(params.clientId, params.date);
-      this.updateShiftEngagedLocally(params.shiftId, params.date, 1);
-    });
+    this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
   }
 
   deleteWorkScheduleEntry(workId: string, clientId: string, date: Date, shiftId: string): void {
-    this.workCrud.deleteWorkById(workId).then(() => {
-      this.refreshClientScheduleForDays(clientId, date);
-      this.updateShiftEngagedLocally(shiftId, date, -1);
-    });
+    this.workScheduleCrud.deleteWorkScheduleEntry({ workId, clientId, date, shiftId }, this.workFilter);
   }
 
-  private updateShiftEngagedLocally(shiftId: string, date: Date, delta: number): void {
-    const normalizedDate = new Date(date);
-    normalizedDate.setHours(0, 0, 0, 0);
-
-    for (const shift of this.shiftLoader.shiftSchedules) {
-      if (shift.shiftId !== shiftId) continue;
-
-      const shiftDate = new Date(shift.date);
-      shiftDate.setHours(0, 0, 0, 0);
-
-      if (shiftDate.getTime() === normalizedDate.getTime()) {
-        shift.engaged = Math.max(0, shift.engaged + delta);
-      }
-    }
-
-    this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
-
-    this.isShiftScheduleRead.set({ value: true, resetScroll: false });
-    setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll: false }), 100);
+  bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[]): void {
+    this.workScheduleCrud.bulkDeleteWorkScheduleEntries(entries, this.workFilter);
   }
 
-  public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
-    const startDate = addDays(centerDate, -1);
-    const endDate = addDays(centerDate, 1);
-
-    const filter: IWorkScheduleFilter = {
-      startDate: formatDateOnly(startDate),
-      endDate: formatDateOnly(endDate),
-    };
-
-    this.dataWorkSchedule.getWorkSchedule(filter)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const clientEntries = response.entries.filter(e => e.clientId === clientId);
-          this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
-
-          this.isRead.set({ value: true, resetScroll: false });
-          setTimeout(() => this.isRead.set({ value: false, resetScroll: false }), 100);
-        },
-        error: (err) => {
-          console.error('Error refreshing schedule:', err);
-        },
-      });
+  refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
+    this.workScheduleCrud.refreshClientScheduleForDays(clientId, centerDate);
   }
 
   private isFilter_Dirty(): boolean {
