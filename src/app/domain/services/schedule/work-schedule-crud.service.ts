@@ -39,9 +39,10 @@ export class WorkScheduleCrudService {
   public shiftScheduleRefreshed = signal<boolean>(false);
 
   addWorkScheduleEntry(params: WorkScheduleEntryParams, workFilter: IWorkFilter): void {
+    this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
+
     this.workCrud.createWork(params).then(() => {
       this.refreshClientScheduleForDays(params.clientId, params.date);
-      this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
     });
   }
 
