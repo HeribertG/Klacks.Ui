@@ -36,6 +36,7 @@ export class BaseDrawScheduleService {
   public startDate: Date = new Date();
   public recFilterIcon: Rectangle = new Rectangle();
   public filterImage: HTMLImageElement | undefined;
+  public showFillHandle = false;
 
   private _isFocused = true;
   private isScrolling = false;
@@ -418,11 +419,13 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   drawGridSelectedCell() {
+    const showHandle = this.showFillHandle && !this.hasPositionCollection;
     this.gridRender.drawGridSelectedCell(
       this.position,
       this.isFocused,
       this.firstVisibleRow,
-      this.firstVisibleCol
+      this.firstVisibleCol,
+      showHandle
     );
   }
 
@@ -701,11 +704,13 @@ export class BaseDrawScheduleService {
         this.firstVisibleCol
       );
     } else {
+      const showHandle = this.showFillHandle && !this.hasPositionCollection;
       this.gridRender.drawGridSelectedCell(
         this.position,
         this.isFocused,
         this.firstVisibleRow,
-        this.firstVisibleCol
+        this.firstVisibleCol,
+        showHandle
       );
     }
 

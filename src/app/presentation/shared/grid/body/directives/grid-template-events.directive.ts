@@ -28,6 +28,7 @@ import { ShiftToScheduleDragDropService } from 'src/app/presentation/workplace/s
 import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-section/services/shift-data.service';
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
 
 @Directive({
   selector: '[appGridTemplateEvents]',
@@ -44,6 +45,7 @@ export class GridTemplateEventsDirective {
   private cellManipulation = inject(BaseCellManipulationService);
   private shiftDragService = inject(ShiftToScheduleDragDropService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private fillHandleService = inject(FillHandleService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
 
@@ -65,6 +67,8 @@ export class GridTemplateEventsDirective {
   private dragDelayTimer: ReturnType<typeof setTimeout> | null = null;
   private pendingDragEvent: MouseEvent | null = null;
   private readonly DRAG_DELAY_MS = 150;
+  private readonly FILL_HANDLE_RADIUS = 5;
+  private readonly FILL_HANDLE_HIT_AREA = 12;
 
   @HostListener('mouseenter', ['$event']) onMouseEnter(event: MouseEvent) {}
 
@@ -121,6 +125,9 @@ export class GridTemplateEventsDirective {
 
   @HostListener('mousedown', ['$event']) onMouseDown(event: MouseEvent): void {
     if (event.buttons === 1) {
+      if (this.tryStartFillHandleDrag(event)) {
+        return;
+      }
       this.respondToLeftButtonMouseDown(event);
       this.tryPrepareShiftDrag(event);
     } else if (event.buttons === 2) {
@@ -173,6 +180,11 @@ export class GridTemplateEventsDirective {
       return;
     }
 
+    if (this.fillHandleService.isDragging()) {
+      this.handleFillHandleDrop();
+      return;
+    }
+
     this.isDrawing = false;
     this.lastGoRightTime = 0;
     this.lastGoLeftTime = 0;
@@ -200,6 +212,11 @@ export class GridTemplateEventsDirective {
       return;
     }
 
+    if (this.fillHandleService.isDragging()) {
+      this.handleFillHandleDrag(event);
+      return;
+    }
+
     if (this.handleHeaderHover(event)) {
       return;
     }
@@ -208,6 +225,7 @@ export class GridTemplateEventsDirective {
       this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
 
     this.updateHoveredCell(pos, event);
+    this.updateCursorForFillHandle(event);
 
     if (event.buttons === 1 && this.isDrawing) {
       if (this.isMultiselectBlocked()) {
@@ -845,5 +863,209 @@ export class GridTemplateEventsDirective {
       date,
       shiftId: entry.shiftId,
     };
+  }
+
+  private tryStartFillHandleDrag(event: MouseEvent): boolean {
+    if (this.gridSurface.nameId !== 'surface') {
+      return false;
+    }
+
+    if (!this.gridSurface.drawSchedule.showFillHandle) {
+      return false;
+    }
+
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty() || !this.gridData.isCellActive(pos.row, pos.column)) {
+      return false;
+    }
+
+    if (this.cellManipulation.PositionCollection.count() > 1) {
+      return false;
+    }
+
+    if (!this.isOverFillHandle(event, pos)) {
+      return false;
+    }
+
+    const scheduleDataService = this.gridData as ScheduleDataService;
+    const entry = scheduleDataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    if (!entry) {
+      return false;
+    }
+
+    const date = scheduleDataService.getDateForColumn(pos.column);
+    const shift = this.dataManagementSchedule.shiftSchedules.find(
+      (s) => s.shiftId === entry.shiftId && date && this.isSameDay(s.date, date)
+    );
+    const workTime = shift?.workTime ?? 0;
+    this.fillHandleService.startDrag(pos, entry.shiftId, workTime);
+    this.el.nativeElement.style.cursor = 'e-resize';
+    return true;
+  }
+
+  private handleFillHandleDrag(event: MouseEvent): void {
+    const pos = this.gridSurface.drawSchedule.calcCorrectCoordinate(event);
+    if (!this.gridSurface.drawSchedule.isPositionValid(pos)) {
+      return;
+    }
+
+    const startPos = this.fillHandleService.state.startPosition;
+    if (!startPos || pos.row !== startPos.row) {
+      return;
+    }
+
+    if (pos.column > startPos.column) {
+      this.fillHandleService.updateDragColumn(pos.column);
+      this.drawFillHandleSelection();
+    }
+  }
+
+  private drawFillHandleSelection(): void {
+    const state = this.fillHandleService.state;
+    if (!state.startPosition) return;
+
+    this.gridSurface.drawSchedule.refresh();
+
+    const ctx = this.gridSurface.drawSchedule['canvasManager'].ctx;
+    if (!ctx) return;
+
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#4a90d9';
+
+    const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;
+    const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
+    const cellWidth = this.gridSettings.cellWidth;
+    const cellHeight = this.gridSettings.cellHeight;
+    const headerHeight = this.gridSettings.cellHeaderHeight;
+
+    for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
+      const x = (col - firstVisibleCol) * cellWidth;
+      const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight;
+      ctx.fillRect(x, y, cellWidth, cellHeight);
+    }
+
+    ctx.restore();
+  }
+
+  private handleFillHandleDrop(): void {
+    const result = this.fillHandleService.endDrag();
+    this.el.nativeElement.style.cursor = 'default';
+
+    if (!result || result.startColumn >= result.endColumn) {
+      this.gridSurface.drawSchedule.refresh();
+      return;
+    }
+
+    const scheduleDataService = this.gridData as ScheduleDataService;
+
+    for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
+      if (scheduleDataService.isColumnSealed(col)) {
+        continue;
+      }
+
+      if (scheduleDataService.isCellActive(result.row, col)) {
+        continue;
+      }
+
+      const date = scheduleDataService.getDateForColumn(col);
+      if (!date) {
+        continue;
+      }
+
+      const shiftAvailable = this.dataManagementSchedule.shiftSchedules.find(
+        (s) => s.shiftId === result.shiftId && this.isSameDay(s.date, date)
+      );
+
+      if (!shiftAvailable) {
+        continue;
+      }
+
+      const maxCapacity = shiftAvailable.sumEmployees * shiftAvailable.quantity;
+      if (shiftAvailable.engaged >= maxCapacity) {
+        continue;
+      }
+
+      const clientIndex = scheduleDataService.rowGroupIndex[result.row];
+      if (clientIndex === undefined) {
+        continue;
+      }
+
+      const client = this.dataManagementSchedule.clients[clientIndex];
+      if (!client?.id) {
+        continue;
+      }
+
+      this.dataManagementSchedule.addWorkScheduleEntry({
+        clientId: client.id,
+        date: date,
+        shiftId: result.shiftId,
+        workTime: result.workTime,
+      });
+    }
+
+    this.gridSurface.drawSchedule.refresh();
+  }
+
+  private isSameDay(date1: Date | string, date2: Date | string): boolean {
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
+  }
+
+  private updateCursorForFillHandle(event: MouseEvent): void {
+    if (this.gridSurface.nameId !== 'surface') {
+      return;
+    }
+
+    if (!this.gridSurface.drawSchedule.showFillHandle) {
+      return;
+    }
+
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty() || !this.gridData.isCellActive(pos.row, pos.column)) {
+      this.el.nativeElement.style.cursor = 'default';
+      return;
+    }
+
+    if (this.cellManipulation.PositionCollection.count() > 1) {
+      this.el.nativeElement.style.cursor = 'default';
+      return;
+    }
+
+    if (this.isOverFillHandle(event, pos)) {
+      this.el.nativeElement.style.cursor = 'e-resize';
+    } else {
+      this.el.nativeElement.style.cursor = 'default';
+    }
+  }
+
+  private isOverFillHandle(event: MouseEvent, selectedPos: MyPosition): boolean {
+    const rect = this.el.nativeElement.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+
+    const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;
+    const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
+    const cellWidth = this.gridSettings.cellWidth;
+    const cellHeight = this.gridSettings.cellHeight;
+    const headerHeight = this.gridSettings.cellHeaderHeight;
+
+    const cellX = (selectedPos.column - firstVisibleCol) * cellWidth;
+    const cellY = (selectedPos.row - firstVisibleRow) * cellHeight + headerHeight;
+
+    const handleCenterX = cellX + cellWidth;
+    const handleCenterY = cellY + cellHeight;
+
+    const dx = mouseX - handleCenterX;
+    const dy = mouseY - handleCenterY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const hitArea = this.FILL_HANDLE_HIT_AREA * this.gridSettings.zoom;
+
+    return distance <= hitArea;
   }
 }

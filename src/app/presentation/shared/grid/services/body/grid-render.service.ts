@@ -168,7 +168,8 @@ export class BaseGridRenderService {
     position: MyPosition,
     isFocused: boolean,
     firstVisibleRow: number,
-    firstVisibleCol: number
+    firstVisibleCol: number,
+    showFillHandle = false
   ): void {
     const ctx = this.canvasManager.ctx;
     if (!ctx || !position || position.isEmpty()) return;
@@ -227,7 +228,26 @@ export class BaseGridRenderService {
       this.settings.cellHeight + 1
     );
 
+    if (showFillHandle && isFocused && this.gridData.isCellActive(position.row, position.column)) {
+      this.drawFillHandle(ctx, col, row);
+    }
+
     ctx.restore();
+  }
+
+  private drawFillHandle(ctx: CanvasRenderingContext2D, cellX: number, cellY: number): void {
+    const handleX = cellX + this.settings.cellWidth;
+    const handleY = cellY + this.settings.cellHeight;
+    const baseRadius = 5;
+    const radius = baseRadius * this.settings.zoom;
+
+    ctx.beginPath();
+    ctx.arc(handleX, handleY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = this.gridColors.focusBorderColor;
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1 * this.settings.zoom;
+    ctx.stroke();
   }
 
   public drawSelection(

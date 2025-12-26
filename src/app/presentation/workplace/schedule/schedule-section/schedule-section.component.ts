@@ -135,6 +135,7 @@ export class ScheduleSectionComponent
     this.readSignals();
     this.applyGlobalGroupSelection();
     this.dataManagement.readDatas();
+    this.scheduleSurface.drawSchedule.showFillHandle = true;
 
     this.splitEl.dragProgress$.pipe(takeUntil(this.destroy$)).subscribe((x) => {
       const newSize = x.sizes[0] as number;
