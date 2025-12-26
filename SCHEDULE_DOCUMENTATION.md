@@ -386,45 +386,317 @@ private tryPrepareShiftDrag(event: MouseEvent): void {
 
 ---
 
-## Work CRUD - Partielles Refresh
+## Work CRUD - Architektur & Workflows
 
-### Übersicht
+### Service-Architektur
 
-Nach einem Work CRUD-Befehl (Create/Update/Delete) wird **nicht** die gesamte Tabelle neu geladen, sondern nur ein minimaler Bereich.
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      DataManagementScheduleService                           │
+│  - Orchestriert alle Schedule-Operationen                                   │
+│  - Delegiert CRUD an WorkScheduleCrudService                                │
+│  - Hört auf Signals für UI-Refresh                                          │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │ delegiert
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        WorkScheduleCrudService                               │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Public Methods                                                       │    │
+│  │  - addWorkScheduleEntry(params, workFilter)                         │    │
+│  │  - deleteWorkScheduleEntry(params, workFilter)                      │    │
+│  │  - bulkDeleteWorkScheduleEntries(entries[], workFilter)             │    │
+│  │  - refreshClientScheduleForDays(clientId, centerDate)               │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Signals                                                              │    │
+│  │  - scheduleRefreshed: Signal<boolean>                               │    │
+│  │  - shiftScheduleRefreshed: Signal<boolean>                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │ Private Helpers                                                      │    │
+│  │  - refreshClientScheduleForDateRange()                              │    │
+│  │  - updateShiftEngagedLocally()                                      │    │
+│  │  - bulkUpdateShiftEngagedLocally()                                  │    │
+│  │  - mergeOverlappingDateRanges()                                     │    │
+│  │  - mergeClientDateRanges()                                          │    │
+│  └─────────────────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │ API Calls
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           WorkCrudService                                    │
+│  - createWork(params): Promise<void>                                        │
+│  - deleteWorkById(workId): Promise<void>                                    │
+│  - bulkDeleteWorks(workIds[]): Promise<BulkWorksResponse>                   │
+└─────────────────────────────────┬───────────────────────────────────────────┘
+                                  │ HTTP
+                                  ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          DataScheduleService                                 │
+│  - addWork(work): Observable                                                │
+│  - deleteWork(id): Observable                                               │
+│  - bulkDeleteWorks(workIds[]): Observable<BulkWorksResponse>                │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-### Refresh-Strategie
+### Dateien
 
-| Was wird geladen | Umfang |
-|------------------|--------|
-| Zeitraum | 3 Tage (centerDate ± 1 Tag) |
-| Clients | Nur der betroffene Client |
-| Shifts | Komplettes Shift-Schedule (für Kapazitätsberechnung) |
+| Datei | Zweck |
+|-------|-------|
+| `work-schedule-crud.service.ts` | CRUD-Operationen + Refresh-Logik |
+| `work-crud.service.ts` | API-Wrapper für Work-Operationen |
+| `data-schedule.service.ts` | HTTP-Calls zum Backend |
+| `data-management-schedule.service.ts` | Orchestrierung + UI-Signals |
+| `work-schedule-loader.service.ts` | Lokale Daten-Updates |
 
-### Implementierung
+---
+
+## Workflow: Add Work
+
+### Auslöser
+- Drag & Drop eines Shifts auf eine leere Zelle in der Schedule-Section
+
+### Ablauf
+
+```
+1. grid-template-events.directive.ts
+   └─► handleShiftDrop() erkennt Drop-Target
+
+2. DataManagementScheduleService.addWorkScheduleEntry(params)
+   └─► delegiert an WorkScheduleCrudService
+
+3. WorkScheduleCrudService.addWorkScheduleEntry(params, workFilter)
+   │
+   ├─► WorkCrudService.createWork(params)
+   │   └─► POST /Works → Backend erstellt Work
+   │
+   ├─► Nach Erfolg: refreshClientScheduleForDays(clientId, date)
+   │   └─► Lädt 3 Tage (date ± 1) für diesen Client
+   │
+   └─► updateShiftEngagedLocally(shiftId, date, +1)
+       ├─► shift.engaged++ (lokal)
+       ├─► availableShiftsCalc.calculate() → Header-Farben
+       └─► shiftScheduleRefreshed.set(true) → Shift-Section refresh
+```
+
+### Sequence Diagram
+
+```
+User          Directive        DataMgmt       WorkScheduleCrud    WorkCrud      Backend
+  │               │                │                │                │             │
+  │──Drop Shift──►│                │                │                │             │
+  │               │──addEntry()───►│                │                │             │
+  │               │                │──addEntry()───►│                │             │
+  │               │                │                │──createWork()─►│             │
+  │               │                │                │                │──POST /Works►│
+  │               │                │                │                │◄────200 OK──│
+  │               │                │                │◄───resolve()───│             │
+  │               │                │                │                              │
+  │               │                │                │──refreshClient(3 Tage)──────►│
+  │               │                │                │◄──────entries────────────────│
+  │               │                │                │                              │
+  │               │                │                │──updateShiftEngaged(+1)      │
+  │               │                │◄──scheduleRefreshed Signal──│                 │
+  │               │◄──isRead Signal│                │                              │
+  │◄──UI Update───│                │                │                              │
+```
+
+---
+
+## Workflow: Delete Work (Single)
+
+### Auslöser
+- Delete-Taste auf einer einzelnen selektierten Zelle
+
+### Ablauf
+
+```
+1. grid-template-events.directive.ts
+   └─► handleDeleteKey() → erkennt einzelne Selektion
+
+2. DataManagementScheduleService.deleteWorkScheduleEntry(workId, clientId, date, shiftId)
+   └─► delegiert an WorkScheduleCrudService
+
+3. WorkScheduleCrudService.deleteWorkScheduleEntry(params, workFilter)
+   │
+   ├─► WorkCrudService.deleteWorkById(workId)
+   │   └─► DELETE /Works/{id} → Backend löscht Work
+   │
+   ├─► Nach Erfolg: refreshClientScheduleForDays(clientId, date)
+   │   └─► Lädt 3 Tage (date ± 1) für diesen Client
+   │
+   └─► updateShiftEngagedLocally(shiftId, date, -1)
+       ├─► shift.engaged-- (lokal, min 0)
+       ├─► availableShiftsCalc.calculate() → Header-Farben
+       └─► shiftScheduleRefreshed.set(true) → Shift-Section refresh
+```
+
+---
+
+## Workflow: Bulk Delete Works (Multi-Selection)
+
+### Auslöser
+- Delete-Taste wenn mehrere Zellen selektiert sind (via Maus-Drag)
+
+### Ablauf
+
+```
+1. grid-template-events.directive.ts
+   │
+   ├─► handleDeleteKey()
+   │   ├─► Sammelt alle Positionen aus PositionCollection
+   │   ├─► Für jede Position: getDeleteInfoForPosition()
+   │   │   └─► Holt workId, clientId, date, shiftId aus ScheduleDataService
+   │   └─► Erstellt Array von DeleteWorkScheduleEntryParams
+   │
+   └─► DataManagementScheduleService.bulkDeleteWorkScheduleEntries(entries[])
+
+2. WorkScheduleCrudService.bulkDeleteWorkScheduleEntries(entries[], workFilter)
+   │
+   ├─► Extrahiert workIds[] aus entries
+   │
+   ├─► WorkCrudService.bulkDeleteWorks(workIds[])
+   │   └─► DELETE /Works/Bulk → Backend löscht alle Works
+   │
+   ├─► Nach Erfolg: 3-Tage-Regel mit Überlappungs-Merging
+   │   │
+   │   ├─► Gruppiert entries nach clientId + shiftId
+   │   │   └─► Key: "${clientId}|${shiftId}"
+   │   │
+   │   ├─► Für jede Gruppe: mergeOverlappingDateRanges()
+   │   │   └─► Wendet 3-Tage-Regel an, fasst Überlappungen zusammen
+   │   │
+   │   ├─► Sammelt alle Ranges pro Client
+   │   │
+   │   ├─► mergeClientDateRanges() für finale Zusammenfassung
+   │   │   └─► Vermeidet doppelte API-Calls
+   │   │
+   │   └─► Für jeden Range: refreshClientScheduleForDateRange()
+   │
+   ├─► bulkUpdateShiftEngagedLocally(entries)
+   │   ├─► Alle shift.engaged-- (in einem Durchlauf)
+   │   ├─► availableShiftsCalc.calculate() (einmal)
+   │   └─► shiftScheduleRefreshed.set(true) (einmal)
+   │
+   └─► workScheduleLoader.updateClientNeededRows()
+```
+
+### 3-Tage-Regel mit Überlappungs-Merging
+
+Die 3-Tage-Regel (centerDate ± 1) wird **pro Shift** angewendet. Überlappende Bereiche werden zusammengefasst.
+
+#### Beispiel 1: Works am gleichen Shift an Tagen 5, 6, 7
+
+```
+Eingabe:  Tag 5, Tag 6, Tag 7 (gleicher Shift)
+
+3-Tage pro Tag:
+  Tag 5 → [4, 5, 6]
+  Tag 6 → [5, 6, 7]
+  Tag 7 → [6, 7, 8]
+
+Nach Merge: [4, 5, 6, 7, 8] → 1 API-Call
+```
+
+#### Beispiel 2: Works am gleichen Shift an Tagen 5 und 15
+
+```
+Eingabe:  Tag 5, Tag 15 (gleicher Shift)
+
+3-Tage pro Tag:
+  Tag 5  → [4, 5, 6]
+  Tag 15 → [14, 15, 16]
+
+Keine Überlappung → 2 separate API-Calls
+```
+
+#### Beispiel 3: Works an verschiedenen Shifts
+
+```
+Eingabe:
+  - Shift A, Tag 5
+  - Shift B, Tag 6
+  - Shift A, Tag 6
+
+Gruppierung nach Client+Shift:
+  ClientX|ShiftA: [Tag 5, Tag 6] → merged zu [4-7]
+  ClientX|ShiftB: [Tag 6]        → [5-7]
+
+Nach Client-Merge (wenn Ranges überlappen):
+  ClientX: [4-7] (zusammengefasst)
+```
+
+### Code: mergeOverlappingDateRanges()
 
 ```typescript
-// In data-management-schedule.service.ts
+private mergeOverlappingDateRanges(sortedTimestamps: number[]): { start: Date; end: Date }[] {
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  const ranges: { start: Date; end: Date }[] = [];
 
-addWorkScheduleEntry(params: {...}): void {
-  this.workCrud.createWork(params).then(() => {
-    this.refreshClientScheduleForDays(params.clientId, params.date);
-    this.readShiftSchedule();
-  });
-}
+  // Erster Bereich: timestamp ± 1 Tag
+  let currentStart = new Date(sortedTimestamps[0] - ONE_DAY_MS);
+  let currentEnd = new Date(sortedTimestamps[0] + ONE_DAY_MS);
 
-public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
-  const startDate = addDays(centerDate, -1);  // 1 Tag vorher
-  const endDate = addDays(centerDate, 1);      // 1 Tag nachher
+  for (let i = 1; i < sortedTimestamps.length; i++) {
+    const nextStart = new Date(sortedTimestamps[i] - ONE_DAY_MS);
+    const nextEnd = new Date(sortedTimestamps[i] + ONE_DAY_MS);
 
-  // Lädt nur 3 Tage für diesen einen Client vom Backend
-  this.dataWorkSchedule.getWorkSchedule(filter).subscribe({
-    next: (response) => {
-      const clientEntries = response.entries.filter(e => e.clientId === clientId);
-      this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
+    // Überlappung oder direkt angrenzend?
+    if (nextStart.getTime() <= currentEnd.getTime() + ONE_DAY_MS) {
+      // Merge: erweitere currentEnd
+      currentEnd = nextEnd;
+    } else {
+      // Keine Überlappung: speichere aktuellen Range, starte neuen
+      ranges.push({ start: currentStart, end: currentEnd });
+      currentStart = nextStart;
+      currentEnd = nextEnd;
     }
-  });
+  }
+
+  ranges.push({ start: currentStart, end: currentEnd });
+  return ranges;
 }
 ```
+
+### Sequence Diagram (Bulk Delete)
+
+```
+User          Directive        DataMgmt       WorkScheduleCrud    WorkCrud      Backend
+  │               │                │                │                │             │
+  │──Delete Key──►│                │                │                │             │
+  │  (n Zellen)   │                │                │                │             │
+  │               │──bulkDelete()─►│                │                │             │
+  │               │                │──bulkDelete()─►│                │             │
+  │               │                │                │──bulkDelete()─►│             │
+  │               │                │                │                │──DELETE Bulk►│
+  │               │                │                │                │◄───response──│
+  │               │                │                │◄───resolve()───│             │
+  │               │                │                │                              │
+  │               │                │                │ Berechne Ranges (3-Tage + Merge)
+  │               │                │                │──refreshRange(Client1)──────►│
+  │               │                │                │◄──────entries────────────────│
+  │               │                │                │──refreshRange(Client1)──────►│
+  │               │                │                │◄──────entries────────────────│
+  │               │                │                │                              │
+  │               │                │                │ bulkUpdateShiftEngaged(-1 pro entry)
+  │               │                │                │ updateClientNeededRows()
+  │               │                │◄──scheduleRefreshed Signal──│                 │
+  │               │◄──isRead Signal│                │                              │
+  │◄──UI Update───│                │                │                              │
+```
+
+---
+
+## Refresh-Strategie
+
+### Was wird geladen
+
+| Szenario | Schedule-Section | Shift-Section |
+|----------|------------------|---------------|
+| Add (single) | 3 Tage, 1 Client | Lokal: engaged+1 |
+| Delete (single) | 3 Tage, 1 Client | Lokal: engaged-1 |
+| Bulk Delete | 3+ Tage (merged), n Clients | Lokal: engaged-n (batch) |
 
 ### Scroll-Position beibehalten
 
@@ -432,17 +704,9 @@ Bei partiellem Refresh wird die Scroll-Position beibehalten:
 
 ```typescript
 // isRead Signal mit resetScroll Flag
-this.isRead.set({ value: true, resetScroll: false });  // Bei Update
+this.isRead.set({ value: true, resetScroll: false });  // Bei CRUD
 this.isRead.set({ value: true, resetScroll: true });   // Bei initialem Laden
 ```
-
-### Dateien
-
-| Datei | Zweck |
-|-------|-------|
-| `data-management-schedule.service.ts` | `refreshClientScheduleForDays()`, `isRead` Signal |
-| `work-schedule-loader.service.ts` | `replaceClientEntriesForDays()` |
-| `schedule-section.component.ts` | `dataReadEffect` mit `resetScroll` |
 
 ---
 
@@ -548,6 +812,26 @@ SELECT * FROM get_shift_schedule_partial(
 ---
 
 ## Changelog
+
+### 26.12.2025 - Bulk Delete + WorkScheduleCrudService Refactoring
+
+**Neue Features:**
+- Multi-Selection Delete mit Delete-Taste
+- Bulk Delete API-Integration (`DELETE /Works/Bulk`)
+- 3-Tage-Regel mit intelligenter Überlappungs-Zusammenfassung
+
+**Refactoring:**
+- Neuer `WorkScheduleCrudService` für zentralisierte CRUD-Operationen
+- `DataManagementScheduleService` delegiert jetzt an `WorkScheduleCrudService`
+- Signals für UI-Refresh (`scheduleRefreshed`, `shiftScheduleRefreshed`)
+
+**Betroffene Dateien:**
+- `work-schedule-crud.service.ts` - NEU
+- `data-management-schedule.service.ts` - Refactored, delegiert an neuen Service
+- `work-crud.service.ts` - `bulkDeleteWorks()` hinzugefügt
+- `data-schedule.service.ts` - `bulkDeleteWorks()` API-Methode
+- `work-schedule-loader.service.ts` - `updateClientNeededRows()` public
+- `grid-template-events.directive.ts` - Multi-Selection Delete Handler
 
 ### 23.12.2025 - Scroll-Fix + Bulk Operations
 
