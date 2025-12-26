@@ -25,6 +25,7 @@ export class BaseCellManipulationService {
   public PositionCollection = new MyPositionCollection();
 
   private _position: MyPosition = new MyPosition(-1, -1);
+  private _hasClipboardData = false;
   public positionSignal = signal<MyPosition>(this._position);
   public hoveredCell = signal<HoveredCellInfo | null>(null);
   public isEditing = signal<boolean>(false);
@@ -49,6 +50,10 @@ export class BaseCellManipulationService {
   public stopEditing(): void {
     this.isEditing.set(false);
     this.initialEditChar.set('');
+  }
+
+  public hasClipboardData(): boolean {
+    return this._hasClipboardData;
   }
 
   isPositionInSelection(pos: MyPosition): boolean {
@@ -164,6 +169,7 @@ export class BaseCellManipulationService {
     document.addEventListener('copy', listener, false);
     document.execCommand('copy');
     document.removeEventListener('copy', listener, false);
+    this._hasClipboardData = data.length > 0;
   }
 
   private dataToStringArray(

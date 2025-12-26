@@ -37,6 +37,7 @@ import { CellIconsService } from 'src/app/presentation/shared/grid/services/body
 import { Subject, takeUntil } from 'rxjs';
 import {
   CellValueChangeEvent,
+  GridSurfaceRightClickEvent,
   GridSurfaceTemplateComponent,
 } from 'src/app/presentation/shared/grid/body/grid-surface-template/grid-surface-template.component';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
@@ -49,6 +50,10 @@ import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { ShiftDropResult } from '../services/shift-to-schedule-drag-drop.service';
 import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
+import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
+import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
+import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 
 @Component({
   selector: 'app-schedule-section',
@@ -59,6 +64,7 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
     HScrollbarComponent,
     VScrollbarComponent,
     GridSurfaceTemplateComponent,
+    ContextMenuComponent,
   ],
   providers: [
     BaseSettingsService,
@@ -73,6 +79,7 @@ import { WorkNotificationService } from 'src/app/domain/services/schedule/work-n
     BaseCanvasManagerService,
     BaseGridRenderService,
     CellIconsService,
+    ContextMenuService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
@@ -85,6 +92,8 @@ export class ScheduleSectionComponent
   scheduleHScrollbar!: HScrollbarComponent;
   @ViewChild('scheduleSurface', { static: true })
   scheduleSurface!: GridSurfaceTemplateComponent;
+  @ViewChild('contextMenu', { static: false })
+  contextMenu!: ContextMenuComponent;
 
   @Input() horizontalSize = 200;
   @Input() zoom = 1.0;
@@ -152,6 +161,12 @@ export class ScheduleSectionComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
         this.hScrollService.setMaxValue(value);
+      });
+
+    this.contextMenu?.hasClicked
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((keys) => {
+        this.menuClicked(keys);
       });
   }
 
@@ -428,6 +443,81 @@ export class ScheduleSectionComponent
       d1.getFullYear() === d2.getFullYear() &&
       d1.getMonth() === d2.getMonth() &&
       d1.getDate() === d2.getDate()
+    );
+  }
+
+  onRightClick(event: GridSurfaceRightClickEvent): void {
+    if (!this.contextMenu) return;
+
+    this.contextMenu.closeMenu();
+    this.createContextMenu(event.row, event.column);
+    this.contextMenu.openMenu({
+      clientX: event.clientX,
+      clientY: event.clientY,
+    } as MouseEvent);
+  }
+
+  private createContextMenu(row: number, column: number): void {
+    const menuData = new Menu();
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const isCellFilled = dataService.isCellActive(row, column);
+
+    if (isCellFilled) {
+      menuData.list.push(...MenuDataTemplate.copyCutPaste());
+    } else {
+      menuData.list.push(...MenuDataTemplate.paste());
+    }
+
+    const pasteMenu = menuData.list.find((x) => x.key === 'paste');
+    if (pasteMenu) {
+      pasteMenu.disabled = !this.cellManipulation.hasClipboardData();
+    }
+
+    this.contextMenu.menuData = menuData;
+  }
+
+  private menuClicked(keys: string[]): void {
+    if (!keys || keys.length === 0) return;
+
+    switch (keys[0]) {
+      case 'copy':
+        this.contextMenu.closeMenu(true);
+        this.cellManipulation.copy();
+        break;
+      case 'cut':
+        this.contextMenu.closeMenu(true);
+        this.cellManipulation.copy();
+        this.deleteSelectedEntries();
+        break;
+      case 'paste':
+        this.contextMenu.closeMenu(true);
+        this.cellManipulation.paste();
+        break;
+    }
+  }
+
+  private deleteSelectedEntries(): void {
+    const pos = this.cellManipulation.Position;
+    if (pos.isEmpty()) return;
+
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    const entry = dataService.getWorkScheduleEntryForCell(pos.row, pos.column);
+    if (!entry) return;
+
+    const clientIndex = dataService.rowGroupIndex[pos.row];
+    if (clientIndex === undefined) return;
+
+    const client = this.dataManagement.clients[clientIndex];
+    if (!client?.id) return;
+
+    const date = dataService.getDateForColumn(pos.column);
+    if (!date) return;
+
+    this.dataManagement.deleteWorkScheduleEntry(
+      entry.workId,
+      client.id,
+      date,
+      entry.shiftId
     );
   }
 }

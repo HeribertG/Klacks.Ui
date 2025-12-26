@@ -24,6 +24,7 @@
             (maxValueVScrollbar)="vScrollbar.maxValue = $event"
             (visibleValueVScrollbar)="vScrollbar.visibleValue = $event"
             (cellValueChange)="onCellValueChange($event)"
+            (rightClick)="onRightClick($event)"
           >
           </app-grid-surface-template>
         </div>
@@ -48,3 +49,5 @@
     </div>
   </as-split-area>
 </as-split>
+
+<app-context-menu #contextMenu></app-context-menu>
