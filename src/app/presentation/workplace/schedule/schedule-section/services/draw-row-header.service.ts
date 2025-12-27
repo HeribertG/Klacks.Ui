@@ -224,10 +224,15 @@ export class BaseDrawRowHeaderService {
     if (this.isCanvasAvailable()) {
       const width = Math.floor(this.width);
 
-      this.createRowHeader.createRowHeaderHeader(
+      const result = this.createRowHeader.createRowHeaderHeader(
         this.headerCtx!,
-        Math.floor(width)
+        Math.floor(width),
+        this.filterImage
       );
+
+      if (result) {
+        this.recFilterIcon = result.recFilterIcon;
+      }
     }
   }
 

@@ -17,6 +17,10 @@ import { BaseDataService } from '../../../../shared/grid/services/data-setting/d
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
 import { TranslateService } from '@ngx-translate/core';
 
+export interface FilterIconResult {
+  recFilterIcon: Rectangle;
+}
+
 @Injectable()
 export class BaseCreateRowHeaderService {
   private settings = inject(BaseSettingsService);
@@ -32,6 +36,7 @@ export class BaseCreateRowHeaderService {
   private iconWidth = this.settings.rowHeaderIconWith;
   private iconHeight = this.settings.rowHeaderIconHeight;
   private margin = 4;
+  private filterIconSize = 16;
 
   reset() {
     this.margin = 4 * this.settings.zoom;
@@ -64,7 +69,11 @@ export class BaseCreateRowHeaderService {
     return cell;
   }
 
-  createRowHeaderHeader(ctx: CanvasRenderingContext2D, width: number): void {
+  createRowHeaderHeader(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    filterImage?: HTMLImageElement
+  ): FilterIconResult | undefined {
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
 
     this.fillHeaderBackground(ctx, width);
@@ -79,6 +88,31 @@ export class BaseCreateRowHeaderService {
         ')',
       width
     );
+
+    return this.drawFilterIcon(ctx, width, filterImage);
+  }
+
+  private drawFilterIcon(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    filterImage?: HTMLImageElement
+  ): FilterIconResult | undefined {
+    if (!filterImage) return undefined;
+
+    const iconMargin = 4;
+    const iconX = width - this.filterIconSize - iconMargin;
+    const iconY = (this.settings.cellHeaderHeight - this.filterIconSize) / 2;
+
+    ctx.drawImage(filterImage, iconX, iconY, this.filterIconSize, this.filterIconSize);
+
+    return {
+      recFilterIcon: new Rectangle(
+        iconX,
+        iconY,
+        iconX + this.filterIconSize,
+        iconY + this.filterIconSize
+      )
+    };
   }
 
   private fillHeaderBackground(

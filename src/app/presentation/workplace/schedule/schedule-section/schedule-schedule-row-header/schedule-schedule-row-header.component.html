@@ -1,3 +1,17 @@
+<div
+  id="schedule-row-header-filter"
+  class="schedule-filter-windows"
+  [ngStyle]="filterStyle"
+  (mouseleave)="onFilterMouseLeave()"
+>
+  <app-schedule-filter id="schedule-row-header-filter-component" #scheduleFilter></app-schedule-filter>
+</div>
+
 <div #box id="box" class="box" appResize (resizeElement)="onResize($event)">
-  <canvas id="scheduleRowCanvas" appScheduleRowHeaderEvents></canvas>
+  <canvas
+    id="scheduleRowCanvas"
+    appScheduleRowHeaderEvents
+    (mousemove)="onMouseMove($event)"
+    (click)="onCanvasClick($event)"
+  ></canvas>
 </div>

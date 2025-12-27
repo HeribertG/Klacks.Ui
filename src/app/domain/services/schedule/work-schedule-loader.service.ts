@@ -48,6 +48,8 @@ export class WorkScheduleLoaderService {
       startDate: formatDateOnly(startDate),
       endDate: formatDateOnly(endDate),
       selectedGroup: workFilter.selectedGroup || undefined,
+      orderBy: workFilter.orderBy || 'name',
+      sortOrder: workFilter.sortOrder || 'asc',
     };
 
     this.dataWorkSchedule.getWorkSchedule(filter)

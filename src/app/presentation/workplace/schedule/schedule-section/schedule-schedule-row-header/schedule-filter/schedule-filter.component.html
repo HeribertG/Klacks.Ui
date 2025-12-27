@@ -1,0 +1,50 @@
+<div id="schedule-filter-container" class="container">
+  <button
+    id="schedule-filter-firstname-button"
+    class="input-group button-as-div"
+    (click)="onClickHeader('firstName')"
+  >
+    <div class="row-line">
+      <p class="arrow">
+        @if (sortingService.getArrow('firstName') === '↓') {
+        <app-icon-asc></app-icon-asc>
+        } @if (sortingService.getArrow('firstName') === '↑') {
+        <app-icon-desc></app-icon-desc>
+        }
+      </p>
+      <p>
+        {{ "address.edit-address.address-persona.firstname" | translate }}
+      </p>
+    </div>
+  </button>
+
+  <button id="schedule-filter-name-button" class="input-group button-as-div" (click)="onClickHeader('name')">
+    <div class="row-line">
+      <p class="arrow">
+        @if (sortingService.getArrow('name') === '↓') {
+        <app-icon-asc></app-icon-asc>
+        } @if (sortingService.getArrow('name') === '↑') {
+        <app-icon-desc></app-icon-desc>
+        }
+      </p>
+      <p>
+        {{ "address.edit-address.address-persona.name" | translate }}
+      </p>
+    </div>
+  </button>
+
+  <button id="schedule-filter-company-button" class="input-group button-as-div" (click)="onClickHeader('company')">
+    <div class="row-line">
+      <p class="arrow">
+        @if (sortingService.getArrow('company') === '↓') {
+        <app-icon-asc></app-icon-asc>
+        } @if (sortingService.getArrow('company') === '↑') {
+        <app-icon-desc></app-icon-desc>
+        }
+      </p>
+      <p>
+        {{ "address.all-address.all-address-list.table.company" | translate }}
+      </p>
+    </div>
+  </button>
+</div>

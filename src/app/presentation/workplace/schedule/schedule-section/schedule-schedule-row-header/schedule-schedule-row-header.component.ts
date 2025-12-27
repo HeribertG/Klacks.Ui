@@ -2,6 +2,7 @@ import {
   AfterViewInit,
   Component,
   OnDestroy,
+  OnInit,
   ViewChild,
   ElementRef,
   inject,
@@ -13,6 +14,7 @@ import {
   Injector,
   runInInjectionContext,
 } from '@angular/core';
+import { NgStyle } from '@angular/common';
 import { Subject } from 'rxjs';
 import { ScrollEventService } from 'src/app/presentation/shared/scrollbar/scroll-event.service';
 
@@ -24,19 +26,24 @@ import { BaseDrawRowHeaderService } from 'src/app/presentation/workplace/schedul
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleRowHeaderEventsDirective } from './directives/schedule-row-header-events.directive';
+import { ScheduleFilterComponent } from './schedule-filter/schedule-filter.component';
+import { Size } from 'src/app/shared/helpers/geometry.helper';
+import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [ResizeDirective, ScheduleRowHeaderEventsDirective],
+  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ScheduleFilterComponent],
   providers: [ScrollService, BaseCreateRowHeaderService],
 })
 export class ScheduleScheduleRowHeaderComponent
-  implements AfterViewInit, OnChanges, OnDestroy
+  implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
+  @ViewChild('scheduleFilter') filter: ScheduleFilterComponent | undefined;
 
   @Input() valueChangeVScrollbar!: number;
 
@@ -49,6 +56,21 @@ export class ScheduleScheduleRowHeaderComponent
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
+
+  filterStyle: { [key: string]: string } = { visibility: 'hidden' };
+  private iconSize = 16;
+
+  private set currentCursor(cursor: CursorEnum) {
+    document.body.style.cursor = cursor;
+  }
+
+  ngOnInit(): void {
+    this.destroyFilter();
+    this.drawRowHeader.filterImage = DrawHelper.createImage(
+      new Size(this.iconSize, this.iconSize),
+      'assets/svg/sorting.svg'
+    );
+  }
 
   ngAfterViewInit(): void {
     this.initializeDrawRowHeader();
@@ -142,5 +164,79 @@ export class ScheduleScheduleRowHeaderComponent
       });
       this.effects.push(scrollEffect);
     });
+  }
+
+  private getMousePos(event: MouseEvent): { x: number; y: number } | undefined {
+    if (!this.drawRowHeader.canvas) return undefined;
+
+    const rect = this.drawRowHeader.canvas.getBoundingClientRect();
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    if (this.drawRowHeader.recFilterIcon) {
+      if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
+        this.currentCursor = CursorEnum.pointer;
+      } else {
+        this.currentCursor = CursorEnum.default;
+      }
+    }
+  }
+
+  onCanvasClick(event: MouseEvent): void {
+    const pos = this.getMousePos(event);
+    if (!pos) return;
+
+    if (this.drawRowHeader.recFilterIcon) {
+      if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
+        this.showFilter();
+      }
+    }
+  }
+
+  onFilterMouseLeave(): void {
+    this.destroyFilter();
+  }
+
+  private showFilter(): void {
+    const width = 150;
+    const canvas = this.drawRowHeader.canvas;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+
+    let leftPos =
+      this.drawRowHeader.recFilterIcon.left +
+      rect.left +
+      this.drawRowHeader.recFilterIcon.width -
+      width;
+
+    const diff = leftPos - rect.left;
+    if (diff < 0) {
+      leftPos -= diff;
+    }
+
+    this.filterStyle = {
+      width: width + 'px',
+      visibility: 'visible',
+      left: leftPos + 'px',
+      top:
+        this.drawRowHeader.recFilterIcon.top +
+        this.drawRowHeader.recFilterIcon.height +
+        rect.top +
+        'px',
+    };
+  }
+
+  private destroyFilter(): void {
+    this.filterStyle = {
+      visibility: 'hidden',
+    };
   }
 }

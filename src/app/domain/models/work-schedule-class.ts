@@ -44,6 +44,8 @@ export interface IWorkScheduleFilter {
   startDate: string;
   endDate: string;
   selectedGroup?: string;
+  orderBy?: string;
+  sortOrder?: string;
 }
 
 export interface IWorkScheduleClient {
