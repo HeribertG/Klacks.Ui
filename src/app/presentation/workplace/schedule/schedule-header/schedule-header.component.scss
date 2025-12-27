@@ -12,6 +12,19 @@
   margin-left: 8px;
 }
 
+.btn-nav {
+  border: none;
+  background-color: transparent;
+  padding: 4px;
+  margin-top: 12px;
+  cursor: pointer;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .custom-slider {
   width: 180px;
   height: 40px !important;

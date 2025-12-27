@@ -1,4 +1,11 @@
 <div class="custom-control-inline">
+  <button
+    class="btn btn-sm btn-nav"
+    (click)="goToPreviousMonth()"
+    aria-label="previous month"
+  >
+    <app-icon-angle-left />
+  </button>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
       class="btn btn-sm calendar-setting"
@@ -17,6 +24,13 @@
       ></app-schedule-header-calendar>
     </div>
   </div>
+  <button
+    class="btn btn-sm btn-nav"
+    (click)="goToNextMonth()"
+    aria-label="next month"
+  >
+    <app-icon-angle-right />
+  </button>
   <span class="filler"></span>
   <div ngbDropdown #dropdownSetting="ngbDropdown">
     <button
