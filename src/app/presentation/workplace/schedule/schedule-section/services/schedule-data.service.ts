@@ -95,15 +95,24 @@ export class ScheduleDataService extends BaseDataService {
   }
 
   public getRowHeaderSlot1Text(index: number): string {
-    return 'Info1-' + index;
+    const client = this.dataManagementSchedule.clients[index];
+    if (!client) return '';
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    return monthlyHours ? `${monthlyHours.guaranteedHoursPerMonth}h` : '';
   }
 
   public getRowHeaderSlot2Text(index: number): string {
-    return 'Info2-' + index;
+    const client = this.dataManagementSchedule.clients[index];
+    if (!client) return '';
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    return monthlyHours ? `${monthlyHours.hours}h` : '';
   }
 
   public getRowHeaderSlot3Text(index: number): string {
-    return 'Info3-' + index;
+    const client = this.dataManagementSchedule.clients[index];
+    if (!client) return '';
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    return monthlyHours?.surcharges ? `+${monthlyHours.surcharges}h` : '';
   }
 
   public override initializeDateAndColumns(): void {

@@ -5,6 +5,7 @@ import {
   IWorkFilter,
 } from 'src/app/domain/models/schedule-class';
 import {
+  IMonthlyHours,
   IWorkScheduleClient,
   IWorkScheduleEntry,
   IWorkScheduleFilter,
@@ -28,6 +29,7 @@ export class WorkScheduleLoaderService {
   public workScheduleEntries: IWorkScheduleEntry[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
+  public monthlyHours: Map<string, IMonthlyHours> = new Map();
 
   get isRead() {
     return this._isRead;
@@ -37,6 +39,7 @@ export class WorkScheduleLoaderService {
     this.workScheduleEntries = [];
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
+    this.monthlyHours = new Map();
 
     const startDate = this.calculateStartDate(workFilter);
     const endDate = this.calculateEndDate(workFilter);
@@ -54,6 +57,7 @@ export class WorkScheduleLoaderService {
           this.workScheduleEntries = response.entries ?? [];
           this.workScheduleByClientAndDate = this.groupByClientAndDate(this.workScheduleEntries);
           this.clients = this.convertToClientWork(response.clients ?? []);
+          this.monthlyHours = new Map(Object.entries(response.monthlyHours ?? {}));
           this.updateClientNeededRows();
 
           this._isRead.set(true);

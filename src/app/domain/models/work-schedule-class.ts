@@ -64,6 +64,13 @@ export interface IWorkScheduleClient {
 export interface IWorkScheduleResponse {
   entries: IWorkScheduleEntry[];
   clients: IWorkScheduleClient[];
+  monthlyHours: { [clientId: string]: IMonthlyHours };
+}
+
+export interface IMonthlyHours {
+  hours: number;
+  surcharges: number;
+  guaranteedHoursPerMonth: number;
 }
 
 export enum WorkScheduleEntryType {

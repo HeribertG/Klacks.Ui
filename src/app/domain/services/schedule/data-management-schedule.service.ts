@@ -10,6 +10,7 @@ import {
   IShiftScheduleFilter,
 } from 'src/app/domain/models/shift-schedule-class';
 import {
+  IMonthlyHours,
   IWorkScheduleEntry,
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
@@ -104,6 +105,10 @@ export class DataManagementScheduleService implements ILoadable {
 
   get workScheduleByClientAndDate(): WorkScheduleByClientAndDate {
     return this.workScheduleLoader.workScheduleByClientAndDate;
+  }
+
+  get monthlyHours(): Map<string, IMonthlyHours> {
+    return this.workScheduleLoader.monthlyHours;
   }
 
   get availableShiftsByDay(): readonly (readonly string[])[] {
