@@ -550,7 +550,8 @@
   "pdf.no-directions-available": "Keine detaillierten Wegbeschreibungen verfügbar",
 
   "schedule.row-header.headline": "Name",
-  "schedule.filter.type": "MA/Extern",
+  "schedule.filter.employees": "MA",
+  "schedule.filter.extern": "Extern",
   "schedule.schedule-header.schedule-header.month": "Monat: ",
   "schedule.selector.select-calendar": "Monat und Jahr selektieren",
   "schedule.shift-section.tab.shifts": "Dienste",

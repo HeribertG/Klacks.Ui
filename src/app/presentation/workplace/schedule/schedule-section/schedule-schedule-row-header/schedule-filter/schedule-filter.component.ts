@@ -17,18 +17,26 @@ export class ScheduleFilterComponent implements OnInit {
   public dataManagementSchedule = inject(DataManagementScheduleService);
   public sortingService = inject(TableSortingService);
 
+  showEmployees = true;
+  showExtern = true;
+
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name', 'type'],
+      columns: ['firstName', 'company', 'name'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true
     });
+
+    this.showEmployees = this.dataManagementSchedule.workFilter.showEmployees;
+    this.showExtern = this.dataManagementSchedule.workFilter.showExtern;
   }
 
   private setFilter() {
     this.dataManagementSchedule.workFilter.orderBy = this.sortingService.getCurrentOrderBy();
     this.dataManagementSchedule.workFilter.sortOrder = this.sortingService.getCurrentSortOrder();
+    this.dataManagementSchedule.workFilter.showEmployees = this.showEmployees;
+    this.dataManagementSchedule.workFilter.showExtern = this.showExtern;
   }
 
   private reRead() {
@@ -38,5 +46,15 @@ export class ScheduleFilterComponent implements OnInit {
 
   onClickHeader(orderBy: string) {
     this.sortingService.onHeaderClick(orderBy, () => this.reRead());
+  }
+
+  onShowEmployeesChange(event: Event) {
+    this.showEmployees = (event.target as HTMLInputElement).checked;
+    this.reRead();
+  }
+
+  onShowExternChange(event: Event) {
+    this.showExtern = (event.target as HTMLInputElement).checked;
+    this.reRead();
   }
 }

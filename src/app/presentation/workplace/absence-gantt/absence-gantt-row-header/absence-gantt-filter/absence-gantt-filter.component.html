@@ -48,18 +48,22 @@
     </div>
   </button>
 
-  <button id="absence-filter-type-button" class="input-group button-as-div" (click)="onClickHeader('type')">
-    <div class="row-line">
-      <p class="arrow">
-        @if (sortingService.getArrow('type') === '↓') {
-        <app-icon-asc></app-icon-asc>
-        } @if (sortingService.getArrow('type') === '↑') {
-        <app-icon-desc></app-icon-desc>
-        }
-      </p>
-      <p>
-        {{ "schedule.filter.type" | translate }}
-      </p>
-    </div>
-  </button>
+  <div class="checkbox-group">
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="showEmployees"
+        (change)="onShowEmployeesChange($event)"
+      />
+      {{ "schedule.filter.employees" | translate }}
+    </label>
+    <label class="checkbox-label">
+      <input
+        type="checkbox"
+        [checked]="showExtern"
+        (change)="onShowExternChange($event)"
+      />
+      {{ "schedule.filter.extern" | translate }}
+    </label>
+  </div>
 </div>

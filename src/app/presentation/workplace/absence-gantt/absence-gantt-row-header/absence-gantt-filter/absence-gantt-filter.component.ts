@@ -17,18 +17,26 @@ export class AbsenceGanttFilterComponent implements OnInit {
   public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   public sortingService = inject(TableSortingService);
 
+  showEmployees = true;
+  showExtern = true;
+
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name', 'type'],
+      columns: ['firstName', 'company', 'name'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true
     });
+
+    this.showEmployees = this.dataManagementBreak.breakFilter.showEmployees;
+    this.showExtern = this.dataManagementBreak.breakFilter.showExtern;
   }
 
   private setFilter() {
     this.dataManagementBreak.breakFilter.orderBy = this.sortingService.getCurrentOrderBy();
     this.dataManagementBreak.breakFilter.sortOrder = this.sortingService.getCurrentSortOrder();
+    this.dataManagementBreak.breakFilter.showEmployees = this.showEmployees;
+    this.dataManagementBreak.breakFilter.showExtern = this.showExtern;
   }
 
   private readPage() {
@@ -36,11 +44,17 @@ export class AbsenceGanttFilterComponent implements OnInit {
     this.dataManagementBreak.reRead();
   }
 
-  /* #region   header */
-
   onClickHeader(orderBy: string) {
     this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
 
-  /* #endregion   header */
+  onShowEmployeesChange(event: Event) {
+    this.showEmployees = (event.target as HTMLInputElement).checked;
+    this.readPage();
+  }
+
+  onShowExternChange(event: Event) {
+    this.showExtern = (event.target as HTMLInputElement).checked;
+    this.readPage();
+  }
 }

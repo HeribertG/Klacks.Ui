@@ -50,6 +50,8 @@ export class WorkScheduleLoaderService {
       selectedGroup: workFilter.selectedGroup || undefined,
       orderBy: workFilter.orderBy || 'name',
       sortOrder: workFilter.sortOrder || 'asc',
+      showEmployees: workFilter.showEmployees ?? true,
+      showExtern: workFilter.showExtern ?? true,
     };
 
     this.dataWorkSchedule.getWorkSchedule(filter)

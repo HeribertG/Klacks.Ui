@@ -47,6 +47,8 @@ export interface IBreakFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   startRow?: number;
   rowCount?: number;
+  showEmployees: boolean;
+  showExtern: boolean;
 }
 
 export class BreakFilter implements IBreakFilter {
@@ -64,4 +66,6 @@ export class BreakFilter implements IBreakFilter {
   selectedGroup: string | undefined = undefined;
   startRow?: number;
   rowCount?: number;
+  showEmployees = true;
+  showExtern = true;
 }

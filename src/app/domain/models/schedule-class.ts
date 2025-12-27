@@ -71,6 +71,8 @@ export interface IWorkFilter extends IBaseFilter {
   currentYear: number;
   works: Work[];
   selectedGroup: string | undefined;
+  showEmployees: boolean;
+  showExtern: boolean;
 }
 
 export class WorkFilter implements IWorkFilter {
@@ -89,6 +91,8 @@ export class WorkFilter implements IWorkFilter {
   isNextPage: boolean | undefined = undefined;
   works: Work[] = [];
   selectedGroup: string | undefined = undefined;
+  showEmployees = true;
+  showExtern = true;
 }
 
 export interface IOwnTime {
