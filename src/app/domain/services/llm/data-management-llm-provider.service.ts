@@ -20,7 +20,7 @@ export class DataManagementLLMProviderService {
   async loadProviders(): Promise<ILLMProvider[]> {
     try {
       this.isLoading.set(true);
-      const providers = await firstValueFrom(this.dataLLMProviderService.getProviders());
+      const providers = await firstValueFrom(this.dataLLMProviderService.getProviders(), { defaultValue: [] });
       this.providers.set(providers);
       return providers;
     } catch (error) {

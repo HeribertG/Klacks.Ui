@@ -54,7 +54,7 @@ export class SignalRService implements OnDestroy {
         transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Information)
+      .configureLogging(signalR.LogLevel.Warning)
       .build();
 
     this.registerEventHandlers();
@@ -67,7 +67,7 @@ export class SignalRService implements OnDestroy {
       this._isConnected.set(true);
       console.log('SignalR connected with ID:', connectionId);
     } catch (err) {
-      console.error('SignalR connection error:', err);
+      console.warn('SignalR connection failed - backend may not be running');
       this._isConnected.set(false);
     }
   }
