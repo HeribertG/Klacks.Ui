@@ -58,17 +58,4 @@ export class ScheduleHeaderCalendarComponent implements OnInit {
       currentYear: this.currentYear,
     });
   }
-
-  onShiftFilterChange() {
-    this.dataManagementSchedule.readShiftSchedule();
-  }
-
-  clearShiftFilters() {
-    this.dataManagementSchedule.shiftScheduleFilter.searchString = undefined;
-    this.dataManagementSchedule.shiftScheduleFilter.isSporadic = true;
-    this.dataManagementSchedule.shiftScheduleFilter.isTimeRange = true;
-    this.dataManagementSchedule.shiftScheduleFilter.container = true;
-    this.dataManagementSchedule.shiftScheduleFilter.isStandartShift = true;
-    this.onShiftFilterChange();
-  }
 }
