@@ -561,6 +561,7 @@
   "schedule.row-header.headline": "Nom",
   "schedule.filter.employees": "Emp",
   "schedule.filter.extern": "Ext",
+  "schedule.filter.hours": "Heures",
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",

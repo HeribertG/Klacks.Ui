@@ -22,7 +22,7 @@ export class ScheduleFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name'],
+      columns: ['firstName', 'company', 'name', 'hours'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true

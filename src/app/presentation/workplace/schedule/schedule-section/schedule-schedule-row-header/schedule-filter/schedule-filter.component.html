@@ -65,5 +65,19 @@
       />
       {{ "schedule.filter.extern" | translate }}
     </label>
+    <button id="schedule-filter-hours-button" class="hours-button button-as-div" (click)="onClickHeader('hours')">
+      <div class="row-line">
+        <p class="arrow">
+          @if (sortingService.getArrow('hours') === '↓') {
+          <app-icon-asc></app-icon-asc>
+          } @if (sortingService.getArrow('hours') === '↑') {
+          <app-icon-desc></app-icon-desc>
+          }
+        </p>
+        <p>
+          {{ "schedule.filter.hours" | translate }}
+        </p>
+      </div>
+    </button>
   </div>
 </div>

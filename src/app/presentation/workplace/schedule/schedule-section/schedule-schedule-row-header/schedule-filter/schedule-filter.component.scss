@@ -47,8 +47,8 @@
 
 .checkbox-group {
   display: flex;
-  flex-direction: row;
-  gap: 15px;
+  flex-direction: column;
+  gap: 5px;
   padding: 8px 10px;
   border-top: 1px solid var(--gridBorderColor);
   margin-top: 5px;
@@ -66,4 +66,10 @@
     width: 16px;
     height: 16px;
   }
+}
+
+.hours-button {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--gridBorderColor);
 }
