@@ -559,6 +559,7 @@
   "pdf.no-directions-available": "Nessuna indicazione dettagliata disponibile",
 
   "schedule.row-header.headline": "Nome",
+  "schedule.filter.type": "Dip/Est",
   "schedule.schedule-header.schedule-header.month": "Mese: ",
   "schedule.selector.select-calendar": "Seleziona Mese e Anno",
   "schedule.shift-section.tab.shifts": "Turni",

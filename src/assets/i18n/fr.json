@@ -559,6 +559,7 @@
   "pdf.no-directions-available": "Aucune indication détaillée disponible",
 
   "schedule.row-header.headline": "Nom",
+  "schedule.filter.type": "Emp/Ext",
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",

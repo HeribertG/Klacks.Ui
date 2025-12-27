@@ -19,7 +19,7 @@ export class AbsenceGanttFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name'],
+      columns: ['firstName', 'company', 'name', 'type'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true
