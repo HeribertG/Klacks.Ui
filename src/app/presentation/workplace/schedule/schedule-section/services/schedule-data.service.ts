@@ -97,21 +97,27 @@ export class ScheduleDataService extends BaseDataService {
   public getRowHeaderSlot1Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(
+      client.id
+    );
     return monthlyHours ? `${monthlyHours.guaranteedHoursPerMonth}h` : '';
   }
 
   public getRowHeaderSlot2Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(
+      client.id
+    );
     return monthlyHours ? `${monthlyHours.hours}h` : '';
   }
 
   public getRowHeaderSlot3Text(index: number): string {
     const client = this.dataManagementSchedule.clients[index];
     if (!client) return '';
-    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(client.id);
+    const monthlyHours = this.dataManagementSchedule.monthlyHours.get(
+      client.id
+    );
     return monthlyHours?.surcharges ? `+${monthlyHours.surcharges}h` : '';
   }
 
@@ -176,11 +182,11 @@ export class ScheduleDataService extends BaseDataService {
     return false;
   }
   override isColumnSealed(_column: number): boolean {
-    const dayVisibleBeforeMonth =
-      this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
-    if (_column < dayVisibleBeforeMonth) {
-      return true;
-    }
+    // const dayVisibleBeforeMonth =
+    //   this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
+    // if (_column < dayVisibleBeforeMonth) {
+    //   return true;
+    // }
     return false;
   }
 
@@ -326,7 +332,11 @@ export class ScheduleDataService extends BaseDataService {
     return addDays(this.startDate, col);
   }
 
-  override handlePaste(startRow: number, startCol: number, data: string[][]): void {
+  override handlePaste(
+    startRow: number,
+    startCol: number,
+    data: string[][]
+  ): void {
     for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
       const rowData = data[rowOffset];
       for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
@@ -361,7 +371,10 @@ export class ScheduleDataService extends BaseDataService {
           continue;
         }
 
-        const matchingShift = this.findShiftByAbbreviationAndDate(abbreviation, date);
+        const matchingShift = this.findShiftByAbbreviationAndDate(
+          abbreviation,
+          date
+        );
         if (!matchingShift) {
           continue;
         }

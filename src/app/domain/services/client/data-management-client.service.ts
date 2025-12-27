@@ -56,6 +56,7 @@ export class DataManagementClientService
   public onExternalFilterChange?: () => void;
   public restoreSearch = signal('');
   public startToReadPage = signal(false);
+  public returnUrl: string | null = null;
 
   public lastChangeListWrapper = signal<any>(undefined);
   public subTitleLastChanges = signal('');
@@ -321,6 +322,9 @@ export class DataManagementClientService
   }
 
   goBack(): string {
+    if (this.returnUrl) {
+      return this.returnUrl;
+    }
     return '/workplace/client';
   }
 

@@ -6,6 +6,7 @@
   <div class="container-profilline">
     <app-address-persona
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     ></app-address-persona>
   </div>
@@ -13,6 +14,7 @@
   <div class="container-profilline">
     <app-membership
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
       (click)="dataManagementClientService.clientEditService.currentAnnotationIndex.set(-1)"
     >
@@ -23,6 +25,7 @@
   <div class="container-profilline">
     <app-client-contracts
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-client-contracts>
@@ -33,6 +36,7 @@
   <div class="container-profilline">
     <app-client-groups
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-client-groups>
@@ -50,6 +54,7 @@
   <div class="container-profilline">
     <app-client-image
       (isChangingEvent)="onIsChanging($event)"
+      [isReadOnly]="isReadOnly"
       class="container-profile first border-right-card border-bottom-card"
     >
     </app-client-image>

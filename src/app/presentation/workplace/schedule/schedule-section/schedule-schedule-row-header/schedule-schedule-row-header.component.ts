@@ -23,13 +23,14 @@ import { BaseCreateRowHeaderService } from 'src/app/presentation/workplace/sched
 import { BaseDrawRowHeaderService } from 'src/app/presentation/workplace/schedule/schedule-section/services/draw-row-header.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
+import { ScheduleRowHeaderEventsDirective } from './directives/schedule-row-header-events.directive';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [ResizeDirective],
+  imports: [ResizeDirective, ScheduleRowHeaderEventsDirective],
   providers: [ScrollService, BaseCreateRowHeaderService],
 })
 export class ScheduleScheduleRowHeaderComponent

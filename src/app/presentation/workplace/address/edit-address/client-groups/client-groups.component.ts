@@ -53,6 +53,7 @@ import { TableSortingService } from 'src/app/presentation/services/table-sorting
 })
 export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   @Input() clientId?: string;
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('groupsForm', { static: false }) groupsForm: NgForm | undefined;
@@ -103,6 +104,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   isDisabled(): boolean {
     return (
+      this.isReadOnly ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

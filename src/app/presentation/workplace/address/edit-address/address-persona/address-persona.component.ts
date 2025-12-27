@@ -5,6 +5,7 @@ import {
   EffectRef,
   EventEmitter,
   Injector,
+  Input,
   LOCALE_ID,
   OnDestroy,
   OnInit,
@@ -80,6 +81,7 @@ export class AddressPersonaComponent
   private modalService = inject(ModalService);
   private injector = inject(Injector);
 
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   @ViewChild('clientForm', { static: false }) clientForm: NgForm | undefined;
@@ -208,6 +210,7 @@ export class AddressPersonaComponent
 
   isDisabled(): boolean {
     return (
+      this.isReadOnly ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

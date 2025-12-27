@@ -5,6 +5,7 @@ import {
   Component,
   EventEmitter,
   inject,
+  Input,
   Output,
   ViewChild,
   OnDestroy,
@@ -56,6 +57,7 @@ export class ClientContractsComponent
   @ViewChild('contractsForm', { static: false }) contractsForm:
     | NgForm
     | undefined;
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public faCalendar = faCalendar;
@@ -111,6 +113,7 @@ export class ClientContractsComponent
 
   isDisabled(): boolean {
     return (
+      this.isReadOnly ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

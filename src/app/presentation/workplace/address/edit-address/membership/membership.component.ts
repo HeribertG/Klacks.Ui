@@ -6,6 +6,7 @@ import {
   EventEmitter,
   inject,
   Injector,
+  Input,
   Output,
   runInInjectionContext,
   ViewChild,
@@ -41,6 +42,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   @ViewChild('membershipForm', { static: false }) membershipForm:
     | NgForm
     | undefined;
+  @Input() isReadOnly = false;
   @Output() isChangingEvent = new EventEmitter<boolean>();
 
   public faCalendar = faCalendar;
@@ -79,6 +81,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
 
   isDisabled(): boolean {
     return (
+      this.isReadOnly ||
       this.dataManagementClientService.editClientDeleted() ||
       !this.authorizationService.isAdmin
     );

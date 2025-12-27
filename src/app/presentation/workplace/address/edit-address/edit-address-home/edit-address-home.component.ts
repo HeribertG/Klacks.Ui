@@ -27,7 +27,7 @@ import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
 import { CanComponentDeactivate } from 'src/app/application/helpers/can-deactivate.guard';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-edit-address-home',
@@ -68,6 +68,9 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   private activatedRoute = inject(ActivatedRoute);
   private destroy$ = new Subject<void>();
 
+  isReadOnly = false;
+  private returnUrl: string | null = null;
+
   ngOnInit(): void {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
@@ -75,9 +78,18 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
 
     this.savebarService.setSavebarVisibility(true);
 
-    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
-      const id = params['id'];
+    combineLatest([
+      this.activatedRoute.params,
+      this.activatedRoute.queryParams
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([params, queryParams]) => {
+      this.isReadOnly = queryParams['readonly'] === 'true';
+      this.returnUrl = queryParams['returnUrl'] || null;
 
+      if (this.returnUrl) {
+        this.dataManagementClientService.returnUrl = this.returnUrl;
+      }
+
+      const id = params['id'];
       if (id) {
         this.dataManagementClientService.readClient(id);
       } else {
@@ -87,6 +99,7 @@ export class EditAddressHomeComponent implements OnInit, OnDestroy, CanComponent
   }
 
   ngOnDestroy(): void {
+    this.dataManagementClientService.returnUrl = null;
     this.destroy$.next();
     this.destroy$.complete();
   }
