@@ -191,17 +191,18 @@ export class BaseCreateRowHeaderService {
     text: string,
     width: number
   ): void {
+    const leftPadding = 4;
     DrawHelper.drawText(
       ctx,
       text,
+      leftPadding,
       0,
-      0,
-      width,
+      width - leftPadding,
       this.settings.cellHeaderHeight,
       this.gridFonts.headerFontStringZoom,
       this.gridFonts.headerFontHeightZoom,
       this.gridColors.headerForeGroundColor,
-      TextAlignmentEnum.Center,
+      TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center
     );
   }
