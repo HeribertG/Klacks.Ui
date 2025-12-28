@@ -19,10 +19,11 @@ export class AbsenceGanttFilterComponent implements OnInit {
 
   showEmployees = true;
   showExtern = true;
+  hoursSortOrder: string | undefined = undefined;
 
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name', 'hours'],
+      columns: ['firstName', 'company', 'name'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true
@@ -30,6 +31,7 @@ export class AbsenceGanttFilterComponent implements OnInit {
 
     this.showEmployees = this.dataManagementBreak.breakFilter.showEmployees;
     this.showExtern = this.dataManagementBreak.breakFilter.showExtern;
+    this.hoursSortOrder = this.dataManagementBreak.breakFilter.hoursSortOrder;
   }
 
   private setFilter() {
@@ -37,6 +39,7 @@ export class AbsenceGanttFilterComponent implements OnInit {
     this.dataManagementBreak.breakFilter.sortOrder = this.sortingService.getCurrentSortOrder();
     this.dataManagementBreak.breakFilter.showEmployees = this.showEmployees;
     this.dataManagementBreak.breakFilter.showExtern = this.showExtern;
+    this.dataManagementBreak.breakFilter.hoursSortOrder = this.hoursSortOrder;
   }
 
   private readPage() {
@@ -56,5 +59,22 @@ export class AbsenceGanttFilterComponent implements OnInit {
   onShowExternChange(event: Event) {
     this.showExtern = (event.target as HTMLInputElement).checked;
     this.readPage();
+  }
+
+  onClickHours() {
+    if (this.hoursSortOrder === undefined) {
+      this.hoursSortOrder = 'asc';
+    } else if (this.hoursSortOrder === 'asc') {
+      this.hoursSortOrder = 'desc';
+    } else {
+      this.hoursSortOrder = undefined;
+    }
+    this.readPage();
+  }
+
+  getHoursArrow(): string {
+    if (this.hoursSortOrder === 'asc') return '↓';
+    if (this.hoursSortOrder === 'desc') return '↑';
+    return '';
   }
 }

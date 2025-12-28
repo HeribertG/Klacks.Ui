@@ -19,10 +19,11 @@ export class ScheduleFilterComponent implements OnInit {
 
   showEmployees = true;
   showExtern = true;
+  hoursSortOrder: string | undefined = undefined;
 
   ngOnInit(): void {
     this.sortingService.initialize({
-      columns: ['firstName', 'company', 'name', 'hours'],
+      columns: ['firstName', 'company', 'name'],
       defaultOrderBy: 'name',
       defaultSortOrder: 'asc',
       useThreeWaySort: true
@@ -30,6 +31,7 @@ export class ScheduleFilterComponent implements OnInit {
 
     this.showEmployees = this.dataManagementSchedule.workFilter.showEmployees;
     this.showExtern = this.dataManagementSchedule.workFilter.showExtern;
+    this.hoursSortOrder = this.dataManagementSchedule.workFilter.hoursSortOrder;
   }
 
   private setFilter() {
@@ -37,6 +39,7 @@ export class ScheduleFilterComponent implements OnInit {
     this.dataManagementSchedule.workFilter.sortOrder = this.sortingService.getCurrentSortOrder();
     this.dataManagementSchedule.workFilter.showEmployees = this.showEmployees;
     this.dataManagementSchedule.workFilter.showExtern = this.showExtern;
+    this.dataManagementSchedule.workFilter.hoursSortOrder = this.hoursSortOrder;
   }
 
   private reRead() {
@@ -56,5 +59,22 @@ export class ScheduleFilterComponent implements OnInit {
   onShowExternChange(event: Event) {
     this.showExtern = (event.target as HTMLInputElement).checked;
     this.reRead();
+  }
+
+  onClickHours() {
+    if (this.hoursSortOrder === undefined) {
+      this.hoursSortOrder = 'asc';
+    } else if (this.hoursSortOrder === 'asc') {
+      this.hoursSortOrder = 'desc';
+    } else {
+      this.hoursSortOrder = undefined;
+    }
+    this.reRead();
+  }
+
+  getHoursArrow(): string {
+    if (this.hoursSortOrder === 'asc') return '↓';
+    if (this.hoursSortOrder === 'desc') return '↑';
+    return '';
   }
 }

@@ -65,12 +65,12 @@
       />
       {{ "schedule.filter.extern" | translate }}
     </label>
-    <button id="absence-filter-hours-button" class="hours-button button-as-div" (click)="onClickHeader('hours')">
+    <button id="absence-filter-hours-button" class="hours-button button-as-div" (click)="onClickHours()">
       <div class="row-line">
         <p class="arrow">
-          @if (sortingService.getArrow('hours') === '↓') {
+          @if (getHoursArrow() === '↓') {
           <app-icon-asc></app-icon-asc>
-          } @if (sortingService.getArrow('hours') === '↑') {
+          } @if (getHoursArrow() === '↑') {
           <app-icon-desc></app-icon-desc>
           }
         </p>

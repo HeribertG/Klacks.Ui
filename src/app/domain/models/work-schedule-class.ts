@@ -48,6 +48,7 @@ export interface IWorkScheduleFilter {
   sortOrder?: string;
   showEmployees?: boolean;
   showExtern?: boolean;
+  hoursSortOrder?: string;
 }
 
 export interface IWorkScheduleClient {

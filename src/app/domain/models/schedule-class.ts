@@ -73,6 +73,7 @@ export interface IWorkFilter extends IBaseFilter {
   selectedGroup: string | undefined;
   showEmployees: boolean;
   showExtern: boolean;
+  hoursSortOrder: string | undefined;
 }
 
 export class WorkFilter implements IWorkFilter {
@@ -93,6 +94,7 @@ export class WorkFilter implements IWorkFilter {
   selectedGroup: string | undefined = undefined;
   showEmployees = true;
   showExtern = true;
+  hoursSortOrder: string | undefined = undefined;
 }
 
 export interface IOwnTime {

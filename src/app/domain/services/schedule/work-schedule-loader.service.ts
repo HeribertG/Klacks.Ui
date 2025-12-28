@@ -52,6 +52,7 @@ export class WorkScheduleLoaderService {
       sortOrder: workFilter.sortOrder || 'asc',
       showEmployees: workFilter.showEmployees ?? true,
       showExtern: workFilter.showExtern ?? true,
+      hoursSortOrder: workFilter.hoursSortOrder || undefined,
     };
 
     this.dataWorkSchedule.getWorkSchedule(filter)

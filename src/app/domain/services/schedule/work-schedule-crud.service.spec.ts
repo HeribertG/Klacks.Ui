@@ -32,6 +32,9 @@ function createMockWorkFilter(): IWorkFilter {
     firstItemOnLastPage: undefined,
     isPreviousPage: undefined,
     isNextPage: undefined,
+    showEmployees: true,
+    showExtern: true,
+    hoursSortOrder: undefined,
   };
 }
 
