@@ -384,6 +384,8 @@ export class ScheduleDataService extends BaseDataService {
           date: date,
           shiftId: matchingShift.shiftId,
           workTime: matchingShift.workTime,
+          startShift: matchingShift.startShift,
+          endShift: matchingShift.endShift,
         });
       }
     }
@@ -392,7 +394,7 @@ export class ScheduleDataService extends BaseDataService {
   private findShiftByAbbreviationAndDate(
     abbreviation: string,
     date: Date
-  ): { shiftId: string; workTime: number } | undefined {
+  ): { shiftId: string; workTime: number; startShift: string; endShift: string } | undefined {
     const upperAbbr = abbreviation.toUpperCase();
     const matchingShift = this.dataManagementSchedule.shiftSchedules.find(
       (shift) =>
@@ -404,6 +406,8 @@ export class ScheduleDataService extends BaseDataService {
       return {
         shiftId: matchingShift.shiftId,
         workTime: matchingShift.workTime,
+        startShift: matchingShift.startShift,
+        endShift: matchingShift.endShift,
       };
     }
     return undefined;

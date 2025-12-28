@@ -65,6 +65,8 @@ export class WorkCrudService {
     shiftId: string;
     date: Date;
     workTime: number;
+    startShift: string;
+    endShift: string;
   }): Promise<void> {
     return new Promise((resolve, reject) => {
       const work = new Work();
@@ -72,6 +74,8 @@ export class WorkCrudService {
       work.shiftId = params.shiftId;
       work.currentDate = params.date;
       work.workTime = params.workTime;
+      work.startShift = params.startShift;
+      work.endShift = params.endShift;
       work.isSealed = false;
 
       this.dataSchedule.addWork(work)

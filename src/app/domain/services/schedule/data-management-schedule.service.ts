@@ -220,6 +220,8 @@ export class DataManagementScheduleService implements ILoadable {
     date: Date;
     shiftId: string;
     workTime: number;
+    startShift: string;
+    endShift: string;
   }): void {
     this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
   }

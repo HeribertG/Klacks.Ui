@@ -15,6 +15,8 @@ export interface WorkScheduleEntryParams {
   date: Date;
   shiftId: string;
   workTime: number;
+  startShift: string;
+  endShift: string;
 }
 
 export interface DeleteWorkScheduleEntryParams {
