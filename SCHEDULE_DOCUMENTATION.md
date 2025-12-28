@@ -23,8 +23,9 @@
 15. [Work CRUD - Architektur & Workflows](#work-crud---architektur--workflows)
 16. [Copy/Paste Funktionalität](#copypaste-funktionalität)
 17. [Fill Handle](#fill-handle)
-18. [Client Filter](#client-filter)
-19. [Changelog](#changelog)
+18. [Context Menu](#context-menu)
+19. [Client Filter](#client-filter)
+20. [Changelog](#changelog)
 
 ---
 
@@ -574,6 +575,61 @@ Nach Merge: [4, 5, 6, 7, 8] → 1 API-Call
 
 ---
 
+## Context Menu
+
+### Leere Zelle - Rechtsklick
+
+| Menüpunkt | Aktion |
+|-----------|--------|
+| Einfügen (Ctr-V) | Fügt kopierten Shift ein |
+| Dienste... | Öffnet Submenu mit verfügbaren Shifts |
+
+### Dienste-Submenu
+
+Zeigt alle verfügbaren Shifts für den angeklickten Tag:
+
+```
+[Icon] AB-MF          (14:00 - 22:00)
+[Icon] BD             (00:00 - 00:00)
+[Icon] CA100          (14:00 - 22:00)
+```
+
+**Format:**
+- Icon basierend auf Shift-Typ (SVG)
+- Abbreviation (min-width: 80px)
+- Zeit in Klammern (kleinere Schrift, rechtsbündig)
+
+### Shift-Typ Icons
+
+| Bedingung | Icon | Komponente |
+|-----------|------|------------|
+| `shiftType === 1` | Container (Box) | `IconBoxContainerComponent` |
+| `isSporadic` | Fragezeichen-Uhr | `IconUnknownTimeComponent` |
+| `isTimeRange` | Pie-Uhr | `IconTimeWindowComponent` |
+| Default | Viertel-Uhr | `IconShiftSegmentComponent` |
+
+### MenuItem Erweiterungen
+
+```typescript
+interface IMenuItem {
+  // ... bestehende Properties
+  svgIcon: string | undefined;  // Inline SVG für Icon
+  subText: string | undefined;  // Sekundärtext (kleiner, rechts)
+}
+```
+
+### Gefüllte Zelle - Rechtsklick
+
+| Menüpunkt | Aktion |
+|-----------|--------|
+| Kopieren (Ctr+C) | Kopiert Shift in Zwischenablage |
+| Ausschneiden (Ctr+X) | Kopiert und löscht |
+| Einfügen (Ctr-V) | Fügt kopierten Shift ein |
+| Löschen (Delete) | Löscht den Work-Eintrag |
+| In Dienst zeigen | Scrollt zur Shift-Section |
+
+---
+
 ## Client Filter
 
 ### Shared Component
@@ -636,6 +692,16 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 28.12.2025 - Context Menu "Dienste" Submenu
+
+- "Dienste..." Submenu für leere Zellen im Schedule Context Menu
+- Zeigt verfügbare Shifts für den angeklickten Tag
+- SVG-Icons basierend auf Shift-Typ (Container, Sporadic, TimeRange, Standard)
+- Zeit-Format: hh:mm in Klammern, kleinere Schrift, rechtsbündig
+- MenuItem erweitert: `svgIcon` und `subText` Properties
+- Submenu Scrollbar bei langen Listen
+- Viewport-Overflow Fix für Submenus
 
 ### 28.12.2025 - Shared ClientFilterComponent + SignalR Resilience
 
