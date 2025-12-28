@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, OnDestroy } from '@angular/core';
-import { SyntaxAnalyser } from './parser';
+import { SyntaxAnalyser } from './syntaxAnalyser';
 import { InterpreterError } from './interpreterError';
-import { StringInput } from './stringInput';
+import { StringInputStream } from './stringInput';
 import { Code, Results } from './code';
 import { LexicalAnalyser } from './lexicalAnalyser';
 
@@ -11,14 +11,14 @@ import { LexicalAnalyser } from './lexicalAnalyser';
 })
 export class ScriptService implements OnDestroy {
   public interpreterError: InterpreterError | undefined;
-  private stringInput: StringInput | undefined;
+  private stringInput: StringInputStream | undefined;
   private lexicalAnalyser: LexicalAnalyser | undefined;
   private syntaxAnalyser: SyntaxAnalyser | undefined;
   private code: Code | undefined;
 
   constructor() {
     this.interpreterError = new InterpreterError();
-    this.stringInput = new StringInput(this.interpreterError);
+    this.stringInput = new StringInputStream(this.interpreterError);
     this.lexicalAnalyser = new LexicalAnalyser(
       this.interpreterError,
       this.stringInput

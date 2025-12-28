@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class Identifier {
-  static IdentifierTypes: any;
-
   public name = '';
   public value: any;
   public idType: IdentifierTypes = IdentifierTypes.idNone;

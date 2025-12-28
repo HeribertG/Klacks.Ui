@@ -50,7 +50,6 @@ export class Scope {
   }
 
   setVariable(value: Identifier, name: string): void {
-    // Benannten Wert löschen , damit es ersetzt wird
     if (this._variables.length > 0) {
       const result = this._variables.find((x) => x.key === name);
       if (result !== undefined) {
@@ -59,8 +58,6 @@ export class Scope {
       }
     }
 
-    // Variablen immer am Anfang des Scopes zusammenhalten. Nach der letzten
-    // Variablen kommen nur noch echte Stackwerte
     const c = new Entry(name, value);
     if (this._variables.length === 0) {
       this._variables.push(c);

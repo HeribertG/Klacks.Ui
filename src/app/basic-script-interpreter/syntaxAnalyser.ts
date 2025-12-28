@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { LexicalAnalyser } from './lexicalAnalyser';
-import { Sym, Tokens } from './symbol';
+import { Symbol, Tokens } from './symbol';
 import { Scopes } from './scopes';
 import { Opcodes, Code } from './code';
 import { parsErrors, InterpreterError } from './interpreterError';
@@ -19,7 +19,7 @@ enum Exits {
 
 export class SyntaxAnalyser {
   private _code: Code | undefined = undefined;
-  private _symbol: Sym = new Sym();
+  private _symbol: Symbol = new Symbol();
   private _symbolTable: Scopes = new Scopes();
   private _optionExplicit = false;
   private _allowExternal = false;
@@ -34,7 +34,7 @@ export class SyntaxAnalyser {
     this.lexicalAnalyser = undefined;
   }
 
-  private getNextSymbol(): Sym {
+  private getNextSymbol(): Symbol {
     this._symbol = this.lexicalAnalyser!.getNextSymbol();
     return this._symbol;
   }
@@ -110,7 +110,7 @@ export class SyntaxAnalyser {
             this._symbol.value,
             IdentifierTypes.idConst
           );
-          this._code!.add(Opcodes.opAllocConst, [ident, this._symbol.value]);
+          this._code!.add(Opcodes.AllocConst, [ident, this._symbol.value]);
 
           this.getNextSymbol();
         } else {
@@ -172,7 +172,7 @@ export class SyntaxAnalyser {
           this._symbolTable.allocate(this._symbol.text);
         } else {
           this._symbolTable.allocate(this._symbol.text);
-          this._code!.add(Opcodes.opAllocVar, [this._symbol.text]);
+          this._code!.add(Opcodes.AllocVar, [this._symbol.text]);
         }
 
         currentToken = this.getNextSymbol().token;
@@ -205,7 +205,7 @@ export class SyntaxAnalyser {
 
     if (isOk) {
       this._symbolTable.popScope(); //  lokalen Gültigkeitsbereich wieder verwerfen
-      this._code!.add(Opcodes.opReturn);
+      this._code!.add(Opcodes.Return);
       this._code!.fixUp(skipFunctionPC - 1, [this._code!.endOfCodePC]);
     }
   }
@@ -241,7 +241,6 @@ export class SyntaxAnalyser {
 
           currentToken = this.getNextSymbol().token;
         }
-        // Klammer geschlossen
         if (currentToken === Tokens.tokRightParent) {
           this.getNextSymbol();
         } else {
@@ -257,7 +256,6 @@ export class SyntaxAnalyser {
         }
       }
 
-      // Funktion im aktuellen Scope definieren
       definition = this._symbolTable.allocate(
         ident,
         null,
@@ -265,14 +263,9 @@ export class SyntaxAnalyser {
           ? IdentifierTypes.idSub
           : IdentifierTypes.idFunction) as IdentifierTypes
       );
-      //  Funktionsvariable anlegen
-      this._code!.add(Opcodes.opAllocVar, [ident]);
-
-      // in der sequentiellen Codeausführung die Funktion überspringen
-      skipFunctionPC = this._code!.add(Opcodes.opJump);
+      this._code!.add(Opcodes.AllocVar, [ident]);
+      skipFunctionPC = this._code!.add(Opcodes.Jump);
       definition.address = this._code!.endOfCodePC;
-
-      // Neuen Scope für die Funktion öffnen
       this._symbolTable.pushScope();
 
       definition.formalParameters = [...formalParameters];
@@ -411,7 +404,7 @@ export class SyntaxAnalyser {
         this.condition();
         currentToken = this._symbol.token;
 
-        this._code!.add(Opcodes.opAssign, [counterVariable]);
+        this._code!.add(Opcodes.Assign, [counterVariable]);
         currentToken = this._symbol.token;
 
         if (currentToken === Tokens.tokTO) {
@@ -424,10 +417,10 @@ export class SyntaxAnalyser {
             this.condition();
             currentToken = this._symbol.token;
           } else {
-            this._code!.add(Opcodes.opPushValue, [1]);
+            this._code!.add(Opcodes.PushValue, [1]);
           }
 
-          pushExitAddrPC = this._code!.add(Opcodes.opPushValue);
+          pushExitAddrPC = this._code!.add(Opcodes.PushValue);
 
           forPC = this._code!.endOfCodePC;
 
@@ -463,29 +456,29 @@ export class SyntaxAnalyser {
             );
           }
 
-          this._code!.add(Opcodes.opPopWithIndex, [1]);
+          this._code!.add(Opcodes.PopWithIndex, [1]);
 
-          this._code!.add(Opcodes.opPushVariable, [counterVariable]);
+          this._code!.add(Opcodes.PushVariable, [counterVariable]);
 
-          this._code!.add(Opcodes.opAdd);
+          this._code!.add(Opcodes.Add);
 
-          this._code!.add(Opcodes.opAssign, [counterVariable]);
+          this._code!.add(Opcodes.Assign, [counterVariable]);
 
-          this._code!.add(Opcodes.opPopWithIndex, [2]);
+          this._code!.add(Opcodes.PopWithIndex, [2]);
 
-          this._code!.add(Opcodes.opPushVariable, [counterVariable]);
+          this._code!.add(Opcodes.PushVariable, [counterVariable]);
 
-          this._code!.add(Opcodes.opGEq);
+          this._code!.add(Opcodes.GEq);
 
-          this._code!.add(Opcodes.opJumpTrue, [forPC]);
+          this._code!.add(Opcodes.JumpTrue, [forPC]);
 
-          this._code!.add(Opcodes.opPop);
+          this._code!.add(Opcodes.Pop);
 
           this._code!.fixUp(pushExitAddrPC - 1, [this._code!.endOfCodePC]);
 
-          this._code!.add(Opcodes.opPop);
+          this._code!.add(Opcodes.Pop);
 
-          this._code!.add(Opcodes.opPop);
+          this._code!.add(Opcodes.Pop);
         } else {
           this.interpreterError!.raise(
             parsErrors.errSyntaxViolation,
@@ -531,7 +524,7 @@ export class SyntaxAnalyser {
 
     currentToken = this._symbol.token;
 
-    pushExitAddrPC = this._code!.add(Opcodes.opPushValue);
+    pushExitAddrPC = this._code!.add(Opcodes.PushValue);
     doPC = this._code!.endOfCodePC;
     if (currentToken === Tokens.tokWHILE) {
       doWhile = true;
@@ -539,7 +532,7 @@ export class SyntaxAnalyser {
       currentToken = this.getNextSymbol().token;
       this.condition();
 
-      conditionPC = this._code!.add(Opcodes.opJumpFalse);
+      conditionPC = this._code!.add(Opcodes.JumpFalse);
     }
 
     thisDOisSingleLineOnly = !(
@@ -553,7 +546,6 @@ export class SyntaxAnalyser {
 
     singleLineOnly = singleLineOnly || thisDOisSingleLineOnly;
 
-    // DO-body
     this.statementList(singleLineOnly, false, Exits.exitDo || exitsAllowed, [
       Tokens.tokEOF,
       Tokens.tokLOOP,
@@ -585,20 +577,20 @@ export class SyntaxAnalyser {
         this.condition();
 
         this._code!.add(
-          (loopWhile ? Opcodes.opJumpTrue : Opcodes.opJumpFalse) as Opcodes,
+          (loopWhile ? Opcodes.JumpTrue : Opcodes.JumpFalse) as Opcodes,
           [doPC]
         );
 
-        this._code!.add(Opcodes.opPop);
+        this._code!.add(Opcodes.Pop);
 
         this._code!.fixUp(pushExitAddrPC - 1, [this._code!.endOfCodePC]);
       } else {
-        this._code!.add(Opcodes.opJump, [doPC]);
+        this._code!.add(Opcodes.Jump, [doPC]);
         if (doWhile) {
           this._code!.fixUp(conditionPC - 1, [this._code!.endOfCodePC]);
         }
 
-        this._code!.add(Opcodes.opPop);
+        this._code!.add(Opcodes.Pop);
 
         this._code!.fixUp(pushExitAddrPC - 1, [this._code!.endOfCodePC]);
       }
@@ -637,7 +629,7 @@ export class SyntaxAnalyser {
 
       singleLineOnly = singleLineOnly || thisIFisSingleLineOnly;
 
-      thenPC = this._code!.add(Opcodes.opJumpFalse);
+      thenPC = this._code!.add(Opcodes.JumpFalse);
 
       this.statementList(singleLineOnly, false, exitsAllowed, [
         Tokens.tokEOF,
@@ -649,7 +641,7 @@ export class SyntaxAnalyser {
       currentToken = this._symbol.token;
 
       if (currentToken === Tokens.tokELSE) {
-        elsePC = this._code!.add(Opcodes.opJump);
+        elsePC = this._code!.add(Opcodes.Jump);
 
         this._code!.fixUp(thenPC - 1, [elsePC]);
         currentToken = this.getNextSymbol().token;
@@ -708,7 +700,7 @@ export class SyntaxAnalyser {
       this._code!.fixUp(elsePC - 1, [this._code!.endOfCodePC]);
     }
   }
-  // Einstieg für die Auswertung math. Ausdrücke (s.a. Expression())
+
   private condition() {
     // ConditionalTerm { "OR" ConditionalTerm }
     this.conditionalTerm();
@@ -719,7 +711,7 @@ export class SyntaxAnalyser {
       currentToken = this.getNextSymbol().token;
       this.conditionalTerm();
 
-      this._code!.add(Opcodes.opOr);
+      this._code!.add(Opcodes.Or);
     }
   }
 
@@ -730,7 +722,7 @@ export class SyntaxAnalyser {
     this.conditionalFactor();
 
     while (this.inSymbolSet(this._symbol.token, [Tokens.tokAND])) {
-      operandPCs.push(this._code!.add(Opcodes.opJumpFalse));
+      operandPCs.push(this._code!.add(Opcodes.JumpFalse));
 
       currentToken = this.getNextSymbol().token;
 
@@ -739,17 +731,17 @@ export class SyntaxAnalyser {
 
     let thenPC: number;
     if (operandPCs.length > 0) {
-      operandPCs.push(this._code!.add(Opcodes.opJumpFalse));
+      operandPCs.push(this._code!.add(Opcodes.JumpFalse));
 
-      this._code!.add(Opcodes.opPushValue, [true]);
+      this._code!.add(Opcodes.PushValue, [true]);
 
-      thenPC = this._code!.add(Opcodes.opJump);
+      thenPC = this._code!.add(Opcodes.Jump);
 
       for (let i = 0; i < operandPCs.length; i++) {
         this._code!.fixUp(operandPCs[i] - 1, [this._code!.endOfCodePC]);
       }
 
-      this._code!.add(Opcodes.opPushValue, [false]);
+      this._code!.add(Opcodes.PushValue, [false]);
 
       this._code!.fixUp(thenPC - 1, [this._code!.endOfCodePC]);
     }
@@ -779,22 +771,22 @@ export class SyntaxAnalyser {
 
       switch (operator) {
         case Tokens.tokEq:
-          this._code!.add(Opcodes.opEq);
+          this._code!.add(Opcodes.Eq);
           break;
         case Tokens.tokNotEq:
-          this._code!.add(Opcodes.opNotEq);
+          this._code!.add(Opcodes.NotEq);
           break;
         case Tokens.tokLEq:
-          this._code!.add(Opcodes.opLEq);
+          this._code!.add(Opcodes.LEq);
           break;
         case Tokens.tokLT:
-          this._code!.add(Opcodes.oplt);
+          this._code!.add(Opcodes.Lt);
           break;
         case Tokens.tokGEq:
-          this._code!.add(Opcodes.opGEq);
+          this._code!.add(Opcodes.GEq);
           break;
         case Tokens.tokGT:
-          this._code!.add(Opcodes.opGt);
+          this._code!.add(Opcodes.Gt);
           break;
       }
     }
@@ -822,16 +814,16 @@ export class SyntaxAnalyser {
 
       switch (operator) {
         case Tokens.tokPlus:
-          this._code!.add(Opcodes.opAdd);
+          this._code!.add(Opcodes.Add);
           break;
         case Tokens.tokMinus:
-          this._code!.add(Opcodes.opSub);
+          this._code!.add(Opcodes.Sub);
           break;
         case Tokens.tokMod:
-          this._code!.add(Opcodes.opMod);
+          this._code!.add(Opcodes.Mod);
           break;
         case Tokens.tokStringConcat:
-          this._code!.add(Opcodes.opStringConcat);
+          this._code!.add(Opcodes.StringConcat);
           break;
       }
     }
@@ -854,16 +846,15 @@ export class SyntaxAnalyser {
       currentToken = this.getNextSymbol().token;
 
       this.factor();
-      //  Code-Generation
       switch (operatorRenamed) {
         case Tokens.tokMultiplication:
-          this._code!.add(Opcodes.opMultiplication);
+          this._code!.add(Opcodes.Multiplication);
           break;
         case Tokens.tokDivision:
-          this._code!.add(Opcodes.opDivision);
+          this._code!.add(Opcodes.Division);
           break;
         case Tokens.tokDiv:
-          this._code!.add(Opcodes.opDiv);
+          this._code!.add(Opcodes.Div);
           break;
       }
     }
@@ -879,19 +870,19 @@ export class SyntaxAnalyser {
 
       this.factorial();
 
-      this._code!.add(Opcodes.opPower);
+      this._code!.add(Opcodes.Power);
     }
   }
-  // Fakultät
+
   private factorial() {
     //  Terminal [ "!" ]
     this.terminal();
     if (this._symbol.token === Tokens.tokFactorial) {
-      this._code!.add(Opcodes.opFactorial);
+      this._code!.add(Opcodes.Factorial);
       this.getNextSymbol();
     }
   }
-  //  Terminale Symbole (Zahlen, Identifier) und Funktionsaufrufe
+
   private terminal() {
     let currentToken = this._symbol.token;
 
@@ -903,22 +894,22 @@ export class SyntaxAnalyser {
         currentToken = this.getNextSymbol().token;
         this.terminal();
 
-        this._code!.add(Opcodes.opNegate);
+        this._code!.add(Opcodes.Negate);
         break;
       case Tokens.tokNOT:
         currentToken = this.getNextSymbol().token;
         this.terminal();
 
-        this._code!.add(Opcodes.opNot);
+        this._code!.add(Opcodes.Not);
         break;
       case Tokens.tokNumber:
-        this._code!.add(Opcodes.opPushValue, this._symbol.value);
+        this._code!.add(Opcodes.PushValue, this._symbol.value);
 
         currentToken = this.getNextSymbol().token;
 
         break;
       case Tokens.tokString:
-        this._code!.add(Opcodes.opPushValue, this._symbol.value);
+        this._code!.add(Opcodes.PushValue, this._symbol.value);
         this.getNextSymbol();
 
         break;
@@ -945,7 +936,7 @@ export class SyntaxAnalyser {
           currentToken = this.getNextSymbol().token;
 
           this.callUserDefinedFunction(ident);
-          this._code!.add(Opcodes.opPushVariable, [ident]);
+          this._code!.add(Opcodes.PushVariable, [ident]);
         } else if (
           this._symbolTable.exists(text, undefined, IdentifierTypes.idSub)
         ) {
@@ -958,39 +949,38 @@ export class SyntaxAnalyser {
             this._symbol.index
           );
         } else {
-          // Wert einer Variablen bzw. Konstante auf den Stack legen
-          this._code!.add(Opcodes.opPushVariable, [text]);
+          this._code!.add(Opcodes.PushVariable, [text]);
 
           currentToken = this.getNextSymbol().token;
         }
 
         break;
       case Tokens.tokTrue:
-        this._code!.add(Opcodes.opPushValue, [true]);
+        this._code!.add(Opcodes.PushValue, [true]);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokFalse:
-        this._code!.add(Opcodes.opPushValue, [false]);
+        this._code!.add(Opcodes.PushValue, [false]);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokPI:
-        this._code!.add(Opcodes.opPushValue, [3.141592654]);
+        this._code!.add(Opcodes.PushValue, [3.141592654]);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokCrlf:
-        this._code!.add(Opcodes.opPushValue, ['\r\n']);
+        this._code!.add(Opcodes.PushValue, ['\r\n']);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokTab:
-        this._code!.add(Opcodes.opPushValue, ['\t']);
+        this._code!.add(Opcodes.PushValue, ['\t']);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokCr:
-        this._code!.add(Opcodes.opPushValue, ['\r']);
+        this._code!.add(Opcodes.PushValue, ['\r']);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokLf:
-        this._code!.add(Opcodes.opPushValue, ['\n']);
+        this._code!.add(Opcodes.PushValue, ['\n']);
         currentToken = this.getNextSymbol().token;
         break;
       case Tokens.tokMsgbox:
@@ -1011,12 +1001,12 @@ export class SyntaxAnalyser {
           currentToken = this.getNextSymbol().token;
           this.condition();
 
-          thenPC = this._code!.add(Opcodes.opJumpFalse);
+          thenPC = this._code!.add(Opcodes.JumpFalse);
           if (currentToken === Tokens.tokComma) {
             currentToken = this.getNextSymbol().token;
             this.condition();
 
-            elsePC = this._code!.add(Opcodes.opJump);
+            elsePC = this._code!.add(Opcodes.Jump);
             this._code!.fixUp(thenPC - 1, [this._code!.endOfCodePC]);
             if (currentToken === Tokens.tokComma) {
               currentToken = this.getNextSymbol().token;
@@ -1179,16 +1169,16 @@ export class SyntaxAnalyser {
 
         switch (operatorRenamed) {
           case Tokens.tokSin:
-            this._code!.add(Opcodes.opSin);
+            this._code!.add(Opcodes.Sin);
             break;
           case Tokens.tokCos:
-            this._code!.add(Opcodes.opCos);
+            this._code!.add(Opcodes.Cos);
             break;
           case Tokens.tokTan:
-            this._code!.add(Opcodes.opTan);
+            this._code!.add(Opcodes.Tan);
             break;
           case Tokens.tokATan:
-            this._code!.add(Opcodes.opATan);
+            this._code!.add(Opcodes.ATan);
             break;
         }
       } else {
@@ -1219,9 +1209,9 @@ export class SyntaxAnalyser {
     this.actualOptionalParameter(0);
     this.actualOptionalParameter('');
 
-    this._code!.add(Opcodes.opMessage);
+    this._code!.add(Opcodes.Message);
     if (dropReturnValue) {
-      this._code!.add(Opcodes.opPop);
+      this._code!.add(Opcodes.Pop);
     }
   }
 
@@ -1229,27 +1219,21 @@ export class SyntaxAnalyser {
     this.actualOptionalParameter('');
     this.actualOptionalParameter(0);
     this.actualOptionalParameter('Title');
-    //  Code-Generation
-    this._code!.add(Opcodes.opMsgBox);
+    this._code!.add(Opcodes.Msgbox);
     if (dropReturnValue) {
-      this._code!.add(Opcodes.opPop);
+      this._code!.add(Opcodes.Pop);
     }
   }
 
   private callInputbox(dropReturnValue: boolean) {
     this.actualOptionalParameter('');
-    //  Prompt
     this.actualOptionalParameter('Title');
-    //  Title
     this.actualOptionalParameter('');
-    //  Default
     this.actualOptionalParameter(20);
-    //  xPos
     this.actualOptionalParameter(20);
-    //  yPos
-    this._code!.add(Opcodes.opInputBox);
+    this._code!.add(Opcodes.Inputbox);
     if (dropReturnValue) {
-      this._code!.add(Opcodes.opPop);
+      this._code!.add(Opcodes.Pop);
     }
   }
 
@@ -1263,9 +1247,8 @@ export class SyntaxAnalyser {
       token === Tokens.tokEOF ||
       token === Tokens.tokRightParent
     ) {
-      this._code!.add(Opcodes.opPushValue, [defaultRenamed]);
+      this._code!.add(Opcodes.PushValue, [defaultRenamed]);
     } else {
-      //  Parameterwert bestimmen
       this.condition();
     }
 
@@ -1277,7 +1260,6 @@ export class SyntaxAnalyser {
   callUserDefinedFunction(ident: string) {
     let requireRightParent = false;
 
-    // Identifier überhaupt als Funktion definiert?
     if (
       !this._symbolTable.exists(
         ident,
@@ -1304,7 +1286,7 @@ export class SyntaxAnalyser {
     let definition: Identifier;
     definition = this._symbolTable.retrieve(ident);
 
-    this._code!.add(Opcodes.opPushScope);
+    this._code!.add(Opcodes.PushScope);
 
     let n = 0;
     let i: number;
@@ -1351,8 +1333,8 @@ export class SyntaxAnalyser {
     }
 
     for (i = definition.formalParameters.length - 1; i >= 0; i--) {
-      this._code!.add(Opcodes.opAllocVar, [definition.formalParameters[i]]);
-      this._code!.add(Opcodes.opAssign, [definition.formalParameters[i]]);
+      this._code!.add(Opcodes.AllocVar, [definition.formalParameters[i]]);
+      this._code!.add(Opcodes.Assign, [definition.formalParameters[i]]);
     }
 
     if (requireRightParent) {
@@ -1371,10 +1353,9 @@ export class SyntaxAnalyser {
       }
     }
 
-    // --- Funktion rufen
-    this._code!.add(Opcodes.opCall, [definition.address]);
+    this._code!.add(Opcodes.Call, [definition.address]);
 
-    this._code!.add(Opcodes.opPopScope);
+    this._code!.add(Opcodes.PopScope);
   }
 
   private statement(
@@ -1466,7 +1447,7 @@ export class SyntaxAnalyser {
         switch (currentToken) {
           case Tokens.tokDO:
             if (exitsAllowed && Exits.exitDo === Exits.exitDo) {
-              this._code!.add(Opcodes.opJumpPop);
+              this._code!.add(Opcodes.JumpPop);
             } else {
               this.interpreterError!.raise(
                 parsErrors.errUnexpectedSymbol,
@@ -1482,7 +1463,7 @@ export class SyntaxAnalyser {
             break;
           case Tokens.tokFOR:
             if ((exitsAllowed && Exits.exitFor) === Exits.exitFor) {
-              this._code!.add(Opcodes.opJumpPop);
+              this._code!.add(Opcodes.JumpPop);
             } else {
               this.interpreterError!.raise(
                 parsErrors.errUnexpectedSymbol,
@@ -1498,7 +1479,7 @@ export class SyntaxAnalyser {
             break;
           case Tokens.tokSUB:
             if ((exitsAllowed && Exits.exitSub) === Exits.exitSub) {
-              this._code!.add(Opcodes.opReturn);
+              this._code!.add(Opcodes.Return);
             } else if (
               (exitsAllowed && Exits.exitFunction) === Exits.exitFunction
             ) {
@@ -1526,7 +1507,7 @@ export class SyntaxAnalyser {
             break;
           case Tokens.tokFUNCTION:
             if ((exitsAllowed && Exits.exitFunction) === Exits.exitFunction) {
-              this._code!.add(Opcodes.opReturn);
+              this._code!.add(Opcodes.Return);
             } else if ((exitsAllowed && Exits.exitSub) === Exits.exitSub) {
               this.interpreterError!.raise(
                 parsErrors.errUnexpectedSymbol,
@@ -1571,21 +1552,21 @@ export class SyntaxAnalyser {
 
         this.actualOptionalParameter('');
 
-        this._code!.add(Opcodes.opDebugPrint);
+        this._code!.add(Opcodes.DebugPrint);
 
         break;
       case Tokens.tokDebugClear:
-        this._code!.add(Opcodes.opDebugClear);
+        this._code!.add(Opcodes.DebugClear);
         this.getNextSymbol();
 
         break;
       case Tokens.tokDebugShow:
-        this._code!.add(Opcodes.opDebugShow);
+        this._code!.add(Opcodes.DebugShow);
         this.getNextSymbol();
 
         break;
       case Tokens.tokDebugHide:
-        this._code!.add(Opcodes.opDebugHide);
+        this._code!.add(Opcodes.DebugHide);
         this.getNextSymbol();
         //  Message [ MessageTyp [ "," MessageExpression  ] ]
         break;
@@ -1600,7 +1581,7 @@ export class SyntaxAnalyser {
 
         break;
       case Tokens.tokDoEvents:
-        this._code!.add(Opcodes.opDoEvents);
+        this._code!.add(Opcodes.DoEvents);
         this.getNextSymbol();
         //  Inputbox [ Prompt [ "," Title [ "," Default [ "," xPos [ "," yPos ] ] ] ] ]
         break;
@@ -1676,7 +1657,7 @@ export class SyntaxAnalyser {
     }
 
     if (op !== Tokens.tokEq) {
-      this._code!.add(Opcodes.opPushVariable, [Ident]);
+      this._code!.add(Opcodes.PushVariable, [Ident]);
     }
 
     this.getNextSymbol();
@@ -1684,29 +1665,29 @@ export class SyntaxAnalyser {
 
     switch (op) {
       case Tokens.tokPlusEq:
-        this._code!.add(Opcodes.opAdd);
+        this._code!.add(Opcodes.Add);
         break;
       case Tokens.tokMinusEq:
-        this._code!.add(Opcodes.opSub);
+        this._code!.add(Opcodes.Sub);
         break;
       case Tokens.tokMultiplicationEq:
-        this._code!.add(Opcodes.opMultiplication);
+        this._code!.add(Opcodes.Multiplication);
         break;
       case Tokens.tokDivisionEq:
-        this._code!.add(Opcodes.opDivision);
+        this._code!.add(Opcodes.Division);
         break;
       case Tokens.tokStringConcatEq:
-        this._code!.add(Opcodes.opStringConcat);
+        this._code!.add(Opcodes.StringConcat);
         break;
       case Tokens.tokDivEq:
-        this._code!.add(Opcodes.opDiv);
+        this._code!.add(Opcodes.Div);
         break;
       case Tokens.tokModEq:
-        this._code!.add(Opcodes.opMod);
+        this._code!.add(Opcodes.Mod);
         break;
     }
 
-    this._code!.add(Opcodes.opAssign, [Ident]);
+    this._code!.add(Opcodes.Assign, [Ident]);
   }
 
   private statementList(
@@ -1738,7 +1719,6 @@ export class SyntaxAnalyser {
       }
 
       if (!exitFunction) {
-        //  Alles ok, die nächste Anweisung liegt an...
         this.statement(singleLineOnly, allowFunctionDeclarations, exitsAllowed);
       }
     } while (!exitFunction);

@@ -6,55 +6,55 @@ import { Scope, Entry } from './scope';
 import { InterpreterError, runErrors } from './interpreterError';
 
 import { Identifier, IdentifierTypes } from './identifier';
-import { StringInput } from './stringInput';
+import { StringInputStream } from './stringInput';
 
 export enum Opcodes {
-  opAllocConst,
-  opAllocVar,
-  opPushValue,
-  opPushVariable,
-  opPop,
-  opPopWithIndex,
-  opAssign,
-  opAdd,
-  opSub,
-  opMultiplication,
-  opDivision,
-  opDiv,
-  opMod,
-  opPower,
-  opStringConcat,
-  opOr,
-  opAnd,
-  opEq,
-  opNotEq,
-  oplt,
-  opLEq,
-  opGt,
-  opGEq,
-  opNegate,
-  opNot,
-  opFactorial,
-  opSin,
-  opCos,
-  opTan,
-  opATan,
-  opDebugPrint,
-  opDebugClear,
-  opDebugShow,
-  opDebugHide,
-  opMsgBox,
-  opDoEvents,
-  opInputBox,
-  opJump,
-  opJumpTrue,
-  opJumpFalse,
-  opJumpPop,
-  opPushScope,
-  opPopScope,
-  opCall,
-  opReturn,
-  opMessage,
+  AllocConst = 0,
+  AllocVar = 1,
+  PushValue = 2,
+  PushVariable = 3,
+  Pop = 4,
+  PopWithIndex = 5,
+  Assign = 6,
+  Add = 7,
+  Sub = 8,
+  Multiplication = 9,
+  Division = 10,
+  Div = 11,
+  Mod = 12,
+  Power = 13,
+  StringConcat = 14,
+  Or = 15,
+  And = 16,
+  Eq = 17,
+  NotEq = 18,
+  Lt = 19,
+  LEq = 20,
+  Gt = 21,
+  GEq = 22,
+  Negate = 23,
+  Not = 24,
+  Factorial = 25,
+  Sin = 26,
+  Cos = 27,
+  Tan = 28,
+  ATan = 29,
+  DebugPrint = 30,
+  DebugClear = 31,
+  DebugShow = 32,
+  DebugHide = 33,
+  Msgbox = 34,
+  DoEvents = 35,
+  Inputbox = 36,
+  Jump = 37,
+  JumpTrue = 38,
+  JumpFalse = 39,
+  JumpPop = 40,
+  PushScope = 41,
+  PopScope = 42,
+  Call = 43,
+  Return = 44,
+  Message = 45,
 }
 
 export class Results {
@@ -76,7 +76,7 @@ export class Code {
 
   constructor(
     private interpreterError: InterpreterError | undefined,
-    private stringInput: StringInput | undefined
+    private stringInput: StringInputStream | undefined
   ) {}
 
   dispose() {
@@ -268,22 +268,22 @@ export class Code {
       counter++;
 
       switch (operation[0] as Opcodes) {
-        case Opcodes.opAllocConst:
+        case Opcodes.AllocConst:
           this.scopes.allocate(
             operation[1],
             operation[2],
             IdentifierTypes.idConst
           );
           break;
-        case Opcodes.opAllocVar: // Variable allozieren
+        case Opcodes.AllocVar:
           this.scopes.allocate(operation[1]);
           break;
-        case Opcodes.opPushValue: // Wert auf den Stack schieben
+        case Opcodes.PushValue:
           this.scopes.push(operation[1]);
           break;
-        case Opcodes.opPushVariable: //  Wert einer Variablen auf den Stack schieben
+        case Opcodes.PushVariable:
           try {
-            register = this.scopes.retrieve(operation[1]); // Parameter:  Variablenname
+            register = this.scopes.retrieve(operation[1]);
           } catch {
             accepted = false;
             this.retrieve();
@@ -316,10 +316,10 @@ export class Code {
 
           this.scopes.push(register.value);
           break;
-        case Opcodes.opPop:
+        case Opcodes.Pop:
           this.scopes.pop();
           break;
-        case Opcodes.opPopWithIndex: //  legt den n-ten Stackwert zuoberst auf den Stack
+        case Opcodes.PopWithIndex:
           register = this.scopes.pop(operation[1]);
           let result: any;
           if (register instanceof Entry) {
@@ -328,9 +328,9 @@ export class Code {
             result = register;
           }
 
-          this.scopes.push(result); // Parameter:    Index in den Stack (von oben an gezählt: 0..n)
+          this.scopes.push(result);
           break;
-        case Opcodes.opAssign: // Wert auf dem Stack einer Variablen zuweisen
+        case Opcodes.Assign:
           try {
             register = this.scopes.pop();
             let result1: any;
@@ -349,34 +349,34 @@ export class Code {
             }
           }
           break;
-        case Opcodes.opAdd:
-        case Opcodes.opSub:
-        case Opcodes.opMultiplication:
-        case Opcodes.opDivision:
-        case Opcodes.opDiv:
-        case Opcodes.opMod:
-        case Opcodes.opPower:
-        case Opcodes.opStringConcat:
-        case Opcodes.opOr:
-        case Opcodes.opAnd:
-        case Opcodes.opEq:
-        case Opcodes.opNotEq:
-        case Opcodes.oplt:
-        case Opcodes.opLEq:
-        case Opcodes.opGt:
-        case Opcodes.opGEq:
+        case Opcodes.Add:
+        case Opcodes.Sub:
+        case Opcodes.Multiplication:
+        case Opcodes.Division:
+        case Opcodes.Div:
+        case Opcodes.Mod:
+        case Opcodes.Power:
+        case Opcodes.StringConcat:
+        case Opcodes.Or:
+        case Opcodes.And:
+        case Opcodes.Eq:
+        case Opcodes.NotEq:
+        case Opcodes.Lt:
+        case Opcodes.LEq:
+        case Opcodes.Gt:
+        case Opcodes.GEq:
           this.binaryMathOperators(operation);
           break;
-        case Opcodes.opNegate:
-        case Opcodes.opNot:
-        case Opcodes.opFactorial:
-        case Opcodes.opSin:
-        case Opcodes.opCos:
-        case Opcodes.opTan:
-        case Opcodes.opATan:
+        case Opcodes.Negate:
+        case Opcodes.Not:
+        case Opcodes.Factorial:
+        case Opcodes.Sin:
+        case Opcodes.Cos:
+        case Opcodes.Tan:
+        case Opcodes.ATan:
           this.unaryMathOperators(operation);
           break;
-        case Opcodes.opDebugPrint:
+        case Opcodes.DebugPrint:
           let msg = '';
 
           register = this.scopes.pop();
@@ -387,16 +387,16 @@ export class Code {
           this.debugPrint(msg);
 
           break;
-        case Opcodes.opDebugClear:
+        case Opcodes.DebugClear:
           this.debugClear();
           break;
-        case Opcodes.opDebugShow:
+        case Opcodes.DebugShow:
           this.debugShow();
           break;
-        case Opcodes.opDebugHide:
+        case Opcodes.DebugHide:
           this.debugHide();
           break;
-        case Opcodes.opMessage:
+        case Opcodes.Message:
           try {
             let msg = '';
             let type: number | undefined;
@@ -416,7 +416,7 @@ export class Code {
             this.message(-1, '');
           }
           break;
-        case Opcodes.opMsgBox:
+        case Opcodes.Msgbox:
           if (!this.allowUI) {
             this.isRunning = false;
             this.interpreterError!.raise(
@@ -429,9 +429,9 @@ export class Code {
             );
           }
 
-          register = this.scopes.pop(); // Title
-          accumulator = this.scopes.pop(); // Buttons
-          renamed = this.scopes.pop(); // Message
+          register = this.scopes.pop();
+          accumulator = this.scopes.pop();
+          renamed = this.scopes.pop();
 
           try {
             const message = renamed.value;
@@ -449,9 +449,9 @@ export class Code {
           }
 
           break;
-        case Opcodes.opDoEvents:
+        case Opcodes.DoEvents:
           break;
-        case Opcodes.opInputBox:
+        case Opcodes.Inputbox:
           if (!this.allowUI) {
             this.isRunning = false;
             this.interpreterError!.raise(
@@ -499,11 +499,11 @@ export class Code {
             );
           }
           break;
-        case Opcodes.opJump:
+        case Opcodes.Jump:
           this.pc = (operation[1] as number) - 1;
           break;
 
-        case Opcodes.opJumpTrue:
+        case Opcodes.JumpTrue:
           accumulator = this.scopes.pop();
           if (accumulator instanceof Entry) {
             if (accumulator.value === true) {
@@ -512,7 +512,7 @@ export class Code {
           }
           break;
 
-        case Opcodes.opJumpFalse:
+        case Opcodes.JumpFalse:
           accumulator = this.scopes.pop();
           if (accumulator instanceof Entry) {
             if (accumulator.value === false) {
@@ -520,16 +520,16 @@ export class Code {
             }
           }
           break;
-        case Opcodes.opJumpPop:
+        case Opcodes.JumpPop:
           this.pc = (this.scopes.pop() as number) - 1;
           break;
-        case Opcodes.opPushScope:
+        case Opcodes.PushScope:
           this.scopes.pushScope();
           break;
-        case Opcodes.opPopScope:
+        case Opcodes.PopScope:
           this.scopes.popScope();
           break;
-        case Opcodes.opCall:
+        case Opcodes.Call:
           this.scopes.allocate(
             '~RETURNADDR',
             this.pc + 1,
@@ -537,7 +537,7 @@ export class Code {
           );
           this.pc = (operation[1] as number) - 1;
           break;
-        case Opcodes.opReturn:
+        case Opcodes.Return:
           this.pc = this.scopes.retrieve('~RETURNADDR').value - 1;
           break;
       }
@@ -586,375 +586,127 @@ export class Code {
   isNumeric(value: any): boolean {
     return typeof value === 'number';
   }
-  private binaryMathOperators(operation: any[]) {
-    let tmpAccumulator: number;
-    let tmpRegister: number;
-    let tmpAccumulatorString = '';
-    let tmpRegisterString = '';
 
+  private extractDouble(value: any): number {
+    if (value instanceof Entry) {
+      return parseFloat((value as Entry).value);
+    } else if (this.isNumeric(value)) {
+      return value as number;
+    }
+    return 0;
+  }
+
+  private extractString(value: any): string {
+    if (value instanceof Entry) {
+      return (value as Entry).value?.toString() ?? '';
+    }
+    return value?.toString() ?? '';
+  }
+
+  private extractValue(value: any): any {
+    if (value instanceof Entry) {
+      return (value as Entry).value;
+    }
+    return value;
+  }
+
+  private binaryMathOperators(operation: any[]) {
     const register = this.scopes.pop();
     const accumulator = this.scopes.pop();
 
-    if (register !== undefined && accumulator !== undefined) {
-      try {
-        switch (operation[0] as Opcodes) {
-          case Opcodes.opAdd:
-            tmpAccumulator = 0;
+    if (register === undefined || accumulator === undefined) {
+      return;
+    }
 
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator + tmpRegister);
-            break;
-          case Opcodes.opSub:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator - tmpRegister);
-            break;
-          case Opcodes.opMultiplication:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              ((tmpAccumulator as number) * tmpRegister) as number
-            );
-            break;
-          case Opcodes.opDivision:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              ((tmpAccumulator as number) / tmpRegister) as number
-            );
-            break;
-          case Opcodes.opDiv:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              Math.floor((tmpAccumulator as number) / (tmpRegister as number))
-            );
-            break;
-          case Opcodes.opMod:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              (tmpAccumulator as number) % (tmpRegister as number)
-            );
-            break;
-          case Opcodes.opPower:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              Math.pow(tmpAccumulator as number, tmpRegister as number)
-            );
-
-            break;
-          case Opcodes.opStringConcat:
-            tmpAccumulatorString = '';
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulatorString = (accumulator as Entry).value.toString();
-            } else {
-              tmpAccumulatorString = accumulator.toString();
-            }
-
-            tmpRegisterString = '';
-            if (register instanceof Entry) {
-              tmpRegisterString = (register as Entry).value.toString();
-            } else {
-              tmpRegisterString = register.toString();
-            }
-
-            this.scopes.push(tmpAccumulatorString + tmpRegisterString);
-            break;
-          case Opcodes.opOr:
-            tmpAccumulator = 0;
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              Math.pow(tmpAccumulator as number, tmpRegister as number)
-            );
-            break;
-          case Opcodes.opAnd:
-            tmpAccumulator = 0;
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(
-              (tmpAccumulator as number) + (tmpRegister as number)
-            );
-            break;
-          case Opcodes.opEq:
-            // =
-            tmpAccumulatorString = '';
-            if (accumulator instanceof Entry) {
-              tmpAccumulatorString = (accumulator as Entry).value;
-            } else {
-              tmpAccumulatorString = accumulator;
-            }
-
-            tmpRegisterString = '';
-            if (register instanceof Entry) {
-              tmpRegisterString = (register as Entry).value;
-            } else {
-              tmpRegisterString = register;
-            }
-
-            this.scopes.push(tmpAccumulatorString === tmpRegisterString);
-            break;
-          case Opcodes.opNotEq:
-            tmpAccumulatorString = '';
-            if (accumulator instanceof Entry) {
-              tmpAccumulatorString = (accumulator as Entry).value;
-            } else {
-              tmpAccumulatorString = accumulator;
-            }
-
-            tmpRegisterString = '';
-            if (register instanceof Entry) {
-              tmpRegisterString = (register as Entry).value;
-            } else if (!this.isNumeric(register)) {
-              tmpRegisterString = register;
-            }
-
-            this.scopes.push(tmpAccumulatorString !== tmpRegisterString);
-            break;
-          case Opcodes.oplt:
-            // <
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator < tmpRegister);
-            break;
-          case Opcodes.opLEq:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator <= tmpRegister);
-            break;
-          case Opcodes.opGt:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator > tmpRegister);
-            break;
-          case Opcodes.opGEq:
-            tmpAccumulator = 0;
-
-            if (accumulator instanceof Entry) {
-              tmpAccumulator = parseFloat((accumulator as Entry).value);
-            } else if (this.isNumeric(accumulator)) {
-              tmpAccumulator = accumulator as number;
-            }
-
-            tmpRegister = 0;
-
-            if (register instanceof Entry) {
-              tmpRegister = parseFloat((register as Entry).value);
-            } else if (this.isNumeric(register)) {
-              tmpRegister = register as number;
-            }
-
-            this.scopes.push(tmpAccumulator >= tmpRegister);
-            break;
-        }
-      } catch (ex) {
-        this.isRunning = false;
-        this.interpreterError!.raise(
-          runErrors.errMath,
-          'Code.Run',
-          'Error during calculation binary op ' + operation[0],
-          0,
-          0,
-          0
-        );
+    try {
+      switch (operation[0] as Opcodes) {
+        case Opcodes.Add:
+          this.scopes.push(this.extractDouble(accumulator) + this.extractDouble(register));
+          break;
+        case Opcodes.Sub:
+          this.scopes.push(this.extractDouble(accumulator) - this.extractDouble(register));
+          break;
+        case Opcodes.Multiplication:
+          this.scopes.push(this.extractDouble(accumulator) * this.extractDouble(register));
+          break;
+        case Opcodes.Division:
+          this.scopes.push(this.extractDouble(accumulator) / this.extractDouble(register));
+          break;
+        case Opcodes.Div:
+          this.scopes.push(Math.floor(this.extractDouble(accumulator) / this.extractDouble(register)));
+          break;
+        case Opcodes.Mod:
+          this.scopes.push(this.extractDouble(accumulator) % this.extractDouble(register));
+          break;
+        case Opcodes.Power:
+          this.scopes.push(Math.pow(this.extractDouble(accumulator), this.extractDouble(register)));
+          break;
+        case Opcodes.StringConcat:
+          this.scopes.push(this.extractString(accumulator) + this.extractString(register));
+          break;
+        case Opcodes.Or:
+          this.scopes.push(Math.pow(this.extractDouble(accumulator), this.extractDouble(register)));
+          break;
+        case Opcodes.And:
+          this.scopes.push(this.extractDouble(accumulator) + this.extractDouble(register));
+          break;
+        case Opcodes.Eq:
+          this.scopes.push(this.extractValue(accumulator) === this.extractValue(register));
+          break;
+        case Opcodes.NotEq:
+          this.scopes.push(this.extractValue(accumulator) !== this.extractValue(register));
+          break;
+        case Opcodes.Lt:
+          this.scopes.push(this.extractDouble(accumulator) < this.extractDouble(register));
+          break;
+        case Opcodes.LEq:
+          this.scopes.push(this.extractDouble(accumulator) <= this.extractDouble(register));
+          break;
+        case Opcodes.Gt:
+          this.scopes.push(this.extractDouble(accumulator) > this.extractDouble(register));
+          break;
+        case Opcodes.GEq:
+          this.scopes.push(this.extractDouble(accumulator) >= this.extractDouble(register));
+          break;
       }
+    } catch (ex) {
+      this.isRunning = false;
+      this.interpreterError!.raise(
+        runErrors.errMath,
+        'Code.Run',
+        'Error during calculation binary op ' + operation[0],
+        0,
+        0,
+        0
+      );
     }
   }
 
   private unaryMathOperators(operation: any[]) {
-    let tmpAccumulator = 0;
-    const accumulator = this.scopes.pop();
+    const value = this.extractDouble(this.scopes.pop());
 
-    if (accumulator instanceof Entry) {
-      tmpAccumulator = parseFloat((accumulator as Entry).value);
-    } else if (this.isNumeric(accumulator)) {
-      tmpAccumulator = accumulator as number;
-    }
     try {
       switch (operation[0] as Opcodes) {
-        case Opcodes.opNegate:
-          this.scopes.push(tmpAccumulator * -1);
+        case Opcodes.Negate:
+          this.scopes.push(value * -1);
           break;
-        case Opcodes.opNot:
-          this.scopes.push(!(tmpAccumulator as number));
+        case Opcodes.Not:
+          this.scopes.push(!value);
           break;
-        case Opcodes.opFactorial:
-          this.scopes.push(this.factorial(tmpAccumulator as number));
+        case Opcodes.Factorial:
+          this.scopes.push(this.factorial(value));
           break;
-        case Opcodes.opSin:
-          this.scopes.push(Math.sin(tmpAccumulator as number));
+        case Opcodes.Sin:
+          this.scopes.push(Math.sin(value));
           break;
-        case Opcodes.opCos:
-          this.scopes.push(Math.cos(tmpAccumulator as number));
+        case Opcodes.Cos:
+          this.scopes.push(Math.cos(value));
           break;
-        case Opcodes.opTan:
-          this.scopes.push(Math.tan(tmpAccumulator as number));
+        case Opcodes.Tan:
+          this.scopes.push(Math.tan(value));
           break;
-        case Opcodes.opATan:
-          this.scopes.push(Math.atan(tmpAccumulator as number));
+        case Opcodes.ATan:
+          this.scopes.push(Math.atan(value));
           break;
       }
     } catch (ex) {

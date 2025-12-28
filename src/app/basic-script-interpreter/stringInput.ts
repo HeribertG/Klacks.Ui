@@ -1,6 +1,6 @@
 import { InterpreterError, inputStreamErrors } from './interpreterError';
 
-export class StringInput {
+export class StringInputStream {
   private _sourceText = '';
   private _sourceIndex = 0;
   private _line = -1;
@@ -32,59 +32,58 @@ export class StringInput {
   }
 
   getNextChar(): string {
-    let GetNextChar = '';
     this._sourceIndex++;
-    let nextChar: string;
 
-    if (this._sourceIndex < this._sourceText.length) {
-      nextChar = this._sourceText.substring(
-        this._sourceIndex - 1,
-        this._sourceIndex
-      );
-
-      this._col++;
-
-      switch (nextChar) {
-        case '\t':
-          GetNextChar = ' ';
-          break;
-
-        case '\r':
-          this._col -= 1;
-          GetNextChar = nextChar;
-          break;
-
-        case '\r\n':
-          this._line++;
-          this._col = 0;
-          GetNextChar = '\n';
-          break;
-
-        case '\n':
-          this._line++;
-          this._col = 0;
-          GetNextChar = '\n';
-          break;
-
-        default:
-          if (nextChar >= ' ') {
-            GetNextChar = nextChar;
-          } else {
-            this.interpreterError!.raise(
-              inputStreamErrors.errInvalidChar,
-              'stringInput.getNextChar',
-              'Invalid character (ASCII ' + nextChar.charCodeAt(0) + ')',
-              this.line,
-              this.col,
-              this.index
-            );
-          }
-          break;
-      }
-    } else {
-      GetNextChar = '';
+    if (this._sourceIndex >= this._sourceText.length) {
+      return '';
     }
-    return GetNextChar;
+
+    const nextChar = this._sourceText.substring(
+      this._sourceIndex - 1,
+      this._sourceIndex
+    );
+    this._col++;
+
+    switch (nextChar) {
+      case '\t':
+        return ' ';
+
+      case '\r': {
+        const peek = this._sourceText.substring(this._sourceIndex, this._sourceIndex + 1);
+        if (peek === '\n') {
+          this._sourceIndex++;
+          this._line++;
+          this._col = 0;
+          return '\n';
+        }
+        this._col--;
+        return '\r';
+      }
+
+      case '\n': {
+        const peek = this._sourceText.substring(this._sourceIndex, this._sourceIndex + 1);
+        if (peek === '\r') {
+          this._sourceIndex++;
+        }
+        this._line++;
+        this._col = 0;
+        return '\n';
+      }
+
+      default:
+        if (nextChar >= ' ') {
+          return nextChar;
+        }
+        this.interpreterError!.raise(
+          inputStreamErrors.errInvalidChar,
+          'stringInput.getNextChar',
+          'Invalid character (ASCII ' + nextChar.charCodeAt(0) + ')',
+          this.line,
+          this.col,
+          this.index
+        );
+        return '';
+    }
   }
 
   goBack() {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export class Sym {
+export class Symbol {
   private _token: Tokens = Tokens.tokNone;
   private _text = '';
   private _value: any | undefined;

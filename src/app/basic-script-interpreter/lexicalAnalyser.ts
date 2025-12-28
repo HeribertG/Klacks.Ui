@@ -1,23 +1,41 @@
 /* eslint-disable no-constant-condition */
 /* eslint-disable no-case-declarations */
-import { Sym, Tokens } from './symbol';
+import { Symbol, Tokens } from './symbol';
 import { InterpreterError, lexErrors } from './interpreterError';
-import { StringInput } from './stringInput';
+import { StringInputStream } from './stringInput';
 
 export class LexicalAnalyser {
   private COMMENT_CHAR = "'";
-
   private predefinedIdentifiers = new Map<string, number>();
 
-  getNextSymbol(): Sym {
-    const nextSymbol = new Sym();
+  private isDigit(c: string): boolean {
+    return c >= '0' && c <= '9';
+  }
+
+  private isIdentifierStart(c: string): boolean {
+    const upper = c.toUpperCase();
+    return (
+      (upper >= 'A' && upper <= 'Z') ||
+      upper === 'Ä' ||
+      upper === 'Ö' ||
+      upper === 'Ü' ||
+      upper === 'ß' ||
+      upper === '_' ||
+      upper === '@'
+    );
+  }
+
+  private isIdentifierChar(c: string): boolean {
+    return this.isIdentifierStart(c) || this.isDigit(c);
+  }
+
+  getNextSymbol(): Symbol {
+    const nextSymbol = new Symbol();
     let c = '';
     let symbolText = '';
     let returnNumberSymbol = false;
 
     if (!this.stringInput!.EOF) {
-      // führende Leerzeichen und Tab und Kommentare
-      // vor nächstem Symbol überspringen
       do {
         c = this.stringInput!.getNextChar();
 
@@ -75,7 +93,7 @@ export class LexicalAnalyser {
         case ')':
           nextSymbol.init(Tokens.tokRightParent as Tokens, c);
           break;
-        case ',': // Trenner zwischen Parametern in Funktionsaufrufen
+        case ',':
           nextSymbol.init(Tokens.tokComma as Tokens, c);
           break;
         case '=':
@@ -109,153 +127,6 @@ export class LexicalAnalyser {
               break;
           }
           break;
-        case '0':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '1':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '2':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '3':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '4':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '5':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '6':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '7':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '8':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '9':
-          res = this.numbers(nextSymbol, c);
-          returnNumberSymbol = res.returnNumberSymbol;
-          symbolText = res.symbolText;
-          break;
-        case '@':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'A':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'B':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'C':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'D':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'E':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'F':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'G':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'H':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'I':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'J':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'K':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'L':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'M':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'N':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'O':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'P':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Q':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'R':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'S':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'T':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'U':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'V':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'W':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'X':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Y':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Z':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Ä':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Ö':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'Ü':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case 'ß':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-        case '_':
-          symbolText = this.identifier(nextSymbol, c);
-          break;
-
         case '"':
           openingChar = c;
           symbolText = '';
@@ -278,7 +149,7 @@ export class LexicalAnalyser {
                   );
                 }
                 break;
-              case '\n': // keinen Zeilenwechsel im String zulassen
+              case '\n':
                 this.interpreterError!.raise(
                   lexErrors.errUnexpectedEOL,
                   'LexAnalyser.nextSymbol',
@@ -308,18 +179,26 @@ export class LexicalAnalyser {
         case ':':
           nextSymbol.init(Tokens.tokStatementDelimiter as Tokens, c);
           break;
-        case '\n': // vbLf
+        case '\n':
           nextSymbol.init(Tokens.tokStatementDelimiter as Tokens, c);
           break;
         default:
-          this.interpreterError!.raise(
-            lexErrors.errUnknownSymbol,
-            'LexicalAnalyser.',
-            'Unknown Sym starting with character ASCII ' + c.charCodeAt(0),
-            nextSymbol.line,
-            nextSymbol.col,
-            nextSymbol.index
-          );
+          if (this.isDigit(c)) {
+            res = this.numbers(nextSymbol, c);
+            returnNumberSymbol = res.returnNumberSymbol;
+            symbolText = res.symbolText;
+          } else if (this.isIdentifierStart(c)) {
+            symbolText = this.identifier(nextSymbol, c);
+          } else {
+            this.interpreterError!.raise(
+              lexErrors.errUnknownSymbol,
+              'LexicalAnalyser.',
+              'Unknown Sym starting with character ASCII ' + c.charCodeAt(0),
+              nextSymbol.line,
+              nextSymbol.col,
+              nextSymbol.index
+            );
+          }
           break;
       }
     } else {
@@ -333,7 +212,7 @@ export class LexicalAnalyser {
     return nextSymbol;
   }
 
-  private mathOperatorOrAssignments(nextSymbol: Sym, c: string) {
+  private mathOperatorOrAssignments(nextSymbol: Symbol, c: string) {
     let symbolText = c;
     c = this.stringInput!.getNextChar();
 
@@ -392,7 +271,7 @@ export class LexicalAnalyser {
   }
 
   private numbers(
-    nextSymbol: Sym,
+    nextSymbol: Symbol,
     c: string
   ): { returnNumberSymbol: boolean; symbolText: string } {
     let symbolText = c;
@@ -425,167 +304,34 @@ export class LexicalAnalyser {
     return { returnNumberSymbol, symbolText };
   }
 
-  private identifier(nextSymbol: Sym, c: string): string {
+  private identifier(nextSymbol: Symbol, c: string): string {
     let symbolText = c;
-    let breakLoop = false;
 
-    c = this.stringInput!.getNextChar();
-    do {
-      switch (c.toUpperCase()) {
-        case '@':
-          symbolText = symbolText + c;
-          break;
-        case 'A':
-          symbolText = symbolText + c;
-          break;
-        case 'B':
-          symbolText = symbolText + c;
-          break;
-        case 'C':
-          symbolText = symbolText + c;
-          break;
-        case 'D':
-          symbolText = symbolText + c;
-          break;
-        case 'E':
-          symbolText = symbolText + c;
-          break;
-        case 'F':
-          symbolText = symbolText + c;
-          break;
-        case 'G':
-          symbolText = symbolText + c;
-          break;
-        case 'H':
-          symbolText = symbolText + c;
-          break;
-        case 'I':
-          symbolText = symbolText + c;
-          break;
-        case 'J':
-          symbolText = symbolText + c;
-          break;
-        case 'K':
-          symbolText = symbolText + c;
-          break;
-        case 'L':
-          symbolText = symbolText + c;
-          break;
-        case 'M':
-          symbolText = symbolText + c;
-          break;
-        case 'N':
-          symbolText = symbolText + c;
-          break;
-        case 'O':
-          symbolText = symbolText + c;
-          break;
-        case 'P':
-          symbolText = symbolText + c;
-          break;
-        case 'Q':
-          symbolText = symbolText + c;
-          break;
-        case 'R':
-          symbolText = symbolText + c;
-          break;
-        case 'S':
-          symbolText = symbolText + c;
-          break;
-        case 'T':
-          symbolText = symbolText + c;
-          break;
-        case 'U':
-          symbolText = symbolText + c;
-          break;
-        case 'V':
-          symbolText = symbolText + c;
-          break;
-        case 'W':
-          symbolText = symbolText + c;
-          break;
-        case 'X':
-          symbolText = symbolText + c;
-          break;
-        case 'Y':
-          symbolText = symbolText + c;
-          break;
-        case 'Z':
-          symbolText = symbolText + c;
-          break;
-        case 'Ä':
-          symbolText = symbolText + c;
-          break;
-        case 'Ö':
-          symbolText = symbolText + c;
-          break;
-        case 'Ü':
-          symbolText = symbolText + c;
-          break;
-        case 'ß':
-          symbolText = symbolText + c;
-          break;
-        case '_':
-          symbolText = symbolText + c;
-          break;
+    while (!this.stringInput!.EOF) {
+      c = this.stringInput!.getNextChar();
+      if (this.isIdentifierChar(c)) {
+        symbolText = symbolText + c;
+      } else {
+        this.stringInput!.goBack();
+        break;
+      }
+    }
 
-        case '0':
-          symbolText = symbolText + c;
-          break;
-        case '1':
-          symbolText = symbolText + c;
-          break;
-        case '2':
-          symbolText = symbolText + c;
-          break;
-        case '3':
-          symbolText = symbolText + c;
-          break;
-        case '4':
-          symbolText = symbolText + c;
-          break;
-        case '5':
-          symbolText = symbolText + c;
-          break;
-        case '6':
-          symbolText = symbolText + c;
-          break;
-        case '7':
-          symbolText = symbolText + c;
-          break;
-        case '8':
-          symbolText = symbolText + c;
-          break;
-        case '9':
-          symbolText = symbolText + c;
-          break;
-        default:
-          this.stringInput!.goBack();
-          breakLoop = true;
-          if (this.predefinedIdentifiers.has(symbolText.toUpperCase())) {
-            nextSymbol.init(
-              this.predefinedIdentifiers.get(symbolText.toUpperCase())!,
-              symbolText
-            );
-          } else {
-            nextSymbol.init(Tokens.tokIdentifier, symbolText);
-          }
-          break;
-      }
-      if (this.stringInput!.EOF) {
-        breakLoop = true;
-      }
-      if (!breakLoop) {
-        c = this.stringInput!.getNextChar();
-      }
-    } while (!breakLoop);
+    if (this.predefinedIdentifiers.has(symbolText.toUpperCase())) {
+      nextSymbol.init(
+        this.predefinedIdentifiers.get(symbolText.toUpperCase())!,
+        symbolText
+      );
+    } else {
+      nextSymbol.init(Tokens.tokIdentifier, symbolText);
+    }
 
     return symbolText;
   }
 
   public constructor(
     private interpreterError: InterpreterError | undefined,
-    private stringInput: StringInput | undefined
+    private stringInput: StringInputStream | undefined
   ) {
     this.predefinedIdentifiers.set('DIV', Tokens.tokDiv);
     this.predefinedIdentifiers.set('MOD', Tokens.tokMod);

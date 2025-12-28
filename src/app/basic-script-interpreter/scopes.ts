@@ -27,14 +27,10 @@ export class Scopes {
     return this._scopes[this._scopes.length - 1].allocate(name, value, idType);
   }
 
-  // Von oben nach unten alle Scopes durchgehen und dem
-  // ersten benannten Wert mit dem übergebenen Namen den
-  // Wert zuweisen.
   public assign(name: string, value: any) {
     this.getVariable(name).value = value;
   }
 
-  // dito, jedoch Wert zurückliefern (als kompletten Identifier)
   public retrieve(name: string): Identifier {
     return this.getVariable(name);
   }
