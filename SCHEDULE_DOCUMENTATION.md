@@ -1,6 +1,6 @@
 # Schedule Documentation
 
-**Letzte Aktualisierung:** 27.12.2025
+**Letzte Aktualisierung:** 28.12.2025
 
 ---
 
@@ -23,7 +23,8 @@
 15. [Work CRUD - Architektur & Workflows](#work-crud---architektur--workflows)
 16. [Copy/Paste Funktionalität](#copypaste-funktionalität)
 17. [Fill Handle](#fill-handle)
-18. [Changelog](#changelog)
+18. [Client Filter](#client-filter)
+19. [Changelog](#changelog)
 
 ---
 
@@ -573,7 +574,77 @@ Nach Merge: [4, 5, 6, 7, 8] → 1 API-Call
 
 ---
 
+## Client Filter
+
+### Shared Component
+
+Der `ClientFilterComponent` ist eine wiederverwendbare Komponente für Filter-Dropdowns:
+
+```
+src/app/presentation/shared/client-filter/
+├── client-filter.component.ts
+├── client-filter.component.html
+├── client-filter.component.scss
+└── client-filter.interface.ts
+```
+
+### Verwendung
+
+| Ansicht | Service | Filter-Objekt |
+|---------|---------|---------------|
+| Schedule | `DataManagementScheduleService` | `workFilter` |
+| Absence-Gantt | `DataManagementBreakPlaceholderService` | `breakFilter` |
+
+### IClientTypeFilter Interface
+
+```typescript
+export interface IClientTypeFilter {
+  orderBy: string;           // 'name' | 'group' | 'hours'
+  sortOrder: string;         // 'asc' | 'desc'
+  showEmployees: boolean;    // Mitarbeiter anzeigen
+  showExtern: boolean;       // Externe anzeigen
+  hoursSortOrder: string | undefined;  // Sekundäre Sortierung nach Stunden
+}
+```
+
+### Filter-Optionen
+
+| Option | Beschreibung |
+|--------|--------------|
+| **Nachname** | Sortierung nach Client-Nachname |
+| **Gruppenzugehörigkeit** | Sortierung nach Gruppenname |
+| **Vertraglich garantierte Stunden** | Sortierung nach `Contract.GuaranteedHoursPerMonth` |
+| **Mitarbeiter** | Checkbox - EntityTypeEnum.Employee (0) |
+| **Externe** | Checkbox - EntityTypeEnum.ExternEmp (1) |
+
+### Sortierung
+
+- **Primäre Sortierung:** `orderBy` + `sortOrder`
+- **Sekundäre Sortierung:** `hoursSortOrder` (unabhängig, als ThenBy)
+
+```typescript
+// Backend: WorkRepository.cs
+query = ApplyOrderBy(query, filter, refDate);
+
+if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
+    query = filter.HoursSortOrder == "asc"
+        ? query.ThenBy(...)
+        : query.ThenByDescending(...);
+}
+```
+
+---
+
 ## Changelog
+
+### 28.12.2025 - Shared ClientFilterComponent + SignalR Resilience
+
+- `ClientFilterComponent` in `presentation/shared/client-filter/` erstellt (DRY)
+- Alte `schedule-filter` und `absence-gantt-filter` Komponenten gelöscht
+- SignalR Service: Health Check + Retry Logik für robustere Verbindung
+- Backend: `/health` Endpoint hinzugefügt
+- Filter-Dropdown: Breite passt sich automatisch an Inhalt an
+- Übersetzungen: "Stunden" → "Vertraglich garantierte Stunden", "MA" → "Mitarbeiter"
 
 ### 27.12.2025 - Dokumentation zusammengeführt
 
