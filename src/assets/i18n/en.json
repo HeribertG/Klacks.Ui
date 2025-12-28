@@ -559,9 +559,9 @@
   "pdf.no-directions-available": "No detailed directions available",
 
   "schedule.row-header.headline": "Name",
-  "schedule.filter.employees": "Emp",
+  "schedule.filter.employees": "Employees",
   "schedule.filter.extern": "Ext",
-  "schedule.filter.hours": "Hours",
+  "schedule.filter.hours": "Contractually guaranteed hours",
   "schedule.schedule-header.schedule-header.month": "Month: ",
   "schedule.selector.select-calendar": "Select Month and Year",
   "schedule.shift-section.tab.shifts": "Shifts",

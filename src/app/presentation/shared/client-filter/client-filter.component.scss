@@ -1,12 +1,13 @@
-@use "../../../../../../../assets/standard-styles/standard-controls.scss";
-@use "../../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../assets/standard-styles/standard-modal.scss";
 
 .single-line {
   display: inline-flex;
 }
 
 .container {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   height: auto;
   font-size: 11pt;
 }
@@ -14,6 +15,7 @@
 .row-line {
   margin-top: 5px;
   display: inline-flex;
+  white-space: nowrap;
 }
 
 .arrow {
@@ -32,6 +34,7 @@
   text-align: inherit;
   cursor: pointer;
   display: block;
+  white-space: nowrap;
 
   &:hover {
     background: var(--gridBackgroundColorRowHover);
@@ -66,10 +69,4 @@
     width: 16px;
     height: 16px;
   }
-}
-
-.hours-button {
-  margin-top: 5px;
-  padding-top: 5px;
-  border-top: 1px solid var(--gridBorderColor);
 }

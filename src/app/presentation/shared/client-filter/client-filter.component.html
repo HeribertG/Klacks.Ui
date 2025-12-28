@@ -1,6 +1,6 @@
-<div id="schedule-filter-container" class="container">
+<div id="client-filter-container" class="container">
   <button
-    id="schedule-filter-firstname-button"
+    id="client-filter-firstname-button"
     class="input-group button-as-div"
     (click)="onClickHeader('firstName')"
   >
@@ -18,7 +18,7 @@
     </div>
   </button>
 
-  <button id="schedule-filter-name-button" class="input-group button-as-div" (click)="onClickHeader('name')">
+  <button id="client-filter-name-button" class="input-group button-as-div" (click)="onClickHeader('name')">
     <div class="row-line">
       <p class="arrow">
         @if (sortingService.getArrow('name') === '↓') {
@@ -33,7 +33,7 @@
     </div>
   </button>
 
-  <button id="schedule-filter-company-button" class="input-group button-as-div" (click)="onClickHeader('company')">
+  <button id="client-filter-company-button" class="input-group button-as-div" (click)="onClickHeader('company')">
     <div class="row-line">
       <p class="arrow">
         @if (sortingService.getArrow('company') === '↓') {
@@ -65,19 +65,20 @@
       />
       {{ "schedule.filter.extern" | translate }}
     </label>
-    <button id="schedule-filter-hours-button" class="hours-button button-as-div" (click)="onClickHours()">
-      <div class="row-line">
-        <p class="arrow">
-          @if (getHoursArrow() === '↓') {
-          <app-icon-asc></app-icon-asc>
-          } @if (getHoursArrow() === '↑') {
-          <app-icon-desc></app-icon-desc>
-          }
-        </p>
-        <p>
-          {{ "schedule.filter.hours" | translate }}
-        </p>
-      </div>
-    </button>
   </div>
+
+  <button id="client-filter-hours-button" class="input-group button-as-div" (click)="onClickHours()">
+    <div class="row-line">
+      <p class="arrow">
+        @if (getHoursArrow() === '↓') {
+        <app-icon-asc></app-icon-asc>
+        } @if (getHoursArrow() === '↑') {
+        <app-icon-desc></app-icon-desc>
+        }
+      </p>
+      <p>
+        {{ "schedule.filter.hours" | translate }}
+      </p>
+    </div>
+  </button>
 </div>

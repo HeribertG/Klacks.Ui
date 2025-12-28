@@ -559,9 +559,9 @@
   "pdf.no-directions-available": "Nessuna indicazione dettagliata disponibile",
 
   "schedule.row-header.headline": "Nome",
-  "schedule.filter.employees": "Dip",
+  "schedule.filter.employees": "Dipendenti",
   "schedule.filter.extern": "Est",
-  "schedule.filter.hours": "Ore",
+  "schedule.filter.hours": "Ore contrattuali garantite",
   "schedule.schedule-header.schedule-header.month": "Mese: ",
   "schedule.selector.select-calendar": "Seleziona Mese e Anno",
   "schedule.shift-section.tab.shifts": "Turni",

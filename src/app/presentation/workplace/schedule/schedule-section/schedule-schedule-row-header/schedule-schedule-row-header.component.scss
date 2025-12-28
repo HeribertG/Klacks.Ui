@@ -16,8 +16,8 @@ canvas {
   position: absolute;
   left: 0px;
   top: 0px;
-  width: 100px;
   height: auto;
+  display: inline-block;
   background-color: var(--standartTextBackground);
   color: var(--standartTextColor);
   border-radius: 10px;

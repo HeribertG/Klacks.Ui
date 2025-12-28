@@ -19,7 +19,7 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
-import { AbsenceGanttFilterComponent } from './absence-gantt-filter/absence-gantt-filter.component';
+import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';
 import { DrawRowHeaderService } from '../services/draw-row-header.service';
@@ -34,23 +34,20 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
   templateUrl: './absence-gantt-row-header.component.html',
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, AbsenceGanttFilterComponent, ResizeDirective],
+  imports: [NgStyle, ClientFilterComponent, ResizeDirective],
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @Input() valueChangeVScrollbar!: number;
 
-  @ViewChild('ganttFilter', { static: false }) filter:
-    | AbsenceGanttFilterComponent
-    | undefined;
   @ViewChild('boxCalendarRowHeader')
   boxCalendarRowHeader!: ElementRef<HTMLDivElement>;
 
   public scroll = inject(ScrollService);
+  public dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private gridColorService = inject(GridColorService);
   private gridFontsService = inject(GridFontsService);
-  private dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private drawCalendarGanttService = inject(DrawCalendarGanttService);
   private drawRowHeader = inject(DrawRowHeaderService);
   private injector = inject(Injector);
@@ -209,25 +206,14 @@ export class AbsenceGanttRowHeaderComponent
   /* #region Filter */
 
   showFilter() {
-    const width = 150;
     const canvas = this.drawRowHeader.rowHeaderCanvasManager.canvas;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
 
-    let leftPos =
-      this.drawRowHeader.recFilterIcon.left +
-      rect.left +
-      this.drawRowHeader.recFilterIcon.width -
-      width;
-
-    const diff = leftPos - rect.left;
-    if (diff < 0) {
-      leftPos -= diff;
-    }
+    const leftPos = rect.left;
 
     this.filterStyle = {
-      width: width + 'px',
       visibility: 'visible',
       left: leftPos + 'px',
       top:
@@ -242,6 +228,10 @@ export class AbsenceGanttRowHeaderComponent
     this.filterStyle = {
       visibility: 'hidden',
     };
+  }
+
+  onFilterChange(): void {
+    this.dataManagementBreak.reRead();
   }
 
   /* #endregion Filter */

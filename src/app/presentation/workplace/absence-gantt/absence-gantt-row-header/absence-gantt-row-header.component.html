@@ -4,7 +4,10 @@
   [ngStyle]="filterStyle"
   (mouseleave)="onMouseLeave()"
 >
-  <app-absence-gantt-filter id="absence-row-header-filter-component" #ganttFilter></app-absence-gantt-filter>
+  <app-client-filter
+    [filter]="dataManagementBreak.breakFilter"
+    (filterChange)="onFilterChange()"
+  ></app-client-filter>
 </div>
 
 <div

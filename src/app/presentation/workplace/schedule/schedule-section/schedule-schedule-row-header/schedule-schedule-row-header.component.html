@@ -4,7 +4,10 @@
   [ngStyle]="filterStyle"
   (mouseleave)="onFilterMouseLeave()"
 >
-  <app-schedule-filter id="schedule-row-header-filter-component" #scheduleFilter></app-schedule-filter>
+  <app-client-filter
+    [filter]="dataManagementSchedule.workFilter"
+    (filterChange)="onFilterChange()"
+  ></app-client-filter>
 </div>
 
 <div #box id="box" class="box" appResize (resizeElement)="onResize($event)">

@@ -26,30 +26,31 @@ import { BaseDrawRowHeaderService } from 'src/app/presentation/workplace/schedul
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { ScheduleRowHeaderEventsDirective } from './directives/schedule-row-header-events.directive';
-import { ScheduleFilterComponent } from './schedule-filter/schedule-filter.component';
+import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
   templateUrl: './schedule-schedule-row-header.component.html',
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
-  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ScheduleFilterComponent],
+  imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent],
   providers: [ScrollService, BaseCreateRowHeaderService],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
 {
   @ViewChild('box') boxElement!: ElementRef<HTMLDivElement>;
-  @ViewChild('scheduleFilter') filter: ScheduleFilterComponent | undefined;
 
   @Input() valueChangeVScrollbar!: number;
 
   public dataService = inject(BaseDataService);
   public scroll = inject(ScrollService);
   public drawRowHeader = inject(BaseDrawRowHeaderService);
+  public dataManagementSchedule = inject(DataManagementScheduleService);
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private scrollEventService = inject(ScrollEventService);
@@ -204,26 +205,19 @@ export class ScheduleScheduleRowHeaderComponent
     this.destroyFilter();
   }
 
+  onFilterChange(): void {
+    this.dataManagementSchedule.readWorkSchedule();
+  }
+
   private showFilter(): void {
-    const width = 150;
     const canvas = this.drawRowHeader.canvas;
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
 
-    let leftPos =
-      this.drawRowHeader.recFilterIcon.left +
-      rect.left +
-      this.drawRowHeader.recFilterIcon.width -
-      width;
-
-    const diff = leftPos - rect.left;
-    if (diff < 0) {
-      leftPos -= diff;
-    }
+    const leftPos = rect.left;
 
     this.filterStyle = {
-      width: width + 'px',
       visibility: 'visible',
       left: leftPos + 'px',
       top:

@@ -41,14 +41,6 @@
 }
 
 ::ng-deep {
-  // .custom-slider .ngx-slider .ngx-slider-bar {
-  //   background: #ffe4d1;
-  //   height: 2px;
-  // }
-  // .custom-slider .ngx-slider .ngx-slider-selection {
-  //   background: orange;
-  // }
-
   .custom-slider .ngx-slider .ngx-slider-pointer {
     width: 8px;
     height: 16px;
@@ -91,9 +83,6 @@
   margin-right: 10px;
   margin-top: 8px;
   background-color: transparent;
-  // app-icon-slider-grey {
-  //   margin-right: 3px;
-  // }
 }
 
 .chip-form-group {
@@ -102,4 +91,8 @@
 
 .dropdown-menu {
   background-color: var(--backgroundColoPagination);
+}
+
+.calendar-previous-next {
+  margin-top: 0px;
 }

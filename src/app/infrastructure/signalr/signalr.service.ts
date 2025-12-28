@@ -60,15 +60,54 @@ export class SignalRService implements OnDestroy {
     this.registerEventHandlers();
     this.registerConnectionEvents();
 
-    try {
-      await this.hubConnection.start();
-      const connectionId = await this.hubConnection.invoke<string>('GetConnectionId');
-      this._connectionId.set(connectionId);
-      this._isConnected.set(true);
-      console.log('SignalR connected with ID:', connectionId);
-    } catch (err) {
-      console.warn('SignalR connection failed - backend may not be running');
-      this._isConnected.set(false);
+    await this.waitForBackend();
+    await this.connectWithRetry();
+  }
+
+  private async waitForBackend(maxAttempts = 10, intervalMs = 1000): Promise<void> {
+    const healthUrl = environment.baseUrl.replace('/api/v1/backend/', '/health');
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        const response = await fetch(healthUrl, { method: 'GET' });
+        if (response.ok) {
+          console.log('Backend health check passed');
+          return;
+        }
+      } catch {
+        // Backend not ready yet
+      }
+
+      if (attempt < maxAttempts - 1) {
+        console.log(`Waiting for backend... (attempt ${attempt + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, intervalMs));
+      }
+    }
+
+    console.warn('Backend health check timed out, attempting SignalR connection anyway');
+  }
+
+  private async connectWithRetry(maxRetries = 5): Promise<void> {
+    const retryDelays = [0, 1000, 2000, 5000, 10000];
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        await this.hubConnection!.start();
+        const connectionId = await this.hubConnection!.invoke<string>('GetConnectionId');
+        this._connectionId.set(connectionId);
+        this._isConnected.set(true);
+        console.log('SignalR connected with ID:', connectionId);
+        return;
+      } catch {
+        const delay = retryDelays[attempt] ?? 10000;
+        if (attempt < maxRetries - 1) {
+          console.log(`SignalR connection attempt ${attempt + 1} failed, retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          console.warn('SignalR connection failed after all retries - backend may not be running');
+          this._isConnected.set(false);
+        }
+      }
     }
   }
 

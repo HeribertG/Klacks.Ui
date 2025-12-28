@@ -559,9 +559,9 @@
   "pdf.no-directions-available": "Aucune indication détaillée disponible",
 
   "schedule.row-header.headline": "Nom",
-  "schedule.filter.employees": "Emp",
+  "schedule.filter.employees": "Employés",
   "schedule.filter.extern": "Ext",
-  "schedule.filter.hours": "Heures",
+  "schedule.filter.hours": "Heures contractuelles garanties",
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",
