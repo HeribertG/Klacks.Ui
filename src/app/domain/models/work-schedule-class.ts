@@ -69,7 +69,7 @@ export interface IWorkScheduleClient {
 export interface IWorkScheduleResponse {
   entries: IWorkScheduleEntry[];
   clients: IWorkScheduleClient[];
-  monthlyHours: { [clientId: string]: IMonthlyHours };
+  monthlyHours: Record<string, IMonthlyHours>;
 }
 
 export interface IMonthlyHours {

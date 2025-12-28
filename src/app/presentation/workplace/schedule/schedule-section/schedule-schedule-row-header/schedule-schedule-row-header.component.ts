@@ -58,7 +58,7 @@ export class ScheduleScheduleRowHeaderComponent
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  filterStyle: { [key: string]: string } = { visibility: 'hidden' };
+  filterStyle: Record<string, string> = { visibility: 'hidden' };
   private iconSize = 16;
 
   private set currentCursor(cursor: CursorEnum) {

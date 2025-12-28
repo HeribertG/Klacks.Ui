@@ -12,10 +12,7 @@ import {
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
-import {
-  formatDateOnly,
-  getDaysInMonth,
-} from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -29,7 +26,7 @@ export class WorkScheduleLoaderService {
   public workScheduleEntries: IWorkScheduleEntry[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
-  public monthlyHours: Map<string, IMonthlyHours> = new Map();
+  public monthlyHours = new Map<string, IMonthlyHours>();
 
   get isRead() {
     return this._isRead;

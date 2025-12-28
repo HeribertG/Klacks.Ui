@@ -7,7 +7,6 @@ import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
-import { IShiftSchedule } from '../../models/shift-schedule-class';
 import { IWorkFilter } from '../../models/schedule-class';
 
 export interface WorkScheduleEntryParams {

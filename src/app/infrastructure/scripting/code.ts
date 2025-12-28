@@ -142,7 +142,7 @@ export class Code {
   importAdd(
     name: string,
     value: any = null,
-    idType = Identifier.IdentifierTypes.idVariable
+    idType = IdentifierTypes.idVariable
   ): Identifier {
     return this._external.allocate(name, value, idType);
   }
