@@ -91,34 +91,35 @@ export class MenuComponent {
     let y = 0;
     let x = 0;
 
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
     if (this.parentRect.width > 0 && this.parentRect.height > 0) {
       const res = this.getPosition(div);
       top = res[1];
       left = res[0];
 
-      if (
-        top + height >=
-        (window.innerHeight || document.documentElement.clientHeight)
-      ) {
+      if (top + height >= viewportHeight) {
         y = -(height - this.parentRect.height) + 4;
       }
-      if (
-        left + width >=
-        (window.innerWidth || document.documentElement.clientWidth)
-      ) {
+
+      if (top + y < 0) {
+        y = -top;
+      }
+
+      if (left + width >= viewportWidth) {
         x = -(this.parentRect.width + width) + 4;
       }
     } else {
-      if (
-        top + height >=
-        (window.innerHeight || document.documentElement.clientHeight)
-      ) {
+      if (top + height >= viewportHeight) {
         y = -height + 8;
       }
-      if (
-        left + width >=
-        (window.innerWidth || document.documentElement.clientWidth)
-      ) {
+
+      if (top + y < 0) {
+        y = -top;
+      }
+
+      if (left + width >= viewportWidth) {
         x = -width + 8;
       }
     }

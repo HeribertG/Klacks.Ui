@@ -4,9 +4,11 @@ export interface IMenu {
 export interface IMenuItem {
   key: string;
   name: string;
+  subText: string | undefined;
   isSeparator: boolean;
   shortCut: string;
   iconFont: string;
+  svgIcon: string | undefined;
   hasMenu: boolean;
   menu: Menu | undefined;
   disabled: boolean;
@@ -34,9 +36,11 @@ export class MenuItem implements IMenuItem {
   }
   key = '';
   name = '';
+  subText: string | undefined = undefined;
   isSeparator = false;
   shortCut = '';
   iconFont = '';
+  svgIcon: string | undefined = undefined;
   hasMenu = false;
   menu: Menu | undefined = undefined;
   disabled = false;

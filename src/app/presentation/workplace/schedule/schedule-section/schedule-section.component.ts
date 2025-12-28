@@ -49,11 +49,17 @@ import { ScheduleDataService } from './services/schedule-data.service';
 import { WorkNotificationService } from 'src/app/domain/services/schedule/work-notification.service';
 import { ContextMenuComponent } from 'src/app/presentation/shared/context-menu/context-menu.component';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
-import { Menu } from 'src/app/presentation/shared/context-menu/context-menu-class';
+import { Menu, MenuItem } from 'src/app/presentation/shared/context-menu/context-menu-class';
 import { MenuDataTemplate } from 'src/app/presentation/helpers/context-menu-data-template';
 import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/work-schedule-crud.service';
 import { ShowInShiftService } from '../services/show-in-shift.service';
 import { ShowInScheduleService } from '../services/show-in-schedule.service';
+import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
+import { addDays } from 'src/app/shared/helpers/date.helper';
+import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
+import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
+import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
+import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 
 @Component({
   selector: 'app-schedule-section',
@@ -121,6 +127,8 @@ export class ScheduleSectionComponent
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
   private tooltipState: TooltipState = { lastHeaderColumn: -1 };
+  private contextMenuRow = -1;
+  private contextMenuColumn = -1;
 
   private destroy$ = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -392,6 +400,9 @@ export class ScheduleSectionComponent
   }
 
   private createContextMenu(row: number, column: number): void {
+    this.contextMenuRow = row;
+    this.contextMenuColumn = column;
+
     const menuData = new Menu();
     const dataService = this.scheduleSurface.dataService as ScheduleDataService;
     const isCellFilled = dataService.isCellActive(row, column);
@@ -404,6 +415,15 @@ export class ScheduleSectionComponent
       menuData.list.push(...MenuDataTemplate.showInShift());
     } else {
       menuData.list.push(...MenuDataTemplate.paste());
+
+      const shiftsSubmenu = this.createShiftsSubmenu(column);
+      if (shiftsSubmenu && shiftsSubmenu.list.length > 0) {
+        menuData.list.push(...MenuDataTemplate.divider());
+        const dienstMenuItem = new MenuItem('dienste', 'Dienste...', false);
+        dienstMenuItem.hasMenu = true;
+        dienstMenuItem.menu = shiftsSubmenu;
+        menuData.list.push(dienstMenuItem);
+      }
     }
 
     const pasteMenu = menuData.list.find((x) => x.key === 'paste');
@@ -412,6 +432,77 @@ export class ScheduleSectionComponent
     }
 
     this.contextMenu.menuData = menuData;
+  }
+
+  private createShiftsSubmenu(column: number): Menu | undefined {
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    if (!dataService.startDate) return undefined;
+
+    const targetDate = addDays(dataService.startDate, column);
+    const availableShifts = this.getAvailableShiftsForDate(targetDate);
+
+    if (availableShifts.length === 0) return undefined;
+
+    const seenAbbreviations = new Set<string>();
+    const submenu = new Menu();
+
+    for (const shift of availableShifts) {
+      if (seenAbbreviations.has(shift.abbreviation)) continue;
+      seenAbbreviations.add(shift.abbreviation);
+
+      const startTime = this.formatTimeHHMM(shift.startShift);
+      const endTime = this.formatTimeHHMM(shift.endShift);
+
+      const menuItem = new MenuItem(
+        'shift',
+        shift.abbreviation,
+        false
+      );
+      menuItem.valueKey = shift.shiftId;
+      menuItem.svgIcon = this.getShiftSvgIcon(shift);
+      menuItem.subText = `(${startTime} - ${endTime})`;
+      submenu.list.push(menuItem);
+    }
+
+    return submenu;
+  }
+
+  private getShiftSvgIcon(shift: IShiftSchedule): string {
+    const color = 'var(--standartTextColor)';
+    const isContainer = shift.shiftType === 1;
+
+    if (isContainer) {
+      return IconBoxContainerComponent.getSvg(color);
+    }
+    if (shift.isSporadic) {
+      return IconUnknownTimeComponent.getSvg(color);
+    }
+    if (shift.isTimeRange) {
+      return IconTimeWindowComponent.getSvg(color);
+    }
+    return IconShiftSegmentComponent.getSvg(color);
+  }
+
+  private formatTimeHHMM(time: string): string {
+    if (!time) return '';
+    const parts = time.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0]}:${parts[1]}`;
+    }
+    return time;
+  }
+
+  private getAvailableShiftsForDate(date: Date): IShiftSchedule[] {
+    const shiftSchedules = this.dataManagement.shiftSchedules;
+    return shiftSchedules.filter((shift) => {
+      const shiftDate = new Date(shift.date);
+      const isSameDay =
+        shiftDate.getFullYear() === date.getFullYear() &&
+        shiftDate.getMonth() === date.getMonth() &&
+        shiftDate.getDate() === date.getDate();
+      const hasCapacity = shift.engaged < shift.sumEmployees * shift.quantity;
+      return isSameDay && hasCapacity;
+    });
   }
 
   private menuClicked(keys: string[]): void {
@@ -439,7 +530,38 @@ export class ScheduleSectionComponent
         this.contextMenu.closeMenu(true);
         this.deleteSelectedEntries();
         break;
+      case 'shift':
+        this.contextMenu.closeMenu(true);
+        this.addWorkFromShiftMenu(keys[1]);
+        break;
     }
+  }
+
+  private addWorkFromShiftMenu(shiftId: string): void {
+    if (!shiftId) return;
+
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    if (!dataService.startDate) return;
+
+    const clientIndex = dataService.rowGroupIndex[this.contextMenuRow];
+    if (clientIndex === undefined) return;
+
+    const client = dataService.getGroupIndex(clientIndex);
+    if (!client) return;
+
+    const targetDate = addDays(dataService.startDate, this.contextMenuColumn);
+    const shift = this.dataManagement.shiftSchedules.find(
+      (s) => s.shiftId === shiftId && this.isSameDay(new Date(s.date), targetDate)
+    );
+
+    if (!shift) return;
+
+    this.dataManagement.addWorkScheduleEntry({
+      clientId: client.id,
+      date: targetDate,
+      shiftId: shift.shiftId,
+      workTime: shift.workTime,
+    });
   }
 
   private showSelectedShiftInShiftSection(): void {

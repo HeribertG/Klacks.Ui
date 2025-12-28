@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, forwardRef, Input, Output, ViewChild, inject } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MenuItem } from '../context-menu-class';
 import { MenuComponent } from '../menu/menu.component';
 import { ContextMenuService } from '../context-menu.service';
@@ -16,6 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class MenuItemComponent {
   private elementRef = inject(ElementRef);
   private contextMenuService = inject(ContextMenuService);
+  private sanitizer = inject(DomSanitizer);
 
   @ViewChild('subMenu', { static: false }) subMenu: MenuComponent | undefined;
   @ViewChild('appRoot', { static: false }) appRoot!: ElementRef;
@@ -60,6 +62,13 @@ export class MenuItemComponent {
       return value;
     }
     return 'transparent';
+  }
+
+  getSanitizedSvg(): SafeHtml | null {
+    if (this.menuItem?.svgIcon) {
+      return this.sanitizer.bypassSecurityTrustHtml(this.menuItem.svgIcon);
+    }
+    return null;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -19,3 +19,8 @@ ul {
   animation-duration: 0s;
   z-index: 999;
 }
+
+:host-context(.menu-item-arrow) .menu-container {
+  max-height: 400px;
+  overflow-y: auto;
+}

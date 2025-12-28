@@ -14,7 +14,9 @@
     id="{{ menuItem.key }}"
   >
     <div class="menu-item-icon">
-      @if (menuItem.iconFont) {
+      @if (menuItem.svgIcon) {
+      <span [innerHTML]="getSanitizedSvg()"></span>
+      } @else if (menuItem.iconFont) {
       <i class="{{ menuItem.iconFont }}"></i>
       } @else {
       <div
@@ -25,7 +27,10 @@
     </div>
 
     <div class="menu-item">
-      {{ menuItem.name | translate }}
+      <span class="menu-item-name">{{ menuItem.name | translate }}</span>
+      @if (menuItem.subText) {
+      <span class="menu-item-subtext">{{ menuItem.subText }}</span>
+      }
     </div>
 
     <span class="filler"></span>
