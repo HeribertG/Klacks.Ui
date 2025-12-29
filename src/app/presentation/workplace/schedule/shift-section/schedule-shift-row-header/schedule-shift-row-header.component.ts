@@ -24,6 +24,7 @@ import { ShiftCreateRowHeaderService } from './services/shift-create-row-header.
 import { ShiftDrawRowHeaderService } from './services/shift-draw-row-header.service';
 import { ShiftRowHeaderIconsService } from './services/shift-row-header-icons.service';
 import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-events.directive';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Component({
   selector: 'app-schedule-shift-row-header',
@@ -36,6 +37,7 @@ import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-eve
     ShiftCreateRowHeaderService,
     ShiftDrawRowHeaderService,
     ShiftRowHeaderIconsService,
+    ProgressBarAnimationService,
   ],
 })
 export class ScheduleShiftRowHeaderComponent

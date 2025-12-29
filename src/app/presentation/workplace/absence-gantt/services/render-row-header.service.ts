@@ -14,6 +14,7 @@ import { Gradient3DBorderStyleEnum } from 'src/app/presentation/shared/grid/enum
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { DrawImageHelper } from 'src/app/presentation/helpers/draw-image-helper';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Injectable()
 export class RenderRowHeaderService {
@@ -24,11 +25,13 @@ export class RenderRowHeaderService {
   private gridFonts = inject(GridFontsService);
   dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private renderRowHeaderCell = inject(RenderRowHeaderCellService);
+  private progressBar = inject(ProgressBarAnimationService);
 
   public recFilterIcon!: Rectangle;
   public filterImage: HTMLImageElement | undefined;
 
   public readonly iconSize = 16;
+  private isProgressBarInitialized = false;
 
   public createRuler(): void {
     this.ShapeHeaderCanvasSurface();
@@ -218,7 +221,15 @@ export class RenderRowHeaderService {
       BaselineAlignmentEnum.Center
     );
 
-    this.drawProgressLine(rec);
+    this.initializeProgressBar();
+    this.progressBar.setProgress(this.dataManagementBreak.loadingProgress);
+    this.progressBar.drawInRect(
+      this.rowHeaderCanvasManager.headerCtx!,
+      rec.left,
+      rec.top,
+      rec.width,
+      rec.height
+    );
 
     this.renderRowHeaderCell.drawBorder(
       this.rowHeaderCanvasManager.headerCtx!,
@@ -232,19 +243,11 @@ export class RenderRowHeaderService {
     );
   }
 
-  private drawProgressLine(rec: Rectangle): void {
-    const loadingProgress = this.dataManagementBreak.loadingProgress;
-    if (loadingProgress > 0 && loadingProgress < 100) {
-      const ctx = this.rowHeaderCanvasManager.headerCtx!;
-      const dpr = DrawHelper.pixelRatio();
-      const lineHeight = 2 * dpr;
-      const y = rec.height - lineHeight;
-      const progressWidth = (rec.width * loadingProgress) / 100;
-
-      ctx.save();
-      ctx.fillStyle = '#4CAF50';
-      ctx.fillRect(rec.left, y, progressWidth, lineHeight);
-      ctx.restore();
+  private initializeProgressBar(): void {
+    if (!this.isProgressBarInitialized) {
+      this.progressBar.configure({ position: 'bottom', height: 2 });
+      this.progressBar.setRenderCallback(() => this.createRuler());
+      this.isProgressBarInitialized = true;
     }
   }
 

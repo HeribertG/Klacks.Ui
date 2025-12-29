@@ -16,6 +16,7 @@ import { GridRowHeader } from '../../classes/grid-row-header';
 import { BaseDataService } from '../../../../shared/grid/services/data-setting/data.service';
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
 import { TranslateService } from '@ngx-translate/core';
+import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 
 export interface FilterIconResult {
   recFilterIcon: Rectangle;
@@ -29,6 +30,7 @@ export class BaseCreateRowHeaderService {
   private gridColors = inject(GridColorService);
   private gridFonts = inject(GridFontsService);
   private translateService = inject(TranslateService);
+  private workScheduleLoader = inject(WorkScheduleLoaderService);
 
   private backgroundCollection = new Map<string, HTMLCanvasElement>();
   private oldWidth = 0;
@@ -80,11 +82,14 @@ export class BaseCreateRowHeaderService {
 
     this.drawBorder(ctx, width, this.settings.cellHeaderHeight);
 
+    const totalCount = this.workScheduleLoader.totalAvailableClients;
+    const displayCount = totalCount > 0 ? totalCount : this.gridData.indexes;
+
     this.drawTitle(
       ctx,
       this.translateService.instant('schedule.row-header.headline') +
         ' (' +
-        this.gridData.indexes.toString() +
+        displayCount.toString() +
         ')',
       width
     );

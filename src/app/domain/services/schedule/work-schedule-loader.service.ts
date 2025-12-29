@@ -12,7 +12,7 @@ import {
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
-import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
+import { formatDateOnly, getDateKeysBetween } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -21,6 +21,14 @@ export class WorkScheduleLoaderService {
   private dataWorkSchedule = inject(DataWorkScheduleService);
   private destroyRef = inject(DestroyRef);
 
+  private readonly INITIAL_CHUNK_SIZE = 50;
+  private readonly LOAD_MORE_CHUNK_SIZE = 50;
+  private _totalAvailableClients = 0;
+  private _currentChunkSize = 50;
+  private _autoLoadEnabled = true;
+  private _currentFilter: IWorkScheduleFilter | null = null;
+
+  private _isLoadingMore = signal(false);
   private _isRead = signal(false);
 
   public workScheduleEntries: IScheduleCell[] = [];
@@ -28,8 +36,25 @@ export class WorkScheduleLoaderService {
   public clients: IClientWork[] = [];
   public monthlyHours = new Map<string, IMonthlyHours>();
 
+  get isLoadingMore(): boolean {
+    return this._isLoadingMore();
+  }
+
   get isRead() {
     return this._isRead;
+  }
+
+  get hasMoreClients(): boolean {
+    return this.clients.length < this._totalAvailableClients;
+  }
+
+  get clientLoadingProgress(): number {
+    if (this._totalAvailableClients === 0) return 0;
+    return Math.round((this.clients.length / this._totalAvailableClients) * 100);
+  }
+
+  get totalAvailableClients(): number {
+    return this._totalAvailableClients;
   }
 
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
@@ -37,11 +62,13 @@ export class WorkScheduleLoaderService {
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
     this.monthlyHours = new Map();
+    this._autoLoadEnabled = true;
+    this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
 
     const startDate = this.calculateStartDate(workFilter);
     const endDate = this.calculateEndDate(workFilter);
 
-    const filter: IWorkScheduleFilter = {
+    this._currentFilter = {
       startDate: formatDateOnly(startDate),
       endDate: formatDateOnly(endDate),
       selectedGroup: workFilter.selectedGroup || undefined,
@@ -50,9 +77,11 @@ export class WorkScheduleLoaderService {
       showEmployees: workFilter.showEmployees ?? true,
       showExtern: workFilter.showExtern ?? true,
       hoursSortOrder: workFilter.hoursSortOrder || undefined,
+      startRow: 0,
+      rowCount: this.INITIAL_CHUNK_SIZE,
     };
 
-    this.dataWorkSchedule.getWorkSchedule(filter)
+    this.dataWorkSchedule.getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -60,15 +89,71 @@ export class WorkScheduleLoaderService {
           this.workScheduleByClientAndDate = this.groupByClientAndDate(this.workScheduleEntries);
           this.clients = this.convertToClientWork(response.clients ?? []);
           this.monthlyHours = new Map(Object.entries(response.monthlyHours ?? {}));
+          this._totalAvailableClients = response.totalClientCount;
           this.updateClientNeededRows();
 
           this._isRead.set(true);
           setTimeout(() => this._isRead.set(false), 100);
 
           onLoaded?.();
+
+          if (this._autoLoadEnabled && this.hasMoreClients) {
+            setTimeout(() => this.autoLoadNextChunk(onLoaded), 100);
+          }
         },
         error: (err) => {
           console.error('Error loading work schedule:', err);
+        },
+      });
+  }
+
+  private autoLoadNextChunk(onLoaded?: () => void): void {
+    if (!this._autoLoadEnabled || !this.hasMoreClients || this._isLoadingMore() || !this._currentFilter) {
+      return;
+    }
+
+    this._isLoadingMore.set(true);
+    this._currentFilter.startRow = this.clients.length;
+    this._currentFilter.rowCount = this._currentChunkSize;
+
+    this.dataWorkSchedule.getWorkSchedule(this._currentFilter)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (response) => {
+          const newEntries = response.entries ?? [];
+          const newClients = response.clients ?? [];
+
+          this.workScheduleEntries.push(...newEntries);
+          this.mergeIntoGroupedData(newEntries);
+          this.clients.push(...this.convertToClientWork(newClients));
+
+          for (const [key, value] of Object.entries(response.monthlyHours ?? {})) {
+            this.monthlyHours.set(key, value);
+          }
+
+          this.updateClientNeededRows();
+
+          if (newClients.length < this._currentChunkSize) {
+            this._totalAvailableClients = this.clients.length;
+            this._autoLoadEnabled = false;
+          } else {
+            this._currentChunkSize = Math.min(this._currentChunkSize * 2, 100);
+          }
+
+          this._isLoadingMore.set(false);
+          this._isRead.set(true);
+          setTimeout(() => this._isRead.set(false), 100);
+
+          onLoaded?.();
+
+          if (this._autoLoadEnabled && this.hasMoreClients) {
+            setTimeout(() => this.autoLoadNextChunk(onLoaded), 50);
+          }
+        },
+        error: (err) => {
+          console.error('Error auto-loading work schedule:', err);
+          this._isLoadingMore.set(false);
+          this._autoLoadEnabled = false;
         },
       });
   }
@@ -164,13 +249,31 @@ export class WorkScheduleLoaderService {
     return result;
   }
 
+  private mergeIntoGroupedData(entries: IScheduleCell[]): void {
+    for (const entry of entries) {
+      const clientId = entry.clientId;
+      const dateKey = formatDateOnly(new Date(entry.entryDate));
+
+      if (!this.workScheduleByClientAndDate.has(clientId)) {
+        this.workScheduleByClientAndDate.set(clientId, new Map());
+      }
+
+      const clientMap = this.workScheduleByClientAndDate.get(clientId)!;
+      if (!clientMap.has(dateKey)) {
+        clientMap.set(dateKey, []);
+      }
+
+      clientMap.get(dateKey)!.push(entry);
+    }
+  }
+
   replaceClientEntriesForDays(
     clientId: string,
     startDate: Date,
     endDate: Date,
     newEntries: IScheduleCell[]
   ): void {
-    const dateKeys = this.getDateKeysBetween(startDate, endDate);
+    const dateKeys = getDateKeysBetween(startDate, endDate);
 
     this.workScheduleEntries = this.workScheduleEntries.filter(entry => {
       if (entry.clientId !== clientId) return true;
@@ -200,15 +303,5 @@ export class WorkScheduleLoaderService {
     }
 
     this.updateClientNeededRows();
-  }
-
-  private getDateKeysBetween(startDate: Date, endDate: Date): string[] {
-    const keys: string[] = [];
-    let current = new Date(startDate);
-    while (current <= endDate) {
-      keys.push(formatDateOnly(current));
-      current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
-    }
-    return keys;
   }
 }

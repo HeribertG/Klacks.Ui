@@ -49,6 +49,8 @@ export interface IWorkScheduleFilter {
   showEmployees?: boolean;
   showExtern?: boolean;
   hoursSortOrder?: string;
+  startRow?: number;
+  rowCount?: number;
 }
 
 export interface IWorkScheduleClient {
@@ -70,6 +72,7 @@ export interface IWorkScheduleResponse {
   entries: IScheduleCell[];
   clients: IWorkScheduleClient[];
   monthlyHours: Record<string, IMonthlyHours>;
+  totalClientCount: number;
 }
 
 export interface IMonthlyHours {

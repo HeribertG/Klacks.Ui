@@ -60,6 +60,7 @@ import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-wi
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -86,6 +87,7 @@ import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknow
     BaseGridRenderService,
     CellIconsService,
     ContextMenuService,
+    ProgressBarAnimationService,
   ],
   templateUrl: './schedule-section.component.html',
   styleUrls: ['./schedule-section.component.scss'],
