@@ -1,7 +1,7 @@
 import { WeekDay } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { IWorkScheduleEntry } from 'src/app/domain/models/work-schedule-class';
+import { IScheduleCell } from 'src/app/domain/models/work-schedule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import {
   addDays,
@@ -73,7 +73,7 @@ export class ScheduleDataService extends BaseDataService {
   getWorkScheduleEntryForCell(
     row: number,
     col: number
-  ): IWorkScheduleEntry | undefined {
+  ): IScheduleCell | undefined {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) {
       return undefined;
@@ -303,7 +303,7 @@ export class ScheduleDataService extends BaseDataService {
     return undefined;
   }
 
-  getWorkScheduleForCell(row: number, col: number): IWorkScheduleEntry[] {
+  getWorkScheduleForCell(row: number, col: number): IScheduleCell[] {
     const clientIndex = this.rowGroupIndex[row];
     if (clientIndex === undefined) {
       return [];

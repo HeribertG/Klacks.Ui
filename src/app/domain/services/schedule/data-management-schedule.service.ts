@@ -11,7 +11,7 @@ import {
 } from 'src/app/domain/models/shift-schedule-class';
 import {
   IMonthlyHours,
-  IWorkScheduleEntry,
+  IScheduleCell,
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
 import {
@@ -25,7 +25,7 @@ import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
-import { WorkScheduleCrudService, DeleteWorkScheduleEntryParams } from './work-schedule-crud.service';
+import { WorkScheduleCrudService, DeleteWorkScheduleEntryParams, ScheduleCellParams } from './work-schedule-crud.service';
 
 @Injectable({
   providedIn: 'root',
@@ -99,7 +99,7 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.clients;
   }
 
-  get workScheduleEntries(): IWorkScheduleEntry[] {
+  get workScheduleEntries(): IScheduleCell[] {
     return this.workScheduleLoader.workScheduleEntries;
   }
 
@@ -191,7 +191,7 @@ export class DataManagementScheduleService implements ILoadable {
     return undefined;
   }
 
-  getWorkScheduleForClientAndDate(clientId: string, date: Date): IWorkScheduleEntry[] {
+  getWorkScheduleForClientAndDate(clientId: string, date: Date): IScheduleCell[] {
     return this.workScheduleLoader.getWorkScheduleForClientAndDate(clientId, date);
   }
 

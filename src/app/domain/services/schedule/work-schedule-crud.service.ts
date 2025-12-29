@@ -9,7 +9,7 @@ import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
 import { IWorkFilter } from '../../models/schedule-class';
 
-export interface WorkScheduleEntryParams {
+export interface ScheduleCellParams {
   clientId: string;
   date: Date;
   shiftId: string;
@@ -39,7 +39,7 @@ export class WorkScheduleCrudService {
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
 
-  addWorkScheduleEntry(params: WorkScheduleEntryParams, workFilter: IWorkFilter): void {
+  addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): void {
     this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
 
     this.workCrud.createWork(params).then(() => {

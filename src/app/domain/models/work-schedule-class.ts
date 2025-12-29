@@ -1,4 +1,4 @@
-export interface IWorkScheduleEntry {
+export interface IScheduleCell {
   id: string;
   entryType: number;
   workId: string;
@@ -19,7 +19,7 @@ export interface IWorkScheduleEntry {
   isReplacementEntry: boolean;
 }
 
-export class WorkScheduleEntry implements IWorkScheduleEntry {
+export class ScheduleCell implements IScheduleCell {
   id = '';
   entryType = 0;
   workId = '';
@@ -67,7 +67,7 @@ export interface IWorkScheduleClient {
 }
 
 export interface IWorkScheduleResponse {
-  entries: IWorkScheduleEntry[];
+  entries: IScheduleCell[];
   clients: IWorkScheduleClient[];
   monthlyHours: Record<string, IMonthlyHours>;
 }
@@ -84,5 +84,5 @@ export enum WorkScheduleEntryType {
   Expenses = 2,
 }
 
-export type WorkScheduleByDate = Map<string, IWorkScheduleEntry[]>;
+export type WorkScheduleByDate = Map<string, IScheduleCell[]>;
 export type WorkScheduleByClientAndDate = Map<string, WorkScheduleByDate>;

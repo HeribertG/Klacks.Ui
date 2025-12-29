@@ -7,7 +7,7 @@ import {
 import {
   IMonthlyHours,
   IWorkScheduleClient,
-  IWorkScheduleEntry,
+  IScheduleCell,
   IWorkScheduleFilter,
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
@@ -23,7 +23,7 @@ export class WorkScheduleLoaderService {
 
   private _isRead = signal(false);
 
-  public workScheduleEntries: IWorkScheduleEntry[] = [];
+  public workScheduleEntries: IScheduleCell[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
   public monthlyHours = new Map<string, IMonthlyHours>();
@@ -73,7 +73,7 @@ export class WorkScheduleLoaderService {
       });
   }
 
-  getWorkScheduleForClientAndDate(clientId: string, date: Date): IWorkScheduleEntry[] {
+  getWorkScheduleForClientAndDate(clientId: string, date: Date): IScheduleCell[] {
     const dateKey = formatDateOnly(date);
     const clientMap = this.workScheduleByClientAndDate.get(clientId);
     if (!clientMap) {
@@ -142,7 +142,7 @@ export class WorkScheduleLoaderService {
     }
   }
 
-  private groupByClientAndDate(entries: IWorkScheduleEntry[]): WorkScheduleByClientAndDate {
+  private groupByClientAndDate(entries: IScheduleCell[]): WorkScheduleByClientAndDate {
     const result: WorkScheduleByClientAndDate = new Map();
 
     for (const entry of entries) {
@@ -168,7 +168,7 @@ export class WorkScheduleLoaderService {
     clientId: string,
     startDate: Date,
     endDate: Date,
-    newEntries: IWorkScheduleEntry[]
+    newEntries: IScheduleCell[]
   ): void {
     const dateKeys = this.getDateKeysBetween(startDate, endDate);
 

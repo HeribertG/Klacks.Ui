@@ -3,7 +3,7 @@ import { of } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   WorkScheduleCrudService,
-  WorkScheduleEntryParams,
+  ScheduleCellParams,
   DeleteWorkScheduleEntryParams,
 } from './work-schedule-crud.service';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
@@ -133,7 +133,7 @@ describe('WorkScheduleCrudService', () => {
   describe('addWorkScheduleEntry', () => {
     it('should call createWork with correct params', async () => {
       // Arrange
-      const params: WorkScheduleEntryParams = {
+      const params: ScheduleCellParams = {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -153,7 +153,7 @@ describe('WorkScheduleCrudService', () => {
 
     it('should refresh client schedule after adding work', async () => {
       // Arrange
-      const params: WorkScheduleEntryParams = {
+      const params: ScheduleCellParams = {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -184,7 +184,7 @@ describe('WorkScheduleCrudService', () => {
         }),
       ];
 
-      const params: WorkScheduleEntryParams = {
+      const params: ScheduleCellParams = {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -205,7 +205,7 @@ describe('WorkScheduleCrudService', () => {
 
     it('should trigger scheduleRefreshed signal after refresh', async () => {
       // Arrange
-      const params: WorkScheduleEntryParams = {
+      const params: ScheduleCellParams = {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
@@ -624,7 +624,7 @@ describe('WorkScheduleCrudService', () => {
         }),
       ];
 
-      const params: WorkScheduleEntryParams = {
+      const params: ScheduleCellParams = {
         clientId: 'client-1',
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
