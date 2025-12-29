@@ -96,7 +96,14 @@ export class SignalRService implements OnDestroy {
         this._isConnected.set(true);
         console.log('SignalR connected with ID:', connectionId);
         return;
-      } catch {
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        if (errorMessage.includes('401')) {
+          this._isConnected.set(false);
+          return;
+        }
+
         const delay = retryDelays[attempt] ?? 10000;
         if (attempt < maxRetries - 1) {
           console.log(`SignalR connection attempt ${attempt + 1} failed, retrying in ${delay}ms...`);

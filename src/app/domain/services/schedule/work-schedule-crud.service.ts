@@ -14,8 +14,8 @@ export interface ScheduleCellParams {
   date: Date;
   shiftId: string;
   workTime: number;
-  startShift: string;
-  endShift: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface DeleteWorkScheduleEntryParams {

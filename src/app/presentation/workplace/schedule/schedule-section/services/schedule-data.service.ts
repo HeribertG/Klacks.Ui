@@ -49,7 +49,7 @@ export class ScheduleDataService extends BaseDataService {
       c.mainText = entry.abbreviation || '';
       c.firstSubText = this.formatWorkTime(entry.changeTime);
       c.secondSubText =
-        formatTime(entry.startShift) + ' - ' + formatTime(entry.endShift);
+        formatTime(entry.startTime) + ' - ' + formatTime(entry.endTime);
     } else {
       c.cellType = CellTypeEnum.Empty;
       c.mainText = '';
@@ -384,8 +384,8 @@ export class ScheduleDataService extends BaseDataService {
           date: date,
           shiftId: matchingShift.shiftId,
           workTime: matchingShift.workTime,
-          startShift: matchingShift.startShift,
-          endShift: matchingShift.endShift,
+          startTime: matchingShift.startShift,
+          endTime: matchingShift.endShift,
         });
       }
     }

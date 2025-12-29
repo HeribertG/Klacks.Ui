@@ -1071,8 +1071,8 @@ export class GridTemplateEventsDirective {
         date: date,
         shiftId: result.shiftId,
         workTime: result.workTime,
-        startShift: shiftAvailable.startShift,
-        endShift: shiftAvailable.endShift,
+        startTime: shiftAvailable.startShift,
+        endTime: shiftAvailable.endShift,
       });
     }
 

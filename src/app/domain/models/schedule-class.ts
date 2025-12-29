@@ -14,8 +14,8 @@ export interface IWork {
   shiftId: string;
   workTime: number;
   surcharges: number;
-  startShift: string;
-  endShift: string;
+  startTime: string;
+  endTime: string;
 }
 
 export class Work implements IWork {
@@ -29,8 +29,8 @@ export class Work implements IWork {
   shiftId = '';
   workTime = 0;
   surcharges = 0;
-  startShift = '';
-  endShift = '';
+  startTime = '';
+  endTime = '';
 }
 
 export interface IClientWork {

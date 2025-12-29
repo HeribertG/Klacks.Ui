@@ -138,8 +138,8 @@ describe('WorkScheduleCrudService', () => {
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
         workTime: 480,
-        startShift: '08:00:00',
-        endShift: '16:00:00',
+        startTime: '08:00:00',
+        endTime: '16:00:00',
       };
       const workFilter = createMockWorkFilter();
 
@@ -158,8 +158,8 @@ describe('WorkScheduleCrudService', () => {
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
         workTime: 480,
-        startShift: '08:00:00',
-        endShift: '16:00:00',
+        startTime: '08:00:00',
+        endTime: '16:00:00',
       };
       const workFilter = createMockWorkFilter();
 
@@ -189,8 +189,8 @@ describe('WorkScheduleCrudService', () => {
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
         workTime: 480,
-        startShift: '08:00:00',
-        endShift: '16:00:00',
+        startTime: '08:00:00',
+        endTime: '16:00:00',
       };
       const workFilter = createMockWorkFilter();
 
@@ -210,8 +210,8 @@ describe('WorkScheduleCrudService', () => {
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
         workTime: 480,
-        startShift: '08:00:00',
-        endShift: '16:00:00',
+        startTime: '08:00:00',
+        endTime: '16:00:00',
       };
       const workFilter = createMockWorkFilter();
 
@@ -629,8 +629,8 @@ describe('WorkScheduleCrudService', () => {
         date: new Date('2025-01-15'),
         shiftId: 'shift-1',
         workTime: 480,
-        startShift: '08:00:00',
-        endShift: '16:00:00',
+        startTime: '08:00:00',
+        endTime: '16:00:00',
       };
       const workFilter = createMockWorkFilter();
 

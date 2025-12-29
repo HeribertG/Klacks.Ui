@@ -336,8 +336,8 @@ export class ScheduleSectionComponent
       date: result.targetDate,
       shiftId: result.shiftId,
       workTime: result.workTime,
-      startShift: result.startShift,
-      endShift: result.endShift,
+      startTime: result.startShift,
+      endTime: result.endShift,
     });
   }
 
@@ -376,8 +376,8 @@ export class ScheduleSectionComponent
         date: date,
         shiftId: matchingShift.shiftId,
         workTime: matchingShift.workTime,
-        startShift: matchingShift.startShift,
-        endShift: matchingShift.endShift,
+        startTime: matchingShift.startShift,
+        endTime: matchingShift.endShift,
       });
     }
   }
@@ -565,8 +565,8 @@ export class ScheduleSectionComponent
       date: targetDate,
       shiftId: shift.shiftId,
       workTime: shift.workTime,
-      startShift: shift.startShift,
-      endShift: shift.endShift,
+      startTime: shift.startShift,
+      endTime: shift.endShift,
     });
   }
 

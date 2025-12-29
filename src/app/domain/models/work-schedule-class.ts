@@ -4,8 +4,8 @@ export interface IScheduleCell {
   workId: string;
   clientId: string;
   entryDate: Date;
-  startShift: string;
-  endShift: string;
+  startTime: string;
+  endTime: string;
   changeTime: number | null;
   workChangeType: number | null;
   description: string | null;
@@ -25,8 +25,8 @@ export class ScheduleCell implements IScheduleCell {
   workId = '';
   clientId = '';
   entryDate: Date = new Date();
-  startShift = '';
-  endShift = '';
+  startTime = '';
+  endTime = '';
   changeTime: number | null = null;
   workChangeType: number | null = null;
   description: string | null = null;
