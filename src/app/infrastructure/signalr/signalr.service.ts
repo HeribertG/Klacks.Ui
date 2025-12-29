@@ -25,7 +25,7 @@ export class SignalRService implements OnDestroy {
   public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
 
   constructor() {
-    this.hubUrl = environment.baseUrl.replace('/api/v1/backend/', '/hubs/work-notifications');
+    this.hubUrl = environment.baseUrl.replace('/api/backend/', '/hubs/work-notifications');
   }
 
   get connectionId(): string {
@@ -50,8 +50,6 @@ export class SignalRService implements OnDestroy {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => token,
-        skipNegotiation: true,
-        transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
@@ -65,7 +63,7 @@ export class SignalRService implements OnDestroy {
   }
 
   private async waitForBackend(maxAttempts = 10, intervalMs = 1000): Promise<void> {
-    const healthUrl = environment.baseUrl.replace('/api/v1/backend/', '/health');
+    const healthUrl = environment.baseUrl.replace('/api/backend/', '/health');
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
