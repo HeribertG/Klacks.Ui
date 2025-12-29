@@ -10,6 +10,8 @@ import { BaseDataService } from '../../../../shared/grid/services/data-setting/d
 import { BaseSettingsService } from '../../../../shared/grid/services/data-setting/settings.service';
 import { BaseCreateHeaderService } from '../../../../shared/grid/services/body/create-header.service';
 import { BaseCellManipulationService } from '../../../../shared/grid/services/body/cell-manipulation.service';
+import { ProgressBarAnimationService } from '../../../../shared/grid/services/progress-bar-animation.service';
+import { WorkScheduleLoaderService } from 'src/app/domain/services/schedule/work-schedule-loader.service';
 
 @Injectable()
 export class BaseDrawRowHeaderService {
@@ -21,6 +23,8 @@ export class BaseDrawRowHeaderService {
   private gridSettings = inject(GridSettingsService);
   private settings = inject(BaseSettingsService);
   private createHeader = inject(BaseCreateHeaderService);
+  private progressBar = inject(ProgressBarAnimationService);
+  private workScheduleLoader = inject(WorkScheduleLoaderService);
 
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;
@@ -87,9 +91,13 @@ export class BaseDrawRowHeaderService {
       true
     );
     DrawHelper.setAntiAliasing(this.headerCtx);
+
+    this.progressBar.configure({ position: 'bottom', height: 2 });
+    this.progressBar.setRenderCallback(() => this.crateGridHeader());
   }
 
   public deleteCanvas() {
+    this.progressBar.destroy();
     this.renderCanvasCtx = undefined;
     this.renderCanvas = undefined;
     this.ctx = undefined;
@@ -233,6 +241,15 @@ export class BaseDrawRowHeaderService {
       if (result) {
         this.recFilterIcon = result.recFilterIcon;
       }
+
+      this.progressBar.setProgress(this.workScheduleLoader.clientLoadingProgress);
+      this.progressBar.drawInRect(
+        this.headerCtx!,
+        0,
+        0,
+        width,
+        this.settings.cellHeaderHeight
+      );
     }
   }
 
