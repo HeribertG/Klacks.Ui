@@ -71,7 +71,8 @@ export class ProgressBarAnimationService {
     const barHeight = this.config.height * dpr;
     const progressWidth = (width * this.displayedProgress) / 100;
 
-    const y = this.config.position === 'top' ? top : top + height - barHeight - 1;
+    const y =
+      this.config.position === 'top' ? top : top + height - barHeight - 1;
 
     ctx.save();
     ctx.fillStyle = this.config.color;

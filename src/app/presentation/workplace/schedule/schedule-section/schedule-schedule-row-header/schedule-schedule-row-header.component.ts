@@ -31,6 +31,7 @@ import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -38,7 +39,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
   imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent],
-  providers: [ScrollService, BaseCreateRowHeaderService],
+  providers: [ScrollService, BaseCreateRowHeaderService, ProgressBarAnimationService],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy

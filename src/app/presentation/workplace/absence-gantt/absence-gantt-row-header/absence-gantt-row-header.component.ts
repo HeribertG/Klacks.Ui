@@ -28,6 +28,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { NgStyle } from '@angular/common';
 import { ResizeDirective } from 'src/app/presentation/directives/resize.directive';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Component({
   selector: 'app-absence-gantt-row-header',
@@ -35,6 +36,7 @@ import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums'
   styleUrls: ['./absence-gantt-row-header.component.scss'],
   standalone: true,
   imports: [NgStyle, ClientFilterComponent, ResizeDirective],
+  providers: [ProgressBarAnimationService],
 })
 export class AbsenceGanttRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
