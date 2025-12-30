@@ -18,6 +18,21 @@ const child = spawn(cmd, ['ng', 'test', '--watch=false'], {
 
 let output = '';
 
+// Force exit after tests complete - check output every second
+const checkInterval = setInterval(() => {
+  if (output.includes('Test Files') || output.includes('Tests ')) {
+    if (output.includes('passed') || output.includes('failed')) {
+      clearInterval(checkInterval);
+      setTimeout(() => {
+        fs.writeFileSync(outputPath, output);
+        child.kill('SIGKILL');
+        const hasFailures = output.includes(' failed');
+        process.exit(hasFailures ? 1 : 0);
+      }, 2000);
+    }
+  }
+}, 1000);
+
 child.stdout.on('data', (data) => {
   const text = data.toString();
   process.stdout.write(text);

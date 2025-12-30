@@ -93,3 +93,4 @@ Element.prototype.animate = function() {
         finish: () => {},
     } as unknown as Animation;
 };
+
