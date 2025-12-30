@@ -5,6 +5,7 @@ import { parsErrors } from './interpreterError';
 import { IdentifierTypes, Identifier } from './identifier';
 import { SyntaxAnalyserExpressions } from './syntaxAnalyserExpressions';
 import { Exits } from './syntaxAnalyserBase';
+import { ScriptValue } from './script-value';
 
 export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressions {
   protected abstract statementList(
@@ -164,7 +165,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
 
       definition = this._symbolTable.allocate(
         ident,
-        null,
+        ScriptValue.Null,
         isSub ? IdentifierTypes.idSub : IdentifierTypes.idFunction
       );
       this._code!.add(Opcodes.AllocVar, [ident]);
@@ -175,7 +176,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
       definition.formalParameters = [...formalParameters];
 
       for (let i = 0; i <= formalParameters.length - 1; i++) {
-        this._symbolTable.allocate(formalParameters[i], null, IdentifierTypes.idVariable);
+        this._symbolTable.allocate(formalParameters[i], ScriptValue.Null, IdentifierTypes.idVariable);
       }
 
       this.statementList(false, true, isSub ? Exits.exitSub : Exits.exitFunction, [
@@ -281,6 +282,9 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
     }
 
     const definition = this._symbolTable.retrieve(ident);
+    if (!definition) {
+      return;
+    }
     this._code!.add(Opcodes.PushScope);
 
     let n = 0;

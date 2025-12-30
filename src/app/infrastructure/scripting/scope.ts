@@ -1,8 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Identifier, IdentifierTypes } from './identifier';
+import { ScriptValue } from './script-value';
 
 export class Entry {
-  constructor(public key: string, public value: any) {}
+  constructor(
+    public key: string,
+    public value: ScriptValue | Identifier
+  ) {}
 }
 
 export class Scope {
@@ -10,11 +13,10 @@ export class Scope {
 
   allocate(
     name: string,
-    value = null,
+    value: ScriptValue = ScriptValue.Null,
     idType: IdentifierTypes = IdentifierTypes.idVariable
   ): Identifier {
-    const id: Identifier = new Identifier();
-
+    const id = new Identifier();
     id.name = name;
     id.value = value;
     id.idType = idType;
@@ -22,72 +24,84 @@ export class Scope {
     return id;
   }
 
-  assign(name: string, value: Identifier): void {
-    this.getVariable(name)!.value = value;
+  assign(name: string, value: ScriptValue): boolean {
+    const variable = this.getVariable(name);
+    if (variable) {
+      variable.value = value;
+      return true;
+    }
+    return false;
   }
 
-  retrieve(name: string): Identifier {
+  retrieve(name: string): Identifier | null {
     const result = this._variables.find((x) => x.key === name);
-    return result!.value;
+    if (result && result.value instanceof Identifier) {
+      return result.value;
+    }
+    return null;
   }
 
   exists(name: string): boolean {
-    const result = this._variables.find((x) => x.key === name);
-    return result !== undefined;
+    return this._variables.some((x) => x.key === name);
   }
 
-  getVariable(name: string): Identifier | undefined {
+  getVariable(name: string): Identifier | null {
     if (this._variables.length === 0) {
-      return undefined;
+      return null;
     }
 
     const result = this._variables.find((x) => x.key === name);
-    if (result !== undefined) {
+    if (result && result.value instanceof Identifier) {
       return result.value;
-    } else {
-      return undefined;
     }
+    return null;
   }
 
   setVariable(value: Identifier, name: string): void {
-    if (this._variables.length > 0) {
-      const result = this._variables.find((x) => x.key === name);
-      if (result !== undefined) {
-        const index = this._variables.indexOf(result);
-        this._variables.splice(index, 1);
-      }
+    const existingIndex = this._variables.findIndex((x) => x.key === name);
+    if (existingIndex >= 0) {
+      this._variables.splice(existingIndex, 1);
     }
 
-    const c = new Entry(name, value);
+    const entry = new Entry(name, value);
     if (this._variables.length === 0) {
-      this._variables.push(c);
+      this._variables.push(entry);
     } else {
-      this._variables.unshift(c);
+      this._variables.unshift(entry);
     }
   }
 
-  push(value: any): void {
-    const c = new Entry('', value);
-    this._variables.push(c);
+  push(value: ScriptValue): void {
+    const entry = new Entry('', value);
+    this._variables.push(entry);
   }
 
-  pop(index = -1): any {
-    let result;
+  pop(index = -1): Entry | null {
+    if (this._variables.length === 0) {
+      return null;
+    }
 
     if (index < 0) {
-      result = this._variables.pop();
+      return this._variables.pop() ?? null;
     } else {
       const length = this._variables.length - 1;
-      result = this._variables[length - index];
+      const idx = length - index;
+      if (idx >= 0 && idx < this._variables.length) {
+        return this._variables[idx];
+      }
+      return null;
     }
-    return result;
   }
 
   cloneCount(): number {
     return this._variables.length;
   }
 
-  cloneItem(index: number): Identifier {
-    return this._variables[index].value;
+  cloneItem(index: number): Identifier | null {
+    const entry = this._variables[index];
+    if (entry && entry.value instanceof Identifier) {
+      return entry.value;
+    }
+    return null;
   }
 }

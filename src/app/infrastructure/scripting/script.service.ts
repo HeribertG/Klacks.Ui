@@ -1,10 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, OnDestroy } from '@angular/core';
 import { SyntaxAnalyser } from './syntaxAnalyser';
 import { InterpreterError } from './interpreterError';
 import { StringInputStream } from './stringInput';
 import { Code, Results } from './code';
 import { LexicalAnalyser } from './lexicalAnalyser';
+import { CompiledScript } from './compiled-script';
+import {
+  ScriptExecutionContext,
+  CancellationToken,
+} from './script-execution-context';
+import { ScriptResult, ResultMessage } from './script-result';
 
 @Injectable({
   providedIn: 'root',
@@ -92,7 +97,39 @@ export class ScriptService implements OnDestroy {
     return this.code!.hasNewDebugInfos;
   }
 
-  codeStack(): any[] {
+  codeStack(): unknown[][] {
     return this.code!.codeStack();
+  }
+
+  compileToScript(
+    source: string,
+    optionExplicit = true,
+    allowExternal = true
+  ): CompiledScript {
+    return CompiledScript.compile(source, optionExplicit, allowExternal);
+  }
+
+  executeScript(
+    script: CompiledScript,
+    cancellationToken?: CancellationToken
+  ): ScriptResult {
+    const context = new ScriptExecutionContext(script);
+    return context.execute(cancellationToken);
+  }
+
+  compileAndRun(
+    source: string,
+    optionExplicit = true,
+    allowExternal = true,
+    cancellationToken?: CancellationToken
+  ): ScriptResult {
+    const script = this.compileToScript(source, optionExplicit, allowExternal);
+    return this.executeScript(script, cancellationToken);
+  }
+
+  resultsToResultMessages(results: Results[]): ResultMessage[] {
+    return results
+      .filter((r) => r.type !== undefined)
+      .map((r) => ({ type: r.type!, message: r.message }));
   }
 }

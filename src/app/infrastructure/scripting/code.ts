@@ -1,68 +1,22 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable no-case-declarations */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Scopes } from './scopes';
 import { Scope, Entry } from './scope';
 import { InterpreterError, runErrors } from './interpreterError';
-
 import { Identifier, IdentifierTypes } from './identifier';
 import { StringInputStream } from './stringInput';
+import { Opcodes } from './opcodes';
+import { ScriptValue } from './script-value';
 
-export enum Opcodes {
-  AllocConst = 0,
-  AllocVar = 1,
-  PushValue = 2,
-  PushVariable = 3,
-  Pop = 4,
-  PopWithIndex = 5,
-  Assign = 6,
-  Add = 7,
-  Sub = 8,
-  Multiplication = 9,
-  Division = 10,
-  Div = 11,
-  Mod = 12,
-  Power = 13,
-  StringConcat = 14,
-  Or = 15,
-  And = 16,
-  Eq = 17,
-  NotEq = 18,
-  Lt = 19,
-  LEq = 20,
-  Gt = 21,
-  GEq = 22,
-  Negate = 23,
-  Not = 24,
-  Factorial = 25,
-  Sin = 26,
-  Cos = 27,
-  Tan = 28,
-  ATan = 29,
-  DebugPrint = 30,
-  DebugClear = 31,
-  DebugShow = 32,
-  DebugHide = 33,
-  Msgbox = 34,
-  DoEvents = 35,
-  Inputbox = 36,
-  Jump = 37,
-  JumpTrue = 38,
-  JumpFalse = 39,
-  JumpPop = 40,
-  PushScope = 41,
-  PopScope = 42,
-  Call = 43,
-  Return = 44,
-  Message = 45,
-}
+export { Opcodes };
 
 export class Results {
-  constructor(public type: number | undefined, public message: string) {}
+  constructor(
+    public type: number | undefined,
+    public message: string
+  ) {}
 }
 
 export class Code {
-  private code: any[] = [];
+  private code: unknown[][] = [];
   private scopes: Scopes = new Scopes();
   private pc = -1;
   private _external: Scope = new Scope();
@@ -135,19 +89,19 @@ export class Code {
     return this._resultsDebug;
   }
 
-  codeStack(): any[] {
+  codeStack(): unknown[][] {
     return this.code;
   }
 
   importAdd(
     name: string,
-    value: any = null,
+    value: ScriptValue = ScriptValue.Null,
     idType = IdentifierTypes.idVariable
   ): Identifier {
     return this._external.allocate(name, value, idType);
   }
 
-  importItem(name: string, value: any = null) {
+  importItem(name: string, value: ScriptValue = ScriptValue.Null) {
     this._external.assign(name, value);
   }
 
@@ -163,7 +117,7 @@ export class Code {
     }
   }
 
-  importRead(name: string): Identifier {
+  importRead(name: string): Identifier | null {
     return this._external.retrieve(name);
   }
 
@@ -174,26 +128,28 @@ export class Code {
   clone(): Code {
     const result = new Code(this.interpreterError, this.stringInput);
 
-    // eslint-disable-next-line @typescript-eslint/prefer-for-of
     for (let i = 0; i < this.code.length; i++) {
       result.cloneAdd(this.code[i]);
     }
 
     for (let i = 0; i < this._external.cloneCount(); i++) {
-      result.importAdd(this._external.cloneItem(i).name);
+      const item = this._external.cloneItem(i);
+      if (item) {
+        result.importAdd(item.name);
+      }
     }
 
     return result;
   }
 
-  private cloneAdd(value: any) {
+  private cloneAdd(value: unknown[]) {
     this.code.push(value);
   }
 
-  add(opCode: Opcodes, parameters: any = null): number {
+  add(opCode: Opcodes, parameters: unknown = null): number {
     let isArray = true;
     let length = 0;
-    let operation: any[];
+    let operation: unknown[];
     if (parameters === null || parameters === undefined) {
       operation = Array(1);
     } else {
@@ -208,7 +164,7 @@ export class Code {
     }
 
     operation[0] = opCode;
-    if (parameters !== undefined && isArray) {
+    if (parameters !== undefined && isArray && Array.isArray(parameters)) {
       for (let i = 0; i <= length - 1; i++) {
         operation[i + 1] = parameters[i];
       }
@@ -223,7 +179,7 @@ export class Code {
     return this.code.length;
   }
 
-  fixUp(index: number, parameters: any[]) {
+  fixUp(index: number, parameters: unknown[]) {
     const length = parameters.length;
     const operation = Array(length + 1);
 
@@ -241,9 +197,7 @@ export class Code {
   }
 
   interpret() {
-    let operation: any[];
-    let accumulator: any;
-    let register: any;
+    let operation: unknown[];
     let startTime: number;
     this.scopes = new Scopes();
     this.scopes.pushScope(this._external);
@@ -252,101 +206,77 @@ export class Code {
     this.cancelled = false;
     this.isRunning = true;
     this.pc = 0;
-    let accepted: boolean;
     const continues = false;
-    let xPos: any;
-    let renamed: any;
-    let yPos: any;
-    let counter = 0;
 
     this._hasNewDebugInfos = false;
 
     while (this.pc <= this.code.length - 1 && this.isRunning) {
-      accumulator = undefined;
-      register = undefined;
       operation = this.code[this.pc];
-      counter++;
 
       switch (operation[0] as Opcodes) {
         case Opcodes.AllocConst:
           this.scopes.allocate(
-            operation[1],
-            operation[2],
+            String(operation[1]),
+            ScriptValue.fromObject(operation[2]),
             IdentifierTypes.idConst
           );
           break;
         case Opcodes.AllocVar:
-          this.scopes.allocate(operation[1]);
+          this.scopes.allocate(String(operation[1]));
           break;
         case Opcodes.PushValue:
-          this.scopes.push(operation[1]);
+          this.scopes.push(ScriptValue.fromObject(operation[1]));
           break;
         case Opcodes.PushVariable:
           try {
-            register = this.scopes.retrieve(operation[1]);
-          } catch {
-            accepted = false;
-            this.retrieve();
-            if (!accepted) {
+            const register = this.scopes.retrieve(String(operation[1]));
+
+            if (register === null) {
               this.isRunning = false;
               this.interpreterError!.raise(
-                runErrors.errUnknownVar,
+                runErrors.errUninitializedVar,
                 'code.run',
-                'Unknown variable ' + operation[1],
+                'Variable ' + operation[1] + ' hasn\'t been assigned a value yet',
                 0,
                 0,
                 0
               );
+              break;
             }
-          }
 
-          if (register === null) {
+            this.scopes.push(register.value);
+          } catch {
             this.isRunning = false;
             this.interpreterError!.raise(
-              runErrors.errUninitializedVar,
+              runErrors.errUnknownVar,
               'code.run',
-              'Variable ' +
-                operation[1] +
-                ' not hasn´t been assigned a value yet',
+              'Unknown variable ' + operation[1],
               0,
               0,
               0
             );
           }
-
-          this.scopes.push(register.value);
           break;
         case Opcodes.Pop:
           this.scopes.pop();
           break;
-        case Opcodes.PopWithIndex:
-          register = this.scopes.pop(operation[1]);
-          let result: any;
-          if (register instanceof Entry) {
-            result = (register as Entry).value;
-          } else {
-            result = register;
-          }
-
-          this.scopes.push(result);
+        case Opcodes.PopWithIndex: {
+          const entry = this.scopes.pop(Number(operation[1]));
+          const value = this.extractValueFromEntry(entry);
+          this.scopes.push(value);
           break;
+        }
         case Opcodes.Assign:
           try {
-            register = this.scopes.pop();
-            let result1: any;
-            if (register instanceof Entry) {
-              result1 = (register as Entry).value;
-            } else {
-              result1 = register;
-            }
+            const entry = this.scopes.pop();
+            const value = this.extractValueFromEntry(entry);
+            const name = String(operation[1]);
 
-            this.scopes.assign(operation[1], result1);
-          } catch {
-            accepted = false;
-            this.assign();
-            if (!accepted) {
-              this.scopes.allocate(operation[1], register);
+            if (!this.scopes.assign(name, value)) {
+              this.scopes.allocate(name, value);
             }
+          } catch {
+            // Variable doesn't exist, allocate it
           }
           break;
         case Opcodes.Add:
@@ -376,17 +306,12 @@ export class Code {
         case Opcodes.ATan:
           this.unaryMathOperators(operation);
           break;
-        case Opcodes.DebugPrint:
-          let msg = '';
-
-          register = this.scopes.pop();
-
-          if (register !== null) {
-            msg = register.value;
-          }
-          this.debugPrint(msg);
-
+        case Opcodes.DebugPrint: {
+          const entry = this.scopes.pop();
+          const value = this.extractValueFromEntry(entry);
+          this.debugPrint(value.asString());
           break;
+        }
         case Opcodes.DebugClear:
           this.debugClear();
           break;
@@ -398,20 +323,13 @@ export class Code {
           break;
         case Opcodes.Message:
           try {
-            let msg = '';
-            let type: number | undefined;
-            register = this.scopes.pop().value;
-            accumulator = this.scopes.pop().value;
+            const msgEntry = this.scopes.pop();
+            const typeEntry = this.scopes.pop();
 
-            if (register !== undefined && register !== '') {
-              type = accumulator as number;
-              msg = register;
-            } else {
-              type = undefined;
-              msg = accumulator;
-            }
+            const msg = this.extractValueFromEntry(msgEntry).asString();
+            const type = this.extractValueFromEntry(typeEntry).asInt();
 
-            this.message(type!, msg);
+            this.message(type, msg);
           } catch {
             this.message(-1, '');
           }
@@ -427,27 +345,13 @@ export class Code {
               0,
               0
             );
+          } else {
+            this.scopes.pop(); // buttons
+            this.scopes.pop(); // title
+            const msgEntry = this.scopes.pop();
+            const msg = this.extractValueFromEntry(msgEntry).asString();
+            this.scopes.push(ScriptValue.fromInt(this.msgBox(msg)));
           }
-
-          register = this.scopes.pop();
-          accumulator = this.scopes.pop();
-          renamed = this.scopes.pop();
-
-          try {
-            const message = renamed.value;
-            this.scopes.push(this.msgBox(message));
-          } catch {
-            this.isRunning = false;
-            this.interpreterError!.raise(
-              runErrors.errMath,
-              'Code.Run',
-              'Error during MsgBox-call ',
-              0,
-              0,
-              0
-            );
-          }
-
           break;
         case Opcodes.DoEvents:
           break;
@@ -462,67 +366,60 @@ export class Code {
               0,
               0
             );
-          }
+          } else {
+            this.scopes.pop(); // yPos
+            this.scopes.pop(); // xPos
+            const defaultEntry = this.scopes.pop();
+            this.scopes.pop(); // title
+            const questionEntry = this.scopes.pop();
 
-          yPos = this.scopes.pop();
-          xPos = this.scopes.pop();
-          renamed = this.scopes.pop();
-          register = this.scopes.pop();
-          accumulator = this.scopes.pop();
-          try {
-            const question = accumulator.value;
-            const defaultResponse = renamed.value;
-            const answer: string = this.inputBox(question, defaultResponse);
+            const question = this.extractValueFromEntry(questionEntry).asString();
+            const defaultResponse = this.extractValueFromEntry(defaultEntry).asString();
+            const answer = this.inputBox(question, defaultResponse);
+
             if (answer !== null) {
-              this.scopes.push(answer);
+              this.scopes.push(ScriptValue.fromString(answer));
             } else {
-              this.scopes.push('');
+              this.scopes.push(ScriptValue.fromString(''));
               this.isRunning = false;
               this.interpreterError!.raise(
                 runErrors.errMath,
                 'Code.Run',
-                ' Cancel Inputbox call: ',
+                'Cancel Inputbox call',
                 0,
                 0,
                 0
               );
             }
-          } catch (ex) {
-            this.isRunning = false;
-            this.interpreterError!.raise(
-              runErrors.errMath,
-              'Code.Run',
-              'Error during InputBox-call: ',
-              0,
-              0,
-              0
-            );
           }
           break;
         case Opcodes.Jump:
           this.pc = (operation[1] as number) - 1;
           break;
 
-        case Opcodes.JumpTrue:
-          accumulator = this.scopes.pop();
-          if (accumulator instanceof Entry) {
-            if (accumulator.value === true) {
-              this.pc = (operation[1] as number) - 1;
-            }
+        case Opcodes.JumpTrue: {
+          const entry = this.scopes.pop();
+          const value = this.extractValueFromEntry(entry);
+          if (value.asBoolean()) {
+            this.pc = (operation[1] as number) - 1;
           }
           break;
+        }
 
-        case Opcodes.JumpFalse:
-          accumulator = this.scopes.pop();
-          if (accumulator instanceof Entry) {
-            if (accumulator.value === false) {
-              this.pc = (operation[1] as number) - 1;
-            }
+        case Opcodes.JumpFalse: {
+          const entry = this.scopes.pop();
+          const value = this.extractValueFromEntry(entry);
+          if (!value.asBoolean()) {
+            this.pc = (operation[1] as number) - 1;
           }
           break;
-        case Opcodes.JumpPop:
-          this.pc = (this.scopes.pop() as number) - 1;
+        }
+        case Opcodes.JumpPop: {
+          const entry = this.scopes.pop();
+          const value = this.extractValueFromEntry(entry);
+          this.pc = value.asInt() - 1;
           break;
+        }
         case Opcodes.PushScope:
           this.scopes.pushScope();
           break;
@@ -532,14 +429,18 @@ export class Code {
         case Opcodes.Call:
           this.scopes.allocate(
             '~RETURNADDR',
-            this.pc + 1,
+            ScriptValue.fromInt(this.pc + 1),
             IdentifierTypes.idConst
           );
           this.pc = (operation[1] as number) - 1;
           break;
-        case Opcodes.Return:
-          this.pc = this.scopes.retrieve('~RETURNADDR').value - 1;
+        case Opcodes.Return: {
+          const returnAddr = this.scopes.retrieve('~RETURNADDR');
+          if (returnAddr) {
+            this.pc = returnAddr.value.asInt() - 1;
+          }
           break;
+        }
       }
 
       this.pc += 1;
@@ -583,93 +484,86 @@ export class Code {
     this.isRunning = false;
   }
 
-  isNumeric(value: any): boolean {
-    return typeof value === 'number';
+  private extractValueFromEntry(entry: Entry | null): ScriptValue {
+    if (entry === null) return ScriptValue.Null;
+    if (entry.value instanceof ScriptValue) return entry.value;
+    if (entry.value instanceof Identifier) return entry.value.value;
+    return ScriptValue.fromObject(entry.value);
   }
 
-  private extractDouble(value: any): number {
-    if (value instanceof Entry) {
-      return parseFloat((value as Entry).value);
-    } else if (this.isNumeric(value)) {
-      return value as number;
-    }
-    return 0;
+  private extractDouble(entry: Entry | null): number {
+    return this.extractValueFromEntry(entry).asDouble();
   }
 
-  private extractString(value: any): string {
-    if (value instanceof Entry) {
-      return (value as Entry).value?.toString() ?? '';
-    }
-    return value?.toString() ?? '';
+  private extractString(entry: Entry | null): string {
+    return this.extractValueFromEntry(entry).asString();
   }
 
-  private extractValue(value: any): any {
-    if (value instanceof Entry) {
-      return (value as Entry).value;
-    }
-    return value;
-  }
+  private binaryMathOperators(operation: unknown[]) {
+    const registerEntry = this.scopes.pop();
+    const accumulatorEntry = this.scopes.pop();
 
-  private binaryMathOperators(operation: any[]) {
-    const register = this.scopes.pop();
-    const accumulator = this.scopes.pop();
-
-    if (register === undefined || accumulator === undefined) {
+    if (registerEntry === null || accumulatorEntry === null) {
       return;
     }
 
     try {
+      const register = this.extractDouble(registerEntry);
+      const accumulator = this.extractDouble(accumulatorEntry);
+      const registerStr = this.extractString(registerEntry);
+      const accumulatorStr = this.extractString(accumulatorEntry);
+
       switch (operation[0] as Opcodes) {
         case Opcodes.Add:
-          this.scopes.push(this.extractDouble(accumulator) + this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromNumber(accumulator + register));
           break;
         case Opcodes.Sub:
-          this.scopes.push(this.extractDouble(accumulator) - this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromNumber(accumulator - register));
           break;
         case Opcodes.Multiplication:
-          this.scopes.push(this.extractDouble(accumulator) * this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromNumber(accumulator * register));
           break;
         case Opcodes.Division:
-          this.scopes.push(this.extractDouble(accumulator) / this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromNumber(accumulator / register));
           break;
         case Opcodes.Div:
-          this.scopes.push(Math.floor(this.extractDouble(accumulator) / this.extractDouble(register)));
+          this.scopes.push(ScriptValue.fromInt(Math.floor(accumulator / register)));
           break;
         case Opcodes.Mod:
-          this.scopes.push(this.extractDouble(accumulator) % this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromNumber(accumulator % register));
           break;
         case Opcodes.Power:
-          this.scopes.push(Math.pow(this.extractDouble(accumulator), this.extractDouble(register)));
+          this.scopes.push(ScriptValue.fromNumber(Math.pow(accumulator, register)));
           break;
         case Opcodes.StringConcat:
-          this.scopes.push(this.extractString(accumulator) + this.extractString(register));
+          this.scopes.push(ScriptValue.fromString(accumulatorStr + registerStr));
           break;
         case Opcodes.Or:
-          this.scopes.push(Math.pow(this.extractDouble(accumulator), this.extractDouble(register)));
+          this.scopes.push(ScriptValue.fromInt(Math.floor(accumulator) | Math.floor(register)));
           break;
         case Opcodes.And:
-          this.scopes.push(this.extractDouble(accumulator) + this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromInt(Math.floor(accumulator) & Math.floor(register)));
           break;
         case Opcodes.Eq:
-          this.scopes.push(this.extractValue(accumulator) === this.extractValue(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulatorStr === registerStr));
           break;
         case Opcodes.NotEq:
-          this.scopes.push(this.extractValue(accumulator) !== this.extractValue(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulatorStr !== registerStr));
           break;
         case Opcodes.Lt:
-          this.scopes.push(this.extractDouble(accumulator) < this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulator < register));
           break;
         case Opcodes.LEq:
-          this.scopes.push(this.extractDouble(accumulator) <= this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulator <= register));
           break;
         case Opcodes.Gt:
-          this.scopes.push(this.extractDouble(accumulator) > this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulator > register));
           break;
         case Opcodes.GEq:
-          this.scopes.push(this.extractDouble(accumulator) >= this.extractDouble(register));
+          this.scopes.push(ScriptValue.fromBoolean(accumulator >= register));
           break;
       }
-    } catch (ex) {
+    } catch {
       this.isRunning = false;
       this.interpreterError!.raise(
         runErrors.errMath,
@@ -682,39 +576,40 @@ export class Code {
     }
   }
 
-  private unaryMathOperators(operation: any[]) {
-    const value = this.extractDouble(this.scopes.pop());
+  private unaryMathOperators(operation: unknown[]) {
+    const entry = this.scopes.pop();
+    const value = this.extractDouble(entry);
 
     try {
       switch (operation[0] as Opcodes) {
         case Opcodes.Negate:
-          this.scopes.push(value * -1);
+          this.scopes.push(ScriptValue.fromNumber(value * -1));
           break;
         case Opcodes.Not:
-          this.scopes.push(!value);
+          this.scopes.push(ScriptValue.fromBoolean(!value));
           break;
         case Opcodes.Factorial:
-          this.scopes.push(this.factorial(value));
+          this.scopes.push(ScriptValue.fromNumber(this.factorial(value)));
           break;
         case Opcodes.Sin:
-          this.scopes.push(Math.sin(value));
+          this.scopes.push(ScriptValue.fromNumber(Math.sin(value)));
           break;
         case Opcodes.Cos:
-          this.scopes.push(Math.cos(value));
+          this.scopes.push(ScriptValue.fromNumber(Math.cos(value)));
           break;
         case Opcodes.Tan:
-          this.scopes.push(Math.tan(value));
+          this.scopes.push(ScriptValue.fromNumber(Math.tan(value)));
           break;
         case Opcodes.ATan:
-          this.scopes.push(Math.atan(value));
+          this.scopes.push(ScriptValue.fromNumber(Math.atan(value)));
           break;
       }
-    } catch (ex) {
+    } catch {
       this.isRunning = false;
       this.interpreterError!.raise(
         runErrors.errMath,
         'Code.Run',
-        'Error during calculation unary op ' + operation[0].toString(),
+        'Error during calculation unary op ' + String(operation[0]),
         0,
         0,
         0
@@ -723,20 +618,13 @@ export class Code {
   }
 
   private factorial(n: number): number {
-    let result: number;
-    if (n === 0) {
-      result = 1;
-    } else {
-      result = n * this.factorial(n - 1);
-    }
-    return result;
+    if (n <= 0) return 1;
+    return n * this.factorial(n - 1);
   }
 
   private debugPrint(msg: string) {
     this._hasNewDebugInfos = true;
-
     const c = new Results(undefined, msg);
-
     this._resultsDebug.push(c);
   }
 
@@ -748,9 +636,6 @@ export class Code {
 
   private debugHide() {}
 
-  private assign() {}
-
-  private retrieve() {}
   private timeout() {}
 
   private message(type: number, message: string) {
@@ -772,6 +657,6 @@ export class Code {
   }
 
   private getTickCount(): number {
-    return new Date().getMilliseconds();
+    return Date.now();
   }
 }

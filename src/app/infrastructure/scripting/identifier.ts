@@ -1,10 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ScriptValue } from './script-value';
+
 export class Identifier {
   public name = '';
-  public value: any;
+  public value: ScriptValue = ScriptValue.Null;
   public idType: IdentifierTypes = IdentifierTypes.idNone;
   public address = -1;
-  public formalParameters: any[] = [];
+  public formalParameters: Identifier[] = [];
 }
 
 export enum IdentifierTypes {

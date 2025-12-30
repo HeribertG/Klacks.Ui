@@ -1,11 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Scope } from './scope';
+import { Scope, Entry } from './scope';
 import { Identifier, IdentifierTypes } from './identifier';
+import { ScriptValue } from './script-value';
 
 export class Scopes {
-  private _scopes: Scope[] = new Array<Scope>();
+  private _scopes: Scope[] = [];
 
-  public pushScope(s: Scope | undefined = undefined) {
+  pushScope(s?: Scope): void {
     if (s === undefined) {
       this._scopes.push(new Scope());
     } else {
@@ -13,25 +13,31 @@ export class Scopes {
     }
   }
 
-  public popScope(): Scope {
-    const result = this._scopes[this._scopes.length - 1];
-    this._scopes.pop();
-    return result;
+  popScope(): Scope | null {
+    if (this._scopes.length === 0) {
+      return null;
+    }
+    return this._scopes.pop() ?? null;
   }
 
-  public allocate(
+  allocate(
     name: string,
-    value: any = null,
+    value: ScriptValue = ScriptValue.Null,
     idType = IdentifierTypes.idVariable
   ): Identifier {
     return this._scopes[this._scopes.length - 1].allocate(name, value, idType);
   }
 
-  public assign(name: string, value: any) {
-    this.getVariable(name).value = value;
+  assign(name: string, value: ScriptValue): boolean {
+    const variable = this.getVariable(name);
+    if (variable) {
+      variable.value = value;
+      return true;
+    }
+    return false;
   }
 
-  public retrieve(name: string): Identifier {
+  retrieve(name: string): Identifier | null {
     return this.getVariable(name);
   }
 
@@ -40,83 +46,65 @@ export class Scopes {
     inCurrentScopeOnly = false,
     idType = IdentifierTypes.idNone
   ): boolean {
-    const n = inCurrentScopeOnly ? this._scopes.length - 1 : 0;
-    let result = false;
+    const startIndex = inCurrentScopeOnly ? this._scopes.length - 1 : 0;
 
-    for (let i = this._scopes.length - 1; i >= n; i--) {
-      const s: Scope = this._scopes[i];
-      const renamed = s.getVariable(name);
+    for (let i = this._scopes.length - 1; i >= startIndex; i--) {
+      const scope = this._scopes[i];
+      const variable = scope.getVariable(name);
 
-      if (renamed !== undefined) {
-        if (renamed.name === name) {
-          if (idType === IdentifierTypes.idNone) {
-            result = true;
-          } else {
-            if (idType === IdentifierTypes.idIsVariableOfFunction) {
-              if (
-                renamed.idType === IdentifierTypes.idVariable ||
-                renamed.idType === IdentifierTypes.idFunction
-              ) {
-                result = true;
-              }
-            } else if (idType === IdentifierTypes.idSubOfFunction) {
-              if (
-                renamed.idType === IdentifierTypes.idSub ||
-                renamed.idType === IdentifierTypes.idFunction
-              ) {
-                result = true;
-              }
-            } else if (idType === IdentifierTypes.idFunction) {
-              if (renamed.idType === IdentifierTypes.idFunction) {
-                result = true;
-              }
-            } else if (idType === IdentifierTypes.idSub) {
-              if (renamed.idType === IdentifierTypes.idSub) {
-                result = true;
-              }
-            } else if (idType === IdentifierTypes.idVariable) {
-              if (renamed.idType === IdentifierTypes.idVariable) {
-                result = true;
-              }
-            }
-          }
+      if (variable && variable.name === name) {
+        if (idType === IdentifierTypes.idNone) {
+          return true;
         }
-        return result;
+
+        if (idType === IdentifierTypes.idIsVariableOfFunction) {
+          if (
+            variable.idType === IdentifierTypes.idVariable ||
+            variable.idType === IdentifierTypes.idFunction
+          ) {
+            return true;
+          }
+        } else if (idType === IdentifierTypes.idSubOfFunction) {
+          if (
+            variable.idType === IdentifierTypes.idSub ||
+            variable.idType === IdentifierTypes.idFunction
+          ) {
+            return true;
+          }
+        } else if (variable.idType === idType) {
+          return true;
+        }
       }
     }
     return false;
   }
 
-  public push(value: any): void {
-    if (value !== undefined) {
-      const s: Scope = this._scopes[this._scopes.length - 1];
-      s.push(value);
+  push(value: ScriptValue): void {
+    if (this._scopes.length > 0) {
+      this._scopes[this._scopes.length - 1].push(value);
     }
   }
 
-  public pop(index = -1): any {
-    const i = this._scopes.length - 1;
-
-    const s = this._scopes[i] as Scope;
-    const x = s.pop(index);
-    if (x !== undefined) {
-      return x;
+  pop(index = -1): Entry | null {
+    if (this._scopes.length === 0) {
+      return null;
     }
 
-    return undefined;
+    const scope = this._scopes[this._scopes.length - 1];
+    return scope.pop(index);
   }
 
-  private getVariable(name: string): Identifier {
-    let result: Identifier;
-    this._scopes.map((s: Scope) => {
-      const x = s.getVariable(name);
-      if (x !== undefined) {
-        result = x;
-        return result;
+  popScopes(): Entry | null {
+    return this.pop();
+  }
+
+  private getVariable(name: string): Identifier | null {
+    for (let i = this._scopes.length - 1; i >= 0; i--) {
+      const variable = this._scopes[i].getVariable(name);
+      if (variable) {
+        return variable;
       }
-      return result!;
-    });
-
-    return result!;
+    }
+    return null;
   }
 }
