@@ -24,8 +24,6 @@ import {
   daysBetweenDates,
   equalDate,
 } from 'src/app/shared/helpers/date.helper';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
-
 import { AbsenceGanttRowHeaderComponent } from '../absence-gantt-row-header/absence-gantt-row-header.component';
 import { CalendarSettingService } from 'src/app/presentation/workplace/absence-gantt/services/calendar-setting.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
@@ -385,10 +383,6 @@ export class AbsenceGanttSurfaceComponent
                   this.drawCalendarGantt.selectedBreak.from!;
               }
 
-              this.drawCalendarGantt.selectedBreak.internalFrom =
-                transformDateToNgbDateStruct(
-                  this.drawCalendarGantt.selectedBreak.from!
-                );
             }
             break;
           }
@@ -411,11 +405,6 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.selectedBreak.from =
                   this.drawCalendarGantt.selectedBreak.until!;
               }
-
-              this.drawCalendarGantt.selectedBreak.internalUntil =
-                transformDateToNgbDateStruct(
-                  this.drawCalendarGantt.selectedBreak.until!
-                );
             }
             break;
           }
@@ -448,15 +437,6 @@ export class AbsenceGanttSurfaceComponent
                 this.drawCalendarGantt.startDate,
                 newEndColumn
               );
-
-              this.drawCalendarGantt.selectedBreak.internalFrom =
-                transformDateToNgbDateStruct(
-                  this.drawCalendarGantt.selectedBreak.from!
-                );
-              this.drawCalendarGantt.selectedBreak.internalUntil =
-                transformDateToNgbDateStruct(
-                  this.drawCalendarGantt.selectedBreak.until!
-                );
             }
             break;
         }

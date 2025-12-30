@@ -25,6 +25,7 @@ import { AuthorizationService } from 'src/app/application/services/authorization
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
+import { ShiftFormService } from '../services/shift-form.service';
 
 @Component({
   selector: 'app-edit-shift-home',
@@ -53,6 +54,7 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
   private savebarService = inject(SavebarService);
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
+  private shiftFormService = inject(ShiftFormService);
   private destroy$ = new Subject<void>();
 
   isComplex = false;
@@ -77,6 +79,10 @@ export class EditShiftHomeComponent implements OnInit, OnDestroy {
     this.layoutService.setContainerToNormalSize();
     this.searchService.setSearchVisibility(false);
     this.savebarService.setSavebarVisibility(true);
+
+    this.dataManagementShiftService.onBeforeSave = () => {
+      this.shiftFormService.applyFormToShift();
+    };
 
     combineLatest([
       this.activatedRoute.params,

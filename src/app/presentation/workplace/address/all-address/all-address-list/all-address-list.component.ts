@@ -255,10 +255,8 @@ export class AllAddressListComponent
     const tmp =
       this.dataManagementClientService.currentFilter.scopeFromFlag !== null &&
       this.dataManagementClientService.currentFilter.scopeUntilFlag !== null &&
-      this.dataManagementClientService.currentFilter.internalScopeFrom !==
-        null &&
-      this.dataManagementClientService.currentFilter.internalScopeUntil !==
-        null;
+      this.dataManagementClientService.currentFilter.scopeFrom !== null &&
+      this.dataManagementClientService.currentFilter.scopeUntil !== null;
 
     return tmp;
   }

@@ -24,7 +24,6 @@ import { SearchStrategyService } from 'src/app/presentation/search/search-strate
 import { DataManagementContractService } from '../contract/data-management-contract.service';
 import { DataManagementGroupService } from '../group/data-management-group.service';
 import { ClientGroupItem } from '../../models/client-group-item-class';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -853,9 +852,7 @@ export class LLMFunctionExecutionService {
       newClientContract.clientId = client.id || '';
       newClientContract.contractId = matchingContract.id;
       newClientContract.contract = matchingContract;
-      const today = new Date();
-      newClientContract.fromDate = today;
-      newClientContract.internalFromDate = transformDateToNgbDateStruct(today);
+      newClientContract.fromDate = new Date();
       newClientContract.isActive = true;
 
       if (!client.clientContracts) {
@@ -888,9 +885,7 @@ export class LLMFunctionExecutionService {
       newGroupItem.clientId = client.id || '';
       newGroupItem.groupId = matchingGroup.id;
       newGroupItem.groupName = matchingGroup.name;
-      const today = new Date();
-      newGroupItem.validFrom = today;
-      newGroupItem.internalValidFrom = transformDateToNgbDateStruct(today);
+      newGroupItem.validFrom = new Date();
 
       if (!client.groupItems) {
         client.groupItems = [];

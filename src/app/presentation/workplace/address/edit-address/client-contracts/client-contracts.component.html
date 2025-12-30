@@ -84,8 +84,8 @@
                   [disabled]="isDisabled()"
                   aria-labelledby="from date"
                   id="from-date-{{ $index }}"
-                  [(ngModel)]="contract.internalFromDate"
-                  (ngModelChange)="calcValidation()"
+                  [ngModel]="getContractFromDate(contract)"
+                  (ngModelChange)="setContractFromDate(contract, $event)"
                   ngbDatepicker
                   #fromDate="ngbDatepicker"
                   #fromDateField="ngModel"
@@ -113,8 +113,8 @@
                   aria-label="until-date-{{ $index }}"
                   aria-labelledby="untilDate"
                   id="until-date-{{ $index }}"
-                  [(ngModel)]="contract.internalUntilDate"
-                  (ngModelChange)="calcValidation()"
+                  [ngModel]="getContractUntilDate(contract)"
+                  (ngModelChange)="setContractUntilDate(contract, $event)"
                   ngbDatepicker
                   #untilDate="ngbDatepicker"
                   #untilDateField="ngModel"

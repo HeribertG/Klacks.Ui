@@ -17,6 +17,7 @@ import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
+import { ShiftFormService } from '../services/shift-form.service';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -67,6 +68,7 @@ export class EditShiftItemComponent
     | undefined;
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public shiftFormService = inject(ShiftFormService);
   private localStorageService = inject(LocalStorageService);
   private injector = inject(Injector);
 
@@ -225,8 +227,7 @@ export class EditShiftItemComponent
   private calcValidationFromDate() {
     this.isFromDateValid = undefined;
 
-    const fromDate =
-      this.dataManagementShiftService.editShift?.internalFromDate;
+    const fromDate = this.shiftFormService.shiftForm()?.internalFromDate;
 
     if (fromDate) {
       if (fromDate === undefined || fromDate === null) {
@@ -239,6 +240,7 @@ export class EditShiftItemComponent
 
   private calcLockButtonValidation() {
     const shift = this.dataManagementShiftService.editShift;
+    const shiftForm = this.shiftFormService.shiftForm();
 
     if (!shift) {
       this.isLockButtonEnabled = false;
@@ -249,7 +251,7 @@ export class EditShiftItemComponent
       shift.abbreviation && shift.abbreviation.trim() !== '';
     const isNameValid = shift.name && shift.name.trim() !== '';
     const isFromDateValid =
-      shift.internalFromDate !== undefined && shift.internalFromDate !== null;
+      shiftForm?.internalFromDate !== undefined && shiftForm?.internalFromDate !== null;
 
     const hasAnyWeekdaySelected =
       shift.isMonday ||
@@ -292,12 +294,13 @@ export class EditShiftItemComponent
 
   get isValidUntilDisabled(): boolean {
     const shift = this.dataManagementShiftService.editShift;
+    const shiftForm = this.shiftFormService.shiftForm();
     if (!shift) return false;
 
     const hasValidUntil =
-      shift.internalUntilDate !== undefined &&
-      shift.internalUntilDate !== null &&
-      Object.keys(shift.internalUntilDate).length > 0;
+      shiftForm?.internalUntilDate !== undefined &&
+      shiftForm?.internalUntilDate !== null &&
+      Object.keys(shiftForm?.internalUntilDate ?? {}).length > 0;
 
     return this.isFieldsDisabled && hasValidUntil;
   }

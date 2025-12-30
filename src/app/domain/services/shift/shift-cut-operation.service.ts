@@ -3,7 +3,6 @@ import { Injectable, inject } from '@angular/core';
 import { Shift, ShiftStatus } from 'src/app/domain/models/shift-class';
 import { OwnTime } from 'src/app/domain/models/schedule-class';
 import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { newGuid } from 'src/app/shared/helpers/guid.helper';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
@@ -56,18 +55,14 @@ export class ShiftCutOperationService {
     const { selectedShift, cutDate } = params;
 
     const copiedShift = this.copyShift(selectedShift);
-    this.restoreOwnTimeObjects(copiedShift);
 
     const dayBeforeCut = new Date(cutDate);
     dayBeforeCut.setDate(dayBeforeCut.getDate() - 1);
 
     selectedShift.untilDate = dayBeforeCut;
-    selectedShift.internalUntilDate =
-      transformDateToNgbDateStruct(dayBeforeCut);
 
     this.prepareCutShift(copiedShift, {
       fromDate: cutDate,
-      internalFromDate: transformDateToNgbDateStruct(cutDate),
     });
 
     selectedShift.status = ShiftStatus.SplitShift;
@@ -82,26 +77,23 @@ export class ShiftCutOperationService {
     const { selectedShift, cutTime } = params;
 
     const copiedShift = this.copyShift(selectedShift);
-    this.restoreOwnTimeObjects(copiedShift);
 
     const originalEndShift = selectedShift.endShift;
-    const originalInternalEndShift = selectedShift.internalEndShift;
+    const originalStartTime = transformStringToOwnTimeStruct(selectedShift.startShift);
+    const originalEndTime = transformStringToOwnTimeStruct(originalEndShift);
 
-    selectedShift.endShift = `${cutTime.hours
+    const cutTimeString = `${cutTime.hours
       .toString()
       .padStart(2, '0')}:${cutTime.minutes.toString().padStart(2, '0')}:00`;
-    selectedShift.internalEndShift = OwnTime.forTime(
-      cutTime.hours.toString(),
-      cutTime.minutes.toString()
-    );
+
+    selectedShift.endShift = cutTimeString;
 
     const cutTimeProps: any = {
       startShift: originalEndShift,
-      internalStartShift: originalInternalEndShift,
     };
 
-    const originalStartMinutes = selectedShift.internalStartShift.toMinutes();
-    const originalEndMinutes = originalInternalEndShift?.toMinutes() || 0;
+    const originalStartMinutes = originalStartTime?.toMinutes() || 0;
+    const originalEndMinutes = originalEndTime?.toMinutes() || 0;
     const cutStartMinutes = cutTime.toMinutes();
 
     const crossesMidnight = originalEndMinutes < originalStartMinutes;
@@ -121,7 +113,6 @@ export class ShiftCutOperationService {
       nextDayDate.setDate(nextDayDate.getDate() + 1);
 
       cutTimeProps.fromDate = nextDayDate;
-      cutTimeProps.internalFromDate = transformDateToNgbDateStruct(nextDayDate);
     }
 
     this.prepareCutShift(copiedShift, cutTimeProps);
@@ -132,13 +123,18 @@ export class ShiftCutOperationService {
 
     selectedShift.status = ShiftStatus.SplitShift;
 
+    const selectedStartTime = transformStringToOwnTimeStruct(selectedShift.startShift);
+    const selectedEndTime = transformStringToOwnTimeStruct(selectedShift.endShift);
     selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      selectedShift.internalStartShift,
-      selectedShift.internalEndShift
+      selectedStartTime,
+      selectedEndTime
     );
+
+    const copiedStartTime = transformStringToOwnTimeStruct(copiedShift.startShift);
+    const copiedEndTime = transformStringToOwnTimeStruct(copiedShift.endShift);
     copiedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      copiedShift.internalStartShift,
-      copiedShift.internalEndShift
+      copiedStartTime,
+      copiedEndTime
     );
 
     return {
@@ -151,7 +147,6 @@ export class ShiftCutOperationService {
     const { selectedShift, weekdays } = params;
 
     const copiedShift = this.copyShift(selectedShift);
-    this.restoreOwnTimeObjects(copiedShift);
 
     this.updateOriginalShiftWeekdays(selectedShift, weekdays);
     this.updateCopiedShiftWeekdays(copiedShift, weekdays);
@@ -170,7 +165,6 @@ export class ShiftCutOperationService {
     const { selectedShift, staffCount } = params;
 
     const copiedShift = this.copyShift(selectedShift);
-    this.restoreOwnTimeObjects(copiedShift);
 
     const originalStaffCount = selectedShift.sumEmployees - staffCount;
     const copiedStaffCount = staffCount;
@@ -212,65 +206,7 @@ export class ShiftCutOperationService {
   }
 
   private copyShift(shift: Shift): Shift {
-    const value = cloneObject<Shift>(shift);
-    if (value) {
-      if (value.fromDate) {
-        value.internalFromDate = transformDateToNgbDateStruct(value.fromDate);
-      }
-
-      if (value.untilDate) {
-        value.internalUntilDate = transformDateToNgbDateStruct(value.untilDate);
-      }
-    }
-    return value;
-  }
-
-  private restoreOwnTimeObjects(shift: Shift): void {
-    if (shift.startShift) {
-      shift.internalStartShift = transformStringToOwnTimeStruct(
-        shift.startShift
-      );
-    }
-
-    if (shift.endShift) {
-      shift.internalEndShift = transformStringToOwnTimeStruct(shift.endShift);
-    }
-
-    if (shift.afterShift) {
-      shift.internalAfterShift = transformStringToOwnTimeStruct(
-        shift.afterShift
-      );
-    }
-
-    if (shift.beforeShift) {
-      shift.internalBeforeShift = transformStringToOwnTimeStruct(
-        shift.beforeShift
-      );
-    }
-
-    if (shift.travelTimeAfter) {
-      shift.internalTravelTimeAfter = transformStringToOwnTimeStruct(
-        shift.travelTimeAfter
-      );
-    }
-
-    if (shift.travelTimeBefore) {
-      shift.internalTravelTimeBefore = transformStringToOwnTimeStruct(
-        shift.travelTimeBefore
-      );
-    }
-
-    if (shift.briefingTime) {
-      shift.internalBriefingTime = transformStringToOwnTimeStruct(
-        shift.briefingTime
-      );
-    }
-
-    if (shift.debriefingTime) {
-      shift.internalDebriefingTime = transformStringToOwnTimeStruct(
-        shift.debriefingTime
-      );
-    }
+    return cloneObject<Shift>(shift);
   }
 
   private prepareCutShift(copiedShift: Shift, specificProperties?: any): void {
@@ -280,27 +216,6 @@ export class ShiftCutOperationService {
 
     if (specificProperties) {
       Object.assign(copiedShift, specificProperties);
-    }
-
-    this.ensureDateSync(copiedShift);
-  }
-
-  private ensureDateSync(shift: Shift): void {
-    if (shift.fromDate && !shift.internalFromDate) {
-      shift.internalFromDate = transformDateToNgbDateStruct(shift.fromDate);
-    }
-
-    if (shift.internalFromDate && !shift.fromDate) {
-      shift.fromDate =
-        transformNgbDateStructToDate(shift.internalFromDate) ?? new Date();
-    }
-
-    if (shift.untilDate && !shift.internalUntilDate) {
-      shift.internalUntilDate = transformDateToNgbDateStruct(shift.untilDate);
-    }
-
-    if (shift.internalUntilDate && !shift.untilDate) {
-      shift.untilDate = transformNgbDateStructToDate(shift.internalUntilDate);
     }
   }
 

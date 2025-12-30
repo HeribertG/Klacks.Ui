@@ -54,14 +54,8 @@
                 [disabled]="isDisabled()"
                 aria-labelledby="valid from"
                 id="membership-entry-date"
-                [ngModel]="
-                  (dataManagementClientService.editClient()?.membership)!
-                    .internalValidFrom
-                "
-                (ngModelChange)="
-                  dataManagementClientService.editClient()!.membership!.internalValidFrom =
-                    $event; calcValidation()
-                "
+                [ngModel]="internalValidFrom"
+                (ngModelChange)="internalValidFrom = $event; calcValidation()"
                 ngbDatepicker
                 #validFrom="ngbDatepicker"
                 #validFromField="ngModel"
@@ -97,14 +91,8 @@
                 aria-label="membership-until-date"
                 aria-labelledby="validUntil"
                 id="membership-until-date"
-                [ngModel]="
-                  (dataManagementClientService.editClient()?.membership)!
-                    .internalValidUntil
-                "
-                (ngModelChange)="
-                  dataManagementClientService.editClient()!.membership!.internalValidUntil =
-                    $event
-                "
+                [ngModel]="internalValidUntil"
+                (ngModelChange)="internalValidUntil = $event"
                 ngbDatepicker
                 #validUntil="ngbDatepicker"
               />

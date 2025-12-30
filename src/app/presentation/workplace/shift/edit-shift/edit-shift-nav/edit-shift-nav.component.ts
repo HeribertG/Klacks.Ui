@@ -24,9 +24,11 @@ import {
   NgbDatepickerModule,
   NgbDropdownModule,
   NgbTooltipModule,
+  NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Component({
   selector: 'app-edit-shift-nav',
@@ -63,6 +65,26 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public isInitFinished = false;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
+
+  get internalScopeFrom(): NgbDateStruct | undefined {
+    const date = this.dataManagementShiftService.currentClientFilter.scopeFrom;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeFrom(value: NgbDateStruct | undefined) {
+    const filter = this.dataManagementShiftService.currentClientFilter;
+    filter.scopeFrom = value ? transformNgbDateStructToDate(value) : undefined;
+  }
+
+  get internalScopeUntil(): NgbDateStruct | undefined {
+    const date = this.dataManagementShiftService.currentClientFilter.scopeUntil;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeUntil(value: NgbDateStruct | undefined) {
+    const filter = this.dataManagementShiftService.currentClientFilter;
+    filter.scopeUntil = value ? transformNgbDateStructToDate(value) : undefined;
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;

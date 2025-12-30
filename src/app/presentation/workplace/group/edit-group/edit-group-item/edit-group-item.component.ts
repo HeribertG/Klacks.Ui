@@ -25,8 +25,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { RichTextEditorComponent } from 'src/app/presentation/shared/rich-text-editor/rich-text-editor.component';
-import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-edit-group-item',
@@ -66,6 +67,33 @@ export class EditGroupItemComponent
   public validUntilValid: boolean | undefined = undefined;
   public validFromTouched = false;
   public validUntilTouched = false;
+
+  get internalValidFrom(): NgbDateStruct | undefined {
+    const date = this.dataManagementGroupService.editGroup?.validFrom;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalValidFrom(value: NgbDateStruct | undefined) {
+    const group = this.dataManagementGroupService.editGroup;
+    if (group && value) {
+      const date = transformNgbDateStructToDate(value);
+      if (date) {
+        group.validFrom = date;
+      }
+    }
+  }
+
+  get internalValidUntil(): NgbDateStruct | undefined {
+    const date = this.dataManagementGroupService.editGroup?.validUntil;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalValidUntil(value: NgbDateStruct | undefined) {
+    const group = this.dataManagementGroupService.editGroup;
+    if (group) {
+      group.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
+    }
+  }
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
@@ -122,11 +150,11 @@ export class EditGroupItemComponent
       return;
     }
 
-    this.validFromValid = group.internalValidFrom ? true : undefined;
+    this.validFromValid = group.validFrom ? true : undefined;
 
-    if (group.internalValidUntil) {
-      const validFrom = transformNgbDateStructToDate(group.internalValidFrom);
-      const validUntil = transformNgbDateStructToDate(group.internalValidUntil);
+    if (group.validUntil) {
+      const validFrom = group.validFrom ? new Date(group.validFrom) : null;
+      const validUntil = new Date(group.validUntil);
 
       if (!validFrom || !validUntil) {
         this.validUntilValid = false;

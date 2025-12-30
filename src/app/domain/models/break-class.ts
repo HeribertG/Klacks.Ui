@@ -1,4 +1,3 @@
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Absence } from './absence-class';
 import { Client } from './client-class';
 import { IBaseFilter } from './general-class';
@@ -8,9 +7,7 @@ export interface IBreakPlaceholder {
   clientId: string;
   client: Client | undefined;
   from: Date | undefined;
-  internalFrom: NgbDateStruct | undefined;
   until: Date | undefined;
-  internalUntil: NgbDateStruct | undefined;
   absenceId: string;
   absence: Absence | undefined;
   information: string | undefined;
@@ -21,9 +18,7 @@ export class BreakPlaceholder implements IBreakPlaceholder {
   clientId = '';
   client: Client | undefined = undefined;
   from: Date | undefined = undefined;
-  internalFrom: NgbDateStruct | undefined = undefined;
   until: Date | undefined = undefined;
-  internalUntil: NgbDateStruct | undefined = undefined;
   absenceId = '';
   absence: Absence | undefined = undefined;
   information: string | undefined = undefined;

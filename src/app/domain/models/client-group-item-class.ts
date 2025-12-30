@@ -1,5 +1,3 @@
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-
 export interface IClientGroupItem {
   groupId?: string;
   clientId?: string;
@@ -7,8 +5,6 @@ export interface IClientGroupItem {
   description?: string;
   validFrom?: Date;
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
 }
 
 export class ClientGroupItem implements IClientGroupItem {
@@ -18,6 +14,4 @@ export class ClientGroupItem implements IClientGroupItem {
   description?: string;
   validFrom?: Date;
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
 }

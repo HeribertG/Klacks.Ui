@@ -44,7 +44,7 @@
         @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.briefing' | translate"
-          [(value)]="dataManagementShiftService.editShift.internalBriefingTime"
+          [(value)]="shiftFormService.shiftForm()!.internalBriefingTime"
           [disabled]="isFieldsDisabled"
           hoursId="briefing"
           [forDuration]="true"
@@ -55,7 +55,7 @@
         @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.travel-time-before' | translate"
-          [(value)]="dataManagementShiftService.editShift.internalTravelTimeBefore"
+          [(value)]="shiftFormService.shiftForm()!.internalTravelTimeBefore"
           [disabled]="isFieldsDisabled"
           hoursId="travel-time-before"
           [forDuration]="true"
@@ -131,7 +131,7 @@
         @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.debriefing' | translate"
-          [(value)]="dataManagementShiftService.editShift.internalDebriefingTime"
+          [(value)]="shiftFormService.shiftForm()!.internalDebriefingTime"
           [disabled]="isFieldsDisabled"
           hoursId="debriefing"
           [forDuration]="true"
@@ -142,7 +142,7 @@
         @if (!isContainer) {
         <app-time-input
           [label]="'shift.edit-shift.special-feature.travel-time-after' | translate"
-          [(value)]="dataManagementShiftService.editShift.internalTravelTimeAfter"
+          [(value)]="shiftFormService.shiftForm()!.internalTravelTimeAfter"
           [disabled]="isFieldsDisabled"
           hoursId="travel-time-after"
           [forDuration]="true"

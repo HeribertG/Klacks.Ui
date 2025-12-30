@@ -35,7 +35,6 @@ import {
   transformDateToNgbDateStruct,
   transformNgbDateStructToDate,
 } from 'src/app/shared/helpers/ngb-date.helper';
-import { createStringId } from 'src/app/shared/helpers/guid.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import {
@@ -121,6 +120,18 @@ export class AddressPersonaComponent
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
+
+  get internalBirthdate(): NgbDateStruct | undefined {
+    const date = this.dataManagementClientService.editClient()?.birthdate;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalBirthdate(value: NgbDateStruct | undefined) {
+    const client = this.dataManagementClientService.editClient();
+    if (client) {
+      client.birthdate = value ? transformNgbDateStructToDate(value) : undefined;
+    }
+  }
 
   get headerTitle(): string {
     const idNumberLabel = this.translateService.instant('address.edit-address.address-persona.id-number');
@@ -321,11 +332,10 @@ export class AddressPersonaComponent
         this.dataManagementClientService.communicationPhoneList()[index];
       let data = this.dataManagementClientService
         .editClient()!
-        .communications.find((x) => x.internalId === tmp.internalId);
+        .communications.find((x) => x.index === tmp.index);
 
       if (!data) {
         data = tmp;
-        data.internalId = createStringId();
         data.index = index;
         data.type = 0;
         data.isPhone = true;
@@ -347,11 +357,10 @@ export class AddressPersonaComponent
         this.dataManagementClientService.communicationPhoneList()[index];
       let data = this.dataManagementClientService
         .editClient()!
-        .communications.find((x) => x.internalId === tmp.internalId);
+        .communications.find((x) => x.index === tmp.index);
 
       if (!data) {
         data = tmp;
-        data.internalId = createStringId();
         data.index = index;
         data.type = 0;
         data.isPhone = true;
@@ -379,11 +388,10 @@ export class AddressPersonaComponent
         this.dataManagementClientService.communicationPhoneList()[index];
       let data = this.dataManagementClientService
         .editClient()!
-        .communications.find((x) => x.internalId === tmp.internalId);
+        .communications.find((x) => x.index === tmp.index);
 
       if (!data) {
         data = tmp;
-        data.internalId = createStringId();
         data.index = index;
         data.isPhone = true;
         this.dataManagementClientService
@@ -414,11 +422,10 @@ export class AddressPersonaComponent
         this.dataManagementClientService.communicationEmailList()[index];
       let data = this.dataManagementClientService
         .editClient()!
-        .communications.find((x) => x.internalId === tmp.internalId);
+        .communications.find((x) => x.index === tmp.index);
 
       if (!data) {
         data = tmp;
-        data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
         this.dataManagementClientService
@@ -440,11 +447,10 @@ export class AddressPersonaComponent
         this.dataManagementClientService.communicationEmailList()[index];
       let data = this.dataManagementClientService
         .editClient()!
-        .communications.find((x) => x.internalId === tmp.internalId);
+        .communications.find((x) => x.index === tmp.index);
 
       if (!data) {
         data = tmp;
-        data.internalId = createStringId();
         data.index = index;
         data.isEmail = true;
         this.dataManagementClientService

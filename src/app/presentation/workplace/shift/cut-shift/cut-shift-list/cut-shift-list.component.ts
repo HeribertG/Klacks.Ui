@@ -378,13 +378,12 @@ export class CutShiftListComponent implements OnInit {
       .join(':');
     const normalizedEndShift = shift.endShift.split(':').slice(0, 2).join(':');
 
-    shift.internalStartShift =
-      transformStringToOwnTimeStruct(normalizedStartShift);
-    shift.internalEndShift = transformStringToOwnTimeStruct(normalizedEndShift);
+    const startTime = transformStringToOwnTimeStruct(normalizedStartShift);
+    const endTime = transformStringToOwnTimeStruct(normalizedEndShift);
 
-    if (shift.internalStartShift && shift.internalEndShift) {
-      const startMinutes = shift.internalStartShift.toMinutes();
-      const endMinutes = shift.internalEndShift.toMinutes();
+    if (startTime && endTime) {
+      const startMinutes = startTime.toMinutes();
+      const endMinutes = endTime.toMinutes();
 
       let totalMinutes: number;
 
@@ -405,12 +404,11 @@ export class CutShiftListComponent implements OnInit {
       if (totalMinutes > 1) {
         this.isCutTimeEnabled = true;
 
-        this.minTimeShift = shift.internalStartShift;
-        this.maxTimeShift = shift.internalEndShift;
+        this.minTimeShift = startTime;
+        this.maxTimeShift = endTime;
 
         if (this.is24Hours) {
-          const defaultCutHour =
-            (Number(shift.internalStartShift.hours) + 1) % 24;
+          const defaultCutHour = (Number(startTime.hours) + 1) % 24;
           this.cutTimeShift = OwnTime.forTime(defaultCutHour.toString(), '0');
         } else if (this.isOverMidnight) {
           const midMinutes = startMinutes + Math.floor(totalMinutes / 2);
@@ -521,24 +519,20 @@ export class CutShiftListComponent implements OnInit {
 
     const copiedShift = this.copyShift(this.selectedShift);
 
-    this.restoreOwnTimeObjects(copiedShift);
-
+    const originalStartTime = transformStringToOwnTimeStruct(this.selectedShift.startShift);
+    const originalEndTime = transformStringToOwnTimeStruct(this.selectedShift.endShift);
     const originalEndShift = this.selectedShift.endShift;
-    const originalInternalEndShift = this.selectedShift.internalEndShift;
 
-    this.selectedShift.endShift = `${this.cutTimeShift.hours
+    const cutTimeString = `${this.cutTimeShift.hours
       .toString()
       .padStart(2, '0')}:${this.cutTimeShift.minutes
       .toString()
       .padStart(2, '0')}`;
-    this.selectedShift.internalEndShift = OwnTime.forTime(
-      this.cutTimeShift.hours,
-      this.cutTimeShift.minutes
-    );
 
-    const originalStartMinutes =
-      this.selectedShift.internalStartShift?.toMinutes() || 0;
-    const originalEndMinutes = originalInternalEndShift?.toMinutes() || 0;
+    this.selectedShift.endShift = cutTimeString;
+
+    const originalStartMinutes = originalStartTime?.toMinutes() || 0;
+    const originalEndMinutes = originalEndTime?.toMinutes() || 0;
 
     const crossesMidnight = originalEndMinutes < originalStartMinutes;
 
@@ -548,36 +542,32 @@ export class CutShiftListComponent implements OnInit {
       originalStartMinutes < originalEndMinutes;
 
     const cutTimeProps: any = {
-      startShift: `${this.cutTimeShift.hours
-        .toString()
-        .padStart(2, '0')}:${this.cutTimeShift.minutes
-        .toString()
-        .padStart(2, '0')}`,
-      internalStartShift: OwnTime.forTime(
-        this.cutTimeShift.hours,
-        this.cutTimeShift.minutes
-      ),
+      startShift: cutTimeString,
     };
 
     if (this.is24Hours) {
       cutTimeProps.endShift = originalEndShift;
-      cutTimeProps.internalEndShift = originalInternalEndShift;
     }
 
     this.prepareCutShift(copiedShift, cutTimeProps);
 
     this.selectedShift.status = ShiftStatus.SplitShift;
 
+    const selectedStartTime = transformStringToOwnTimeStruct(this.selectedShift.startShift);
+    const selectedEndTime = transformStringToOwnTimeStruct(this.selectedShift.endShift);
     this.selectedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      this.selectedShift.internalStartShift,
-      this.selectedShift.internalEndShift
-    );
-    copiedShift.workTime = this.workTimeCalculator.calculateWorkTime(
-      copiedShift.internalStartShift,
-      copiedShift.internalEndShift
+      selectedStartTime,
+      selectedEndTime
     );
 
-    const copiedStartMinutes = copiedShift.internalStartShift.toMinutes();
+    const copiedStartTime = transformStringToOwnTimeStruct(copiedShift.startShift);
+    const copiedEndTime = transformStringToOwnTimeStruct(copiedShift.endShift);
+    copiedShift.workTime = this.workTimeCalculator.calculateWorkTime(
+      copiedStartTime,
+      copiedEndTime
+    );
+
+    const copiedStartMinutes = copiedStartTime?.toMinutes() || 0;
 
     copiedShift.cuttingAfterMidnight =
       crossesMidnight &&
@@ -591,7 +581,6 @@ export class CutShiftListComponent implements OnInit {
       const adjustedDate = new Date(copiedShift.fromDate);
       adjustedDate.setDate(adjustedDate.getDate() + 1);
       copiedShift.fromDate = adjustedDate;
-      copiedShift.internalFromDate = transformDateToNgbDateStruct(adjustedDate);
       this.shiftWeekdaysForward(copiedShift);
     }
 
@@ -674,54 +663,6 @@ export class CutShiftListComponent implements OnInit {
     this.analyzeResetCuts();
   }
 
-  private restoreOwnTimeObjects(shift: Shift): void {
-    if (shift.startShift) {
-      shift.internalStartShift = transformStringToOwnTimeStruct(
-        shift.startShift
-      );
-    }
-    if (shift.endShift) {
-      shift.internalEndShift = transformStringToOwnTimeStruct(shift.endShift);
-    }
-    if (shift.beforeShift) {
-      shift.internalBeforeShift = transformStringToOwnTimeStruct(
-        shift.beforeShift
-      );
-    }
-    if (shift.afterShift) {
-      shift.internalAfterShift = transformStringToOwnTimeStruct(
-        shift.afterShift
-      );
-    }
-    if (shift.travelTimeBefore) {
-      shift.internalTravelTimeBefore = transformStringToOwnTimeStruct(
-        shift.travelTimeBefore
-      );
-    }
-    if (shift.travelTimeAfter) {
-      shift.internalTravelTimeAfter = transformStringToOwnTimeStruct(
-        shift.travelTimeAfter
-      );
-    }
-    if (shift.briefingTime) {
-      shift.internalBriefingTime = transformStringToOwnTimeStruct(
-        shift.briefingTime
-      );
-    }
-    if (shift.debriefingTime) {
-      shift.internalDebriefingTime = transformStringToOwnTimeStruct(
-        shift.debriefingTime
-      );
-    }
-    if (shift.workTime !== undefined && shift.workTime !== null) {
-      const hours = Math.floor(shift.workTime / 60);
-      const minutes = shift.workTime % 60;
-      shift.internalWorkTime = transformStringToOwnTimeStruct(
-        `${hours}:${minutes}`,
-        true
-      );
-    }
-  }
 
   private selectNewChildCut(newChildCut: Shift): void {
     this.selectedShift = newChildCut;
@@ -893,17 +834,7 @@ export class CutShiftListComponent implements OnInit {
   }
 
   private copyShift(shift: Shift): Shift {
-    const value = cloneObject<Shift>(shift);
-    if (value) {
-      if (value.fromDate) {
-        value.internalFromDate = transformDateToNgbDateStruct(value.fromDate);
-      }
-
-      if (value.untilDate) {
-        value.internalUntilDate = transformDateToNgbDateStruct(value.untilDate);
-      }
-    }
-    return value;
+    return cloneObject<Shift>(shift);
   }
 
   private shiftWeekdaysForward(shift: Shift): void {

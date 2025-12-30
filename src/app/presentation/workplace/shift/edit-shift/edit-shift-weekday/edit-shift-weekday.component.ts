@@ -19,6 +19,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
+import { ShiftFormService } from '../services/shift-form.service';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { ShiftStatus, ShiftType } from 'src/app/domain/models/shift-class';
@@ -51,6 +52,7 @@ export class EditShiftWeekdayComponent
     | undefined;
 
   public dataManagementShiftService = inject(DataManagementShiftService);
+  public shiftFormService = inject(ShiftFormService);
   private workTimeCalculationService = inject(WorkTimeCalculationService);
   private injector = inject(Injector);
 
@@ -200,24 +202,22 @@ export class EditShiftWeekdayComponent
 
   private calculateWorkTime() {
     const shift = this.dataManagementShiftService.editShift;
-    if (!shift) return;
+    const shiftForm = this.shiftFormService.shiftForm();
+    if (!shift || !shiftForm) return;
 
-    // Verwende den WorkTimeCalculationService für konsistente Berechnung
     const workTimeHours = this.workTimeCalculationService.calculateWorkTime(
-      shift.internalStartShift,
-      shift.internalEndShift
+      shiftForm.internalStartShift,
+      shiftForm.internalEndShift
     );
 
-    // Konvertiere Dezimalstunden zu Minuten für die UI
     const workTimeMinutes = Math.round(workTimeHours * 60);
     shift.workTime = workTimeMinutes;
 
-    // Aktualisiere auch internalWorkTime für die UI-Anzeige
     const workHours = Math.floor(workTimeMinutes / 60);
     const workMinutesRemainder = workTimeMinutes % 60;
 
-    shift.internalWorkTime.hours = workHours.toString().padStart(2, '0');
-    shift.internalWorkTime.minutes = workMinutesRemainder
+    shiftForm.internalWorkTime.hours = workHours.toString().padStart(2, '0');
+    shiftForm.internalWorkTime.minutes = workMinutesRemainder
       .toString()
       .padStart(2, '0');
 

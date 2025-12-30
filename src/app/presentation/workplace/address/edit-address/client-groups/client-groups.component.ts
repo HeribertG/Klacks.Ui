@@ -29,7 +29,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
 
 @Component({
@@ -112,7 +112,26 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   getMinDate(): NgbDateStruct {
     const client = this.dataManagementClientService.editClient();
-    return client?.membership?.internalValidFrom || { year: 1900, month: 1, day: 1 };
+    const validFrom = client?.membership?.validFrom;
+    return validFrom ? transformDateToNgbDateStruct(validFrom)! : { year: 1900, month: 1, day: 1 };
+  }
+
+  getGroupValidFrom(groupItem: { validFrom?: Date }): NgbDateStruct | undefined {
+    return groupItem.validFrom ? transformDateToNgbDateStruct(groupItem.validFrom) : undefined;
+  }
+
+  setGroupValidFrom(groupItem: { validFrom?: Date }, value: NgbDateStruct | undefined): void {
+    groupItem.validFrom = value ? transformNgbDateStructToDate(value) : undefined;
+    this.calcValidation();
+  }
+
+  getGroupValidUntil(groupItem: { validUntil?: Date }): NgbDateStruct | undefined {
+    return groupItem.validUntil ? transformDateToNgbDateStruct(groupItem.validUntil) : undefined;
+  }
+
+  setGroupValidUntil(groupItem: { validUntil?: Date }, value: NgbDateStruct | undefined): void {
+    groupItem.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
+    this.calcValidation();
   }
 
   sortClientGroups(): void {
@@ -187,9 +206,7 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.groupFromDateValidationState.clear();
 
     currentClient.groupItems.forEach((groupItem, index) => {
-      const validFrom = transformNgbDateStructToDate(
-        groupItem.internalValidFrom
-      );
+      const validFrom = groupItem.validFrom ? new Date(groupItem.validFrom) : null;
 
       if (!validFrom) {
         this.groupFromDateValidationState.set(index, false);
@@ -197,12 +214,10 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
         this.groupFromDateValidationState.set(index, true);
       }
 
-      if (!groupItem.internalValidUntil) {
+      if (!groupItem.validUntil) {
         this.groupValidationState.set(index, undefined);
       } else {
-        const validUntil = transformNgbDateStructToDate(
-          groupItem.internalValidUntil
-        );
+        const validUntil = new Date(groupItem.validUntil);
 
         if (!validFrom || !validUntil) {
           this.groupValidationState.set(index, false);

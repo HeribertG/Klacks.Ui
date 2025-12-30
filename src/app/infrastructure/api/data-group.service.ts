@@ -8,10 +8,6 @@ import {
   IGroupTree,
   ITruncatedGroup,
 } from 'src/app/domain/models/group-class';
-import {
-  isNgbDateStructOk,
-  transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { Observable } from 'rxjs';
 
@@ -97,20 +93,14 @@ export class DataGroupService {
   }
 
   setCorrectDate(value: IGroup): void {
-    if (isNgbDateStructOk(value!.internalValidFrom)) {
-      value.validFrom = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalValidFrom)
-      )!;
+    if (value.validFrom) {
+      value.validFrom = dateWithLocalTimeCorrection(new Date(value.validFrom))!;
     } else {
-      value.validFrom = new Date();
+      value.validFrom = dateWithLocalTimeCorrection(new Date())!;
     }
-    value.validFrom = dateWithLocalTimeCorrection(value.validFrom)!;
 
-    if (isNgbDateStructOk(value!.internalValidUntil)) {
-      value.validUntil = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalValidUntil)
-      )!;
-      value.validUntil = dateWithLocalTimeCorrection(value.validUntil)!;
+    if (value.validUntil) {
+      value.validUntil = dateWithLocalTimeCorrection(new Date(value.validUntil))!;
     } else {
       value.validUntil = undefined;
     }

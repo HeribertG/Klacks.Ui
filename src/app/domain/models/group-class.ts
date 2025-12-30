@@ -1,4 +1,3 @@
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   BaseFilter,
   BaseTruncated,
@@ -13,8 +12,6 @@ export interface IGroup {
   description: string;
   validFrom: Date;
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
   groupItems: IGroupItem[];
   parent?: string;
   root?: string;
@@ -34,8 +31,6 @@ export class Group implements IGroup {
   description = '';
   validFrom: Date = new Date();
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
   parent?: string;
   root?: string;
   lft = 0;
@@ -65,8 +60,6 @@ export class Group implements IGroup {
         : new Date(data.validUntil)
       : undefined;
 
-    this.internalValidFrom = data.internalValidFrom;
-    this.internalValidUntil = data.internalValidUntil;
     this.parent = data.parent;
     this.root = data.root;
     this.lft = data.lft || 0;
@@ -104,8 +97,6 @@ export interface IGroupItem {
   group?: IGroup;
   validFrom?: Date;
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
 }
 
 export class GroupItem implements IGroupItem {
@@ -116,8 +107,6 @@ export class GroupItem implements IGroupItem {
   group?: Group;
   validFrom?: Date;
   validUntil?: Date;
-  internalValidFrom?: NgbDateStruct;
-  internalValidUntil?: NgbDateStruct;
 }
 
 export interface ITruncatedGroup extends IBaseTruncated {
@@ -132,9 +121,7 @@ export interface IGroupFilter extends IBaseFilter {
   scopeFromFlag?: boolean;
   scopeUntilFlag?: boolean;
   scopeFrom?: Date;
-  internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
-  internalScopeUntil?: NgbDateStruct;
   showDeleteEntries?: boolean;
   activeDateRange: boolean;
   formerDateRange: boolean;
@@ -146,9 +133,7 @@ export class GroupFilter extends BaseFilter implements IGroupFilter {
   scopeFromFlag?: boolean;
   scopeUntilFlag?: boolean;
   scopeFrom?: Date;
-  internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
-  internalScopeUntil?: NgbDateStruct;
   showDeleteEntries = false;
   activeDateRange = true;
   formerDateRange = false;

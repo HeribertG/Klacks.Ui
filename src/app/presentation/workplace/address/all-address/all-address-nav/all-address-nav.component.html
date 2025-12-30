@@ -360,14 +360,8 @@
                     class="form-control"
                     name="from"
                     aria-label="from"
-                    [ngModel]="
-                      dataManagementClientService.currentFilter
-                        .internalScopeFrom
-                    "
-                    (ngModelChange)="
-                      dataManagementClientService.currentFilter.internalScopeFrom =
-                        $event
-                    "
+                    [ngModel]="internalScopeFrom"
+                    (ngModelChange)="internalScopeFrom = $event"
                     ngbDatepicker
                     #from="ngbDatepicker"
                   />
@@ -392,14 +386,8 @@
                     class="form-control"
                     name="until"
                     aria-label="until"
-                    [ngModel]="
-                      dataManagementClientService.currentFilter
-                        .internalScopeUntil
-                    "
-                    (ngModelChange)="
-                      dataManagementClientService.currentFilter.internalScopeUntil =
-                        $event
-                    "
+                    [ngModel]="internalScopeUntil"
+                    (ngModelChange)="internalScopeUntil = $event"
                     ngbDatepicker
                     #until="ngbDatepicker"
                   />

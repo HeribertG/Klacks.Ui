@@ -25,11 +25,6 @@ import {
   cloneObject,
   compareComplexObjects,
 } from 'src/app/shared/helpers/object.helper';
-import {
-  isNgbDateStructValid,
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-} from 'src/app/shared/helpers/ngb-date.helper';
 import { DataCountryStateService } from 'src/app/infrastructure/api/data-country-state.service';
 import { DataGroupVisibilityService } from 'src/app/infrastructure/api/data-group-visibility.service';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
@@ -330,7 +325,6 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   prepareGroup(value: IGroup) {
-    this.setDateStruc(value);
     if (value == null) {
       return;
     }
@@ -406,17 +400,6 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
     this.prepareGroup(this.editGroupDummy!);
   }
 
-  private setDateStruc(value: IGroup) {
-    if (value) {
-      value.internalValidFrom = transformDateToNgbDateStruct(value.validFrom);
-      if (value.validUntil) {
-        value.internalValidUntil = transformDateToNgbDateStruct(
-          value.validUntil
-        );
-      }
-    }
-  }
-
   areObjectsDirty(): boolean {
     if (this.isEditGroup_Dirty()) {
       return true;
@@ -481,24 +464,18 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
   }
 
   private isValid(): boolean {
-    if (
-      !this.editGroup?.name ||
-      !this.editGroup?.validFrom ||
-      !this.editGroup?.internalValidFrom ||
-      !isNgbDateStructValid(this.editGroup?.internalValidFrom)
-    ) {
+    if (!this.editGroup?.name || !this.editGroup?.validFrom) {
       return false;
     }
 
-    if (this.editGroup.internalValidUntil) {
-      const validFrom = transformNgbDateStructToDate(this.editGroup.internalValidFrom);
-      const validUntil = transformNgbDateStructToDate(this.editGroup.internalValidUntil);
+    const validFrom = new Date(this.editGroup.validFrom);
+    if (isNaN(validFrom.getTime())) {
+      return false;
+    }
 
-      if (!validFrom || !validUntil) {
-        return false;
-      }
-
-      if (validFrom >= validUntil) {
+    if (this.editGroup.validUntil) {
+      const validUntil = new Date(this.editGroup.validUntil);
+      if (isNaN(validUntil.getTime()) || validFrom >= validUntil) {
         return false;
       }
     }

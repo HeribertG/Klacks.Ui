@@ -21,6 +21,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/a
 import { addDays } from 'src/app/shared/helpers/date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { faCalendar } from '@fortawesome/free-solid-svg-icons';
@@ -82,6 +83,31 @@ export class AbsenceGanttMaskComponent
   private selectedBreak_dummy: IBreakPlaceholder | undefined;
   private ngUnsubscribe = new Subject<void>();
 
+  private _internalFrom: NgbDateStruct | undefined;
+  private _internalUntil: NgbDateStruct | undefined;
+
+  get internalFrom(): NgbDateStruct | undefined {
+    return this._internalFrom;
+  }
+
+  set internalFrom(value: NgbDateStruct | undefined) {
+    this._internalFrom = value;
+    if (this.selectedBreak && value) {
+      this.selectedBreak.from = transformNgbDateStructToDate(value);
+    }
+  }
+
+  get internalUntil(): NgbDateStruct | undefined {
+    return this._internalUntil;
+  }
+
+  set internalUntil(value: NgbDateStruct | undefined) {
+    this._internalUntil = value;
+    if (this.selectedBreak && value) {
+      this.selectedBreak.until = transformNgbDateStructToDate(value);
+    }
+  }
+
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;
   }
@@ -105,12 +131,8 @@ export class AbsenceGanttMaskComponent
 
     this.page = this.selectedBreakIndex! + 1;
     if (this.selectedBreak) {
-      this.selectedBreak.internalFrom = transformDateToNgbDateStruct(
-        this.selectedBreak.from!
-      );
-      this.selectedBreak.internalUntil = transformDateToNgbDateStruct(
-        this.selectedBreak.until!
-      );
+      this._internalFrom = transformDateToNgbDateStruct(this.selectedBreak.from!);
+      this._internalUntil = transformDateToNgbDateStruct(this.selectedBreak.until!);
     }
     this.selectedBreak_dummy = undefined;
     if (this.selectedBreak) {
@@ -192,26 +214,18 @@ export class AbsenceGanttMaskComponent
   private change() {
     if (this.selectedBreak) {
       if (
-        isNgbDateStructOk(this.selectedBreak.internalFrom) &&
-        isNgbDateStructOk(this.selectedBreak.internalUntil)
+        isNgbDateStructOk(this._internalFrom) &&
+        isNgbDateStructOk(this._internalUntil)
       ) {
-        const _from = transformNgbDateStructToDate(
-          this.selectedBreak.internalFrom
-        );
-        const _until = transformNgbDateStructToDate(
-          this.selectedBreak.internalUntil
-        );
+        const _from = transformNgbDateStructToDate(this._internalFrom);
+        const _until = transformNgbDateStructToDate(this._internalUntil);
 
         if (_from! > _until!) {
           this.selectedBreak.from = _until;
           this.selectedBreak.until = _from;
 
-          this.selectedBreak.internalFrom = transformDateToNgbDateStruct(
-            this.selectedBreak.from!
-          );
-          this.selectedBreak.internalUntil = transformDateToNgbDateStruct(
-            this.selectedBreak.until!
-          );
+          this._internalFrom = transformDateToNgbDateStruct(this.selectedBreak.from!);
+          this._internalUntil = transformDateToNgbDateStruct(this.selectedBreak.until!);
         } else {
           this.selectedBreak.from = _from;
           this.selectedBreak.until = _until;

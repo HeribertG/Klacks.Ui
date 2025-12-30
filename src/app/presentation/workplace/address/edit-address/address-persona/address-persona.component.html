@@ -992,13 +992,8 @@
                   name="birthday"
                   id="profile-birthday"
                   [disabled]="isDisabled()"
-                  [ngModel]="
-                    dataManagementClientService.editClient()?.internalBirthdate
-                  "
-                  (ngModelChange)="
-                    dataManagementClientService.editClient()!.internalBirthdate =
-                      $event
-                  "
+                  [ngModel]="internalBirthdate"
+                  (ngModelChange)="internalBirthdate = $event"
                   ngbDatepicker
                   btn-dark
                   #birthday="ngbDatepicker"

@@ -3,15 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Contract, IContract } from 'src/app/domain/models/contract-class';
 import { retry } from 'rxjs';
-import {
-  transformNgbDateStructToDate,
-  isNgbDateStructOk,
-} from 'src/app/shared/helpers/ngb-date.helper';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
-import {
-  isOwnTimeStructOk,
-  transformOwnTimeToNumber,
-} from 'src/app/domain/helpers/own-time.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -32,19 +24,17 @@ export class DataContractService {
   }
 
   addContract(value: Contract) {
-    this.updateDatesFromStruct(value);
-    this.updateHoursFromStruct(value);
+    this.correctDates(value);
     delete value.id;
-    this.deleteUnnecessaryProperties(value);
+    this.prepareForApi(value);
     return this.httpClient
       .post<IContract>(`${environment.baseUrl}Contracts/`, value)
       .pipe();
   }
 
   updateContract(value: Contract) {
-    this.updateDatesFromStruct(value);
-    this.updateHoursFromStruct(value);
-    this.deleteUnnecessaryProperties(value);
+    this.correctDates(value);
+    this.prepareForApi(value);
     return this.httpClient
       .put<IContract>(`${environment.baseUrl}Contracts/`, value)
       .pipe();
@@ -56,71 +46,23 @@ export class DataContractService {
       .pipe(retry(3));
   }
 
-  private updateDatesFromStruct(value: IContract) {
+  private correctDates(value: IContract) {
     if (!value) return;
 
-    if (value.internalValidFrom && isNgbDateStructOk(value.internalValidFrom)) {
-      const validFromDate = transformNgbDateStructToDate(
-        value.internalValidFrom
-      );
-      if (validFromDate) {
-        value.validFrom = dateWithLocalTimeCorrection(validFromDate) as Date;
-      }
+    if (value.validFrom) {
+      value.validFrom = dateWithLocalTimeCorrection(new Date(value.validFrom)) as Date;
     }
 
-    if (
-      value.internalValidUntil &&
-      isNgbDateStructOk(value.internalValidUntil)
-    ) {
-      const validUntilDate = transformNgbDateStructToDate(
-        value.internalValidUntil
-      );
-      if (validUntilDate) {
-        value.validUntil = dateWithLocalTimeCorrection(validUntilDate);
-      }
+    if (value.validUntil) {
+      value.validUntil = dateWithLocalTimeCorrection(new Date(value.validUntil));
     } else {
       value.validUntil = undefined;
     }
   }
 
-  private updateHoursFromStruct(value: IContract) {
-    if (!value) return;
-
-    if (
-      value.internalGuaranteedHours &&
-      isOwnTimeStructOk(value.internalGuaranteedHours)
-    ) {
-      value.guaranteedHoursPerMonth = transformOwnTimeToNumber(
-        value.internalGuaranteedHours
-      );
-    }
-
-    if (
-      value.internalMinimumHours &&
-      isOwnTimeStructOk(value.internalMinimumHours)
-    ) {
-      value.minimumHoursPerMonth = transformOwnTimeToNumber(
-        value.internalMinimumHours
-      );
-    }
-
-    if (
-      value.internalMaximumHours &&
-      isOwnTimeStructOk(value.internalMaximumHours)
-    ) {
-      value.maximumHoursPerMonth = transformOwnTimeToNumber(
-        value.internalMaximumHours
-      );
-    }
-  }
-
-  private deleteUnnecessaryProperties(value: IContract) {
-    delete value.internalValidFrom;
-    delete value.internalValidUntil;
+  private prepareForApi(value: IContract) {
     if (value.calendarSelection) {
-      const calendarId = value.calendarSelection.id;
-
-      value.calendarSelectionId = calendarId;
+      value.calendarSelectionId = value.calendarSelection.id;
       delete value.calendarSelection;
     }
   }

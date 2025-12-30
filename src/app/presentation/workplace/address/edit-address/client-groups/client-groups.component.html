@@ -77,8 +77,8 @@
                   [disabled]="isDisabled()"
                   aria-labelledby="valid from"
                   id="valid-from-{{ $index }}"
-                  [(ngModel)]="groupItem.internalValidFrom"
-                  (ngModelChange)="calcValidation()"
+                  [ngModel]="getGroupValidFrom(groupItem)"
+                  (ngModelChange)="setGroupValidFrom(groupItem, $event)"
                   ngbDatepicker
                   #validFrom="ngbDatepicker"
                   #validFromField="ngModel"
@@ -106,8 +106,8 @@
                   aria-label="valid-until-{{ $index }}"
                   aria-labelledby="validUntil"
                   id="valid-until-{{ $index }}"
-                  [(ngModel)]="groupItem.internalValidUntil"
-                  (ngModelChange)="calcValidation()"
+                  [ngModel]="getGroupValidUntil(groupItem)"
+                  (ngModelChange)="setGroupValidUntil(groupItem, $event)"
                   ngbDatepicker
                   #validUntil="ngbDatepicker"
                   #validUntilField="ngModel"

@@ -23,7 +23,12 @@ import {
   NgbDatepickerModule,
   NgbDropdownModule,
   NgbTooltipModule,
+  NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
+import {
+  transformDateToNgbDateStruct,
+  transformNgbDateStructToDate,
+} from 'src/app/shared/helpers/ngb-date.helper';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
@@ -71,6 +76,26 @@ export class AllAddressNavComponent
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
+
+  get internalScopeFrom(): NgbDateStruct | undefined {
+    const date = this.dataManagementClientService.currentFilter.scopeFrom;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeFrom(value: NgbDateStruct | undefined) {
+    const date = value ? transformNgbDateStructToDate(value) : undefined;
+    (this.dataManagementClientService.currentFilter as { scopeFrom: Date | undefined }).scopeFrom = date;
+  }
+
+  get internalScopeUntil(): NgbDateStruct | undefined {
+    const date = this.dataManagementClientService.currentFilter.scopeUntil;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeUntil(value: NgbDateStruct | undefined) {
+    const date = value ? transformNgbDateStructToDate(value) : undefined;
+    (this.dataManagementClientService.currentFilter as { scopeUntil: Date | undefined }).scopeUntil = date;
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translateService.currentLang as Language;

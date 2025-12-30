@@ -80,8 +80,6 @@ describe('DataManagementBreakPlaceholderService', () => {
                 validFrom: new Date('2024-03-01'),
                 validUntil: new Date('2024-11-30'),
                 type: 1,
-                internalValidFrom: undefined,
-                internalValidUntil: undefined,
             };
 
             clientWithMembership = {
@@ -296,8 +294,6 @@ describe('DataManagementBreakPlaceholderService', () => {
                 validFrom: new Date('2024-03-01'),
                 validUntil: new Date('2024-11-30'),
                 type: 1,
-                internalValidFrom: undefined,
-                internalValidUntil: undefined,
             };
 
             clientWithMembership = {

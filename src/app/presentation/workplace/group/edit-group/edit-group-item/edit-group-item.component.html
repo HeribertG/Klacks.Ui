@@ -34,12 +34,8 @@
             inputId="edit-group-item-from"
             inputName="validFrom"
             inputWidth="medium-width"
-            [value]="dataManagementGroupService.editGroup.internalValidFrom"
-            (valueChange)="
-              dataManagementGroupService.editGroup.internalValidFrom =
-                $event || undefined;
-              onValidFromChange()
-            "
+            [value]="internalValidFrom"
+            (valueChange)="internalValidFrom = $event || undefined; onValidFromChange()"
             [disabled]="!authorizationService.isAuthorised"
             [isValid]="validFromValid"
             [touched]="validFromTouched"
@@ -56,12 +52,8 @@
           inputId="edit-group-item-until"
           inputName="validUntil"
           inputWidth="medium-width"
-          [value]="dataManagementGroupService.editGroup.internalValidUntil"
-          (valueChange)="
-            dataManagementGroupService.editGroup.internalValidUntil =
-              $event || undefined;
-            onValidUntilChange()
-          "
+          [value]="internalValidUntil"
+          (valueChange)="internalValidUntil = $event || undefined; onValidUntilChange()"
           [disabled]="!authorizationService.isAuthorised"
           [isValid]="validUntilValid"
           [touched]="validUntilTouched"

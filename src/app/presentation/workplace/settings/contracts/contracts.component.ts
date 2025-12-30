@@ -25,6 +25,18 @@ import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { OwnTime } from 'src/app/domain/models/schedule-class';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
+
+interface ContractFormViewModel {
+  internalGuaranteedHours: OwnTime;
+  internalMinimumHours: OwnTime;
+  internalMaximumHours: OwnTime;
+  internalValidFrom: NgbDateStruct | undefined;
+  internalValidUntil: NgbDateStruct | undefined;
+}
 
 @Component({
   selector: 'app-contracts',
@@ -54,12 +66,39 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
 
   public editingContract: IContract | null = null;
+  public contractForm_: ContractFormViewModel | null = null;
   private originalContract: IContract | null = null;
   private isNewContract = false;
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
   message = MessageLibrary.DELETE_ENTRY;
+
+  private createViewModel(contract: IContract): ContractFormViewModel {
+    return {
+      internalGuaranteedHours: transformNumberToOwnTime(contract.guaranteedHoursPerMonth ?? 0, true),
+      internalMinimumHours: transformNumberToOwnTime(contract.minimumHoursPerMonth ?? 0, true),
+      internalMaximumHours: transformNumberToOwnTime(contract.maximumHoursPerMonth ?? 0, true),
+      internalValidFrom: contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined,
+      internalValidUntil: contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined,
+    };
+  }
+
+  private applyViewModelToContract(): void {
+    if (!this.editingContract || !this.contractForm_) return;
+    this.editingContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalGuaranteedHours);
+    this.editingContract.minimumHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalMinimumHours);
+    this.editingContract.maximumHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalMaximumHours);
+    if (this.contractForm_.internalValidFrom) {
+      const validFrom = transformNgbDateStructToDate(this.contractForm_.internalValidFrom);
+      if (validFrom) {
+        this.editingContract.validFrom = validFrom;
+      }
+    }
+    this.editingContract.validUntil = this.contractForm_.internalValidUntil
+      ? transformNgbDateStructToDate(this.contractForm_.internalValidUntil)
+      : undefined;
+  }
 
   async ngOnInit(): Promise<void> {
     try {
@@ -91,6 +130,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickAdd(): void {
     this.editingContract = this.dataManagementContractService.createContract();
+    this.contractForm_ = this.createViewModel(this.editingContract);
 
     this.originalContract = null;
     this.isNewContract = true;
@@ -108,6 +148,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementContractService.prepareContractForEdit(clonedContract);
 
     this.editingContract = clonedContract;
+    this.contractForm_ = this.createViewModel(clonedContract);
     this.originalContract = contract;
     this.isNewContract = false;
 
@@ -162,6 +203,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.applyViewModelToContract();
     this.isSaving = true;
 
     try {

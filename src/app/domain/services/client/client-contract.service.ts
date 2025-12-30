@@ -1,34 +1,17 @@
 import { Injectable } from '@angular/core';
 import {
   IClient,
-  IClientContract,
   ClientContract,
 } from 'src/app/domain/models/client-class';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ClientContractService {
-  public setDateStructs(contracts: IClientContract[]): void {
-    contracts.forEach((contract) => {
-      contract.internalFromDate = transformDateToNgbDateStruct(
-        contract.fromDate
-      );
-      if (contract.untilDate) {
-        contract.internalUntilDate = transformDateToNgbDateStruct(
-          contract.untilDate
-        );
-      }
-    });
-  }
-
   public addContract(client: IClient): IClient {
     const newContract = new ClientContract();
     newContract.clientId = client.id || '';
-    const today = new Date();
-    newContract.fromDate = today;
-    newContract.internalFromDate = transformDateToNgbDateStruct(today);
+    newContract.fromDate = new Date();
 
     client.clientContracts = [...client.clientContracts, newContract];
 

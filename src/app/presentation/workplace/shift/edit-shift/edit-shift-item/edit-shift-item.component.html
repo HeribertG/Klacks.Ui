@@ -129,11 +129,9 @@
                 class="form-control"
                 name="validFrom"
                 id="validFrom"
-                [ngModel]="
-                  dataManagementShiftService.editShift.internalFromDate
-                "
+                [ngModel]="shiftFormService.shiftForm()?.internalFromDate"
                 (ngModelChange)="
-                  dataManagementShiftService.editShift.internalFromDate = $event
+                  shiftFormService.shiftForm()!.internalFromDate = $event
                 "
                 ngbDatepicker
                 btn-dark
@@ -172,12 +170,9 @@
                   class="form-control"
                   name="validUntil"
                   id="validUntil"
-                  [ngModel]="
-                    dataManagementShiftService.editShift.internalUntilDate
-                  "
+                  [ngModel]="shiftFormService.shiftForm()?.internalUntilDate"
                   (ngModelChange)="
-                    dataManagementShiftService.editShift.internalUntilDate =
-                      $event
+                    shiftFormService.shiftForm()!.internalUntilDate = $event
                   "
                   ngbDatepicker
                   btn-dark

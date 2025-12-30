@@ -29,8 +29,6 @@ describe('ClientContractsComponent', () => {
             fromDate: new Date('2025-01-01'),
             untilDate: undefined,
             isActive: true,
-            internalFromDate: { year: 2025, month: 1, day: 1 },
-            internalUntilDate: undefined,
         };
 
         editClientSignal = signal({
@@ -156,8 +154,6 @@ describe('ClientContractsComponent', () => {
                         isActive: true,
                         fromDate: new Date(),
                         untilDate: undefined,
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
-                        internalUntilDate: undefined,
                     },
                     {
                         id: '2',
@@ -167,8 +163,6 @@ describe('ClientContractsComponent', () => {
                         isActive: false,
                         fromDate: new Date(),
                         untilDate: undefined,
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
-                        internalUntilDate: undefined,
                     },
                 ],
             });
@@ -272,7 +266,6 @@ describe('ClientContractsComponent', () => {
                         contractId: '',
                         isActive: false,
                         fromDate: new Date(),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
                     },
                 ],
             });
@@ -292,7 +285,6 @@ describe('ClientContractsComponent', () => {
                         contractId: '550e8400-e29b-41d4-a716-446655440000',
                         isActive: true,
                         fromDate: new Date(),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
                     },
                 ],
             });
@@ -313,8 +305,6 @@ describe('ClientContractsComponent', () => {
                         isActive: true,
                         fromDate: new Date('2025-01-01'),
                         untilDate: new Date('2024-01-01'),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
-                        internalUntilDate: { year: 2024, month: 1, day: 1 },
                     },
                 ],
             });
@@ -333,7 +323,6 @@ describe('ClientContractsComponent', () => {
                         contractId: '550e8400-e29b-41d4-a716-446655440000',
                         isActive: true,
                         fromDate: undefined,
-                        internalFromDate: undefined,
                     },
                 ],
             });
@@ -352,8 +341,7 @@ describe('ClientContractsComponent', () => {
                         contractId: '550e8400-e29b-41d4-a716-446655440000',
                         isActive: true,
                         fromDate: new Date('2025-01-01'),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
-                        internalUntilDate: undefined,
+                        untilDate: undefined,
                     },
                 ],
             });
@@ -439,7 +427,6 @@ describe('ClientContractsComponent', () => {
                         contractId: '',
                         isActive: true,
                         fromDate: new Date(),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
                     },
                 ],
             });
@@ -459,14 +446,12 @@ describe('ClientContractsComponent', () => {
                         contractId: '',
                         isActive: true,
                         fromDate: new Date(),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
                     },
                     {
                         id: '2',
                         contractId: '660e8400-e29b-41d4-a716-446655440001',
                         isActive: true,
                         fromDate: new Date(),
-                        internalFromDate: { year: 2025, month: 1, day: 1 },
                     },
                 ],
             });

@@ -15,14 +15,8 @@ import {
   compareComplexObjects,
 } from 'src/app/shared/helpers/object.helper';
 import {
-  transformDateToNgbDateStruct,
-  transformNgbDateStructToDate,
-  isNgbDateStructOk,
-} from '../../../shared/helpers/ngb-date.helper';
-import {
   transformNumberToOwnTime,
   transformOwnTimeToNumber,
-  isOwnTimeStructOk,
 } from '../../helpers/own-time.helper';
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule-class';
@@ -54,39 +48,41 @@ export class DataManagementContractService {
   public editContract: IContract | undefined;
 
   get guaranteedHoursForBinding(): OwnTime {
-    return (
-      this.editContract?.internalGuaranteedHours ||
-      OwnTime.forDuration('00', '00')
+    return transformNumberToOwnTime(
+      this.editContract?.guaranteedHoursPerMonth || 0,
+      true
     );
   }
 
   set guaranteedHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.internalGuaranteedHours = value;
+      this.editContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(value);
     }
   }
 
   get minimumHoursForBinding(): OwnTime {
-    return (
-      this.editContract?.internalMinimumHours || OwnTime.forDuration('00', '00')
+    return transformNumberToOwnTime(
+      this.editContract?.minimumHoursPerMonth || 0,
+      true
     );
   }
 
   set minimumHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.internalMinimumHours = value;
+      this.editContract.minimumHoursPerMonth = transformOwnTimeToNumber(value);
     }
   }
 
   get maximumHoursForBinding(): OwnTime {
-    return (
-      this.editContract?.internalMaximumHours || OwnTime.forDuration('00', '00')
+    return transformNumberToOwnTime(
+      this.editContract?.maximumHoursPerMonth || 0,
+      true
     );
   }
 
   set maximumHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.internalMaximumHours = value;
+      this.editContract.maximumHoursPerMonth = transformOwnTimeToNumber(value);
     }
   }
   public availableCalendars: ICalendarSelection[] = [];
@@ -211,9 +207,6 @@ export class DataManagementContractService {
 
     this.editContract = value;
 
-    this.setDateStruct(this.editContract);
-    this.setTimeStruct(this.editContract);
-
     if (!withoutUpdateDummy) {
       this.editContractDummy = cloneObject<IContract>(this.editContract);
     }
@@ -226,68 +219,9 @@ export class DataManagementContractService {
   }
 
   public prepareContractForEdit(contract: IContract): void {
-    this.setDateStruct(contract);
-    this.setTimeStruct(contract);
-
     if (contract.calendarSelectionId && !contract.calendarSelection) {
       contract.calendarSelection = this.availableCalendars.find(
         (cal) => cal.id === contract.calendarSelectionId
-      );
-    }
-  }
-
-  public updateContractFromUIValues(contract: IContract): void {
-    if (
-      contract.internalValidFrom &&
-      isNgbDateStructOk(contract.internalValidFrom)
-    ) {
-      const validFromDate = transformNgbDateStructToDate(
-        contract.internalValidFrom
-      );
-      if (validFromDate) {
-        contract.validFrom = validFromDate;
-      }
-    }
-
-    if (
-      contract.internalValidUntil &&
-      isNgbDateStructOk(contract.internalValidUntil)
-    ) {
-      const validUntilDate = transformNgbDateStructToDate(
-        contract.internalValidUntil
-      );
-      if (validUntilDate) {
-        contract.validUntil = validUntilDate;
-      }
-    } else {
-      contract.validUntil = undefined;
-    }
-
-    // Update hours from struct
-    if (
-      contract.internalGuaranteedHours &&
-      isOwnTimeStructOk(contract.internalGuaranteedHours)
-    ) {
-      contract.guaranteedHoursPerMonth = transformOwnTimeToNumber(
-        contract.internalGuaranteedHours
-      );
-    }
-
-    if (
-      contract.internalMinimumHours &&
-      isOwnTimeStructOk(contract.internalMinimumHours)
-    ) {
-      contract.minimumHoursPerMonth = transformOwnTimeToNumber(
-        contract.internalMinimumHours
-      );
-    }
-
-    if (
-      contract.internalMaximumHours &&
-      isOwnTimeStructOk(contract.internalMaximumHours)
-    ) {
-      contract.maximumHoursPerMonth = transformOwnTimeToNumber(
-        contract.internalMaximumHours
       );
     }
   }
@@ -372,34 +306,6 @@ export class DataManagementContractService {
 
   /* #region   Helper methods */
 
-  private setDateStruct(value: IContract) {
-    if (value) {
-      value.internalValidFrom = transformDateToNgbDateStruct(value.validFrom);
-      if (value.validUntil) {
-        value.internalValidUntil = transformDateToNgbDateStruct(
-          value.validUntil
-        );
-      }
-    }
-  }
-
-  private setTimeStruct(value: IContract) {
-    if (value) {
-      value.internalGuaranteedHours = transformNumberToOwnTime(
-        value.guaranteedHoursPerMonth,
-        true
-      );
-      value.internalMinimumHours = transformNumberToOwnTime(
-        value.minimumHoursPerMonth,
-        true
-      );
-      value.internalMaximumHours = transformNumberToOwnTime(
-        value.maximumHoursPerMonth,
-        true
-      );
-    }
-  }
-
   private updateEmptyPlaceholder(): void {
     this.emptyPlaceholder = this.translate.instant('none');
   }
@@ -444,8 +350,6 @@ export class DataManagementContractService {
       this.editContract.name.trim() !== '' &&
       this.editContract.name !== this.emptyPlaceholder &&
       this.editContract.validFrom &&
-      this.editContract.internalValidFrom &&
-      isNgbDateStructOk(this.editContract.internalValidFrom) &&
       this.editContract.guaranteedHoursPerMonth >= 0 &&
       this.editContract.maximumHoursPerMonth >= 0 &&
       this.editContract.minimumHoursPerMonth >= 0 &&

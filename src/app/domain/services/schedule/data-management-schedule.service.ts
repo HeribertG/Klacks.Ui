@@ -1,4 +1,11 @@
-import { inject, Injectable, signal, effect, Injector, runInInjectionContext } from '@angular/core';
+import {
+  inject,
+  Injectable,
+  signal,
+  effect,
+  Injector,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   IClientWork,
   IWork,
@@ -25,7 +32,10 @@ import { ShiftScheduleLoaderService } from './shift-schedule-loader.service';
 import { WorkScheduleLoaderService } from './work-schedule-loader.service';
 import { WorkCrudService } from './work-crud.service';
 import { AvailableShiftsCalculatorService } from './available-shifts-calculator.service';
-import { WorkScheduleCrudService, DeleteWorkScheduleEntryParams, ScheduleCellParams } from './work-schedule-crud.service';
+import {
+  WorkScheduleCrudService,
+  DeleteWorkScheduleEntryParams,
+} from './work-schedule-crud.service';
 
 @Injectable({
   providedIn: 'root',
@@ -41,10 +51,7 @@ export class DataManagementScheduleService implements ILoadable {
   private workScheduleCrud = inject(WorkScheduleCrudService);
 
   constructor() {
-    this.registry.register(
-      RouteName.SCHEDULE,
-      DataManagementScheduleService
-    );
+    this.registry.register(RouteName.SCHEDULE, DataManagementScheduleService);
     this.setupCrudEffects();
   }
 
@@ -53,32 +60,53 @@ export class DataManagementScheduleService implements ILoadable {
       effect(() => {
         if (this.workScheduleCrud.scheduleRefreshed()) {
           this.isRead.set({ value: true, resetScroll: false });
-          setTimeout(() => this.isRead.set({ value: false, resetScroll: false }), 100);
+          setTimeout(
+            () => this.isRead.set({ value: false, resetScroll: false }),
+            100
+          );
         }
       });
 
       effect(() => {
         if (this.workScheduleCrud.shiftScheduleRefreshed()) {
           this.isShiftScheduleRead.set({ value: true, resetScroll: false });
-          setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll: false }), 100);
+          setTimeout(
+            () =>
+              this.isShiftScheduleRead.set({
+                value: false,
+                resetScroll: false,
+              }),
+            100
+          );
         }
       });
     });
   }
 
   private _showProgressSpinner = signal(false);
-  get showProgressSpinner(): boolean { return this._showProgressSpinner(); }
+  get showProgressSpinner(): boolean {
+    return this._showProgressSpinner();
+  }
 
-  public isRead = signal<{ value: boolean; resetScroll: boolean }>({ value: false, resetScroll: true });
-  public isShiftScheduleRead = signal<{ value: boolean; resetScroll: boolean }>({ value: false, resetScroll: true });
+  public isRead = signal<{ value: boolean; resetScroll: boolean }>({
+    value: false,
+    resetScroll: true,
+  });
+  public isShiftScheduleRead = signal<{ value: boolean; resetScroll: boolean }>(
+    { value: false, resetScroll: true }
+  );
   public isWorkScheduleRead = signal(false);
 
   public workFilter: IWorkFilter = new WorkFilter();
-  public get currentFilter(): IWorkFilter { return this.workFilter; }
+  public get currentFilter(): IWorkFilter {
+    return this.workFilter;
+  }
   public holidayDates: Date[] = [];
 
   private _restoreSearchSignal = signal('');
-  public restoreSearch = { set: (value: string) => this._restoreSearchSignal.set(value) };
+  public restoreSearch = {
+    set: (value: string) => this._restoreSearchSignal.set(value),
+  };
   public onExternalFilterChange?: () => void;
 
   private workFilterDummy: IWorkFilter | undefined = undefined;
@@ -146,29 +174,28 @@ export class DataManagementScheduleService implements ILoadable {
   }
 
   readShiftSchedule(resetScroll = true) {
-    this.shiftLoader.load(
-      this.workFilter,
-      this.holidayDates,
-      () => {
-        this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
-        this.isShiftScheduleRead.set({ value: true, resetScroll });
-        setTimeout(() => this.isShiftScheduleRead.set({ value: false, resetScroll }), 100);
-      }
-    );
+    this.shiftLoader.load(this.workFilter, this.holidayDates, () => {
+      this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
+      this.isShiftScheduleRead.set({ value: true, resetScroll });
+      setTimeout(
+        () => this.isShiftScheduleRead.set({ value: false, resetScroll }),
+        100
+      );
+    });
   }
 
   readWorkSchedule() {
-    this.workScheduleLoader.load(
-      this.workFilter,
-      () => {
-        this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
-        this._showProgressSpinner.set(false);
-        this.isRead.set({ value: true, resetScroll: true });
-        setTimeout(() => this.isRead.set({ value: false, resetScroll: true }), 100);
-        this.isWorkScheduleRead.set(true);
-        setTimeout(() => this.isWorkScheduleRead.set(false), 100);
-      }
-    );
+    this.workScheduleLoader.load(this.workFilter, () => {
+      this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
+      this._showProgressSpinner.set(false);
+      this.isRead.set({ value: true, resetScroll: true });
+      setTimeout(
+        () => this.isRead.set({ value: false, resetScroll: true }),
+        100
+      );
+      this.isWorkScheduleRead.set(true);
+      setTimeout(() => this.isWorkScheduleRead.set(false), 100);
+    });
   }
 
   readData(index: number): IWork[] | undefined {
@@ -191,8 +218,14 @@ export class DataManagementScheduleService implements ILoadable {
     return undefined;
   }
 
-  getWorkScheduleForClientAndDate(clientId: string, date: Date): IScheduleCell[] {
-    return this.workScheduleLoader.getWorkScheduleForClientAndDate(clientId, date);
+  getWorkScheduleForClientAndDate(
+    clientId: string,
+    date: Date
+  ): IScheduleCell[] {
+    return this.workScheduleLoader.getWorkScheduleForClientAndDate(
+      clientId,
+      date
+    );
   }
 
   getMaxEntriesPerClientAndDate(): Map<string, number> {
@@ -226,12 +259,25 @@ export class DataManagementScheduleService implements ILoadable {
     this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
   }
 
-  deleteWorkScheduleEntry(workId: string, clientId: string, date: Date, shiftId: string): void {
-    this.workScheduleCrud.deleteWorkScheduleEntry({ workId, clientId, date, shiftId }, this.workFilter);
+  deleteWorkScheduleEntry(
+    workId: string,
+    clientId: string,
+    date: Date,
+    shiftId: string
+  ): void {
+    this.workScheduleCrud.deleteWorkScheduleEntry(
+      { workId, clientId, date, shiftId },
+      this.workFilter
+    );
   }
 
-  bulkDeleteWorkScheduleEntries(entries: DeleteWorkScheduleEntryParams[]): void {
-    this.workScheduleCrud.bulkDeleteWorkScheduleEntries(entries, this.workFilter);
+  bulkDeleteWorkScheduleEntries(
+    entries: DeleteWorkScheduleEntryParams[]
+  ): void {
+    this.workScheduleCrud.bulkDeleteWorkScheduleEntries(
+      entries,
+      this.workFilter
+    );
   }
 
   refreshClientScheduleForDays(clientId: string, centerDate: Date): void {

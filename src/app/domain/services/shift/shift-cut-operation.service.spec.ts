@@ -70,12 +70,11 @@ describe('ShiftCutOperationService', () => {
 
     describe('cutByTime', () => {
         it('should split shift by time correctly', () => {
+            // Arrange
             const selectedShift = new Shift();
             selectedShift.fromDate = new Date(2025, 0, 15);
             selectedShift.startShift = '08:00:00';
             selectedShift.endShift = '16:00:00';
-            selectedShift.internalStartShift = OwnTime.forTime('8', '0');
-            selectedShift.internalEndShift = OwnTime.forTime('16', '0');
 
             const cutTime = OwnTime.forTime('12', '0');
 
@@ -86,8 +85,10 @@ describe('ShiftCutOperationService', () => {
 
             workTimeCalculator.calculateWorkTime.mockReturnValue(240);
 
+            // Act
             const result = service.cutByTime(params);
 
+            // Assert
             expect(result.originalShift.endShift).toBe('12:00:00');
             expect(result.originalShift.status).toBe(ShiftStatus.SplitShift);
             expect(result.newShift.startShift).toBe('16:00:00');
@@ -95,19 +96,20 @@ describe('ShiftCutOperationService', () => {
         });
 
         it('should calculate work time for both shifts', () => {
+            // Arrange
             const selectedShift = new Shift();
             selectedShift.fromDate = new Date(2025, 0, 15);
             selectedShift.startShift = '08:00:00';
             selectedShift.endShift = '16:00:00';
-            selectedShift.internalStartShift = OwnTime.forTime('8', '0');
-            selectedShift.internalEndShift = OwnTime.forTime('16', '0');
 
             const cutTime = OwnTime.forTime('12', '0');
 
             workTimeCalculator.calculateWorkTime.mockReturnValue(240);
 
+            // Act
             const result = service.cutByTime({ selectedShift, cutTime });
 
+            // Assert
             expect(workTimeCalculator.calculateWorkTime).toHaveBeenCalled();
             expect(result.originalShift.status).toBe(ShiftStatus.SplitShift);
         });
@@ -124,8 +126,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '22:00:00';
                 selectedShift.endShift = '06:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('6', '0');
 
                 const cutTime = OwnTime.forTime('2', '0');
 
@@ -144,8 +144,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '22:00:00';
                 selectedShift.endShift = '06:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('6', '0');
 
                 const cutTime = OwnTime.forTime('23', '0');
 
@@ -163,8 +161,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '08:00:00';
                 selectedShift.endShift = '16:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('8', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('16', '0');
 
                 const cutTime = OwnTime.forTime('12', '0');
 
@@ -183,8 +179,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '20:00:00';
                 selectedShift.endShift = '08:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('20', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('8', '0');
 
                 const cutTime = OwnTime.forTime('6', '0');
 
@@ -203,8 +197,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '22:00:00';
                 selectedShift.endShift = '04:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('4', '0');
 
                 const cutTime = OwnTime.forTime('2', '0');
 
@@ -223,8 +215,6 @@ describe('ShiftCutOperationService', () => {
                 selectedShift.fromDate = new Date(2025, 0, 15);
                 selectedShift.startShift = '22:00:00';
                 selectedShift.endShift = '04:00:00';
-                selectedShift.internalStartShift = OwnTime.forTime('22', '0');
-                selectedShift.internalEndShift = OwnTime.forTime('4', '0');
 
                 const cutTime = OwnTime.forTime('5', '0');
 

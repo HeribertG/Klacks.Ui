@@ -1,5 +1,4 @@
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   BaseEntity,
   BaseFilter,
@@ -7,7 +6,6 @@ import {
   IBaseFilter,
   IBaseTruncated,
 } from './general-class';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { IContract } from './contract-class';
 import { IBreakPlaceholder } from './break-class';
 import { MultiLanguage } from './multi-language-class';
@@ -51,9 +49,7 @@ export interface IFilter extends IBaseFilter {
   scopeFromFlag: boolean | undefined;
   scopeUntilFlag: boolean | undefined;
   scopeFrom: Date | undefined;
-  internalScopeFrom: NgbDateStruct | undefined;
   scopeUntil: Date | undefined;
-  internalScopeUntil: NgbDateStruct | undefined;
   showDeleteEntries: boolean | undefined;
 
   macroFilter: string | undefined;
@@ -132,7 +128,6 @@ export interface IClient extends BaseEntity {
   clientContracts: IClientContract[];
   groupItems: IClientGroupItem[];
   clientImage: IClientImage | undefined;
-  internalBirthdate: NgbDateStruct | undefined;
 
   hasFutureAddress: boolean;
   hasPastAddress: boolean;
@@ -159,8 +154,6 @@ export interface IAddress extends BaseEntity {
   isFuture: boolean;
   latitude?: number;
   longitude?: number;
-
-  internalValidFrom: NgbDateStruct | undefined;
 }
 
 export interface ICommunication {
@@ -172,7 +165,6 @@ export interface ICommunication {
   type: number;
   value: string;
   index: number;
-  internalId: string | undefined;
 }
 
 export interface IMembership {
@@ -183,8 +175,6 @@ export interface IMembership {
   validUntil: Date | undefined;
 
   type: number | string;
-  internalValidFrom: NgbDateStruct | undefined;
-  internalValidUntil: NgbDateStruct | undefined;
 }
 
 export interface IClientContract {
@@ -194,8 +184,6 @@ export interface IClientContract {
   contract: IContract | undefined;
   fromDate: Date;
   untilDate: Date | undefined;
-  internalFromDate: NgbDateStruct | undefined;
-  internalUntilDate: NgbDateStruct | undefined;
   isActive: boolean;
 }
 
@@ -227,7 +215,6 @@ export class Address extends BaseEntity implements IAddress {
   country = '';
   isScoped = true;
   isFuture = false;
-  internalValidFrom = undefined;
 }
 
 export class Communication implements ICommunication {
@@ -239,7 +226,6 @@ export class Communication implements ICommunication {
   isPhone = false;
   isEmail = false;
   index = 0;
-  internalId: string | undefined = undefined;
 }
 
 export class Annotation extends BaseEntity implements IAnnotation {
@@ -255,8 +241,6 @@ export class ClientContract implements IClientContract {
   contract = undefined;
   fromDate = new Date();
   untilDate: Date | undefined = undefined;
-  internalFromDate: NgbDateStruct | undefined = undefined;
-  internalUntilDate: NgbDateStruct | undefined = undefined;
   isActive = false;
 }
 
@@ -296,8 +280,6 @@ export class Client extends BaseEntity implements IClient {
   groupItems: IClientGroupItem[];
   clientImage: IClientImage | undefined = undefined;
 
-  internalBirthdate = undefined;
-
   hasFutureAddress = false;
   hasPastAddress = false;
   hasScopeAddress = false;
@@ -313,18 +295,13 @@ export class Membership implements IMembership {
   validUntil = undefined;
 
   type = 0;
-
-  internalValidFrom: NgbDateStruct = transformDateToNgbDateStruct(new Date())!;
-  internalValidUntil = undefined;
 }
 
 export class Filter extends BaseFilter implements IFilter {
-  scopeFromFlag = undefined;
-  scopeUntilFlag = undefined;
-  scopeFrom = undefined;
-  internalScopeFrom = undefined;
-  scopeUntil = undefined;
-  internalScopeUntil = undefined;
+  scopeFromFlag: boolean | undefined = undefined;
+  scopeUntilFlag: boolean | undefined = undefined;
+  scopeFrom: Date | undefined = undefined;
+  scopeUntil: Date | undefined = undefined;
   showDeleteEntries = false;
 
   includeAddress = false;
@@ -388,8 +365,6 @@ export class Filter extends BaseFilter implements IFilter {
       this.scopeUntil === undefined &&
       this.scopeFromFlag === undefined &&
       this.scopeUntilFlag === undefined &&
-      this.internalScopeFrom === undefined &&
-      this.internalScopeUntil === undefined &&
       this.employee &&
       this.externEmp &&
       this.customer

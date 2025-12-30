@@ -1,6 +1,4 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
-import { transformNumberToOwnTime, transformStringToOwnTimeStruct } from 'src/app/domain/helpers/own-time.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { DataShiftService } from 'src/app/infrastructure/api/data-shift.service';
 import { IMacro } from 'src/app/domain/models/macro-class';
@@ -70,6 +68,7 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   public editGroup: IShift | undefined;
 
   public onSaveCompleted?: () => void;
+  public onBeforeSave?: () => void;
   public onExternalFilterChange?: () => void;
   public isSaveAndClose = false;
   public returnUrl: string | null = null;
@@ -258,9 +257,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
       return;
     }
 
-    this.setDateStruc(value);
-    this.setTimeStruc(value);
-
     this.editShift = value;
     this.editShiftDummy = cloneObject<Shift>(this.editShift);
 
@@ -299,6 +295,9 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
     }
   }
   save() {
+    if (this.onBeforeSave) {
+      this.onBeforeSave();
+    }
     if (this.isEditShift_Dirty()) {
       this.saveEditShift();
     }
@@ -470,53 +469,6 @@ export class DataManagementShiftService implements ISaveable, IResettable, ILoad
   resetData() {
     if (this.editShiftDummy) {
       this.prepareShift(this.editShiftDummy);
-    }
-  }
-
-  private setDateStruc(value: Shift) {
-    if (value) {
-      if (value.fromDate) {
-        value.internalFromDate = transformDateToNgbDateStruct(value.fromDate);
-      }
-
-      if (value.untilDate) {
-        value.internalUntilDate = transformDateToNgbDateStruct(value.untilDate);
-      }
-    }
-  }
-
-  private setTimeStruc(value: Shift) {
-    if (value) {
-      value.internalStartShift = transformStringToOwnTimeStruct(
-        value.startShift
-      );
-
-      value.internalEndShift = transformStringToOwnTimeStruct(value.endShift);
-
-      value.internalBeforeShift = transformStringToOwnTimeStruct(
-        value.beforeShift
-      );
-
-      value.internalAfterShift = transformStringToOwnTimeStruct(
-        value.afterShift
-      );
-
-      value.internalTravelTimeAfter = transformStringToOwnTimeStruct(
-        value.travelTimeAfter
-      );
-      value.internalTravelTimeBefore = transformStringToOwnTimeStruct(
-        value.travelTimeBefore
-      );
-
-      value.internalWorkTime = transformNumberToOwnTime(value.workTime, true);
-
-      value.internalBriefingTime = transformStringToOwnTimeStruct(
-        value.briefingTime
-      );
-
-      value.internalDebriefingTime = transformStringToOwnTimeStruct(
-        value.debriefingTime
-      );
     }
   }
 

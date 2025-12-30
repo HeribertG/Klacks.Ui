@@ -1,4 +1,3 @@
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import {
   BaseFilter,
   BaseTruncated,
@@ -82,9 +81,7 @@ export interface IShiftFilter extends IBaseFilter {
   scopeFromFlag?: boolean;
   scopeUntilFlag?: boolean;
   scopeFrom?: Date;
-  internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
-  internalScopeUntil?: NgbDateStruct;
   showDeleteEntries?: boolean;
   activeDateRange: boolean;
   formerDateRange: boolean;
@@ -101,9 +98,7 @@ export class ShiftFilter extends BaseFilter implements IShiftFilter {
   scopeFromFlag?: boolean;
   scopeUntilFlag?: boolean;
   scopeFrom?: Date;
-  internalScopeFrom?: NgbDateStruct;
   scopeUntil?: Date;
-  internalScopeUntil?: NgbDateStruct;
   showDeleteEntries = false;
   activeDateRange = true;
   formerDateRange = false;

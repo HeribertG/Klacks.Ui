@@ -4,11 +4,9 @@ import { retry } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
-import { isNgbDateStructOk, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
-import { isOwnTimeStructOk, transformOwnTimeToString } from 'src/app/domain/helpers/own-time.helper';
 import { IShift } from 'src/app/domain/models/shift-class';
 import { CutOperation } from 'src/app/domain/models/cut-operation';
-import { WorkTimeCalculationService } from 'src/app/domain/services/work-time-calculation.service';
+import { calculateDurationInMinutes } from 'src/app/shared/helpers/time-format.helper';
 
 export interface ResetDateRangeResponse {
   earliestResetDate: string;
@@ -20,7 +18,6 @@ export interface ResetDateRangeResponse {
 })
 export class DataShiftCutsService {
   private httpClient = inject(HttpClient);
-  private workTimeCalculationService = inject(WorkTimeCalculationService);
 
   getCutShiftList(id: string) {
     return this.httpClient
@@ -67,103 +64,52 @@ export class DataShiftCutsService {
   }
 
   private setCorrectDate(value: IShift) {
-    if (isNgbDateStructOk(value!.internalFromDate)) {
-      value.fromDate = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalFromDate)
-      )!;
+    if (value.fromDate) {
+      value.fromDate = dateWithLocalTimeCorrection(new Date(value.fromDate))!;
     }
 
-    if (isNgbDateStructOk(value!.internalUntilDate)) {
-      value.untilDate = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalUntilDate)
-      )!;
+    if (value.untilDate) {
+      value.untilDate = dateWithLocalTimeCorrection(new Date(value.untilDate))!;
     }
   }
 
   private setCorrectTime(value: IShift) {
     const nullTime = '00:00:00';
 
-    if (
-      value!.internalStartShift &&
-      isOwnTimeStructOk(value!.internalStartShift)
-    ) {
-      value.startShift = transformOwnTimeToString(value!.internalStartShift);
-    } else if (!value.startShift) {
+    if (!value.startShift) {
       value.startShift = nullTime;
     }
 
-    if (value!.internalEndShift && isOwnTimeStructOk(value!.internalEndShift)) {
-      value.endShift = transformOwnTimeToString(value!.internalEndShift);
-    } else if (!value.endShift) {
+    if (!value.endShift) {
       value.endShift = nullTime;
     }
 
-    if (
-      value!.internalAfterShift &&
-      isOwnTimeStructOk(value!.internalAfterShift)
-    ) {
-      value.afterShift = transformOwnTimeToString(value!.internalAfterShift);
-    } else if (!value.afterShift) {
+    if (!value.afterShift) {
       value.afterShift = nullTime;
     }
 
-    if (
-      value!.internalBeforeShift &&
-      isOwnTimeStructOk(value!.internalBeforeShift)
-    ) {
-      value.beforeShift = transformOwnTimeToString(value!.internalBeforeShift);
-    } else if (!value.beforeShift) {
+    if (!value.beforeShift) {
       value.beforeShift = nullTime;
     }
 
-    if (
-      value!.internalTravelTimeAfter &&
-      isOwnTimeStructOk(value!.internalTravelTimeAfter)
-    ) {
-      value.travelTimeAfter = transformOwnTimeToString(
-        value!.internalTravelTimeAfter
-      );
-    } else if (!value.travelTimeAfter) {
+    if (!value.travelTimeAfter) {
       value.travelTimeAfter = nullTime;
     }
 
-    if (
-      value!.internalTravelTimeBefore &&
-      isOwnTimeStructOk(value!.internalTravelTimeBefore)
-    ) {
-      value.travelTimeBefore = transformOwnTimeToString(
-        value!.internalTravelTimeBefore
-      );
-    } else if (!value.travelTimeBefore) {
+    if (!value.travelTimeBefore) {
       value.travelTimeBefore = nullTime;
     }
 
-    value.workTime =
-      this.workTimeCalculationService.calculateWorkTimeWithFallback(
-        value!.internalStartShift,
-        value!.internalEndShift,
-        value!.internalWorkTime
-      );
+    if (value.workTime === undefined || value.workTime === null) {
+      const durationMinutes = calculateDurationInMinutes(value.startShift, value.endShift);
+      value.workTime = durationMinutes / 60;
+    }
 
-    if (
-      value!.internalBriefingTime &&
-      isOwnTimeStructOk(value!.internalBriefingTime)
-    ) {
-      value.briefingTime = transformOwnTimeToString(
-        value!.internalBriefingTime
-      );
-    } else if (!value.briefingTime) {
+    if (!value.briefingTime) {
       value.briefingTime = nullTime;
     }
 
-    if (
-      value!.internalDebriefingTime &&
-      isOwnTimeStructOk(value!.internalDebriefingTime)
-    ) {
-      value.debriefingTime = transformOwnTimeToString(
-        value!.internalDebriefingTime
-      );
-    } else if (!value.debriefingTime) {
+    if (!value.debriefingTime) {
       value.debriefingTime = nullTime;
     }
   }

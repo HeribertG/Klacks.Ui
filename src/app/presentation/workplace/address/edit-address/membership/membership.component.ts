@@ -18,9 +18,9 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { toNumber } from 'src/app/shared/helpers/number.helper';
 
@@ -87,6 +87,33 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
     );
   }
 
+  get internalValidFrom(): NgbDateStruct | undefined {
+    const date = this.dataManagementClientService.editClient()?.membership?.validFrom;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalValidFrom(value: NgbDateStruct | undefined) {
+    const client = this.dataManagementClientService.editClient();
+    if (client?.membership && value) {
+      const date = transformNgbDateStructToDate(value);
+      if (date) {
+        client.membership.validFrom = date;
+      }
+    }
+  }
+
+  get internalValidUntil(): NgbDateStruct | undefined {
+    const date = this.dataManagementClientService.editClient()?.membership?.validUntil;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalValidUntil(value: NgbDateStruct | undefined) {
+    const client = this.dataManagementClientService.editClient();
+    if (client?.membership) {
+      client.membership.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
+    }
+  }
+
   onClientTypeChange(newType: number | string): void {
     this.dataManagementClientService.clientEditService.editClient.update(client => {
       if (client) {
@@ -102,9 +129,7 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const validFrom = transformNgbDateStructToDate(
-      client.membership.internalValidFrom
-    );
+    const validFrom = client.membership.validFrom;
     this.isValidFromValid = validFrom ? true : false;
   }
 }

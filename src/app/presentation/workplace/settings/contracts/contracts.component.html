@@ -54,7 +54,7 @@
             [label]="
               translate.instant('setting.contract.guaranteedHours-modal')
             "
-            [(value)]="editingContract.internalGuaranteedHours!"
+            [(value)]="contractForm_!.internalGuaranteedHours"
             hoursName="guaranteedHoursHours"
             minutesName="guaranteedHoursMinutes"
             hoursId="guaranteedHours"
@@ -67,7 +67,7 @@
           <app-time-input
             id="contract-modal-min-hours-input"
             [label]="translate.instant('setting.contract.minHours-modal')"
-            [(value)]="editingContract.internalMinimumHours!"
+            [(value)]="contractForm_!.internalMinimumHours"
             hoursName="minHoursHours"
             minutesName="minHoursMinutes"
             hoursId="minHours"
@@ -80,7 +80,7 @@
           <app-time-input
             id="contract-modal-max-hours-input"
             [label]="translate.instant('setting.contract.maxHours-modal')"
-            [(value)]="editingContract.internalMaximumHours!"
+            [(value)]="contractForm_!.internalMaximumHours"
             hoursName="maxHoursHours"
             minutesName="maxHoursMinutes"
             hoursId="maxHours"
@@ -96,7 +96,7 @@
           <app-date-input
             id="contract-modal-valid-from-input"
             [label]="translate.instant('setting.contract.validFrom-modal')"
-            [(value)]="editingContract.internalValidFrom"
+            [(value)]="contractForm_!.internalValidFrom"
             inputName="validFrom"
             inputId="validFrom"
             inputWidth="small-width"
@@ -107,7 +107,7 @@
           <app-date-input
             id="contract-modal-valid-until-input"
             [label]="translate.instant('setting.contract.validUntil-modal')"
-            [(value)]="editingContract.internalValidUntil"
+            [(value)]="contractForm_!.internalValidUntil"
             inputName="validUntil"
             inputId="validUntil"
             inputWidth="small-width"

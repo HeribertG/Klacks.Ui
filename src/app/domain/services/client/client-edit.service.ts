@@ -9,7 +9,6 @@ import {
   Annotation,
 } from 'src/app/domain/models/client-class';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
-import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { AddressTypeEnum, GenderEnum } from 'src/app/domain/enums/client-enum';
 import { AddressService } from './address.service';
 import { CommunicationService } from './communication.service';
@@ -59,7 +58,6 @@ export class ClientEditService {
     }
 
     this.editClient.set(value);
-    this.setDateStruc();
 
     const { editClient, currentAddressIndex } = this.addressService.setAddress(
       this.editClient()!,
@@ -244,27 +242,6 @@ export class ClientEditService {
     }
   }
 
-  private setDateStruc() {
-    const client = this.editClient();
-    if (!client) return;
-
-    client.internalBirthdate = transformDateToNgbDateStruct(
-      client.birthdate!
-    );
-    client.membership!.internalValidFrom = transformDateToNgbDateStruct(
-      client.membership!.validFrom
-    );
-    client.membership!.internalValidUntil = transformDateToNgbDateStruct(
-      client.membership!.validUntil!
-    );
-
-    if (!client.groupItems) {
-      client.groupItems = [];
-    }
-    this.clientContractService.setDateStructs(client.clientContracts);
-    this.clientGroupItemService.setDateStructs(client.groupItems);
-  }
-
   public isDirty(): boolean {
     const a = this.editClient();
     const b = this.editClientDummy;
@@ -376,12 +353,12 @@ export class ClientEditService {
     }
 
     const allDatesValid = validContracts.every((c) => {
-      if (!c.internalUntilDate) {
+      if (!c.untilDate) {
         return true;
       }
 
-      const fromDate = transformNgbDateStructToDate(c.internalFromDate);
-      const untilDate = transformNgbDateStructToDate(c.internalUntilDate);
+      const fromDate = c.fromDate ? new Date(c.fromDate) : null;
+      const untilDate = c.untilDate ? new Date(c.untilDate) : null;
 
       if (!fromDate || !untilDate) {
         return false;
@@ -403,12 +380,12 @@ export class ClientEditService {
     }
 
     const allDatesValid = client.groupItems.every((g) => {
-      if (!g.internalValidUntil) {
+      if (!g.validUntil) {
         return true;
       }
 
-      const validFrom = transformNgbDateStructToDate(g.internalValidFrom);
-      const validUntil = transformNgbDateStructToDate(g.internalValidUntil);
+      const validFrom = g.validFrom ? new Date(g.validFrom) : null;
+      const validUntil = g.validUntil ? new Date(g.validUntil) : null;
 
       if (!validFrom || !validUntil) {
         return false;

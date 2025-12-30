@@ -27,7 +27,7 @@ import { IClientContract } from 'src/app/domain/models/client-class';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
-import { transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
+import { transformNgbDateStructToDate, transformDateToNgbDateStruct } from 'src/app/shared/helpers/ngb-date.helper';
 import { ExpandableCardComponent } from 'src/app/presentation/shared/expandable-card/expandable-card.component';
 import { IconAngleDownComponent } from 'src/app/presentation/icons/icon-angle-down.component';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -121,7 +121,31 @@ export class ClientContractsComponent
 
   getMinDate(): NgbDateStruct {
     const client = this.dataManagementClientService.editClient();
-    return client?.membership?.internalValidFrom || { year: 1900, month: 1, day: 1 };
+    const validFrom = client?.membership?.validFrom;
+    return validFrom ? transformDateToNgbDateStruct(validFrom)! : { year: 1900, month: 1, day: 1 };
+  }
+
+  getContractFromDate(contract: IClientContract): NgbDateStruct | undefined {
+    return contract.fromDate ? transformDateToNgbDateStruct(contract.fromDate) : undefined;
+  }
+
+  setContractFromDate(contract: IClientContract, value: NgbDateStruct | undefined): void {
+    if (value) {
+      const date = transformNgbDateStructToDate(value);
+      if (date) {
+        contract.fromDate = date;
+      }
+    }
+    this.calcValidation();
+  }
+
+  getContractUntilDate(contract: IClientContract): NgbDateStruct | undefined {
+    return contract.untilDate ? transformDateToNgbDateStruct(contract.untilDate) : undefined;
+  }
+
+  setContractUntilDate(contract: IClientContract, value: NgbDateStruct | undefined): void {
+    contract.untilDate = value ? transformNgbDateStructToDate(value) : undefined;
+    this.calcValidation();
   }
 
   addContract(): void {
@@ -228,7 +252,7 @@ export class ClientContractsComponent
     this.contractFromDateValidationState.clear();
 
     client.clientContracts.forEach((contract, index) => {
-      const fromDate = transformNgbDateStructToDate(contract.internalFromDate);
+      const fromDate = contract.fromDate ? new Date(contract.fromDate) : null;
 
       if (!fromDate) {
         this.contractFromDateValidationState.set(index, false);
@@ -236,12 +260,10 @@ export class ClientContractsComponent
         this.contractFromDateValidationState.set(index, true);
       }
 
-      if (!contract.internalUntilDate) {
+      if (!contract.untilDate) {
         this.contractValidationState.set(index, undefined);
       } else {
-        const untilDate = transformNgbDateStructToDate(
-          contract.internalUntilDate
-        );
+        const untilDate = new Date(contract.untilDate);
 
         if (!fromDate || !untilDate) {
           this.contractValidationState.set(index, false);

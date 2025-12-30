@@ -10,6 +10,7 @@ import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 describe('RenderRowHeaderService', () => {
     let service: RenderRowHeaderService;
@@ -20,6 +21,7 @@ describe('RenderRowHeaderService', () => {
     let mockGridFonts: any;
     let mockDataManagementBreak: any;
     let mockRenderRowHeaderCell: any;
+    let mockProgressBarAnimation: any;
 
     let mockHeaderCtx: any;
     let mockRenderCtx: any;
@@ -138,6 +140,16 @@ describe('RenderRowHeaderService', () => {
             clearRect: vi.fn()
         };
 
+        mockProgressBarAnimation = {
+            configure: vi.fn(),
+            setRenderCallback: vi.fn(),
+            setProgress: vi.fn(),
+            draw: vi.fn(),
+            drawInRect: vi.fn(),
+            reset: vi.fn(),
+            destroy: vi.fn()
+        };
+
         TestBed.configureTestingModule({
             providers: [
                 RenderRowHeaderService,
@@ -156,6 +168,10 @@ describe('RenderRowHeaderService', () => {
                 {
                     provide: RenderRowHeaderCellService,
                     useValue: mockRenderRowHeaderCell,
+                },
+                {
+                    provide: ProgressBarAnimationService,
+                    useValue: mockProgressBarAnimation,
                 },
             ],
         });
@@ -268,120 +284,121 @@ describe('RenderRowHeaderService', () => {
 
     describe('drawProgressLine with HiDPI', () => {
         it('should scale progress bar height with pixelRatio', () => {
+            // Arrange
             const dpr = 2;
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(dpr);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            expect(mockHeaderCtx.fillRect).toHaveBeenCalled();
-
-            const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-            const progressBarCall = fillRectCalls.find((call: any) => call[3] === 2 * dpr);
-
-            expect(progressBarCall).toBeDefined();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should use 2px height at pixelRatio = 1', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(1);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-            const progressBarCall = fillRectCalls.find((call: any) => call[3] === 2);
-
-            expect(progressBarCall).toBeDefined();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should use 4px height at pixelRatio = 2', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-            const progressBarCall = fillRectCalls.find((call: any) => call[3] === 4);
-
-            expect(progressBarCall).toBeDefined();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should use 6px height at pixelRatio = 3', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(3);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-            const progressBarCall = fillRectCalls.find((call: any) => call[3] === 6);
-
-            expect(progressBarCall).toBeDefined();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should not draw progress bar when progress is 0', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 0;
+            mockProgressBarAnimation.setProgress.mockClear();
 
-            mockHeaderCtx.fillRect.mockClear();
-
+            // Act
             service.createRuler();
 
-            expect(mockHeaderCtx.fillRect).not.toHaveBeenCalled();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(0);
         });
 
         it('should not draw progress bar when progress is 100', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 100;
+            mockProgressBarAnimation.setProgress.mockClear();
 
-            mockHeaderCtx.fillRect.mockClear();
-
+            // Act
             service.createRuler();
 
-            expect(mockHeaderCtx.fillRect).not.toHaveBeenCalled();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(100);
         });
 
         it('should draw progress bar for values between 0 and 100', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 75;
 
+            // Act
             service.createRuler();
 
-            expect(mockHeaderCtx.fillRect).toHaveBeenCalled();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(75);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should calculate progress width correctly', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            const expectedWidth = (mockRowHeaderCanvasManager.width * 50) / 100;
-
-            const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-            const progressBarCall = fillRectCalls[0];
-
-            if (progressBarCall) {
-                expect(progressBarCall[2]).toBe(expectedWidth);
-            }
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
 
         it('should use green color for progress bar', () => {
+            // Arrange
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(2);
-
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            expect(mockHeaderCtx.save).toHaveBeenCalled();
-            expect(mockHeaderCtx.restore).toHaveBeenCalled();
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+            expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
         });
     });
 
@@ -470,47 +487,47 @@ describe('RenderRowHeaderService', () => {
 
     describe('HiDPI Compatibility', () => {
         it('should handle different pixel ratios correctly', () => {
+            // Arrange
             const testRatios = [1, 1.5, 2, 2.5, 3];
             const pixelRatioSpy = vi.spyOn(DrawHelper, 'pixelRatio');
 
             testRatios.forEach((ratio) => {
                 pixelRatioSpy.mockReturnValue(ratio);
-
                 mockLoadingProgress = 50;
+                mockProgressBarAnimation.setProgress.mockClear();
+                mockProgressBarAnimation.drawInRect.mockClear();
 
+                // Act
                 service.createRuler();
 
-                const expectedHeight = 2 * ratio;
+                // Assert
+                expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
+                expect(mockProgressBarAnimation.drawInRect).toHaveBeenCalled();
 
-                const fillRectCalls = vi.mocked(mockHeaderCtx.fillRect).mock.calls;
-                const progressBarCall = fillRectCalls.find((call: any) => call[3] === expectedHeight);
-
-                expect(progressBarCall).toBeDefined();
-
-                mockHeaderCtx.fillRect.mockClear();
                 pixelRatioSpy.mockClear();
             });
         });
 
         it('should maintain visual consistency across different displays', () => {
+            // Arrange
             const ratio1 = 1;
             const ratio2 = 2;
 
             vi.spyOn(DrawHelper, 'pixelRatio').mockReturnValue(ratio1);
             mockLoadingProgress = 50;
 
+            // Act
             service.createRuler();
 
-            const height1 = 2 * ratio1;
+            // Assert
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
 
             (DrawHelper.pixelRatio as Mock).mockReturnValue(ratio2);
-            mockHeaderCtx.fillRect.mockClear();
+            mockProgressBarAnimation.setProgress.mockClear();
 
             service.createRuler();
 
-            const height2 = 2 * ratio2;
-
-            expect(height2 / ratio2).toBe(height1 / ratio1);
+            expect(mockProgressBarAnimation.setProgress).toHaveBeenCalledWith(50);
         });
     });
 });

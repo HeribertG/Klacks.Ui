@@ -4,7 +4,6 @@ import {
   IClient,
   Communication,
 } from 'src/app/domain/models/client-class';
-import { createStringId } from 'src/app/shared/helpers/guid.helper';
 import { formatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
 import { ClientConfigService } from './client-config.service';
 
@@ -21,8 +20,6 @@ export class CommunicationService {
 
     let count = 0;
     editClient.communications.forEach((x) => {
-      x.internalId = createStringId();
-
       this.isPhone(x);
       this.isEmail(x);
       x.index = count;
@@ -51,7 +48,6 @@ export class CommunicationService {
 
       c.prefix = this.clientConfigService.isSwissPrefixId();
       c.isPhone = true;
-      c.internalId = createStringId();
       c.index = count++;
 
       editClient.communications.push(c);
@@ -71,7 +67,6 @@ export class CommunicationService {
         }
       }
       c.isEmail = true;
-      c.internalId = createStringId();
       c.index = count++;
 
       editClient.communications.push(c);
@@ -92,7 +87,6 @@ export class CommunicationService {
 
     c.prefix = this.clientConfigService.isSwissPrefixId();
     c.isPhone = true;
-    c.internalId = createStringId();
     c.index = editClient.communications.length;
 
     editClient.communications = [...editClient.communications, c];
@@ -119,7 +113,6 @@ export class CommunicationService {
       }
     }
     c.isEmail = true;
-    c.internalId = createStringId();
     c.index = editClient.communications.length;
 
     editClient.communications = [...editClient.communications, c];

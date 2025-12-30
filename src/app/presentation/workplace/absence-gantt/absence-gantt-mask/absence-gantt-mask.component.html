@@ -85,18 +85,16 @@
                   aria-label="internal-from"
                   aria-labelledby="internalFrom"
                   id="absence-mask-internal-from"
-                  [ngModel]="selectedBreak!.internalFrom"
-                  (ngModelChange)="
-                    onChange(); selectedBreak!.internalFrom = $event
-                  "
+                  [ngModel]="internalFrom"
+                  (ngModelChange)="internalFrom = $event; onChange()"
                   ngbDatepicker
-                  #internalFrom="ngbDatepicker"
+                  #internalFromPicker="ngbDatepicker"
                 />
                 <span
                   id="absence-mask-internal-from-icon"
                   class="input-group-text span-date"
                   style="width: 40px"
-                  (click)="internalFrom.toggle()"
+                  (click)="internalFromPicker.toggle()"
                 >
                   <fa-icon
                     [icon]="faCalendar"
@@ -121,18 +119,16 @@
                   aria-label="internal-until"
                   aria-labelledby="internal-until"
                   id="absence-mask-internal-until"
-                  [ngModel]="selectedBreak!.internalUntil"
-                  (ngModelChange)="
-                    onChange(); selectedBreak!.internalUntil = $event
-                  "
+                  [ngModel]="internalUntil"
+                  (ngModelChange)="internalUntil = $event; onChange()"
                   ngbDatepicker
-                  #internalUntil="ngbDatepicker"
+                  #internalUntilPicker="ngbDatepicker"
                 />
                 <span
                   id="absence-mask-internal-until-icon"
                   class="input-group-text span-date"
                   style="width: 40px"
-                  (click)="internalUntil.toggle()"
+                  (click)="internalUntilPicker.toggle()"
                 >
                   <fa-icon
                     [icon]="faCalendar"

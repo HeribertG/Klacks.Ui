@@ -25,9 +25,11 @@ import {
   NgbDatepickerModule,
   NgbDropdownModule,
   NgbTooltipModule,
+  NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 
 @Component({
   selector: 'app-edit-group-nav',
@@ -67,6 +69,26 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public defaultTop = 0;
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
+
+  get internalScopeFrom(): NgbDateStruct | undefined {
+    const date = this.dataManagementGroupService.currentClientFilter.scopeFrom;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeFrom(value: NgbDateStruct | undefined) {
+    const filter = this.dataManagementGroupService.currentClientFilter;
+    filter.scopeFrom = value ? transformNgbDateStructToDate(value) : undefined;
+  }
+
+  get internalScopeUntil(): NgbDateStruct | undefined {
+    const date = this.dataManagementGroupService.currentClientFilter.scopeUntil;
+    return date ? transformDateToNgbDateStruct(date) : undefined;
+  }
+
+  set internalScopeUntil(value: NgbDateStruct | undefined) {
+    const filter = this.dataManagementGroupService.currentClientFilter;
+    filter.scopeUntil = value ? transformNgbDateStructToDate(value) : undefined;
+  }
 
   constructor() {
     this.iterableDiffer = this.iterableDiffers.find([]).create(undefined);

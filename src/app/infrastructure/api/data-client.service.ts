@@ -13,10 +13,6 @@ import {
 } from 'src/app/domain/models/client-class';
 
 import { unformatPhoneNumber } from 'src/app/shared/helpers/phone.helper';
-import {
-  transformNgbDateStructToDate,
-  isNgbDateStructOk,
-} from 'src/app/shared/helpers/ngb-date.helper';
 import { dateWithLocalTimeCorrection } from 'src/app/shared/helpers/date.helper';
 import { StateCountryToken } from 'src/app/domain/models/calendar-rule-class';
 
@@ -138,43 +134,38 @@ export class DataClientService {
   }
 
   private setCorrectDateFilter(value: IFilter) {
-    if (isNgbDateStructOk(value!.internalScopeFrom)) {
-      value.scopeFrom = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalScopeFrom)
-      );
+    if (value.scopeFrom) {
+      value.scopeFrom = dateWithLocalTimeCorrection(new Date(value.scopeFrom));
     } else {
       value.scopeFrom = undefined;
     }
 
-    if (isNgbDateStructOk(value!.internalScopeUntil)) {
-      value.scopeUntil = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalScopeUntil)
-      );
+    if (value.scopeUntil) {
+      value.scopeUntil = dateWithLocalTimeCorrection(new Date(value.scopeUntil));
     } else {
       value.scopeUntil = undefined;
     }
   }
 
   private setCorrectDate(value: IClient) {
-    if (isNgbDateStructOk(value!.internalBirthdate)) {
-      value.birthdate = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value!.internalBirthdate)
-      )!;
+    if (value.birthdate) {
+      value.birthdate = dateWithLocalTimeCorrection(new Date(value.birthdate))!;
     } else {
       value.birthdate = undefined;
     }
 
-    if (isNgbDateStructOk(value.membership?.internalValidFrom)) {
-      value.membership!.validFrom = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value.membership!.internalValidFrom)
+    if (value.membership?.validFrom) {
+      value.membership.validFrom = dateWithLocalTimeCorrection(
+        new Date(value.membership.validFrom)
       )!;
     }
-    if (isNgbDateStructOk(value.membership!.internalValidUntil)) {
-      value.membership!.validUntil = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(value.membership!.internalValidUntil)
+
+    if (value.membership?.validUntil) {
+      value.membership.validUntil = dateWithLocalTimeCorrection(
+        new Date(value.membership.validUntil)
       )!;
-    } else {
-      value.membership!.validUntil = undefined;
+    } else if (value.membership) {
+      value.membership.validUntil = undefined;
     }
 
     value.addresses.forEach((x) => {
@@ -182,24 +173,22 @@ export class DataClientService {
     });
 
     value.clientContracts.forEach((x) => {
-      x.fromDate = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(x.internalFromDate)
-      )!;
-      if (isNgbDateStructOk(x!.internalUntilDate)) {
-        x.untilDate = dateWithLocalTimeCorrection(
-          transformNgbDateStructToDate(x.internalUntilDate)
-        )!;
+      if (x.fromDate) {
+        x.fromDate = dateWithLocalTimeCorrection(new Date(x.fromDate))!;
+      }
+
+      if (x.untilDate) {
+        x.untilDate = dateWithLocalTimeCorrection(new Date(x.untilDate))!;
       }
     });
 
     value.groupItems.forEach((x) => {
-      x.validFrom = dateWithLocalTimeCorrection(
-        transformNgbDateStructToDate(x.internalValidFrom)
-      )!;
-      if (isNgbDateStructOk(x!.internalValidUntil)) {
-        x.validUntil = dateWithLocalTimeCorrection(
-          transformNgbDateStructToDate(x.internalValidUntil)
-        )!;
+      if (x.validFrom) {
+        x.validFrom = dateWithLocalTimeCorrection(new Date(x.validFrom))!;
+      }
+
+      if (x.validUntil) {
+        x.validUntil = dateWithLocalTimeCorrection(new Date(x.validUntil))!;
       }
     });
   }

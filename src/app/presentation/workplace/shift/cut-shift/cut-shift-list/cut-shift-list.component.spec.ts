@@ -2643,20 +2643,15 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
                 parentShift.startShift = testCase.parentShift.start;
                 parentShift.endShift = testCase.parentShift.end;
                 parentShift.fromDate = testCase.parentShift.date;
-                parentShift.internalFromDate = transformDateToNgbDateStruct(testCase.parentShift.date);
                 parentShift.cuttingAfterMidnight =
                     testCase.parentShift.cuttingAfterMidnight || false;
-
-                // Set internalStartShift and internalEndShift
-                parentShift.internalStartShift = OwnTime.forTime(testCase.parentShift.start.split(':')[0], testCase.parentShift.start.split(':')[1]);
-                parentShift.internalEndShift = OwnTime.forTime(testCase.parentShift.end.split(':')[0], testCase.parentShift.end.split(':')[1]);
 
                 component['selectedShift'] = parentShift;
                 component.cutTimeShift = OwnTime.forTime(testCase.cutTime.split(':')[0], testCase.cutTime.split(':')[1]);
 
                 // Set up the 24h and over midnight flags
-                const startMinutes = parentShift.internalStartShift.toMinutes();
-                const endMinutes = parentShift.internalEndShift.toMinutes();
+                const startMinutes = OwnTime.forTime(testCase.parentShift.start.split(':')[0], testCase.parentShift.start.split(':')[1]).toMinutes();
+                const endMinutes = OwnTime.forTime(testCase.parentShift.end.split(':')[0], testCase.parentShift.end.split(':')[1]).toMinutes();
                 component.is24Hours = startMinutes === endMinutes;
                 component.isOverMidnight =
                     !component.is24Hours && endMinutes < startMinutes;
@@ -2831,7 +2826,6 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
                 parentShift.startShift = testCase.parentShift.start;
                 parentShift.endShift = testCase.parentShift.end;
                 parentShift.fromDate = testCase.parentShift.date;
-                parentShift.internalFromDate = transformDateToNgbDateStruct(testCase.parentShift.date);
                 parentShift.cuttingAfterMidnight =
                     testCase.parentShift.cuttingAfterMidnight || false;
 
@@ -2960,7 +2954,6 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
                 parentShift.startShift = testCase.parentShift.start;
                 parentShift.endShift = testCase.parentShift.end;
                 parentShift.fromDate = testCase.parentShift.date;
-                parentShift.internalFromDate = transformDateToNgbDateStruct(testCase.parentShift.date);
                 parentShift.sumEmployees = testCase.parentShift.sumEmployees;
 
                 component['selectedShift'] = parentShift;
@@ -3076,7 +3069,6 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
                 parentShift.startShift = testCase.parentShift.start;
                 parentShift.endShift = testCase.parentShift.end;
                 parentShift.fromDate = testCase.parentShift.date;
-                parentShift.internalFromDate = transformDateToNgbDateStruct(testCase.parentShift.date);
                 parentShift.quantity = testCase.parentShift.quantity;
 
                 component['selectedShift'] = parentShift;
@@ -3380,8 +3372,6 @@ describe('CutShiftListComponent - Time Cut Logic', () => {
             parentShift.name = 'Parent Shift';
             parentShift.startShift = '08:00';
             parentShift.endShift = '16:00';
-            parentShift.internalStartShift = transformStringToOwnTimeStruct('08:00');
-            parentShift.internalEndShift = transformStringToOwnTimeStruct('16:00');
             parentShift.fromDate = new Date('2025-01-01');
             parentShift.quantity = 10;
             parentShift.sumEmployees = 5;

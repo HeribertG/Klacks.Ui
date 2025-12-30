@@ -26,7 +26,7 @@
         <div class="firstColumn">
           <app-time-input
             [label]="'shift.edit-shift.weekday.from' | translate"
-            [(value)]="dataManagementShiftService.editShift.internalStartShift"
+            [(value)]="shiftFormService.shiftForm()!.internalStartShift"
             (timeChange)="OnChangeTime()"
             [disabled]="isFieldsDisabled"
             hoursId="start-hours"
@@ -40,7 +40,7 @@
         <div class="row-line2 endColumn">
           <app-time-input
             [label]="'shift.edit-shift.weekday.until' | translate"
-            [(value)]="dataManagementShiftService.editShift.internalEndShift"
+            [(value)]="shiftFormService.shiftForm()!.internalEndShift"
             (timeChange)="OnChangeTime()"
             [disabled]="isFieldsDisabled"
             hoursId="end-hours"
@@ -51,7 +51,7 @@
 
           <app-time-input
             [label]="'shift.edit-shift.weekday.work-hour' | translate"
-            [(value)]="dataManagementShiftService.editShift.internalWorkTime"
+            [(value)]="shiftFormService.shiftForm()!.internalWorkTime"
             [disabled]="disabledWorkTime || isFieldsDisabled"
             hoursId="internalWorkTime-hours"
             [forDuration]="true"
