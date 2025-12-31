@@ -1,0 +1,233 @@
+<h2>Macro Scripting Handbuch</h2>
+
+<h3>Einleitung</h3>
+<p>
+Mit dem Macro Editor lassen sich Skripte schreiben, die als Rechengrundlage
+für Dienste, Beschäftigungen etc. verwendet werden.
+</p>
+
+<p><strong>Anwendungsbeispiele:</strong></p>
+<ul>
+  <li>Exakte Berechnung der Stunden bei Ferien oder Militär gemäss Beschäftigungsgrad</li>
+  <li>Berechnung von Zuschlägen für Nachtarbeit, Wochenenden und Feiertage</li>
+  <li>Flexible Anpassung an neue Anforderungen</li>
+</ul>
+
+<p>
+<em>Hinweis: Der Script Interpreter läuft in einer sicheren Sandbox-Umgebung ohne Zugriff
+auf das Dateisystem oder Netzwerk. Es ist nicht möglich, schadhaften Code auszuführen.</em>
+</p>
+
+<hr>
+
+<h3>Variablen und Konstanten</h3>
+<p>Alle Variablen und Konstanten sind typenlos.</p>
+
+<pre>
+CONST PI = 3.1415
+DIM a, b, c
+EXTERNAL betrag, rabatt
+</pre>
+
+<h4>Importierte Variablen (EXTERNAL)</h4>
+<p>Diese Variablen werden aus dem jeweiligen Dienst oder der Beschäftigung generiert:</p>
+
+<table>
+  <tr><th>Variable</th><th>Beschreibung</th></tr>
+  <tr><td>Hour</td><td>Stunden gemäss Dienst</td></tr>
+  <tr><td>HourExact</td><td>Exakte Stunden</td></tr>
+  <tr><td>BlockShiftNumber</td><td>Blockschicht-Nummer</td></tr>
+  <tr><td>BlockShiftIndex</td><td>Blockschicht-Index</td></tr>
+  <tr><td>ShiftType</td><td>1=Tag, 2=Abend, 3=Nacht</td></tr>
+  <tr><td>WeekdayNumber</td><td>1=Sonntag bis 7=Samstag</td></tr>
+  <tr><td>NightHour</td><td>Nachtstunden</td></tr>
+  <tr><td>HolydayHour</td><td>Feiertagsstunden</td></tr>
+  <tr><td>Day_befor_HolydayHour</td><td>Stunden am Tag vor Feiertag</td></tr>
+  <tr><td>IsHolyday</td><td>Ist Feiertag (True/False)</td></tr>
+  <tr><td>IsNextDayHolyday</td><td>Ist nächster Tag Feiertag</td></tr>
+  <tr><td>FullTime</td><td>Vollzeit-Pensum</td></tr>
+  <tr><td>GuaranteedHours</td><td>Garantierte Stunden</td></tr>
+  <tr><td>NighthourAdditionalPercent</td><td>Nachtstunden-Zuschlag in %</td></tr>
+  <tr><td>HolydayhourAdditionalPercent</td><td>Feiertagszuschlag in %</td></tr>
+</table>
+
+<hr>
+
+<h3>Kontrollstrukturen</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF x > 10 THEN
+    message 1, "gross"
+ELSEIF x > 5 THEN
+    message 1, "mittel"
+ELSE
+    message 1, "klein"
+END IF
+</pre>
+
+<h4>SELECT CASE</h4>
+<pre>
+SELECT CASE weekday
+    CASE 1, 7
+        message 1, "Wochenende"
+    CASE 2, 3, 4, 5, 6
+        message 1, "Arbeitstag"
+    CASE ELSE
+        message 1, "Unbekannt"
+END SELECT
+</pre>
+
+<h4>FOR-NEXT Schleife</h4>
+<pre>
+FOR i = 1 TO 10
+    summe += i
+NEXT
+
+FOR i = 10 TO 1 STEP -1
+    IF x > y THEN EXIT FOR
+NEXT
+</pre>
+
+<h4>DO-LOOP Schleife</h4>
+<pre>
+DO WHILE a > 0
+    a -= 1
+LOOP
+
+DO
+    x += 1
+LOOP UNTIL x >= 10
+</pre>
+
+<hr>
+
+<h3>Funktionen und Prozeduren</h3>
+
+<h4>SUB (Prozedur ohne Rückgabewert)</h4>
+<pre>
+SUB berechne(a, b)
+    IF a = b THEN EXIT SUB
+    message 1, a + b
+END SUB
+</pre>
+
+<h4>FUNCTION (Funktion mit Rückgabewert)</h4>
+<pre>
+FUNCTION verdoppeln(x)
+    verdoppeln = x * 2
+END FUNCTION
+
+DIM ergebnis
+ergebnis = verdoppeln(21)
+message 1, ergebnis    ' Ausgabe: 42
+</pre>
+
+<hr>
+
+<h3>Operatoren</h3>
+
+<h4>Mathematische Operatoren</h4>
+<table>
+  <tr><th>Operator</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>+</td><td>Addition</td><td>5 + 3 = 8</td></tr>
+  <tr><td>-</td><td>Subtraktion</td><td>5 - 3 = 2</td></tr>
+  <tr><td>*</td><td>Multiplikation</td><td>5 * 3 = 15</td></tr>
+  <tr><td>/</td><td>Division</td><td>10 / 4 = 2.5</td></tr>
+  <tr><td>\</td><td>Ganzzahldivision</td><td>10 \ 4 = 2</td></tr>
+  <tr><td>MOD</td><td>Modulo (Rest)</td><td>10 MOD 3 = 1</td></tr>
+  <tr><td>^</td><td>Potenz</td><td>2 ^ 3 = 8</td></tr>
+</table>
+
+<h4>Vergleichsoperatoren</h4>
+<table>
+  <tr><th>Operator</th><th>Beschreibung</th></tr>
+  <tr><td>=</td><td>Gleich</td></tr>
+  <tr><td>&lt;&gt;</td><td>Ungleich</td></tr>
+  <tr><td>&lt;</td><td>Kleiner als</td></tr>
+  <tr><td>&gt;</td><td>Grösser als</td></tr>
+  <tr><td>&lt;=</td><td>Kleiner oder gleich</td></tr>
+  <tr><td>&gt;=</td><td>Grösser oder gleich</td></tr>
+</table>
+
+<h4>Logische Operatoren</h4>
+<table>
+  <tr><th>Operator</th><th>Beschreibung</th></tr>
+  <tr><td>AND</td><td>Bitweises UND</td></tr>
+  <tr><td>OR</td><td>Bitweises ODER</td></tr>
+  <tr><td>NOT</td><td>Negation</td></tr>
+  <tr><td>ANDALSO</td><td>Logisches UND (Short-Circuit)</td></tr>
+  <tr><td>ORELSE</td><td>Logisches ODER (Short-Circuit)</td></tr>
+</table>
+
+<h4>Zuweisungsoperatoren</h4>
+<pre>
+a = 10      ' Einfache Zuweisung
+a += 5      ' a = a + 5
+a -= 3      ' a = a - 3
+a *= 2      ' a = a * 2
+a /= 4      ' a = a / 4
+a &= "!"    ' String-Verkettung
+</pre>
+
+<hr>
+
+<h3>Eingebaute Funktionen</h3>
+
+<h4>String-Funktionen</h4>
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Len(s)</td><td>Länge eines Strings</td><td>Len("Hallo") = 5</td></tr>
+  <tr><td>Left(s, n)</td><td>Linke n Zeichen</td><td>Left("Hallo", 2) = "Ha"</td></tr>
+  <tr><td>Right(s, n)</td><td>Rechte n Zeichen</td><td>Right("Hallo", 2) = "lo"</td></tr>
+  <tr><td>Mid(s, start, len)</td><td>Teilstring</td><td>Mid("Hallo", 2, 3) = "all"</td></tr>
+  <tr><td>InStr(s, search)</td><td>Position suchen</td><td>InStr("Hallo", "l") = 3</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>Ersetzen</td><td>Replace("Hallo", "l", "x") = "Haxxo"</td></tr>
+  <tr><td>Trim(s)</td><td>Leerzeichen entfernen</td><td>Trim("  Hi  ") = "Hi"</td></tr>
+  <tr><td>UCase(s)</td><td>Grossbuchstaben</td><td>UCase("hallo") = "HALLO"</td></tr>
+  <tr><td>LCase(s)</td><td>Kleinbuchstaben</td><td>LCase("HALLO") = "hallo"</td></tr>
+</table>
+
+<h4>Mathematische Funktionen</h4>
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>Abs(x)</td><td>Absolutwert</td><td>Abs(-5) = 5</td></tr>
+  <tr><td>Round(x, d)</td><td>Runden</td><td>Round(3.456, 2) = 3.46</td></tr>
+  <tr><td>Sqr(x)</td><td>Quadratwurzel</td><td>Sqr(16) = 4</td></tr>
+  <tr><td>Log(x)</td><td>Natürlicher Logarithmus</td><td>Log(2.718) = 1</td></tr>
+  <tr><td>Exp(x)</td><td>Exponential (e^x)</td><td>Exp(1) = 2.718...</td></tr>
+  <tr><td>Sgn(x)</td><td>Vorzeichen (-1, 0, 1)</td><td>Sgn(-5) = -1</td></tr>
+  <tr><td>Rnd()</td><td>Zufallszahl 0-1</td><td>Rnd() = 0.xxxxx</td></tr>
+</table>
+
+<h4>Trigonometrische Funktionen</h4>
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th></tr>
+  <tr><td>Sin(x)</td><td>Sinus</td></tr>
+  <tr><td>Cos(x)</td><td>Cosinus</td></tr>
+  <tr><td>Tan(x)</td><td>Tangens</td></tr>
+  <tr><td>Atan(x)</td><td>Arkustangens</td></tr>
+</table>
+
+<hr>
+
+<h3>Benutzerinteraktion</h3>
+
+<pre>
+MESSAGE typ, wert           ' Ausgabe an Klacks
+MSGBOX "Text", 1, "Titel"   ' Dialog anzeigen
+INPUTBOX "Prompt", "Titel"  ' Eingabe vom Benutzer
+</pre>
+
+<hr>
+
+<h3>Beispiel: Ferienberechnung</h3>
+<pre>
+EXTERNAL beschaeftigungsgrad
+EXTERNAL ferientage
+
+DIM stunden
+stunden = ferientage * 8.4 * (beschaeftigungsgrad / 100)
+
+MESSAGE 1, Round(stunden, 2)
+</pre>

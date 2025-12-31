@@ -316,6 +316,14 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
         this.callUnaryFunction(Opcodes.Sgn);
         break;
 
+      // Time Functions
+      case Tokens.tokTimeToHours:
+        this.callUnaryFunction(Opcodes.TimeToHours);
+        break;
+      case Tokens.tokTimeOverlap:
+        this.callQuaternaryFunction(Opcodes.TimeOverlap);
+        break;
+
       case Tokens.tokLeftParent:
         this.getNextSymbol();
         this.condition();

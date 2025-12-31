@@ -243,6 +243,14 @@ export class ScriptExecutionContext {
         this.executeRound();
         break;
 
+      // Time Functions
+      case Opcodes.TimeToHours:
+        this.executeTimeToHours();
+        break;
+      case Opcodes.TimeOverlap:
+        this.executeTimeOverlap();
+        break;
+
       case Opcodes.DebugPrint: {
         const entry = this.scopes!.popScopes();
         const value = this.extractValueFromEntry(entry);
@@ -656,5 +664,83 @@ export class ScriptExecutionContext {
     const number = this.extractValueFromEntry(numberEntry).asDouble();
     const factor = Math.pow(10, decimals);
     this.scopes!.push(ScriptValue.fromNumber(Math.round(number * factor) / factor));
+  }
+
+  private executeTimeToHours(): void {
+    const entry = this.scopes!.popScopes();
+    const timeStr = this.extractValueFromEntry(entry).asString();
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        const decimalHours = hours + minutes / 60.0;
+        this.scopes!.push(ScriptValue.fromNumber(decimalHours));
+        return;
+      }
+    }
+    this.scopes!.push(ScriptValue.fromNumber(0));
+  }
+
+  private executeTimeOverlap(): void {
+    const inputEndStr = this.extractValueFromEntry(this.scopes!.popScopes()).asString();
+    const inputStartStr = this.extractValueFromEntry(this.scopes!.popScopes()).asString();
+    const segmentEndStr = this.extractValueFromEntry(this.scopes!.popScopes()).asString();
+    const segmentStartStr = this.extractValueFromEntry(this.scopes!.popScopes()).asString();
+
+    const segmentStart = this.parseTimeToMinutes(segmentStartStr);
+    const segmentEnd = this.parseTimeToMinutes(segmentEndStr);
+    const inputStart = this.parseTimeToMinutes(inputStartStr);
+    const inputEnd = this.parseTimeToMinutes(inputEndStr);
+
+    if (segmentStart < 0 || segmentEnd < 0 || inputStart < 0 || inputEnd < 0) {
+      this.scopes!.push(ScriptValue.fromNumber(0));
+      return;
+    }
+
+    const overlapMinutes = this.calculateOverlapMinutes(segmentStart, segmentEnd, inputStart, inputEnd);
+    this.scopes!.push(ScriptValue.fromNumber(overlapMinutes / 60.0));
+  }
+
+  private parseTimeToMinutes(timeStr: string): number {
+    const parts = timeStr.split(':');
+    if (parts.length >= 2) {
+      const hours = parseInt(parts[0], 10);
+      const minutes = parseInt(parts[1], 10);
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        return hours * 60 + minutes;
+      }
+    }
+    return -1;
+  }
+
+  private calculateOverlapMinutes(segStart: number, segEnd: number, inStart: number, inEnd: number): number {
+    const dayMinutes = 24 * 60;
+    const segCrossesMidnight = segEnd <= segStart;
+    const inCrossesMidnight = inEnd <= inStart;
+
+    if (segCrossesMidnight) {
+      segEnd += dayMinutes;
+    }
+    if (inCrossesMidnight) {
+      inEnd += dayMinutes;
+    }
+
+    let overlap = this.calculateSimpleOverlap(segStart, segEnd, inStart, inEnd);
+
+    if (segCrossesMidnight && !inCrossesMidnight) {
+      overlap += this.calculateSimpleOverlap(segStart - dayMinutes, segEnd - dayMinutes, inStart, inEnd);
+    }
+    if (inCrossesMidnight && !segCrossesMidnight) {
+      overlap += this.calculateSimpleOverlap(segStart, segEnd, inStart - dayMinutes, inEnd - dayMinutes);
+    }
+
+    return overlap;
+  }
+
+  private calculateSimpleOverlap(start1: number, end1: number, start2: number, end2: number): number {
+    const overlapStart = Math.max(start1, start2);
+    const overlapEnd = Math.min(end1, end2);
+    return Math.max(0, overlapEnd - overlapStart);
   }
 }

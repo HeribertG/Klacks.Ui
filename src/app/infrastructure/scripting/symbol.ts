@@ -141,7 +141,10 @@ export enum Tokens {
   tokLog = 89,
   tokExp = 90,
   tokSgn = 91,
-  // 92 - Control Structures
-  tokSelect = 92,
-  tokCase = 93,
+  // 92 - Time Functions
+  tokTimeToHours = 92,
+  tokTimeOverlap = 93,
+  // 94 - Control Structures
+  tokSelect = 94,
+  tokCase = 95,
 }

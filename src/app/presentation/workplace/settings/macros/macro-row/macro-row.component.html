@@ -148,12 +148,11 @@
         class="collapse"
         [ngStyle]="{ display: tabId === 'description' ? 'inline' : 'none' }"
       >
-        <textarea
-          id="macro-modal-description-textarea"
-          value="test"
-          class="preview preview-default-height"
-          aria-label="test"
-        ></textarea>
+        <div
+          id="macro-modal-manual-content"
+          class="manual-content"
+          [innerHTML]="manualContent"
+        ></div>
       </div>
     </div>
   </form>

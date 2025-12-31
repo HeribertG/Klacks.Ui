@@ -171,6 +171,79 @@ export abstract class SyntaxAnalyserBuiltIns extends SyntaxAnalyserBase {
     this._code!.add(opcode);
   }
 
+  protected callQuaternaryFunction(opcode: Opcodes) {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after function name',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if ((this._symbol.token as Tokens) !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket after function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(opcode);
+  }
+
   protected callRnd() {
     if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
       this.interpreterError!.raise(

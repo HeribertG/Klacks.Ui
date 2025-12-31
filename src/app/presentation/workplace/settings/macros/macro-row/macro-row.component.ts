@@ -10,6 +10,7 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -48,6 +49,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   private scriptService = inject(ScriptService);
+  private http = inject(HttpClient);
 
   macroName = '';
   macroType = 0;
@@ -61,6 +63,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   shiftData = new ShiftData();
 
   test = '';
+  manualContent = '';
 
   private formSubscription?: Subscription;
 
@@ -111,6 +114,8 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       this.obj = this.data.content || '';
       this.description = this.data.description;
     }
+
+    this.loadManual();
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
@@ -170,5 +175,31 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     } else {
       this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${result.error?.line ?? 0}, Column: ${result.error?.column ?? 0}`;
     }
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    const supportedLangs = ['de', 'en', 'fr', 'it'];
+    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
+
+    this.http
+      .get(`assets/docs/macro-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .subscribe({
+        next: (content) => {
+          this.manualContent = content;
+        },
+        error: () => {
+          this.http
+            .get('assets/docs/macro-manual/de.html', { responseType: 'text' })
+            .subscribe({
+              next: (content) => {
+                this.manualContent = content;
+              },
+              error: () => {
+                this.manualContent = '<p>Manual not available</p>';
+              },
+            });
+        },
+      });
   }
 }

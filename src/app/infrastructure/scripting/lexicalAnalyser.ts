@@ -399,6 +399,9 @@ export class LexicalAnalyser {
     this.predefinedIdentifiers.set('LOG', Tokens.tokLog);
     this.predefinedIdentifiers.set('EXP', Tokens.tokExp);
     this.predefinedIdentifiers.set('SGN', Tokens.tokSgn);
+    // Time Functions
+    this.predefinedIdentifiers.set('TIMETOHOURS', Tokens.tokTimeToHours);
+    this.predefinedIdentifiers.set('TIMEOVERLAP', Tokens.tokTimeOverlap);
     // Control Structures
     this.predefinedIdentifiers.set('SELECT', Tokens.tokSelect);
     this.predefinedIdentifiers.set('CASE', Tokens.tokCase);
