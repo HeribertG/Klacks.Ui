@@ -338,6 +338,8 @@ export class LexicalAnalyser {
     this.predefinedIdentifiers.set('AND', Tokens.tokAND);
     this.predefinedIdentifiers.set('OR', Tokens.tokOR);
     this.predefinedIdentifiers.set('NOT', Tokens.tokNOT);
+    this.predefinedIdentifiers.set('ANDALSO', Tokens.tokAndAlso);
+    this.predefinedIdentifiers.set('ORELSE', Tokens.tokOrElse);
     this.predefinedIdentifiers.set('SIN', Tokens.tokSin);
     this.predefinedIdentifiers.set('COS', Tokens.tokCos);
     this.predefinedIdentifiers.set('TAN', Tokens.tokTan);

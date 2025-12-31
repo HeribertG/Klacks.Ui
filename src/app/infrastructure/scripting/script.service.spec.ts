@@ -854,23 +854,39 @@ describe('ScriptService', () => {
 
     describe('Logical Operations', () => {
         it('should handle AND operation (bitwise)', () => {
-            // Arrange & Act - VBScript AND is bitwise on integers
+            // Arrange & Act - VBA AND is bitwise on integers
             const result = service.run('message 1, 7 and 3', false, false);
 
-            // Assert - 7 AND 3 = 0111 AND 0011 = 0011 = 3 (if bitwise)
-            // But VBScript uses logical AND which returns True/False
+            // Assert - 7 AND 3 = 0111 AND 0011 = 0011 = 3
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('3');
+        });
+
+        it('should handle AndAlso with integers (logical)', () => {
+            // Arrange & Act - AndAlso is short-circuit logical
+            const result = service.run('message 1, 7 andalso 3', false, false);
+
+            // Assert - Both non-zero → True
             expect(result.success).toBe(true);
             expect(result.messages[0].message).toBe('True');
         });
 
         it('should handle OR operation (bitwise)', () => {
-            // Arrange & Act - VBScript OR is bitwise on integers
+            // Arrange & Act - VBA OR is bitwise on integers
             const result = service.run('message 1, 4 or 2', false, false);
 
-            // Assert - 4 OR 2 = 0100 OR 0010 = 0110 = 6 (if bitwise)
-            // But VBScript uses logical OR
+            // Assert - 4 OR 2 = 0100 OR 0010 = 0110 = 6
             expect(result.success).toBe(true);
             expect(result.messages[0].message).toBe('6');
+        });
+
+        it('should handle OrElse with integers (logical)', () => {
+            // Arrange & Act - OrElse is short-circuit logical
+            const result = service.run('message 1, 4 orelse 2', false, false);
+
+            // Assert - First non-zero → True
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('True');
         });
 
         it('should handle NOT operation', () => {
@@ -889,8 +905,8 @@ describe('ScriptService', () => {
             expect(result.messages[0].message).toBe('True');
         });
 
-        it('should handle logical AND with booleans', () => {
-            // Arrange
+        it('should handle bitwise AND with booleans', () => {
+            // Arrange - AND is bitwise: True(=1) AND True(=1) = 1
             const script = `
                 dim a, b
                 a = 1 > 0
@@ -901,7 +917,24 @@ describe('ScriptService', () => {
             // Act
             const result = service.run(script, false, false);
 
-            // Assert
+            // Assert - Bitwise AND of True(=1) AND True(=1) = 1
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('1');
+        });
+
+        it('should handle AndAlso with booleans (logical)', () => {
+            // Arrange - AndAlso returns True/False
+            const script = `
+                dim a, b
+                a = 1 > 0
+                b = 2 > 0
+                message 1, a andalso b
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert - Both true → True
             expect(result.success).toBe(true);
             expect(result.messages[0].message).toBe('True');
         });

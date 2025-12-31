@@ -8,38 +8,59 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
   protected abstract callUserDefinedFunction(ident: string): void;
 
   protected condition() {
-    this.conditionalTerm();
+    this.orElseTerm();
 
-    while (this.inSymbolSet(this._symbol.token, [Tokens.tokOR])) {
+    while (this.inSymbolSet(this._symbol.token, [Tokens.tokOR, Tokens.tokOrElse])) {
+      const isOrElse = this._symbol.token === Tokens.tokOrElse;
       this.getNextSymbol();
-      this.conditionalTerm();
-      this._code!.add(Opcodes.Or);
+
+      if (isOrElse) {
+        // OrElse: Short-Circuit - result is True if any operand is truthy
+        const skipPC = this._code!.add(Opcodes.JumpTrue);
+        this.orElseTerm();
+        const secondTruePC = this._code!.add(Opcodes.JumpTrue);
+        this._code!.add(Opcodes.PushValue, [false]);
+        const endPC = this._code!.add(Opcodes.Jump);
+        this._code!.fixUp(skipPC - 1, [this._code!.endOfCodePC]);
+        this._code!.fixUp(secondTruePC - 1, [this._code!.endOfCodePC]);
+        this._code!.add(Opcodes.PushValue, [true]);
+        this._code!.fixUp(endPC - 1, [this._code!.endOfCodePC]);
+      } else {
+        // Or: Bitwise
+        this.orElseTerm();
+        this._code!.add(Opcodes.Or);
+      }
     }
   }
 
-  private conditionalTerm() {
-    const operandPCs: number[] = [];
+  private orElseTerm() {
+    this.andAlsoFactor();
 
-    this.conditionalFactor();
-
-    while (this.inSymbolSet(this._symbol.token, [Tokens.tokAND])) {
-      operandPCs.push(this._code!.add(Opcodes.JumpFalse));
+    while (this.inSymbolSet(this._symbol.token, [Tokens.tokAND, Tokens.tokAndAlso])) {
+      const isAndAlso = this._symbol.token === Tokens.tokAndAlso;
       this.getNextSymbol();
-      this.conditionalFactor();
-    }
 
-    if (operandPCs.length > 0) {
-      operandPCs.push(this._code!.add(Opcodes.JumpFalse));
-      this._code!.add(Opcodes.PushValue, [true]);
-      const thenPC = this._code!.add(Opcodes.Jump);
-
-      for (const pc of operandPCs) {
-        this._code!.fixUp(pc - 1, [this._code!.endOfCodePC]);
+      if (isAndAlso) {
+        // AndAlso: Short-Circuit - result is True only if both operands are truthy
+        const skipPC = this._code!.add(Opcodes.JumpFalse);
+        this.andAlsoFactor();
+        const secondFalsePC = this._code!.add(Opcodes.JumpFalse);
+        this._code!.add(Opcodes.PushValue, [true]);
+        const endPC = this._code!.add(Opcodes.Jump);
+        this._code!.fixUp(skipPC - 1, [this._code!.endOfCodePC]);
+        this._code!.fixUp(secondFalsePC - 1, [this._code!.endOfCodePC]);
+        this._code!.add(Opcodes.PushValue, [false]);
+        this._code!.fixUp(endPC - 1, [this._code!.endOfCodePC]);
+      } else {
+        // And: Bitwise
+        this.andAlsoFactor();
+        this._code!.add(Opcodes.And);
       }
-
-      this._code!.add(Opcodes.PushValue, [false]);
-      this._code!.fixUp(thenPC - 1, [this._code!.endOfCodePC]);
     }
+  }
+
+  private andAlsoFactor() {
+    this.conditionalFactor();
   }
 
   private conditionalFactor() {

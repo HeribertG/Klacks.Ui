@@ -120,4 +120,7 @@ export enum Tokens {
   tokCr = 71,
   tokLf = 72,
   tokEOF = 73,
+  // 74 - VB.NET Short-Circuit Operators
+  tokAndAlso = 74,
+  tokOrElse = 75,
 }
