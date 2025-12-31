@@ -124,6 +124,11 @@ export abstract class SyntaxAnalyserStatements extends SyntaxAnalyserControlFlow
         this.DoStatement(singleLineOnly, exitsAllowed);
         break;
 
+      case Tokens.tokSelect:
+        this.getNextSymbol();
+        this.SelectCaseStatement(singleLineOnly, exitsAllowed);
+        break;
+
       case Tokens.tokEXIT:
         this.handleExitStatement(exitsAllowed);
         break;

@@ -280,4 +280,123 @@ export abstract class SyntaxAnalyserControlFlow extends SyntaxAnalyserDeclaratio
       );
     }
   }
+
+  protected SelectCaseStatement(singleLineOnly: boolean, exitsAllowed: number) {
+    if (this.isNotToken(Tokens.tokCase)) {
+      this.interpreterError!.raise(
+        parsErrors.errSyntaxViolation,
+        'SyntaxAnalyser.SelectCaseStatement',
+        'Expected CASE after SELECT',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+
+    this.getNextSymbol();
+    this.condition();
+
+    if (this.isToken(Tokens.tokStatementDelimiter)) {
+      this.getNextSymbol();
+    }
+
+    const endJumps: number[] = [];
+
+    while (this.isToken(Tokens.tokCase) && this.interpreterError!.number === 0) {
+      this.getNextSymbol();
+
+      if (this.isToken(Tokens.tokELSE)) {
+        this.getNextSymbol();
+
+        if (this.isToken(Tokens.tokStatementDelimiter)) {
+          this.getNextSymbol();
+        }
+
+        this.statementList(singleLineOnly, false, exitsAllowed, [
+          Tokens.tokEOF,
+          Tokens.tokEND,
+          Tokens.tokCase,
+        ]);
+      } else {
+        let nextCaseJump = -1;
+        let firstValue = true;
+        let matchJump = -1;
+
+        do {
+          if (!firstValue) {
+            this.getNextSymbol();
+          }
+          firstValue = false;
+
+          this._code!.add(Opcodes.PopWithIndex, [0]);
+          this.condition();
+          this._code!.add(Opcodes.Eq);
+
+          if (this.isToken(Tokens.tokComma)) {
+            const tempJump = this._code!.add(Opcodes.JumpTrue);
+            if (matchJump === -1) {
+              matchJump = tempJump;
+            } else {
+              this._code!.fixUp(matchJump - 1, [this._code!.endOfCodePC]);
+              matchJump = tempJump;
+            }
+          }
+        } while (this.isToken(Tokens.tokComma) && this.interpreterError!.number === 0);
+
+        nextCaseJump = this._code!.add(Opcodes.JumpFalse);
+
+        if (matchJump !== -1) {
+          this._code!.fixUp(matchJump - 1, [this._code!.endOfCodePC]);
+        }
+
+        if (this.isToken(Tokens.tokStatementDelimiter)) {
+          this.getNextSymbol();
+        }
+
+        this.statementList(singleLineOnly, false, exitsAllowed, [
+          Tokens.tokEOF,
+          Tokens.tokEND,
+          Tokens.tokCase,
+        ]);
+
+        endJumps.push(this._code!.add(Opcodes.Jump));
+
+        this._code!.fixUp(nextCaseJump - 1, [this._code!.endOfCodePC]);
+      }
+    }
+
+    if (this.isToken(Tokens.tokEND)) {
+      if (this.getNextSymbol().token === Tokens.tokSelect) {
+        this.getNextSymbol();
+      } else {
+        this.interpreterError!.raise(
+          parsErrors.errSyntaxViolation,
+          'SyntaxAnalyser.SelectCaseStatement',
+          'Expected SELECT after END',
+          this._symbol.line,
+          this._symbol.col,
+          this._symbol.index,
+          this._symbol.text
+        );
+      }
+    } else {
+      this.interpreterError!.raise(
+        parsErrors.errSyntaxViolation,
+        'SyntaxAnalyser.SelectCaseStatement',
+        'Expected END SELECT to close SELECT CASE statement',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+    }
+
+    for (const jumpPc of endJumps) {
+      this._code!.fixUp(jumpPc - 1, [this._code!.endOfCodePC]);
+    }
+
+    this._code!.add(Opcodes.Pop);
+  }
 }

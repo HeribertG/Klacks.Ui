@@ -981,4 +981,139 @@ describe('ScriptService', () => {
             expect(result.messages[2].type).toBe(3);
         });
     });
+
+    describe('Control Flow - Select Case', () => {
+        it('should match first case', () => {
+            // Arrange
+            const script = `
+                dim x
+                x = 1
+                Select Case x
+                    Case 1
+                        message 1, "first"
+                    Case 2
+                        message 1, "second"
+                End Select
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('first');
+        });
+
+        it('should match second case', () => {
+            // Arrange
+            const script = `
+                dim x
+                x = 2
+                Select Case x
+                    Case 1
+                        message 1, "first"
+                    Case 2
+                        message 1, "second"
+                End Select
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('second');
+        });
+
+        it('should execute Case Else when no match', () => {
+            // Arrange
+            const script = `
+                dim x
+                x = 99
+                Select Case x
+                    Case 1
+                        message 1, "first"
+                    Case 2
+                        message 1, "second"
+                    Case Else
+                        message 1, "other"
+                End Select
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('other');
+        });
+
+        it('should handle multiple values in Case', () => {
+            // Arrange
+            const script = `
+                dim x
+                x = 3
+                Select Case x
+                    Case 1, 2, 3
+                        message 1, "low"
+                    Case 4, 5, 6
+                        message 1, "high"
+                End Select
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('low');
+        });
+
+        it('should handle string comparison', () => {
+            // Arrange
+            const script = `
+                dim x
+                x = "B"
+                Select Case x
+                    Case "A"
+                        message 1, "letter A"
+                    Case "B"
+                        message 1, "letter B"
+                    Case Else
+                        message 1, "other"
+                End Select
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('letter B');
+        });
+
+        it('should not execute any case when no match and no Case Else', () => {
+            // Arrange
+            const script = `
+                dim x
+                dim result
+                x = 99
+                result = "none"
+                Select Case x
+                    Case 1
+                        result = "first"
+                    Case 2
+                        result = "second"
+                End Select
+                message 1, result
+            `;
+
+            // Act
+            const result = service.run(script, false, false);
+
+            // Assert
+            expect(result.success).toBe(true);
+            expect(result.messages[0].message).toBe('none');
+        });
+    });
 });
