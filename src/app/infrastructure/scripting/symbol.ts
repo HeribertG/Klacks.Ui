@@ -123,4 +123,25 @@ export enum Tokens {
   // 74 - VB.NET Short-Circuit Operators
   tokAndAlso = 74,
   tokOrElse = 75,
+  // 76 - String Functions
+  tokLen = 76,
+  tokLeft = 77,
+  tokRight = 78,
+  tokMid = 79,
+  tokInStr = 80,
+  tokReplace = 81,
+  tokTrim = 82,
+  tokUCase = 83,
+  tokLCase = 84,
+  // 85 - Math Functions
+  tokAbs = 85,
+  tokRound = 86,
+  tokSqr = 87,
+  tokRnd = 88,
+  tokLog = 89,
+  tokExp = 90,
+  tokSgn = 91,
+  // 92 - Control Structures
+  tokSelect = 92,
+  tokCase = 93,
 }

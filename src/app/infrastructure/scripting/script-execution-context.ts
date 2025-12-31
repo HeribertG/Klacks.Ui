@@ -198,7 +198,49 @@ export class ScriptExecutionContext {
       case Opcodes.Cos:
       case Opcodes.Tan:
       case Opcodes.ATan:
+      case Opcodes.Abs:
+      case Opcodes.Sqr:
+      case Opcodes.Log:
+      case Opcodes.Exp:
+      case Opcodes.Sgn:
         this.executeUnaryOp(opcode);
+        break;
+
+      // String Functions
+      case Opcodes.Len:
+        this.executeLen();
+        break;
+      case Opcodes.Left:
+        this.executeLeft();
+        break;
+      case Opcodes.Right:
+        this.executeRight();
+        break;
+      case Opcodes.Mid:
+        this.executeMid();
+        break;
+      case Opcodes.InStr:
+        this.executeInStr();
+        break;
+      case Opcodes.Replace:
+        this.executeReplace();
+        break;
+      case Opcodes.Trim:
+        this.executeTrim();
+        break;
+      case Opcodes.UCase:
+        this.executeUCase();
+        break;
+      case Opcodes.LCase:
+        this.executeLCase();
+        break;
+
+      // Math Functions
+      case Opcodes.Rnd:
+        this.scopes!.push(ScriptValue.fromNumber(Math.random()));
+        break;
+      case Opcodes.Round:
+        this.executeRound();
         break;
 
       case Opcodes.DebugPrint: {
@@ -483,6 +525,21 @@ export class ScriptExecutionContext {
         case Opcodes.ATan:
           result = ScriptValue.fromNumber(Math.atan(number));
           break;
+        case Opcodes.Abs:
+          result = ScriptValue.fromNumber(Math.abs(number));
+          break;
+        case Opcodes.Sqr:
+          result = ScriptValue.fromNumber(Math.sqrt(number));
+          break;
+        case Opcodes.Log:
+          result = ScriptValue.fromNumber(Math.log(number));
+          break;
+        case Opcodes.Exp:
+          result = ScriptValue.fromNumber(Math.exp(number));
+          break;
+        case Opcodes.Sgn:
+          result = ScriptValue.fromNumber(Math.sign(number));
+          break;
         default:
           result = ScriptValue.Null;
       }
@@ -513,5 +570,91 @@ export class ScriptExecutionContext {
   private raiseError(code: number, description: string): void {
     this.errorCode = code;
     this.errorDescription = description;
+  }
+
+  private executeLen(): void {
+    const entry = this.scopes!.popScopes();
+    const str = this.extractValueFromEntry(entry).asString();
+    this.scopes!.push(ScriptValue.fromInt(str.length));
+  }
+
+  private executeLeft(): void {
+    const lengthEntry = this.scopes!.popScopes();
+    const strEntry = this.scopes!.popScopes();
+    const length = this.extractValueFromEntry(lengthEntry).asInt();
+    const str = this.extractValueFromEntry(strEntry).asString();
+    const result = length >= str.length ? str : str.substring(0, length);
+    this.scopes!.push(ScriptValue.fromString(result));
+  }
+
+  private executeRight(): void {
+    const lengthEntry = this.scopes!.popScopes();
+    const strEntry = this.scopes!.popScopes();
+    const length = this.extractValueFromEntry(lengthEntry).asInt();
+    const str = this.extractValueFromEntry(strEntry).asString();
+    const result = length >= str.length ? str : str.substring(str.length - length);
+    this.scopes!.push(ScriptValue.fromString(result));
+  }
+
+  private executeMid(): void {
+    const lengthEntry = this.scopes!.popScopes();
+    const startEntry = this.scopes!.popScopes();
+    const strEntry = this.scopes!.popScopes();
+    let length = this.extractValueFromEntry(lengthEntry).asInt();
+    let start = this.extractValueFromEntry(startEntry).asInt() - 1;
+    const str = this.extractValueFromEntry(strEntry).asString();
+    if (start < 0) start = 0;
+    if (start >= str.length) {
+      this.scopes!.push(ScriptValue.fromString(''));
+      return;
+    }
+    const actualLength = Math.min(length, str.length - start);
+    this.scopes!.push(ScriptValue.fromString(str.substring(start, start + actualLength)));
+  }
+
+  private executeInStr(): void {
+    const searchEntry = this.scopes!.popScopes();
+    const strEntry = this.scopes!.popScopes();
+    const search = this.extractValueFromEntry(searchEntry).asString();
+    const str = this.extractValueFromEntry(strEntry).asString();
+    const index = str.indexOf(search);
+    this.scopes!.push(ScriptValue.fromInt(index + 1));
+  }
+
+  private executeReplace(): void {
+    const replacementEntry = this.scopes!.popScopes();
+    const searchEntry = this.scopes!.popScopes();
+    const strEntry = this.scopes!.popScopes();
+    const replacement = this.extractValueFromEntry(replacementEntry).asString();
+    const search = this.extractValueFromEntry(searchEntry).asString();
+    const str = this.extractValueFromEntry(strEntry).asString();
+    this.scopes!.push(ScriptValue.fromString(str.split(search).join(replacement)));
+  }
+
+  private executeTrim(): void {
+    const entry = this.scopes!.popScopes();
+    const str = this.extractValueFromEntry(entry).asString();
+    this.scopes!.push(ScriptValue.fromString(str.trim()));
+  }
+
+  private executeUCase(): void {
+    const entry = this.scopes!.popScopes();
+    const str = this.extractValueFromEntry(entry).asString();
+    this.scopes!.push(ScriptValue.fromString(str.toUpperCase()));
+  }
+
+  private executeLCase(): void {
+    const entry = this.scopes!.popScopes();
+    const str = this.extractValueFromEntry(entry).asString();
+    this.scopes!.push(ScriptValue.fromString(str.toLowerCase()));
+  }
+
+  private executeRound(): void {
+    const decimalsEntry = this.scopes!.popScopes();
+    const numberEntry = this.scopes!.popScopes();
+    const decimals = this.extractValueFromEntry(decimalsEntry).asInt();
+    const number = this.extractValueFromEntry(numberEntry).asDouble();
+    const factor = Math.pow(10, decimals);
+    this.scopes!.push(ScriptValue.fromNumber(Math.round(number * factor) / factor));
   }
 }

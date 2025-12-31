@@ -264,6 +264,58 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
         this.terminalIIF();
         break;
 
+      // String Functions
+      case Tokens.tokLen:
+        this.callUnaryFunction(Opcodes.Len);
+        break;
+      case Tokens.tokLeft:
+        this.callBinaryFunction(Opcodes.Left);
+        break;
+      case Tokens.tokRight:
+        this.callBinaryFunction(Opcodes.Right);
+        break;
+      case Tokens.tokMid:
+        this.callTernaryFunction(Opcodes.Mid);
+        break;
+      case Tokens.tokInStr:
+        this.callBinaryFunction(Opcodes.InStr);
+        break;
+      case Tokens.tokReplace:
+        this.callTernaryFunction(Opcodes.Replace);
+        break;
+      case Tokens.tokTrim:
+        this.callUnaryFunction(Opcodes.Trim);
+        break;
+      case Tokens.tokUCase:
+        this.callUnaryFunction(Opcodes.UCase);
+        break;
+      case Tokens.tokLCase:
+        this.callUnaryFunction(Opcodes.LCase);
+        break;
+
+      // Math Functions
+      case Tokens.tokAbs:
+        this.callUnaryFunction(Opcodes.Abs);
+        break;
+      case Tokens.tokRound:
+        this.callRoundFunction();
+        break;
+      case Tokens.tokSqr:
+        this.callUnaryFunction(Opcodes.Sqr);
+        break;
+      case Tokens.tokRnd:
+        this.callRnd();
+        break;
+      case Tokens.tokLog:
+        this.callUnaryFunction(Opcodes.Log);
+        break;
+      case Tokens.tokExp:
+        this.callUnaryFunction(Opcodes.Exp);
+        break;
+      case Tokens.tokSgn:
+        this.callUnaryFunction(Opcodes.Sgn);
+        break;
+
       case Tokens.tokLeftParent:
         this.getNextSymbol();
         this.condition();

@@ -1,5 +1,7 @@
 import { Opcodes } from './code';
 import { SyntaxAnalyserBase } from './syntaxAnalyserBase';
+import { Tokens } from './symbol';
+import { parsErrors } from './interpreterError';
 
 export abstract class SyntaxAnalyserBuiltIns extends SyntaxAnalyserBase {
   protected callMsg(dropReturnValue: boolean) {
@@ -32,5 +34,206 @@ export abstract class SyntaxAnalyserBuiltIns extends SyntaxAnalyserBase {
     if (dropReturnValue) {
       this._code!.add(Opcodes.Pop);
     }
+  }
+
+  protected callUnaryFunction(opcode: Opcodes) {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after function name',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket after function parameter',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(opcode);
+  }
+
+  protected callBinaryFunction(opcode: Opcodes) {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after function name',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if ((this._symbol.token as Tokens) !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket after function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(opcode);
+  }
+
+  protected callTernaryFunction(opcode: Opcodes) {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after function name',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token !== Tokens.tokComma) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingComma,
+        'SyntaxAnalyser.Terminal',
+        'Missing comma between function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if ((this._symbol.token as Tokens) !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket after function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(opcode);
+  }
+
+  protected callRnd() {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after Rnd',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    if (this.getNextSymbol().token !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket - Rnd() takes no parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(Opcodes.Rnd);
+  }
+
+  protected callRoundFunction() {
+    if (this.getNextSymbol().token !== Tokens.tokLeftParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingLeftParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing opening bracket after function name',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this.condition();
+    if (this._symbol.token === Tokens.tokComma) {
+      this.getNextSymbol();
+      this.condition();
+    } else {
+      this._code!.add(Opcodes.PushValue, [0]);
+    }
+    if (this._symbol.token !== Tokens.tokRightParent) {
+      this.interpreterError!.raise(
+        parsErrors.errMissingClosingParent,
+        'SyntaxAnalyser.Terminal',
+        'Missing closing bracket after function parameters',
+        this._symbol.line,
+        this._symbol.col,
+        this._symbol.index,
+        this._symbol.text
+      );
+      return;
+    }
+    this.getNextSymbol();
+    this._code!.add(Opcodes.Round);
   }
 }

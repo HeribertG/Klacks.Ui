@@ -381,6 +381,27 @@ export class LexicalAnalyser {
     this.predefinedIdentifiers.set('VBCR', Tokens.tokCr);
     this.predefinedIdentifiers.set('VBLF', Tokens.tokLf);
     this.predefinedIdentifiers.set('IMPORT', Tokens.tokEXTERNAL);
+    // String Functions
+    this.predefinedIdentifiers.set('LEN', Tokens.tokLen);
+    this.predefinedIdentifiers.set('LEFT', Tokens.tokLeft);
+    this.predefinedIdentifiers.set('RIGHT', Tokens.tokRight);
+    this.predefinedIdentifiers.set('MID', Tokens.tokMid);
+    this.predefinedIdentifiers.set('INSTR', Tokens.tokInStr);
+    this.predefinedIdentifiers.set('REPLACE', Tokens.tokReplace);
+    this.predefinedIdentifiers.set('TRIM', Tokens.tokTrim);
+    this.predefinedIdentifiers.set('UCASE', Tokens.tokUCase);
+    this.predefinedIdentifiers.set('LCASE', Tokens.tokLCase);
+    // Math Functions
+    this.predefinedIdentifiers.set('ABS', Tokens.tokAbs);
+    this.predefinedIdentifiers.set('ROUND', Tokens.tokRound);
+    this.predefinedIdentifiers.set('SQR', Tokens.tokSqr);
+    this.predefinedIdentifiers.set('RND', Tokens.tokRnd);
+    this.predefinedIdentifiers.set('LOG', Tokens.tokLog);
+    this.predefinedIdentifiers.set('EXP', Tokens.tokExp);
+    this.predefinedIdentifiers.set('SGN', Tokens.tokSgn);
+    // Control Structures
+    this.predefinedIdentifiers.set('SELECT', Tokens.tokSelect);
+    this.predefinedIdentifiers.set('CASE', Tokens.tokCase);
   }
 
   dispose() {
