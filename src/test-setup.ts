@@ -16,24 +16,33 @@ if (!testBed.platform) {
 }
 
 // Force override ResizeObserver - must be defined as a proper class
-(window as any).ResizeObserver = class ResizeObserver {
+class MockResizeObserver implements ResizeObserver {
     callback: ResizeObserverCallback;
 
     constructor(callback: ResizeObserverCallback) {
         this.callback = callback;
     }
 
-    observe(_target: Element, _options?: ResizeObserverOptions): void {
-        // Optionally trigger callback with empty entries
-    }
-
+    observe(_target: Element, _options?: ResizeObserverOptions): void {}
     unobserve(_target: Element): void {}
-
     disconnect(): void {}
+}
+
+// Set on all possible global objects to ensure availability
+const resizeObserverDescriptor = {
+    writable: true,
+    configurable: true,
+    value: MockResizeObserver
 };
 
-// Also set on globalThis for Node.js environments
-(globalThis as any).ResizeObserver = (window as any).ResizeObserver;
+Object.defineProperty(window, 'ResizeObserver', resizeObserverDescriptor);
+Object.defineProperty(globalThis, 'ResizeObserver', resizeObserverDescriptor);
+try {
+    // For Node.js environments
+    Object.defineProperty((globalThis as any).global || globalThis, 'ResizeObserver', resizeObserverDescriptor);
+} catch {
+    // Ignore if global is not available
+}
 
 // Mock matchMedia which is not available in jsdom
 Object.defineProperty(window, 'matchMedia', {

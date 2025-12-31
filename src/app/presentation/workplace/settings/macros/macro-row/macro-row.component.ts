@@ -23,6 +23,8 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 import { ShiftData } from 'src/app/domain/models/shift-data-class';
+import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
+import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 
 @Component({
   selector: 'app-macro-row',
@@ -45,6 +47,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
+  private scriptService = inject(ScriptService);
 
   macroName = '';
   macroType = 0;
@@ -138,5 +141,34 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     this.currentData = this.currentData.split('{').join('{\n\t');
     this.currentData = this.currentData.split(',').join(',\n\t');
     this.currentData = this.currentData.split('}').join('\n}');
+  }
+
+  onCheckMacro(): void {
+    if (!this.obj) {
+      this.test = 'No macro code to check';
+      return;
+    }
+
+    const compiled = this.scriptService.compile(this.obj, false, false);
+    if (compiled.hasError) {
+      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${compiled.error?.line ?? 0}, Column: ${compiled.error?.column ?? 0}`;
+    } else {
+      this.test = 'Syntax OK';
+    }
+  }
+
+  onRunMacro(): void {
+    if (!this.obj) {
+      this.test = 'No macro code to run';
+      return;
+    }
+
+    const result: ScriptResult = this.scriptService.run(this.obj, false, false);
+    if (result.success) {
+      const messages = result.messages.map(m => `[${m.type}] ${m.message}`).join('\n');
+      this.test = messages || 'Script executed successfully (no output)';
+    } else {
+      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${result.error?.line ?? 0}, Column: ${result.error?.column ?? 0}`;
+    }
   }
 }

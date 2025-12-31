@@ -118,8 +118,8 @@ export class ScriptValue {
       case ScriptValueType.String:
         return (this._objectValue as string) ?? '';
       case ScriptValueType.Number:
-        if (this._numberValue === Infinity) return '∞';
-        if (this._numberValue === -Infinity) return '-∞';
+        if (this._numberValue === Infinity) return 'Infinity';
+        if (this._numberValue === -Infinity) return '-Infinity';
         return this._numberValue.toString();
       case ScriptValueType.Boolean:
         return this._numberValue !== 0 ? 'True' : 'False';

@@ -67,6 +67,10 @@ export class ResizeTableDirective implements OnInit, OnDestroy {
   }
 
   private setupResizeObserver(): void {
+    if (typeof ResizeObserver === 'undefined') {
+      return;
+    }
+
     this.resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         if (this.isMeasureTable) {

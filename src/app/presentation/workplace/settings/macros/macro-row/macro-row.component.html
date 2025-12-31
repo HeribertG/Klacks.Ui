@@ -129,10 +129,10 @@
         [ngStyle]="{ display: tabId === 'test' ? 'inline' : 'none' }"
       >
         <div id="macro-modal-test-buttons-row" class="row-line-modal-inline">
-          <button id="macro-modal-test-check-btn" type="button" class="check">
+          <button id="macro-modal-test-check-btn" type="button" class="check" (click)="onCheckMacro()">
             <i class="fas fa-check"></i>&nbsp;check
           </button>
-          <button id="macro-modal-test-run-btn" type="button"><i class="fas fa-running"></i>&nbsp;run</button>
+          <button id="macro-modal-test-run-btn" type="button" (click)="onRunMacro()"><i class="fas fa-running"></i>&nbsp;run</button>
         </div>
 
         <textarea

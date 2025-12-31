@@ -112,8 +112,8 @@
           "options": {
             "tsConfig": "tsconfig.spec.json",
             "buildTarget": "Klacks.Ui:build:development",
-            "setupFiles": ["src/test-setup.ts"],
-            "runnerConfig": "vitest.config.ts"
+            "reporters": ["default", "json"],
+            "outputFile": "./test-results/results.json"
           }
         },
         "lint": {

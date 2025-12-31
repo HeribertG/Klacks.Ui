@@ -11,12 +11,7 @@ import {
 import { ScriptValue } from './script-value';
 import { Scope, Entry } from './scope';
 import { Scopes } from './scopes';
-import {
-  extractDouble,
-  extractInt,
-  extractString,
-  extractBoolean,
-} from './helper';
+import { extractDouble, extractInt, extractString } from './helper';
 
 export type MessageEventHandler = (type: number, message: string) => void;
 export type DebugPrintEventHandler = (msg: string) => void;
@@ -37,6 +32,7 @@ export interface CancellationToken {
 
 export class ScriptExecutionContext {
   private static readonly MAX_RECURSION_DEPTH = 1000;
+  private static readonly MAX_INSTRUCTIONS = 1_000_000;
 
   private readonly script: CompiledScript;
   private readonly messages: ResultMessage[] = [];
@@ -91,10 +87,9 @@ export class ScriptExecutionContext {
       return scriptResultOk([...this.messages]);
     } catch (ex) {
       if (ex instanceof ScriptTooComplexException) {
-        return scriptResultFail(
-          createScriptError(-1, ex.message, 0, 0),
-          [...this.messages]
-        );
+        return scriptResultFail(createScriptError(-1, ex.message, 0, 0), [
+          ...this.messages,
+        ]);
       }
       throw ex;
     }
@@ -121,6 +116,13 @@ export class ScriptExecutionContext {
       this.executeInstruction(operation);
 
       this.pc++;
+
+      if (this.pc > ScriptExecutionContext.MAX_INSTRUCTIONS) {
+        this.running = false;
+        throw new ScriptTooComplexException(
+          `Maximum instruction count (${ScriptExecutionContext.MAX_INSTRUCTIONS}) exceeded`
+        );
+      }
 
       if (cancellationToken?.isCancelled) {
         this.running = false;
@@ -267,7 +269,9 @@ export class ScriptExecutionContext {
         break;
 
       case Opcodes.Call:
-        if (++this.recursionDepth > ScriptExecutionContext.MAX_RECURSION_DEPTH) {
+        if (
+          ++this.recursionDepth > ScriptExecutionContext.MAX_RECURSION_DEPTH
+        ) {
           this.running = false;
           throw new ScriptTooComplexException(
             `Maximum recursion depth (${ScriptExecutionContext.MAX_RECURSION_DEPTH}) exceeded`
@@ -301,7 +305,10 @@ export class ScriptExecutionContext {
 
       if (identifier === null) {
         this.running = false;
-        this.raiseError(3, `Variable '${operation[1]}' has not been assigned a value`);
+        this.raiseError(
+          3,
+          `Variable '${operation[1]}' has not been assigned a value`
+        );
         return;
       }
 
@@ -439,7 +446,10 @@ export class ScriptExecutionContext {
     } catch (ex) {
       this.running = false;
       const message = ex instanceof Error ? ex.message : String(ex);
-      this.raiseError(5, `Error during calculation (binary op ${opcode}): ${message}`);
+      this.raiseError(
+        5,
+        `Error during calculation (binary op ${opcode}): ${message}`
+      );
     }
   }
 
@@ -481,7 +491,10 @@ export class ScriptExecutionContext {
     } catch (ex) {
       this.running = false;
       const message = ex instanceof Error ? ex.message : String(ex);
-      this.raiseError(5, `Error during calculation (unary op ${opcode}): ${message}`);
+      this.raiseError(
+        5,
+        `Error during calculation (unary op ${opcode}): ${message}`
+      );
     }
   }
 

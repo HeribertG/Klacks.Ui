@@ -12,8 +12,6 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
-    reporters: ['verbose'],
-    testTimeout: 10000,
-    hookTimeout: 10000,
+    reporters: ['default'],
   },
 });

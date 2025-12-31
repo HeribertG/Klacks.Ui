@@ -15,6 +15,10 @@ export abstract class SyntaxAnalyserStatements extends SyntaxAnalyserControlFlow
     let exitFunction = false;
 
     do {
+      if (this.interpreterError!.number !== 0) {
+        return;
+      }
+
       let currentToken = this._symbol.token;
 
       if (currentToken === undefined) {
@@ -180,6 +184,7 @@ export abstract class SyntaxAnalyserStatements extends SyntaxAnalyserControlFlow
           this._symbol.index,
           this._symbol.text
         );
+        this.getNextSymbol();
         break;
     }
   }
