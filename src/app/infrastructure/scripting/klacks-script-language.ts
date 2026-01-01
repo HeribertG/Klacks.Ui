@@ -33,6 +33,13 @@ const constants = new Set([
   'vbcrlf', 'vbtab', 'vbcr', 'vblf'
 ]);
 
+const externalVariables = new Set([
+  'hour', 'fromhour', 'untilhour',
+  'weekday', 'holiday', 'holidaynextday',
+  'nightrate', 'holidayrate', 'weekendrate',
+  'guaranteedhours', 'fulltime'
+]);
+
 interface KlacksScriptState {
   tokenize: (stream: StringStream, state: KlacksScriptState) => string | null;
 }
@@ -92,6 +99,9 @@ function tokenBase(stream: StringStream, state: KlacksScriptState): string | nul
     if (constants.has(word)) {
       return 'atom';
     }
+    if (externalVariables.has(word)) {
+      return 'propertyName';
+    }
     return 'name';
   }
 
@@ -139,6 +149,7 @@ const klacksHighlightStyle = HighlightStyle.define([
   { tag: tags.string, color: '#a31515' },
   { tag: tags.comment, color: '#008000', fontStyle: 'italic' },
   { tag: tags.name, color: '#001080' },
+  { tag: tags.propertyName, color: '#9c27b0' },
   { tag: tags.punctuation, color: '#000000' }
 ]);
 
