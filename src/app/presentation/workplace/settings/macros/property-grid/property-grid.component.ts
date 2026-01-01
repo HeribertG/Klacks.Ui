@@ -110,7 +110,10 @@ export class PropertyGridComponent implements OnInit {
 
     // Explizite Typerkennung für bekannte Enum-Eigenschaften
     if (key === 'shiftType') return 'shiftType';
-    if (key === 'weekdayNumber') return 'weekday';
+    if (key === 'Weekday') return 'weekday';
+
+    // Zeit-Eingaben für FromHour und UntilHour
+    if (key === 'FromHour' || key === 'UntilHour') return 'time';
 
     const type = typeof value;
     return type;
@@ -122,6 +125,7 @@ export class PropertyGridComponent implements OnInit {
       'number',
       'boolean',
       'date',
+      'time',
       'shiftType',
       'weekday',
     ].includes(type);

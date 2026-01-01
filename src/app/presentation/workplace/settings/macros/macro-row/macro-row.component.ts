@@ -24,7 +24,10 @@ import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 import { ShiftData } from 'src/app/domain/models/shift-data-class';
-import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
+import {
+  ScriptService,
+  ExternalVariables,
+} from 'src/app/infrastructure/scripting/script.service';
 import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 
 @Component({
@@ -154,7 +157,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const compiled = this.scriptService.compile(this.obj, false, false);
+    const compiled = this.scriptService.compile(this.obj, false, true);
     if (compiled.hasError) {
       this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${compiled.error?.line ?? 0}, Column: ${compiled.error?.column ?? 0}`;
     } else {
@@ -168,13 +171,25 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const result: ScriptResult = this.scriptService.run(this.obj, false, false);
+    const externalVars = this.buildExternalVariables();
+    const result: ScriptResult = this.scriptService.run(
+      this.obj,
+      false,
+      true,
+      externalVars
+    );
     if (result.success) {
-      const messages = result.messages.map(m => `[${m.type}] ${m.message}`).join('\n');
+      const messages = result.messages
+        .map((m) => `[${m.type}] ${m.message}`)
+        .join('\n');
       this.test = messages || 'Script executed successfully (no output)';
     } else {
       this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${result.error?.line ?? 0}, Column: ${result.error?.column ?? 0}`;
     }
+  }
+
+  private buildExternalVariables(): ExternalVariables {
+    return { ...this.shiftData };
   }
 
   loadManual(): void {

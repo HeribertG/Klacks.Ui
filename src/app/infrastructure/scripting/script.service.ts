@@ -6,6 +6,8 @@ import {
 } from './script-execution-context';
 import { ScriptResult, ResultMessage } from './script-result';
 
+export type ExternalVariables = Record<string, unknown>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -20,8 +22,15 @@ export class ScriptService {
 
   execute(
     script: CompiledScript,
+    externalVariables?: ExternalVariables,
     cancellationToken?: CancellationToken
   ): ScriptResult {
+    script.clearExternalValues();
+    if (externalVariables) {
+      for (const [name, value] of Object.entries(externalVariables)) {
+        script.setExternalValue(name, value);
+      }
+    }
     const context = new ScriptExecutionContext(script);
     return context.execute(cancellationToken);
   }
@@ -30,10 +39,11 @@ export class ScriptService {
     source: string,
     optionExplicit = true,
     allowExternal = true,
+    externalVariables?: ExternalVariables,
     cancellationToken?: CancellationToken
   ): ScriptResult {
     const script = this.compile(source, optionExplicit, allowExternal);
-    return this.execute(script, cancellationToken);
+    return this.execute(script, externalVariables, cancellationToken);
   }
 
   messagesToResultMessages(messages: ResultMessage[]): ResultMessage[] {

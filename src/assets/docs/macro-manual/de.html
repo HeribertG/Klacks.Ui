@@ -26,55 +26,58 @@ auf das Dateisystem oder Netzwerk. Es ist nicht möglich, schadhaften Code auszu
 <pre>
 CONST PI = 3.1415
 DIM a, b, c
-EXTERNAL betrag, rabatt
+IMPORT betrag, rabatt
 </pre>
 
-<h4>Importierte Variablen (EXTERNAL)</h4>
+<h4>Importierte Variablen (IMPORT)</h4>
 <p>Diese Variablen werden aus dem jeweiligen Dienst oder der Beschäftigung generiert:</p>
 
 <table>
-  <tr><th>Variable</th><th>Beschreibung</th></tr>
-  <tr><td>Hour</td><td>Stunden gemäss Dienst</td></tr>
-  <tr><td>HourExact</td><td>Exakte Stunden</td></tr>
-  <tr><td>BlockShiftNumber</td><td>Blockschicht-Nummer</td></tr>
-  <tr><td>BlockShiftIndex</td><td>Blockschicht-Index</td></tr>
-  <tr><td>ShiftType</td><td>1=Tag, 2=Abend, 3=Nacht</td></tr>
-  <tr><td>WeekdayNumber</td><td>1=Sonntag bis 7=Samstag</td></tr>
-  <tr><td>NightHour</td><td>Nachtstunden</td></tr>
-  <tr><td>HolydayHour</td><td>Feiertagsstunden</td></tr>
-  <tr><td>Day_befor_HolydayHour</td><td>Stunden am Tag vor Feiertag</td></tr>
-  <tr><td>IsHolyday</td><td>Ist Feiertag (True/False)</td></tr>
-  <tr><td>IsNextDayHolyday</td><td>Ist nächster Tag Feiertag</td></tr>
-  <tr><td>FullTime</td><td>Vollzeit-Pensum</td></tr>
-  <tr><td>GuaranteedHours</td><td>Garantierte Stunden</td></tr>
-  <tr><td>NighthourAdditionalPercent</td><td>Nachtstunden-Zuschlag in %</td></tr>
-  <tr><td>HolydayhourAdditionalPercent</td><td>Feiertagszuschlag in %</td></tr>
+  <tr><th>Variable</th><th>Typ</th><th>Beschreibung</th></tr>
+  <tr><td>Hour</td><td>Decimal</td><td>Arbeitsstunden</td></tr>
+  <tr><td>FromHour</td><td>String</td><td>Startzeit im Format "HH:MM"</td></tr>
+  <tr><td>UntilHour</td><td>String</td><td>Endzeit im Format "HH:MM"</td></tr>
+  <tr><td>Weekday</td><td>Integer</td><td>Wochentag (1=Mo, 2=Di, ..., 6=Sa, 7=So)</td></tr>
+  <tr><td>Holiday</td><td>Integer</td><td>Feiertagsstatus (0=kein, 1=Feiertag, -1=Vortag, -2=Nachtag)</td></tr>
+  <tr><td>NightRate</td><td>Decimal</td><td>Nachtzuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
+  <tr><td>HolidayRate</td><td>Decimal</td><td>Feiertagszuschlag-Satz (z.B. 0.15 = 15%)</td></tr>
+  <tr><td>WeekendRate</td><td>Decimal</td><td>Wochenendzuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
+  <tr><td>GuaranteedHours</td><td>Decimal</td><td>Garantierte Monatsstunden</td></tr>
+  <tr><td>FullTime</td><td>Decimal</td><td>Beschäftigungsgrad in % (z.B. 100.0)</td></tr>
 </table>
 
 <hr>
 
 <h3>Kontrollstrukturen</h3>
 
+<p><strong>Wichtig:</strong> Schlüsselwörter wie <code>ENDIF</code>, <code>ENDFUNCTION</code>, <code>ENDSUB</code>
+müssen zusammengeschrieben werden (nicht <code>END IF</code>).</p>
+
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    message 1, "gross"
+    MESSAGE 1, "gross"
 ELSEIF x > 5 THEN
-    message 1, "mittel"
+    MESSAGE 1, "mittel"
 ELSE
-    message 1, "klein"
-END IF
+    MESSAGE 1, "klein"
+ENDIF
+</pre>
+
+<h4>Einzeiliges IF</h4>
+<pre>
+IF x > 10 THEN MESSAGE 1, "gross" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
-    CASE 1, 7
-        message 1, "Wochenende"
-    CASE 2, 3, 4, 5, 6
-        message 1, "Arbeitstag"
+    CASE 6, 7
+        MESSAGE 1, "Wochenende"
+    CASE 1, 2, 3, 4, 5
+        MESSAGE 1, "Arbeitstag"
     CASE ELSE
-        message 1, "Unbekannt"
+        MESSAGE 1, "Unbekannt"
 END SELECT
 </pre>
 
@@ -104,23 +107,25 @@ LOOP UNTIL x >= 10
 
 <h3>Funktionen und Prozeduren</h3>
 
+<p><strong>Wichtig:</strong> Funktionen müssen <em>vor</em> dem ersten Aufruf definiert werden.</p>
+
 <h4>SUB (Prozedur ohne Rückgabewert)</h4>
 <pre>
 SUB berechne(a, b)
-    IF a = b THEN EXIT SUB
-    message 1, a + b
-END SUB
+    IF a = b THEN EXIT SUB ENDIF
+    MESSAGE 1, a + b
+ENDSUB
 </pre>
 
 <h4>FUNCTION (Funktion mit Rückgabewert)</h4>
 <pre>
 FUNCTION verdoppeln(x)
     verdoppeln = x * 2
-END FUNCTION
+ENDFUNCTION
 
 DIM ergebnis
 ergebnis = verdoppeln(21)
-message 1, ergebnis    ' Ausgabe: 42
+MESSAGE 1, ergebnis
 </pre>
 
 <hr>
@@ -209,25 +214,77 @@ a &= "!"    ' String-Verkettung
   <tr><td>Atan(x)</td><td>Arkustangens</td></tr>
 </table>
 
+<h4>Zeit-Funktionen</h4>
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>TimeToHours(s)</td><td>Zeit-String zu Dezimalstunden</td><td>TimeToHours("08:30") = 8.5</td></tr>
+  <tr><td>TimeOverlap(s1, e1, s2, e2)</td><td>Überlappung zweier Zeiträume in Stunden</td><td>TimeOverlap("23:00", "06:00", "22:00", "07:00") = 7</td></tr>
+</table>
+
+<p><em>TimeOverlap unterstützt Zeiträume über Mitternacht (z.B. 23:00-06:00).</em></p>
+
 <hr>
 
-<h3>Benutzerinteraktion</h3>
+<h3>Ausgabe</h3>
 
 <pre>
-MESSAGE typ, wert           ' Ausgabe an Klacks
-MSGBOX "Text", 1, "Titel"   ' Dialog anzeigen
-INPUTBOX "Prompt", "Titel"  ' Eingabe vom Benutzer
+MESSAGE typ, wert           ' Ausgabe an Klacks (typ=1 für Ergebnis)
 </pre>
 
 <hr>
 
-<h3>Beispiel: Ferienberechnung</h3>
+<h3>Beispiel: Zuschlagsberechnung</h3>
+<p>Berechnet Zuschläge für Nacht, Feiertag und Wochenende mit korrekter Behandlung
+von Schichten über Mitternacht (Segment-Splitting).</p>
+
 <pre>
-EXTERNAL beschaeftigungsgrad
-EXTERNAL ferientage
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WeekendRate
 
-DIM stunden
-stunden = ferientage * 8.4 * (beschaeftigungsgrad / 100)
+FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
+    DIM SegmentHours, NightHours, NonNightHours
+    DIM NRate, DRate, HasHoliday, HasWeekend
 
-MESSAGE 1, Round(stunden, 2)
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap("23:00", "06:00", StartTime, EndTime)
+    NonNightHours = SegmentHours - NightHours
+
+    HasHoliday = HolidayFlag = 1
+    HasWeekend = WeekdayNum = 6 OrElse WeekdayNum = 7
+
+    NRate = 0
+    IF NightHours &gt; 0 THEN NRate = NightRate ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN NRate = HolidayRate ENDIF
+    IF HasWeekend AndAlso WeekendRate &gt; NRate THEN NRate = WeekendRate ENDIF
+
+    DRate = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN DRate = HolidayRate ENDIF
+    IF HasWeekend AndAlso WeekendRate &gt; DRate THEN DRate = WeekendRate ENDIF
+
+    CalcSegment = NightHours * NRate + NonNightHours * DRate
+ENDFUNCTION
+
+DIM TotalBonus, WeekdayNextDay
+
+WeekdayNextDay = (Weekday MOD 7) + 1
+
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    TotalBonus = CalcSegment(FromHour, "00:00", Holiday, Weekday)
+    TotalBonus = TotalBonus + CalcSegment("00:00", UntilHour, HolidayNextDay, WeekdayNextDay)
+ELSE
+    TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
+ENDIF
+
+MESSAGE 1, Round(TotalBonus, 2)
 </pre>
+
+<h4>Erklärung</h4>
+<ul>
+  <li><strong>Segment-Splitting:</strong> Bei Schichten über Mitternacht (z.B. 22:00-06:00) wird die Schicht in zwei Segmente aufgeteilt</li>
+  <li><strong>CalcSegment:</strong> Berechnet den Zuschlag für ein Segment unter Berücksichtigung von Nacht-, Feiertags- und Wochenendzuschlägen</li>
+  <li><strong>Höchster Zuschlag:</strong> Es wird immer der höchste anwendbare Zuschlag verwendet (Nacht vs. Feiertag vs. Wochenende)</li>
+  <li><strong>HolidayNextDay:</strong> Berücksichtigt ob der Folgetag ein Feiertag ist (wichtig für Nachtschichten)</li>
+</ul>

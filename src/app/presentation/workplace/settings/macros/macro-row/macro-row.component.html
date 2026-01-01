@@ -130,9 +130,9 @@
       >
         <div id="macro-modal-test-buttons-row" class="row-line-modal-inline">
           <button id="macro-modal-test-check-btn" type="button" class="check" (click)="onCheckMacro()">
-            <i class="fas fa-check"></i>&nbsp;check
+            <i class="fas fa-check"></i>&nbsp;{{ translate.instant("setting.macro.check-btn") }}
           </button>
-          <button id="macro-modal-test-run-btn" type="button" (click)="onRunMacro()"><i class="fas fa-running"></i>&nbsp;run</button>
+          <button id="macro-modal-test-run-btn" type="button" (click)="onRunMacro()"><i class="fas fa-running"></i>&nbsp;{{ translate.instant("setting.macro.run-btn") }}</button>
         </div>
 
         <textarea
@@ -166,7 +166,7 @@
       >{{ translate.instant("cancel") }}</span
     >
     <button id="macro-modal-save-btn" type="button" class="btn save-btn" (click)="modal.close()">
-      Macro erfassen
+      {{ translate.instant("setting.macro.add-modal") }}
     </button>
   </div>
 </ng-template>

@@ -102,4 +102,8 @@ export class CompiledScript {
     const identifier = this._externalSymbols.get(name);
     return identifier?.value ?? null;
   }
+
+  clearExternalValues(): void {
+    this._externalSymbols.clear();
+  }
 }

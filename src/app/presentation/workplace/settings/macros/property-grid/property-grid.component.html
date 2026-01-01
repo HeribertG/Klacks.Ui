@@ -45,10 +45,11 @@
           @if (prop.type === 'boolean' && prop.editable) {
           <input
             [id]="'property-grid-input-boolean-' + prop.key"
-            class="form-control"
+            class="form-check-input"
             type="checkbox"
             [checked]="prop.value"
             (change)="handleCheckboxChange($event, prop.key)"
+            style="width: 20px; height: 20px; cursor: pointer;"
           />
           }
 
@@ -92,6 +93,17 @@
             type="date"
             [ngModel]="formatDate(prop.value)"
             (change)="handleDateChange($event, prop.key)"
+          />
+          }
+
+          <!-- Time -->
+          @if (prop.type === 'time' && prop.editable) {
+          <input
+            [id]="'property-grid-input-time-' + prop.key"
+            class="form-control"
+            type="time"
+            [(ngModel)]="prop.value"
+            (change)="updateProperty(prop.key, prop.value)"
           />
           }
 
