@@ -19,6 +19,7 @@ import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
 import { klacksScriptLanguage } from 'src/app/infrastructure/scripting/klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
+import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Subscription } from 'rxjs';
@@ -82,6 +83,13 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   isReadSectionTemplateList = false;
 
   klacksScriptLanguage = klacksScriptLanguage;
+
+  macroTypeOptions = Object.values(MacroTypes)
+    .filter((v): v is MacroTypes => typeof v === 'number')
+    .map((value) => ({
+      value,
+      label: MacroTypeLabels[value],
+    }));
 
   dialogRef: any;
 

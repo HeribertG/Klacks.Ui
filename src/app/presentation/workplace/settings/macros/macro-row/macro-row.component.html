@@ -42,17 +42,21 @@
           />
         </div>
 
-        <div id="macro-modal-type-section" style="margin-left: 30px; width: 80px">
+        <div id="macro-modal-type-section" style="margin-left: 30px; width: 200px">
           <label for="type">{{
             translate.instant("setting.macro.type-modal")
           }}</label>
-          <input
+          <select
             class="form-control"
-            style="width: 80px"
+            style="width: 200px"
             [(ngModel)]="macroType"
             name="type"
             id="type"
-          />
+          >
+            @for (option of macroTypeOptions; track option.value) {
+              <option [ngValue]="option.value">{{ translate.instant(option.label) }}</option>
+            }
+          </select>
         </div>
       </div>
       <div id="macro-modal-tabs-container">

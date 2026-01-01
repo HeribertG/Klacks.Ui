@@ -370,7 +370,7 @@ export class LexicalAnalyser {
     this.predefinedIdentifiers.set('DEBUGSHOW', Tokens.tokDebugShow);
     this.predefinedIdentifiers.set('DEBUGHIDE', Tokens.tokDebugHide);
     this.predefinedIdentifiers.set('MSGBOX', Tokens.tokMsgbox);
-    this.predefinedIdentifiers.set('MESSAGE', Tokens.tokMessage);
+    this.predefinedIdentifiers.set('RESULT', Tokens.tokResult);
     this.predefinedIdentifiers.set('DOEVENTS', Tokens.tokDoEvents);
     this.predefinedIdentifiers.set('INPUTBOX', Tokens.tokInputbox);
     this.predefinedIdentifiers.set('TRUE', Tokens.tokTrue);

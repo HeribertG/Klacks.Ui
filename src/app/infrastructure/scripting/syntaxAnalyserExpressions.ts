@@ -249,7 +249,7 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
 
       case Tokens.tokMsgbox:
       case Tokens.tokInputbox:
-      case Tokens.tokMessage:
+      case Tokens.tokResult:
         this.terminalMessage();
         break;
 
@@ -428,7 +428,7 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
       case Tokens.tokInputbox:
         this.callInputbox(false);
         break;
-      case Tokens.tokMessage:
+      case Tokens.tokResult:
         this.callMsg(false);
         break;
     }

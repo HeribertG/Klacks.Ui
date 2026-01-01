@@ -24,7 +24,7 @@ const builtinFunctions = new Set([
   'abs', 'round', 'sqr', 'rnd', 'log', 'exp', 'sgn',
   'len', 'left', 'right', 'mid', 'instr', 'replace', 'trim', 'ucase', 'lcase',
   'timetohours', 'timeoverlap',
-  'iif', 'msgbox', 'message', 'inputbox', 'doevents',
+  'iif', 'msgbox', 'result', 'inputbox', 'doevents',
   'debugprint', 'debugclear', 'debugshow', 'debughide'
 ]);
 

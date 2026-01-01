@@ -56,28 +56,28 @@ doivent être écrits en un seul mot (pas <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    MESSAGE 1, "grand"
+    RESULT 1, "grand"
 ELSEIF x > 5 THEN
-    MESSAGE 1, "moyen"
+    RESULT 1, "moyen"
 ELSE
-    MESSAGE 1, "petit"
+    RESULT 1, "petit"
 ENDIF
 </pre>
 
 <h4>IF sur une ligne</h4>
 <pre>
-IF x > 10 THEN MESSAGE 1, "grand" ENDIF
+IF x > 10 THEN RESULT 1, "grand" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        MESSAGE 1, "Week-end"
+        RESULT 1, "Week-end"
     CASE 1, 2, 3, 4, 5
-        MESSAGE 1, "Jour ouvrable"
+        RESULT 1, "Jour ouvrable"
     CASE ELSE
-        MESSAGE 1, "Inconnu"
+        RESULT 1, "Inconnu"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ L'interpréteur lit le code de haut en bas – une fonction ou procédure n'est 
 <pre>
 SUB calculer(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    MESSAGE 1, a + b
+    RESULT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM resultat
 resultat = doubler(21)
-MESSAGE 1, resultat
+RESULT 1, resultat
 </pre>
 
 <hr>
@@ -226,11 +226,32 @@ a &= "!"    ' Concaténation de chaînes
 
 <hr>
 
-<h3>Sortie</h3>
+<h3>Valeur de Retour</h3>
 
 <pre>
-MESSAGE type, valeur        ' Sortie vers Klacks (type=1 pour résultat)
+RESULT type, valeur         ' Retour à Klacks (type correspond à MacroType)
 </pre>
+
+<hr>
+
+<h3>Fonctions de Débogage</h3>
+<p>Les fonctions de débogage suivantes sont disponibles pour tester les macros:</p>
+
+<table>
+  <tr><th>Fonction</th><th>Description</th></tr>
+  <tr><td>DEBUGPRINT valeur</td><td>Affiche une valeur dans la fenêtre de test</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Efface la fenêtre de test</td></tr>
+</table>
+
+<h4>Exemple</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "La valeur est: " & x
+DEBUGPRINT "Calcul en cours..."
+</pre>
+
+<p><em>Les sorties de débogage apparaissent dans l'onglet "Tester" de l'éditeur de macros.</em></p>
 
 <hr>
 
@@ -279,7 +300,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-MESSAGE 1, Round(TotalBonus, 2)
+RESULT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Explication</h4>

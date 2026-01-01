@@ -56,28 +56,28 @@ devono essere scritte come unica parola (non <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    MESSAGE 1, "grande"
+    RESULT 1, "grande"
 ELSEIF x > 5 THEN
-    MESSAGE 1, "medio"
+    RESULT 1, "medio"
 ELSE
-    MESSAGE 1, "piccolo"
+    RESULT 1, "piccolo"
 ENDIF
 </pre>
 
 <h4>IF su una riga</h4>
 <pre>
-IF x > 10 THEN MESSAGE 1, "grande" ENDIF
+IF x > 10 THEN RESULT 1, "grande" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        MESSAGE 1, "Fine settimana"
+        RESULT 1, "Fine settimana"
     CASE 1, 2, 3, 4, 5
-        MESSAGE 1, "Giorno lavorativo"
+        RESULT 1, "Giorno lavorativo"
     CASE ELSE
-        MESSAGE 1, "Sconosciuto"
+        RESULT 1, "Sconosciuto"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ L'interprete legge il codice dall'alto verso il basso – una funzione o procedu
 <pre>
 SUB calcola(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    MESSAGE 1, a + b
+    RESULT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM risultato
 risultato = raddoppia(21)
-MESSAGE 1, risultato
+RESULT 1, risultato
 </pre>
 
 <hr>
@@ -226,11 +226,32 @@ a &= "!"    ' Concatenazione stringhe
 
 <hr>
 
-<h3>Output</h3>
+<h3>Valore di Ritorno</h3>
 
 <pre>
-MESSAGE tipo, valore        ' Output a Klacks (tipo=1 per risultato)
+RESULT tipo, valore         ' Ritorno a Klacks (tipo corrisponde a MacroType)
 </pre>
+
+<hr>
+
+<h3>Funzioni di Debug</h3>
+<p>Le seguenti funzioni di debug sono disponibili per testare le macro:</p>
+
+<table>
+  <tr><th>Funzione</th><th>Descrizione</th></tr>
+  <tr><td>DEBUGPRINT valore</td><td>Visualizza un valore nella finestra di test</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Cancella la finestra di test</td></tr>
+</table>
+
+<h4>Esempio</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Il valore è: " & x
+DEBUGPRINT "Calcolo in corso..."
+</pre>
+
+<p><em>L'output di debug appare nella scheda "Test" dell'editor di macro.</em></p>
 
 <hr>
 
@@ -279,7 +300,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-MESSAGE 1, Round(TotalBonus, 2)
+RESULT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Spiegazione</h4>

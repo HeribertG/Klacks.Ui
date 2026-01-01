@@ -689,6 +689,8 @@
   "setting.macro.check-btn": "Prüfen",
   "setting.macro.run-btn": "Ausführen",
   "setting.macro.save-close-btn": "Speichern & Schließen",
+  "setting.macro.type.shift-and-employments": "Dienste und Beschäftigungen",
+  "setting.macro.type.work-rules": "Arbeitsregeln",
   "setting.owner-address.email": "Email",
   "setting.owner-address.headline": "Adresse Sekretariat",
   "setting.owner-address.name": "Name",

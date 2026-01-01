@@ -154,7 +154,7 @@ export abstract class SyntaxAnalyserStatements extends SyntaxAnalyserControlFlow
         this.getNextSymbol();
         break;
 
-      case Tokens.tokMessage:
+      case Tokens.tokResult:
         this.getNextSymbol();
         this.callMsg(true);
         break;

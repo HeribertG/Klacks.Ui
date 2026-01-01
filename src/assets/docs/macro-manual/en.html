@@ -56,28 +56,28 @@ must be written as single words (not <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    MESSAGE 1, "large"
+    RESULT 1, "large"
 ELSEIF x > 5 THEN
-    MESSAGE 1, "medium"
+    RESULT 1, "medium"
 ELSE
-    MESSAGE 1, "small"
+    RESULT 1, "small"
 ENDIF
 </pre>
 
 <h4>Single-line IF</h4>
 <pre>
-IF x > 10 THEN MESSAGE 1, "large" ENDIF
+IF x > 10 THEN RESULT 1, "large" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        MESSAGE 1, "Weekend"
+        RESULT 1, "Weekend"
     CASE 1, 2, 3, 4, 5
-        MESSAGE 1, "Workday"
+        RESULT 1, "Workday"
     CASE ELSE
-        MESSAGE 1, "Unknown"
+        RESULT 1, "Unknown"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ The interpreter reads the code from top to bottom – a function or procedure is
 <pre>
 SUB calculate(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    MESSAGE 1, a + b
+    RESULT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM result
 result = double(21)
-MESSAGE 1, result
+RESULT 1, result
 </pre>
 
 <hr>
@@ -226,11 +226,32 @@ a &= "!"    ' String concatenation
 
 <hr>
 
-<h3>Output</h3>
+<h3>Return Value</h3>
 
 <pre>
-MESSAGE type, value         ' Output to Klacks (type=1 for result)
+RESULT type, value          ' Return to Klacks (type corresponds to MacroType)
 </pre>
+
+<hr>
+
+<h3>Debug Functions</h3>
+<p>The following debug functions are available for testing macros:</p>
+
+<table>
+  <tr><th>Function</th><th>Description</th></tr>
+  <tr><td>DEBUGPRINT value</td><td>Outputs a value to the test window</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Clears the test window</td></tr>
+</table>
+
+<h4>Example</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "The value is: " & x
+DEBUGPRINT "Calculation running..."
+</pre>
+
+<p><em>Debug output appears in the "Test" tab of the Macro Editor.</em></p>
 
 <hr>
 
@@ -279,7 +300,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-MESSAGE 1, Round(TotalBonus, 2)
+RESULT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Explanation</h4>

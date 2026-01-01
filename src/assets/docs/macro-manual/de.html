@@ -56,28 +56,28 @@ müssen zusammengeschrieben werden (nicht <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    MESSAGE 1, "gross"
+    RESULT 1, "gross"
 ELSEIF x > 5 THEN
-    MESSAGE 1, "mittel"
+    RESULT 1, "mittel"
 ELSE
-    MESSAGE 1, "klein"
+    RESULT 1, "klein"
 ENDIF
 </pre>
 
 <h4>Einzeiliges IF</h4>
 <pre>
-IF x > 10 THEN MESSAGE 1, "gross" ENDIF
+IF x > 10 THEN RESULT 1, "gross" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        MESSAGE 1, "Wochenende"
+        RESULT 1, "Wochenende"
     CASE 1, 2, 3, 4, 5
-        MESSAGE 1, "Arbeitstag"
+        RESULT 1, "Arbeitstag"
     CASE ELSE
-        MESSAGE 1, "Unbekannt"
+        RESULT 1, "Unbekannt"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ Der Interpreter liest den Code von oben nach unten – eine Funktion oder Prozed
 <pre>
 SUB berechne(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    MESSAGE 1, a + b
+    RESULT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM ergebnis
 ergebnis = verdoppeln(21)
-MESSAGE 1, ergebnis
+RESULT 1, ergebnis
 </pre>
 
 <hr>
@@ -226,11 +226,32 @@ a &= "!"    ' String-Verkettung
 
 <hr>
 
-<h3>Ausgabe</h3>
+<h3>Rückgabe</h3>
 
 <pre>
-MESSAGE typ, wert           ' Ausgabe an Klacks (typ=1 für Ergebnis)
+RESULT typ, wert            ' Rückgabe an Klacks (typ entspricht MacroType)
 </pre>
+
+<hr>
+
+<h3>Debug-Funktionen</h3>
+<p>Zum Testen von Macros stehen folgende Debug-Funktionen zur Verfügung:</p>
+
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th></tr>
+  <tr><td>DEBUGPRINT wert</td><td>Gibt einen Wert im Test-Fenster aus</td></tr>
+  <tr><td>DEBUGCLEAR</td><td>Leert das Test-Fenster</td></tr>
+</table>
+
+<h4>Beispiel</h4>
+<pre>
+DIM x
+x = 42
+DEBUGPRINT "Der Wert ist: " & x
+DEBUGPRINT "Berechnung läuft..."
+</pre>
+
+<p><em>Die Debug-Ausgaben erscheinen im Tab "Testen" des Macro-Editors.</em></p>
 
 <hr>
 
@@ -279,7 +300,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-MESSAGE 1, Round(TotalBonus, 2)
+RESULT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Erklärung</h4>
