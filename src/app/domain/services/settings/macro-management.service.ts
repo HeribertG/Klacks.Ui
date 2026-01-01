@@ -157,7 +157,6 @@ export class MacroManagementService {
     const original = this.macroListOriginal();
 
     if (!compareComplexObjects(current, original, listOfExcludedProperties)) {
-      // Don't mark as dirty if there are incomplete new entries
       const incompleteEntries = current.filter(
         (x) =>
           x.isDirty === CreateEntriesEnum.new &&

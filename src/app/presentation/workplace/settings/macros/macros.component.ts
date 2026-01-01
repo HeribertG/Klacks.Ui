@@ -79,13 +79,26 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
     macro.isDirty = CreateEntriesEnum.new;
 
     this.pendingOpenMacro = macro;
-    this.dataManagementSettingsService.macroList.push(macro);
+    this.dataManagementSettingsService.macroList = [
+      ...this.dataManagementSettingsService.macroList,
+      macro
+    ];
   }
 
   cancelNewMacro(index: number): void {
     const macros = this.dataManagementSettingsService.macroList;
     if (index >= 0 && index < macros.length) {
-      macros.splice(index, 1);
+      this.dataManagementSettingsService.macroList = [
+        ...macros.slice(0, index),
+        ...macros.slice(index + 1)
+      ];
+    }
+  }
+
+  onMacroChanged(index: number): void {
+    const macros = this.dataManagementSettingsService.macroList;
+    if (index >= 0 && index < macros.length) {
+      this.dataManagementSettingsService.macroList = [...macros];
     }
   }
 
@@ -112,12 +125,22 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
 
       if (macro) {
         if (macro.isDirty === CreateEntriesEnum.new) {
-          macros.splice(index, 1);
+          this.dataManagementSettingsService.macroList = [
+            ...macros.slice(0, index),
+            ...macros.slice(index + 1)
+          ];
         } else {
-          if (macro.name) {
-            macro.name = macro.name + '--isDeleted';
+          const updatedMacro = { ...macro };
+          if (updatedMacro.name) {
+            updatedMacro.name = updatedMacro.name + '--isDeleted';
           }
-          macro.isDirty = CreateEntriesEnum.delete;
+          updatedMacro.isDirty = CreateEntriesEnum.delete;
+
+          this.dataManagementSettingsService.macroList = [
+            ...macros.slice(0, index),
+            updatedMacro,
+            ...macros.slice(index + 1)
+          ];
         }
       }
     }

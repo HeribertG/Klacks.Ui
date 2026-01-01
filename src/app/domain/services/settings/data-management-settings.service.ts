@@ -332,7 +332,6 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
       this.countryStateService.isCountriesDirty() ||
       this.countryStateService.isStatesDirty() ||
       this.branchService.isBranchesDirty() ||
-      this.macroService.isDirty() ||
       this.gridColorService.isSetting_Dirty()
     );
   }
@@ -357,11 +356,6 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
 
     if (this.branchService.isBranchesDirty()) {
       this.branchService.saveBranches();
-      hasOperations = true;
-    }
-
-    if (this.macroService.isDirty()) {
-      this.macroService.save();
       hasOperations = true;
     }
 

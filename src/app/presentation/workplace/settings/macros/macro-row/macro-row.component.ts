@@ -29,6 +29,7 @@ import {
   ExternalVariables,
 } from 'src/app/infrastructure/scripting/script.service';
 import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
+import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 
 @Component({
   selector: 'app-macro-row',
@@ -50,6 +51,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   @Input() data: IMacro = new Macro();
   @Output() isDeleteEvent = new EventEmitter<void>();
   @Output() cancelNewEvent = new EventEmitter<void>();
+  @Output() macroChangedEvent = new EventEmitter<void>();
 
   private wasSaved = false;
 
@@ -57,6 +59,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   private modalService = inject(NgbModal);
   private scriptService = inject(ScriptService);
   private http = inject(HttpClient);
+  private macroManagementService = inject(MacroManagementService);
 
   macroName = '';
   macroType = 0;
@@ -111,6 +114,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     ) {
       this.data.isDirty = CreateEntriesEnum.rewrite;
     }
+    this.macroChangedEvent.emit();
   }
 
   open(content: any): void {
@@ -143,6 +147,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
         this.wasSaved = true;
         this.onChange(true);
+        this.macroManagementService.save();
       },
       () => {
         if (!this.wasSaved && this.data.isDirty === CreateEntriesEnum.new) {
@@ -169,6 +174,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     }
     this.wasSaved = true;
     this.onChange(true);
+    this.macroManagementService.save();
   }
 
   private macroFilter(): void {
