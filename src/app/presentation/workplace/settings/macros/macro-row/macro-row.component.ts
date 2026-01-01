@@ -16,7 +16,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
-import { klacksScriptLanguage } from 'src/app/infrastructure/scripting/klacks-script-language';
+import { EditorSelection } from '@codemirror/state';
+import { klacksScriptLanguage as klacksScriptExtensions, errorExtensions, setError, clearError } from 'src/app/infrastructure/scripting/klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
@@ -49,6 +50,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
 export class MacroRowComponent implements OnInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
+  @ViewChild('codemirror') codeEditor!: CodeEditorComponent;
   @Input() data: IMacro = new Macro();
   @Output() isDeleteEvent = new EventEmitter<void>();
   @Output() cancelNewEvent = new EventEmitter<void>();
@@ -82,8 +84,6 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   isReadStatusTemplateList = false;
   isReadSectionTemplateList = false;
 
-  klacksScriptLanguage = klacksScriptLanguage;
-
   macroTypeOptions = Object.values(MacroTypes)
     .filter((v): v is MacroTypes => typeof v === 'number')
     .map((value) => ({
@@ -93,11 +93,20 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
   dialogRef: any;
 
+  klacksScriptLanguage = [...klacksScriptExtensions, ...errorExtensions];
+
   private readonly AUTO_IMPORTS = [
-    'import hour, fromhour, untilhour',
-    'import weekday, holiday, holidaynextday',
-    'import nightrate, holidayrate, weekendrate',
-    'import guaranteedhours, fulltime'
+    'import hour',
+    'import fromhour',
+    'import untilhour',
+    'import weekday',
+    'import holiday',
+    'import holidaynextday',
+    'import nightrate',
+    'import holidayrate',
+    'import weekendrate',
+    'import guaranteedhours',
+    'import fulltime'
   ];
 
   private stripImports(code: string): string {
@@ -220,15 +229,45 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const codeWithImports = this.addImports(this.obj);
-    const importLineCount = this.AUTO_IMPORTS.length + 1;
-    const compiled = this.scriptService.compile(codeWithImports, false, true);
+    const compiled = this.scriptService.compile(this.obj, false, true);
     if (compiled.hasError) {
-      const adjustedLine = Math.max(1, (compiled.error?.line ?? 0) - importLineCount);
-      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${compiled.error?.column ?? 0}`;
+      const line = compiled.error?.line ?? 1;
+      const column = compiled.error?.column ?? 1;
+      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${line}, Column: ${column}`;
+      this.setCursorPosition(line, column);
     } else {
       this.test = 'Syntax OK';
+      this.clearErrorMark();
     }
+  }
+
+  private setCursorPosition(line: number, column: number): void {
+    const view = (this.codeEditor as any)?.view;
+    if (!view) return;
+
+    const lines = this.obj.split('\n');
+    let pos = 0;
+    for (let i = 0; i < line - 1 && i < lines.length; i++) {
+      pos += lines[i].length + 1;
+    }
+    pos += Math.max(0, column - 1);
+    pos = Math.min(pos, this.obj.length);
+
+    const lineEnd = line <= lines.length ? pos + (lines[line - 1]?.length ?? 0) - (column - 1) : pos + 1;
+    const errorEnd = Math.min(lineEnd, this.obj.length);
+
+    view.dispatch({
+      selection: EditorSelection.cursor(pos),
+      scrollIntoView: true,
+    });
+    setError(view, pos, Math.max(pos + 1, errorEnd));
+    view.focus();
+  }
+
+  private clearErrorMark(): void {
+    const view = (this.codeEditor as any)?.view;
+    if (!view) return;
+    clearError(view);
   }
 
   onRunMacro(): void {
@@ -251,9 +290,12 @@ export class MacroRowComponent implements OnInit, OnDestroy {
         .map((m) => `[${m.type}] ${m.message}`)
         .join('\n');
       this.test = messages || 'Script executed successfully (no output)';
+      this.clearErrorMark();
     } else {
       const adjustedLine = Math.max(1, (result.error?.line ?? 0) - importLineCount);
-      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${result.error?.column ?? 0}`;
+      const column = result.error?.column ?? 1;
+      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${column}`;
+      this.setCursorPosition(adjustedLine, column);
     }
   }
 

@@ -1,5 +1,7 @@
 import { StreamLanguage, StringStream, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
+import { StateEffect, StateField } from '@codemirror/state';
+import { Decoration, DecorationSet, EditorView } from '@codemirror/view';
 
 const keywords = new Set([
   'if', 'then', 'else', 'endif', 'end',
@@ -153,7 +155,59 @@ const klacksHighlightStyle = HighlightStyle.define([
   { tag: tags.punctuation, color: '#000000' }
 ]);
 
+const setErrorEffect = StateEffect.define<{ from: number; to: number } | null>();
+
+const errorMark = Decoration.mark({
+  class: 'cm-error-underline'
+});
+
+const errorField = StateField.define<DecorationSet>({
+  create() {
+    return Decoration.none;
+  },
+  update(decorations, tr) {
+    decorations = decorations.map(tr.changes);
+    for (const effect of tr.effects) {
+      if (effect.is(setErrorEffect)) {
+        if (effect.value === null) {
+          decorations = Decoration.none;
+        } else {
+          decorations = Decoration.set([
+            errorMark.range(effect.value.from, effect.value.to)
+          ]);
+        }
+      }
+    }
+    return decorations;
+  },
+  provide: f => EditorView.decorations.from(f)
+});
+
+const errorTheme = EditorView.baseTheme({
+  '.cm-error-underline': {
+    textDecoration: 'underline wavy red',
+    textUnderlineOffset: '3px'
+  }
+});
+
+export function setError(view: EditorView, from: number, to: number): void {
+  view.dispatch({
+    effects: setErrorEffect.of({ from, to })
+  });
+}
+
+export function clearError(view: EditorView): void {
+  view.dispatch({
+    effects: setErrorEffect.of(null)
+  });
+}
+
 export const klacksScriptLanguage = [
   klacksLanguage,
   syntaxHighlighting(klacksHighlightStyle)
+];
+
+export const errorExtensions = [
+  errorField,
+  errorTheme
 ];

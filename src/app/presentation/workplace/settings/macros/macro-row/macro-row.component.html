@@ -28,7 +28,10 @@
     </div>
     <div id="macro-modal-body" class="modal-body">
       <div id="macro-modal-inputs-row" class="row-line-modal-inline">
-        <div id="macro-modal-name-section" style="margin-left: 30px; width: 150px">
+        <div
+          id="macro-modal-name-section"
+          style="margin-left: 30px; width: 150px"
+        >
           <label for="macroName">{{
             translate.instant("setting.macro.name-modal")
           }}</label>
@@ -42,22 +45,55 @@
           />
         </div>
 
-        <div id="macro-modal-type-section" style="margin-left: 30px; width: 200px">
+        <div
+          id="macro-modal-type-section"
+          style="margin-left: 30px; width: 200px"
+        >
           <label for="type">{{
             translate.instant("setting.macro.type-modal")
           }}</label>
           <select
-            class="form-control"
-            style="width: 200px"
+            class="form-select"
             [(ngModel)]="macroType"
             name="type"
             id="type"
           >
             @for (option of macroTypeOptions; track option.value) {
-              <option [ngValue]="option.value">{{ translate.instant(option.label) }}</option>
+            <option [ngValue]="option.value">
+              {{ translate.instant(option.label) }}
+            </option>
             }
           </select>
         </div>
+
+        <div class="filler"></div>
+
+        @if (tabId === 'macro') {
+        <button
+          id="macro-modal-check-btn"
+          type="button"
+          class="btn btn-outline-secondary"
+          style="margin-right: 10px"
+          (click)="onCheckMacro()"
+        >
+          <i class="fas fa-check"></i>&nbsp;{{
+            translate.instant("setting.macro.check-btn")
+          }}
+        </button>
+        }
+        @if (tabId === 'test') {
+        <button
+          id="macro-modal-run-btn"
+          type="button"
+          class="btn btn-outline-secondary"
+          style="margin-right: 10px"
+          (click)="onRunMacro()"
+        >
+          <i class="fas fa-running"></i>&nbsp;{{
+            translate.instant("setting.macro.run-btn")
+          }}
+        </button>
+        }
       </div>
       <div id="macro-modal-tabs-container">
         <ul id="macro-modal-tabs" class="nav nav-tabs">
@@ -132,13 +168,6 @@
         class="collapse"
         [ngStyle]="{ display: tabId === 'test' ? 'inline' : 'none' }"
       >
-        <div id="macro-modal-test-buttons-row" class="row-line-modal-inline">
-          <button id="macro-modal-test-check-btn" type="button" class="check" (click)="onCheckMacro()">
-            <i class="fas fa-check"></i>&nbsp;{{ translate.instant("setting.macro.check-btn") }}
-          </button>
-          <button id="macro-modal-test-run-btn" type="button" (click)="onRunMacro()"><i class="fas fa-running"></i>&nbsp;{{ translate.instant("setting.macro.run-btn") }}</button>
-        </div>
-
         <textarea
           id="macro-modal-test-output"
           [value]="test"
@@ -169,17 +198,30 @@
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("cancel") }}</span
     >
-    <button id="macro-modal-save-btn" type="button" class="btn save-btn" (click)="onSave()">
+    <button
+      id="macro-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+    >
       {{ translate.instant("save") }}
     </button>
-    <button id="macro-modal-save-close-btn" type="button" class="btn save-btn" (click)="modal.close()">
+    <button
+      id="macro-modal-save-close-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="modal.close()"
+    >
       {{ translate.instant("setting.macro.save-close-btn") }}
     </button>
   </div>
 </ng-template>
 
 <form id="macro-row-form-{{ data.id }}">
-  <div id="macro-row-container-{{ data.id }}" class="first custom-control-inline">
+  <div
+    id="macro-row-container-{{ data.id }}"
+    class="first custom-control-inline"
+  >
     <div id="macro-row-name-group-{{ data.id }}" class="form-group">
       <input
         id="macro-row-name-{{ data.id }}"
@@ -193,6 +235,12 @@
       />
     </div>
 
-    <span id="macro-row-delete-{{ data.id }}" class="delete-button" type="button" (click)="onClickDelete()">✕</span>
+    <span
+      id="macro-row-delete-{{ data.id }}"
+      class="delete-button"
+      type="button"
+      (click)="onClickDelete()"
+      >✕</span
+    >
   </div>
 </form>

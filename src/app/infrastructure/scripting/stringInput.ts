@@ -91,8 +91,8 @@ export class StringInputStream {
       if (this._sourceIndex > 0) {
         this._col--;
         const c: string = this._sourceText.substring(
-          this._sourceIndex,
-          this._sourceIndex + 1
+          this._sourceIndex - 1,
+          this._sourceIndex
         );
 
         if (c === '\r\n' || c === '\n' || c === '\r') {
