@@ -6,6 +6,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  TemplateRef,
   ViewChild,
   inject,
 } from '@angular/core';
@@ -15,8 +16,7 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
-import { StreamLanguage } from '@codemirror/language';
-import { vbScript } from '@codemirror/legacy-modes/mode/vbscript';
+import { klacksScriptLanguage } from 'src/app/infrastructure/scripting/klacks-script-language';
 
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
@@ -46,8 +46,12 @@ import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 })
 export class MacroRowComponent implements OnInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
+  @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
   @Input() data: IMacro = new Macro();
   @Output() isDeleteEvent = new EventEmitter<void>();
+  @Output() cancelNewEvent = new EventEmitter<void>();
+
+  private wasSaved = false;
 
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
@@ -74,8 +78,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   isReadStatusTemplateList = false;
   isReadSectionTemplateList = false;
 
-  // CodeMirror configuration is now handled via component properties
-  vbScriptLanguage = StreamLanguage.define(vbScript);
+  klacksScriptLanguage = klacksScriptLanguage;
 
   dialogRef: any;
 
@@ -111,6 +114,14 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   }
 
   open(content: any): void {
+    this.openModalInternal(content);
+  }
+
+  openModal(): void {
+    this.openModalInternal(this.contentTemplate);
+  }
+
+  private openModalInternal(content: any): void {
     if (this.data) {
       this.macroName = this.data.name || '';
       this.macroType = this.data.type;
@@ -118,6 +129,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       this.description = this.data.description;
     }
 
+    this.wasSaved = false;
     this.loadManual();
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
@@ -129,9 +141,14 @@ export class MacroRowComponent implements OnInit, OnDestroy {
           this.data.description = this.description;
         }
 
+        this.wasSaved = true;
         this.onChange(true);
       },
-      () => {} // Dismiss handler
+      () => {
+        if (!this.wasSaved && this.data.isDirty === CreateEntriesEnum.new) {
+          this.cancelNewEvent.emit();
+        }
+      }
     );
   }
 
@@ -141,6 +158,17 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     if (codemirror) {
       codemirror.focus();
     }
+  }
+
+  onSave(): void {
+    if (this.data) {
+      this.data.name = this.macroName;
+      this.data.type = +this.macroType;
+      this.data.content = this.obj;
+      this.data.description = this.description;
+    }
+    this.wasSaved = true;
+    this.onChange(true);
   }
 
   private macroFilter(): void {

@@ -695,6 +695,7 @@
   "setting.macro.type-modal": "Tipo",
   "setting.macro.check-btn": "Verifica",
   "setting.macro.run-btn": "Esegui",
+  "setting.macro.save-close-btn": "Salva & Chiudi",
   "setting.owner-address.email": "Email",
   "setting.owner-address.headline": "Indirizzo segreteria",
   "setting.owner-address.name": "Nome",

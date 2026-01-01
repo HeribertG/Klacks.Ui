@@ -1,4 +1,4 @@
-import { Component, inject, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
@@ -30,6 +30,8 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
 ],
 })
 export class MacrosComponent implements AfterViewInit, OnDestroy {
+  @ViewChildren(MacroRowComponent) macroRows!: QueryList<MacroRowComponent>;
+
   public translate = inject(TranslateService);
   public dataManagementSettingsService = inject(DataManagementSettingsService);
   private modalService = inject(ModalService);
@@ -37,6 +39,7 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
 
   message = MessageLibrary.DELETE_ENTRY;
   private macroToDeleteIndex: number | null = null;
+  private pendingOpenMacro: Macro | null = null;
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent
@@ -51,6 +54,18 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
           this.modalService.Filing = '';
         }
       });
+
+    this.macroRows.changes
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (this.pendingOpenMacro !== null) {
+          const row = this.macroRows.find(r => r.data === this.pendingOpenMacro);
+          if (row) {
+            setTimeout(() => row.openModal(), 0);
+          }
+          this.pendingOpenMacro = null;
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -63,7 +78,15 @@ export class MacrosComponent implements AfterViewInit, OnDestroy {
     macro.name = MessageLibrary.NOT_DEFINED;
     macro.isDirty = CreateEntriesEnum.new;
 
+    this.pendingOpenMacro = macro;
     this.dataManagementSettingsService.macroList.push(macro);
+  }
+
+  cancelNewMacro(index: number): void {
+    const macros = this.dataManagementSettingsService.macroList;
+    if (index >= 0 && index < macros.length) {
+      macros.splice(index, 1);
+    }
   }
 
   openDeleteMacro(index: number): void {

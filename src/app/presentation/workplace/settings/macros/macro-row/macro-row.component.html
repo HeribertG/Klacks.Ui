@@ -106,7 +106,7 @@
           #codemirror
           [(ngModel)]="obj"
           [autoFocus]="true"
-          [extensions]="[vbScriptLanguage]"
+          [extensions]="klacksScriptLanguage"
           [lineWrapping]="true"
           name="codemirror"
         >
@@ -165,8 +165,11 @@
       (click)="modal.dismiss('Cancel click')"
       >{{ translate.instant("cancel") }}</span
     >
-    <button id="macro-modal-save-btn" type="button" class="btn save-btn" (click)="modal.close()">
-      {{ translate.instant("setting.macro.add-modal") }}
+    <button id="macro-modal-save-btn" type="button" class="btn save-btn" (click)="onSave()">
+      {{ translate.instant("save") }}
+    </button>
+    <button id="macro-modal-save-close-btn" type="button" class="btn save-btn" (click)="modal.close()">
+      {{ translate.instant("setting.macro.save-close-btn") }}
     </button>
   </div>
 </ng-template>

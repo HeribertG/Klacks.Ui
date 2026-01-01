@@ -16,6 +16,7 @@
       [id]="'macro-row-' + i"
       [data]="c"
       (isDeleteEvent)="openDeleteMacro(i)"
+      (cancelNewEvent)="cancelNewMacro(i)"
     >
     </app-macro-row>
     } }
