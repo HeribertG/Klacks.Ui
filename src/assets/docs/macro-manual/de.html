@@ -107,7 +107,8 @@ LOOP UNTIL x >= 10
 
 <h3>Funktionen und Prozeduren</h3>
 
-<p><strong>Wichtig:</strong> Funktionen müssen <em>vor</em> dem ersten Aufruf definiert werden.</p>
+<p><strong>Wichtig:</strong> Funktionen (FUNCTION) und Prozeduren (SUB) müssen <em>oberhalb</em> des ersten Aufrufs definiert werden.
+Der Interpreter liest den Code von oben nach unten – eine Funktion oder Prozedur ist erst bekannt, nachdem ihre Definition durchlaufen wurde.</p>
 
 <h4>SUB (Prozedur ohne Rückgabewert)</h4>
 <pre>

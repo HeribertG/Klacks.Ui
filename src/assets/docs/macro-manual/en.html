@@ -107,7 +107,8 @@ LOOP UNTIL x >= 10
 
 <h3>Functions and Procedures</h3>
 
-<p><strong>Important:</strong> Functions must be defined <em>before</em> the first call.</p>
+<p><strong>Important:</strong> Functions (FUNCTION) and procedures (SUB) must be defined <em>above</em> the first call.
+The interpreter reads the code from top to bottom – a function or procedure is only known after its definition has been processed.</p>
 
 <h4>SUB (Procedure without return value)</h4>
 <pre>
