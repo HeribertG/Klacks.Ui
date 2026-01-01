@@ -85,6 +85,27 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
   dialogRef: any;
 
+  private readonly AUTO_IMPORTS = [
+    'import hour, fromhour, untilhour',
+    'import weekday, holiday, holidaynextday',
+    'import nightrate, holidayrate, weekendrate',
+    'import guaranteedhours, fulltime'
+  ];
+
+  private stripImports(code: string): string {
+    if (!code) return '';
+    return code
+      .split('\n')
+      .filter(line => !line.trim().toLowerCase().startsWith('import '))
+      .join('\n')
+      .trim();
+  }
+
+  private addImports(code: string): string {
+    if (!code) return this.AUTO_IMPORTS.join('\n');
+    return this.AUTO_IMPORTS.join('\n') + '\n\n' + code;
+  }
+
   ngOnInit(): void {
     if (this.macroForm?.valueChanges) {
       this.formSubscription = this.macroForm.valueChanges.subscribe(() => {
@@ -129,7 +150,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     if (this.data) {
       this.macroName = this.data.name || '';
       this.macroType = this.data.type;
-      this.obj = this.data.content || '';
+      this.obj = this.stripImports(this.data.content || '');
       this.description = this.data.description;
     }
 
@@ -141,7 +162,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
         if (this.data) {
           this.data.name = this.macroName;
           this.data.type = +this.macroType;
-          this.data.content = this.obj;
+          this.data.content = this.addImports(this.obj);
           this.data.description = this.description;
         }
 
@@ -169,7 +190,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     if (this.data) {
       this.data.name = this.macroName;
       this.data.type = +this.macroType;
-      this.data.content = this.obj;
+      this.data.content = this.addImports(this.obj);
       this.data.description = this.description;
     }
     this.wasSaved = true;
@@ -191,9 +212,12 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const compiled = this.scriptService.compile(this.obj, false, true);
+    const codeWithImports = this.addImports(this.obj);
+    const importLineCount = this.AUTO_IMPORTS.length + 1;
+    const compiled = this.scriptService.compile(codeWithImports, false, true);
     if (compiled.hasError) {
-      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${compiled.error?.line ?? 0}, Column: ${compiled.error?.column ?? 0}`;
+      const adjustedLine = Math.max(1, (compiled.error?.line ?? 0) - importLineCount);
+      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${compiled.error?.column ?? 0}`;
     } else {
       this.test = 'Syntax OK';
     }
@@ -205,9 +229,11 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const codeWithImports = this.addImports(this.obj);
+    const importLineCount = this.AUTO_IMPORTS.length + 1;
     const externalVars = this.buildExternalVariables();
     const result: ScriptResult = this.scriptService.run(
-      this.obj,
+      codeWithImports,
       false,
       true,
       externalVars
@@ -218,7 +244,8 @@ export class MacroRowComponent implements OnInit, OnDestroy {
         .join('\n');
       this.test = messages || 'Script executed successfully (no output)';
     } else {
-      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${result.error?.line ?? 0}, Column: ${result.error?.column ?? 0}`;
+      const adjustedLine = Math.max(1, (result.error?.line ?? 0) - importLineCount);
+      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${result.error?.column ?? 0}`;
     }
   }
 
