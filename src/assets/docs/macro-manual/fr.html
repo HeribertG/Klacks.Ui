@@ -56,28 +56,28 @@ doivent être écrits en un seul mot (pas <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    RESULT 1, "grand"
+    OUTPUT 1, "grand"
 ELSEIF x > 5 THEN
-    RESULT 1, "moyen"
+    OUTPUT 1, "moyen"
 ELSE
-    RESULT 1, "petit"
+    OUTPUT 1, "petit"
 ENDIF
 </pre>
 
 <h4>IF sur une ligne</h4>
 <pre>
-IF x > 10 THEN RESULT 1, "grand" ENDIF
+IF x > 10 THEN OUTPUT 1, "grand" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        RESULT 1, "Week-end"
+        OUTPUT 1, "Week-end"
     CASE 1, 2, 3, 4, 5
-        RESULT 1, "Jour ouvrable"
+        OUTPUT 1, "Jour ouvrable"
     CASE ELSE
-        RESULT 1, "Inconnu"
+        OUTPUT 1, "Inconnu"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ L'interpréteur lit le code de haut en bas – une fonction ou procédure n'est 
 <pre>
 SUB calculer(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    RESULT 1, a + b
+    OUTPUT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM resultat
 resultat = doubler(21)
-RESULT 1, resultat
+OUTPUT 1, resultat
 </pre>
 
 <hr>
@@ -224,12 +224,18 @@ a &= "!"    ' Concaténation de chaînes
 
 <p><em>TimeOverlap supporte les plages horaires qui traversent minuit (ex: 23:00-06:00).</em></p>
 
+<h4>Fonctions Conditionnelles</h4>
+<table>
+  <tr><th>Fonction</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>IIF(cond, vrai, faux)</td><td>Expression conditionnelle (opérateur ternaire)</td><td>IIF(x > 0, "positif", "négatif")</td></tr>
+</table>
+
 <hr>
 
 <h3>Valeur de Retour</h3>
 
 <pre>
-RESULT type, valeur         ' Retour à Klacks (type correspond à MacroType)
+OUTPUT type, valeur         ' Retour à Klacks (type correspond à MacroType)
 </pre>
 
 <hr>
@@ -300,7 +306,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-RESULT 1, Round(TotalBonus, 2)
+OUTPUT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Explication</h4>

@@ -56,28 +56,28 @@ müssen zusammengeschrieben werden (nicht <code>END IF</code>).</p>
 <h4>IF-THEN-ELSE</h4>
 <pre>
 IF x > 10 THEN
-    RESULT 1, "gross"
+    OUTPUT 1, "gross"
 ELSEIF x > 5 THEN
-    RESULT 1, "mittel"
+    OUTPUT 1, "mittel"
 ELSE
-    RESULT 1, "klein"
+    OUTPUT 1, "klein"
 ENDIF
 </pre>
 
 <h4>Einzeiliges IF</h4>
 <pre>
-IF x > 10 THEN RESULT 1, "gross" ENDIF
+IF x > 10 THEN OUTPUT 1, "gross" ENDIF
 </pre>
 
 <h4>SELECT CASE</h4>
 <pre>
 SELECT CASE weekday
     CASE 6, 7
-        RESULT 1, "Wochenende"
+        OUTPUT 1, "Wochenende"
     CASE 1, 2, 3, 4, 5
-        RESULT 1, "Arbeitstag"
+        OUTPUT 1, "Arbeitstag"
     CASE ELSE
-        RESULT 1, "Unbekannt"
+        OUTPUT 1, "Unbekannt"
 END SELECT
 </pre>
 
@@ -114,7 +114,7 @@ Der Interpreter liest den Code von oben nach unten – eine Funktion oder Prozed
 <pre>
 SUB berechne(a, b)
     IF a = b THEN EXIT SUB ENDIF
-    RESULT 1, a + b
+    OUTPUT 1, a + b
 ENDSUB
 </pre>
 
@@ -126,7 +126,7 @@ ENDFUNCTION
 
 DIM ergebnis
 ergebnis = verdoppeln(21)
-RESULT 1, ergebnis
+OUTPUT 1, ergebnis
 </pre>
 
 <hr>
@@ -224,12 +224,18 @@ a &= "!"    ' String-Verkettung
 
 <p><em>TimeOverlap unterstützt Zeiträume über Mitternacht (z.B. 23:00-06:00).</em></p>
 
+<h4>Bedingte Funktionen</h4>
+<table>
+  <tr><th>Funktion</th><th>Beschreibung</th><th>Beispiel</th></tr>
+  <tr><td>IIF(bed, wahr, falsch)</td><td>Bedingter Ausdruck (Ternär-Operator)</td><td>IIF(x > 0, "positiv", "negativ")</td></tr>
+</table>
+
 <hr>
 
 <h3>Rückgabe</h3>
 
 <pre>
-RESULT typ, wert            ' Rückgabe an Klacks (typ entspricht MacroType)
+OUTPUT typ, wert            ' Rückgabe an Klacks (typ entspricht MacroType)
 </pre>
 
 <hr>
@@ -300,7 +306,7 @@ ELSE
     TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
 ENDIF
 
-RESULT 1, Round(TotalBonus, 2)
+OUTPUT 1, Round(TotalBonus, 2)
 </pre>
 
 <h4>Erklärung</h4>
