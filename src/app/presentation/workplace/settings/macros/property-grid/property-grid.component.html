@@ -85,6 +85,22 @@
           </select>
           }
 
+          <!-- Holiday Dropdown -->
+          @if (prop.type === 'holiday' && prop.editable) {
+          <select
+            [id]="'property-grid-select-holiday-' + prop.key"
+            class="form-select enum-select"
+            [(ngModel)]="prop.value"
+            (change)="handleEnumChange($event, prop.key)"
+          >
+            @for (option of holidayOptions; track option.value) {
+            <option [value]="option.value">
+              {{ option.name }}
+            </option>
+            }
+          </select>
+          }
+
           <!-- Date -->
           @if (prop.type === 'date' && prop.editable) {
           <input

@@ -4,6 +4,7 @@ import { Component, Input, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ShiftType } from 'src/app/domain/models/shift-class';
 import {
+  HolidayStatus,
   PropertyMetadata,
   ShiftData,
   Weekday,
@@ -37,6 +38,7 @@ export class PropertyGridComponent implements OnInit {
 
   shiftTypeOptions: EnumOption[] = [];
   weekdayOptions: EnumOption[] = [];
+  holidayOptions: EnumOption[] = [];
 
   public properties = signal<PropertyItem[]>([]);
   public Math = Math;
@@ -44,6 +46,7 @@ export class PropertyGridComponent implements OnInit {
   constructor() {
     this.shiftTypeOptions = this.getEnumValues(ShiftType);
     this.weekdayOptions = this.getEnumValues(Weekday);
+    this.holidayOptions = this.getEnumValues(HolidayStatus);
   }
 
   ngOnInit() {
@@ -111,6 +114,7 @@ export class PropertyGridComponent implements OnInit {
     // Explizite Typerkennung für bekannte Enum-Eigenschaften
     if (key === 'shiftType') return 'shiftType';
     if (key === 'Weekday') return 'weekday';
+    if (key === 'Holiday' || key === 'HolidayNextDay') return 'holiday';
 
     // Zeit-Eingaben für FromHour und UntilHour
     if (key === 'FromHour' || key === 'UntilHour') return 'time';
@@ -128,6 +132,7 @@ export class PropertyGridComponent implements OnInit {
       'time',
       'shiftType',
       'weekday',
+      'holiday',
     ].includes(type);
   }
 
@@ -149,6 +154,12 @@ export class PropertyGridComponent implements OnInit {
       }
       case 'weekday': {
         const option = this.weekdayOptions.find(
+          (opt) => opt.value === prop.value
+        );
+        return option ? option.name : String(prop.value);
+      }
+      case 'holiday': {
+        const option = this.holidayOptions.find(
           (opt) => opt.value === prop.value
         );
         return option ? option.name : String(prop.value);

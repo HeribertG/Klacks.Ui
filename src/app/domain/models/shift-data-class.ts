@@ -23,6 +23,13 @@ export enum Weekday {
   Sunday = 7,
 }
 
+export enum HolidayStatus {
+  DayAfter = -2,
+  DayBefore = -1,
+  NoHoliday = 0,
+  Holiday = 1,
+}
+
 export interface NumberPropertyMetadata {
   min?: number;
   max?: number;
