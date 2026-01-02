@@ -125,6 +125,8 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
       this._code!.add(Opcodes.Return);
       this._code!.fixUp(res.skipFunctionPC - 1, [this._code!.endOfCodePC]);
     }
+
+    this._currentFunctionName = null;
   }
 
   private subFunctionDefinition(): { isOk: boolean; skipFunctionPC: number } {
@@ -179,6 +181,8 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
       for (let i = 0; i <= formalParameters.length - 1; i++) {
         this._symbolTable.allocate(formalParameters[i], ScriptValue.Null, IdentifierTypes.idVariable);
       }
+
+      this._currentFunctionName = isSub ? null : ident;
 
       this.statementList(false, true, isSub ? Exits.exitSub : Exits.exitFunction, [
         Tokens.tokEOF,

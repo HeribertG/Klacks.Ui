@@ -383,11 +383,20 @@ export abstract class SyntaxAnalyserExpressions extends SyntaxAnalyserBuiltIns {
       );
     }
 
+    const isCurrentFunction =
+      this._currentFunctionName !== null &&
+      text.toUpperCase() === this._currentFunctionName.toUpperCase();
+
     if (this._symbolTable.exists(text, undefined, IdentifierTypes.idFunction)) {
       const ident = text;
       this.getNextSymbol();
-      this.callUserDefinedFunction(ident);
-      this._code!.add(Opcodes.PushVariable, [ident]);
+
+      if (isCurrentFunction && this._symbol.token !== Tokens.tokLeftParent) {
+        this._code!.add(Opcodes.PushVariable, [ident]);
+      } else {
+        this.callUserDefinedFunction(ident);
+        this._code!.add(Opcodes.PushVariable, [ident]);
+      }
     } else if (this._symbolTable.exists(text, undefined, IdentifierTypes.idSub)) {
       this.interpreterError!.raise(
         parsErrors.errCannotCallSubInExpression,

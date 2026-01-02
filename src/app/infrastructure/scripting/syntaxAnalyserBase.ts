@@ -19,6 +19,7 @@ export abstract class SyntaxAnalyserBase {
   protected _symbolTable: Scopes = new Scopes();
   protected _optionExplicit = false;
   protected _allowExternal = false;
+  protected _currentFunctionName: string | null = null;
 
   constructor(
     protected interpreterError: InterpreterError | undefined,
