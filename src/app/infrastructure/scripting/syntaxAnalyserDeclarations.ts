@@ -92,6 +92,7 @@ export abstract class SyntaxAnalyserDeclarations extends SyntaxAnalyserExpressio
 
         if (external) {
           this._symbolTable.allocate(this._symbol.text);
+          this._code!.importAdd(this._symbol.text);
         } else {
           this._symbolTable.allocate(this._symbol.text);
           this._code!.add(Opcodes.AllocVar, [this._symbol.text]);

@@ -25,7 +25,6 @@ export class ScriptService {
     externalVariables?: ExternalVariables,
     cancellationToken?: CancellationToken
   ): ScriptResult {
-    script.clearExternalValues();
     if (externalVariables) {
       for (const [name, value] of Object.entries(externalVariables)) {
         script.setExternalValue(name, value);

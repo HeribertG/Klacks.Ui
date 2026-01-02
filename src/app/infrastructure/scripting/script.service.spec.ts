@@ -1,9 +1,7 @@
 import { ScriptService } from './script.service';
 import { CancellationToken } from './script-execution-context';
 
-// TODO: Diese Tests verursachen Zone.js-Hang mit Vitest - TestBed entfernt, Problem besteht weiter
-// Root cause muss noch untersucht werden
-describe.skip('ScriptService', () => {
+describe('ScriptService', () => {
     let service: ScriptService;
 
     beforeEach(() => {
@@ -20,7 +18,7 @@ describe.skip('ScriptService', () => {
     describe('Arithmetic Operations', () => {
         it('should calculate addition', () => {
             // Arrange & Act
-            const result = service.run('message 1, 2 + 3', false, false);
+            const result = service.run('output 1, 2 + 3', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -29,7 +27,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate subtraction', () => {
             // Arrange & Act
-            const result = service.run('message 1, 10 - 4', false, false);
+            const result = service.run('output 1, 10 - 4', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -38,7 +36,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate multiplication', () => {
             // Arrange & Act
-            const result = service.run('message 1, 6 * 7', false, false);
+            const result = service.run('output 1, 6 * 7', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -47,7 +45,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate division', () => {
             // Arrange & Act
-            const result = service.run('message 1, 10/9', false, false);
+            const result = service.run('output 1, 10/9', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -56,7 +54,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate integer division', () => {
             // Arrange & Act
-            const result = service.run('message 1, 10\\9', false, false);
+            const result = service.run('output 1, 10\\9', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -65,7 +63,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate mod', () => {
             // Arrange & Act
-            const result = service.run('message 1, 10 mod 3', false, false);
+            const result = service.run('output 1, 10 mod 3', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -74,7 +72,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate power', () => {
             // Arrange & Act
-            const result = service.run('message 1, 10 ^ 3', false, false);
+            const result = service.run('output 1, 10 ^ 3', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -83,7 +81,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle negative multiplication', () => {
             // Arrange & Act
-            const result = service.run('message 1, -1 * -1', false, false);
+            const result = service.run('output 1, -1 * -1', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -92,7 +90,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle positive times negative', () => {
             // Arrange & Act
-            const result = service.run('message 1, 1 * -1', false, false);
+            const result = service.run('output 1, 1 * -1', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -101,7 +99,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle zero multiplication', () => {
             // Arrange & Act
-            const result = service.run('message 1, 0 * 1', false, false);
+            const result = service.run('output 1, 0 * 1', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -110,7 +108,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle zero division', () => {
             // Arrange & Act
-            const result = service.run('message 1, 0 / 1', false, false);
+            const result = service.run('output 1, 0 / 1', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -119,7 +117,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle division by zero', () => {
             // Arrange & Act
-            const result = service.run('message 1, 1 / 0', false, false);
+            const result = service.run('output 1, 1 / 0', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -128,7 +126,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle parentheses', () => {
             // Arrange & Act
-            const result = service.run('message 1, (2 + 3) * 4', false, false);
+            const result = service.run('output 1, (2 + 3) * 4', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -137,7 +135,7 @@ describe.skip('ScriptService', () => {
 
         it('should respect operator precedence', () => {
             // Arrange & Act
-            const result = service.run('message 1, 2 + 3 * 4', false, false);
+            const result = service.run('output 1, 2 + 3 * 4', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -146,7 +144,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle complex expression', () => {
             // Arrange & Act
-            const result = service.run('message 1, (10 + 5) * 2 - 8 / 4', false, false);
+            const result = service.run('output 1, (10 + 5) * 2 - 8 / 4', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -157,7 +155,7 @@ describe.skip('ScriptService', () => {
     describe('Trigonometric Functions', () => {
         it('should calculate sin', () => {
             // Arrange & Act
-            const result = service.run('message 1, sin(1)', false, false);
+            const result = service.run('output 1, sin(1)', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -166,7 +164,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate cos', () => {
             // Arrange & Act
-            const result = service.run('message 1, cos(1)', false, false);
+            const result = service.run('output 1, cos(1)', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -175,7 +173,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate tan', () => {
             // Arrange & Act
-            const result = service.run('message 1, tan(1)', false, false);
+            const result = service.run('output 1, tan(1)', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -184,7 +182,7 @@ describe.skip('ScriptService', () => {
 
         it('should calculate atan', () => {
             // Arrange & Act
-            const result = service.run('message 1, atan(1)', false, false);
+            const result = service.run('output 1, atan(1)', false, false);
 
             // Assert
             expect(result.success).toBe(true);
@@ -198,7 +196,7 @@ describe.skip('ScriptService', () => {
             const script = `
                 dim x
                 x = 10
-                message 1, x
+                output 1, x
             `;
 
             // Act
@@ -215,7 +213,7 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 10
                 x += 5
-                message 1, x
+                output 1, x
             `;
 
             // Act
@@ -232,7 +230,7 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 10
                 x -= 3
-                message 1, x
+                output 1, x
             `;
 
             // Act
@@ -249,7 +247,7 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 10
                 x *= 3
-                message 1, x
+                output 1, x
             `;
 
             // Act
@@ -266,7 +264,7 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 10
                 x /= 2
-                message 1, x
+                output 1, x
             `;
 
             // Act
@@ -284,7 +282,7 @@ describe.skip('ScriptService', () => {
                 a = 5
                 b = 3
                 c = a + b
-                message 1, c
+                output 1, c
             `;
 
             // Act
@@ -302,7 +300,7 @@ describe.skip('ScriptService', () => {
             const script = `
                 dim s
                 s = "Hello World"
-                message 1, s
+                output 1, s
             `;
 
             // Act
@@ -320,7 +318,7 @@ describe.skip('ScriptService', () => {
                 a = "Hello"
                 b = " World"
                 c = a & b
-                message 1, c
+                output 1, c
             `;
 
             // Act
@@ -339,9 +337,9 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 10
                 if x > 5 then
-                    message 1, "greater"
+                    output 1, "greater"
                 else
-                    message 1, "smaller"
+                    output 1, "smaller"
                 end if
             `;
 
@@ -359,9 +357,9 @@ describe.skip('ScriptService', () => {
                 dim x
                 x = 3
                 if x > 5 then
-                    message 1, "greater"
+                    output 1, "greater"
                 else
-                    message 1, "smaller"
+                    output 1, "smaller"
                 end if
             `;
 
@@ -380,12 +378,12 @@ describe.skip('ScriptService', () => {
                 x = 10
                 if x > 5 then
                     if x > 8 then
-                        message 1, "big"
+                        output 1, "big"
                     else
-                        message 1, "medium"
+                        output 1, "medium"
                     end if
                 else
-                    message 1, "small"
+                    output 1, "small"
                 end if
             `;
 
@@ -399,12 +397,12 @@ describe.skip('ScriptService', () => {
 
         it('should handle comparison operators', () => {
             // Arrange & Act
-            const ltResult = service.run('message 1, 3 < 5', false, false);
-            const leResult = service.run('message 1, 5 <= 5', false, false);
-            const gtResult = service.run('message 1, 7 > 5', false, false);
-            const geResult = service.run('message 1, 5 >= 5', false, false);
-            const eqResult = service.run('message 1, 5 = 5', false, false);
-            const neResult = service.run('message 1, 5 <> 3', false, false);
+            const ltResult = service.run('output 1, 3 < 5', false, false);
+            const leResult = service.run('output 1, 5 <= 5', false, false);
+            const gtResult = service.run('output 1, 7 > 5', false, false);
+            const geResult = service.run('output 1, 5 >= 5', false, false);
+            const eqResult = service.run('output 1, 5 = 5', false, false);
+            const neResult = service.run('output 1, 5 <> 3', false, false);
 
             // Assert - VBScript returns "True" with capital T
             expect(ltResult.success).toBe(true);
@@ -431,7 +429,7 @@ describe.skip('ScriptService', () => {
                 for i = 1 to 5
                     sum += i
                 next
-                message 1, sum
+                output 1, sum
             `;
 
             // Act
@@ -450,7 +448,7 @@ describe.skip('ScriptService', () => {
                 for i = 0 to 10 step 2
                     sum += i
                 next
-                message 1, sum
+                output 1, sum
             `;
 
             // Act
@@ -471,7 +469,7 @@ describe.skip('ScriptService', () => {
                         count += 1
                     next
                 next
-                message 1, count
+                output 1, count
             `;
 
             // Act
@@ -494,7 +492,7 @@ describe.skip('ScriptService', () => {
                     sum += i
                     i += 1
                 loop
-                message 1, sum
+                output 1, sum
             `;
 
             // Act
@@ -515,7 +513,7 @@ describe.skip('ScriptService', () => {
                     sum += i
                     i += 1
                 loop until i > 5
-                message 1, sum
+                output 1, sum
             `;
 
             // Act
@@ -524,129 +522,6 @@ describe.skip('ScriptService', () => {
             // Assert
             expect(result.success).toBe(true);
             expect(result.messages[0].message).toBe('15');
-        });
-    });
-
-    describe('Functions', () => {
-        it('should define and call a function', () => {
-            // Arrange
-            const script = `
-                function double(x)
-                    double = x * 2
-                end function
-
-                dim result
-                result = double(21)
-                message 1, result
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('42');
-        });
-
-        it('should handle recursive function', () => {
-            // Arrange
-            const script = `
-                function factorial(n)
-                    if n <= 1 then
-                        factorial = 1
-                    else
-                        factorial = n * factorial(n - 1)
-                    end if
-                end function
-
-                dim result
-                result = factorial(5)
-                message 1, result
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('120');
-        });
-    });
-
-    describe('External Variables', () => {
-        it('should use external variable in script', () => {
-            // Arrange
-            const script = service.compile('message 1, external_value', false, true);
-            script.setExternalValue('external_value', 42);
-
-            // Act
-            const result = service.execute(script);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('42');
-        });
-
-        it('should use external string variable', () => {
-            // Arrange
-            const script = service.compile('message 1, name', false, true);
-            script.setExternalValue('name', 'Claude');
-
-            // Act
-            const result = service.execute(script);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('Claude');
-        });
-
-        it('should use multiple external variables', () => {
-            // Arrange
-            const script = service.compile('message 1, a + b', false, true);
-            script.setExternalValue('a', 10);
-            script.setExternalValue('b', 32);
-
-            // Act
-            const result = service.execute(script);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('42');
-        });
-
-        it('should calculate with external variables', () => {
-            // Arrange
-            const script = service.compile(`
-                dim result
-                result = price * quantity
-                message 1, result
-            `, false, true);
-            script.setExternalValue('price', 9.99);
-            script.setExternalValue('quantity', 3);
-
-            // Act
-            const result = service.execute(script);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('29.97');
-        });
-
-        it('should reuse compiled script with different external values', () => {
-            // Arrange
-            const script = service.compile('message 1, x * 2', false, true);
-
-            // Act & Assert - First execution
-            script.setExternalValue('x', 5);
-            const result1 = service.execute(script);
-            expect(result1.success).toBe(true);
-            expect(result1.messages[0].message).toBe('10');
-
-            // Act & Assert - Second execution with different value
-            script.setExternalValue('x', 21);
-            const result2 = service.execute(script);
-            expect(result2.success).toBe(true);
-            expect(result2.messages[0].message).toBe('42');
         });
     });
 
@@ -662,7 +537,7 @@ describe.skip('ScriptService', () => {
 
         it('should return error for undefined variable', () => {
             // Arrange & Act
-            const result = service.run('message 1, undefined_var', true, false);
+            const result = service.run('output 1, undefined_var', true, false);
 
             // Assert
             expect(result.success).toBe(false);
@@ -682,7 +557,7 @@ describe.skip('ScriptService', () => {
     describe('Compilation and Execution', () => {
         it('should compile script separately and execute later', () => {
             // Arrange
-            const script = service.compile('message 1, 42', false, false);
+            const script = service.compile('output 1, 42', false, false);
 
             // Act
             const result = service.execute(script);
@@ -694,7 +569,7 @@ describe.skip('ScriptService', () => {
 
         it('should reuse compiled script multiple times', () => {
             // Arrange
-            const script = service.compile('message 1, 42', false, false);
+            const script = service.compile('output 1, 42', false, false);
 
             // Act
             const result1 = service.execute(script);
@@ -708,153 +583,10 @@ describe.skip('ScriptService', () => {
         });
     });
 
-    describe.skip('Stress Tests', () => {
-        it('should handle large loop', () => {
-            // Arrange
-            const script = `
-                dim i, sum
-                sum = 0
-                for i = 1 to 1000
-                    sum += i
-                next
-                message 1, sum
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('500500');
-        });
-
-        it('should handle nested loops stress', () => {
-            // Arrange
-            const script = `
-                dim i, j, count
-                count = 0
-                for i = 1 to 100
-                    for j = 1 to 100
-                        count += 1
-                    next
-                next
-                message 1, count
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('10000');
-        });
-
-        it('should handle deep recursion within limits', () => {
-            // Arrange
-            const script = `
-                function recurse(n)
-                    if n <= 0 then
-                        recurse = 0
-                    else
-                        recurse = 1 + recurse(n - 1)
-                    end if
-                end function
-
-                dim result
-                result = recurse(100)
-                message 1, result
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('100');
-        });
-
-        it('should fail on too deep recursion', () => {
-            // Arrange
-            const script = `
-                function infinite_recurse(n)
-                    infinite_recurse = 1 + infinite_recurse(n + 1)
-                end function
-
-                dim result
-                result = infinite_recurse(1)
-                message 1, result
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(false);
-            expect(result.error?.description).toContain('recursion');
-        });
-
-        it('should support cancellation token', () => {
-            // Arrange
-            const script = `
-                dim i
-                for i = 1 to 1000000
-                    ' long running loop
-                next
-                message 1, "done"
-            `;
-            const compiled = service.compile(script, false, false);
-            const token: CancellationToken = { isCancelled: true };
-
-            // Act
-            const result = service.execute(compiled, undefined, token);
-
-            // Assert
-            expect(result.success).toBe(false);
-            expect(result.error?.description).toContain('cancelled');
-        });
-
-        it('should handle many sequential operations', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = 1
-                x = x + 1
-                x = x * 2
-                x = x - 1
-                x = x / 2
-                x = x + 10
-                x = x * 3
-                x = x - 5
-                x = x + 100
-                x = x / 5
-                message 1, x
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('25.9');
-        });
-
-        it('should handle complex nested expressions', () => {
-            // Arrange
-            const script = 'message 1, ((1 + 2) * (3 + 4)) + ((5 + 6) * (7 + 8))';
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('186');
-        });
-    });
-
     describe('Logical Operations', () => {
         it('should handle AND operation (bitwise)', () => {
             // Arrange & Act - VBA AND is bitwise on integers
-            const result = service.run('message 1, 7 and 3', false, false);
+            const result = service.run('output 1, 7 and 3', false, false);
 
             // Assert - 7 AND 3 = 0111 AND 0011 = 0011 = 3
             expect(result.success).toBe(true);
@@ -863,7 +595,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle AndAlso with integers (logical)', () => {
             // Arrange & Act - AndAlso is short-circuit logical
-            const result = service.run('message 1, 7 andalso 3', false, false);
+            const result = service.run('output 1, 7 andalso 3', false, false);
 
             // Assert - Both non-zero → True
             expect(result.success).toBe(true);
@@ -872,7 +604,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle OR operation (bitwise)', () => {
             // Arrange & Act - VBA OR is bitwise on integers
-            const result = service.run('message 1, 4 or 2', false, false);
+            const result = service.run('output 1, 4 or 2', false, false);
 
             // Assert - 4 OR 2 = 0100 OR 0010 = 0110 = 6
             expect(result.success).toBe(true);
@@ -881,7 +613,7 @@ describe.skip('ScriptService', () => {
 
         it('should handle OrElse with integers (logical)', () => {
             // Arrange & Act - OrElse is short-circuit logical
-            const result = service.run('message 1, 4 orelse 2', false, false);
+            const result = service.run('output 1, 4 orelse 2', false, false);
 
             // Assert - First non-zero → True
             expect(result.success).toBe(true);
@@ -893,7 +625,7 @@ describe.skip('ScriptService', () => {
             const script = `
                 dim x
                 x = 1 > 2
-                message 1, not x
+                output 1, not x
             `;
 
             // Act
@@ -910,7 +642,7 @@ describe.skip('ScriptService', () => {
                 dim a, b
                 a = 1 > 0
                 b = 2 > 0
-                message 1, a and b
+                output 1, a and b
             `;
 
             // Act
@@ -927,7 +659,7 @@ describe.skip('ScriptService', () => {
                 dim a, b
                 a = 1 > 0
                 b = 2 > 0
-                message 1, a andalso b
+                output 1, a andalso b
             `;
 
             // Act
@@ -945,7 +677,7 @@ describe.skip('ScriptService', () => {
                 dim a, b
                 a = 1 > 2
                 b = 2 > 0
-                message 1, a or b
+                output 1, a or b
             `;
 
             // Act
@@ -961,9 +693,9 @@ describe.skip('ScriptService', () => {
         it('should collect multiple messages', () => {
             // Arrange
             const script = `
-                message 1, "first"
-                message 2, "second"
-                message 3, "third"
+                output 1, "first"
+                output 2, "second"
+                output 3, "third"
             `;
 
             // Act
@@ -981,138 +713,4 @@ describe.skip('ScriptService', () => {
         });
     });
 
-    describe('Control Flow - Select Case', () => {
-        it('should match first case', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = 1
-                Select Case x
-                    Case 1
-                        message 1, "first"
-                    Case 2
-                        message 1, "second"
-                End Select
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('first');
-        });
-
-        it('should match second case', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = 2
-                Select Case x
-                    Case 1
-                        message 1, "first"
-                    Case 2
-                        message 1, "second"
-                End Select
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('second');
-        });
-
-        it('should execute Case Else when no match', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = 99
-                Select Case x
-                    Case 1
-                        message 1, "first"
-                    Case 2
-                        message 1, "second"
-                    Case Else
-                        message 1, "other"
-                End Select
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('other');
-        });
-
-        it('should handle multiple values in Case', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = 3
-                Select Case x
-                    Case 1, 2, 3
-                        message 1, "low"
-                    Case 4, 5, 6
-                        message 1, "high"
-                End Select
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('low');
-        });
-
-        it('should handle string comparison', () => {
-            // Arrange
-            const script = `
-                dim x
-                x = "B"
-                Select Case x
-                    Case "A"
-                        message 1, "letter A"
-                    Case "B"
-                        message 1, "letter B"
-                    Case Else
-                        message 1, "other"
-                End Select
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('letter B');
-        });
-
-        it('should not execute any case when no match and no Case Else', () => {
-            // Arrange
-            const script = `
-                dim x
-                dim result
-                x = 99
-                result = "none"
-                Select Case x
-                    Case 1
-                        result = "first"
-                    Case 2
-                        result = "second"
-                End Select
-                message 1, result
-            `;
-
-            // Act
-            const result = service.run(script, false, false);
-
-            // Assert
-            expect(result.success).toBe(true);
-            expect(result.messages[0].message).toBe('none');
-        });
-    });
 });

@@ -370,7 +370,6 @@ export class LexicalAnalyser {
     this.predefinedIdentifiers.set('DEBUGSHOW', Tokens.tokDebugShow);
     this.predefinedIdentifiers.set('DEBUGHIDE', Tokens.tokDebugHide);
     this.predefinedIdentifiers.set('MSGBOX', Tokens.tokMsgbox);
-    this.predefinedIdentifiers.set('RESULT', Tokens.tokResult);
     this.predefinedIdentifiers.set('DOEVENTS', Tokens.tokDoEvents);
     this.predefinedIdentifiers.set('INPUTBOX', Tokens.tokInputbox);
     this.predefinedIdentifiers.set('TRUE', Tokens.tokTrue);
@@ -405,6 +404,8 @@ export class LexicalAnalyser {
     // Control Structures
     this.predefinedIdentifiers.set('SELECT', Tokens.tokSelect);
     this.predefinedIdentifiers.set('CASE', Tokens.tokCase);
+    // Output
+    this.predefinedIdentifiers.set('OUTPUT', Tokens.tokOutput);
   }
 
   dispose() {

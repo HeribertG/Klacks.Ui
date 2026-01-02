@@ -110,14 +110,16 @@ export class ScriptExecutionContext {
     this.pc = 0;
 
     const instructions = this.script.instructions;
+    let instructionCount = 0;
 
     while (this.pc < instructions.length && this.running) {
       const operation = instructions[this.pc] as unknown[];
       this.executeInstruction(operation);
 
       this.pc++;
+      instructionCount++;
 
-      if (this.pc > ScriptExecutionContext.MAX_INSTRUCTIONS) {
+      if (instructionCount > ScriptExecutionContext.MAX_INSTRUCTIONS) {
         this.running = false;
         throw new ScriptTooComplexException(
           `Maximum instruction count (${ScriptExecutionContext.MAX_INSTRUCTIONS}) exceeded`

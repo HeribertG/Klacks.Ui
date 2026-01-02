@@ -111,7 +111,7 @@ export enum Tokens {
   tokMsgbox = 62,
   tokDoEvents = 63,
   tokInputbox = 64,
-  tokResult = 65,
+  tokOutput = 65,
   tokTrue = 66,
   tokFalse = 67,
   tokPI = 68,

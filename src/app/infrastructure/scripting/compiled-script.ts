@@ -103,7 +103,4 @@ export class CompiledScript {
     return identifier?.value ?? null;
   }
 
-  clearExternalValues(): void {
-    this._externalSymbols.clear();
-  }
 }
