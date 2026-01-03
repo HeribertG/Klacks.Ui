@@ -71,14 +71,14 @@ export interface IWorkScheduleClient {
 export interface IWorkScheduleResponse {
   entries: IScheduleCell[];
   clients: IWorkScheduleClient[];
-  monthlyHours: Record<string, IMonthlyHours>;
+  periodHours: Record<string, IPeriodHours>;
   totalClientCount: number;
 }
 
-export interface IMonthlyHours {
+export interface IPeriodHours {
   hours: number;
   surcharges: number;
-  guaranteedHoursPerMonth: number;
+  guaranteedHours: number;
 }
 
 export enum WorkScheduleEntryType {

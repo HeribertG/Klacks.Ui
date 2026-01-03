@@ -5,7 +5,7 @@ import {
   IWorkFilter,
 } from 'src/app/domain/models/schedule-class';
 import {
-  IMonthlyHours,
+  IPeriodHours,
   IWorkScheduleClient,
   IScheduleCell,
   IWorkScheduleFilter,
@@ -34,7 +34,7 @@ export class WorkScheduleLoaderService {
   public workScheduleEntries: IScheduleCell[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
-  public monthlyHours = new Map<string, IMonthlyHours>();
+  public periodHours = new Map<string, IPeriodHours>();
 
   get isLoadingMore(): boolean {
     return this._isLoadingMore();
@@ -61,7 +61,7 @@ export class WorkScheduleLoaderService {
     this.workScheduleEntries = [];
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
-    this.monthlyHours = new Map();
+    this.periodHours = new Map();
     this._autoLoadEnabled = true;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
 
@@ -88,7 +88,7 @@ export class WorkScheduleLoaderService {
           this.workScheduleEntries = response.entries ?? [];
           this.workScheduleByClientAndDate = this.groupByClientAndDate(this.workScheduleEntries);
           this.clients = this.convertToClientWork(response.clients ?? []);
-          this.monthlyHours = new Map(Object.entries(response.monthlyHours ?? {}));
+          this.periodHours = new Map(Object.entries(response.periodHours ?? {}));
           this._totalAvailableClients = response.totalClientCount;
           this.updateClientNeededRows();
 
@@ -127,8 +127,8 @@ export class WorkScheduleLoaderService {
           this.mergeIntoGroupedData(newEntries);
           this.clients.push(...this.convertToClientWork(newClients));
 
-          for (const [key, value] of Object.entries(response.monthlyHours ?? {})) {
-            this.monthlyHours.set(key, value);
+          for (const [key, value] of Object.entries(response.periodHours ?? {})) {
+            this.periodHours.set(key, value);
           }
 
           this.updateClientNeededRows();

@@ -76,9 +76,9 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private createViewModel(contract: IContract): ContractFormViewModel {
     return {
-      internalGuaranteedHours: transformNumberToOwnTime(contract.guaranteedHoursPerMonth ?? 0, true),
-      internalMinimumHours: transformNumberToOwnTime(contract.minimumHoursPerMonth ?? 0, true),
-      internalMaximumHours: transformNumberToOwnTime(contract.maximumHoursPerMonth ?? 0, true),
+      internalGuaranteedHours: transformNumberToOwnTime(contract.guaranteedHours ?? 0, true),
+      internalMinimumHours: transformNumberToOwnTime(contract.minimumHours ?? 0, true),
+      internalMaximumHours: transformNumberToOwnTime(contract.maximumHours ?? 0, true),
       internalValidFrom: contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined,
       internalValidUntil: contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined,
     };
@@ -86,9 +86,9 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private applyViewModelToContract(): void {
     if (!this.editingContract || !this.contractForm_) return;
-    this.editingContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalGuaranteedHours);
-    this.editingContract.minimumHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalMinimumHours);
-    this.editingContract.maximumHoursPerMonth = transformOwnTimeToNumber(this.contractForm_.internalMaximumHours);
+    this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.contractForm_.internalGuaranteedHours);
+    this.editingContract.minimumHours = transformOwnTimeToNumber(this.contractForm_.internalMinimumHours);
+    this.editingContract.maximumHours = transformOwnTimeToNumber(this.contractForm_.internalMaximumHours);
     if (this.contractForm_.internalValidFrom) {
       const validFrom = transformNgbDateStructToDate(this.contractForm_.internalValidFrom);
       if (validFrom) {

@@ -49,40 +49,40 @@ export class DataManagementContractService {
 
   get guaranteedHoursForBinding(): OwnTime {
     return transformNumberToOwnTime(
-      this.editContract?.guaranteedHoursPerMonth || 0,
+      this.editContract?.guaranteedHours || 0,
       true
     );
   }
 
   set guaranteedHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.guaranteedHoursPerMonth = transformOwnTimeToNumber(value);
+      this.editContract.guaranteedHours = transformOwnTimeToNumber(value);
     }
   }
 
   get minimumHoursForBinding(): OwnTime {
     return transformNumberToOwnTime(
-      this.editContract?.minimumHoursPerMonth || 0,
+      this.editContract?.minimumHours || 0,
       true
     );
   }
 
   set minimumHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.minimumHoursPerMonth = transformOwnTimeToNumber(value);
+      this.editContract.minimumHours = transformOwnTimeToNumber(value);
     }
   }
 
   get maximumHoursForBinding(): OwnTime {
     return transformNumberToOwnTime(
-      this.editContract?.maximumHoursPerMonth || 0,
+      this.editContract?.maximumHours || 0,
       true
     );
   }
 
   set maximumHoursForBinding(value: OwnTime) {
     if (this.editContract) {
-      this.editContract.maximumHoursPerMonth = transformOwnTimeToNumber(value);
+      this.editContract.maximumHours = transformOwnTimeToNumber(value);
     }
   }
   public availableCalendars: ICalendarSelection[] = [];
@@ -182,9 +182,9 @@ export class DataManagementContractService {
 
     const newContract = new Contract();
     newContract.name = '';
-    newContract.guaranteedHoursPerMonth = 160;
-    newContract.maximumHoursPerMonth = 200;
-    newContract.minimumHoursPerMonth = 120;
+    newContract.guaranteedHours = 160;
+    newContract.maximumHours = 200;
+    newContract.minimumHours = 120;
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;
@@ -350,15 +350,15 @@ export class DataManagementContractService {
       this.editContract.name.trim() !== '' &&
       this.editContract.name !== this.emptyPlaceholder &&
       this.editContract.validFrom &&
-      this.editContract.guaranteedHoursPerMonth >= 0 &&
-      this.editContract.maximumHoursPerMonth >= 0 &&
-      this.editContract.minimumHoursPerMonth >= 0 &&
-      this.editContract.minimumHoursPerMonth <=
-        this.editContract.maximumHoursPerMonth &&
-      this.editContract.guaranteedHoursPerMonth <=
-        this.editContract.maximumHoursPerMonth &&
-      this.editContract.guaranteedHoursPerMonth >=
-        this.editContract.minimumHoursPerMonth
+      this.editContract.guaranteedHours >= 0 &&
+      this.editContract.maximumHours >= 0 &&
+      this.editContract.minimumHours >= 0 &&
+      this.editContract.minimumHours <=
+        this.editContract.maximumHours &&
+      this.editContract.guaranteedHours <=
+        this.editContract.maximumHours &&
+      this.editContract.guaranteedHours >=
+        this.editContract.minimumHours
     ) {
       // Check date range if validUntil is set
       if (
@@ -399,7 +399,7 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.guaranteedHoursPerMonth < 0) {
+    if (contract.guaranteedHours < 0) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedHoursNegative'
@@ -407,25 +407,25 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.maximumHoursPerMonth < 0) {
+    if (contract.maximumHours < 0) {
       errors.push(
         this.translate.instant('setting.contract.validation.maxHoursNegative')
       );
     }
 
-    if (contract.minimumHoursPerMonth < 0) {
+    if (contract.minimumHours < 0) {
       errors.push(
         this.translate.instant('setting.contract.validation.minHoursNegative')
       );
     }
 
-    if (contract.minimumHoursPerMonth > contract.maximumHoursPerMonth) {
+    if (contract.minimumHours > contract.maximumHours) {
       errors.push(
         this.translate.instant('setting.contract.validation.minGreaterThanMax')
       );
     }
 
-    if (contract.guaranteedHoursPerMonth > contract.maximumHoursPerMonth) {
+    if (contract.guaranteedHours > contract.maximumHours) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedGreaterThanMax'
@@ -433,7 +433,7 @@ export class DataManagementContractService {
       );
     }
 
-    if (contract.guaranteedHoursPerMonth < contract.minimumHoursPerMonth) {
+    if (contract.guaranteedHours < contract.minimumHours) {
       errors.push(
         this.translate.instant(
           'setting.contract.validation.guaranteedLessThanMin'

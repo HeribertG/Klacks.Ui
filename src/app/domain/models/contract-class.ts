@@ -1,11 +1,23 @@
 import { ICalendarSelection } from './calendar-selection-class';
 
+export enum PaymentInterval {
+  Weekly = 0,
+  Biweekly = 1,
+  Monthly = 2,
+  Individual = 3,
+}
+
 export interface IContract {
   id: string | undefined;
   name: string;
-  guaranteedHoursPerMonth: number;
-  maximumHoursPerMonth: number;
-  minimumHoursPerMonth: number;
+  guaranteedHours: number;
+  maximumHours: number;
+  minimumHours: number;
+  fullTime: number;
+  nightRate: number;
+  holidayRate: number;
+  weekendRate: number;
+  paymentInterval: PaymentInterval;
   validFrom: Date;
   validUntil: Date | undefined;
   calendarSelection: ICalendarSelection | undefined;
@@ -15,9 +27,14 @@ export interface IContract {
 export class Contract implements IContract {
   id: string | undefined = '';
   name = '';
-  guaranteedHoursPerMonth = 0;
-  maximumHoursPerMonth = 0;
-  minimumHoursPerMonth = 0;
+  guaranteedHours = 0;
+  maximumHours = 0;
+  minimumHours = 0;
+  fullTime = 0;
+  nightRate = 0;
+  holidayRate = 0;
+  weekendRate = 0;
+  paymentInterval = PaymentInterval.Monthly;
 
   validFrom = new Date();
   validUntil: Date | undefined = undefined;
