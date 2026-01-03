@@ -1,125 +1,139 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Component,
-  EffectRef,
-  Injector,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  effect,
-  inject,
-  runInInjectionContext,
-} from '@angular/core';
-
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
+interface EmailModel {
+  outgoingServer: string;
+  outgoingServerPort: string;
+  outgoingServerTimeout: string;
+  enabledSSL: string;
+  authenticationType: string;
+  dispositionNotification: string;
+  readReceipt: string;
+  replyTo: string;
+  username: string;
+  password: string;
+}
+
+interface ContactModel {
+  mark: string;
+}
+
 @Component({
   selector: 'app-email-setting',
   templateUrl: './email-setting.component.html',
   styleUrls: ['./email-setting.component.scss'],
   standalone: true,
-  imports: [
-    FormsModule,
-    TranslateModule,
-    NgbModule,
-    SpinnerModule,
-    FontAwesomeModule
-],
+  imports: [TranslateModule, FontAwesomeModule, Field],
 })
 export class EmailSettingComponent implements OnInit, OnDestroy {
-  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private appSettingsService = inject(AppSettingsManagementService);
   private dataSettingsVariousService = inject(DataSettingsVariousService);
   private toastShowService = inject(ToastShowService);
   private translateService = inject(TranslateService);
-  private injector = inject(Injector);
 
-  @ViewChild(NgForm, { static: false }) emailSettingsForm: NgForm | undefined;
-
-  ruleName = '';
-  showPassword = false;
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
-
-  public isDataLoaded = false;
+  public showPassword = signal(false);
   public isTestingEmail = false;
-  public testResult: EmailTestResult | null = null;
 
-  private formSubscription?: Subscription;
   private ngUnsubscribe = new Subject<void>();
-  private effects: EffectRef[] = [];
+  private isInitialized = false;
 
-  ngOnInit(): void {
-    this.readSignals();
+  private emailModel = signal<EmailModel>({
+    outgoingServer: '',
+    outgoingServerPort: '',
+    outgoingServerTimeout: '',
+    enabledSSL: 'true',
+    authenticationType: 'LOGIN',
+    dispositionNotification: 'false',
+    readReceipt: '',
+    replyTo: '',
+    username: '',
+    password: '',
+  });
+  emailForm = form(this.emailModel);
+
+  private contactModel = signal<ContactModel>({ mark: '' });
+  contactForm = form(this.contactModel);
+
+  constructor() {
+    effect(() => {
+      const model = this.emailModel();
+      if (this.isInitialized) {
+        this.appSettingsService.emailSettings.update(s => ({
+          ...s,
+          outgoingServer: model.outgoingServer,
+          outgoingServerPort: model.outgoingServerPort,
+          outgoingServerTimeout: model.outgoingServerTimeout,
+          enabledSSL: model.enabledSSL,
+          authenticationType: model.authenticationType,
+          dispositionNotification: model.dispositionNotification,
+          readReceipt: model.readReceipt,
+          replyTo: model.replyTo,
+          username: model.username,
+          password: model.password,
+        }));
+      }
+    });
+
+    effect(() => {
+      const model = this.contactModel();
+      if (this.isInitialized) {
+        this.appSettingsService.contactSettings.update(s => ({
+          ...s,
+          mark: model.mark,
+        }));
+      }
+    });
   }
 
-  private setupFormSubscription(): void {
-    if (this.emailSettingsForm?.valueChanges && !this.formSubscription) {
-      this.emailSettingsForm.form.markAsPristine();
+  async ngOnInit(): Promise<void> {
+    await this.appSettingsService.loadSettingsAsync();
+    const email = this.appSettingsService.emailSettings();
+    const contact = this.appSettingsService.contactSettings();
 
-      this.formSubscription = this.emailSettingsForm.valueChanges.subscribe(
-        () => {
-          if (this.emailSettingsForm?.dirty) {
-            this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
-          }
-        }
-      );
-    }
+    this.emailModel.set({
+      outgoingServer: email.outgoingServer,
+      outgoingServerPort: email.outgoingServerPort,
+      outgoingServerTimeout: email.outgoingServerTimeout,
+      enabledSSL: email.enabledSSL,
+      authenticationType: email.authenticationType,
+      dispositionNotification: email.dispositionNotification,
+      readReceipt: email.readReceipt,
+      replyTo: email.replyTo,
+      username: email.username,
+      password: email.password,
+    });
+
+    this.contactModel.set({ mark: contact.mark });
+    this.isInitialized = true;
   }
 
   ngOnDestroy(): void {
-    if (this.formSubscription) {
-      this.formSubscription.unsubscribe();
-    }
-
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
-
-    this.effects.forEach((effectRef) => {
-      if (effectRef) {
-        effectRef.destroy();
-      }
-    });
-    this.effects = [];
   }
 
-  private readSignals(): void {
-    const resetEffect = runInInjectionContext(this.injector, () => {
-      return effect(() => {
-        const isReset = this.dataManagementSettingsService.isReset();
-        if (isReset && !this.isDataLoaded) {
-          this.isDataLoaded = true;
-
-          setTimeout(() => {
-            if (this.emailSettingsForm) {
-              this.setupFormSubscription();
-            }
-          }, 100);
-        }
-      });
-    });
-    this.effects.push(resetEffect);
+  toggleShowPassword(): void {
+    this.showPassword.update(v => !v);
   }
 
   public testEmailConfiguration(): void {
     this.isTestingEmail = true;
-    this.testResult = null;
 
-    // Validate email address format
-    const username = this.dataManagementSettingsService.outgoingserverUsername;
+    const model = this.emailModel();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailRegex.test(username)) {
+    if (!emailRegex.test(model.username)) {
       this.isTestingEmail = false;
       this.toastShowService.showError(
         this.translateService.instant('EMAIL_TEST_INVALID_ADDRESS'),
@@ -129,13 +143,13 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
     }
 
     const emailConfig = {
-      server: this.dataManagementSettingsService.outgoingServer,
-      port: this.dataManagementSettingsService.outgoingServerPort,
-      enableSSL: this.dataManagementSettingsService.enabledSSL,
-      authType: this.dataManagementSettingsService.authenticationType,
-      username: username,
-      password: this.dataManagementSettingsService.outgoingserverPassword,
-      replyTo: this.dataManagementSettingsService.replyTo,
+      server: model.outgoingServer,
+      port: model.outgoingServerPort,
+      enableSSL: model.enabledSSL,
+      authType: model.authenticationType,
+      username: model.username,
+      password: model.password,
+      replyTo: model.replyTo,
     };
 
     this.dataSettingsVariousService
@@ -158,14 +172,15 @@ export class EmailSettingComponent implements OnInit, OnDestroy {
             );
           }
         },
-        error: (error: any) => {
+        error: (error: unknown) => {
           console.error('Email test error:', error);
           this.isTestingEmail = false;
 
+          const errorMessage = error instanceof Error ? error.message : '';
           this.toastShowService.showError(
             this.translateService.instant('EMAIL_TEST_UNEXPECTED_ERROR'),
             this.translateService.instant('EMAIL_TEST_ERROR'),
-            error.message || ''
+            errorMessage
           );
         },
       });

@@ -5,7 +5,7 @@
 
   <div id="owner-address-line" class="container-line"></div>
 
-  <form id="owner-address-form" #ownerAddressForm="ngForm">
+  <div id="owner-address-form">
     <div id="owner-address-name-phone-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="setting-owner-address-name">{{
@@ -15,9 +15,8 @@
           id="setting-owner-address-name"
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.appAddressName"
+          [field]="addressForm.addressName"
           aria-label="appAddressName"
-          name="appAddressName"
         />
       </div>
 
@@ -30,9 +29,8 @@
             id="setting-owner-address-tel"
             type="text"
             class="form-control"
-            [(ngModel)]="dataManagementSettingsService.appAddressPhone"
+            [field]="addressForm.phone"
             aria-label="appAddressPhone"
-            name="appAddressPhone"
           />
         </div>
       </div>
@@ -47,9 +45,8 @@
           id="setting-owner-address-supplement"
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.appSupplementAddress"
+          [field]="addressForm.supplementAddress"
           aria-label="appSupplementAddress"
-          name="appSupplementAddress"
         />
       </div>
 
@@ -62,9 +59,8 @@
             id="setting-owner-address-email"
             type="email"
             class="form-control"
-            [(ngModel)]="dataManagementSettingsService.appAddressMail"
+            [field]="addressForm.email"
             aria-label="appAddressMail"
-            name="appAddressMail"
           />
         </div>
       </div>
@@ -79,9 +75,8 @@
           id="setting-owner-address-street"
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.appAddressAddress"
+          [field]="addressForm.address"
           aria-label="appAddressAddress"
-          name="appAddressAddress"
         />
       </div>
     </div>
@@ -95,9 +90,8 @@
           id="setting-owner-address-zip"
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.appAddressZip"
+          [field]="addressForm.zip"
           aria-label="appAddressZip"
-          name="appAddressZip"
         />
       </div>
     </div>
@@ -111,13 +105,12 @@
           id="setting-owner-address-city"
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.appAddressPlace"
+          [field]="addressForm.place"
           aria-label="appAddressPlace"
-          name="appAddressPlace"
         />
       </div>
     </div>
 
     <div class="bottom-border-space"></div>
-  </form>
+  </div>
 </div>

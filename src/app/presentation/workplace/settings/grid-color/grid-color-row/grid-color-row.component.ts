@@ -1,6 +1,6 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, inject, signal, effect, OnChanges } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ISetting } from 'src/app/domain/models/settings-various-class';
@@ -11,27 +11,32 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   templateUrl: './grid-color-row.component.html',
   styleUrls: ['./grid-color-row.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, NgbModule],
+  imports: [TranslateModule, NgbModule, Field],
 })
-export class GridColorRowComponent {
+export class GridColorRowComponent implements OnChanges {
   @Input() data: ISetting | undefined;
 
   public translate = inject(TranslateService);
   private gridColorService = inject(GridColorService);
-  private saveTimeout: ReturnType<typeof setTimeout> | undefined;
 
-  onChange(event: Event): void {
-    if (this.data && event.target) {
-      const inputElement = event.target as HTMLInputElement;
-      this.data.value = inputElement.value;
+  private colorModel = signal({ color: '#000000' });
+  colorForm = form(this.colorModel, (f) => {
+    debounce(f.color, 800);
+  });
+
+  constructor() {
+    effect(() => {
+      const color = this.colorModel().color;
+      if (this.data && color !== this.data.value) {
+        this.data.value = color;
+        this.gridColorService.save();
+      }
+    });
+  }
+
+  ngOnChanges(): void {
+    if (this.data) {
+      this.colorModel.set({ color: this.data.value });
     }
-
-    if (this.saveTimeout) {
-      clearTimeout(this.saveTimeout);
-    }
-
-    this.saveTimeout = setTimeout(() => {
-      this.gridColorService.save();
-    }, 800);
   }
 }

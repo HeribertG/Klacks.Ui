@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { GridColorHeaderComponent } from './grid-color-header/grid-color-header.component';
@@ -16,7 +15,6 @@ import { GridColorService } from 'src/app/domain/services/settings/grid-color.se
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     NgbModule,
     SpinnerModule,
     GridColorHeaderComponent,

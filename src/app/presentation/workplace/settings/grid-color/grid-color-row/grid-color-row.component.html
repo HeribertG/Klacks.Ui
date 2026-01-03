@@ -1,14 +1,16 @@
-<form id="grid-color-row-form-{{ data!.type }}">
+<div id="grid-color-row-form-{{ data!.type }}">
   <div id="grid-color-row-container-{{ data!.type }}" class="first custom-control-inline">
-
     <div id="grid-color-row-color-wrapper-{{ data!.type }}">
-
-      <input id="grid-color-row-input-{{ data!.type }}" type="color" class="form-control form-control-color color-button color-value" name="color"
-        (change)="onChange($event)" aria-label=" data.color" [ngModel]="data!.value" (ngModelChange)="data!.value">
+      <input
+        id="grid-color-row-input-{{ data!.type }}"
+        type="color"
+        class="form-control form-control-color color-button color-value"
+        [field]="colorForm.color"
+        aria-label="color"
+      />
     </div>
     <div id="grid-color-row-type-wrapper-{{ data!.type }}">
-      <div id="grid-color-row-type-{{ data!.type }}" class="form-control color-type">{{data!.type}}</div>
+      <div id="grid-color-row-type-{{ data!.type }}" class="form-control color-type">{{ data!.type }}</div>
     </div>
   </div>
-
-</form>
+</div>

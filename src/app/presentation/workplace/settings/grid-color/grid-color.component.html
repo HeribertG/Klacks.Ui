@@ -1,21 +1,18 @@
-<form id="grid-color-form">
+<div id="grid-color-form">
   <div id="grid-color-header" class="container-header">
     {{ translate.instant("setting.color-table.headline") }}
   </div>
 
   <div id="grid-color-line" class="container-line"></div>
 
-  @if (gridColorService.settingList && gridColorService.settingList.length > 0)
-  {
-  <app-grid-color-header id="grid-color-table-header"> </app-grid-color-header>
+  @if (gridColorService.settingList && gridColorService.settingList.length > 0) {
+    <app-grid-color-header id="grid-color-table-header"></app-grid-color-header>
   }
   <div id="grid-color-box" class="container-box">
-    @for (c of gridColorService.settingList; track c.id || $index; let i =
-    $index) {
-    <app-grid-color-row [id]="'grid-color-row-' + i" [data]="c">
-    </app-grid-color-row>
+    @for (c of gridColorService.settingList; track c.id || $index; let i = $index) {
+      <app-grid-color-row [id]="'grid-color-row-' + i" [data]="c"></app-grid-color-row>
     }
   </div>
 
   <div id="grid-color-bottom-row" class="row"></div>
-</form>
+</div>

@@ -1,88 +1,71 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Component,
-  EffectRef,
-  OnInit,
-  ViewChild,
-  effect,
-  inject,
-  AfterViewInit,
-  OnDestroy,
-  runInInjectionContext,
-  Injector,
-} from '@angular/core';
-import { Subject } from 'rxjs';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-
-
+import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule, NgForm } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
+
+interface AddressModel {
+  addressName: string;
+  phone: string;
+  supplementAddress: string;
+  email: string;
+  address: string;
+  zip: string;
+  place: string;
+}
 
 @Component({
   selector: 'app-owner-address',
   templateUrl: './owner-address.component.html',
   styleUrls: ['./owner-address.component.scss'],
   standalone: true,
-  imports: [
-    TranslateModule,
-    FormsModule,
-    NgbModule,
-    SpinnerModule
-],
+  imports: [TranslateModule, Field],
 })
-export class OwnerAddressComponent implements OnInit, AfterViewInit, OnDestroy {
-
-  @ViewChild(NgForm, { static: false }) ownerAddressForm: NgForm | undefined;
-
+export class OwnerAddressComponent implements OnInit {
   public translate = inject(TranslateService);
-  public dataManagementSettingsService = inject(DataManagementSettingsService);
-  private injector = inject(Injector);
+  private appSettingsService = inject(AppSettingsManagementService);
 
-  keyValueDiffers: any;
-  objectForUnsubscribe: any;
-  private ngUnsubscribe = new Subject<void>();
-  private effects: EffectRef[] = [];
+  private isInitialized = false;
+  private addressModel = signal<AddressModel>({
+    addressName: '',
+    phone: '',
+    supplementAddress: '',
+    email: '',
+    address: '',
+    zip: '',
+    place: '',
+  });
+  addressForm = form(this.addressModel);
 
-  ngOnInit(): void {
-    this.readSignals();
-  }
-
-  ngAfterViewInit(): void {
-    this.objectForUnsubscribe = this.ownerAddressForm!.valueChanges!.subscribe(
-      () => {
-        if (this.ownerAddressForm!.dirty) {
-          setTimeout(() => this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1), 100);
-        }
-      }
-    );
-  }
-
-  ngOnDestroy(): void {
-    if (this.objectForUnsubscribe) {
-      this.objectForUnsubscribe.unsubscribe();
-    }
-    this.ngUnsubscribe.next();
-    this.ngUnsubscribe.complete();
-
-    this.effects.forEach((effectRef) => {
-      if (effectRef) {
-        effectRef.destroy();
+  constructor() {
+    effect(() => {
+      const model = this.addressModel();
+      if (this.isInitialized) {
+        this.appSettingsService.contactSettings.update(s => ({
+          ...s,
+          addressName: model.addressName,
+          phone: model.phone,
+          supplementAddress: model.supplementAddress,
+          email: model.email,
+          address: model.address,
+          zip: model.zip,
+          place: model.place,
+        }));
       }
     });
-    this.effects = [];
   }
 
-  private readSignals(): void {
-    runInInjectionContext(this.injector, () => {
-      const resetEffect = effect(() => {
-        const isReset = this.dataManagementSettingsService.isReset();
-        if (isReset) {
-          // Reset effect - no need to trigger save
-        }
-      });
-      this.effects.push(resetEffect);
+  async ngOnInit(): Promise<void> {
+    await this.appSettingsService.loadSettingsAsync();
+    const contact = this.appSettingsService.contactSettings();
+    this.addressModel.set({
+      addressName: contact.addressName,
+      phone: contact.phone,
+      supplementAddress: contact.supplementAddress,
+      email: contact.email,
+      address: contact.address,
+      zip: contact.zip,
+      place: contact.place,
     });
+    this.isInitialized = true;
   }
 }

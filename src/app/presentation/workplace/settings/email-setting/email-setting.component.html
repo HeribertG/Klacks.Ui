@@ -5,17 +5,15 @@
 
   <div id="email-setting-line" class="container-line"></div>
 
-  @if (isDataLoaded) {
-  <form id="email-setting-form" #emailSettingsForm="ngForm">
+  <div id="email-setting-form">
     <div id="email-setting-server-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="outgoingServer">Outgoing Server</label>
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.outgoingServer"
+          [field]="emailForm.outgoingServer"
           aria-label="outgoingServer"
-          name="outgoingServer"
           id="outgoingServer"
         />
       </div>
@@ -24,9 +22,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.outgoingServerPort"
+          [field]="emailForm.outgoingServerPort"
           aria-label="outgoingServerPort"
-          name="outgoingServerPort"
           id="outgoingServerPort"
         />
       </div>
@@ -37,34 +34,21 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.outgoingServerTimeout"
+          [field]="emailForm.outgoingServerTimeout"
           aria-label="outgoingServerTimeout"
-          name="outgoingServerTimeout"
           id="outgoingServerTimeout"
         />
       </div>
       <div class="form-group secondColumn">
         <label for="enabledSSL">Enabled SSL</label>
         <select
-          type="email"
           class="form-select"
-          [(ngModel)]="dataManagementSettingsService.enabledSSL"
+          [field]="emailForm.enabledSSL"
           aria-label="enabledSSL"
-          name="enabledSSL"
           id="enabledSSL"
         >
-          <option
-            value="true"
-            [selected]="dataManagementSettingsService.enabledSSL === 'true'"
-          >
-            Yes
-          </option>
-          <option
-            value="false"
-            [selected]="dataManagementSettingsService.enabledSSL === 'false'"
-          >
-            No
-          </option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
         </select>
       </div>
     </div>
@@ -72,81 +56,28 @@
       <div class="form-group firstColumn">
         <label for="authenticationType">Authentication Type</label>
         <select
-          type="text"
           class="form-select"
-          [(ngModel)]="dataManagementSettingsService.authenticationType"
+          [field]="emailForm.authenticationType"
           aria-label="authenticationType"
-          name="authenticationType"
           id="authenticationType"
         >
-          <option
-            value="<None>"
-            [selected]="
-              dataManagementSettingsService.authenticationType === '<None>'
-            "
-          >
-            None
-          </option>
-          <option
-            value="LOGIN"
-            [selected]="
-              dataManagementSettingsService.authenticationType === 'LOGIN'
-            "
-          >
-            LOGIN
-          </option>
-          <option
-            value="NTLM"
-            [selected]="
-              dataManagementSettingsService.authenticationType === 'NTLM'
-            "
-          >
-            NTLM
-          </option>
-          <option
-            value="GSSAPI"
-            [selected]="
-              dataManagementSettingsService.authenticationType === 'GSSAPI'
-            "
-          >
-            GSSAPI
-          </option>
-          <option
-            value="WDIGEST"
-            [selected]="
-              dataManagementSettingsService.authenticationType === 'WDIGEST'
-            "
-          >
-            WDIGEST
-          </option>
+          <option value="<None>">None</option>
+          <option value="LOGIN">LOGIN</option>
+          <option value="NTLM">NTLM</option>
+          <option value="GSSAPI">GSSAPI</option>
+          <option value="WDIGEST">WDIGEST</option>
         </select>
       </div>
       <div class="form-group secondColumn">
         <label for="dispositionNotification">Disposition Notification</label>
         <select
           id="dispositionNotification"
-          type="text"
           class="form-select"
-          [(ngModel)]="dataManagementSettingsService.dispositionNotification"
+          [field]="emailForm.dispositionNotification"
           aria-label="dispositionNotification"
-          name="dispositionNotification"
         >
-          <option
-            value="true"
-            [selected]="
-              dataManagementSettingsService.dispositionNotification === 'true'
-            "
-          >
-            Yes
-          </option>
-          <option
-            value="false"
-            [selected]="
-              dataManagementSettingsService.dispositionNotification === 'false'
-            "
-          >
-            No
-          </option>
+          <option value="true">Yes</option>
+          <option value="false">No</option>
         </select>
       </div>
     </div>
@@ -156,9 +87,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.readReceipt"
+          [field]="emailForm.readReceipt"
           aria-label="readReceipt"
-          name="readReceipt"
           id="readReceipt"
         />
       </div>
@@ -169,9 +99,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.replyTo"
+          [field]="emailForm.replyTo"
           aria-label="replyTo"
-          name="replyTo"
           id="replyTo"
         />
       </div>
@@ -182,9 +111,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.mark"
+          [field]="contactForm.mark"
           aria-label="mark"
-          name="mark"
           id="mark"
         />
       </div>
@@ -195,9 +123,8 @@
         <input
           type="text"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.outgoingserverUsername"
+          [field]="emailForm.username"
           aria-label="outgoingServerAuthUser"
-          name="outgoingServerAuthUser"
           id="outgoingServerAuthUser"
           autocomplete="new-password"
           role="textbox"
@@ -208,22 +135,32 @@
           <label class="password-label" for="outgoingServerAuthKey"
             >SMTP Authentication Key</label
           >
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            class="form-control password-input"
-            [(ngModel)]="dataManagementSettingsService.outgoingserverPassword"
-            name="outgoingServerAuthKey"
-            id="outgoingServerAuthKey"
-            aria-label="outgoingServerAuthKey"
-            autocomplete="new-password"
-          />
+          @if (showPassword()) {
+            <input
+              type="text"
+              class="form-control password-input"
+              [field]="emailForm.password"
+              id="outgoingServerAuthKey"
+              aria-label="outgoingServerAuthKey"
+              autocomplete="new-password"
+            />
+          } @else {
+            <input
+              type="password"
+              class="form-control password-input"
+              [field]="emailForm.password"
+              id="outgoingServerAuthKey"
+              aria-label="outgoingServerAuthKey"
+              autocomplete="new-password"
+            />
+          }
           <span
             id="setting-email-password-toggle"
             class="input-group-text"
-            (click)="showPassword = !showPassword"
+            (click)="toggleShowPassword()"
           >
             <fa-icon
-              [icon]="showPassword ? faEye : faEyeSlash"
+              [icon]="showPassword() ? faEye : faEyeSlash"
               class="password-icon"
             ></fa-icon>
           </span>
@@ -243,23 +180,22 @@
           [disabled]="isTestingEmail"
         >
           @if (!isTestingEmail) {
-          <span>{{
-            "settings.email-setting.button.send-test-email" | translate
-          }}</span>
-          } @if (isTestingEmail) {
-          <span>
-            <span
-              class="spinner-border spinner-border-sm me-2"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            {{ "settings.email-setting.button.sending" | translate }}
-          </span>
+            <span>{{
+              "settings.email-setting.button.send-test-email" | translate
+            }}</span>
+          } @else {
+            <span>
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              {{ "settings.email-setting.button.sending" | translate }}
+            </span>
           }
         </button>
       </div>
     </div>
     <div class="bottom-border-space"></div>
-  </form>
-  }
+  </div>
 </div>

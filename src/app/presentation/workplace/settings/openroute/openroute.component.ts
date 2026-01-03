@@ -1,5 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, OnInit, signal, effect } from '@angular/core';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -8,7 +8,7 @@ import { AppSettingsManagementService } from 'src/app/domain/services/settings/a
 @Component({
   selector: 'app-openroute',
   standalone: true,
-  imports: [FormsModule, TranslateModule, FontAwesomeModule],
+  imports: [TranslateModule, FontAwesomeModule, Field],
   templateUrl: './openroute.component.html',
   styleUrls: ['./openroute.component.scss'],
 })
@@ -18,17 +18,28 @@ export class OpenrouteComponent implements OnInit {
 
   public faEye = faEye;
   public faEyeSlash = faEyeSlash;
-  public showApiKey = false;
+  public showApiKey = signal(false);
 
-  ngOnInit(): void {
-    this.appSettingsManagementService.loadSettings();
+  private isInitialized = false;
+  private apiKeyModel = signal({ apiKey: '' });
+  apiKeyForm = form(this.apiKeyModel);
+
+  constructor() {
+    effect(() => {
+      const apiKey = this.apiKeyModel().apiKey;
+      if (this.isInitialized) {
+        this.appSettingsManagementService.openRouteServiceApiKey.set(apiKey);
+      }
+    });
   }
 
-  get openRouteServiceApiKey(): string {
-    return this.appSettingsManagementService.openRouteServiceApiKey();
+  async ngOnInit(): Promise<void> {
+    await this.appSettingsManagementService.loadSettingsAsync();
+    this.apiKeyModel.set({ apiKey: this.appSettingsManagementService.openRouteServiceApiKey() });
+    this.isInitialized = true;
   }
 
-  set openRouteServiceApiKey(value: string) {
-    this.appSettingsManagementService.openRouteServiceApiKey.set(value);
+  toggleShowApiKey(): void {
+    this.showApiKey.update(v => !v);
   }
 }
