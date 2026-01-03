@@ -6,8 +6,10 @@ import { ISetting, Setting, AppSetting } from 'src/app/domain/models/settings-va
 import {
   IAppContactSettings,
   IEmailServerSettings,
+  IWorkSettings,
   AppContactSettings,
-  EmailServerSettings
+  EmailServerSettings,
+  WorkSettings
 } from 'src/app/domain/models/app-settings.model';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 
@@ -20,10 +22,12 @@ export class AppSettingsManagementService {
 
   public contactSettings = signal<IAppContactSettings>(new AppContactSettings());
   public emailSettings = signal<IEmailServerSettings>(new EmailServerSettings());
+  public workSettings = signal<IWorkSettings>(new WorkSettings());
   public openRouteServiceApiKey = signal<string>('');
 
   private contactSettingsOriginal = signal<IAppContactSettings>(new AppContactSettings());
   private emailSettingsOriginal = signal<IEmailServerSettings>(new EmailServerSettings());
+  private workSettingsOriginal = signal<IWorkSettings>(new WorkSettings());
   private openRouteServiceApiKeyOriginal = signal<string>('');
 
   public isLoading = signal<boolean>(false);
@@ -37,6 +41,7 @@ export class AppSettingsManagementService {
     effect(() => {
       this.contactSettings();
       this.emailSettings();
+      this.workSettings();
       this.openRouteServiceApiKey();
 
       untracked(() => {
@@ -92,6 +97,7 @@ export class AppSettingsManagementService {
   private applySettingsToModels(settings: ISetting[]): void {
     const contact = new AppContactSettings();
     const email = new EmailServerSettings();
+    const work = new WorkSettings();
     let openRouteServiceApiKey = '';
 
     settings.forEach((setting) => {
@@ -161,16 +167,58 @@ export class AppSettingsManagementService {
         case AppSetting.OPENROUTESERVICE_API_KEY:
           openRouteServiceApiKey = setting.value;
           break;
+
+        case AppSetting.WORK_DEFAULT_WORKING_HOURS:
+          work.defaultWorkingHours = parseFloat(setting.value) || 8.5;
+          break;
+        case AppSetting.WORK_OVERTIME_THRESHOLD:
+          work.overtimeThreshold = parseFloat(setting.value) || 42;
+          break;
+        case AppSetting.WORK_VACATION_DAYS_PER_YEAR:
+          work.vacationDaysPerYear = parseInt(setting.value, 10) || 25;
+          break;
+        case AppSetting.WORK_PROBATION_PERIOD:
+          work.probationPeriod = parseInt(setting.value, 10) || 3;
+          break;
+        case AppSetting.WORK_NOTICE_PERIOD:
+          work.noticePeriod = parseInt(setting.value, 10) || 30;
+          break;
+        case AppSetting.WORK_PAYMENT_INTERVAL:
+          work.paymentInterval = parseInt(setting.value, 10) || 2;
+          break;
+        case AppSetting.WORK_GUARANTEED_HOURS:
+          work.guaranteedHours = parseFloat(setting.value) || 170;
+          break;
+        case AppSetting.WORK_MAXIMUM_HOURS:
+          work.maximumHours = parseFloat(setting.value) || 200;
+          break;
+        case AppSetting.WORK_MINIMUM_HOURS:
+          work.minimumHours = parseFloat(setting.value) || 160;
+          break;
+        case AppSetting.WORK_FULL_TIME:
+          work.fullTime = parseFloat(setting.value) || 180;
+          break;
+        case AppSetting.WORK_NIGHT_RATE:
+          work.nightRate = parseFloat(setting.value) || 0.1;
+          break;
+        case AppSetting.WORK_SA_RATE:
+          work.saRate = parseFloat(setting.value) || 0.1;
+          break;
+        case AppSetting.WORK_SO_RATE:
+          work.soRate = parseFloat(setting.value) || 0.1;
+          break;
       }
     });
 
     this.contactSettings.set(contact);
     this.emailSettings.set(email);
+    this.workSettings.set(work);
     this.openRouteServiceApiKey.set(openRouteServiceApiKey);
 
     // Save original state for dirty tracking
     this.contactSettingsOriginal.set(cloneObject(contact));
     this.emailSettingsOriginal.set(cloneObject(email));
+    this.workSettingsOriginal.set(cloneObject(work));
     this.openRouteServiceApiKeyOriginal.set(openRouteServiceApiKey);
   }
 
@@ -183,6 +231,8 @@ export class AppSettingsManagementService {
     const contactOriginal = this.contactSettingsOriginal();
     const email = this.emailSettings();
     const emailOriginal = this.emailSettingsOriginal();
+    const work = this.workSettings();
+    const workOriginal = this.workSettingsOriginal();
 
     // Save contact settings
     this.saveSetting(contact.name, contactOriginal.name, AppSetting.APP_NAME);
@@ -207,6 +257,21 @@ export class AppSettingsManagementService {
     this.saveSetting(email.dispositionNotification, emailOriginal.dispositionNotification, AppSetting.APP_DISPOSITION_NOTIFICATION);
     this.saveSetting(email.username, emailOriginal.username, AppSetting.APP_OUTGOING_SERVER_USERNAME);
     this.saveSetting(email.password, emailOriginal.password, AppSetting.APP_OUTGOING_SERVER_PASSWORD);
+
+    // Save work settings
+    this.saveSetting(work.defaultWorkingHours.toString(), workOriginal.defaultWorkingHours.toString(), AppSetting.WORK_DEFAULT_WORKING_HOURS);
+    this.saveSetting(work.overtimeThreshold.toString(), workOriginal.overtimeThreshold.toString(), AppSetting.WORK_OVERTIME_THRESHOLD);
+    this.saveSetting(work.vacationDaysPerYear.toString(), workOriginal.vacationDaysPerYear.toString(), AppSetting.WORK_VACATION_DAYS_PER_YEAR);
+    this.saveSetting(work.probationPeriod.toString(), workOriginal.probationPeriod.toString(), AppSetting.WORK_PROBATION_PERIOD);
+    this.saveSetting(work.noticePeriod.toString(), workOriginal.noticePeriod.toString(), AppSetting.WORK_NOTICE_PERIOD);
+    this.saveSetting(work.paymentInterval.toString(), workOriginal.paymentInterval.toString(), AppSetting.WORK_PAYMENT_INTERVAL);
+    this.saveSetting(work.guaranteedHours.toString(), workOriginal.guaranteedHours.toString(), AppSetting.WORK_GUARANTEED_HOURS);
+    this.saveSetting(work.maximumHours.toString(), workOriginal.maximumHours.toString(), AppSetting.WORK_MAXIMUM_HOURS);
+    this.saveSetting(work.minimumHours.toString(), workOriginal.minimumHours.toString(), AppSetting.WORK_MINIMUM_HOURS);
+    this.saveSetting(work.fullTime.toString(), workOriginal.fullTime.toString(), AppSetting.WORK_FULL_TIME);
+    this.saveSetting(work.nightRate.toString(), workOriginal.nightRate.toString(), AppSetting.WORK_NIGHT_RATE);
+    this.saveSetting(work.saRate.toString(), workOriginal.saRate.toString(), AppSetting.WORK_SA_RATE);
+    this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
 
     // Save OpenRouteService API Key
     this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);
@@ -249,6 +314,7 @@ export class AppSettingsManagementService {
       // Update original state after successful save
       this.contactSettingsOriginal.set(cloneObject(this.contactSettings()));
       this.emailSettingsOriginal.set(cloneObject(this.emailSettings()));
+      this.workSettingsOriginal.set(cloneObject(this.workSettings()));
       this.openRouteServiceApiKeyOriginal.set(this.openRouteServiceApiKey());
     }
   }
@@ -258,10 +324,13 @@ export class AppSettingsManagementService {
     const contactOriginal = this.contactSettingsOriginal();
     const email = this.emailSettings();
     const emailOriginal = this.emailSettingsOriginal();
+    const work = this.workSettings();
+    const workOriginal = this.workSettingsOriginal();
 
     return (
       !compareComplexObjects(contact, contactOriginal) ||
       !compareComplexObjects(email, emailOriginal) ||
+      !compareComplexObjects(work, workOriginal) ||
       this.openRouteServiceApiKey() !== this.openRouteServiceApiKeyOriginal()
     );
   }

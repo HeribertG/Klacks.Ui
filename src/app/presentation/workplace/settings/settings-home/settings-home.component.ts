@@ -29,6 +29,7 @@ import { ContractsComponent } from '../contracts/contracts.component';
 import { LLMModelsComponent } from '../llm-models/llm-models.component';
 import { LLMProvidersComponent } from '../llm-providers/llm-providers.component';
 import { OpenrouteComponent } from '../openroute/openroute.component';
+import { WorkSettingComponent } from '../work-setting/work-setting.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -55,7 +56,8 @@ import { OpenrouteComponent } from '../openroute/openroute.component';
     ContractsComponent,
     LLMModelsComponent,
     LLMProvidersComponent,
-    OpenrouteComponent
+    OpenrouteComponent,
+    WorkSettingComponent
 ],
 })
 export class SettingsHomeComponent implements OnInit {

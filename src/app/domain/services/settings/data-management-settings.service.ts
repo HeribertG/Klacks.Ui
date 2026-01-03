@@ -271,6 +271,114 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   // =============================
+  // Work Settings - Delegated
+  // =============================
+
+  get defaultWorkingHours(): number {
+    return this.appSettingsService.workSettings().defaultWorkingHours;
+  }
+
+  set defaultWorkingHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, defaultWorkingHours: value }));
+  }
+
+  get overtimeThreshold(): number {
+    return this.appSettingsService.workSettings().overtimeThreshold;
+  }
+
+  set overtimeThreshold(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, overtimeThreshold: value }));
+  }
+
+  get vacationDaysPerYear(): number {
+    return this.appSettingsService.workSettings().vacationDaysPerYear;
+  }
+
+  set vacationDaysPerYear(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, vacationDaysPerYear: value }));
+  }
+
+  get probationPeriod(): number {
+    return this.appSettingsService.workSettings().probationPeriod;
+  }
+
+  set probationPeriod(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, probationPeriod: value }));
+  }
+
+  get noticePeriod(): number {
+    return this.appSettingsService.workSettings().noticePeriod;
+  }
+
+  set noticePeriod(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, noticePeriod: value }));
+  }
+
+  get paymentInterval(): number {
+    return this.appSettingsService.workSettings().paymentInterval;
+  }
+
+  set paymentInterval(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, paymentInterval: value }));
+  }
+
+  get guaranteedHours(): number {
+    return this.appSettingsService.workSettings().guaranteedHours;
+  }
+
+  set guaranteedHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, guaranteedHours: value }));
+  }
+
+  get maximumHours(): number {
+    return this.appSettingsService.workSettings().maximumHours;
+  }
+
+  set maximumHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, maximumHours: value }));
+  }
+
+  get minimumHours(): number {
+    return this.appSettingsService.workSettings().minimumHours;
+  }
+
+  set minimumHours(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, minimumHours: value }));
+  }
+
+  get fullTime(): number {
+    return this.appSettingsService.workSettings().fullTime;
+  }
+
+  set fullTime(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, fullTime: value }));
+  }
+
+  get nightRate(): number {
+    return this.appSettingsService.workSettings().nightRate;
+  }
+
+  set nightRate(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, nightRate: value }));
+  }
+
+  get saRate(): number {
+    return this.appSettingsService.workSettings().saRate;
+  }
+
+  set saRate(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, saRate: value }));
+  }
+
+  get soRate(): number {
+    return this.appSettingsService.workSettings().soRate;
+  }
+
+  set soRate(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, soRate: value }));
+  }
+
+  // =============================
   // Countries & States - Delegated
   // =============================
 

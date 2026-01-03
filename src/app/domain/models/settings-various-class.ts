@@ -34,6 +34,20 @@ export class AppSetting {
   public static APP_OUTGOING_SERVER_PASSWORD = 'outgoingserverPassword';
 
   public static OPENROUTESERVICE_API_KEY = 'OPENROUTESERVICE_API_KEY';
+
+  public static WORK_DEFAULT_WORKING_HOURS = 'defaultWorkingHours';
+  public static WORK_OVERTIME_THRESHOLD = 'overtimeThreshold';
+  public static WORK_VACATION_DAYS_PER_YEAR = 'vacationDaysPerYear';
+  public static WORK_PROBATION_PERIOD = 'probationPeriod';
+  public static WORK_NOTICE_PERIOD = 'noticePeriod';
+  public static WORK_PAYMENT_INTERVAL = 'paymentInterval';
+  public static WORK_GUARANTEED_HOURS = 'guaranteedHours';
+  public static WORK_MAXIMUM_HOURS = 'maximumHours';
+  public static WORK_MINIMUM_HOURS = 'minimumHours';
+  public static WORK_FULL_TIME = 'fullTime';
+  public static WORK_NIGHT_RATE = 'nightRate';
+  public static WORK_SA_RATE = 'saRate';
+  public static WORK_SO_RATE = 'soRate';
 }
 
 export interface IMacroType {
