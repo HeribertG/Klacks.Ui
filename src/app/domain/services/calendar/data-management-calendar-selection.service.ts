@@ -29,6 +29,7 @@ export class DataManagementCalendarSelectionService {
   public isChanged = signal(false);
   public isNew = signal<CalendarSelection | undefined>(undefined);
   public chipsLoaded = signal(false);
+  public usedByContracts = signal<string[]>([]);
 
   public currentCalendarSelection: ICalendarSelection | undefined =
     this.emptyCalendarSelection();
@@ -62,6 +63,14 @@ export class DataManagementCalendarSelectionService {
     return false;
   }
 
+  isCurrentCalendarSelectionUsedByContract(): boolean {
+    const currentId = this.currentCalendarSelection?.id;
+    if (!currentId) {
+      return false;
+    }
+    return this.usedByContracts().includes(currentId);
+  }
+
   addCalendarSelection(value: CalendarSelection) {
     delete value.id;
     value.selectedCalendars.forEach((x) => {
@@ -82,11 +91,17 @@ export class DataManagementCalendarSelectionService {
     this.isRead.set(false);
 
     try {
-      const x = await lastValueFrom(this.dataCalendarSelectionService.getList());
+      const [selections, usedIds] = await Promise.all([
+        lastValueFrom(this.dataCalendarSelectionService.getList()),
+        lastValueFrom(this.dataCalendarSelectionService.getUsedByContracts())
+      ]);
+
       this.calendarsSelections = [
         this.emptyCalendarSelection(),
-        ...(x || []),
+        ...(selections || []),
       ];
+      this.usedByContracts.set(usedIds || []);
+
       const savedId = this.localStorageService.get(
         DomainMessages.CALENDAR_SELECTION_TYPE +
           '-' +

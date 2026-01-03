@@ -133,14 +133,9 @@
   width: 180px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartGreenColor;
   color: colors.$standartWhiteColor;
   margin-right: 20px;
   border: none;
-
-  &:hover {
-    background-color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
-  }
 }
 
 .close {

@@ -236,7 +236,8 @@ export class CalendarSelectorComponent
   }
 
   get shouldShowDeleteButton(): boolean {
-    return !this.dataManagementCalendarSelectionService.isCurrentCalendarSelectionEmptyPlaceholder();
+    return !this.dataManagementCalendarSelectionService.isCurrentCalendarSelectionEmptyPlaceholder() &&
+           !this.dataManagementCalendarSelectionService.isCurrentCalendarSelectionUsedByContract();
   }
 
   get chipList(): StateCountryToken[] {

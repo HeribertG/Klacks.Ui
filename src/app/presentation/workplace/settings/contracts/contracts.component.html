@@ -85,8 +85,92 @@
             minutesName="maxHoursMinutes"
             hoursId="maxHours"
             [forDuration]="true"
+            labelAlign="center"
+          ></app-time-input>
+        </div>
+
+        <div id="contract-modal-fulltime-item" class="hours-config-item">
+          <app-time-input
+            id="contract-modal-fulltime-input"
+            [label]="translate.instant('setting.contract.fullTime-modal')"
+            [(value)]="contractForm_!.internalFullTime"
+            hoursName="fullTimeHours"
+            minutesName="fullTimeMinutes"
+            hoursId="fullTime"
+            [forDuration]="true"
             labelAlign="right"
           ></app-time-input>
+        </div>
+      </div>
+
+      <!-- Rate Configuration -->
+      <div id="contract-modal-rates-row" class="row-line-modal-inline rates-config-row">
+        <div id="contract-modal-night-rate-item" class="rate-config-item align-left">
+          <label for="nightRate">{{ translate.instant("setting.contract.nightRate-modal") }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [(ngModel)]="editingContract.nightRate"
+              name="nightRate"
+              class="form-control rate-input"
+              id="nightRate"
+              step="0.01"
+              min="0"
+              max="1"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div id="contract-modal-holiday-rate-item" class="rate-config-item align-center">
+          <label for="holidayRate">{{ translate.instant("setting.contract.holidayRate-modal") }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [(ngModel)]="editingContract.holidayRate"
+              name="holidayRate"
+              class="form-control rate-input"
+              id="holidayRate"
+              step="0.01"
+              min="0"
+              max="1"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div id="contract-modal-sa-rate-item" class="rate-config-item align-center">
+          <label for="saRate">{{ translate.instant("setting.contract.saRate-modal") }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [(ngModel)]="editingContract.saRate"
+              name="saRate"
+              class="form-control rate-input"
+              id="saRate"
+              step="0.01"
+              min="0"
+              max="1"
+            />
+            <span class="rate-unit">%</span>
+          </div>
+        </div>
+
+        <div id="contract-modal-so-rate-item" class="rate-config-item align-right">
+          <label for="soRate">{{ translate.instant("setting.contract.soRate-modal") }}</label>
+          <div class="rate-input-group">
+            <input
+              type="number"
+              [(ngModel)]="editingContract.soRate"
+              name="soRate"
+              class="form-control rate-input"
+              id="soRate"
+              step="0.01"
+              min="0"
+              max="1"
+            />
+            <span class="rate-unit">%</span>
+          </div>
         </div>
       </div>
 
@@ -118,28 +202,39 @@
       <!-- Calendar Selection -->
       <div id="contract-modal-calendar-row" class="row-line-modal-inline">
         <div id="contract-modal-calendar-section" class="calendar-section">
-          <label for="calendarSelection">{{
-            translate.instant("setting.contract.calendarSelection-modal")
-          }}</label>
-          <select
-            class="form-control"
-            style="width: 250px"
-            [ngModel]="
-              editingContract.calendarSelectionId ||
-              editingContract.calendarSelection?.id
-            "
-            (ngModelChange)="onCalendarSelectionChange($event)"
-            name="calendarSelection"
-            id="calendarSelection"
-          >
-            <option value="">
-              {{ translate.instant("setting.contract.noCalendar") }}
-            </option>
-            @for (calendar of dataManagementContractService.availableCalendars;
-            track calendar.id) {
-            <option [value]="calendar.id">{{ calendar.name }}</option>
-            }
-          </select>
+          <label>{{ translate.instant("setting.contract.calendarSelection-modal") }}</label>
+          <div class="calendar-selector-container">
+            <div ngbDropdown #calendarDropdown="ngbDropdown">
+              <button
+                class="btn btn-sm btn-calendar-selector"
+                id="contract-calendar-dropdown"
+                ngbDropdownToggle
+                aria-label="calendar selection"
+                type="button"
+              >
+                <app-choose-calendar></app-choose-calendar>
+                <span class="calendar-name">{{ getSelectedCalendarName() }}</span>
+              </button>
+              <div ngbDropdownMenu class="calendar-dropdown-menu">
+                <button
+                  ngbDropdownItem
+                  (click)="onCalendarSelectionChange('')"
+                  [class.active]="!editingContract.calendarSelectionId"
+                >
+                  {{ translate.instant("setting.contract.noCalendar") }}
+                </button>
+                @for (calendar of dataManagementContractService.availableCalendars; track calendar.id) {
+                  <button
+                    ngbDropdownItem
+                    (click)="onCalendarSelectionChange(calendar.id!)"
+                    [class.active]="editingContract.calendarSelectionId === calendar.id"
+                  >
+                    {{ calendar.name }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

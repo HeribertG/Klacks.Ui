@@ -22,6 +22,7 @@ import { DataManagementContractService } from 'src/app/domain/services/contract/
 import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
+import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -34,6 +35,7 @@ interface ContractFormViewModel {
   internalGuaranteedHours: OwnTime;
   internalMinimumHours: OwnTime;
   internalMaximumHours: OwnTime;
+  internalFullTime: OwnTime;
   internalValidFrom: NgbDateStruct | undefined;
   internalValidUntil: NgbDateStruct | undefined;
 }
@@ -51,7 +53,8 @@ interface ContractFormViewModel {
     ContractHeaderComponent,
     ContractRowComponent,
     TimeInputComponent,
-    DateInputComponent
+    DateInputComponent,
+    ChooseCalendarComponent
 ],
 })
 export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -79,6 +82,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
       internalGuaranteedHours: transformNumberToOwnTime(contract.guaranteedHours ?? 0, true),
       internalMinimumHours: transformNumberToOwnTime(contract.minimumHours ?? 0, true),
       internalMaximumHours: transformNumberToOwnTime(contract.maximumHours ?? 0, true),
+      internalFullTime: transformNumberToOwnTime(contract.fullTime ?? 0, true),
       internalValidFrom: contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined,
       internalValidUntil: contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined,
     };
@@ -89,6 +93,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.contractForm_.internalGuaranteedHours);
     this.editingContract.minimumHours = transformOwnTimeToNumber(this.contractForm_.internalMinimumHours);
     this.editingContract.maximumHours = transformOwnTimeToNumber(this.contractForm_.internalMaximumHours);
+    this.editingContract.fullTime = transformOwnTimeToNumber(this.contractForm_.internalFullTime);
     if (this.contractForm_.internalValidFrom) {
       const validFrom = transformNgbDateStructToDate(this.contractForm_.internalValidFrom);
       if (validFrom) {
@@ -265,6 +270,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.editingContract.calendarSelectionId = undefined;
       }
     }
+  }
+
+  getSelectedCalendarName(): string {
+    if (!this.editingContract?.calendarSelectionId) {
+      return this.translate.instant('setting.contract.noCalendar');
+    }
+    const calendar = this.dataManagementContractService.availableCalendars.find(
+      (cal) => cal.id === this.editingContract?.calendarSelectionId
+    );
+    return calendar?.name || this.translate.instant('setting.contract.noCalendar');
   }
 
   isFormValid(): boolean {

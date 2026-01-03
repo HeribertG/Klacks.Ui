@@ -9,12 +9,7 @@
   margin-left: 165px;
   font-size: 13px;
   text-decoration: underline;
-  color: colors.$standartGreenColor;
   cursor: pointer;
-
-  &:hover {
-    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
-  }
 }
 
 .container-box {
@@ -67,17 +62,9 @@
   width: 180px;
   height: 40px;
   font-size: 13px;
-  background-color: colors.$standartGreenColor;
   color: colors.$standartWhiteColor;
   margin-right: 20px;
   border: none;
-
-  &:hover:not(:disabled) {
-    background-color: color.adjust(
-      colors.$standartGreenColor,
-      $lightness: -10%
-    );
-  }
 
   &:disabled {
     opacity: 0.6;

@@ -1,6 +1,6 @@
 # Schedule Documentation
 
-**Letzte Aktualisierung:** 28.12.2025
+**Letzte Aktualisierung:** 03.01.2026
 
 ---
 
@@ -12,7 +12,7 @@
 4. [Shift-System](#shift-system)
 5. [Works API](#works-api)
 6. [WorkSchedule Implementation](#workschedule-implementation)
-7. [Monthly Client Hours](#monthly-client-hours)
+7. [Client Period Hours](#client-period-hours-periodenbasierte-stundenplanung)
 8. [Grid Cell Editing](#grid-cell-editing)
 9. [Monatsberechnung](#monatsberechnung)
 10. [Feiertags-Integration](#feiertags-integration)
@@ -224,35 +224,190 @@ export enum WorkScheduleEntryType {
 
 ---
 
-## Monthly Client Hours
+## Client Period Hours (Periodenbasierte Stundenplanung)
 
-### Tabelle: `monthly_client_hours`
+### Konzept
 
-Speichert aggregierte Monatsstunden pro Client.
+`ClientPeriodHours` speichert die aggregierten Stunden eines Clients pro Planungsperiode. Die Periodenart wird durch `PaymentInterval` bestimmt:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        PaymentInterval (Enum)                                │
+├─────────────────┬───────────────────────────────────────────────────────────┤
+│ Weekly (0)      │ Wöchentliche Planung → Year + WeekNumber (1-53)           │
+│ Biweekly (1)    │ 2-wöchentliche Planung → Year + WeekNumber (2,4,6...)     │
+│ Monthly (2)     │ Monatliche Planung → Year + Month (1-12)                  │
+│ Individual (3)  │ Benutzerdefiniert → IndividualPeriodId                    │
+└─────────────────┴───────────────────────────────────────────────────────────┘
+```
+
+### Anwendungsfall
+
+Jeder Client, der verplant wird, erhält `n` ClientPeriodHours-Einträge:
+
+| PaymentInterval | Beispiel | Verwendete Felder |
+|-----------------|----------|-------------------|
+| **Monthly** | Januar 2026 | `Year=2026`, `Month=1` |
+| **Weekly** | KW 5/2026 | `Year=2026`, `WeekNumber=5` |
+| **Biweekly** | KW 2,4,6.../2026 | `Year=2026`, `WeekNumber=2` |
+| **Individual** | "Sommersaison" | `IndividualPeriodId=<guid>` |
+
+So können monatliche, wöchentliche, 2-wöchentliche und individuelle Planungen parallel existieren.
+
+### Tabelle: `client_period_hours`
 
 | Spalte | Typ | Beschreibung |
 |--------|-----|--------------|
+| `id` | UUID | Primärschlüssel |
 | `client_id` | UUID | FK zu Client |
 | `year` | int | Jahr |
-| `month` | int | Monat (1-12) |
+| `month` | int? | Monat (1-12), nur bei Monthly |
+| `week_number` | int? | Kalenderwoche (1-53), nur bei Weekly/Biweekly |
+| `individual_period_id` | UUID? | FK zu IndividualPeriod, nur bei Individual |
 | `hours` | decimal | Summe der Arbeitsstunden |
 | `surcharges` | decimal | Zuschlagsstunden (Nacht/Feiertag) |
+| `payment_interval` | int | 0=Weekly, 1=Biweekly, 2=Monthly, 3=Individual |
 
-**Unique Index:** `(client_id, year, month)`
+### Filtered Unique Indexes
+
+Da je nach `PaymentInterval` unterschiedliche Felder relevant sind, werden **Filtered Unique Indexes** verwendet:
+
+```sql
+-- Monthly: Eindeutig pro Client + Jahr + Monat
+CREATE UNIQUE INDEX ix_client_period_hours_monthly
+ON client_period_hours (client_id, year, month)
+WHERE payment_interval = 2;
+
+-- Weekly/Biweekly: Eindeutig pro Client + Jahr + Woche
+CREATE UNIQUE INDEX ix_client_period_hours_weekly
+ON client_period_hours (client_id, year, week_number)
+WHERE payment_interval IN (0, 1);
+
+-- Individual: Eindeutig pro Client + IndividualPeriod
+CREATE UNIQUE INDEX ix_client_period_hours_individual
+ON client_period_hours (client_id, individual_period_id)
+WHERE payment_interval = 3;
+```
+
+### EF Core Konfiguration
+
+```csharp
+// DataBaseContext.cs
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasIndex(p => new { p.ClientId, p.Year, p.Month })
+    .HasFilter("payment_interval = 2")
+    .IsUnique();
+
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasIndex(p => new { p.ClientId, p.Year, p.WeekNumber })
+    .HasFilter("payment_interval IN (0, 1)")
+    .IsUnique();
+
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasIndex(p => new { p.ClientId, p.IndividualPeriodId })
+    .HasFilter("payment_interval = 3")
+    .IsUnique();
+
+// Query Filter: Nur Clients die nicht gelöscht sind
+modelBuilder.Entity<ClientPeriodHours>()
+    .HasQueryFilter(p => !p.Client!.IsDeleted);
+```
+
+---
+
+### IndividualPeriod (Benutzerdefinierte Perioden)
+
+Für `PaymentInterval.Individual` können beliebige Zeiträume definiert werden.
+
+#### Tabelle: `individual_period`
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| `id` | UUID | Primärschlüssel |
+| `name` | string | Name der Periode (z.B. "Sommersaison 2026") |
+
+#### Tabelle: `period` (Zeitabschnitte)
+
+| Spalte | Typ | Beschreibung |
+|--------|-----|--------------|
+| `id` | UUID | Primärschlüssel |
+| `individual_period_id` | UUID | FK zu IndividualPeriod |
+| `from_date` | DateOnly | Startdatum des Zeitraums |
+| `until_date` | DateOnly? | Enddatum (optional, null = unbegrenzt) |
+| `full_hours` | decimal | Soll-Stunden für diesen Zeitraum |
+
+#### Beispiel: Sommersaison
+
+```
+IndividualPeriod: { name: "Sommersaison 2026" }
+├── Period: { from: 01.06.2026, until: 30.06.2026, fullHours: 180 }
+├── Period: { from: 01.07.2026, until: 31.07.2026, fullHours: 200 }
+└── Period: { from: 01.08.2026, until: 31.08.2026, fullHours: 180 }
+```
+
+---
+
+### Entitäten (Domain Models)
+
+```csharp
+// ClientPeriodHours.cs
+public class ClientPeriodHours : BaseEntity
+{
+    public Guid ClientId { get; set; }
+    public int Year { get; set; }
+    public int? Month { get; set; }
+    public int? WeekNumber { get; set; }
+    public Guid? IndividualPeriodId { get; set; }
+    public decimal Hours { get; set; }
+    public decimal Surcharges { get; set; }
+    public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
+
+    public virtual Client? Client { get; set; }
+    public virtual IndividualPeriod? IndividualPeriod { get; set; }
+}
+
+// IndividualPeriod.cs
+public class IndividualPeriod : BaseEntity
+{
+    public string Name { get; set; } = string.Empty;
+    public virtual ICollection<Period> Periods { get; set; } = [];
+}
+
+// Period.cs
+public class Period : BaseEntity
+{
+    public Guid IndividualPeriodId { get; set; }
+    public DateOnly FromDate { get; set; }
+    public DateOnly? UntilDate { get; set; }
+    public decimal FullHours { get; set; }
+    public virtual IndividualPeriod? IndividualPeriod { get; set; }
+}
+
+// PaymentInterval.cs (Enum)
+public enum PaymentInterval
+{
+    Weekly = 0,
+    Biweekly = 1,
+    Monthly = 2,
+    Individual = 3
+}
+```
+
+---
 
 ### API Response
 
-`POST /api/v1/backend/Works/Schedule` liefert zusätzlich:
+`POST /api/backend/Works/Schedule` liefert zusätzlich:
 
 ```json
 {
   "entries": [...],
   "clients": [...],
-  "monthlyHours": {
+  "periodHours": {
     "<clientId>": {
       "hours": 120.5,
       "surcharges": 8.0,
-      "guaranteedHoursPerMonth": 160.0
+      "guaranteedHours": 160.0
     }
   }
 }
@@ -260,15 +415,15 @@ Speichert aggregierte Monatsstunden pro Client.
 
 ### Berechnung
 
-1. Falls `monthly_client_hours` Eintrag existiert → diesen verwenden
-2. Sonst → Summe aus `work.work_time` berechnen
-3. `guaranteedHoursPerMonth` kommt aus aktivem `client_contract`
+1. Falls `client_period_hours` Eintrag für die aktuelle Periode existiert → diesen verwenden
+2. Sonst → Summe aus `work.work_time` für den Zeitraum berechnen
+3. `guaranteedHours` kommt aus aktivem `client_contract`
 
 ### Frontend Row-Header
 
 | Slot | Inhalt |
 |------|--------|
-| Slot1 | Soll-Stunden (`guaranteedHoursPerMonth`) |
+| Slot1 | Soll-Stunden (`guaranteedHours`) |
 | Slot2 | Geleistete Stunden (`hours`) |
 | Slot3 | Zuschläge (`+surcharges`) |
 
@@ -692,6 +847,17 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 03.01.2026 - ClientPeriodHours Refactoring
+
+- `MonthlyClientHours` → `ClientPeriodHours` umbenannt
+- `PaymentInterval` Enum hinzugefügt: Weekly, Biweekly, Monthly, Individual
+- `Month` → `int?` (nullable), `WeekNumber` (`int?`) hinzugefügt
+- `IndividualPeriodId` (`Guid?`) für benutzerdefinierte Perioden
+- Neue Entities: `IndividualPeriod`, `Period`
+- Filtered Unique Indexes für unterschiedliche PaymentIntervals
+- Query Filter für Soft-Delete (Client.IsDeleted)
+- Dokumentation erweitert mit Konzept-Erklärung und Beispielen
 
 ### 28.12.2025 - Context Menu "Dienste" Submenu
 

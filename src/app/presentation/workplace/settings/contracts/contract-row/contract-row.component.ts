@@ -17,7 +17,7 @@ export class ContractRowComponent {
   onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
-  
+
   onClickEdit(): void {
     this.editEvent.emit(this.data);
   }

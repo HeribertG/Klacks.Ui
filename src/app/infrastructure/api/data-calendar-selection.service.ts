@@ -83,4 +83,10 @@ export class DataCalendarSelectionService {
       )
       .pipe(retry(3));
   }
+
+  getUsedByContracts() {
+    return this.httpClient
+      .get<string[]>(`${environment.baseUrl}CalendarSelections/used-by-contracts`)
+      .pipe(retry(3));
+  }
 }
