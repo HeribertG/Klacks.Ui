@@ -6,7 +6,6 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { Subject, takeUntil } from 'rxjs';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { CountriesHeaderComponent } from './countries-header/countries-header.component';
@@ -21,7 +20,6 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     NgbModule,
     SpinnerModule,
     CountriesHeaderComponent,

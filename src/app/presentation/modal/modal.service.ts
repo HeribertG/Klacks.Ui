@@ -68,6 +68,7 @@ export class ModalService {
   }
 
   result(kind: ModalType) {
+    this.openModelSignal.set(null);
     this.resultSignal.set(kind);
 
     if (kind === ModalType.Confirmation && this.onConfirmCallback) {
@@ -77,6 +78,7 @@ export class ModalService {
   }
 
   failedReason(kind: ModalType) {
+    this.openModelSignal.set(null);
     this.reasonSignal.set(kind);
   }
 

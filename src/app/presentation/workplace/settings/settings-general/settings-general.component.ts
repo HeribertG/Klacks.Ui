@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Component, inject, computed, OnDestroy } from '@angular/core';
+import { Component, inject, computed, OnDestroy, OnInit, effect, signal } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { form, Field } from '@angular/forms/signals';
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
-
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -16,71 +13,79 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './settings-general.component.html',
   styleUrls: ['./settings-general.component.scss'],
   standalone: true,
-  imports: [
-    TranslateModule,
-    FormsModule,
-    NgbModule,
-    SpinnerModule
-],
+  imports: [TranslateModule, NgbModule, Field],
 })
-export class SettingsGeneralComponent implements OnDestroy {
+export class SettingsGeneralComponent implements OnInit, OnDestroy {
   selectedFileIcon: File | undefined;
   selectedFileLogo: File | undefined;
 
   public dataLoadFileService = inject(DataLoadFileService);
   public translate = inject(TranslateService);
-  public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private appSettingsService = inject(AppSettingsManagementService);
   private titleService = inject(Title);
 
   private destroy$ = new Subject<void>();
+  private isInitialized = false;
 
-  // Computed properties for logo dimensions and display
+  private generalModel = signal({ appName: '' });
+  generalForm = form(this.generalModel);
+
   public logoImage = computed(() => this.dataLoadFileService.logoImage$());
   public logoDimensions = computed(() => this.dataLoadFileService.logoImageDimensions$());
-  
-  // Calculated proportional dimensions for the logo (adjust size as needed for settings)
+
   public logoDisplayDimensions = computed(() => {
     const dimensions = this.logoDimensions();
     if (!dimensions) {
-      return { width: 64, height: 64 }; // fallback for settings view
+      return { width: 64, height: 64 };
     }
-    
+
     return this.dataLoadFileService.calculateProportionalDimensions(
       dimensions.width,
       dimensions.height,
-      64, // max width for settings
-      64, // max height for settings  
-      80  // absolute max for settings
+      64,
+      64,
+      80
     );
   });
 
-  onChange() {
-    this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
-    this.updateBrowserTitle();
+  constructor() {
+    effect(() => {
+      const model = this.generalModel();
+      if (this.isInitialized) {
+        this.appSettingsService.contactSettings.update(s => ({
+          ...s,
+          name: model.appName,
+        }));
+        this.updateBrowserTitle(model.appName);
+      }
+    });
   }
 
-  onKeyUp() {
-    this.dataManagementSettingsService.settingsChangeTrigger.update(v => v + 1);
-    this.updateBrowserTitle();
+  async ngOnInit(): Promise<void> {
+    await this.appSettingsService.loadSettingsAsync();
+    const contact = this.appSettingsService.contactSettings();
+    this.generalModel.set({ appName: contact.name });
+    this.isInitialized = true;
   }
 
-  private updateBrowserTitle(): void {
-    const appName = this.dataManagementSettingsService.appName;
+  private updateBrowserTitle(appName: string): void {
     if (appName && appName.trim() !== '') {
       this.titleService.setTitle(appName);
     }
   }
 
-  onIconSelected(event: any) {
-    this.selectedFileIcon = event.target.files[0] as File;
-    this.uploadIcon();
+  onIconSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFileIcon = input.files[0];
+      this.uploadIcon();
+    }
   }
 
   private uploadIcon() {
-    if (this.selectedFileIcon!.name) {
+    if (this.selectedFileIcon?.name) {
       const fd = new FormData();
-
-      fd.append('file', this.selectedFileIcon!, 'own-icon.ico');
+      fd.append('file', this.selectedFileIcon, 'own-icon.ico');
 
       this.dataLoadFileService.upLoadFile(fd)
         .pipe(takeUntil(this.destroy$))
@@ -91,40 +96,52 @@ export class SettingsGeneralComponent implements OnDestroy {
     }
   }
 
-  onUploadIcon(event: any) {
-    this.selectedFileIcon = event[0] as File;
-    this.uploadIcon();
-  }
-  onUploadIcon1(event: any) {
-    this.selectedFileIcon = event.target.files[0] as File;
+  onUploadIcon(event: unknown) {
+    this.selectedFileIcon = (event as File[])[0];
     this.uploadIcon();
   }
 
-  onLogoSelected(event: any) {
-    this.selectedFileLogo = event.target.files[0] as File;
-    this.uploadLogo();
+  onUploadIcon1(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFileIcon = input.files[0];
+      this.uploadIcon();
+    }
+  }
+
+  onLogoSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFileLogo = input.files[0];
+      this.uploadLogo();
+    }
   }
 
   uploadLogo() {
-    const fd = new FormData();
-    fd.append('file', this.selectedFileLogo!, 'own-logo.png');
+    if (this.selectedFileLogo) {
+      const fd = new FormData();
+      fd.append('file', this.selectedFileLogo, 'own-logo.png');
 
-    this.dataLoadFileService.upLoadFile(fd)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.tryLoadProfileImage();
-        this.selectedFileLogo = undefined;
-      });
+      this.dataLoadFileService.upLoadFile(fd)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.tryLoadProfileImage();
+          this.selectedFileLogo = undefined;
+        });
+    }
   }
 
-  onUploadLogo(event: any) {
-    this.selectedFileLogo = event[0] as File;
+  onUploadLogo(event: unknown) {
+    this.selectedFileLogo = (event as File[])[0];
     this.uploadLogo();
   }
 
-  onUploadLogo1(event: any) {
-    this.selectedFileLogo = event.target.files[0] as File;
-    this.uploadLogo();
+  onUploadLogo1(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.selectedFileLogo = input.files[0];
+      this.uploadLogo();
+    }
   }
 
   private tryLoadProfileImage() {
