@@ -14,13 +14,12 @@
     />
   </div>
   <div class="modal-footer">
-    <span
+    <button
       id="modal-input-cancel"
       type="button"
-      class="link-button darkgrey-font font-underline"
+      class="cancel-btn"
       (click)="modal.dismiss('Cancel click')"
-      >{{ "cancel" | translate }}</span
-    >
+    >{{ "cancel" | translate }}</button>
     <button
       id="modal-input-confirm"
       type="button"
@@ -40,13 +39,12 @@
     [title]="modalService.deleteMessageTitle"
   ></app-deletewindow>
   <div class="modal-footer">
-    <span
+    <button
       id="modal-delete-cancel"
       type="button"
-      class="link-button darkgrey-font font-underline"
+      class="cancel-btn"
       (click)="modal.dismiss('Cancel click')"
-      >{{ "cancel" | translate }}</span
-    >
+    >{{ "cancel" | translate }}</button>
     <button
       id="modal-delete-confirm"
       type="button"
@@ -65,11 +63,9 @@
     <button
       id="modal-message-cancel"
       type="button"
-      class="btn btn-secondary normal-btn"
+      class="cancel-btn"
       (click)="modal.dismiss('Cancel click')"
-    >
-      {{ "cancel" | translate }}
-    </button>
+    >{{ "cancel" | translate }}</button>
     <button
       id="modal-message-confirm"
       type="button"
