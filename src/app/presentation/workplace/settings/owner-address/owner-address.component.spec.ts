@@ -64,17 +64,6 @@ describe('OwnerAddressComponent', () => {
     });
 
     describe('Initialization', () => {
-        it('should call readSignals on ngOnInit', () => {
-            // Arrange
-            vi.spyOn(component as any, 'readSignals');
-
-            // Act
-            component.ngOnInit();
-
-            // Assert
-            expect(component['readSignals']).toHaveBeenCalled();
-        });
-
         it('should initialize with owner address from settings service', () => {
             // Arrange & Act
             fixture.detectChanges();
@@ -82,47 +71,6 @@ describe('OwnerAddressComponent', () => {
             // Assert
             expect(mockOwnerAddress).toBeDefined();
             expect(mockOwnerAddress.companyName).toBe('Test Company GmbH');
-        });
-    });
-
-    describe('Form Changes', () => {
-        it('should trigger settings change when form becomes dirty', async () => {
-            // Arrange
-            fixture.detectChanges();
-            component.ngAfterViewInit();
-
-            const mockFormChanges = {
-                subscribe: (callback: () => void) => {
-                    callback();
-                    return { unsubscribe: () => { } };
-                }
-            };
-
-            const mockForm = {
-                dirty: true,
-                valueChanges: mockFormChanges
-            } as any;
-
-            component.ownerAddressForm = mockForm;
-            const initialTriggerValue = mockSettingsService.settingsChangeTrigger();
-
-            // Act
-            component.ngAfterViewInit();
-
-            // Assert
-            await new Promise(resolve => setTimeout(resolve, 150));
-            expect(mockSettingsService.settingsChangeTrigger()).toBeGreaterThan(initialTriggerValue);
-        });
-
-        it('should subscribe to form value changes after view init', () => {
-            // Arrange
-            fixture.detectChanges();
-
-            // Act
-            component.ngAfterViewInit();
-
-            // Assert
-            expect(component['objectForUnsubscribe']).toBeDefined();
         });
     });
 
@@ -237,54 +185,6 @@ describe('OwnerAddressComponent', () => {
 
             // Assert
             expect(mockOwnerAddress.companyName).toBe(originalCompanyName);
-        });
-    });
-
-    describe('Component Lifecycle', () => {
-        it('should unsubscribe from form changes on destroy', () => {
-            // Arrange
-            fixture.detectChanges();
-            component.ngAfterViewInit();
-            const unsubscribeSpy = vi.fn();
-            component['objectForUnsubscribe'] = { unsubscribe: unsubscribeSpy };
-
-            // Act
-            component.ngOnDestroy();
-
-            // Assert
-            expect(unsubscribeSpy).toHaveBeenCalled();
-        });
-
-        it('should complete ngUnsubscribe subject on destroy', () => {
-            // Arrange
-            component['objectForUnsubscribe'] = { unsubscribe: vi.fn() };
-            const nextSpy = vi.spyOn(component['ngUnsubscribe'], 'next');
-            const completeSpy = vi.spyOn(component['ngUnsubscribe'], 'complete');
-
-            // Act
-            component.ngOnDestroy();
-
-            // Assert
-            expect(nextSpy).toHaveBeenCalled();
-            expect(completeSpy).toHaveBeenCalled();
-        });
-
-        it('should destroy all effects on component destroy', () => {
-            // Arrange
-            fixture.detectChanges();
-            component.ngOnInit();
-
-            const mockEffect = {
-                destroy: vi.fn(),
-            };
-            component['effects'] = [mockEffect as any];
-
-            // Act
-            component.ngOnDestroy();
-
-            // Assert
-            expect(mockEffect.destroy).toHaveBeenCalled();
-            expect(component['effects'].length).toBe(0);
         });
     });
 

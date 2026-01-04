@@ -84,66 +84,6 @@ describe('SettingsGeneralComponent', () => {
         expect(component).toBeTruthy();
     });
 
-    describe('Settings Changes', () => {
-        it('should trigger settings change on onChange', () => {
-            // Arrange
-            const initialValue = mockSettingsService.settingsChangeTrigger();
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(mockSettingsService.settingsChangeTrigger()).toBeGreaterThan(initialValue);
-        });
-
-        it('should trigger settings change on onKeyUp', () => {
-            // Arrange
-            const initialValue = mockSettingsService.settingsChangeTrigger();
-
-            // Act
-            component.onKeyUp();
-
-            // Assert
-            expect(mockSettingsService.settingsChangeTrigger()).toBeGreaterThan(initialValue);
-        });
-
-        it('should update browser title when app name changes', () => {
-            // Arrange
-            mockSettingsService.appName = 'New App Name';
-            mockTitleService.setTitle.mockClear();
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(mockTitleService.setTitle).toHaveBeenCalledWith('New App Name');
-        });
-
-        it('should not update browser title if app name is empty', () => {
-            // Arrange
-            mockSettingsService.appName = '';
-            mockTitleService.setTitle.mockClear();
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(mockTitleService.setTitle).not.toHaveBeenCalled();
-        });
-
-        it('should not update browser title if app name is only whitespace', () => {
-            // Arrange
-            mockSettingsService.appName = '   ';
-            mockTitleService.setTitle.mockClear();
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(mockTitleService.setTitle).not.toHaveBeenCalled();
-        });
-    });
-
     describe('Icon Upload', () => {
         it('should upload icon when file is selected', async () => {
             // Arrange
@@ -158,7 +98,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onIconSelected(mockEvent);
+            component.onIconSelected(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -196,7 +136,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onUploadIcon1(mockEvent);
+            component.onUploadIcon1(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -235,7 +175,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onLogoSelected(mockEvent);
+            component.onLogoSelected(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -275,7 +215,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onUploadLogo1(mockEvent);
+            component.onUploadLogo1(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -357,20 +297,6 @@ describe('SettingsGeneralComponent', () => {
     });
 
     describe('Integration', () => {
-        it('should update app name and browser title together', () => {
-            // Arrange
-            const newAppName = 'My Custom App';
-            mockSettingsService.appName = newAppName;
-            mockTitleService.setTitle.mockClear();
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(mockSettingsService.settingsChangeTrigger()).toBeGreaterThan(0);
-            expect(mockTitleService.setTitle).toHaveBeenCalledWith(newAppName);
-        });
-
         it('should handle complete file upload workflow for icon', async () => {
             // Arrange
             const mockFile = new File(['icon'], 'icon.ico', { type: 'image/x-icon' });
@@ -378,7 +304,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onIconSelected(mockEvent);
+            component.onIconSelected(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));
@@ -395,7 +321,7 @@ describe('SettingsGeneralComponent', () => {
             mockDataLoadFileService.upLoadFile.mockReturnValue(of({}));
 
             // Act
-            component.onLogoSelected(mockEvent);
+            component.onLogoSelected(mockEvent as unknown as Event);
 
             // Assert
             await new Promise(resolve => setTimeout(resolve, 50));

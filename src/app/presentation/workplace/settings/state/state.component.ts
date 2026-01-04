@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, inject, AfterViewInit, OnDestroy } from '@angular/core';
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -23,7 +22,6 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
     NgbModule,
     SpinnerModule,
     StateHeaderComponent,
