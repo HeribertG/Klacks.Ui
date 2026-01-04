@@ -1,4 +1,5 @@
-@use "../../assets/standard-styles/colors.scss";
+@use "colors.scss" as colors;
+@use "modal-buttons.scss";
 
 ::ng-deep .modal-content {
   background-color: var(--backgroundColorCard);
@@ -43,33 +44,6 @@
   text-decoration: underline;
 }
 
-.save-btn {
-  font-size: 13px;
-  background-color: colors.$standartBlueColor;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
-
-.new-btn {
-  font-size: 13px;
-  background-color: colors.$standartGreenColor;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
-
-.delete-btn {
-  font-size: 13px;
-  background-color: var(--standartRedColor);
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
-
-.edit-btn {
-  font-size: 13px;
-  background-color: colors.$standartGreenColor;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
 
 .row-line-modal-inline {
   margin-top: 5px;
@@ -96,11 +70,6 @@
   background-color: colors.$standartBlueColor;
   font-size: 13px;
   color: colors.$standartWhiteColor;
-}
-
-.normal-btn {
-  font-size: 13px;
-  margin-right: 20px;
 }
 
 .gap-modal {

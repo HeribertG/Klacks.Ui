@@ -1,0 +1,155 @@
+@use "colors.scss" as colors;
+
+.save-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$splitButtonBlueColor;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border: 2px solid colors.$standartWhiteColor;
+    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.save-btn-ok {
+  width: 80px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartBlueColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$splitButtonBlueColor;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.new-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$splitButtonGreenColor;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.delete-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: var(--standartRedColor);
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$standartRedLiteColor;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.edit-btn {
+  width: 180px;
+  height: 40px;
+  font-size: 13px;
+  background-color: colors.$standartGreenColor;
+  color: colors.$standartWhiteColor;
+  margin-right: 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: colors.$splitButtonGreenColor;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+
+  &.red-font {
+    color: var(--standartRedColor);
+  }
+
+  &.blue-font {
+    color: colors.$standartBlueColor;
+  }
+}
+
+.normal-btn {
+  height: 40px;
+  font-size: 13px;
+  margin-right: 20px;
+  border: 1px solid var(--cardBorderColor);
+  border-radius: 4px;
+  background-color: var(--backgroundColorCard);
+  color: var(--colorHeadline);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: var(--backgroundColorHover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

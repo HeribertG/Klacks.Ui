@@ -50,43 +50,6 @@ app-main {
   padding-top: 13px;
 }
 
-.save-btn {
-  width: 180px;
-  height: 40px;
-  font-size: 13px;
-  background-color: colors.$standartBlueColor;
-  color: colors.$standartWhiteColor;
-  margin-right: 30px;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
-
-  &:focus {
-    outline: none;
-    border: 2px solid colors.$standartWhiteColor;
-    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
-  }
-
-  &:focus-visible {
-    outline: none;
-    border: 2px solid colors.$standartWhiteColor;
-    box-shadow: 0 0 0 3px rgba(colors.$standartBlueColor, 0.3);
-  }
-
-  &:hover:not(:disabled) {
-    background-color: color.adjust(colors.$standartBlueColor, $lightness: -10%);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-
 app-footer {
   order: 5;
   height: $main-footer_height;

@@ -155,21 +155,6 @@
   color: var(--standartRedColor);
 }
 
-.save-btn {
-  width: 180px;
-  height: 40px;
-  font-size: 13px;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-  border: none;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
 .close {
   background: none;
   border: none;

@@ -26,13 +26,6 @@
   color: var(--standartRedColor);
 }
 
-.save-btn {
-  font-size: 13px;
-  background-color: colors.$standartBlueColor;
-  color: colors.$standartWhiteColor;
-  margin-right: 20px;
-}
-
 input[type="checkbox"]:indeterminate {
   outline: 1px solid grey;
   // box-shadow: 0 0 1px 1px blue;
