@@ -1,55 +1,51 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <ng-template #content id="group-scope-modal-template" let-modal>
-  <form id="group-scope-modal-form" #groupForm="ngForm">
-    <div id="group-scope-modal-header" class="modal-header">
-      <div class="container-header-modal modal-title" id="modal-title">
-        {{ translate.instant("setting.group.chose-headline") }}
-      </div>
-      <span class="filler"></span>
+  <div id="group-scope-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ translate.instant("setting.group.chose-headline") }}
+    </div>
+    <span class="filler"></span>
 
-      <div
-        id="group-scope-modal-close-btn"
-        type="button"
-        class="close"
-        aria-label="Close"
-        (click)="modal.dismiss('Cross click')"
+    <div
+      id="group-scope-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
       >
-        <span
-          aria-hidden="true"
-          style="
-            font-size: 13px;
-            border: 1px transparent solid;
-            color: var(--colorWorkplaceHeadline);
-          "
-          >&times;</span
-        >
-      </div>
     </div>
-    <div id="group-scope-modal-body" class="modal-body">
-      <div id="group-scope-modal-checkbox-container" class="checkbox-container">
-        @for (group of rootList(); track group.id;) {
-        <div [id]="'group-scope-modal-group-check-' + group.id" class="form-check">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            id="group-{{ group.id }}"
-            name="selectedGroups"
-            [checked]="selectedGroups.includes(group.id!)"
-            (change)="onCheckboxChange($event, group.id!)"
-            [value]="group.id"
-          />
-          <label [id]="'group-scope-modal-group-label-' + group.id" class="form-check-label" for="group-{{ group.id }}">
-            {{ group.name }}
-            @if (group.description) {
-            <span class="text-muted"> - {{ group.description }}</span>
-            }
-          </label>
-        </div>
-        }
+  </div>
+  <div id="group-scope-modal-body" class="modal-body">
+    <div id="group-scope-modal-checkbox-container" class="checkbox-container">
+      @for (group of rootList(); track group.id) {
+      <div [id]="'group-scope-modal-group-check-' + group.id" class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          id="group-{{ group.id }}"
+          [checked]="isGroupSelected(group.id!)"
+          (change)="onCheckboxChange($event, group.id!)"
+        />
+        <label [id]="'group-scope-modal-group-label-' + group.id" class="form-check-label" for="group-{{ group.id }}">
+          {{ group.name }}
+          @if (group.description) {
+          <span class="text-muted"> - {{ group.description }}</span>
+          }
+        </label>
       </div>
+      }
     </div>
-  </form>
+  </div>
 
   <div id="group-scope-modal-footer" class="modal-footer">
     <span
@@ -70,8 +66,7 @@
     <input
       id="group-scope-row-name-{{ user!.id }}"
       type="text"
-      [ngModel]="user!.firstName + ' ' + user!.lastName"
-      name="user.name"
+      [value]="userName()"
       class="form-control gap"
       readonly
       aria-label="name"
@@ -86,7 +81,7 @@
       (click)="open(content)"
       [disabled]="user?.isAdmin"
     >
-      {{ assignedGroupsCount }}
+      {{ assignedGroupsCount() }}
     </button>
   </div>
 </div>

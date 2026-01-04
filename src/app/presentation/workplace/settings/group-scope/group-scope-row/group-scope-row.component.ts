@@ -1,18 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
   Component,
   inject,
   Input,
   OnDestroy,
-  OnInit,
-  ViewChild,
-  effect,
   OnChanges,
   signal,
-  ChangeDetectorRef,
+  computed,
 } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
@@ -26,13 +20,12 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-group-scope-row',
-  imports: [FormsModule, NgbModule, TranslateModule],
+  imports: [NgbModule, TranslateModule],
   templateUrl: './group-scope-row.component.html',
   styleUrl: './group-scope-row.component.scss',
   standalone: true,
 })
-export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
-  @ViewChild(NgForm, { static: false }) groupForm: NgForm | undefined;
+export class GroupScopeRowComponent implements OnChanges, OnDestroy {
   @Input() user: IAuthentication | undefined;
 
   public translate = inject(TranslateService);
@@ -40,72 +33,69 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
   public dataManagementGroupVisibilityService = inject(
     DataManagementGroupVisibilityService
   );
-  private cdr = inject(ChangeDetectorRef);
   private destroy$ = new Subject<void>();
 
   private userSignal = signal<IAuthentication | undefined>(undefined);
 
-  public selectedGroups: string[] = [];
+  public selectedGroups = signal<string[]>([]);
   public readonly rootList = this.dataManagementGroupVisibilityService.rootList;
 
-  constructor() {
-    effect(() => {
-      const updated =
-        this.dataManagementGroupVisibilityService.groupVisibilitiesUpdated();
-      const user = this.userSignal();
-      if (updated && user?.id) {
-        this.loadUserGroups();
-        this.cdr.detectChanges();
-      }
-    });
-  }
+  public readonly userName = computed(() => {
+    const user = this.userSignal();
+    if (!user) return '';
+    return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+  });
 
-  ngOnInit(): void {
-    if (this.user) {
-      this.userSignal.set(this.user);
+  public readonly assignedGroupsCount = computed(() => {
+    const user = this.userSignal();
+    if (!user?.id) return 0;
+
+    if (user.isAdmin) {
+      return this.rootList().length;
     }
-    this.loadUserGroups();
-  }
+
+    return this.dataManagementGroupVisibilityService
+      .groupVisibilityList()
+      .filter((gv) => gv.appUserId === user.id).length;
+  });
 
   ngOnChanges(): void {
     this.userSignal.set(this.user);
   }
 
   private loadUserGroups(): void {
-    if (!this.user?.id) return;
+    const user = this.userSignal();
+    if (!user?.id) return;
 
-    this.selectedGroups = this.dataManagementGroupVisibilityService
+    const groups = this.dataManagementGroupVisibilityService
       .groupVisibilityList()
-      .filter((gv) => gv.appUserId === this.user!.id)
+      .filter((gv) => gv.appUserId === user.id)
       .map((gv) => gv.groupId!)
       .filter((groupId) => groupId !== undefined);
+
+    this.selectedGroups.set(groups);
   }
 
-  get assignedGroupsCount(): number {
-    if (!this.user?.id) return 0;
-
-    if (this.user.isAdmin) {
-      return this.rootList().length;
-    }
-
-    return this.dataManagementGroupVisibilityService
-      .groupVisibilityList()
-      .filter((gv) => gv.appUserId === this.user!.id).length;
+  isGroupSelected(groupId: string): boolean {
+    return this.selectedGroups().includes(groupId);
   }
 
   onCheckboxChange(event: Event, groupId: string): void {
     const checked = (event.target as HTMLInputElement).checked;
+    const current = this.selectedGroups();
+
     if (checked) {
-      if (!this.selectedGroups.includes(groupId)) {
-        this.selectedGroups = [...this.selectedGroups, groupId];
+      if (!current.includes(groupId)) {
+        this.selectedGroups.set([...current, groupId]);
       }
     } else {
-      this.selectedGroups = this.selectedGroups.filter((id) => id !== groupId);
+      this.selectedGroups.set(current.filter((id) => id !== groupId));
     }
   }
 
-  open(content: any): void {
-    if (!this.user?.id) {
+  open(content: unknown): void {
+    const user = this.userSignal();
+    if (!user?.id) {
       console.error('User ID is required');
       return;
     }
@@ -131,7 +121,8 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private saveGroupVisibilities(): void {
-    if (!this.user?.id) {
+    const user = this.userSignal();
+    if (!user?.id) {
       console.error('User ID is required for saving group visibilities');
       return;
     }
@@ -140,14 +131,14 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
       this.dataManagementGroupVisibilityService.groupVisibilityList();
 
     const filteredVisibilities = currentGroupVisibilities.filter(
-      (gv) => gv.appUserId !== this.user!.id
+      (gv) => gv.appUserId !== user.id
     );
 
-    const newVisibilities: IGroupVisibility[] = this.selectedGroups.map(
+    const newVisibilities: IGroupVisibility[] = this.selectedGroups().map(
       (groupId) => {
         const visibility = new GroupVisibility();
         visibility.groupId = groupId;
-        visibility.appUserId = this.user!.id;
+        visibility.appUserId = user.id;
         return visibility;
       }
     );
@@ -163,7 +154,6 @@ export class GroupScopeRowComponent implements OnInit, OnChanges, OnDestroy {
             updatedVisibilities
           );
           this.loadUserGroups();
-          this.cdr.detectChanges();
         },
         error: (error) => {
           console.error('Error saving group visibilities:', error);
