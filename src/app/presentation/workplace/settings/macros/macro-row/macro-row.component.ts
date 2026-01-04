@@ -1,18 +1,17 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Component,
   EventEmitter,
   Input,
   OnDestroy,
-  OnInit,
   Output,
   TemplateRef,
   ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CodeEditorComponent } from '@fsegurai/ngx-codemirror';
@@ -23,7 +22,8 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes, MacroTypeLabels } from 'src/app/domain/enums/macro-type.enum';
 import { IMacro, Macro } from 'src/app/domain/models/macro-class';
 import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { PropertyGridComponent } from '../property-grid/property-grid.component';
 import { ShiftData } from 'src/app/domain/models/shift-data-class';
 import {
@@ -47,8 +47,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
     PropertyGridComponent,
   ],
 })
-export class MacroRowComponent implements OnInit, OnDestroy {
-  @ViewChild(NgForm, { static: false }) macroForm: NgForm | undefined;
+export class MacroRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
   @ViewChild('codemirror') codeEditor!: CodeEditorComponent;
   @Input() data: IMacro = new Macro();
@@ -57,6 +56,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   @Output() macroChangedEvent = new EventEmitter<void>();
 
   private wasSaved = false;
+  private destroy$ = new Subject<void>();
 
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
@@ -64,25 +64,16 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   private http = inject(HttpClient);
   private macroManagementService = inject(MacroManagementService);
 
-  macroName = '';
-  macroType = 0;
-  macroKey = 0;
-  obj = '';
+  macroName = signal('');
+  macroType = signal(0);
+  obj = signal('');
   description?: MultiLanguage;
-  tabId = 'macro';
-  currentData = '';
-  myData: any;
+  tabId = signal('macro');
 
   shiftData = new ShiftData();
 
-  test = '';
-  manualContent = '';
-
-  private formSubscription?: Subscription;
-
-  isReadOwnerDefinedValues = false;
-  isReadStatusTemplateList = false;
-  isReadSectionTemplateList = false;
+  test = signal('');
+  manualContent = signal('');
 
   macroTypeOptions = Object.values(MacroTypes)
     .filter((v): v is MacroTypes => typeof v === 'number')
@@ -90,8 +81,6 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       value,
       label: MacroTypeLabels[value],
     }));
-
-  dialogRef: any;
 
   klacksScriptLanguage = [...klacksScriptExtensions, ...errorExtensions];
 
@@ -123,28 +112,16 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     return this.AUTO_IMPORTS.join('\n') + '\n\n' + code;
   }
 
-  ngOnInit(): void {
-    if (this.macroForm?.valueChanges) {
-      this.formSubscription = this.macroForm.valueChanges.subscribe(() => {
-        if (this.macroForm?.dirty) {
-          this.onChange(true);
-        }
-      });
-    }
-  }
-
   ngOnDestroy(): void {
-    if (this.formSubscription) {
-      this.formSubscription.unsubscribe();
-    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onClickDelete(): void {
     this.isDeleteEvent.emit();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onChange(event: boolean): void {
+  onChange(): void {
     if (
       this.data &&
       (this.data.isDirty === undefined ||
@@ -155,7 +132,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     this.macroChangedEvent.emit();
   }
 
-  open(content: any): void {
+  open(content: unknown): void {
     this.openModalInternal(content);
   }
 
@@ -163,28 +140,30 @@ export class MacroRowComponent implements OnInit, OnDestroy {
     this.openModalInternal(this.contentTemplate);
   }
 
-  private openModalInternal(content: any): void {
+  private openModalInternal(content: unknown): void {
     if (this.data) {
-      this.macroName = this.data.name || '';
-      this.macroType = this.data.type;
-      this.obj = this.stripImports(this.data.content || '');
+      this.macroName.set(this.data.name || '');
+      this.macroType.set(this.data.type);
+      this.obj.set(this.stripImports(this.data.content || ''));
       this.description = this.data.description;
     }
 
     this.wasSaved = false;
+    this.tabId.set('macro');
+    this.test.set('');
     this.loadManual();
 
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
         if (this.data) {
-          this.data.name = this.macroName;
-          this.data.type = +this.macroType;
-          this.data.content = this.addImports(this.obj);
+          this.data.name = this.macroName();
+          this.data.type = +this.macroType();
+          this.data.content = this.addImports(this.obj());
           this.data.description = this.description;
         }
 
         this.wasSaved = true;
-        this.onChange(true);
+        this.onChange();
         this.macroManagementService.save();
       },
       () => {
@@ -196,7 +175,7 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   }
 
   onClickData(): void {
-    this.tabId = 'data';
+    this.tabId.set('data');
     const codemirror = document.getElementById('codemirror1');
     if (codemirror) {
       codemirror.focus();
@@ -205,56 +184,52 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
   onSave(): void {
     if (this.data) {
-      this.data.name = this.macroName;
-      this.data.type = +this.macroType;
-      this.data.content = this.addImports(this.obj);
+      this.data.name = this.macroName();
+      this.data.type = +this.macroType();
+      this.data.content = this.addImports(this.obj());
       this.data.description = this.description;
     }
     this.wasSaved = true;
-    this.onChange(true);
+    this.onChange();
     this.macroManagementService.save();
   }
 
-  private macroFilter(): void {
-    this.currentData = JSON.stringify(this.myData);
-
-    this.currentData = this.currentData.split('{').join('{\n\t');
-    this.currentData = this.currentData.split(',').join(',\n\t');
-    this.currentData = this.currentData.split('}').join('\n}');
-  }
-
   onCheckMacro(): void {
-    if (!this.obj) {
-      this.test = 'No macro code to check';
+    const code = this.obj();
+    if (!code) {
+      this.test.set('No macro code to check');
       return;
     }
 
-    const compiled = this.scriptService.compile(this.obj, false, true);
+    const compiled = this.scriptService.compile(code, false, true);
     if (compiled.hasError) {
       const line = compiled.error?.line ?? 1;
       const column = compiled.error?.column ?? 1;
-      this.test = `Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${line}, Column: ${column}`;
+      this.test.set(`Compile Error:\n${compiled.error?.description ?? 'Unknown error'}\nLine: ${line}, Column: ${column}`);
       this.setCursorPosition(line, column);
     } else {
-      this.test = 'Syntax OK';
+      this.test.set('Syntax OK');
       this.clearErrorMark();
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private setCursorPosition(line: number, column: number): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const view = (this.codeEditor as any)?.view;
     if (!view) return;
 
-    const lines = this.obj.split('\n');
+    const code = this.obj();
+    const lines = code.split('\n');
     let pos = 0;
     for (let i = 0; i < line - 1 && i < lines.length; i++) {
       pos += lines[i].length + 1;
     }
     pos += Math.max(0, column - 1);
-    pos = Math.min(pos, this.obj.length);
+    pos = Math.min(pos, code.length);
 
     const lineEnd = line <= lines.length ? pos + (lines[line - 1]?.length ?? 0) - (column - 1) : pos + 1;
-    const errorEnd = Math.min(lineEnd, this.obj.length);
+    const errorEnd = Math.min(lineEnd, code.length);
 
     view.dispatch({
       selection: EditorSelection.cursor(pos),
@@ -265,18 +240,20 @@ export class MacroRowComponent implements OnInit, OnDestroy {
   }
 
   private clearErrorMark(): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const view = (this.codeEditor as any)?.view;
     if (!view) return;
     clearError(view);
   }
 
   onRunMacro(): void {
-    if (!this.obj) {
-      this.test = 'No macro code to run';
+    const code = this.obj();
+    if (!code) {
+      this.test.set('No macro code to run');
       return;
     }
 
-    const codeWithImports = this.addImports(this.obj);
+    const codeWithImports = this.addImports(code);
     const importLineCount = this.AUTO_IMPORTS.length + 1;
     const externalVars = this.buildExternalVariables();
     const result: ScriptResult = this.scriptService.run(
@@ -289,12 +266,12 @@ export class MacroRowComponent implements OnInit, OnDestroy {
       const messages = result.messages
         .map((m) => `[${m.type}] ${m.message}`)
         .join('\n');
-      this.test = messages || 'Script executed successfully (no output)';
+      this.test.set(messages || 'Script executed successfully (no output)');
       this.clearErrorMark();
     } else {
       const adjustedLine = Math.max(1, (result.error?.line ?? 0) - importLineCount);
       const column = result.error?.column ?? 1;
-      this.test = `Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${column}`;
+      this.test.set(`Runtime Error:\n${result.error?.description ?? 'Unknown error'}\nLine: ${adjustedLine}, Column: ${column}`);
       this.setCursorPosition(adjustedLine, column);
     }
   }
@@ -310,19 +287,21 @@ export class MacroRowComponent implements OnInit, OnDestroy {
 
     this.http
       .get(`assets/docs/macro-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (content) => {
-          this.manualContent = content;
+          this.manualContent.set(content);
         },
         error: () => {
           this.http
             .get('assets/docs/macro-manual/de.html', { responseType: 'text' })
+            .pipe(takeUntil(this.destroy$))
             .subscribe({
               next: (content) => {
-                this.manualContent = content;
+                this.manualContent.set(content);
               },
               error: () => {
-                this.manualContent = '<p>Manual not available</p>';
+                this.manualContent.set('<p>Manual not available</p>');
               },
             });
         },

@@ -1,194 +1,195 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #content id="macro-modal-template" let-modal>
-  <form id="macro-modal-form" #macroForm="ngForm">
-    <div id="macro-modal-header" class="modal-header">
-      <div class="container-header-modal modal-title" id="modal-title">
-        {{ translate.instant("setting.macro.headline-modal") }}
+  <div id="macro-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ translate.instant("setting.macro.headline-modal") }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="macro-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+  <div id="macro-modal-body" class="modal-body">
+    <div id="macro-modal-inputs-row" class="row-line-modal-inline">
+      <div
+        id="macro-modal-name-section"
+        style="margin-left: 30px; width: 150px"
+      >
+        <label for="macroName">{{
+          translate.instant("setting.macro.name-modal")
+        }}</label>
+        <input
+          type="text"
+          style="width: 150px"
+          [ngModel]="macroName()"
+          (ngModelChange)="macroName.set($event)"
+          name="name"
+          class="form-control"
+          id="macroName"
+        />
       </div>
-      <span class="filler"></span>
 
       <div
-        id="macro-modal-close-btn"
+        id="macro-modal-type-section"
+        style="margin-left: 30px; width: 200px"
+      >
+        <label for="type">{{
+          translate.instant("setting.macro.type-modal")
+        }}</label>
+        <select
+          class="form-select"
+          [ngModel]="macroType()"
+          (ngModelChange)="macroType.set($event)"
+          name="type"
+          id="type"
+        >
+          @for (option of macroTypeOptions; track option.value) {
+          <option [ngValue]="option.value">
+            {{ translate.instant(option.label) }}
+          </option>
+          }
+        </select>
+      </div>
+
+      <div class="filler"></div>
+
+      @if (tabId() === 'macro') {
+      <button
+        id="macro-modal-check-btn"
         type="button"
-        class="close"
-        aria-label="Close"
-        (click)="modal.dismiss('Cross click')"
+        class="btn btn-outline-secondary"
+        style="margin-right: 10px"
+        (click)="onCheckMacro()"
       >
-        <span
-          aria-hidden="true"
-          style="
-            font-size: 13px;
-            border: 1px transparent solid;
-            color: var(--colorWorkplaceHeadline);
-          "
-          >&times;</span
-        >
-      </div>
+        <i class="fas fa-check"></i>&nbsp;{{
+          translate.instant("setting.macro.check-btn")
+        }}
+      </button>
+      }
+      @if (tabId() === 'test') {
+      <button
+        id="macro-modal-run-btn"
+        type="button"
+        class="btn btn-outline-secondary"
+        style="margin-right: 10px"
+        (click)="onRunMacro()"
+      >
+        <i class="fas fa-running"></i>&nbsp;{{
+          translate.instant("setting.macro.run-btn")
+        }}
+      </button>
+      }
     </div>
-    <div id="macro-modal-body" class="modal-body">
-      <div id="macro-modal-inputs-row" class="row-line-modal-inline">
-        <div
-          id="macro-modal-name-section"
-          style="margin-left: 30px; width: 150px"
-        >
-          <label for="macroName">{{
-            translate.instant("setting.macro.name-modal")
-          }}</label>
-          <input
-            type="text"
-            style="width: 150px"
-            [(ngModel)]="macroName"
-            name="name"
-            class="form-control"
-            id="macroName"
-          />
-        </div>
-
-        <div
-          id="macro-modal-type-section"
-          style="margin-left: 30px; width: 200px"
-        >
-          <label for="type">{{
-            translate.instant("setting.macro.type-modal")
-          }}</label>
-          <select
-            class="form-select"
-            [(ngModel)]="macroType"
-            name="type"
-            id="type"
+    <div id="macro-modal-tabs-container">
+      <ul id="macro-modal-tabs" class="nav nav-tabs">
+        <li id="macro-modal-tab-macro-item" class="nav-item">
+          <a
+            id="macro-modal-tab-macro-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'macro' }"
+            (click)="tabId.set('macro')"
+            >Macro</a
           >
-            @for (option of macroTypeOptions; track option.value) {
-            <option [ngValue]="option.value">
-              {{ translate.instant(option.label) }}
-            </option>
-            }
-          </select>
-        </div>
+        </li>
+        <li id="macro-modal-tab-data-item" class="nav-item dropdown">
+          <a
+            id="macro-modal-tab-data-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'data' }"
+            (click)="onClickData()"
+            >{{ translate.instant("setting.macro.data-modal") }}</a
+          >
+        </li>
 
-        <div class="filler"></div>
-
-        @if (tabId === 'macro') {
-        <button
-          id="macro-modal-check-btn"
-          type="button"
-          class="btn btn-outline-secondary"
-          style="margin-right: 10px"
-          (click)="onCheckMacro()"
-        >
-          <i class="fas fa-check"></i>&nbsp;{{
-            translate.instant("setting.macro.check-btn")
-          }}
-        </button>
-        }
-        @if (tabId === 'test') {
-        <button
-          id="macro-modal-run-btn"
-          type="button"
-          class="btn btn-outline-secondary"
-          style="margin-right: 10px"
-          (click)="onRunMacro()"
-        >
-          <i class="fas fa-running"></i>&nbsp;{{
-            translate.instant("setting.macro.run-btn")
-          }}
-        </button>
-        }
-      </div>
-      <div id="macro-modal-tabs-container">
-        <ul id="macro-modal-tabs" class="nav nav-tabs">
-          <li id="macro-modal-tab-macro-item" class="nav-item">
-            <a
-              id="macro-modal-tab-macro-link"
-              class="nav-link"
-              [ngClass]="{ active: tabId === 'macro' }"
-              (click)="tabId = 'macro'"
-              >Macro</a
-            >
-          </li>
-          <li id="macro-modal-tab-data-item" class="nav-item dropdown">
-            <a
-              id="macro-modal-tab-data-link"
-              class="nav-link"
-              [ngClass]="{ active: tabId === 'data' }"
-              (click)="onClickData()"
-              >{{ translate.instant("setting.macro.data-modal") }}</a
-            >
-          </li>
-
-          <li id="macro-modal-tab-test-item" class="nav-item dropdown">
-            <a
-              id="macro-modal-tab-test-link"
-              class="nav-link"
-              [ngClass]="{ active: tabId === 'test' }"
-              (click)="tabId = 'test'"
-              >{{ translate.instant("setting.macro.test-modal") }}</a
-            >
-          </li>
-          <li id="macro-modal-tab-description-item" class="nav-item">
-            <a
-              id="macro-modal-tab-description-link"
-              class="nav-link"
-              [ngClass]="{ active: tabId === 'description' }"
-              (click)="tabId = 'description'"
-              >{{ translate.instant("setting.macro.description-modal") }}</a
-            >
-          </li>
-        </ul>
-      </div>
-      <div
-        id="macro-modal-macro-content"
-        class="collapse"
-        [ngStyle]="{ display: tabId === 'macro' ? 'inline' : 'none' }"
-      >
-        <ngx-code-editor
-          id="macro-modal-code-editor"
-          #codemirror
-          [(ngModel)]="obj"
-          [autoFocus]="true"
-          [extensions]="klacksScriptLanguage"
-          [lineWrapping]="true"
-          name="codemirror"
-        >
-        </ngx-code-editor>
-      </div>
-      <div
-        id="macro-modal-data-content"
-        class="collapse"
-        [ngStyle]="{ display: tabId === 'data' ? 'inline' : 'none' }"
-      >
-        <app-property-grid
-          id="macro-modal-property-grid"
-          [object]="shiftData"
-          [excludeProps]="['isDirty']"
-        ></app-property-grid>
-      </div>
-      <div
-        id="macro-modal-test-content"
-        class="collapse"
-        [ngStyle]="{ display: tabId === 'test' ? 'inline' : 'none' }"
-      >
-        <textarea
-          id="macro-modal-test-output"
-          [value]="test"
-          class="preview preview-color preview-color-height"
-          aria-label="test"
-        ></textarea>
-      </div>
-
-      <div
-        id="macro-modal-description-content"
-        class="collapse"
-        [ngStyle]="{ display: tabId === 'description' ? 'inline' : 'none' }"
-      >
-        <div
-          id="macro-modal-manual-content"
-          class="manual-content"
-          [innerHTML]="manualContent"
-        ></div>
-      </div>
+        <li id="macro-modal-tab-test-item" class="nav-item dropdown">
+          <a
+            id="macro-modal-tab-test-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'test' }"
+            (click)="tabId.set('test')"
+            >{{ translate.instant("setting.macro.test-modal") }}</a
+          >
+        </li>
+        <li id="macro-modal-tab-description-item" class="nav-item">
+          <a
+            id="macro-modal-tab-description-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'description' }"
+            (click)="tabId.set('description')"
+            >{{ translate.instant("setting.macro.description-modal") }}</a
+          >
+        </li>
+      </ul>
     </div>
-  </form>
+    <div
+      id="macro-modal-macro-content"
+      class="collapse"
+      [ngStyle]="{ display: tabId() === 'macro' ? 'inline' : 'none' }"
+    >
+      <ngx-code-editor
+        id="macro-modal-code-editor"
+        #codemirror
+        [ngModel]="obj()"
+        (ngModelChange)="obj.set($event)"
+        [autoFocus]="true"
+        [extensions]="klacksScriptLanguage"
+        [lineWrapping]="true"
+        name="codemirror"
+      >
+      </ngx-code-editor>
+    </div>
+    <div
+      id="macro-modal-data-content"
+      class="collapse"
+      [ngStyle]="{ display: tabId() === 'data' ? 'inline' : 'none' }"
+    >
+      <app-property-grid
+        id="macro-modal-property-grid"
+        [object]="shiftData"
+        [excludeProps]="['isDirty']"
+      ></app-property-grid>
+    </div>
+    <div
+      id="macro-modal-test-content"
+      class="collapse"
+      [ngStyle]="{ display: tabId() === 'test' ? 'inline' : 'none' }"
+    >
+      <textarea
+        id="macro-modal-test-output"
+        [value]="test()"
+        class="preview preview-color preview-color-height"
+        aria-label="test"
+      ></textarea>
+    </div>
+
+    <div
+      id="macro-modal-description-content"
+      class="collapse"
+      [ngStyle]="{ display: tabId() === 'description' ? 'inline' : 'none' }"
+    >
+      <div
+        id="macro-modal-manual-content"
+        class="manual-content"
+        [innerHTML]="manualContent()"
+      ></div>
+    </div>
+  </div>
 
   <div id="macro-modal-footer" class="modal-footer">
     <span
@@ -217,30 +218,24 @@
   </div>
 </ng-template>
 
-<form id="macro-row-form-{{ data.id }}">
-  <div
-    id="macro-row-container-{{ data.id }}"
-    class="first custom-control-inline"
-  >
-    <div id="macro-row-name-group-{{ data.id }}" class="form-group">
-      <input
-        id="macro-row-name-{{ data.id }}"
-        type="text"
-        [value]="data.name"
-        name="data.name"
-        class="form-control attribute-name"
-        aria-label="name"
-        (click)="open(content)"
-        readonly
-      />
-    </div>
-
-    <span
-      id="macro-row-delete-{{ data.id }}"
-      class="delete-button"
-      type="button"
-      (click)="onClickDelete()"
-      >✕</span
-    >
+<div id="macro-row-container-{{ data.id }}" class="first custom-control-inline">
+  <div id="macro-row-name-group-{{ data.id }}" class="form-group">
+    <input
+      id="macro-row-name-{{ data.id }}"
+      type="text"
+      [value]="data.name"
+      class="form-control attribute-name"
+      aria-label="name"
+      (click)="open(content)"
+      readonly
+    />
   </div>
-</form>
+
+  <span
+    id="macro-row-delete-{{ data.id }}"
+    class="delete-button"
+    type="button"
+    (click)="onClickDelete()"
+    >✕</span
+  >
+</div>
