@@ -8,10 +8,12 @@ import {
   AfterViewInit,
   ViewChild,
   TemplateRef,
+  signal,
 } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -31,21 +33,13 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
 
-interface ContractFormViewModel {
-  internalGuaranteedHours: OwnTime;
-  internalMinimumHours: OwnTime;
-  internalMaximumHours: OwnTime;
-  internalFullTime: OwnTime;
-  internalValidFrom: NgbDateStruct | undefined;
-  internalValidUntil: NgbDateStruct | undefined;
-}
-
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
   styleUrls: ['./contracts.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     TranslateModule,
     FormsModule,
     NgbModule,
@@ -55,12 +49,11 @@ interface ContractFormViewModel {
     TimeInputComponent,
     DateInputComponent,
     ChooseCalendarComponent
-],
+  ],
 })
 export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('contractModal', { read: TemplateRef })
   contractModal!: TemplateRef<any>;
-  @ViewChild('contractForm') contractForm!: NgForm;
   @ViewChild('containerBox') containerBox?: ElementRef;
 
   public translate = inject(TranslateService);
@@ -69,39 +62,62 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
 
   public editingContract: IContract | null = null;
-  public contractForm_: ContractFormViewModel | null = null;
   private originalContract: IContract | null = null;
   private isNewContract = false;
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
+  contractName = signal('');
+  nightRate = signal(0);
+  holidayRate = signal(0);
+  saRate = signal(0);
+  soRate = signal(0);
+  guaranteedHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
+  minimumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
+  maximumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
+  fullTime = signal<OwnTime>(OwnTime.forDuration('00', '00'));
+  validFrom = signal<NgbDateStruct | null | undefined>(undefined);
+  validUntil = signal<NgbDateStruct | null | undefined>(undefined);
+  calendarSelectionId = signal<string | undefined>(undefined);
+
   message = MessageLibrary.DELETE_ENTRY;
 
-  private createViewModel(contract: IContract): ContractFormViewModel {
-    return {
-      internalGuaranteedHours: transformNumberToOwnTime(contract.guaranteedHours ?? 0, true),
-      internalMinimumHours: transformNumberToOwnTime(contract.minimumHours ?? 0, true),
-      internalMaximumHours: transformNumberToOwnTime(contract.maximumHours ?? 0, true),
-      internalFullTime: transformNumberToOwnTime(contract.fullTime ?? 0, true),
-      internalValidFrom: contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined,
-      internalValidUntil: contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined,
-    };
+  private initFormSignals(contract: IContract): void {
+    this.contractName.set(contract.name || '');
+    this.nightRate.set(contract.nightRate ?? 0);
+    this.holidayRate.set(contract.holidayRate ?? 0);
+    this.saRate.set(contract.saRate ?? 0);
+    this.soRate.set(contract.soRate ?? 0);
+    this.guaranteedHours.set(transformNumberToOwnTime(contract.guaranteedHours ?? 0, true));
+    this.minimumHours.set(transformNumberToOwnTime(contract.minimumHours ?? 0, true));
+    this.maximumHours.set(transformNumberToOwnTime(contract.maximumHours ?? 0, true));
+    this.fullTime.set(transformNumberToOwnTime(contract.fullTime ?? 0, true));
+    this.validFrom.set(contract.validFrom ? transformDateToNgbDateStruct(contract.validFrom) : undefined);
+    this.validUntil.set(contract.validUntil ? transformDateToNgbDateStruct(contract.validUntil) : undefined);
+    this.calendarSelectionId.set(contract.calendarSelectionId);
   }
 
-  private applyViewModelToContract(): void {
-    if (!this.editingContract || !this.contractForm_) return;
-    this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.contractForm_.internalGuaranteedHours);
-    this.editingContract.minimumHours = transformOwnTimeToNumber(this.contractForm_.internalMinimumHours);
-    this.editingContract.maximumHours = transformOwnTimeToNumber(this.contractForm_.internalMaximumHours);
-    this.editingContract.fullTime = transformOwnTimeToNumber(this.contractForm_.internalFullTime);
-    if (this.contractForm_.internalValidFrom) {
-      const validFrom = transformNgbDateStructToDate(this.contractForm_.internalValidFrom);
-      if (validFrom) {
-        this.editingContract.validFrom = validFrom;
+  private applySignalsToContract(): void {
+    if (!this.editingContract) return;
+    this.editingContract.name = this.contractName();
+    this.editingContract.nightRate = this.nightRate();
+    this.editingContract.holidayRate = this.holidayRate();
+    this.editingContract.saRate = this.saRate();
+    this.editingContract.soRate = this.soRate();
+    this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.guaranteedHours());
+    this.editingContract.minimumHours = transformOwnTimeToNumber(this.minimumHours());
+    this.editingContract.maximumHours = transformOwnTimeToNumber(this.maximumHours());
+    this.editingContract.fullTime = transformOwnTimeToNumber(this.fullTime());
+    const validFromValue = this.validFrom();
+    if (validFromValue) {
+      const validFromDate = transformNgbDateStructToDate(validFromValue);
+      if (validFromDate) {
+        this.editingContract.validFrom = validFromDate;
       }
     }
-    this.editingContract.validUntil = this.contractForm_.internalValidUntil
-      ? transformNgbDateStructToDate(this.contractForm_.internalValidUntil)
+    const validUntilValue = this.validUntil();
+    this.editingContract.validUntil = validUntilValue
+      ? transformNgbDateStructToDate(validUntilValue)
       : undefined;
   }
 
@@ -135,7 +151,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickAdd(): void {
     this.editingContract = this.dataManagementContractService.createContract();
-    this.contractForm_ = this.createViewModel(this.editingContract);
+    this.initFormSignals(this.editingContract);
 
     this.originalContract = null;
     this.isNewContract = true;
@@ -153,7 +169,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dataManagementContractService.prepareContractForEdit(clonedContract);
 
     this.editingContract = clonedContract;
-    this.contractForm_ = this.createViewModel(clonedContract);
+    this.initFormSignals(clonedContract);
     this.originalContract = contract;
     this.isNewContract = false;
 
@@ -208,7 +224,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    this.applyViewModelToContract();
+    this.applySignalsToContract();
     this.isSaving = true;
 
     try {
@@ -236,10 +252,6 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         }
       }
-
-      if (this.contractForm) {
-        this.contractForm.form.markAsPristine();
-      }
     } catch (error) {
       console.error('Error saving contract:', error);
 
@@ -257,6 +269,7 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onCalendarSelectionChange(calendarId: string): void {
+    this.calendarSelectionId.set(calendarId || undefined);
     if (this.editingContract) {
       if (calendarId) {
         const selectedCalendar =
@@ -273,11 +286,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getSelectedCalendarName(): string {
-    if (!this.editingContract?.calendarSelectionId) {
+    const selectedId = this.calendarSelectionId();
+    if (!selectedId) {
       return this.translate.instant('setting.contract.noCalendar');
     }
     const calendar = this.dataManagementContractService.availableCalendars.find(
-      (cal) => cal.id === this.editingContract?.calendarSelectionId
+      (cal) => cal.id === selectedId
     );
     return calendar?.name || this.translate.instant('setting.contract.noCalendar');
   }
@@ -296,5 +310,87 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.editingContract
         )
       : [];
+  }
+
+  onContractNameChange(value: string): void {
+    this.contractName.set(value);
+    if (this.editingContract) {
+      this.editingContract.name = value;
+    }
+  }
+
+  onNightRateChange(value: number): void {
+    this.nightRate.set(value);
+    if (this.editingContract) {
+      this.editingContract.nightRate = value;
+    }
+  }
+
+  onHolidayRateChange(value: number): void {
+    this.holidayRate.set(value);
+    if (this.editingContract) {
+      this.editingContract.holidayRate = value;
+    }
+  }
+
+  onSaRateChange(value: number): void {
+    this.saRate.set(value);
+    if (this.editingContract) {
+      this.editingContract.saRate = value;
+    }
+  }
+
+  onSoRateChange(value: number): void {
+    this.soRate.set(value);
+    if (this.editingContract) {
+      this.editingContract.soRate = value;
+    }
+  }
+
+  onGuaranteedHoursChange(value: OwnTime): void {
+    this.guaranteedHours.set(value);
+    if (this.editingContract) {
+      this.editingContract.guaranteedHours = transformOwnTimeToNumber(value);
+    }
+  }
+
+  onMinimumHoursChange(value: OwnTime): void {
+    this.minimumHours.set(value);
+    if (this.editingContract) {
+      this.editingContract.minimumHours = transformOwnTimeToNumber(value);
+    }
+  }
+
+  onMaximumHoursChange(value: OwnTime): void {
+    this.maximumHours.set(value);
+    if (this.editingContract) {
+      this.editingContract.maximumHours = transformOwnTimeToNumber(value);
+    }
+  }
+
+  onFullTimeChange(value: OwnTime): void {
+    this.fullTime.set(value);
+    if (this.editingContract) {
+      this.editingContract.fullTime = transformOwnTimeToNumber(value);
+    }
+  }
+
+  onValidFromChange(value: NgbDateStruct | null | undefined): void {
+    this.validFrom.set(value);
+    if (this.editingContract && value) {
+      const date = transformNgbDateStructToDate(value);
+      if (date) {
+        this.editingContract.validFrom = date;
+      }
+    }
+  }
+
+  onValidUntilChange(value: NgbDateStruct | null | undefined): void {
+    this.validUntil.set(value);
+    if (this.editingContract) {
+      this.editingContract.validUntil = value
+        ? transformNgbDateStructToDate(value)
+        : undefined;
+    }
   }
 }

@@ -138,7 +138,7 @@
         />
       </div>
     </div>
-    <div id="work-setting-night-sa-row" class="row-line">
+    <div id="work-setting-night-holiday-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="nightRate">{{ 'settings.work.night-rate' | translate }}</label>
         <input
@@ -152,6 +152,20 @@
         />
       </div>
       <div class="form-group secondColumn">
+        <label for="holidayRate">{{ 'settings.work.holiday-rate' | translate }}</label>
+        <input
+          type="number"
+          step="0.01"
+          class="form-control"
+          [(ngModel)]="dataManagementSettingsService.holidayRate"
+          aria-label="holidayRate"
+          name="holidayRate"
+          id="holidayRate"
+        />
+      </div>
+    </div>
+    <div id="work-setting-sa-so-row" class="row-line">
+      <div class="form-group firstColumn">
         <label for="saRate">{{ 'settings.work.sa-rate' | translate }}</label>
         <input
           type="number"
@@ -163,9 +177,7 @@
           id="saRate"
         />
       </div>
-    </div>
-    <div id="work-setting-so-row" class="row-line-single">
-      <div class="form-group firstColumn">
+      <div class="form-group secondColumn">
         <label for="soRate">{{ 'settings.work.so-rate' | translate }}</label>
         <input
           type="number"

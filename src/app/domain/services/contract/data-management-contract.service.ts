@@ -20,6 +20,7 @@ import {
 } from '../../helpers/own-time.helper';
 import { TranslateService } from '@ngx-translate/core';
 import { OwnTime } from '../../models/schedule-class';
+import { DataManagementSettingsService } from '../settings/data-management-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +29,7 @@ export class DataManagementContractService {
   private eventBus = inject(EVENT_BUS_TOKEN);
   private dataContractService = inject(DataContractService);
   private translate = inject(TranslateService);
+  private settingsService = inject(DataManagementSettingsService);
   public dataManagementCalendarSelectionService = inject(
     DataManagementCalendarSelectionService
   );
@@ -136,6 +138,12 @@ export class DataManagementContractService {
       this.contracts = [];
 
       if (result && Array.isArray(result)) {
+        for (const contract of result) {
+          contract.nightRate = (contract.nightRate ?? 0) * 100;
+          contract.holidayRate = (contract.holidayRate ?? 0) * 100;
+          contract.saRate = (contract.saRate ?? 0) * 100;
+          contract.soRate = (contract.soRate ?? 0) * 100;
+        }
         this.contracts.push(...result);
       }
 
@@ -163,6 +171,10 @@ export class DataManagementContractService {
       );
 
       if (result) {
+        result.nightRate = (result.nightRate ?? 0) * 100;
+        result.holidayRate = (result.holidayRate ?? 0) * 100;
+        result.saRate = (result.saRate ?? 0) * 100;
+        result.soRate = (result.soRate ?? 0) * 100;
         this.prepareContract(result);
       }
     } catch (error) {
@@ -182,9 +194,14 @@ export class DataManagementContractService {
 
     const newContract = new Contract();
     newContract.name = '';
-    newContract.guaranteedHours = 160;
-    newContract.maximumHours = 200;
-    newContract.minimumHours = 120;
+    newContract.guaranteedHours = this.settingsService.guaranteedHours;
+    newContract.maximumHours = this.settingsService.maximumHours;
+    newContract.minimumHours = this.settingsService.minimumHours;
+    newContract.fullTime = this.settingsService.fullTime;
+    newContract.nightRate = this.settingsService.nightRate * 100;
+    newContract.holidayRate = this.settingsService.holidayRate * 100;
+    newContract.saRate = this.settingsService.saRate * 100;
+    newContract.soRate = this.settingsService.soRate * 100;
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;
@@ -243,9 +260,15 @@ export class DataManagementContractService {
     this._showProgressSpinner.set(true);
 
     try {
-      const action = this.editContract.id
-        ? this.dataContractService.updateContract(this.editContract)
-        : this.dataContractService.addContract(this.editContract);
+      const contractToSave = { ...this.editContract };
+      contractToSave.nightRate = (contractToSave.nightRate ?? 0) / 100;
+      contractToSave.holidayRate = (contractToSave.holidayRate ?? 0) / 100;
+      contractToSave.saRate = (contractToSave.saRate ?? 0) / 100;
+      contractToSave.soRate = (contractToSave.soRate ?? 0) / 100;
+
+      const action = contractToSave.id
+        ? this.dataContractService.updateContract(contractToSave)
+        : this.dataContractService.addContract(contractToSave);
 
       const result = await lastValueFrom(action);
 

@@ -362,6 +362,14 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     this.appSettingsService.workSettings.update(s => ({ ...s, nightRate: value }));
   }
 
+  get holidayRate(): number {
+    return this.appSettingsService.workSettings().holidayRate;
+  }
+
+  set holidayRate(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, holidayRate: value }));
+  }
+
   get saRate(): number {
     return this.appSettingsService.workSettings().saRate;
   }

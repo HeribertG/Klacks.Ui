@@ -201,6 +201,9 @@ export class AppSettingsManagementService {
         case AppSetting.WORK_NIGHT_RATE:
           work.nightRate = parseFloat(setting.value) || 0.1;
           break;
+        case AppSetting.WORK_HOLIDAY_RATE:
+          work.holidayRate = parseFloat(setting.value) || 0.1;
+          break;
         case AppSetting.WORK_SA_RATE:
           work.saRate = parseFloat(setting.value) || 0.1;
           break;
@@ -270,6 +273,7 @@ export class AppSettingsManagementService {
     this.saveSetting(work.minimumHours.toString(), workOriginal.minimumHours.toString(), AppSetting.WORK_MINIMUM_HOURS);
     this.saveSetting(work.fullTime.toString(), workOriginal.fullTime.toString(), AppSetting.WORK_FULL_TIME);
     this.saveSetting(work.nightRate.toString(), workOriginal.nightRate.toString(), AppSetting.WORK_NIGHT_RATE);
+    this.saveSetting(work.holidayRate.toString(), workOriginal.holidayRate.toString(), AppSetting.WORK_HOLIDAY_RATE);
     this.saveSetting(work.saRate.toString(), workOriginal.saRate.toString(), AppSetting.WORK_SA_RATE);
     this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
 

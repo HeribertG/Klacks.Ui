@@ -817,6 +817,7 @@
   "settings.work.minimum-hours": "Ore minime",
   "settings.work.full-time": "Tempo pieno (ore)",
   "settings.work.night-rate": "Maggiorazione notturna",
+  "settings.work.holiday-rate": "Maggiorazione festivi",
   "settings.work.sa-rate": "Maggiorazione sabato",
   "settings.work.so-rate": "Maggiorazione domenica",
 

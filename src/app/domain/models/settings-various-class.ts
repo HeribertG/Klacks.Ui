@@ -46,6 +46,7 @@ export class AppSetting {
   public static WORK_MINIMUM_HOURS = 'minimumHours';
   public static WORK_FULL_TIME = 'fullTime';
   public static WORK_NIGHT_RATE = 'nightRate';
+  public static WORK_HOLIDAY_RATE = 'holidayRate';
   public static WORK_SA_RATE = 'saRate';
   public static WORK_SO_RATE = 'soRate';
 }

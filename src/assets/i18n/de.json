@@ -792,6 +792,7 @@
   "settings.work.minimum-hours": "Minimale Stunden",
   "settings.work.full-time": "Vollzeit (Stunden)",
   "settings.work.night-rate": "Nachtzuschlag",
+  "settings.work.holiday-rate": "Feiertagszuschlag",
   "settings.work.sa-rate": "Samstagszuschlag",
   "settings.work.so-rate": "Sonntagszuschlag",
   "aside.header.title": "Assistent",

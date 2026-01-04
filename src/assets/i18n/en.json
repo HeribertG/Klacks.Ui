@@ -801,6 +801,7 @@
   "settings.work.minimum-hours": "Minimum Hours",
   "settings.work.full-time": "Full Time (hours)",
   "settings.work.night-rate": "Night Rate",
+  "settings.work.holiday-rate": "Holiday Rate",
   "settings.work.sa-rate": "Saturday Rate",
   "settings.work.so-rate": "Sunday Rate",
   "aside.header.title": "Assistant",

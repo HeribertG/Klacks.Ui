@@ -62,6 +62,7 @@ export interface IWorkSettings {
   minimumHours: number;
   fullTime: number;
   nightRate: number;
+  holidayRate: number;
   saRate: number;
   soRate: number;
 }
@@ -78,6 +79,7 @@ export class WorkSettings implements IWorkSettings {
   minimumHours = 160;
   fullTime = 180;
   nightRate = 0.1;
+  holidayRate = 0.1;
   saRate = 0.1;
   soRate = 0.1;
 }
