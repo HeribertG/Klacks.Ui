@@ -1,8 +1,6 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, OnChanges, Output, effect, signal } from '@angular/core';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { IAuthentication } from 'src/app/domain/models/authentification-class';
 
@@ -12,14 +10,19 @@ export interface RoleChangeEvent {
   isSelected: boolean;
 }
 
+interface UserRoleModel {
+  isAuthorised: string;
+  isAdmin: string;
+}
+
 @Component({
   selector: 'app-user-administration-row',
   templateUrl: './user-administration-row.component.html',
   styleUrls: ['./user-administration-row.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, NgbModule],
+  imports: [TranslateModule, Field],
 })
-export class UserAdministrationRowComponent {
+export class UserAdministrationRowComponent implements OnChanges {
   @Input() user: IAuthentication | undefined;
   @Input() enabled: boolean | undefined;
   @Output() isDeleteEvent = new EventEmitter<void>();
@@ -28,30 +31,62 @@ export class UserAdministrationRowComponent {
 
   public translate = inject(TranslateService);
 
+  private isInitialized = false;
+  private lastModel: UserRoleModel | null = null;
+
+  private userRoleModel = signal<UserRoleModel>({
+    isAuthorised: 'false',
+    isAdmin: 'false',
+  });
+  userRoleForm = form(this.userRoleModel);
+
+  constructor() {
+    effect(() => {
+      const model = this.userRoleModel();
+      if (this.isInitialized && this.user) {
+        if (this.lastModel && model.isAuthorised !== this.lastModel.isAuthorised) {
+          this.user.isAuthorised = model.isAuthorised === 'true';
+          this.isRoleChangeEvent.emit({
+            account: this.user,
+            roleName: 'Authorised',
+            isSelected: this.user.isAuthorised,
+          });
+        }
+        if (this.lastModel && model.isAdmin !== this.lastModel.isAdmin) {
+          this.user.isAdmin = model.isAdmin === 'true';
+          this.isRoleChangeEvent.emit({
+            account: this.user,
+            roleName: 'Admin',
+            isSelected: this.user.isAdmin,
+          });
+        }
+        this.lastModel = { ...model };
+      }
+    });
+  }
+
+  ngOnChanges(): void {
+    if (this.user) {
+      const initialModel: UserRoleModel = {
+        isAuthorised: this.user.isAuthorised ? 'true' : 'false',
+        isAdmin: this.user.isAdmin ? 'true' : 'false',
+      };
+      this.userRoleModel.set(initialModel);
+      this.lastModel = { ...initialModel };
+      this.isInitialized = true;
+    }
+  }
+
+  get userName(): string {
+    return this.user ? `${this.user.firstName} ${this.user.lastName}` : '';
+  }
+
+  get userEmail(): string {
+    return this.user?.email || '';
+  }
+
   onDelete(): void {
     this.isDeleteEvent.emit();
-  }
-
-  onAdminChange(): void {
-    if (this.user) {
-      this.user.isAdmin = Boolean(this.user.isAdmin?.toString() === 'true');
-      this.isRoleChangeEvent.emit({
-        account: this.user,
-        roleName: 'Admin',
-        isSelected: this.user.isAdmin,
-      });
-    }
-  }
-
-  onAuthorisedChange(): void {
-    if (this.user) {
-      this.user.isAuthorised = Boolean(this.user.isAuthorised?.toString() === 'true');
-      this.isRoleChangeEvent.emit({
-        account: this.user,
-        roleName: 'Authorised',
-        isSelected: this.user.isAuthorised,
-      });
-    }
   }
 
   onClickSentTo(): void {

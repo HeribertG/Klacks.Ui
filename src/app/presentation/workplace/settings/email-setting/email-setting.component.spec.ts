@@ -1,81 +1,78 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
+import { TestBed } from '@angular/core/testing';
+import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 
 import { EmailSettingComponent } from './email-setting.component';
-import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
 
-// TODO: Fix tests after Signal Forms migration - Field directive mocking needed
-describe.skip('EmailSettingComponent', () => {
+describe('EmailSettingComponent', () => {
     let component: EmailSettingComponent;
-    let fixture: ComponentFixture<EmailSettingComponent>;
-    let mockSettingsService: any;
+    let mockAppSettingsService: any;
     let mockDataSettingsService: any;
     let mockToastService: any;
-    let _mockTranslateService: any;
+    let emailSettingsSignal: WritableSignal<any>;
+    let contactSettingsSignal: WritableSignal<any>;
+
+    const mockEmailSettings = {
+        outgoingServer: 'smtp.example.com',
+        outgoingServerPort: '587',
+        outgoingServerTimeout: '30',
+        enabledSSL: 'true',
+        authenticationType: 'LOGIN',
+        dispositionNotification: 'false',
+        readReceipt: '',
+        replyTo: 'noreply@example.com',
+        username: 'test@example.com',
+        password: 'password123',
+    };
+
+    const mockContactSettings = {
+        mark: 'Test Mark',
+    };
 
     beforeEach(async () => {
-        const settingsServiceSpy = {
-            loadSettings: vi.fn(),
-            settingsChangeTrigger: signal(0),
-            isReset: signal(false),
-            outgoingServer: 'smtp.example.com',
-            outgoingServerPort: 587,
-            enabledSSL: true,
-            authenticationType: 'Login',
-            outgoingserverUsername: 'test@example.com',
-            outgoingserverPassword: 'password123',
-            replyTo: 'noreply@example.com'
+        emailSettingsSignal = signal({ ...mockEmailSettings });
+        contactSettingsSignal = signal({ ...mockContactSettings });
+
+        const appSettingsServiceSpy = {
+            loadSettingsAsync: vi.fn().mockResolvedValue(undefined),
+            emailSettings: emailSettingsSignal,
+            contactSettings: contactSettingsSignal,
         };
 
         const dataSettingsServiceSpy = {
-            testEmailConfiguration: vi.fn()
+            testEmailConfiguration: vi.fn().mockReturnValue(of({ success: true, message: 'Default success' })),
         };
-        dataSettingsServiceSpy.testEmailConfiguration.mockReturnValue(of({ success: true, message: 'Default success' }));
 
         const toastServiceSpy = {
             showSuccess: vi.fn(),
-            showError: vi.fn()
+            showError: vi.fn(),
         };
 
-        const translateServiceSpy: any = {
-            instant: vi.fn(),
-            get: vi.fn().mockReturnValue(of('Translated text')),
-            onLangChange: of({ lang: 'en' }),
-            onTranslationChange: of({}),
-            onDefaultLangChange: of({ lang: 'en' })
+        const translateServiceSpy = {
+            instant: vi.fn().mockReturnValue('Translated text'),
         };
-        translateServiceSpy.instant.mockReturnValue('Translated text');
 
         await TestBed.configureTestingModule({
-            imports: [EmailSettingComponent, TranslateModule.forRoot(), FormsModule],
             providers: [
-                {
-                    provide: DataManagementSettingsService,
-                    useValue: settingsServiceSpy,
-                },
-                {
-                    provide: DataSettingsVariousService,
-                    useValue: dataSettingsServiceSpy,
-                },
+                EmailSettingComponent,
+                { provide: AppSettingsManagementService, useValue: appSettingsServiceSpy },
+                { provide: DataSettingsVariousService, useValue: dataSettingsServiceSpy },
                 { provide: ToastShowService, useValue: toastServiceSpy },
                 { provide: TranslateService, useValue: translateServiceSpy },
             ],
         }).compileComponents();
 
-        mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
+        mockAppSettingsService = TestBed.inject(AppSettingsManagementService) as any;
         mockDataSettingsService = TestBed.inject(DataSettingsVariousService) as any;
         mockToastService = TestBed.inject(ToastShowService) as any;
-        _mockTranslateService = TestBed.inject(TranslateService) as any;
 
-        fixture = TestBed.createComponent(EmailSettingComponent);
-        component = fixture.componentInstance;
+        component = TestBed.inject(EmailSettingComponent);
     });
 
     it('should create', () => {
@@ -84,18 +81,24 @@ describe.skip('EmailSettingComponent', () => {
 
     describe('Initialization', () => {
         it('should have default values', () => {
-            // Act
-            fixture.detectChanges();
-
             // Assert
             expect(component.showPassword()).toBe(false);
             expect(component.isTestingEmail).toBe(false);
+        });
+
+        it('should load settings on init', async () => {
+            // Act
+            await component.ngOnInit();
+
+            // Assert
+            expect(mockAppSettingsService.loadSettingsAsync).toHaveBeenCalled();
         });
     });
 
     describe('Email Configuration Test', () => {
         it('should test email configuration successfully', async () => {
             // Arrange
+            await component.ngOnInit();
             const successResult: EmailTestResult = {
                 success: true,
                 message: 'Email configuration test successful',
@@ -104,9 +107,9 @@ describe.skip('EmailSettingComponent', () => {
 
             // Act
             component.testEmailConfiguration();
+            await new Promise(resolve => setTimeout(resolve, 10));
 
             // Assert
-            await new Promise(resolve => setTimeout(resolve, 50));
             expect(mockDataSettingsService.testEmailConfiguration).toHaveBeenCalled();
             expect(mockToastService.showSuccess).toHaveBeenCalledWith(successResult.message, 'Translated text');
             expect(component.isTestingEmail).toBe(false);
@@ -114,6 +117,7 @@ describe.skip('EmailSettingComponent', () => {
 
         it('should handle email configuration test failure', async () => {
             // Arrange
+            await component.ngOnInit();
             const errorResult: EmailTestResult = {
                 success: false,
                 message: 'Email configuration test failed',
@@ -123,20 +127,24 @@ describe.skip('EmailSettingComponent', () => {
 
             // Act
             component.testEmailConfiguration();
+            await new Promise(resolve => setTimeout(resolve, 10));
 
             // Assert
-            await new Promise(resolve => setTimeout(resolve, 50));
-            expect(mockToastService.showError).toHaveBeenCalledWith(errorResult.message, 'Translated text', errorResult.errorDetails);
+            expect(mockToastService.showError).toHaveBeenCalledWith(
+                errorResult.message,
+                'Translated text',
+                errorResult.errorDetails
+            );
             expect(component.isTestingEmail).toBe(false);
         });
 
-        it('should validate email address before testing', () => {
+        it('should validate email address before testing', async () => {
             // Arrange
-            Object.defineProperty(mockSettingsService, 'outgoingserverUsername', {
-                value: 'invalid-email',
-                writable: true,
-                configurable: true
+            emailSettingsSignal.set({
+                ...mockEmailSettings,
+                username: 'invalid-email',
             });
+            await component.ngOnInit();
 
             // Act
             component.testEmailConfiguration();
@@ -149,20 +157,22 @@ describe.skip('EmailSettingComponent', () => {
 
         it('should handle unexpected errors during email test', async () => {
             // Arrange
+            await component.ngOnInit();
             const error = new Error('Network error');
             mockDataSettingsService.testEmailConfiguration.mockReturnValue(throwError(() => error));
 
             // Act
             component.testEmailConfiguration();
+            await new Promise(resolve => setTimeout(resolve, 10));
 
             // Assert
-            await new Promise(resolve => setTimeout(resolve, 50));
             expect(mockToastService.showError).toHaveBeenCalled();
             expect(component.isTestingEmail).toBe(false);
         });
 
         it('should send correct email configuration to service', async () => {
             // Arrange
+            await component.ngOnInit();
             const successResult: EmailTestResult = {
                 success: true,
                 message: 'Success',
@@ -171,14 +181,14 @@ describe.skip('EmailSettingComponent', () => {
 
             // Act
             component.testEmailConfiguration();
+            await new Promise(resolve => setTimeout(resolve, 10));
 
             // Assert
-            await new Promise(resolve => setTimeout(resolve, 50));
             const expectedConfig = {
                 server: 'smtp.example.com',
-                port: 587,
-                enableSSL: true,
-                authType: 'Login',
+                port: '587',
+                enableSSL: 'true',
+                authType: 'LOGIN',
                 username: 'test@example.com',
                 password: 'password123',
                 replyTo: 'noreply@example.com',
@@ -190,13 +200,24 @@ describe.skip('EmailSettingComponent', () => {
     describe('Password Visibility', () => {
         it('should toggle password visibility', () => {
             // Arrange
-            component.showPassword.set(false);
+            expect(component.showPassword()).toBe(false);
 
             // Act
             component.toggleShowPassword();
 
             // Assert
             expect(component.showPassword()).toBe(true);
+        });
+
+        it('should toggle password visibility back to hidden', () => {
+            // Arrange
+            component.showPassword.set(true);
+
+            // Act
+            component.toggleShowPassword();
+
+            // Assert
+            expect(component.showPassword()).toBe(false);
         });
     });
 

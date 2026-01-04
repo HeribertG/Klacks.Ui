@@ -5,8 +5,7 @@
     <input
       id="user-admin-row-name-{{ user!.id }}"
       type="text"
-      [ngModel]="user!.firstName + ' ' + user!.lastName"
-      name="user.name"
+      [value]="userName"
       class="form-control gap"
       readonly
       aria-label="name"
@@ -17,9 +16,8 @@
     <input
       id="user-admin-row-email-{{ user!.id }}"
       type="email"
-      [(ngModel)]="user!.email"
+      [value]="userEmail"
       class="form-control gap"
-      name="user.email"
       readonly
       aria-label="email"
     />
@@ -30,37 +28,59 @@
     }
   </div>
   <div id="user-admin-row-authorised-group-{{ user!.id }}" class="form-group">
-    <select
-      id="user-admin-row-authorised-{{ user!.id }}"
-      [(ngModel)]="user!.isAuthorised"
-      (change)="onAuthorisedChange()"
-      class="form-select gap"
-      name=" user.visa"
-      [disabled]="!enabled"
-      aria-label="isAuthorised"
-    >
-      <option value="true" [selected]="user!.isAuthorised === true">
-        {{ translate.instant("setting.user-admin.row.yes") }}
-      </option>
-      <option value="false" [selected]="user!.isAuthorised === false">
-        {{ translate.instant("setting.user-admin.row.no") }}
-      </option>
-    </select>
+    @if (enabled) {
+      <select
+        id="user-admin-row-authorised-{{ user!.id }}"
+        [field]="userRoleForm.isAuthorised"
+        class="form-select gap"
+        aria-label="isAuthorised"
+      >
+        <option value="true">
+          {{ translate.instant("setting.user-admin.row.yes") }}
+        </option>
+        <option value="false">
+          {{ translate.instant("setting.user-admin.row.no") }}
+        </option>
+      </select>
+    } @else {
+      <select
+        id="user-admin-row-authorised-{{ user!.id }}"
+        class="form-select gap"
+        disabled
+        aria-label="isAuthorised"
+      >
+        <option [selected]="user!.isAuthorised">
+          {{ translate.instant("setting.user-admin.row.yes") }}
+        </option>
+        <option [selected]="!user!.isAuthorised">
+          {{ translate.instant("setting.user-admin.row.no") }}
+        </option>
+      </select>
+    }
   </div>
 
   <div id="user-admin-row-admin-group-{{ user!.id }}" class="form-group">
-    <select
-      id="user-admin-row-admin-{{ user!.id }}"
-      [(ngModel)]="user!.isAdmin"
-      (change)="onAdminChange()"
-      class="form-select"
-      name=" user.rights"
-      [disabled]="!enabled"
-      aria-label="isAdmin"
-    >
-      <option value="true" [selected]="user!.isAdmin === true">Admin</option>
-      <option value="false" [selected]="user!.isAdmin === false">User</option>
-    </select>
+    @if (enabled) {
+      <select
+        id="user-admin-row-admin-{{ user!.id }}"
+        [field]="userRoleForm.isAdmin"
+        class="form-select"
+        aria-label="isAdmin"
+      >
+        <option value="true">Admin</option>
+        <option value="false">User</option>
+      </select>
+    } @else {
+      <select
+        id="user-admin-row-admin-{{ user!.id }}"
+        class="form-select"
+        disabled
+        aria-label="isAdmin"
+      >
+        <option [selected]="user!.isAdmin">Admin</option>
+        <option [selected]="!user!.isAdmin">User</option>
+      </select>
+    }
   </div>
   <div id="user-admin-row-delete-group-{{ user!.id }}">
     @if (enabled) {
