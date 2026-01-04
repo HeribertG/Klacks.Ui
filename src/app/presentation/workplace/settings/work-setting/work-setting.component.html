@@ -78,6 +78,8 @@
           aria-label="paymentInterval"
           name="paymentInterval"
           id="paymentInterval"
+          [disabled]="hasContracts"
+          [title]="hasContracts ? ('settings.work.payment-interval-locked' | translate) : ''"
         >
           <option [ngValue]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
           <option [ngValue]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
@@ -140,10 +142,12 @@
     </div>
     <div id="work-setting-night-holiday-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="nightRate">{{ 'settings.work.night-rate' | translate }}</label>
+        <label for="nightRate">{{ 'settings.work.night-rate' | translate }} (%)</label>
         <input
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
+          max="100"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.nightRate"
           aria-label="nightRate"
@@ -152,10 +156,12 @@
         />
       </div>
       <div class="form-group secondColumn">
-        <label for="holidayRate">{{ 'settings.work.holiday-rate' | translate }}</label>
+        <label for="holidayRate">{{ 'settings.work.holiday-rate' | translate }} (%)</label>
         <input
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
+          max="100"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.holidayRate"
           aria-label="holidayRate"
@@ -166,10 +172,12 @@
     </div>
     <div id="work-setting-sa-so-row" class="row-line">
       <div class="form-group firstColumn">
-        <label for="saRate">{{ 'settings.work.sa-rate' | translate }}</label>
+        <label for="saRate">{{ 'settings.work.sa-rate' | translate }} (%)</label>
         <input
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
+          max="100"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.saRate"
           aria-label="saRate"
@@ -178,10 +186,12 @@
         />
       </div>
       <div class="form-group secondColumn">
-        <label for="soRate">{{ 'settings.work.so-rate' | translate }}</label>
+        <label for="soRate">{{ 'settings.work.so-rate' | translate }} (%)</label>
         <input
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
+          max="100"
           class="form-control"
           [(ngModel)]="dataManagementSettingsService.soRate"
           aria-label="soRate"

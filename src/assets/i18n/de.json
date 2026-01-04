@@ -783,6 +783,7 @@
   "settings.work.probation-period": "Probezeit (Monate)",
   "settings.work.notice-period": "Kündigungsfrist (Tage)",
   "settings.work.payment-interval": "Zahlungsintervall",
+  "settings.work.payment-interval-locked": "Kann nicht geändert werden, da bereits Verträge existieren",
   "settings.work.payment-weekly": "Wöchentlich",
   "settings.work.payment-biweekly": "Zweiwöchentlich",
   "settings.work.payment-monthly": "Monatlich",

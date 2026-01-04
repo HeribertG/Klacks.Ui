@@ -355,35 +355,51 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
   }
 
   get nightRate(): number {
-    return this.appSettingsService.workSettings().nightRate;
+    return this.appSettingsService.workSettings().nightRate * 100;
   }
 
   set nightRate(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, nightRate: value }));
+    this.appSettingsService.workSettings.update(s => ({ ...s, nightRate: value / 100 }));
+  }
+
+  get nightRateRaw(): number {
+    return this.appSettingsService.workSettings().nightRate;
   }
 
   get holidayRate(): number {
-    return this.appSettingsService.workSettings().holidayRate;
+    return this.appSettingsService.workSettings().holidayRate * 100;
   }
 
   set holidayRate(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, holidayRate: value }));
+    this.appSettingsService.workSettings.update(s => ({ ...s, holidayRate: value / 100 }));
+  }
+
+  get holidayRateRaw(): number {
+    return this.appSettingsService.workSettings().holidayRate;
   }
 
   get saRate(): number {
-    return this.appSettingsService.workSettings().saRate;
+    return this.appSettingsService.workSettings().saRate * 100;
   }
 
   set saRate(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, saRate: value }));
+    this.appSettingsService.workSettings.update(s => ({ ...s, saRate: value / 100 }));
+  }
+
+  get saRateRaw(): number {
+    return this.appSettingsService.workSettings().saRate;
   }
 
   get soRate(): number {
-    return this.appSettingsService.workSettings().soRate;
+    return this.appSettingsService.workSettings().soRate * 100;
   }
 
   set soRate(value: number) {
-    this.appSettingsService.workSettings.update(s => ({ ...s, soRate: value }));
+    this.appSettingsService.workSettings.update(s => ({ ...s, soRate: value / 100 }));
+  }
+
+  get soRateRaw(): number {
+    return this.appSettingsService.workSettings().soRate;
   }
 
   // =============================

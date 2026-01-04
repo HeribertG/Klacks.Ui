@@ -198,10 +198,11 @@ export class DataManagementContractService {
     newContract.maximumHours = this.settingsService.maximumHours;
     newContract.minimumHours = this.settingsService.minimumHours;
     newContract.fullTime = this.settingsService.fullTime;
-    newContract.nightRate = this.settingsService.nightRate * 100;
-    newContract.holidayRate = this.settingsService.holidayRate * 100;
-    newContract.saRate = this.settingsService.saRate * 100;
-    newContract.soRate = this.settingsService.soRate * 100;
+    newContract.nightRate = this.settingsService.nightRate;
+    newContract.holidayRate = this.settingsService.holidayRate;
+    newContract.saRate = this.settingsService.saRate;
+    newContract.soRate = this.settingsService.soRate;
+    newContract.paymentInterval = this.settingsService.paymentInterval;
     newContract.validFrom = new Date();
     newContract.validUntil = undefined;
     newContract.calendarSelection = undefined;

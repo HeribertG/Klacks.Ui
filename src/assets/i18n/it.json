@@ -820,6 +820,7 @@
   "settings.work.holiday-rate": "Maggiorazione festivi",
   "settings.work.sa-rate": "Maggiorazione sabato",
   "settings.work.so-rate": "Maggiorazione domenica",
+  "settings.work.payment-interval-locked": "Non può essere modificato perché esistono già contratti",
 
   "settings.llm-providers.title": "Fornitori LLM",
   "settings.llm-providers.header.name": "Fornitori",

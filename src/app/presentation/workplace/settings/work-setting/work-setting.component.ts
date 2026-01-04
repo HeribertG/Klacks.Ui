@@ -14,6 +14,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
 
 @Component({
   selector: 'app-work-setting',
@@ -24,17 +25,27 @@ import { DataManagementSettingsService } from 'src/app/domain/services/settings/
 })
 export class WorkSettingComponent implements OnInit, OnDestroy {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
+  private contractService = inject(DataManagementContractService);
   private injector = inject(Injector);
 
   @ViewChild(NgForm, { static: false }) workSettingsForm: NgForm | undefined;
 
   public isDataLoaded = false;
+  public hasContracts = false;
 
   private formSubscription?: Subscription;
   private effects: EffectRef[] = [];
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.readSignals();
+    await this.checkContracts();
+  }
+
+  private async checkContracts(): Promise<void> {
+    if (!this.contractService.isRead()) {
+      await this.contractService.readContracts();
+    }
+    this.hasContracts = this.contractService.contracts.length > 0;
   }
 
   private setupFormSubscription(): void {

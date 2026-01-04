@@ -792,6 +792,7 @@
   "settings.work.probation-period": "Probation Period (months)",
   "settings.work.notice-period": "Notice Period (days)",
   "settings.work.payment-interval": "Payment Interval",
+  "settings.work.payment-interval-locked": "Cannot be changed because contracts already exist",
   "settings.work.payment-weekly": "Weekly",
   "settings.work.payment-biweekly": "Biweekly",
   "settings.work.payment-monthly": "Monthly",
