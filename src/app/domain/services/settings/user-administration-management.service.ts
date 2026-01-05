@@ -31,7 +31,12 @@ export class UserAdministrationManagementService {
 
   constructor() {
     this.initializeCurrentAccountId();
-    this.loadAccountsList();
+  }
+
+  public loadAccounts(): void {
+    if (!this.isLoading()) {
+      this.loadAccountsList();
+    }
   }
 
   private initializeCurrentAccountId(): void {

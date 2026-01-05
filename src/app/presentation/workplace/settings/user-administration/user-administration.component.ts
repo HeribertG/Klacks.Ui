@@ -3,6 +3,7 @@ import {
   Component,
   ViewChild,
   inject,
+  OnInit,
   OnDestroy,
   AfterViewInit,
   TemplateRef,
@@ -42,7 +43,7 @@ import { Subject, takeUntil } from 'rxjs';
     UserAdministrationRowComponent
 ],
 })
-export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
+export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;
   @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
 
@@ -57,6 +58,10 @@ export class UserAdministrationComponent implements AfterViewInit, OnDestroy {
   disabled = true;
   message = MessageLibrary.DELETE_ENTRY;
   pendingDeleteIndex = -1;
+
+  ngOnInit(): void {
+    this.userAdminService.loadAccounts();
+  }
 
   onChange(): void {
     if (this.newUser) {
