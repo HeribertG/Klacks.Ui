@@ -26,6 +26,7 @@ export interface ICreateProviderRequest {
 }
 
 export interface IUpdateProviderRequest {
+  providerName?: string;
   apiKey?: string;
   baseUrl?: string;
   apiVersion?: string;

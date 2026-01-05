@@ -195,11 +195,15 @@ describe('LLMModelsComponent', () => {
     });
 
     describe('Add Model', () => {
-        it('should initialize new model with default values', async () => {
+        it('should initialize new model with default values', () => {
+            // Arrange
+            vi.useFakeTimers();
+
+            // Act
             component.onClickAdd();
+            vi.advanceTimersByTime(10);
 
-            await new Promise(resolve => setTimeout(resolve, 20));
-
+            // Assert
             expect(component.isNewModel).toBe(true);
             expect(component.editingModel).toBeTruthy();
             expect(component.editingModel?.modelId).toBe('');
@@ -208,19 +212,28 @@ describe('LLMModelsComponent', () => {
             expect(component.editingModel?.maxTokens).toBe(4096);
             expect(component.editingModel?.isDefault).toBe(false);
             expect(component.editingModel?.capabilities).toContain('chat');
+
+            vi.useRealTimers();
         });
     });
 
     describe('Edit Model', () => {
         it('should set editing model and reset API key', () => {
+            // Arrange
+            vi.useFakeTimers();
             const modelToEdit = mockModels[0];
-            component.providerApiKey = 'old-key';
 
+            // Act
             component.onClickEdit(modelToEdit);
+            vi.advanceTimersByTime(10);
 
+            // Assert
             expect(component.isNewModel).toBe(false);
             expect(component.editingModel).toEqual(modelToEdit);
-            expect(component.providerApiKey).toBe('');
+            const formData = (component as any).formModel();
+            expect(formData.providerApiKey).toBe('');
+
+            vi.useRealTimers();
         });
     });
 
@@ -245,6 +258,7 @@ describe('LLMModelsComponent', () => {
         });
 
         it('should create new model', async () => {
+            // Arrange
             component.isNewModel = true;
             component.editingModel = {
                 modelId: 'new-model',
@@ -259,31 +273,53 @@ describe('LLMModelsComponent', () => {
                 isDefault: false,
                 capabilities: ['chat'],
             };
+            (component as any).formModel.set({
+                modelId: 'new-model',
+                modelName: 'New Model',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'new-model-api',
+                contextWindow: '8000',
+                maxTokens: '2000',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: 'test-key',
+                isEnabled: true,
+                isDefault: false,
+            });
             mockLLMService.createModel.mockReturnValue(of(component.editingModel));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockLLMService.createModel).toHaveBeenCalled();
             expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.llm-models.success.create', 'Success');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
         it('should update existing model', async () => {
+            // Arrange
+            vi.useFakeTimers();
             component.isNewModel = false;
             component.onClickEdit(mockModels[0]);
+            vi.advanceTimersByTime(10);
             component.editingModel!.maxTokens = 8000;
             mockLLMService.updateModel.mockReturnValue(of(component.editingModel!));
+            vi.useRealTimers();
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockLLMService.updateModel).toHaveBeenCalled();
             expect(mockToastService.showSuccess).toHaveBeenCalledWith('settings.llm-models.success.update', 'Success');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
         it('should include API key if provided', async () => {
+            // Arrange
             component.isNewModel = true;
-            component.providerApiKey = 'test-api-key';
             component.editingModel = {
                 modelId: 'test',
                 apiModelId: 'test-api',
@@ -297,14 +333,31 @@ describe('LLMModelsComponent', () => {
                 isDefault: false,
                 capabilities: ['chat'],
             };
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'test-api',
+                contextWindow: '4096',
+                maxTokens: '4096',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: 'test-api-key',
+                isEnabled: true,
+                isDefault: false,
+            });
             mockLLMService.createModel.mockReturnValue(of(component.editingModel));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(component.editingModel.providerApiKey).toBe('test-api-key');
         });
 
         it('should handle save error', async () => {
+            // Arrange
             component.isNewModel = true;
             component.editingModel = {
                 modelId: 'test',
@@ -319,10 +372,26 @@ describe('LLMModelsComponent', () => {
                 isDefault: false,
                 capabilities: ['chat'],
             };
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'test-api',
+                contextWindow: '4096',
+                maxTokens: '4096',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: 'test-key',
+                isEnabled: true,
+                isDefault: false,
+            });
             mockLLMService.createModel.mockReturnValue(throwError(() => new Error('Save failed')));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockToastService.showError).toHaveBeenCalledWith('settings.llm-models.error.save');
             expect(mockModal.close).not.toHaveBeenCalled();
         });
@@ -364,6 +433,20 @@ describe('LLMModelsComponent', () => {
                 isDefault: false,
                 capabilities: ['chat'],
             };
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test Model',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'test-api',
+                contextWindow: '4096',
+                maxTokens: '2000',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: '',
+                isEnabled: true,
+                isDefault: false,
+            });
         });
 
         it('should validate complete model', () => {
@@ -371,65 +454,104 @@ describe('LLMModelsComponent', () => {
         });
 
         it('should fail validation if modelId is missing', () => {
-            component.editingModel!.modelId = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, modelId: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if modelName is missing', () => {
-            component.editingModel!.modelName = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, modelName: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if apiModelId is missing', () => {
-            component.editingModel!.apiModelId = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, apiModelId: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if providerId is missing', () => {
-            component.editingModel!.providerId = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerId: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if contextWindow is zero or negative', () => {
-            component.editingModel!.contextWindow = 0;
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, contextWindow: '0' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if maxTokens is zero or negative', () => {
-            component.editingModel!.maxTokens = -1;
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, maxTokens: '-1' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should accept zero costs', () => {
-            component.editingModel!.costPerInputToken = 0;
-            component.editingModel!.costPerOutputToken = 0;
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, costPerInputToken: '0', costPerOutputToken: '0' });
 
+            // Assert
             expect(component.isFormValid()).toBe(true);
         });
 
         it('should return validation error messages', () => {
-            component.editingModel!.modelId = '';
-            component.editingModel!.modelName = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, modelId: '', modelName: '' });
 
+            // Act
             const errors = component.getValidationErrors();
 
+            // Assert
             expect(errors.length).toBeGreaterThan(0);
             expect(mockTranslateService.instant).toHaveBeenCalled();
         });
 
         it('should require API key for new models with certain providers', () => {
+            // Arrange
             component.isNewModel = true;
             component.editingModel!.providerId = 'openai';
-            component.providerApiKey = '';
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test Model',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'test-api',
+                contextWindow: '4096',
+                maxTokens: '2000',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: '',
+                isEnabled: true,
+                isDefault: false,
+            });
 
+            // Act
             component.getValidationErrors();
 
+            // Assert
             expect(mockTranslateService.instant).toHaveBeenCalledWith('settings.llm-models.validation.api-key-required');
         });
     });
@@ -448,6 +570,7 @@ describe('LLMModelsComponent', () => {
         });
 
         it('should determine if provider API key is editable', () => {
+            // Arrange
             component.editingModel = {
                 modelId: 'test',
                 apiModelId: 'test',
@@ -462,11 +585,27 @@ describe('LLMModelsComponent', () => {
                 capabilities: ['chat'],
             };
             component.isNewModel = true;
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test',
+                providerId: 'openai',
+                description: '',
+                apiModelId: 'test',
+                contextWindow: '4096',
+                maxTokens: '4096',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: '',
+                isEnabled: true,
+                isDefault: false,
+            });
 
+            // Assert
             expect(component.isProviderApiKeyEditable()).toBe(true);
         });
 
         it('should not allow API key edit for non-API providers', () => {
+            // Arrange
             component.editingModel = {
                 modelId: 'test',
                 apiModelId: 'test',
@@ -481,7 +620,22 @@ describe('LLMModelsComponent', () => {
                 capabilities: ['chat'],
             };
             component.isNewModel = true;
+            (component as any).formModel.set({
+                modelId: 'test',
+                modelName: 'Test',
+                providerId: 'local',
+                description: '',
+                apiModelId: 'test',
+                contextWindow: '4096',
+                maxTokens: '4096',
+                costPerInputToken: '0.01',
+                costPerOutputToken: '0.02',
+                providerApiKey: '',
+                isEnabled: true,
+                isDefault: false,
+            });
 
+            // Assert
             expect(component.isProviderApiKeyEditable()).toBe(false);
         });
     });

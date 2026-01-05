@@ -3,7 +3,7 @@
 
 <!-- LLM Model Modal -->
 <ng-template #llmModal id="llm-models-modal-template" let-modal>
-  <form id="llm-models-modal-form" #llmForm="ngForm">
+  <form id="llm-models-modal-form">
     <div id="llm-models-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("settings.llm-models.headline-modal") }}
@@ -39,10 +39,8 @@
           <input
             id="llm-models-modal-model-id"
             type="text"
-            [(ngModel)]="editingModel.modelId"
-            name="modelId"
+            [field]="llmForm.modelId"
             class="form-control"
-            required
           />
         </div>
         <div class="model-field">
@@ -52,10 +50,8 @@
           <input
             id="llm-models-modal-model-name"
             type="text"
-            [(ngModel)]="editingModel.modelName"
-            name="modelName"
+            [field]="llmForm.modelName"
             class="form-control"
-            required
           />
         </div>
       </div>
@@ -69,9 +65,7 @@
           <select
             id="llm-models-modal-provider"
             class="form-control"
-            [(ngModel)]="editingModel.providerId"
-            name="provider"
-            required
+            [field]="llmForm.providerId"
           >
             @for (provider of availableProviders; track provider.providerId) {
             <option [value]="provider.providerId">
@@ -87,8 +81,7 @@
           <input
             id="llm-models-modal-description"
             type="text"
-            [(ngModel)]="editingModel.description"
-            name="description"
+            [field]="llmForm.description"
             class="form-control"
           />
         </div>
@@ -103,10 +96,8 @@
           <input
             id="llm-models-modal-api-model-id"
             type="text"
-            [(ngModel)]="editingModel.apiModelId"
-            name="apiModelId"
+            [field]="llmForm.apiModelId"
             class="form-control"
-            required
           />
         </div>
       </div>
@@ -119,12 +110,9 @@
           }}</label>
           <input
             id="llm-models-modal-context-window"
-            type="number"
-            [(ngModel)]="editingModel.contextWindow"
-            name="contextWindow"
+            type="text"
+            [field]="llmForm.contextWindow"
             class="form-control"
-            required
-            min="1"
           />
         </div>
         <div class="model-field">
@@ -133,12 +121,9 @@
           }}</label>
           <input
             id="llm-models-modal-max-tokens"
-            type="number"
-            [(ngModel)]="editingModel.maxTokens"
-            name="maxTokens"
+            type="text"
+            [field]="llmForm.maxTokens"
             class="form-control"
-            required
-            min="1"
           />
         </div>
       </div>
@@ -154,13 +139,9 @@
           >
           <input
             id="llm-models-modal-input-cost"
-            type="number"
-            [(ngModel)]="editingModel.costPerInputToken"
-            name="inputCost"
+            type="text"
+            [field]="llmForm.costPerInputToken"
             class="form-control"
-            required
-            min="0"
-            step="0.0001"
           />
         </div>
         <div class="model-field">
@@ -172,13 +153,9 @@
           >
           <input
             id="llm-models-modal-output-cost"
-            type="number"
-            [(ngModel)]="editingModel.costPerOutputToken"
-            name="outputCost"
+            type="text"
+            [field]="llmForm.costPerOutputToken"
             class="form-control"
-            required
-            min="0"
-            step="0.0001"
           />
         </div>
       </div>
@@ -194,11 +171,9 @@
           <input
             id="llm-models-modal-api-key"
             type="password"
-            [(ngModel)]="providerApiKey"
-            name="apiKey"
+            [field]="llmForm.providerApiKey"
             class="form-control"
             placeholder="sk-..."
-            [required]="isNewModel"
           />
           <small class="info-text">{{
             translate.instant("settings.llm-models.api-key-info")
@@ -213,8 +188,7 @@
           <input
             id="llm-models-modal-is-enabled"
             type="checkbox"
-            [(ngModel)]="editingModel.isEnabled"
-            name="isEnabled"
+            [field]="llmForm.isEnabled"
           />
           <label for="isEnabled">{{
             translate.instant("settings.llm-models.enabled")
@@ -224,8 +198,7 @@
           <input
             id="llm-models-modal-is-default"
             type="checkbox"
-            [(ngModel)]="editingModel.isDefault"
-            name="isDefault"
+            [field]="llmForm.isDefault"
           />
           <label for="isDefault">{{
             translate.instant("settings.llm-models.default")

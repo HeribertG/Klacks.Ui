@@ -139,34 +139,59 @@ describe('LLMProvidersComponent', () => {
 
     describe('Add Provider', () => {
         it('should initialize new provider with default values', () => {
-            component.onClickAdd();
+            // Arrange
+            vi.useFakeTimers();
 
+            // Act
+            component.onClickAdd();
+            vi.advanceTimersByTime(10);
+
+            // Assert
             expect(component.isNewProvider).toBe(true);
             expect(component.editingProvider).toBeTruthy();
             expect(component.editingProvider?.providerId).toBe('');
             expect(component.editingProvider?.isEnabled).toBe(true);
             expect(component.editingProvider?.priority).toBe(10);
-            expect(component.providerApiKey).toBe('');
+            const formData = (component as any).formModel();
+            expect(formData.providerApiKey).toBe('');
+
+            vi.useRealTimers();
         });
     });
 
     describe('Edit Provider', () => {
         it('should set editing provider and API key', () => {
+            // Arrange
+            vi.useFakeTimers();
             const providerToEdit = mockProviders[0];
 
+            // Act
             component.onClickEdit(providerToEdit);
+            vi.advanceTimersByTime(10);
 
+            // Assert
             expect(component.isNewProvider).toBe(false);
             expect(component.editingProvider).toEqual(providerToEdit);
-            expect(component.providerApiKey).toBe('sk-test123');
+            const formData = (component as any).formModel();
+            expect(formData.providerApiKey).toBe('sk-test123');
+
+            vi.useRealTimers();
         });
 
         it('should handle provider without API key', () => {
+            // Arrange
+            vi.useFakeTimers();
             const providerWithoutKey = mockProviders[2];
 
+            // Act
             component.onClickEdit(providerWithoutKey);
+            vi.advanceTimersByTime(10);
 
-            expect(component.providerApiKey).toBe('');
+            // Assert
+            const formData = (component as any).formModel();
+            expect(formData.providerApiKey).toBe('');
+
+            vi.useRealTimers();
         });
     });
 
@@ -262,6 +287,7 @@ describe('LLMProvidersComponent', () => {
         });
 
         it('should create new provider', async () => {
+            // Arrange
             component.isNewProvider = true;
             component.editingProvider = {
                 id: '',
@@ -272,30 +298,52 @@ describe('LLMProvidersComponent', () => {
                 isEnabled: true,
                 priority: 10,
             };
-            component.providerApiKey = 'new-api-key';
+            (component as any).formModel.set({
+                providerId: 'new-provider',
+                providerName: 'New Provider',
+                baseUrl: 'https://api.new.com',
+                apiVersion: 'v1',
+                priority: '10',
+                providerApiKey: 'new-api-key',
+                isEnabled: true,
+            });
             mockProviderService.createProvider.mockReturnValue(Promise.resolve(component.editingProvider));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockProviderService.createProvider).toHaveBeenCalled();
             expect(mockLLMService.reloadModels).toHaveBeenCalled();
             expect(mockModal.close).toHaveBeenCalled();
         });
 
         it('should update existing provider', async () => {
+            // Arrange
             component.isNewProvider = false;
             component.editingProvider = { ...mockProviders[0], priority: 5 };
-            component.providerApiKey = 'updated-key';
+            (component as any).formModel.set({
+                providerId: mockProviders[0].providerId,
+                providerName: mockProviders[0].providerName,
+                baseUrl: mockProviders[0].baseUrl || '',
+                apiVersion: mockProviders[0].apiVersion || '',
+                priority: '5',
+                providerApiKey: 'updated-key',
+                isEnabled: true,
+            });
             mockProviderService.updateProvider.mockReturnValue(Promise.resolve(component.editingProvider));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockProviderService.updateProvider).toHaveBeenCalled();
             expect(mockLLMService.reloadModels).toHaveBeenCalled();
             expect(mockModal.close).toHaveBeenCalled();
         });
 
         it('should not save if form is invalid', async () => {
+            // Arrange
             component.editingProvider = {
                 id: '',
                 providerId: '',
@@ -305,15 +353,26 @@ describe('LLMProvidersComponent', () => {
                 isEnabled: true,
                 priority: 10,
             };
-            component.providerApiKey = '';
+            (component as any).formModel.set({
+                providerId: '',
+                providerName: '',
+                baseUrl: '',
+                apiVersion: '',
+                priority: '10',
+                providerApiKey: '',
+                isEnabled: true,
+            });
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockProviderService.createProvider).not.toHaveBeenCalled();
             expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
         });
 
         it('should not update provider without ID', async () => {
+            // Arrange
             component.isNewProvider = false;
             component.editingProvider = {
                 id: '',
@@ -324,14 +383,25 @@ describe('LLMProvidersComponent', () => {
                 isEnabled: true,
                 priority: 10,
             };
-            component.providerApiKey = 'key';
+            (component as any).formModel.set({
+                providerId: 'test',
+                providerName: 'Test',
+                baseUrl: 'https://test.com',
+                apiVersion: 'v1',
+                priority: '10',
+                providerApiKey: 'key',
+                isEnabled: true,
+            });
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockProviderService.updateProvider).not.toHaveBeenCalled();
         });
 
         it('should not close modal if save fails', async () => {
+            // Arrange
             component.isNewProvider = true;
             component.editingProvider = {
                 id: '',
@@ -342,11 +412,21 @@ describe('LLMProvidersComponent', () => {
                 isEnabled: true,
                 priority: 10,
             };
-            component.providerApiKey = 'key';
+            (component as any).formModel.set({
+                providerId: 'test',
+                providerName: 'Test',
+                baseUrl: 'https://test.com',
+                apiVersion: 'v1',
+                priority: '10',
+                providerApiKey: 'key',
+                isEnabled: true,
+            });
             mockProviderService.createProvider.mockReturnValue(Promise.resolve(undefined));
 
+            // Act
             await component.onSaveModal(mockModal);
 
+            // Assert
             expect(mockModal.close).not.toHaveBeenCalled();
         });
     });
@@ -362,51 +442,78 @@ describe('LLMProvidersComponent', () => {
                 isEnabled: true,
                 priority: 10,
             };
-            component.providerApiKey = 'test-key';
+            (component as any).formModel.set({
+                providerId: 'test',
+                providerName: 'Test Provider',
+                baseUrl: 'https://api.test.com',
+                apiVersion: 'v1',
+                priority: '10',
+                providerApiKey: 'test-key',
+                isEnabled: true,
+            });
         });
 
         it('should validate complete provider', () => {
+            // Assert
             expect(component.isFormValid()).toBe(true);
         });
 
         it('should fail validation if providerName is missing', () => {
-            component.editingProvider!.providerName = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerName: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if baseUrl is missing', () => {
-            component.editingProvider!.baseUrl = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, baseUrl: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should fail validation if apiKey is missing', () => {
-            component.providerApiKey = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerApiKey: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should require providerId for new providers', () => {
+            // Arrange
             component.isNewProvider = true;
-            component.editingProvider!.providerId = '';
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerId: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(false);
         });
 
         it('should not require providerId for existing providers', () => {
+            // Arrange
             component.isNewProvider = false;
-            component.editingProvider!.providerId = '';
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerId: '' });
 
+            // Assert
             expect(component.isFormValid()).toBe(true);
         });
 
         it('should return validation error messages', () => {
-            component.editingProvider!.providerName = '';
-            component.providerApiKey = '';
+            // Arrange
+            const current = (component as any).formModel();
+            (component as any).formModel.set({ ...current, providerName: '', providerApiKey: '' });
 
+            // Act
             const errors = component.getValidationErrors();
 
+            // Assert
             expect(errors.length).toBeGreaterThan(0);
             expect(mockTranslateService.instant).toHaveBeenCalled();
         });

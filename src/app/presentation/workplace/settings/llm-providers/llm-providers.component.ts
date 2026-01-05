@@ -7,9 +7,11 @@ import {
   inject,
   TemplateRef,
   ViewChild,
+  signal,
 } from '@angular/core';
 
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -23,24 +25,34 @@ import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
+interface LLMProviderFormModel {
+  providerId: string;
+  providerName: string;
+  baseUrl: string;
+  apiVersion: string;
+  priority: string;
+  providerApiKey: string;
+  isEnabled: boolean;
+}
+
 @Component({
   selector: 'app-llm-providers',
   standalone: true,
   imports: [
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     SpinnerModule,
     LLMProvidersRowComponent,
     LLMProvidersHeaderComponent
-],
+  ],
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],
 })
 export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('providerModal', { read: TemplateRef })
   providerModal!: TemplateRef<any>;
-  @ViewChild('providerForm') providerForm!: NgForm;
 
   private toastService = inject(ToastShowService);
   private ngbModal = inject(NgbModal);
@@ -55,10 +67,28 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   editingProvider: ILLMProvider | null = null;
   private originalProvider: ILLMProvider | null = null;
 
-  providerApiKey = '';
   isNewProvider = false;
   message = MessageLibrary.DELETE_ENTRY;
   private isSaving = false;
+
+  private formModel = signal<LLMProviderFormModel>({
+    providerId: '',
+    providerName: '',
+    baseUrl: '',
+    apiVersion: '',
+    priority: '10',
+    providerApiKey: '',
+    isEnabled: true,
+  });
+
+  providerForm = form(this.formModel, f => {
+    debounce(f.providerId, 300);
+    debounce(f.providerName, 300);
+    debounce(f.baseUrl, 300);
+    debounce(f.apiVersion, 300);
+    debounce(f.priority, 300);
+    debounce(f.providerApiKey, 300);
+  });
 
   ngOnInit(): void {
     this.loadProviders();
@@ -109,24 +139,51 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
       apiVersion: ''
     };
     this.originalProvider = null;
-    this.providerApiKey = '';
+    this.initFormFromProvider(this.editingProvider);
 
-    this.ngbModal.open(this.providerModal, {
-      ariaLabelledBy: 'modal-title',
-      size: 'lg',
-    });
+    setTimeout(() => {
+      this.ngbModal.open(this.providerModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
   }
 
   onClickEdit(provider: ILLMProvider): void {
     this.isNewProvider = false;
     this.editingProvider = { ...provider };
     this.originalProvider = provider;
-    this.providerApiKey = provider.apiKey || '';
+    this.initFormFromProvider(this.editingProvider, provider.apiKey || '');
 
-    this.ngbModal.open(this.providerModal, {
-      ariaLabelledBy: 'modal-title',
-      size: 'lg',
+    setTimeout(() => {
+      this.ngbModal.open(this.providerModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
+  }
+
+  private initFormFromProvider(provider: ILLMProvider, apiKey = ''): void {
+    this.formModel.set({
+      providerId: provider.providerId || '',
+      providerName: provider.providerName || '',
+      baseUrl: provider.baseUrl || '',
+      apiVersion: provider.apiVersion || '',
+      priority: String(provider.priority || 10),
+      providerApiKey: apiKey,
+      isEnabled: provider.isEnabled ?? true,
     });
+  }
+
+  private applyFormToProvider(): void {
+    if (!this.editingProvider) return;
+    const formData = this.formModel();
+    this.editingProvider.providerId = formData.providerId;
+    this.editingProvider.providerName = formData.providerName;
+    this.editingProvider.baseUrl = formData.baseUrl;
+    this.editingProvider.apiVersion = formData.apiVersion;
+    this.editingProvider.priority = parseInt(formData.priority, 10) || 10;
+    this.editingProvider.isEnabled = formData.isEnabled;
   }
 
   async onSaveModal(modal: any): Promise<void> {
@@ -170,6 +227,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
 
+    this.applyFormToProvider();
+    const formData = this.formModel();
     this.isSaving = true;
 
     try {
@@ -177,7 +236,7 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
         const createRequest: ICreateProviderRequest = {
           providerId: this.editingProvider.providerId,
           providerName: this.editingProvider.providerName,
-          apiKey: this.providerApiKey.trim() || undefined,
+          apiKey: formData.providerApiKey.trim() || undefined,
           baseUrl: this.editingProvider.baseUrl,
           apiVersion: this.editingProvider.apiVersion,
           isEnabled: this.editingProvider.isEnabled,
@@ -189,9 +248,6 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
           this.llmService.reloadModels();
           this.isNewProvider = false;
           this.editingProvider = newProvider;
-          if (this.providerForm) {
-            this.providerForm.form.markAsPristine();
-          }
           return true;
         }
         return false;
@@ -201,7 +257,8 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         const updateRequest = {
-          apiKey: this.providerApiKey.trim() || undefined,
+          providerName: this.editingProvider.providerName,
+          apiKey: formData.providerApiKey.trim() || undefined,
           baseUrl: this.editingProvider.baseUrl,
           apiVersion: this.editingProvider.apiVersion,
           isEnabled: this.editingProvider.isEnabled,
@@ -215,9 +272,6 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (updatedProvider) {
           this.llmService.reloadModels();
-          if (this.providerForm) {
-            this.providerForm.form.markAsPristine();
-          }
           return true;
         }
         return false;
@@ -234,15 +288,16 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isFormValid(): boolean {
     if (!this.editingProvider) return false;
+    const formData = this.formModel();
 
     const baseValidation = !!(
-      this.editingProvider.providerName &&
-      this.editingProvider.baseUrl &&
-      this.providerApiKey.trim()
+      formData.providerName &&
+      formData.baseUrl &&
+      formData.providerApiKey.trim()
     );
 
     if (this.isNewProvider) {
-      return baseValidation && !!this.editingProvider.providerId;
+      return baseValidation && !!formData.providerId;
     }
 
     return baseValidation;
@@ -250,31 +305,32 @@ export class LLMProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getValidationErrors(): string[] {
     const errors: string[] = [];
-
     if (!this.editingProvider) return errors;
 
-    if (this.isNewProvider && !this.editingProvider.providerId) {
+    const formData = this.formModel();
+
+    if (this.isNewProvider && !formData.providerId) {
       errors.push(
         this.translate.instant(
           'settings.llm-providers.validation.provider-id-required'
         )
       );
     }
-    if (!this.editingProvider.providerName) {
+    if (!formData.providerName) {
       errors.push(
         this.translate.instant(
           'settings.llm-providers.validation.provider-name-required'
         )
       );
     }
-    if (!this.editingProvider.baseUrl) {
+    if (!formData.baseUrl) {
       errors.push(
         this.translate.instant(
           'settings.llm-providers.validation.base-url-required'
         )
       );
     }
-    if (!this.providerApiKey.trim()) {
+    if (!formData.providerApiKey.trim()) {
       errors.push(
         this.translate.instant(
           'settings.llm-providers.validation.api-key-required'

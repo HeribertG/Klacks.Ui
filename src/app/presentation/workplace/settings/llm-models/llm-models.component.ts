@@ -7,9 +7,11 @@ import {
   inject,
   TemplateRef,
   ViewChild,
+  signal,
 } from '@angular/core';
 
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -24,23 +26,38 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
+interface LLMModelFormModel {
+  modelId: string;
+  modelName: string;
+  providerId: string;
+  description: string;
+  apiModelId: string;
+  contextWindow: string;
+  maxTokens: string;
+  costPerInputToken: string;
+  costPerOutputToken: string;
+  providerApiKey: string;
+  isEnabled: boolean;
+  isDefault: boolean;
+}
+
 @Component({
   selector: 'app-llm-models',
   standalone: true,
   imports: [
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     SpinnerModule,
     LLMModelsHeaderComponent,
     LLMModelsRowComponent
-],
+  ],
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],
 })
 export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('llmModal', { read: TemplateRef }) llmModal!: TemplateRef<any>;
-  @ViewChild('llmForm') llmForm!: NgForm;
 
   private llmService = inject(DataManagementLLMService);
   private providerService = inject(DataManagementLLMProviderService);
@@ -56,10 +73,37 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
   editingModel: ILLMModel | null = null;
   private originalModel: ILLMModel | null = null;
 
-  providerApiKey = '';
   isNewModel = false;
   message = MessageLibrary.DELETE_ENTRY;
   private isSaving = false;
+
+  private formModel = signal<LLMModelFormModel>({
+    modelId: '',
+    modelName: '',
+    providerId: 'openai',
+    description: '',
+    apiModelId: '',
+    contextWindow: '4096',
+    maxTokens: '4096',
+    costPerInputToken: '0.001',
+    costPerOutputToken: '0.002',
+    providerApiKey: '',
+    isEnabled: true,
+    isDefault: false,
+  });
+
+  llmForm = form(this.formModel, f => {
+    debounce(f.modelId, 300);
+    debounce(f.modelName, 300);
+    debounce(f.providerId, 300);
+    debounce(f.description, 300);
+    debounce(f.apiModelId, 300);
+    debounce(f.contextWindow, 300);
+    debounce(f.maxTokens, 300);
+    debounce(f.costPerInputToken, 300);
+    debounce(f.costPerOutputToken, 300);
+    debounce(f.providerApiKey, 300);
+  });
 
   ngOnInit(): void {
     this.loadModels();
@@ -143,7 +187,6 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onClickAdd(): void {
     this.isNewModel = true;
-    this.providerApiKey = '';
     this.editingModel = {
       modelId: '',
       apiModelId: '',
@@ -159,6 +202,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       capabilities: ['chat'],
     };
 
+    this.initFormFromModel(this.editingModel);
     this.originalModel = null;
 
     setTimeout(() => {
@@ -167,6 +211,42 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
         size: 'lg',
       });
     }, 0);
+  }
+
+  private initFormFromModel(model: ILLMModel): void {
+    this.formModel.set({
+      modelId: model.modelId || '',
+      modelName: model.modelName || '',
+      providerId: model.providerId || 'openai',
+      description: model.description || '',
+      apiModelId: model.apiModelId || '',
+      contextWindow: String(model.contextWindow || 4096),
+      maxTokens: String(model.maxTokens || 4096),
+      costPerInputToken: String(model.costPerInputToken || 0.001),
+      costPerOutputToken: String(model.costPerOutputToken || 0.002),
+      providerApiKey: '',
+      isEnabled: model.isEnabled ?? true,
+      isDefault: model.isDefault ?? false,
+    });
+  }
+
+  private applyFormToModel(): void {
+    if (!this.editingModel) return;
+    const formData = this.formModel();
+    this.editingModel.modelId = formData.modelId;
+    this.editingModel.modelName = formData.modelName;
+    this.editingModel.providerId = formData.providerId;
+    this.editingModel.description = formData.description;
+    this.editingModel.apiModelId = formData.apiModelId;
+    this.editingModel.contextWindow = parseInt(formData.contextWindow, 10) || 4096;
+    this.editingModel.maxTokens = parseInt(formData.maxTokens, 10) || 4096;
+    this.editingModel.costPerInputToken = parseFloat(formData.costPerInputToken) || 0;
+    this.editingModel.costPerOutputToken = parseFloat(formData.costPerOutputToken) || 0;
+    this.editingModel.isEnabled = formData.isEnabled;
+    this.editingModel.isDefault = formData.isDefault;
+    if (formData.providerApiKey.trim()) {
+      this.editingModel.providerApiKey = formData.providerApiKey;
+    }
   }
 
   async onSaveModal(modal: any): Promise<void> {
@@ -180,12 +260,14 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNewModel = false;
     this.editingModel = { ...model };
     this.originalModel = model;
-    this.providerApiKey = '';
+    this.initFormFromModel(this.editingModel);
 
-    this.ngbModal.open(this.llmModal, {
-      ariaLabelledBy: 'modal-title',
-      size: 'lg',
-    });
+    setTimeout(() => {
+      this.ngbModal.open(this.llmModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
   }
 
   openDeleteModel(model: ILLMModel): void {
@@ -224,13 +306,10 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
 
+    this.applyFormToModel();
     this.isSaving = true;
 
     try {
-      if (this.providerApiKey.trim()) {
-        this.editingModel.providerApiKey = this.providerApiKey;
-      }
-
       if (this.originalModel) {
         const updatedModel = { ...this.originalModel, ...this.editingModel };
         await firstValueFrom(this.llmService.updateModel(updatedModel));
@@ -254,9 +333,6 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
 
-      if (this.llmForm) {
-        this.llmForm.form.markAsPristine();
-      }
       return true;
     } catch (error) {
       console.error('Error saving model:', error);
@@ -270,60 +346,69 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isFormValid(): boolean {
     if (!this.editingModel) return false;
+    const formData = this.formModel();
+
+    const contextWindow = parseInt(formData.contextWindow, 10);
+    const maxTokens = parseInt(formData.maxTokens, 10);
+    const costPerInputToken = parseFloat(formData.costPerInputToken);
+    const costPerOutputToken = parseFloat(formData.costPerOutputToken);
 
     return !!(
-      this.editingModel.modelId &&
-      this.editingModel.modelName &&
-      this.editingModel.apiModelId &&
-      this.editingModel.providerId &&
-      this.editingModel.contextWindow > 0 &&
-      this.editingModel.maxTokens > 0 &&
-      this.editingModel.costPerInputToken >= 0 &&
-      this.editingModel.costPerOutputToken >= 0
+      formData.modelId &&
+      formData.modelName &&
+      formData.apiModelId &&
+      formData.providerId &&
+      contextWindow > 0 &&
+      maxTokens > 0 &&
+      costPerInputToken >= 0 &&
+      costPerOutputToken >= 0
     );
   }
 
   getValidationErrors(): string[] {
     const errors: string[] = [];
-
     if (!this.editingModel) return errors;
 
-    if (!this.editingModel.modelId) {
+    const formData = this.formModel();
+    const contextWindow = parseInt(formData.contextWindow, 10);
+    const maxTokens = parseInt(formData.maxTokens, 10);
+
+    if (!formData.modelId) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.model-id-required'
         )
       );
     }
-    if (!this.editingModel.modelName) {
+    if (!formData.modelName) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.display-name-required'
         )
       );
     }
-    if (!this.editingModel.apiModelId) {
+    if (!formData.apiModelId) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.api-model-id-required'
         )
       );
     }
-    if (!this.editingModel.providerId) {
+    if (!formData.providerId) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.provider-required'
         )
       );
     }
-    if (this.editingModel.contextWindow <= 0) {
+    if (isNaN(contextWindow) || contextWindow <= 0) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.context-window-positive'
         )
       );
     }
-    if (this.editingModel.maxTokens <= 0) {
+    if (isNaN(maxTokens) || maxTokens <= 0) {
       errors.push(
         this.translate.instant(
           'settings.llm-models.validation.max-tokens-positive'
@@ -333,7 +418,7 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (
       this.isNewModel &&
       this.isProviderApiKeyEditable() &&
-      !this.providerApiKey.trim()
+      !formData.providerApiKey.trim()
     ) {
       errors.push(
         this.translate.instant(
@@ -355,15 +440,16 @@ export class LLMModelsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isProviderApiKeyEditable(): boolean {
     if (!this.editingModel) return false;
+    const formData = this.formModel();
 
     const needsApiKey = ['openai', 'anthropic', 'google'].includes(
-      this.editingModel.providerId
+      formData.providerId
     );
 
     if (this.isNewModel && needsApiKey) {
       return true;
     }
 
-    return needsApiKey && this.providerApiKey.length > 0;
+    return needsApiKey && formData.providerApiKey.length > 0;
   }
 }

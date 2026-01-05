@@ -15,5 +15,7 @@ export default defineConfig({
     reporters: ['verbose'],
     testTimeout: 10000,
     hookTimeout: 10000,
+    pool: 'forks',
+    teardownTimeout: 1000,
   },
 });
