@@ -2,7 +2,7 @@
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <!-- Branch Modal -->
 <ng-template #branchModal id="branches-modal-template" let-modal>
-  <form id="branches-modal-form" #branchForm="ngForm">
+  <form id="branches-modal-form">
     <div id="branches-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title">
         {{ translate.instant("setting.branches.headline-modal") }}
@@ -38,10 +38,8 @@
           <input
             id="branches-modal-name"
             type="text"
-            [(ngModel)]="editingBranch.name"
-            name="name"
+            [field]="branchForm.name"
             class="form-control"
-            required
           />
         </div>
         <div class="model-field">
@@ -51,10 +49,8 @@
           <input
             id="branches-modal-address"
             type="text"
-            [(ngModel)]="editingBranch.address"
-            name="address"
+            [field]="branchForm.address"
             class="form-control"
-            required
           />
         </div>
       </div>
@@ -68,8 +64,7 @@
           <input
             id="branches-modal-phone"
             type="text"
-            [(ngModel)]="editingBranch.phone"
-            name="phone"
+            [field]="branchForm.phone"
             class="form-control"
           />
         </div>
@@ -80,8 +75,7 @@
           <input
             id="branches-modal-email"
             type="email"
-            [(ngModel)]="editingBranch.email"
-            name="email"
+            [field]="branchForm.email"
             class="form-control"
           />
         </div>

@@ -121,32 +121,39 @@ describe('BranchesComponent', () => {
     });
 
     describe('Add Branch', () => {
-        it('should initialize new branch with default values', async () => {
+        it('should initialize new branch with default values', () => {
+            // Arrange
+            vi.useFakeTimers();
+
             // Act
             component.onClickAdd();
+            vi.advanceTimersByTime(10);
 
             // Assert
-            await new Promise(resolve => setTimeout(resolve, 10));
             expect(component.isNewBranch).toBe(true);
             expect(component.editingBranch).toBeTruthy();
             expect(component.editingBranch?.name).toBe('');
             expect(component.editingBranch?.address).toBe('');
             expect(component.editingBranch?.phone).toBe('');
             expect(component.editingBranch?.email).toBe('');
+            vi.useRealTimers();
         });
     });
 
     describe('Edit Branch', () => {
         it('should set editing branch', () => {
             // Arrange
+            vi.useFakeTimers();
             const branchToEdit = mockBranches[0];
 
             // Act
             component.onClickEdit(branchToEdit);
+            vi.advanceTimersByTime(10);
 
             // Assert
             expect(component.isNewBranch).toBe(false);
             expect(component.editingBranch).toEqual(branchToEdit);
+            vi.useRealTimers();
         });
     });
 
@@ -201,7 +208,6 @@ describe('BranchesComponent', () => {
 
             // Assert
             expect(mockBranchService.deleteBranch).toHaveBeenCalledWith(branchToDelete.id as string);
-            expect(mockToastService.showSuccess).toHaveBeenCalledWith('setting.branches.success.delete', 'Success');
         });
 
         it('should handle delete error', async () => {
@@ -240,6 +246,12 @@ describe('BranchesComponent', () => {
                 select: false,
                 isDirty: 0,
             };
+            (component as any).formModel.set({
+                name: 'New Branch',
+                address: 'New Address',
+                phone: '111-222-3333',
+                email: 'new@test.com',
+            });
             const createdBranch = { ...component.editingBranch, id: '3' };
             mockBranchService.addBranch.mockReturnValue(of(createdBranch));
 
@@ -248,23 +260,30 @@ describe('BranchesComponent', () => {
 
             // Assert
             expect(mockBranchService.addBranch).toHaveBeenCalled();
-            expect(mockToastService.showSuccess).toHaveBeenCalledWith('setting.branches.success.create', 'Success');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
         it('should update existing branch', async () => {
             // Arrange
+            vi.useFakeTimers();
             component.isNewBranch = false;
             component.onClickEdit(mockBranches[0]);
+            vi.advanceTimersByTime(10);
             component.editingBranch!.address = 'Updated Address';
+            (component as any).formModel.set({
+                name: mockBranches[0].name,
+                address: 'Updated Address',
+                phone: mockBranches[0].phone,
+                email: mockBranches[0].email,
+            });
             mockBranchService.updateBranch.mockReturnValue(of(component.editingBranch!));
+            vi.useRealTimers();
 
             // Act
             await component.onSaveModal(mockModal);
 
             // Assert
             expect(mockBranchService.updateBranch).toHaveBeenCalled();
-            expect(mockToastService.showSuccess).toHaveBeenCalledWith('setting.branches.success.update', 'Success');
             expect(mockModal.close).toHaveBeenCalled();
         });
 
@@ -280,6 +299,12 @@ describe('BranchesComponent', () => {
                 select: false,
                 isDirty: 0,
             };
+            (component as any).formModel.set({
+                name: 'Test',
+                address: 'Test Address',
+                phone: '',
+                email: '',
+            });
             mockBranchService.addBranch.mockReturnValue(throwError(() => new Error('Save failed')));
 
             // Act
@@ -301,6 +326,12 @@ describe('BranchesComponent', () => {
                 select: false,
                 isDirty: 0,
             };
+            (component as any).formModel.set({
+                name: '',
+                address: '',
+                phone: '',
+                email: '',
+            });
 
             // Act
             await component.onSaveModal(mockModal);
@@ -322,6 +353,12 @@ describe('BranchesComponent', () => {
                 select: false,
                 isDirty: 0,
             };
+            (component as any).formModel.set({
+                name: 'Test Branch',
+                address: 'Test Address',
+                phone: '123-456-7890',
+                email: 'test@example.com',
+            });
         });
 
         it('should validate complete branch', () => {
@@ -331,7 +368,12 @@ describe('BranchesComponent', () => {
 
         it('should fail validation if name is missing', () => {
             // Arrange
-            component.editingBranch!.name = '';
+            (component as any).formModel.set({
+                name: '',
+                address: 'Test Address',
+                phone: '123-456-7890',
+                email: 'test@example.com',
+            });
 
             // Act & Assert
             expect(component.isFormValid()).toBe(false);
@@ -339,7 +381,12 @@ describe('BranchesComponent', () => {
 
         it('should fail validation if address is missing', () => {
             // Arrange
-            component.editingBranch!.address = '';
+            (component as any).formModel.set({
+                name: 'Test Branch',
+                address: '',
+                phone: '123-456-7890',
+                email: 'test@example.com',
+            });
 
             // Act & Assert
             expect(component.isFormValid()).toBe(false);
@@ -347,8 +394,12 @@ describe('BranchesComponent', () => {
 
         it('should return validation error messages', () => {
             // Arrange
-            component.editingBranch!.name = '';
-            component.editingBranch!.address = '';
+            (component as any).formModel.set({
+                name: '',
+                address: '',
+                phone: '',
+                email: '',
+            });
 
             // Act
             const errors = component.getValidationErrors();
@@ -361,8 +412,12 @@ describe('BranchesComponent', () => {
 
         it('should allow optional phone and email fields', () => {
             // Arrange
-            component.editingBranch!.phone = '';
-            component.editingBranch!.email = '';
+            (component as any).formModel.set({
+                name: 'Test Branch',
+                address: 'Test Address',
+                phone: '',
+                email: '',
+            });
 
             // Act & Assert
             expect(component.isFormValid()).toBe(true);

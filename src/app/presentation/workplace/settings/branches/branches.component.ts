@@ -7,9 +7,11 @@ import {
   inject,
   TemplateRef,
   ViewChild,
+  signal,
 } from '@angular/core';
 
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil, firstValueFrom } from 'rxjs';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -25,11 +27,19 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
+interface BranchFormModel {
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+}
+
 @Component({
   selector: 'app-branches',
   standalone: true,
   imports: [
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     SpinnerModule,
@@ -42,7 +52,6 @@ import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('branchModal', { read: TemplateRef })
   branchModal!: TemplateRef<any>;
-  @ViewChild('branchForm') branchForm!: NgForm;
 
   private branchService = inject(DataBranchService);
   private toastService = inject(ToastShowService);
@@ -59,6 +68,20 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
   isNewBranch = false;
   private isSaving = false;
   message = MessageLibrary.DELETE_ENTRY;
+
+  private formModel = signal<BranchFormModel>({
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+  });
+
+  branchForm = form(this.formModel, f => {
+    debounce(f.name, 300);
+    debounce(f.address, 300);
+    debounce(f.phone, 300);
+    debounce(f.email, 300);
+  });
 
   ngOnInit(): void {
     this.loadBranches();
@@ -114,6 +137,7 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       isDirty: 0,
     };
 
+    this.initFormFromBranch(this.editingBranch);
     this.originalBranch = null;
 
     setTimeout(() => {
@@ -122,6 +146,24 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
         size: 'lg',
       });
     }, 0);
+  }
+
+  private initFormFromBranch(branch: IBranch): void {
+    this.formModel.set({
+      name: branch.name || '',
+      address: branch.address || '',
+      phone: branch.phone || '',
+      email: branch.email || '',
+    });
+  }
+
+  private applyFormToBranch(): void {
+    if (!this.editingBranch) return;
+    const formData = this.formModel();
+    this.editingBranch.name = formData.name;
+    this.editingBranch.address = formData.address;
+    this.editingBranch.phone = formData.phone;
+    this.editingBranch.email = formData.email;
   }
 
   async onSaveModal(modal: any): Promise<void> {
@@ -135,11 +177,14 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isNewBranch = false;
     this.editingBranch = { ...branch };
     this.originalBranch = branch;
+    this.initFormFromBranch(this.editingBranch);
 
-    this.ngbModal.open(this.branchModal, {
-      ariaLabelledBy: 'modal-title',
-      size: 'lg',
-    });
+    setTimeout(() => {
+      this.ngbModal.open(this.branchModal, {
+        ariaLabelledBy: 'modal-title',
+        size: 'lg',
+      });
+    }, 0);
   }
 
   openDeleteBranch(branch: IBranch): void {
@@ -162,11 +207,6 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       if (index !== -1) {
         this.branches.splice(index, 1);
       }
-
-      this.toastService.showSuccess(
-        'setting.branches.success.delete',
-        'Success'
-      );
     } catch (error) {
       console.error('Error deleting branch:', error);
       this.toastService.showError('setting.branches.error.delete');
@@ -178,16 +218,13 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
 
+    this.applyFormToBranch();
     this.isSaving = true;
 
     try {
       if (this.originalBranch && this.originalBranch.id) {
         const updatedBranch = { ...this.originalBranch, ...this.editingBranch };
         await firstValueFrom(this.branchService.updateBranch(updatedBranch));
-        this.toastService.showSuccess(
-          'setting.branches.success.update',
-          'Success'
-        );
         this.loadBranches();
       } else {
         const createdBranch = await firstValueFrom(
@@ -198,16 +235,9 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
           this.isNewBranch = false;
           this.editingBranch = createdBranch;
           this.originalBranch = createdBranch;
-          this.toastService.showSuccess(
-            'setting.branches.success.create',
-            'Success'
-          );
         }
       }
 
-      if (this.branchForm) {
-        this.branchForm.form.markAsPristine();
-      }
       return true;
     } catch (error) {
       console.error('Error saving branch:', error);
@@ -221,21 +251,23 @@ export class BranchesComponent implements OnInit, AfterViewInit, OnDestroy {
 
   isFormValid(): boolean {
     if (!this.editingBranch) return false;
+    const formData = this.formModel();
 
-    return !!(this.editingBranch.name && this.editingBranch.address);
+    return !!(formData.name && formData.address);
   }
 
   getValidationErrors(): string[] {
     const errors: string[] = [];
-
     if (!this.editingBranch) return errors;
 
-    if (!this.editingBranch.name) {
+    const formData = this.formModel();
+
+    if (!formData.name) {
       errors.push(
         this.translate.instant('setting.branches.validation.name-required')
       );
     }
-    if (!this.editingBranch.address) {
+    if (!formData.address) {
       errors.push(
         this.translate.instant('setting.branches.validation.address-required')
       );
