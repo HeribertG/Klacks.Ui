@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { of } from 'rxjs';
 
 import { MacroRowComponent } from './macro-row.component';
 import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
@@ -77,19 +76,9 @@ describe('MacroRowComponent', () => {
   });
 
   describe('Signal initialization', () => {
-    it('should initialize macroName as empty signal', () => {
+    it('should initialize editorContent as empty signal', () => {
       // Assert
-      expect(component.macroName()).toBe('');
-    });
-
-    it('should initialize macroType as 0', () => {
-      // Assert
-      expect(component.macroType()).toBe(0);
-    });
-
-    it('should initialize obj as empty signal', () => {
-      // Assert
-      expect(component.obj()).toBe('');
+      expect(component.editorContent()).toBe('');
     });
 
     it('should initialize tabId as macro', () => {
@@ -108,29 +97,34 @@ describe('MacroRowComponent', () => {
     });
   });
 
+  describe('ngOnChanges', () => {
+    it('should initialize form with data values', () => {
+      // Arrange
+      component.data = {
+        ...mockMacro,
+        name: 'My Macro',
+        type: MacroTypes.WorkRules,
+        content: 'dim y as integer',
+      } as IMacro;
+
+      // Act
+      component.ngOnChanges();
+
+      // Assert
+      const model = (component as any).macroModel();
+      expect(model.name).toBe('My Macro');
+      expect(model.type).toBe(String(MacroTypes.WorkRules));
+      expect(component.editorContent()).toBe('dim y as integer');
+    });
+  });
+
   describe('Signal updates', () => {
-    it('should update macroName signal', () => {
+    it('should update editorContent signal via onEditorContentChange', () => {
       // Act
-      component.macroName.set('New Name');
+      component.onEditorContentChange('dim y as integer');
 
       // Assert
-      expect(component.macroName()).toBe('New Name');
-    });
-
-    it('should update macroType signal', () => {
-      // Act
-      component.macroType.set(MacroTypes.WorkRules);
-
-      // Assert
-      expect(component.macroType()).toBe(MacroTypes.WorkRules);
-    });
-
-    it('should update obj signal', () => {
-      // Act
-      component.obj.set('dim y as integer');
-
-      // Assert
-      expect(component.obj()).toBe('dim y as integer');
+      expect(component.editorContent()).toBe('dim y as integer');
     });
 
     it('should update tabId signal', () => {
@@ -201,11 +195,15 @@ describe('MacroRowComponent', () => {
   });
 
   describe('onSave', () => {
-    it('should update data from signals', () => {
+    it('should update data from form and editorContent', () => {
       // Arrange
-      component.macroName.set('Updated Name');
-      component.macroType.set(MacroTypes.WorkRules);
-      component.obj.set('new code');
+      component.ngOnChanges();
+      (component as any).macroModel.set({
+        name: 'Updated Name',
+        type: String(MacroTypes.WorkRules),
+        content: '',
+      });
+      component.onEditorContentChange('new code');
 
       // Act
       component.onSave();
@@ -239,7 +237,7 @@ describe('MacroRowComponent', () => {
   describe('onCheckMacro', () => {
     it('should set test to error message when no code', () => {
       // Arrange
-      component.obj.set('');
+      component.onEditorContentChange('');
 
       // Act
       component.onCheckMacro();
@@ -250,7 +248,7 @@ describe('MacroRowComponent', () => {
 
     it('should call scriptService.compile with code', () => {
       // Arrange
-      component.obj.set('dim x as integer');
+      component.onEditorContentChange('dim x as integer');
 
       // Act
       component.onCheckMacro();
@@ -261,7 +259,7 @@ describe('MacroRowComponent', () => {
 
     it('should set test to Syntax OK when compilation succeeds', () => {
       // Arrange
-      component.obj.set('dim x as integer');
+      component.onEditorContentChange('dim x as integer');
       mockScriptService.compile.mockReturnValue({ hasError: false });
 
       // Act
@@ -273,7 +271,7 @@ describe('MacroRowComponent', () => {
 
     it('should set test to error message when compilation fails', () => {
       // Arrange
-      component.obj.set('invalid code');
+      component.onEditorContentChange('invalid code');
       mockScriptService.compile.mockReturnValue({
         hasError: true,
         error: { description: 'Syntax error', line: 1, column: 5 },
@@ -291,7 +289,7 @@ describe('MacroRowComponent', () => {
   describe('onRunMacro', () => {
     it('should set test to error message when no code', () => {
       // Arrange
-      component.obj.set('');
+      component.onEditorContentChange('');
 
       // Act
       component.onRunMacro();
@@ -302,7 +300,7 @@ describe('MacroRowComponent', () => {
 
     it('should call scriptService.run with code and imports', () => {
       // Arrange
-      component.obj.set('dim x as integer');
+      component.onEditorContentChange('dim x as integer');
 
       // Act
       component.onRunMacro();
@@ -316,7 +314,7 @@ describe('MacroRowComponent', () => {
 
     it('should set test to success message when run succeeds', () => {
       // Arrange
-      component.obj.set('dim x as integer');
+      component.onEditorContentChange('dim x as integer');
       mockScriptService.run.mockReturnValue({
         success: true,
         messages: [{ type: 'info', message: 'Output' }],
@@ -331,7 +329,7 @@ describe('MacroRowComponent', () => {
 
     it('should set test to error message when run fails', () => {
       // Arrange
-      component.obj.set('invalid code');
+      component.onEditorContentChange('invalid code');
       mockScriptService.run.mockReturnValue({
         success: false,
         error: { description: 'Runtime error', line: 15, column: 1 },

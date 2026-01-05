@@ -37,9 +37,7 @@
         <input
           type="text"
           style="width: 150px"
-          [ngModel]="macroName()"
-          (ngModelChange)="macroName.set($event)"
-          name="name"
+          [field]="macroForm.name"
           class="form-control"
           id="macroName"
         />
@@ -52,15 +50,9 @@
         <label for="type">{{
           translate.instant("setting.macro.type-modal")
         }}</label>
-        <select
-          class="form-select"
-          [ngModel]="macroType()"
-          (ngModelChange)="macroType.set($event)"
-          name="type"
-          id="type"
-        >
+        <select class="form-select" [field]="macroForm.type" id="type">
           @for (option of macroTypeOptions; track option.value) {
-          <option [ngValue]="option.value">
+          <option [value]="option.value">
             {{ translate.instant(option.label) }}
           </option>
           }
@@ -81,8 +73,7 @@
           translate.instant("setting.macro.check-btn")
         }}
       </button>
-      }
-      @if (tabId() === 'test') {
+      } @if (tabId() === 'test') {
       <button
         id="macro-modal-run-btn"
         type="button"
@@ -145,8 +136,8 @@
       <ngx-code-editor
         id="macro-modal-code-editor"
         #codemirror
-        [ngModel]="obj()"
-        (ngModelChange)="obj.set($event)"
+        [ngModel]="editorContent()"
+        (ngModelChange)="onEditorContentChange($event)"
         [autoFocus]="true"
         [extensions]="klacksScriptLanguage"
         [lineWrapping]="true"

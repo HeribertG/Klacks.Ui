@@ -366,16 +366,21 @@ describe('ContractsComponent', () => {
   describe('Add Contract', () => {
     it('onClickAdd should create new contract and set editing state', () => {
       // Arrange
+      vi.useFakeTimers();
       const newContract: IContract = { name: '', guaranteedHours: 0 } as IContract;
       (mockDataManagementContractService.createContract as ReturnType<typeof vi.fn>).mockReturnValue(newContract);
+      fixture.detectChanges();
 
       // Act
       component.onClickAdd();
+      vi.advanceTimersByTime(0);
 
       // Assert
       expect(mockDataManagementContractService.createContract).toHaveBeenCalled();
       expect(component.editingContract).toBe(newContract);
       expect(component.isNewContract).toBe(true);
+
+      vi.useRealTimers();
     });
   });
 

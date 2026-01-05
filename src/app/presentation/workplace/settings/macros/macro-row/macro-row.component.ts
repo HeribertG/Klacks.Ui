@@ -2,15 +2,18 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnChanges,
   OnDestroy,
   Output,
   TemplateRef,
   ViewChild,
   inject,
   signal,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -33,6 +36,12 @@ import {
 import { ScriptResult } from 'src/app/infrastructure/scripting/script-result';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
 
+interface MacroFormModel {
+  name: string;
+  type: string;
+  content: string;
+}
+
 @Component({
   selector: 'app-macro-row',
   templateUrl: './macro-row.component.html',
@@ -40,6 +49,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
   standalone: true,
   imports: [
     CommonModule,
+    Field,
     FormsModule,
     TranslateModule,
     NgbModule,
@@ -47,7 +57,7 @@ import { MacroManagementService } from 'src/app/domain/services/settings/macro-m
     PropertyGridComponent,
   ],
 })
-export class MacroRowComponent implements OnDestroy {
+export class MacroRowComponent implements OnChanges, OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
   @ViewChild('codemirror') codeEditor!: CodeEditorComponent;
   @Input() data: IMacro = new Macro();
@@ -64,11 +74,22 @@ export class MacroRowComponent implements OnDestroy {
   private http = inject(HttpClient);
   private macroManagementService = inject(MacroManagementService);
 
-  macroName = signal('');
-  macroType = signal(0);
-  obj = signal('');
+  private isInitialized = false;
+  private lastModel: MacroFormModel | null = null;
+  private macroModel = signal<MacroFormModel>({
+    name: '',
+    type: '0',
+    content: '',
+  });
+  macroForm = form(this.macroModel, f => {
+    debounce(f.name, 300);
+    debounce(f.type, 300);
+    debounce(f.content, 300);
+  });
+
   description?: MultiLanguage;
   tabId = signal('macro');
+  editorContent = signal('');
 
   shiftData = new ShiftData();
 
@@ -83,6 +104,39 @@ export class MacroRowComponent implements OnDestroy {
     }));
 
   klacksScriptLanguage = [...klacksScriptExtensions, ...errorExtensions];
+
+  constructor() {
+    effect(() => {
+      const model = this.macroModel();
+      if (this.isInitialized && this.data && this.hasModelChanged(model)) {
+        this.lastModel = { ...model };
+      }
+    });
+  }
+
+  private hasModelChanged(model: MacroFormModel): boolean {
+    if (!this.lastModel) return false;
+    return (
+      model.name !== this.lastModel.name ||
+      model.type !== this.lastModel.type ||
+      model.content !== this.lastModel.content
+    );
+  }
+
+  ngOnChanges(): void {
+    if (this.data) {
+      const strippedContent = this.stripImports(this.data.content || '');
+      const initialModel: MacroFormModel = {
+        name: this.data.name || '',
+        type: String(this.data.type ?? 0),
+        content: strippedContent,
+      };
+      this.macroModel.set(initialModel);
+      this.lastModel = { ...initialModel };
+      this.editorContent.set(strippedContent);
+      this.isInitialized = true;
+    }
+  }
 
   private readonly AUTO_IMPORTS = [
     'import hour',
@@ -142,9 +196,15 @@ export class MacroRowComponent implements OnDestroy {
 
   private openModalInternal(content: unknown): void {
     if (this.data) {
-      this.macroName.set(this.data.name || '');
-      this.macroType.set(this.data.type);
-      this.obj.set(this.stripImports(this.data.content || ''));
+      const strippedContent = this.stripImports(this.data.content || '');
+      const initialModel: MacroFormModel = {
+        name: this.data.name || '',
+        type: String(this.data.type ?? 0),
+        content: strippedContent,
+      };
+      this.macroModel.set(initialModel);
+      this.lastModel = { ...initialModel };
+      this.editorContent.set(strippedContent);
       this.description = this.data.description;
     }
 
@@ -156,9 +216,10 @@ export class MacroRowComponent implements OnDestroy {
     this.modalService.open(content, { size: 'lg', centered: true }).result.then(
       () => {
         if (this.data) {
-          this.data.name = this.macroName();
-          this.data.type = +this.macroType();
-          this.data.content = this.addImports(this.obj());
+          const model = this.macroModel();
+          this.data.name = model.name;
+          this.data.type = +model.type;
+          this.data.content = this.addImports(this.editorContent());
           this.data.description = this.description;
         }
 
@@ -182,11 +243,16 @@ export class MacroRowComponent implements OnDestroy {
     }
   }
 
+  onEditorContentChange(content: string): void {
+    this.editorContent.set(content);
+  }
+
   onSave(): void {
     if (this.data) {
-      this.data.name = this.macroName();
-      this.data.type = +this.macroType();
-      this.data.content = this.addImports(this.obj());
+      const model = this.macroModel();
+      this.data.name = model.name;
+      this.data.type = +model.type;
+      this.data.content = this.addImports(this.editorContent());
       this.data.description = this.description;
     }
     this.wasSaved = true;
@@ -195,7 +261,7 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   onCheckMacro(): void {
-    const code = this.obj();
+    const code = this.editorContent();
     if (!code) {
       this.test.set('No macro code to check');
       return;
@@ -219,7 +285,7 @@ export class MacroRowComponent implements OnDestroy {
     const view = (this.codeEditor as any)?.view;
     if (!view) return;
 
-    const code = this.obj();
+    const code = this.editorContent();
     const lines = code.split('\n');
     let pos = 0;
     for (let i = 0; i < line - 1 && i < lines.length; i++) {
@@ -247,7 +313,7 @@ export class MacroRowComponent implements OnDestroy {
   }
 
   onRunMacro(): void {
-    const code = this.obj();
+    const code = this.editorContent();
     if (!code) {
       this.test.set('No macro code to run');
       return;

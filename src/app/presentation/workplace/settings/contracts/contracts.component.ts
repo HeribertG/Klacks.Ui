@@ -62,8 +62,8 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   private modalService = inject(ModalService);
 
   public editingContract: IContract | null = null;
-  private originalContract: IContract | null = null;
-  private isNewContract = false;
+  public originalContract: IContract | null = null;
+  public isNewContract = false;
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
