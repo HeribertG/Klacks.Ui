@@ -1,0 +1,150 @@
+@use "../../../../../../assets/standard-styles/colors.scss";
+@use "../../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../../assets/standard-styles/standard-modal.scss";
+
+.first {
+  margin-left: 30px;
+  padding-right: -30px;
+  height: 40px;
+}
+
+input {
+  width: 200px;
+  height: 32px;
+  margin-bottom: 20px;
+}
+
+select {
+  width: 200px;
+  height: 33px;
+}
+
+label {
+  width: 100px;
+}
+
+.delete-button {
+  margin-top: 5px;
+  margin-left: 20px;
+  color: var(--standartRedColor);
+}
+
+.firstColumn {
+  margin-left: 30px;
+  width: 200px;
+}
+
+.secondColumn {
+  margin-left: 40px;
+  width: 100px;
+}
+
+.smallWidth {
+  width: 160px;
+}
+
+.container-line {
+  margin-top: 25px;
+  border-top: 1px solid #e5eaee;
+  padding-bottom: 10px;
+}
+
+.link-button {
+  font-size: 13px;
+  text-decoration: underline;
+}
+
+.red-font-disabled {
+  margin-top: 10px;
+  padding-right: 30px;
+  color: #b6b6c3;
+  pointer-events: none;
+}
+
+.add-button {
+  margin-left: 100px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: var(--standartGreenColor);
+}
+
+.attribute-name {
+  width: 250px;
+  margin-right: 10px;
+  background-color: var(--standartGreenColor) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+button {
+  border-radius: 5px;
+  border: none;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  font-weight: 900;
+  color: grey;
+  margin-right: 10px;
+}
+
+.nav {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.tab-content-box {
+  padding: 15px 0;
+  min-height: 200px;
+}
+
+.form-row-inline {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.form-group-inline {
+  margin-left: 30px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+  }
+
+  .form-check-label {
+    font-size: 13px;
+  }
+}
+
+.alert {
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+}
+
+.spinner-border-sm {
+  width: 14px;
+  height: 14px;
+  margin-right: 5px;
+}

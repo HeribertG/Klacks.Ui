@@ -29,16 +29,24 @@
     </app-user-administration>
   </div>
 
-  <div id="settings-home-group-contracts-row" class="container-profilline">
+  <div id="settings-home-group-identity-row" class="container-profilline">
     <app-group-scope
       id="settings-group-scope"
       class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-group-scope')"
     ></app-group-scope>
 
+    <app-identity-providers
+      id="settings-identity-providers"
+      class="container-setting-small border-right-card border-bottom-card"
+      (click)="isfocused('app-identity-providers')"
+    ></app-identity-providers>
+  </div>
+
+  <div id="settings-home-contracts-row" class="container-profilline">
     <app-contracts
       id="settings-contracts"
-      class="container-setting-small border-right-card border-bottom-card"
+      class="container-setting-small first border-right-card border-bottom-card"
       (click)="isfocused('app-contracts')"
     ></app-contracts>
   </div>

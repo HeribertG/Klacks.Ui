@@ -1,0 +1,24 @@
+@use "sass:color";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
+
+.add-button {
+  margin-left: 165px;
+  font-size: 13px;
+  text-decoration: underline;
+  color: colors.$standartGreenColor;
+  cursor: pointer;
+
+  &:hover {
+    color: color.adjust(colors.$standartGreenColor, $lightness: -10%);
+  }
+}
+
+.container-box {
+  flex: 1;
+  height: 242px;
+
+  box-sizing: content-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+}

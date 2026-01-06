@@ -1,0 +1,28 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="identity-providers-form">
+  <div id="identity-providers-header" class="container-header">
+    {{ translate.instant("settings.identity-provider.headline") }}
+  </div>
+
+  <div id="identity-providers-line" class="container-line"></div>
+
+  <div id="identity-providers-box" class="container-box">
+    @for (provider of providerService.providerList(); track provider.id; let i = $index) {
+      <app-identity-provider-row
+        [id]="'identity-provider-row-' + i"
+        [data]="provider"
+        (isDeleteEvent)="openDeleteProvider(i)"
+        (cancelNewEvent)="cancelNewProvider(i)"
+        (providerChangedEvent)="onProviderChanged(i)"
+      >
+      </app-identity-provider-row>
+    }
+  </div>
+
+  <div id="identity-providers-add-row" class="row">
+    <span id="identity-providers-add-btn" class="add-button" type="button" (click)="onClickAdd()">
+      {{ translate.instant("settings.identity-provider.add") }}
+    </span>
+  </div>
+</form>

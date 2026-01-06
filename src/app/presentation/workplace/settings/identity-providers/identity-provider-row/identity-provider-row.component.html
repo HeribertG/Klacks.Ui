@@ -1,0 +1,358 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<ng-template #content id="identity-provider-modal-template" let-modal>
+  <div id="identity-provider-modal-header" class="modal-header">
+    <div class="container-header-modal modal-title" id="modal-title">
+      {{ translate.instant("settings.identity-provider.modal-title") }}
+    </div>
+    <span class="filler"></span>
+
+    <div
+      id="identity-provider-modal-close-btn"
+      type="button"
+      class="close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    >
+      <span
+        aria-hidden="true"
+        style="
+          font-size: 13px;
+          border: 1px transparent solid;
+          color: var(--colorWorkplaceHeadline);
+        "
+        >&times;</span
+      >
+    </div>
+  </div>
+
+  <div id="identity-provider-modal-body" class="modal-body">
+    @if (editProvider(); as p) {
+      <div id="identity-provider-modal-inputs-row" class="row-line-modal-inline">
+        <div id="identity-provider-modal-name-section" style="margin-left: 30px; width: 150px">
+          <label for="providerName">{{ translate.instant("settings.identity-provider.name") }}</label>
+          <input
+            type="text"
+            style="width: 150px"
+            [(ngModel)]="p.name"
+            class="form-control"
+            id="providerName"
+          />
+        </div>
+
+        <div id="identity-provider-modal-type-section" style="margin-left: 30px; width: 200px">
+          <label for="type">{{ translate.instant("settings.identity-provider.type") }}</label>
+          <select class="form-select" [(ngModel)]="p.type" (ngModelChange)="onTypeChange()" id="type">
+            @for (option of providerTypeOptions; track option.value) {
+              <option [ngValue]="option.value">
+                {{ translate.instant(option.label) }}
+              </option>
+            }
+          </select>
+        </div>
+
+        <div class="filler"></div>
+
+        @if (p.id && tabId() === 'connection') {
+          <button
+            id="identity-provider-modal-test-btn"
+            type="button"
+            class="btn btn-outline-secondary"
+            style="margin-right: 10px"
+            (click)="onTestConnection()"
+            [disabled]="providerService.isTesting()"
+          >
+            @if (providerService.isTesting()) {
+              <span class="spinner-border spinner-border-sm"></span>
+            }
+            {{ translate.instant("settings.identity-provider.test-connection") }}
+          </button>
+        }
+        @if (p.id && p.useForClientImport && tabId() === 'connection') {
+          <button
+            id="identity-provider-modal-sync-btn"
+            type="button"
+            class="btn btn-outline-primary"
+            style="margin-right: 10px"
+            (click)="onSyncClients()"
+            [disabled]="providerService.isSyncing()"
+          >
+            @if (providerService.isSyncing()) {
+              <span class="spinner-border spinner-border-sm"></span>
+            }
+            {{ translate.instant("settings.identity-provider.sync-clients") }}
+          </button>
+        }
+      </div>
+
+      <div id="identity-provider-modal-tabs-container">
+        <ul id="identity-provider-modal-tabs" class="nav nav-tabs">
+          <li id="identity-provider-modal-tab-general-item" class="nav-item">
+            <a
+              id="identity-provider-modal-tab-general-link"
+              class="nav-link"
+              [ngClass]="{ active: tabId() === 'general' }"
+              (click)="tabId.set('general')"
+              >{{ translate.instant("settings.identity-provider.tab-general") }}</a
+            >
+          </li>
+          @if (isLdapType()) {
+            <li id="identity-provider-modal-tab-connection-item" class="nav-item">
+              <a
+                id="identity-provider-modal-tab-connection-link"
+                class="nav-link"
+                [ngClass]="{ active: tabId() === 'connection' }"
+                (click)="tabId.set('connection')"
+                >{{ translate.instant("settings.identity-provider.tab-connection") }}</a
+              >
+            </li>
+          }
+          @if (isOAuthType()) {
+            <li id="identity-provider-modal-tab-oauth-item" class="nav-item">
+              <a
+                id="identity-provider-modal-tab-oauth-link"
+                class="nav-link"
+                [ngClass]="{ active: tabId() === 'oauth' }"
+                (click)="tabId.set('oauth')"
+                >{{ translate.instant("settings.identity-provider.tab-oauth") }}</a
+              >
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- General Tab -->
+      <div
+        id="identity-provider-modal-general-content"
+        class="collapse tab-content-box"
+        [ngStyle]="{ display: tabId() === 'general' ? 'block' : 'none' }"
+      >
+        <div class="form-row-inline">
+          <div class="form-group-inline">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="isEnabled" [(ngModel)]="p.isEnabled" />
+              <label class="form-check-label" for="isEnabled">
+                {{ translate.instant("settings.identity-provider.is-enabled") }}
+              </label>
+            </div>
+          </div>
+          <div class="form-group-inline">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="useForAuth" [(ngModel)]="p.useForAuthentication" />
+              <label class="form-check-label" for="useForAuth">
+                {{ translate.instant("settings.identity-provider.use-for-auth") }}
+              </label>
+            </div>
+          </div>
+          <div class="form-group-inline">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="useForImport" [(ngModel)]="p.useForClientImport" />
+              <label class="form-check-label" for="useForImport">
+                {{ translate.instant("settings.identity-provider.use-for-import") }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100px">
+            <label for="sortOrder">{{ translate.instant("settings.identity-provider.sort-order") }}</label>
+            <input type="number" class="form-control" id="sortOrder" [(ngModel)]="p.sortOrder" style="width: 100px" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Tab (LDAP/AD) -->
+      <div
+        id="identity-provider-modal-connection-content"
+        class="collapse tab-content-box"
+        [ngStyle]="{ display: tabId() === 'connection' ? 'block' : 'none' }"
+      >
+        <div class="form-row-inline">
+          <div style="margin-left: 30px; width: 300px">
+            <label for="host">{{ translate.instant("settings.identity-provider.host") }}</label>
+            <input type="text" class="form-control" id="host" [(ngModel)]="p.host" placeholder="ldap.example.com" style="width: 300px" />
+          </div>
+          <div style="margin-left: 30px; width: 100px">
+            <label for="port">{{ translate.instant("settings.identity-provider.port") }}</label>
+            <input type="number" class="form-control" id="port" [(ngModel)]="p.port" style="width: 100px" />
+          </div>
+          <div style="margin-left: 30px; padding-top: 22px;">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="useSsl" [(ngModel)]="p.useSsl" (ngModelChange)="onUseSslChange()" />
+              <label class="form-check-label" for="useSsl">
+                {{ translate.instant("settings.identity-provider.use-ssl") }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="baseDn">{{ translate.instant("settings.identity-provider.base-dn") }}</label>
+            <input type="text" class="form-control" id="baseDn" [(ngModel)]="p.baseDn" placeholder="DC=example,DC=com" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="bindDn">{{ translate.instant("settings.identity-provider.bind-dn") }}</label>
+            <input type="text" class="form-control" id="bindDn" [(ngModel)]="p.bindDn" placeholder="CN=admin,DC=example,DC=com" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 300px">
+            <label for="bindPassword">{{ translate.instant("settings.identity-provider.bind-password") }}</label>
+            <input type="password" class="form-control" id="bindPassword" [(ngModel)]="p.bindPassword" style="width: 300px" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="userFilter">{{ translate.instant("settings.identity-provider.user-filter") }}</label>
+            <input type="text" class="form-control" id="userFilter" [(ngModel)]="p.userFilter" placeholder="(&(objectClass=user)(objectCategory=person))" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <!-- Test & Sync Results -->
+        @if (testResult(); as result) {
+          <div class="alert" style="margin-left: 30px; margin-right: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+            @if (result.success) {
+              <strong>{{ translate.instant("settings.identity-provider.test-success") }}</strong>
+              @if (result.userCount !== undefined) {
+                <br />{{ translate.instant("settings.identity-provider.user-count") }}: {{ result.userCount }}
+              }
+              @if (result.sampleUsers && result.sampleUsers.length > 0) {
+                <br />{{ translate.instant("settings.identity-provider.sample-users") }}: {{ result.sampleUsers.join(', ') }}
+              }
+            } @else {
+              <strong>{{ translate.instant("settings.identity-provider.test-failed") }}</strong>
+              @if (result.errorMessage) {
+                <br />{{ result.errorMessage }}
+              }
+            }
+          </div>
+        }
+
+        @if (syncResult(); as result) {
+          <div class="alert" style="margin-left: 30px; margin-right: 30px; margin-top: 15px;" [ngClass]="result.success ? 'alert-success' : 'alert-danger'">
+            @if (result.success) {
+              <strong>{{ translate.instant("settings.identity-provider.sync-success") }}</strong>
+              <br />{{ translate.instant("settings.identity-provider.total-processed") }}: {{ result.totalProcessed }}
+              <br />{{ translate.instant("settings.identity-provider.new-clients") }}: {{ result.newClients }}
+              <br />{{ translate.instant("settings.identity-provider.updated-clients") }}: {{ result.updatedClients }}
+              <br />{{ translate.instant("settings.identity-provider.deactivated-clients") }}: {{ result.deactivatedClients }}
+            } @else {
+              <strong>{{ translate.instant("settings.identity-provider.sync-failed") }}</strong>
+              @if (result.errorMessage) {
+                <br />{{ result.errorMessage }}
+              }
+            }
+          </div>
+        }
+      </div>
+
+      <!-- OAuth Tab -->
+      <div
+        id="identity-provider-modal-oauth-content"
+        class="collapse tab-content-box"
+        [ngStyle]="{ display: tabId() === 'oauth' ? 'block' : 'none' }"
+      >
+        <div class="form-row-inline">
+          <div style="margin-left: 30px; width: 250px">
+            <label for="clientId">{{ translate.instant("settings.identity-provider.client-id") }}</label>
+            <input type="text" class="form-control" id="clientId" [(ngModel)]="p.clientId" style="width: 250px" />
+          </div>
+          <div style="margin-left: 30px; width: 250px">
+            <label for="clientSecret">{{ translate.instant("settings.identity-provider.client-secret") }}</label>
+            <input type="password" class="form-control" id="clientSecret" [(ngModel)]="p.clientSecret" style="width: 250px" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="tenantId">{{ translate.instant("settings.identity-provider.tenant-id") }}</label>
+            <input type="text" class="form-control" id="tenantId" [(ngModel)]="p.tenantId" placeholder="Azure AD Tenant ID (optional)" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="authorizationUrl">{{ translate.instant("settings.identity-provider.authorization-url") }}</label>
+            <input type="text" class="form-control" id="authorizationUrl" [(ngModel)]="p.authorizationUrl" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="tokenUrl">{{ translate.instant("settings.identity-provider.token-url") }}</label>
+            <input type="text" class="form-control" id="tokenUrl" [(ngModel)]="p.tokenUrl" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="userInfoUrl">{{ translate.instant("settings.identity-provider.user-info-url") }}</label>
+            <input type="text" class="form-control" id="userInfoUrl" [(ngModel)]="p.userInfoUrl" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+
+        <div class="form-row-inline" style="margin-top: 15px;">
+          <div style="margin-left: 30px; width: 100%">
+            <label for="scopes">{{ translate.instant("settings.identity-provider.scopes") }}</label>
+            <input type="text" class="form-control" id="scopes" [(ngModel)]="p.scopes" placeholder="openid profile email" style="width: calc(100% - 60px)" />
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div id="identity-provider-modal-footer" class="modal-footer">
+    <span
+      id="identity-provider-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      id="identity-provider-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSave()"
+    >
+      {{ translate.instant("save") }}
+    </button>
+    <button
+      id="identity-provider-modal-save-close-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="modal.close()"
+    >
+      {{ translate.instant("setting.macro.save-close-btn") }}
+    </button>
+  </div>
+</ng-template>
+
+<div id="identity-provider-row-container-{{ data.id }}" class="first custom-control-inline">
+  <div id="identity-provider-row-name-group-{{ data.id }}" class="form-group">
+    <input
+      id="identity-provider-row-name-{{ data.id }}"
+      type="text"
+      [value]="data.name"
+      class="form-control attribute-name"
+      aria-label="name"
+      (click)="open(content)"
+      readonly
+    />
+  </div>
+
+  <span
+    id="identity-provider-row-delete-{{ data.id }}"
+    class="delete-button"
+    type="button"
+    (click)="onClickDelete()"
+    >✕</span
+  >
+</div>
