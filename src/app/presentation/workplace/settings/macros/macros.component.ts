@@ -1,14 +1,10 @@
 import { Component, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
-
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
 
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { MacroHeaderComponent } from './macro-header/macro-header.component';
 import { MacroRowComponent } from './macro-row/macro-row.component';
-
 import { Macro } from 'src/app/domain/models/macro-class';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
@@ -22,12 +18,10 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
-    NgbModule,
-    SpinnerModule,
+    SettingsListCardComponent,
     MacroHeaderComponent,
-    MacroRowComponent
-],
+    MacroRowComponent,
+  ],
 })
 export class MacrosComponent implements AfterViewInit, OnDestroy {
   @ViewChildren(MacroRowComponent) macroRows!: QueryList<MacroRowComponent>;

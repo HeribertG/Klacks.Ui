@@ -1,10 +1,8 @@
 import { Component, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
 
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IdentityProviderRowComponent } from './identity-provider-row/identity-provider-row.component';
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
@@ -19,10 +17,8 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
   standalone: true,
   imports: [
     TranslateModule,
-    FormsModule,
-    NgbModule,
-    SpinnerModule,
-    IdentityProviderRowComponent
+    SettingsListCardComponent,
+    IdentityProviderRowComponent,
   ],
 })
 export class IdentityProvidersComponent implements AfterViewInit, OnDestroy {

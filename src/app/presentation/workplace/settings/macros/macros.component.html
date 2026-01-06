@@ -1,31 +1,24 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<form id="macros-form">
-  <div id="macros-header" class="container-header">
-    {{ translate.instant("setting.macro.headline") }}
-  </div>
+<app-settings-list-card
+  [headline]="translate.instant('setting.macro.headline')"
+  [addLabel]="translate.instant('setting.macro.add')"
+  [showAddButton]="true"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-macro-header header></app-macro-header>
 
-  <div id="macros-line" class="container-line"></div>
-
-  <app-macro-header id="macros-table-header"></app-macro-header>
-
-  <div id="macros-box" class="container-box">
-    @for (c of dataManagementSettingsService.macroList; track c.id || $index;
-    let i = $index) { @if (!(c.isDirty === 3)) {
-    <app-macro-row
-      [id]="'macro-row-' + i"
-      [data]="c"
-      (isDeleteEvent)="openDeleteMacro(i)"
-      (cancelNewEvent)="cancelNewMacro(i)"
-      (macroChangedEvent)="onMacroChanged(i)"
-    >
-    </app-macro-row>
-    } }
-  </div>
-
-  <div id="macros-add-row" class="row">
-    <span id="macros-add-btn" class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("setting.macro.add") }}
-    </span>
-  </div>
-</form>
+  <ng-container rows>
+    @for (c of dataManagementSettingsService.macroList; track c.id || $index; let i = $index) {
+      @if (!(c.isDirty === 3)) {
+        <app-macro-row
+          [id]="'macro-row-' + i"
+          [data]="c"
+          (isDeleteEvent)="openDeleteMacro(i)"
+          (cancelNewEvent)="cancelNewMacro(i)"
+          (macroChangedEvent)="onMacroChanged(i)"
+        >
+        </app-macro-row>
+      }
+    }
+  </ng-container>
+</app-settings-list-card>
