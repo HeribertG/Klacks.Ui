@@ -4,7 +4,7 @@
   [showAddButton]="true"
   (addClick)="onClickAdd()"
 >
-  <ng-container rows>
+  <div rows>
     @for (provider of providerService.providerList(); track provider.id; let i = $index) {
       <app-identity-provider-row
         [id]="'identity-provider-row-' + i"
@@ -15,5 +15,5 @@
       >
       </app-identity-provider-row>
     }
-  </ng-container>
+  </div>
 </app-settings-list-card>

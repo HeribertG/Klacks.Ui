@@ -7,7 +7,7 @@
 >
   <app-macro-header header></app-macro-header>
 
-  <ng-container rows>
+  <div rows>
     @for (c of dataManagementSettingsService.macroList; track c.id || $index; let i = $index) {
       @if (!(c.isDirty === 3)) {
         <app-macro-row
@@ -20,5 +20,5 @@
         </app-macro-row>
       }
     }
-  </ng-container>
+  </div>
 </app-settings-list-card>
