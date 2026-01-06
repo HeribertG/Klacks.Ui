@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject } from 'rxjs';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import { ContractsComponent } from './contracts.component';
 import { DataManagementContractService } from 'src/app/domain/services/contract/data-management-contract.service';
@@ -25,10 +25,10 @@ describe('ContractsComponent', () => {
     minimumHours: 160,
     maximumHours: 200,
     fullTime: 180,
-    nightRate: 10,
-    holidayRate: 15,
-    saRate: 10,
-    soRate: 10,
+    nightRate: 0.1,
+    holidayRate: 0.15,
+    saRate: 0.1,
+    soRate: 0.1,
     paymentInterval: PaymentInterval.Monthly,
     validFrom: new Date(2024, 0, 1),
     validUntil: new Date(2024, 11, 31),
@@ -84,6 +84,10 @@ describe('ContractsComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
   it('should create', () => {
     // Arrange & Act & Assert
     expect(component).toBeTruthy();
@@ -102,66 +106,6 @@ describe('ContractsComponent', () => {
   describe('Signal Form Methods', () => {
     beforeEach(() => {
       component.editingContract = { ...mockContract };
-    });
-
-    it('onContractNameChange should update signal and editingContract', () => {
-      // Arrange
-      const newName = 'New Contract Name';
-
-      // Act
-      component.onContractNameChange(newName);
-
-      // Assert
-      expect(component.contractName()).toBe(newName);
-      expect(component.editingContract!.name).toBe(newName);
-    });
-
-    it('onNightRateChange should update signal and editingContract', () => {
-      // Arrange
-      const newRate = 25;
-
-      // Act
-      component.onNightRateChange(newRate);
-
-      // Assert
-      expect(component.nightRate()).toBe(newRate);
-      expect(component.editingContract!.nightRate).toBe(newRate);
-    });
-
-    it('onHolidayRateChange should update signal and editingContract', () => {
-      // Arrange
-      const newRate = 20;
-
-      // Act
-      component.onHolidayRateChange(newRate);
-
-      // Assert
-      expect(component.holidayRate()).toBe(newRate);
-      expect(component.editingContract!.holidayRate).toBe(newRate);
-    });
-
-    it('onSaRateChange should update signal and editingContract', () => {
-      // Arrange
-      const newRate = 15;
-
-      // Act
-      component.onSaRateChange(newRate);
-
-      // Assert
-      expect(component.saRate()).toBe(newRate);
-      expect(component.editingContract!.saRate).toBe(newRate);
-    });
-
-    it('onSoRateChange should update signal and editingContract', () => {
-      // Arrange
-      const newRate = 12;
-
-      // Act
-      component.onSoRateChange(newRate);
-
-      // Assert
-      expect(component.soRate()).toBe(newRate);
-      expect(component.editingContract!.soRate).toBe(newRate);
     });
 
     it('onGuaranteedHoursChange should update signal and editingContract', () => {

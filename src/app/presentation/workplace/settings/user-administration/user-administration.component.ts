@@ -7,9 +7,12 @@ import {
   OnDestroy,
   AfterViewInit,
   TemplateRef,
+  signal,
+  computed,
 } from '@angular/core';
 
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
@@ -29,6 +32,13 @@ import {
 } from 'src/app/presentation/modal/modal.service';
 import { Subject, takeUntil } from 'rxjs';
 
+interface UserFormModel {
+  firstName: string;
+  lastName: string;
+  userName: string;
+  email: string;
+}
+
 @Component({
   selector: 'app-user-administration',
   templateUrl: './user-administration.component.html',
@@ -36,6 +46,7 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
   imports: [
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     SpinnerModule,
@@ -44,7 +55,6 @@ import { Subject, takeUntil } from 'rxjs';
 ],
 })
 export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(NgForm, { static: false }) modalForm: NgForm | undefined;
   @ViewChild('msg', { static: false }) msgTemplate!: TemplateRef<any>;
 
   private ngbModal = inject(NgbModal);
@@ -55,30 +65,41 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   private ngUnsubscribe = new Subject<void>();
 
   newUser: IAuthentication | undefined;
-  disabled = true;
   message = MessageLibrary.DELETE_ENTRY;
   pendingDeleteIndex = -1;
 
+  private formModel = signal<UserFormModel>({
+    firstName: '',
+    lastName: '',
+    userName: '',
+    email: '',
+  });
+
+  userForm = form(this.formModel, f => {
+    debounce(f.firstName, 300);
+    debounce(f.lastName, 300);
+    debounce(f.userName, 300);
+    debounce(f.email, 300);
+  });
+
+  isFormValid = computed(() => {
+    const data = this.formModel();
+    return Boolean(
+      data.firstName?.trim().length >= 2 &&
+      data.lastName?.trim().length >= 2 &&
+      data.userName?.trim().length >= 3 &&
+      data.email?.trim().length >= 5 &&
+      data.email?.includes('@')
+    );
+  });
+
+  showUserNameError = computed(() => {
+    const userName = this.formModel().userName;
+    return userName.length > 0 && userName.length < 3;
+  });
+
   ngOnInit(): void {
     this.userAdminService.loadAccounts();
-  }
-
-  onChange(): void {
-    if (this.newUser) {
-      const isValid = Boolean(
-        this.newUser.firstName &&
-          this.newUser.firstName.trim().length >= 2 &&
-          this.newUser.lastName &&
-          this.newUser.lastName.trim().length >= 2 &&
-          this.newUser.userName &&
-          this.newUser.userName.trim().length >= 3 &&
-          this.newUser.email &&
-          this.newUser.email.trim().length >= 5 &&
-          this.newUser.email.includes('@')
-      );
-
-      this.disabled = !isValid;
-    }
   }
 
   onRoleChange(account: IAuthentication, roleName: 'Admin' | 'Authorised', isSelected: boolean): void {
@@ -127,11 +148,22 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     this.newUser.title = MessageLibrary.REGISTERUSER_TITLE;
     this.newUser.appName = this.dataManagementSettingsService.appName;
     this.newUser.sendEmail = true;
-    this.disabled = true;
+
+    this.formModel.set({
+      firstName: '',
+      lastName: '',
+      userName: '',
+      email: '',
+    });
 
     this.ngbModal.open(content, { size: 'md', centered: true }).result.then(
       () => {
         if (this.newUser) {
+          const formData = this.formModel();
+          this.newUser.firstName = formData.firstName;
+          this.newUser.lastName = formData.lastName;
+          this.newUser.userName = formData.userName;
+          this.newUser.email = formData.email;
           this.newUser.password = generatePassword();
           this.userAdminService.addAccount(this.newUser);
         }

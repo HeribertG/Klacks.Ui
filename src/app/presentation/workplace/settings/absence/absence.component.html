@@ -46,84 +46,25 @@
         <label for="ruleName">{{
           "setting.absence.modal.name" | translate
         }}</label>
-        @if (currentLang === 'de') {
         <input
-          id="absence-modal-name-de"
+          id="absence-modal-name"
           type="text"
           class="form-control"
-          [(ngModel)]="currentAbsence.name!.de!"
-          aria-label="ruleName.de"
-          name="ruleName.de"
-          maxlength="256"
+          [field]="absenceForm.name"
+          aria-label="ruleName"
         />
-        } @if (currentLang === 'en') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentAbsence.name!.en!"
-          aria-label="ruleName.en"
-          name="ruleName.en"
-          maxlength="256"
-        />
-        } @if (currentLang === 'fr') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentAbsence.name!.fr!"
-          aria-label="ruleName.fr"
-          name="ruleName.fr"
-          maxlength="256"
-        />
-        } @if (currentLang === 'it') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentAbsence.name!.it!"
-          aria-label="ruleName.it"
-          name="ruleName.it"
-          maxlength="256"
-        />
-        }
       </div>
 
       <div id="absence-modal-description-row" class="row-line">
         <label for="description">{{
           "setting.absence.modal.description" | translate
         }}</label>
-        @if (currentLang === 'de') {
         <textarea
-          id="absence-modal-description-de"
+          id="absence-modal-description"
           class="form-control rule-description"
-          [(ngModel)]="currentAbsence.description!.de!"
-          aria-label="description.de"
-          name="description.de"
-          maxlength="256"
+          [field]="absenceForm.description"
+          aria-label="description"
         ></textarea>
-        } @if (currentLang === 'en') {
-        <textarea
-          class="form-control rule-description"
-          [ngModel]="currentAbsence.description!.en!"
-          aria-label="description.en"
-          name="description.en"
-          maxlength="256"
-        ></textarea>
-        } @if (currentLang === 'fr') {
-        <textarea
-          class="form-control rule-description"
-          [(ngModel)]="currentAbsence.description!.fr"
-          aria-label="description.fr"
-          name="description.fr"
-          maxlength="256"
-        ></textarea>
-        } @if (currentLang === 'it') {
-        <textarea
-          class="form-control rule-description"
-          [(ngModel)]="currentAbsence.description!.it!"
-          aria-label="description.it"
-          name="description.it"
-          maxlength="256"
-        ></textarea>
-        }
       </div>
 
       <div id="absence-modal-numbers-row" class="row-line">
@@ -134,15 +75,10 @@
             }}</label>
             <input
               id="absence-modal-default-length"
-              type="Number"
+              type="number"
               class="form-control input-number"
-              [(ngModel)]="currentAbsence.defaultLength"
+              [field]="absenceForm.defaultLength"
               aria-label="defaultLength"
-              name="defaultLength"
-              min="0"
-              max="31"
-              value="0"
-              step="1"
             />
           </div>
           <div class="box">
@@ -151,15 +87,10 @@
             }}</label>
             <input
               id="absence-modal-default-value"
-              type="Number"
+              type="number"
               class="form-control input-number"
-              [(ngModel)]="currentAbsence.defaultValue"
+              [field]="absenceForm.defaultValue"
               aria-label="defaultValue"
-              name="defaultValue"
-              min="0"
-              max="24"
-              value="0"
-              step="0.1"
             />
           </div>
         </div>
@@ -169,8 +100,7 @@
           <input
             id="absence-modal-with-saturday"
             type="checkbox"
-            [(ngModel)]="currentAbsence.withSaturday"
-            name="with-saturday"
+            [field]="absenceForm.withSaturday"
           />
           {{ "setting.absence.modal.value-sat" | translate }}
         </label>
@@ -180,8 +110,7 @@
           <input
             id="absence-modal-with-sunday"
             type="checkbox"
-            [(ngModel)]="currentAbsence.withSunday"
-            name="with-sunday"
+            [field]="absenceForm.withSunday"
           />
           {{ "setting.absence.modal.value-sun" | translate }}
         </label>
@@ -191,8 +120,7 @@
           <input
             id="absence-modal-with-holiday"
             type="checkbox"
-            [(ngModel)]="currentAbsence.withHoliday"
-            name="with-holiday"
+            [field]="absenceForm.withHoliday"
           />
           {{ "setting.absence.modal.value-holiday" | translate }}
         </label>
@@ -206,16 +134,13 @@
             id="absence-modal-color-picker"
             type="color"
             class="form-control form-control-color color-button"
-            name="color"
-            [ngModel]="currentAbsence.color"
-            (ngModelChange)="currentAbsence.color = $event"
+            [field]="absenceForm.color"
           />
           <input
             id="absence-modal-color-text"
             type="text"
             class="form-control color-text"
-            [(ngModel)]="currentAbsence.color"
-            name="color-text"
+            [field]="absenceForm.color"
           />
         </div>
       </div>
@@ -226,8 +151,7 @@
           <input
             id="absence-modal-hide-in-gantt"
             type="checkbox"
-            [(ngModel)]="currentAbsence.hideInGantt"
-            name="hideInGantt"
+            [field]="absenceForm.hideInGantt"
           />
           {{ "setting.absence.modal.internal" | translate }}
         </label>
@@ -255,7 +179,7 @@
 </ng-template>
 
 <div id="absence-container" class="container-dashboard">
-  <form id="absence-form" #absenceForm="ngForm">
+  <div id="absence-form">
     <div id="absence-header" class="container-header header-container">
       {{ "setting.absence.headline" | translate }}
       <span class="filler"></span>
@@ -389,5 +313,5 @@
         ></app-simple-pagination>
       </div>
     </div>
-  </form>
+  </div>
 </div>

@@ -306,7 +306,8 @@ export class AppSettingsManagementService {
       this.dataSettingsService
         .addSetting(newSetting)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => {
+        .subscribe((savedSetting) => {
+          this.settingsList.push(savedSetting);
           this.saveCounter--;
           this.checkSaveComplete();
         });

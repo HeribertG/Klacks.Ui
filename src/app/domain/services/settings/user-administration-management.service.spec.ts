@@ -6,11 +6,13 @@ import { UserAdministrationService } from 'src/app/infrastructure/api/user-admin
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { IAuthentication, ChangePassword } from 'src/app/domain/models/authentification-class';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
+import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 
 describe('UserAdministrationManagementService', () => {
     let service: UserAdministrationManagementService;
     let mockUserAdministrationService: any;
     let mockEventBus: any;
+    let mockLocalStorageService: any;
 
     beforeEach(() => {
         mockUserAdministrationService = {
@@ -28,6 +30,12 @@ describe('UserAdministrationManagementService', () => {
             onAny: vi.fn()
         };
 
+        mockLocalStorageService = {
+            get: vi.fn().mockReturnValue(null),
+            set: vi.fn(),
+            remove: vi.fn()
+        };
+
         mockUserAdministrationService.readAccountsList.mockReturnValue(of([]));
 
         TestBed.configureTestingModule({
@@ -35,6 +43,7 @@ describe('UserAdministrationManagementService', () => {
                 UserAdministrationManagementService,
                 { provide: UserAdministrationService, useValue: mockUserAdministrationService },
                 { provide: EVENT_BUS_TOKEN, useValue: mockEventBus },
+                { provide: LocalStorageService, useValue: mockLocalStorageService },
             ],
         });
     });
@@ -46,6 +55,7 @@ describe('UserAdministrationManagementService', () => {
 
     describe('loadAccountsList', () => {
         it('should load and sort accounts list', async () => {
+            // Arrange
             const mockAccounts: IAuthentication[] = [
                 { id: '2', firstName: 'Bob', lastName: 'Smith', email: 'bob@test.com' } as IAuthentication,
                 { id: '1', firstName: 'Alice', lastName: 'Johnson', email: 'alice@test.com' } as IAuthentication,
@@ -55,7 +65,11 @@ describe('UserAdministrationManagementService', () => {
 
             service = TestBed.inject(UserAdministrationManagementService);
 
-            await new Promise(resolve => setTimeout(resolve, 110));
+            // Act
+            service.loadAccounts();
+
+            // Assert
+            await new Promise(resolve => setTimeout(resolve, 50));
             const accounts = service.accountsList();
             expect(accounts.length).toBe(2);
             expect(accounts[0].firstName).toBe('Alice');
@@ -63,10 +77,15 @@ describe('UserAdministrationManagementService', () => {
         });
 
         it('should emit error event on load failure', async () => {
+            // Arrange
             mockUserAdministrationService.readAccountsList.mockReturnValue(throwError(() => new Error('Network error')));
 
             service = TestBed.inject(UserAdministrationManagementService);
 
+            // Act
+            service.loadAccounts();
+
+            // Assert
             await new Promise(resolve => setTimeout(resolve, 3510));
             expect(mockEventBus.emit).toHaveBeenCalledWith(DomainEventType.ERROR, expect.objectContaining({
                 code: 'ACCOUNTS_LOAD_ERROR',

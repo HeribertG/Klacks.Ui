@@ -1,7 +1,7 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <ng-template #content id="content" let-modal>
-  <form id="user-admin-modal-form" #modalForm="ngForm">
+  <div id="user-admin-modal-form">
     <div id="user-admin-modal-header" class="modal-header">
       <div class="container-header-modal modal-title" id="modal-title-user">
         {{ translate.instant("setting.user-admin.modal-title-user") }}
@@ -36,11 +36,10 @@
           }}</label>
           <input
             type="text"
-            name="firstName"
-            [(ngModel)]="newUser!.firstName"
+            [field]="userForm.firstName"
             class="form-control default-width"
-            (change)="onChange()"
             id="user-firstname"
+            aria-label="firstName"
           />
         </div>
 
@@ -50,11 +49,10 @@
           }}</label>
           <input
             type="text"
-            name="lastName"
-            [(ngModel)]="newUser!.lastName"
+            [field]="userForm.lastName"
             class="form-control default-width"
-            (change)="onChange()"
             id="user-name"
+            aria-label="lastName"
           />
         </div>
       </div>
@@ -70,16 +68,13 @@
             }}</label>
             <input
               type="text"
-              name="userName"
-              [(ngModel)]="newUser!.userName"
+              [field]="userForm.userName"
               class="form-control default-width"
-              (change)="onChange()"
               id="user-userName"
-              minlength="3"
+              aria-label="userName"
               [placeholder]="translate.instant('USERNAME_PLACEHOLDER')"
             />
-            @if (newUser && newUser.userName && newUser.userName.length > 0 &&
-            newUser.userName.length < 3) {
+            @if (showUserNameError()) {
             <small class="text-danger">{{
               translate.instant("USERNAME_MIN_3_CHARS")
             }}</small>
@@ -96,10 +91,8 @@
 
       <input
         type="text"
-        name="email"
-        [(ngModel)]="newUser!.email"
+        [field]="userForm.email"
         class="form-control"
-        (keyup)="onChange()"
         id="setting-user-email"
         aria-label="email"
       />
@@ -108,7 +101,7 @@
     <p></p>
     <p></p>
     <p></p>
-  </form>
+  </div>
 
   <div id="user-admin-modal-footer" class="modal-footer">
     <span
@@ -123,7 +116,7 @@
       type="button"
       class="btn save-btn"
       (click)="modal.close()"
-      [disabled]="disabled"
+      [disabled]="!isFormValid()"
     >
       {{ translate.instant("setting.user-admin.modal-save") }}
     </button>

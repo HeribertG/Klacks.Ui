@@ -9,11 +9,13 @@ import {
   ViewChild,
   TemplateRef,
   signal,
+  effect,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { NgbModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { Subject, takeUntil } from 'rxjs';
@@ -33,6 +35,14 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/domain/helpers/own-time.helper';
 
+interface ContractFormModel {
+  name: string;
+  nightRate: number;
+  holidayRate: number;
+  saRate: number;
+  soRate: number;
+}
+
 @Component({
   selector: 'app-contracts',
   templateUrl: './contracts.component.html',
@@ -42,6 +52,7 @@ import { transformNumberToOwnTime, transformOwnTimeToNumber } from 'src/app/doma
     CommonModule,
     TranslateModule,
     FormsModule,
+    Field,
     NgbModule,
     SpinnerModule,
     ContractHeaderComponent,
@@ -67,11 +78,37 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   private isSaving = false;
   private destroy$ = new Subject<void>();
 
-  contractName = signal('');
-  nightRate = signal(0);
-  holidayRate = signal(0);
-  saRate = signal(0);
-  soRate = signal(0);
+  private formModel = signal<ContractFormModel>({
+    name: '',
+    nightRate: 0,
+    holidayRate: 0,
+    saRate: 0,
+    soRate: 0,
+  });
+
+  contractForm = form(this.formModel, f => {
+    debounce(f.name, 300);
+  });
+
+  private rateClampEffect = effect(() => {
+    const current = this.formModel();
+    const clamped = {
+      ...current,
+      nightRate: Math.max(0, Math.min(100, current.nightRate)),
+      holidayRate: Math.max(0, Math.min(100, current.holidayRate)),
+      saRate: Math.max(0, Math.min(100, current.saRate)),
+      soRate: Math.max(0, Math.min(100, current.soRate)),
+    };
+    if (
+      clamped.nightRate !== current.nightRate ||
+      clamped.holidayRate !== current.holidayRate ||
+      clamped.saRate !== current.saRate ||
+      clamped.soRate !== current.soRate
+    ) {
+      this.formModel.set(clamped);
+    }
+  });
+
   guaranteedHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
   minimumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
   maximumHours = signal<OwnTime>(OwnTime.forDuration('00', '00'));
@@ -83,11 +120,13 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   message = MessageLibrary.DELETE_ENTRY;
 
   private initFormSignals(contract: IContract): void {
-    this.contractName.set(contract.name || '');
-    this.nightRate.set(contract.nightRate ?? 0);
-    this.holidayRate.set(contract.holidayRate ?? 0);
-    this.saRate.set(contract.saRate ?? 0);
-    this.soRate.set(contract.soRate ?? 0);
+    this.formModel.set({
+      name: contract.name || '',
+      nightRate: contract.nightRate ?? 0,
+      holidayRate: contract.holidayRate ?? 0,
+      saRate: contract.saRate ?? 0,
+      soRate: contract.soRate ?? 0,
+    });
     this.guaranteedHours.set(transformNumberToOwnTime(contract.guaranteedHours ?? 0, true));
     this.minimumHours.set(transformNumberToOwnTime(contract.minimumHours ?? 0, true));
     this.maximumHours.set(transformNumberToOwnTime(contract.maximumHours ?? 0, true));
@@ -99,11 +138,12 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private applySignalsToContract(): void {
     if (!this.editingContract) return;
-    this.editingContract.name = this.contractName();
-    this.editingContract.nightRate = this.nightRate();
-    this.editingContract.holidayRate = this.holidayRate();
-    this.editingContract.saRate = this.saRate();
-    this.editingContract.soRate = this.soRate();
+    const formData = this.formModel();
+    this.editingContract.name = formData.name;
+    this.editingContract.nightRate = formData.nightRate;
+    this.editingContract.holidayRate = formData.holidayRate;
+    this.editingContract.saRate = formData.saRate;
+    this.editingContract.soRate = formData.soRate;
     this.editingContract.guaranteedHours = transformOwnTimeToNumber(this.guaranteedHours());
     this.editingContract.minimumHours = transformOwnTimeToNumber(this.minimumHours());
     this.editingContract.maximumHours = transformOwnTimeToNumber(this.maximumHours());
@@ -220,11 +260,16 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async saveContract(): Promise<void> {
-    if (!this.editingContract || !this.isFormValid() || this.isSaving) {
+    if (!this.editingContract || this.isSaving) {
       return;
     }
 
     this.applySignalsToContract();
+
+    if (!this.isFormValid()) {
+      return;
+    }
+
     this.isSaving = true;
 
     try {
@@ -297,54 +342,19 @@ export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isFormValid(): boolean {
-    return this.editingContract
-      ? this.dataManagementContractService.validateContract(
-          this.editingContract
-        ).length === 0
-      : false;
+    if (!this.editingContract) return false;
+    this.applySignalsToContract();
+    return this.dataManagementContractService.validateContract(
+      this.editingContract
+    ).length === 0;
   }
 
   getValidationErrors(): string[] {
-    return this.editingContract
-      ? this.dataManagementContractService.validateContract(
-          this.editingContract
-        )
-      : [];
-  }
-
-  onContractNameChange(value: string): void {
-    this.contractName.set(value);
-    if (this.editingContract) {
-      this.editingContract.name = value;
-    }
-  }
-
-  onNightRateChange(value: number): void {
-    this.nightRate.set(value);
-    if (this.editingContract) {
-      this.editingContract.nightRate = value;
-    }
-  }
-
-  onHolidayRateChange(value: number): void {
-    this.holidayRate.set(value);
-    if (this.editingContract) {
-      this.editingContract.holidayRate = value;
-    }
-  }
-
-  onSaRateChange(value: number): void {
-    this.saRate.set(value);
-    if (this.editingContract) {
-      this.editingContract.saRate = value;
-    }
-  }
-
-  onSoRateChange(value: number): void {
-    this.soRate.set(value);
-    if (this.editingContract) {
-      this.editingContract.soRate = value;
-    }
+    if (!this.editingContract) return [];
+    this.applySignalsToContract();
+    return this.dataManagementContractService.validateContract(
+      this.editingContract
+    );
   }
 
   onGuaranteedHoursChange(value: OwnTime): void {

@@ -337,7 +337,8 @@ export class GridFontsService {
         nc.value = value;
         nc.type = c.type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).subscribe(() => {
+        this.dataSettingsVariousService.addSetting(nc).subscribe((savedSetting) => {
+          c.id = savedSetting.id;
           this.countSettings(false);
         });
       }

@@ -166,7 +166,7 @@ describe('UserAdministrationComponent', () => {
             expect(component.newUser?.email).toBeUndefined();
             expect(component.newUser?.sendEmail).toBe(true);
             expect(component.newUser?.appName).toBe('Klacks Test');
-            expect(component.disabled).toBe(true);
+            expect(component.isFormValid()).toBe(false);
             expect(mockNgbModal.open).toHaveBeenCalledWith(mockContent, {
                 size: 'md',
                 centered: true,
@@ -178,10 +178,12 @@ describe('UserAdministrationComponent', () => {
             const mockContent = {};
             component.open(mockContent);
 
-            component.newUser!.firstName = 'Max';
-            component.newUser!.lastName = 'Mustermann';
-            component.newUser!.userName = 'max.mustermann';
-            component.newUser!.email = 'max.mustermann@example.com';
+            (component as any).formModel.set({
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                userName: 'max.mustermann',
+                email: 'max.mustermann@example.com',
+            });
 
             // Act
             await mockModalRef.result;
@@ -215,101 +217,95 @@ describe('UserAdministrationComponent', () => {
     });
 
     describe('Form Validation', () => {
-        beforeEach(() => {
-            component.newUser = new Authentication();
-        });
-
-        it('should enable save button with valid user data', () => {
+        it('should return true for valid user data', () => {
             // Arrange
-            component.newUser!.firstName = 'John';
-            component.newUser!.lastName = 'Doe';
-            component.newUser!.userName = 'john.doe';
-            component.newUser!.email = 'john.doe@example.com';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(false);
-        });
-
-        it('should disable save button when firstName is too short', () => {
-            // Arrange
-            component.newUser!.firstName = 'J';
-            component.newUser!.lastName = 'Doe';
-            component.newUser!.userName = 'john.doe';
-            component.newUser!.email = 'john.doe@example.com';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(true);
-        });
-
-        it('should disable save button when lastName is missing', () => {
-            // Arrange
-            component.newUser!.firstName = 'John';
-            component.newUser!.lastName = '';
-            component.newUser!.userName = 'john.doe';
-            component.newUser!.email = 'john.doe@example.com';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(true);
-        });
-
-        it('should disable save button when userName is too short', () => {
-            // Arrange
-            component.newUser!.firstName = 'John';
-            component.newUser!.lastName = 'Doe';
-            component.newUser!.userName = 'jo';
-            component.newUser!.email = 'john.doe@example.com';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(true);
-        });
-
-        it('should disable save button when email is invalid', () => {
-            // Arrange
-            component.newUser!.firstName = 'John';
-            component.newUser!.lastName = 'Doe';
-            component.newUser!.userName = 'john.doe';
-            component.newUser!.email = 'invalid-email';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(true);
-        });
-
-        it('should disable save button when email is too short', () => {
-            // Arrange
-            component.newUser!.firstName = 'John';
-            component.newUser!.lastName = 'Doe';
-            component.newUser!.userName = 'john.doe';
-            component.newUser!.email = 'a@b';
-
-            // Act
-            component.onChange();
-
-            // Assert
-            expect(component.disabled).toBe(true);
-        });
-
-        it('should handle undefined newUser gracefully', () => {
-            // Arrange
-            component.newUser = undefined;
+            (component as any).formModel.set({
+                firstName: 'John',
+                lastName: 'Doe',
+                userName: 'john.doe',
+                email: 'john.doe@example.com',
+            });
 
             // Act & Assert
-            expect(() => component.onChange()).not.toThrow();
-            expect(component.disabled).toBe(true);
+            expect(component.isFormValid()).toBe(true);
+        });
+
+        it('should return false when firstName is too short', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: 'J',
+                lastName: 'Doe',
+                userName: 'john.doe',
+                email: 'john.doe@example.com',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should return false when lastName is missing', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: 'John',
+                lastName: '',
+                userName: 'john.doe',
+                email: 'john.doe@example.com',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should return false when userName is too short', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: 'John',
+                lastName: 'Doe',
+                userName: 'jo',
+                email: 'john.doe@example.com',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should return false when email is invalid', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: 'John',
+                lastName: 'Doe',
+                userName: 'john.doe',
+                email: 'invalid-email',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should return false when email is too short', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: 'John',
+                lastName: 'Doe',
+                userName: 'john.doe',
+                email: 'a@b',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
+        });
+
+        it('should return false with empty form', () => {
+            // Arrange
+            (component as any).formModel.set({
+                firstName: '',
+                lastName: '',
+                userName: '',
+                email: '',
+            });
+
+            // Act & Assert
+            expect(component.isFormValid()).toBe(false);
         });
     });
 

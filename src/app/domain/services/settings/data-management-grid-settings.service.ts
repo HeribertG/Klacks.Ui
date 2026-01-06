@@ -131,7 +131,9 @@ export class DataManagementGridSettingsService {
         const nc = new Setting();
         nc.value = value;
         nc.type = type;
-        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe(() => {});
+        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe((savedSetting) => {
+          this.settingList.push(savedSetting);
+        });
       }
     }
   }

@@ -4,11 +4,12 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   inject,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field, debounce } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -36,6 +37,18 @@ import { ExcelComponent } from 'src/app/presentation/icons/excel.component';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
+interface AbsenceFormModel {
+  name: string;
+  description: string;
+  defaultLength: number;
+  defaultValue: number;
+  withSaturday: boolean;
+  withSunday: boolean;
+  withHoliday: boolean;
+  color: string;
+  hideInGantt: boolean;
+}
+
 @Component({
   selector: 'app-absence',
   templateUrl: './absence.component.html',
@@ -44,6 +57,7 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
   imports: [
     CommonModule,
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     NgbPaginationModule,
@@ -58,8 +72,6 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
   providers: [TableSortingService],
 })
 export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(NgForm, { static: false }) absenceForm: NgForm | undefined;
-
   public dataManagementAbsenceService = inject(DataManagementAbsenceService);
   public sortingService = inject(TableSortingService);
 
@@ -81,6 +93,24 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private ngUnsubscribe = new Subject<void>();
   private isSaving = false;
+
+  private formModel = signal<AbsenceFormModel>({
+    name: '',
+    description: '',
+    defaultLength: 0,
+    defaultValue: 0,
+    withSaturday: false,
+    withSunday: false,
+    withHoliday: false,
+    color: '#000000',
+    hideInGantt: false,
+  });
+
+  absenceForm = form(this.formModel, f => {
+    debounce(f.name, 300);
+    debounce(f.description, 300);
+    debounce(f.color, 300);
+  });
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang as Language;
@@ -127,6 +157,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentAbsence.name.de = '';
     this.currentAbsence.description = new MultiLanguage();
     this.currentAbsence.description.de = '';
+    this.initFormFromAbsence();
     this.openNewAbsence(content);
   }
 
@@ -143,12 +174,13 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
   onCopyAbsence(content: any, data: Absence): void {
     this.currentAbsence = cloneObject<Absence>(data);
     this.currentAbsence.id = undefined;
-
+    this.initFormFromAbsence();
     this.openNewAbsence(content);
   }
 
   onEditAbsence(content: any, data: Absence): void {
     this.currentAbsence = data;
+    this.initFormFromAbsence();
     this.openNewAbsence(content);
   }
 
@@ -221,6 +253,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    this.applyFormToAbsence();
     this.isSaving = true;
 
     try {
@@ -243,6 +276,56 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private deleteAbsence(id: string): void {
     this.dataManagementAbsenceService.deleteAbsence(id, this.currentLang);
+  }
+
+  private initFormFromAbsence(): void {
+    const absence = this.currentAbsence;
+    const lang = this.currentLang;
+
+    let name = '';
+    if (absence.name) {
+      name = absence.name[lang] || absence.name.de || '';
+    }
+
+    let description = '';
+    if (absence.description) {
+      description = absence.description[lang] || absence.description.de || '';
+    }
+
+    this.formModel.set({
+      name,
+      description,
+      defaultLength: absence.defaultLength || 0,
+      defaultValue: absence.defaultValue || 0,
+      withSaturday: absence.withSaturday || false,
+      withSunday: absence.withSunday || false,
+      withHoliday: absence.withHoliday || false,
+      color: absence.color || '#000000',
+      hideInGantt: absence.hideInGantt || false,
+    });
+  }
+
+  private applyFormToAbsence(): void {
+    const formData = this.formModel();
+    const lang = this.currentLang;
+
+    if (!this.currentAbsence.name) {
+      this.currentAbsence.name = new MultiLanguage();
+    }
+    this.currentAbsence.name[lang] = formData.name;
+
+    if (!this.currentAbsence.description) {
+      this.currentAbsence.description = new MultiLanguage();
+    }
+    this.currentAbsence.description[lang] = formData.description;
+
+    this.currentAbsence.defaultLength = formData.defaultLength;
+    this.currentAbsence.defaultValue = formData.defaultValue;
+    this.currentAbsence.withSaturday = formData.withSaturday;
+    this.currentAbsence.withSunday = formData.withSunday;
+    this.currentAbsence.withHoliday = formData.withHoliday;
+    this.currentAbsence.color = formData.color;
+    this.currentAbsence.hideInGantt = formData.hideInGantt;
   }
 
   private readPage(): void {

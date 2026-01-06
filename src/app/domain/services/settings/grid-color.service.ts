@@ -309,7 +309,8 @@ export class GridColorService {
         nc.value = value;
         nc.type = c.type;
         this.countSettings(true);
-        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe(() => {
+        this.dataSettingsVariousService.addSetting(nc).pipe(takeUntil(this.destroy$)).subscribe((savedSetting) => {
+          c.id = savedSetting.id;
           this.countSettings(false);
         });
       }

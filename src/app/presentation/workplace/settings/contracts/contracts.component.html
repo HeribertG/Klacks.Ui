@@ -36,12 +36,10 @@
         }}</label>
         <input
           type="text"
-          [ngModel]="contractName()"
-          (ngModelChange)="onContractNameChange($event)"
-          name="name"
+          [field]="contractForm.name"
           class="form-control"
           id="contractName"
-          required
+          aria-label="contractName"
         />
       </div>
     </div>
@@ -114,14 +112,10 @@
         <div class="rate-input-group">
           <input
             type="number"
-            [ngModel]="nightRate()"
-            (ngModelChange)="onNightRateChange($event)"
-            name="nightRate"
+            [field]="contractForm.nightRate"
             class="form-control rate-input"
             id="nightRate"
-            step="1"
-            min="0"
-            max="100"
+            aria-label="nightRate"
           />
           <span class="rate-unit">%</span>
         </div>
@@ -132,14 +126,10 @@
         <div class="rate-input-group">
           <input
             type="number"
-            [ngModel]="holidayRate()"
-            (ngModelChange)="onHolidayRateChange($event)"
-            name="holidayRate"
+            [field]="contractForm.holidayRate"
             class="form-control rate-input"
             id="holidayRate"
-            step="1"
-            min="0"
-            max="100"
+            aria-label="holidayRate"
           />
           <span class="rate-unit">%</span>
         </div>
@@ -150,14 +140,10 @@
         <div class="rate-input-group">
           <input
             type="number"
-            [ngModel]="saRate()"
-            (ngModelChange)="onSaRateChange($event)"
-            name="saRate"
+            [field]="contractForm.saRate"
             class="form-control rate-input"
             id="saRate"
-            step="1"
-            min="0"
-            max="100"
+            aria-label="saRate"
           />
           <span class="rate-unit">%</span>
         </div>
@@ -168,14 +154,10 @@
         <div class="rate-input-group">
           <input
             type="number"
-            [ngModel]="soRate()"
-            (ngModelChange)="onSoRateChange($event)"
-            name="soRate"
+            [field]="contractForm.soRate"
             class="form-control rate-input"
             id="soRate"
-            step="1"
-            min="0"
-            max="100"
+            aria-label="soRate"
           />
           <span class="rate-unit">%</span>
         </div>
