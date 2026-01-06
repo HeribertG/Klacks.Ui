@@ -54,6 +54,15 @@ export class UserAdministrationService {
       .pipe(retry(3));
   }
 
+  generateUsername(firstName: string, lastName: string): Observable<string> {
+    return this.httpClient
+      .get(`${environment.baseUrl}Accounts/GenerateUsername`, {
+        params: { firstName, lastName },
+        responseType: 'text'
+      })
+      .pipe(retry(1));
+  }
+
   changePassword(value: ChangePassword): Observable<IAuthentication> {
     return this.httpClient
       .post<IAuthentication>(

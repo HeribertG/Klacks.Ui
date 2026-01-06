@@ -4,12 +4,13 @@ import {
   Component,
   OnDestroy,
   OnInit,
-  ViewChild,
   effect,
   inject,
+  signal,
 } from '@angular/core';
 
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -45,6 +46,15 @@ import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 import { CalendarDropdownComponent } from 'src/app/presentation/shared/calendar-dropdown/calendar-dropdown.component';
 import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pagination/simple-pagination.component';
 
+interface RuleFormModel {
+  name: string;
+  rule: string;
+  subRule: string;
+  description: string;
+  isMandatory: boolean;
+  isPaid: boolean;
+}
+
 @Component({
   selector: 'app-calendar-rules',
   templateUrl: './calendar-rules.component.html',
@@ -52,6 +62,7 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
   standalone: true,
   imports: [
     FormsModule,
+    Field,
     TranslateModule,
     NgbModule,
     NgbPaginationModule,
@@ -69,9 +80,6 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
 export class CalendarRulesComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
-  @ViewChild('calendarRulesForm', { static: false }) calendarRulesForm:
-    | NgForm
-    | undefined;
 
   public translate = inject(TranslateService);
   public dataManagementCalendarRulesService = inject(
@@ -96,6 +104,17 @@ export class CalendarRulesComponent
   currentRule = new CalendarRule();
   currentResult = 'kein Ergebnis';
 
+  // SignalForm for modal
+  public ruleFormModel = signal<RuleFormModel>({
+    name: '',
+    rule: '',
+    subRule: '',
+    description: '',
+    isMandatory: false,
+    isPaid: false,
+  });
+  ruleForm = form(this.ruleFormModel);
+
   // State properties
   holidaysListHelper = new HolidaysListHelper();
   message = MessageLibrary.DELETE_ENTRY;
@@ -109,12 +128,68 @@ export class CalendarRulesComponent
   private ngUnsubscribe = new Subject<void>();
 
   constructor() {
-    // Reaktiver Effekt für Datenzustände
     effect(() => {
       const isRead = this.dataManagementCalendarRulesService.isRead();
       if (isRead) {
         this.readPage();
       }
+    });
+
+    effect(() => {
+      const formData = this.ruleFormModel();
+      this.syncFormToRule(formData);
+    });
+
+    effect(() => {
+      const data = this.ruleFormModel();
+      const maxLen = 256;
+      const clamped = {
+        name: data.name.length > maxLen ? data.name.substring(0, maxLen) : data.name,
+        rule: data.rule.length > maxLen ? data.rule.substring(0, maxLen) : data.rule,
+        subRule: data.subRule.length > maxLen ? data.subRule.substring(0, maxLen) : data.subRule,
+        description: data.description.length > maxLen ? data.description.substring(0, maxLen) : data.description,
+      };
+
+      if (
+        clamped.name !== data.name ||
+        clamped.rule !== data.rule ||
+        clamped.subRule !== data.subRule ||
+        clamped.description !== data.description
+      ) {
+        this.ruleFormModel.update(m => ({
+          ...m,
+          name: clamped.name,
+          rule: clamped.rule,
+          subRule: clamped.subRule,
+          description: clamped.description,
+        }));
+      }
+    });
+  }
+
+  private syncFormToRule(formData: RuleFormModel): void {
+    if (!this.currentRule.name) {
+      this.currentRule.name = new MultiLanguage();
+    }
+    if (!this.currentRule.description) {
+      this.currentRule.description = new MultiLanguage();
+    }
+    this.currentRule.name[this.currentLang as keyof IMultiLanguage] = formData.name;
+    this.currentRule.rule = formData.rule;
+    this.currentRule.subRule = formData.subRule;
+    this.currentRule.description[this.currentLang as keyof IMultiLanguage] = formData.description;
+    this.currentRule.isMandatory = formData.isMandatory;
+    this.currentRule.isPaid = formData.isPaid;
+  }
+
+  private loadRuleToForm(): void {
+    this.ruleFormModel.set({
+      name: this.currentRule.name?.[this.currentLang as keyof IMultiLanguage] ?? '',
+      rule: this.currentRule.rule ?? '',
+      subRule: this.currentRule.subRule ?? '',
+      description: this.currentRule.description?.[this.currentLang as keyof IMultiLanguage] ?? '',
+      isMandatory: this.currentRule.isMandatory ?? false,
+      isPaid: this.currentRule.isPaid ?? false,
     });
   }
 
@@ -226,7 +301,7 @@ export class CalendarRulesComponent
   }
 
   onName(): string {
-    return this.currentRule.name?.[this.currentLang] ?? '';
+    return this.ruleFormModel().name;
   }
 
   /* #region Filter */
@@ -317,8 +392,8 @@ export class CalendarRulesComponent
 
   onCopyRule(content: any, data: CalendarRule): void {
     this.holidaysListHelper.clear();
-    this.currentRule = { ...data, id: '' }; // Kopie erstellen mit neuem ID
-    this.initMultiLanguage();
+    this.currentRule = { ...data, id: '' };
+    this.loadRuleToForm();
     this.onModalChange();
     this.openNewRule(content);
   }
@@ -338,7 +413,7 @@ export class CalendarRulesComponent
       this.modalSelectedState = token;
     }
 
-    this.initMultiLanguage();
+    this.loadRuleToForm();
     this.onModalChange();
     this.openNewRule(content);
   }
@@ -346,7 +421,8 @@ export class CalendarRulesComponent
   createNewRule(content: any): void {
     this.holidaysListHelper.clear();
     this.currentRule = new CalendarRule();
-    this.initMultiLanguage();
+    this.currentRule.name = new MultiLanguage();
+    this.currentRule.description = new MultiLanguage();
 
     if (this.dataManagementCalendarRulesService.currentFilter.countries.length > 0) {
       const firstCountry = this.dataManagementCalendarRulesService.currentFilter.countries[0];
@@ -362,6 +438,7 @@ export class CalendarRulesComponent
       }
     }
 
+    this.loadRuleToForm();
     this.openNewRule(content);
   }
 
@@ -388,31 +465,6 @@ export class CalendarRulesComponent
 
         this.readPage();
       });
-  }
-
-  private initMultiLanguage(): void {
-    if (!this.currentRule.name) {
-      this.currentRule.name = new MultiLanguage();
-    }
-
-    if (
-      this.currentRule.name[this.currentLang as keyof IMultiLanguage] ===
-      undefined
-    ) {
-      this.currentRule.name[this.currentLang as keyof IMultiLanguage] = '';
-    }
-
-    if (!this.currentRule.description) {
-      this.currentRule.description = new MultiLanguage();
-    }
-
-    if (
-      this.currentRule.description[this.currentLang as keyof IMultiLanguage] ===
-      undefined
-    ) {
-      this.currentRule.description[this.currentLang as keyof IMultiLanguage] =
-        '';
-    }
   }
 
   private deleteRule(id: string): void {

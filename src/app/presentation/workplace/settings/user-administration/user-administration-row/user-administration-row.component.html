@@ -7,8 +7,10 @@
       type="text"
       [value]="userName"
       class="form-control gap"
+      [class.editable]="enabled"
       readonly
       aria-label="name"
+      (dblclick)="onDoubleClickEdit()"
     />
   </div>
 

@@ -27,48 +27,14 @@
         <label for="ruleName">{{
           translate.instant("setting.holiday-rules.name")
         }}</label>
-        @if (currentLang === 'de') {
         <input
-          id="calendar-rules-modal-name-de"
+          id="calendar-rules-modal-name"
           type="text"
           class="form-control"
-          [(ngModel)]="currentRule.name!.de!"
-          aria-label="ruleName.de"
-          name="ruleName.de"
-          maxlength="256"
-          (change)="onModalChange()"
+          [field]="ruleForm.name"
+          aria-label="ruleName"
+          (blur)="onModalChange()"
         />
-        } @if (currentLang === 'en') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentRule.name!.en!"
-          aria-label="ruleName.en"
-          name="ruleName.en"
-          maxlength="256"
-          (change)="onModalChange()"
-        />
-        } @if (currentLang === 'fr') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentRule.name!.fr!"
-          aria-label="ruleName.fr"
-          name="ruleName.fr"
-          maxlength="256"
-          (change)="onModalChange()"
-        />
-        } @if (currentLang === 'it') {
-        <input
-          type="text"
-          class="form-control"
-          [(ngModel)]="currentRule.name!.it!"
-          aria-label="ruleName.it"
-          name="ruleName.it"
-          maxlength="256"
-          (change)="onModalChange()"
-        />
-        }
       </div>
 
       <div id="calendar-rules-modal-rule-row" class="row-line">
@@ -79,11 +45,9 @@
           id="calendar-rules-modal-rule"
           type="text"
           class="form-control"
-          [(ngModel)]="currentRule.rule"
+          [field]="ruleForm.rule"
           aria-label="rule"
-          name="rule"
-          (change)="onModalChange()"
-          maxlength="256"
+          (blur)="onModalChange()"
         />
       </div>
 
@@ -95,11 +59,9 @@
           id="calendar-rules-modal-subrule"
           type="text"
           class="form-control"
-          [(ngModel)]="currentRule.subRule"
+          [field]="ruleForm.subRule"
           aria-label="subRule"
-          name="subRule"
-          (change)="onModalChange()"
-          maxlength="256"
+          (blur)="onModalChange()"
         />
       </div>
       <div id="calendar-rules-modal-location-row" class="row-line">
@@ -151,8 +113,7 @@
             <input
               id="calendar-rules-modal-is-mandatory"
               type="checkbox"
-              [(ngModel)]="currentRule.isMandatory"
-              name="isMandatory"
+              [field]="ruleForm.isMandatory"
             />
             {{ translate.instant("setting.holiday-rules.is-holyday") }}
           </label>
@@ -163,8 +124,7 @@
             <input
               id="calendar-rules-modal-is-paid"
               type="checkbox"
-              [(ngModel)]="currentRule.isPaid"
-              name="isPaid"
+              [field]="ruleForm.isPaid"
             />
             {{ translate.instant("setting.holiday-rules.is-paid") }}
           </label>
@@ -176,44 +136,13 @@
         <label for="description">{{
           translate.instant("setting.absence.modal.description")
         }}</label>
-        @if (currentLang === 'de') {
         <textarea
-          id="calendar-rules-modal-description-de"
+          id="calendar-rules-modal-description"
           class="form-control rule-description"
-          [(ngModel)]="currentRule.description!.de!"
-          aria-label="description.de"
-          (change)="onModalChange()"
-          name="description.de"
-          maxlength="256"
+          [field]="ruleForm.description"
+          aria-label="description"
+          (blur)="onModalChange()"
         ></textarea>
-        } @if (currentLang === 'en') {
-        <textarea
-          class="form-control rule-description"
-          [(ngModel)]="currentRule.description!.en!"
-          aria-label="description.en"
-          (change)="onModalChange()"
-          name="description.en"
-          maxlength="256"
-        ></textarea>
-        } @if (currentLang === 'fr') {
-        <textarea
-          class="form-control rule-description"
-          [(ngModel)]="currentRule.description!.fr!"
-          aria-label="description.fr"
-          (change)="onModalChange()"
-          name="description.fr"
-          maxlength="256"
-        ></textarea>
-        } @if (currentLang === 'it') {
-        <textarea
-          class="form-control rule-description"
-          [(ngModel)]="currentRule.description!.it!"
-          aria-label="description.it"
-          (change)="onModalChange()"
-          name="description.it"
-          maxlength="256"
-        ></textarea>
-        }
       </div>
 
       <div id="calendar-rules-modal-result-row" class="row-line">
@@ -237,7 +166,7 @@
       class="btn save-btn"
       (click)="modal.close()"
       [disabled]="
-        onName() === '' || currentRule.rule === '' || currentRule.state === ''
+        ruleFormModel().name === '' || ruleFormModel().rule === '' || currentRule.state === ''
       "
     >
       {{ translate.instant("setting.absence.modal.add") }}
@@ -245,7 +174,7 @@
   </div>
 </ng-template>
 
-<form id="calendar-rules-form" #calendarRulesForm="ngForm">
+<form id="calendar-rules-form">
   <div id="calendar-rules-container" class="container-dashboard">
     <div id="calendar-rules-header" class="container-header header-container">
       {{ translate.instant("setting.calendar-rule.title") }}

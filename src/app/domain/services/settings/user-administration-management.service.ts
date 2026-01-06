@@ -204,6 +204,36 @@ export class UserAdministrationManagementService {
       });
   }
 
+  updateAccount(account: IAuthentication): void {
+    this.isLoading.set(true);
+
+    this.userAdministrationService
+      .updateAccount(account)
+      .pipe(
+        takeUntil(this.destroy$),
+        retry({
+          count: this.MAX_RETRIES,
+          delay: (error, retryCount) => {
+            console.warn(`Retry ${retryCount} for updateAccount:`, error);
+            return timer(this.RETRY_DELAY_MS * retryCount);
+          },
+        }),
+        catchError((error) => {
+          console.error('Failed to update account:', error);
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: '',
+            code: 'ACCOUNT_UPDATE_ERROR',
+            context: 'UserAdministrationManagementService.updateAccount',
+          });
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false))
+      )
+      .subscribe(() => {
+        this.loadAccountsList();
+      });
+  }
+
   updateAccountRole(
     account: IAuthentication,
     roleName: 'Admin' | 'Authorised',
@@ -319,6 +349,23 @@ export class UserAdministrationManagementService {
         });
       });
   }
+
+  generateUsername(firstName: string, lastName: string): void {
+    this.userAdministrationService
+      .generateUsername(firstName, lastName)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError((error) => {
+          console.error('Failed to generate username:', error);
+          return of('');
+        })
+      )
+      .subscribe((username) => {
+        this.generatedUsername.set(username);
+      });
+  }
+
+  public generatedUsername = signal<string>('');
 
   private mapValidationErrorToI18nKey(errorMessage: string | any): string {
     let errorKey = 'INVALID_USER_DATA';

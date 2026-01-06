@@ -40,6 +40,7 @@
             class="form-control default-width"
             id="user-firstname"
             aria-label="firstName"
+            (blur)="onNameChange()"
           />
         </div>
 
@@ -53,6 +54,7 @@
             class="form-control default-width"
             id="user-name"
             aria-label="lastName"
+            (blur)="onNameChange()"
           />
         </div>
       </div>
@@ -66,18 +68,29 @@
             <label for="user-userName">{{
               translate.instant("setting.user-admin.modal-user-name")
             }}</label>
-            <input
-              type="text"
-              [field]="userForm.userName"
-              class="form-control default-width"
-              id="user-userName"
-              aria-label="userName"
-              [placeholder]="translate.instant('USERNAME_PLACEHOLDER')"
-            />
-            @if (showUserNameError()) {
-            <small class="text-danger">{{
-              translate.instant("USERNAME_MIN_3_CHARS")
-            }}</small>
+            @if (isEditMode) {
+              <input
+                type="text"
+                [field]="userForm.userName"
+                class="form-control default-width"
+                id="user-userName"
+                aria-label="userName"
+              />
+              @if (showUserNameError()) {
+                <small class="text-danger">{{
+                  translate.instant("USERNAME_MIN_3_CHARS")
+                }}</small>
+              }
+            } @else {
+              <input
+                type="text"
+                [value]="formModel().userName"
+                class="form-control default-width"
+                id="user-userName"
+                aria-label="userName"
+                readonly
+                [placeholder]="translate.instant('USERNAME_AUTO_GENERATED')"
+              />
             }
           </div>
         </div>
@@ -179,6 +192,7 @@
           onRoleChange($event.account, $event.roleName, $event.isSelected)
         "
         (isDeleteEvent)="onDelete(i)"
+        (isEditEvent)="onEdit($event, content)"
       >
       </app-user-administration-row>
     </div>

@@ -9,6 +9,7 @@ import {
   TemplateRef,
   signal,
   computed,
+  effect,
 } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
@@ -67,8 +68,9 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   newUser: IAuthentication | undefined;
   message = MessageLibrary.DELETE_ENTRY;
   pendingDeleteIndex = -1;
+  isEditMode = false;
 
-  private formModel = signal<UserFormModel>({
+  public formModel = signal<UserFormModel>({
     firstName: '',
     lastName: '',
     userName: '',
@@ -98,8 +100,26 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
     return userName.length > 0 && userName.length < 3;
   });
 
+  constructor() {
+    effect(() => {
+      const username = this.userAdminService.generatedUsername();
+      if (username && !this.isEditMode) {
+        this.formModel.update(model => ({ ...model, userName: username }));
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.userAdminService.loadAccounts();
+  }
+
+  onNameChange(): void {
+    if (!this.isEditMode) {
+      const data = this.formModel();
+      if (data.firstName.trim().length >= 2 && data.lastName.trim().length >= 2) {
+        this.userAdminService.generateUsername(data.firstName.trim(), data.lastName.trim());
+      }
+    }
   }
 
   onRoleChange(account: IAuthentication, roleName: 'Admin' | 'Authorised', isSelected: boolean): void {
@@ -143,6 +163,7 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
   }
 
   open(content: unknown): void {
+    this.isEditMode = false;
     this.newUser = new Authentication();
     this.newUser.message = MessageLibrary.REGISTERUSER_MAILTEXT;
     this.newUser.title = MessageLibrary.REGISTERUSER_TITLE;
@@ -166,6 +187,32 @@ export class UserAdministrationComponent implements OnInit, AfterViewInit, OnDes
           this.newUser.email = formData.email;
           this.newUser.password = generatePassword();
           this.userAdminService.addAccount(this.newUser);
+        }
+      },
+      () => {}
+    );
+  }
+
+  onEdit(user: IAuthentication, content: unknown): void {
+    this.isEditMode = true;
+    this.newUser = { ...user };
+
+    this.formModel.set({
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      userName: user.userName || '',
+      email: user.email || '',
+    });
+
+    this.ngbModal.open(content, { size: 'md', centered: true }).result.then(
+      () => {
+        if (this.newUser) {
+          const formData = this.formModel();
+          this.newUser.firstName = formData.firstName;
+          this.newUser.lastName = formData.lastName;
+          this.newUser.userName = formData.userName;
+          this.newUser.email = formData.email;
+          this.userAdminService.updateAccount(this.newUser);
         }
       },
       () => {}

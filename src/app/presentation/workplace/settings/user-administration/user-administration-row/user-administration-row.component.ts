@@ -1,4 +1,13 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, effect, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  OnChanges,
+  Output,
+  effect,
+  signal,
+} from '@angular/core';
 import { form, Field } from '@angular/forms/signals';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -28,6 +37,7 @@ export class UserAdministrationRowComponent implements OnChanges {
   @Output() isDeleteEvent = new EventEmitter<void>();
   @Output() isRoleChangeEvent = new EventEmitter<RoleChangeEvent>();
   @Output() isSentToEvent = new EventEmitter<string>();
+  @Output() isEditEvent = new EventEmitter<IAuthentication>();
 
   public translate = inject(TranslateService);
 
@@ -44,7 +54,10 @@ export class UserAdministrationRowComponent implements OnChanges {
     effect(() => {
       const model = this.userRoleModel();
       if (this.isInitialized && this.user) {
-        if (this.lastModel && model.isAuthorised !== this.lastModel.isAuthorised) {
+        if (
+          this.lastModel &&
+          model.isAuthorised !== this.lastModel.isAuthorised
+        ) {
           this.user.isAuthorised = model.isAuthorised === 'true';
           this.isRoleChangeEvent.emit({
             account: this.user,
@@ -78,7 +91,9 @@ export class UserAdministrationRowComponent implements OnChanges {
   }
 
   get userName(): string {
-    return this.user ? `${this.user.firstName} ${this.user.lastName}` : '';
+    return this.user
+      ? `${this.user.firstName} ${this.user.lastName} (${this.user.userName})`
+      : '';
   }
 
   get userEmail(): string {
@@ -92,6 +107,12 @@ export class UserAdministrationRowComponent implements OnChanges {
   onClickSentTo(): void {
     if (this.user?.email) {
       this.isSentToEvent.emit(this.user.email);
+    }
+  }
+
+  onDoubleClickEdit(): void {
+    if (this.enabled && this.user) {
+      this.isEditEvent.emit(this.user);
     }
   }
 }

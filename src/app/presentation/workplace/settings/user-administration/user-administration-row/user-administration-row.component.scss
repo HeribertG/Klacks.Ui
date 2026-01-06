@@ -39,3 +39,8 @@ select {
   color: colors.$standartBlueColor;
   cursor: pointer;
 }
+
+.editable {
+  background-color: var(--standartGreenColor) !important;
+  cursor: pointer;
+}

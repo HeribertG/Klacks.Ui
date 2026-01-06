@@ -4,7 +4,7 @@
   <div id="work-setting-line" class="container-line"></div>
 
   @if (isDataLoaded) {
-  <form id="work-setting-form" #workSettingsForm="ngForm">
+  <form id="work-setting-form">
     <div id="work-setting-hours-row" class="row-line">
       <div class="form-group firstColumn">
         <label for="defaultWorkingHours">{{ 'settings.work.default-working-hours' | translate }}</label>
@@ -12,9 +12,8 @@
           type="number"
           step="0.5"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.defaultWorkingHours"
+          [field]="workForm.defaultWorkingHours"
           aria-label="defaultWorkingHours"
-          name="defaultWorkingHours"
           id="defaultWorkingHours"
         />
       </div>
@@ -24,9 +23,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.overtimeThreshold"
+          [field]="workForm.overtimeThreshold"
           aria-label="overtimeThreshold"
-          name="overtimeThreshold"
           id="overtimeThreshold"
         />
       </div>
@@ -38,9 +36,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.vacationDaysPerYear"
+          [field]="workForm.vacationDaysPerYear"
           aria-label="vacationDaysPerYear"
-          name="vacationDaysPerYear"
           id="vacationDaysPerYear"
         />
       </div>
@@ -50,9 +47,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.probationPeriod"
+          [field]="workForm.probationPeriod"
           aria-label="probationPeriod"
-          name="probationPeriod"
           id="probationPeriod"
         />
       </div>
@@ -64,28 +60,41 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.noticePeriod"
+          [field]="workForm.noticePeriod"
           aria-label="noticePeriod"
-          name="noticePeriod"
           id="noticePeriod"
         />
       </div>
       <div class="form-group secondColumn">
         <label for="paymentInterval">{{ 'settings.work.payment-interval' | translate }}</label>
-        <select
-          class="form-select"
-          [(ngModel)]="dataManagementSettingsService.paymentInterval"
-          aria-label="paymentInterval"
-          name="paymentInterval"
-          id="paymentInterval"
-          [disabled]="hasContracts"
-          [title]="hasContracts ? ('settings.work.payment-interval-locked' | translate) : ''"
-        >
-          <option [ngValue]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
-          <option [ngValue]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
-          <option [ngValue]="2">{{ 'settings.work.payment-monthly' | translate }}</option>
-          <option [ngValue]="3">{{ 'settings.work.payment-individual' | translate }}</option>
-        </select>
+        @if (hasContracts) {
+          <select
+            class="form-select"
+            [value]="formModel().paymentInterval"
+            aria-label="paymentInterval"
+            id="paymentInterval"
+            disabled
+            [title]="'settings.work.payment-interval-locked' | translate"
+          >
+            <option [value]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
+            <option [value]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
+            <option [value]="2">{{ 'settings.work.payment-monthly' | translate }}</option>
+            <option [value]="3">{{ 'settings.work.payment-individual' | translate }}</option>
+          </select>
+        } @else {
+          <select
+            class="form-select"
+            [ngModel]="formModel().paymentInterval"
+            (ngModelChange)="onPaymentIntervalChange($event)"
+            aria-label="paymentInterval"
+            id="paymentInterval"
+          >
+            <option [ngValue]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
+            <option [ngValue]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
+            <option [ngValue]="2">{{ 'settings.work.payment-monthly' | translate }}</option>
+            <option [ngValue]="3">{{ 'settings.work.payment-individual' | translate }}</option>
+          </select>
+        }
       </div>
     </div>
     <div id="work-setting-guaranteed-maximum-row" class="row-line">
@@ -95,9 +104,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.guaranteedHours"
+          [field]="workForm.guaranteedHours"
           aria-label="guaranteedHours"
-          name="guaranteedHours"
           id="guaranteedHours"
         />
       </div>
@@ -107,9 +115,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.maximumHours"
+          [field]="workForm.maximumHours"
           aria-label="maximumHours"
-          name="maximumHours"
           id="maximumHours"
         />
       </div>
@@ -121,9 +128,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.minimumHours"
+          [field]="workForm.minimumHours"
           aria-label="minimumHours"
-          name="minimumHours"
           id="minimumHours"
         />
       </div>
@@ -133,9 +139,8 @@
           type="number"
           step="1"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.fullTime"
+          [field]="workForm.fullTime"
           aria-label="fullTime"
-          name="fullTime"
           id="fullTime"
         />
       </div>
@@ -146,12 +151,9 @@
         <input
           type="number"
           step="1"
-          min="0"
-          max="100"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.nightRate"
+          [field]="workForm.nightRate"
           aria-label="nightRate"
-          name="nightRate"
           id="nightRate"
         />
       </div>
@@ -160,12 +162,9 @@
         <input
           type="number"
           step="1"
-          min="0"
-          max="100"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.holidayRate"
+          [field]="workForm.holidayRate"
           aria-label="holidayRate"
-          name="holidayRate"
           id="holidayRate"
         />
       </div>
@@ -176,12 +175,9 @@
         <input
           type="number"
           step="1"
-          min="0"
-          max="100"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.saRate"
+          [field]="workForm.saRate"
           aria-label="saRate"
-          name="saRate"
           id="saRate"
         />
       </div>
@@ -190,12 +186,9 @@
         <input
           type="number"
           step="1"
-          min="0"
-          max="100"
           class="form-control"
-          [(ngModel)]="dataManagementSettingsService.soRate"
+          [field]="workForm.soRate"
           aria-label="soRate"
-          name="soRate"
           id="soRate"
         />
       </div>
