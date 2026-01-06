@@ -76,23 +76,23 @@
             disabled
             [title]="'settings.work.payment-interval-locked' | translate"
           >
-            <option [value]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
-            <option [value]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
-            <option [value]="2">{{ 'settings.work.payment-monthly' | translate }}</option>
-            <option [value]="3">{{ 'settings.work.payment-individual' | translate }}</option>
+            <option value="0">{{ 'settings.work.payment-weekly' | translate }}</option>
+            <option value="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
+            <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
+            <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
           </select>
         } @else {
           <select
             class="form-select"
-            [ngModel]="formModel().paymentInterval"
-            (ngModelChange)="onPaymentIntervalChange($event)"
+            [value]="formModel().paymentInterval"
+            (change)="onPaymentIntervalChange($event)"
             aria-label="paymentInterval"
             id="paymentInterval"
           >
-            <option [ngValue]="0">{{ 'settings.work.payment-weekly' | translate }}</option>
-            <option [ngValue]="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
-            <option [ngValue]="2">{{ 'settings.work.payment-monthly' | translate }}</option>
-            <option [ngValue]="3">{{ 'settings.work.payment-individual' | translate }}</option>
+            <option value="0">{{ 'settings.work.payment-weekly' | translate }}</option>
+            <option value="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
+            <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
+            <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
           </select>
         }
       </div>

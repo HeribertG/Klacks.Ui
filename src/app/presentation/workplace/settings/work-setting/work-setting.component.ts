@@ -18,7 +18,7 @@ interface WorkSettingsFormModel {
   vacationDaysPerYear: number;
   probationPeriod: number;
   noticePeriod: number;
-  paymentInterval: number;
+  paymentInterval: string;
   guaranteedHours: number;
   maximumHours: number;
   minimumHours: number;
@@ -49,7 +49,7 @@ export class WorkSettingComponent implements OnInit {
     vacationDaysPerYear: 0,
     probationPeriod: 0,
     noticePeriod: 0,
-    paymentInterval: 0,
+    paymentInterval: '0',
     guaranteedHours: 0,
     maximumHours: 0,
     minimumHours: 0,
@@ -106,6 +106,10 @@ export class WorkSettingComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.checkContracts();
+    if (!this.isDataLoaded) {
+      this.loadFromService();
+      this.isDataLoaded = true;
+    }
   }
 
   private async checkContracts(): Promise<void> {
@@ -123,7 +127,7 @@ export class WorkSettingComponent implements OnInit {
       vacationDaysPerYear: svc.vacationDaysPerYear,
       probationPeriod: svc.probationPeriod,
       noticePeriod: svc.noticePeriod,
-      paymentInterval: svc.paymentInterval,
+      paymentInterval: String(svc.paymentInterval),
       guaranteedHours: svc.guaranteedHours,
       maximumHours: svc.maximumHours,
       minimumHours: svc.minimumHours,
@@ -142,7 +146,7 @@ export class WorkSettingComponent implements OnInit {
     svc.vacationDaysPerYear = data.vacationDaysPerYear;
     svc.probationPeriod = data.probationPeriod;
     svc.noticePeriod = data.noticePeriod;
-    svc.paymentInterval = data.paymentInterval;
+    svc.paymentInterval = Number(data.paymentInterval);
     svc.guaranteedHours = data.guaranteedHours;
     svc.maximumHours = data.maximumHours;
     svc.minimumHours = data.minimumHours;
@@ -154,7 +158,8 @@ export class WorkSettingComponent implements OnInit {
     svc.settingsChangeTrigger.update(v => v + 1);
   }
 
-  onPaymentIntervalChange(value: number): void {
+  onPaymentIntervalChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
     this.formModel.update(m => ({ ...m, paymentInterval: value }));
   }
 }
