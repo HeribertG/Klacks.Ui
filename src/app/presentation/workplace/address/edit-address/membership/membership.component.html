@@ -54,8 +54,8 @@
                 [disabled]="isDisabled()"
                 aria-labelledby="valid from"
                 id="membership-entry-date"
-                [ngModel]="internalValidFrom"
-                (ngModelChange)="internalValidFrom = $event; calcValidation()"
+                [ngModel]="validFromValue"
+                (ngModelChange)="onValidFromChange($event)"
                 ngbDatepicker
                 #validFrom="ngbDatepicker"
                 #validFromField="ngModel"
@@ -91,8 +91,8 @@
                 aria-label="membership-until-date"
                 aria-labelledby="validUntil"
                 id="membership-until-date"
-                [ngModel]="internalValidUntil"
-                (ngModelChange)="internalValidUntil = $event"
+                [ngModel]="validUntilValue"
+                (ngModelChange)="onValidUntilChange($event)"
                 ngbDatepicker
                 #validUntil="ngbDatepicker"
               />

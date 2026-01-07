@@ -72,6 +72,10 @@ export class ClientContractsComponent
   public hasAtLeastOneActive = true;
   public hasValidContracts = false;
 
+  public contractFromDateValues = new Map<IClientContract, NgbDateStruct | undefined>();
+  public contractUntilDateValues = new Map<IClientContract, NgbDateStruct | undefined>();
+  public minDateValue: NgbDateStruct = { year: 1900, month: 1, day: 1 };
+
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   public contractService = inject(DataManagementContractService);
@@ -120,16 +124,15 @@ export class ClientContractsComponent
   }
 
   getMinDate(): NgbDateStruct {
-    const client = this.dataManagementClientService.editClient();
-    const validFrom = client?.membership?.validFrom;
-    return validFrom ? transformDateToNgbDateStruct(validFrom)! : { year: 1900, month: 1, day: 1 };
+    return this.minDateValue;
   }
 
   getContractFromDate(contract: IClientContract): NgbDateStruct | undefined {
-    return contract.fromDate ? transformDateToNgbDateStruct(contract.fromDate) : undefined;
+    return this.contractFromDateValues.get(contract);
   }
 
   setContractFromDate(contract: IClientContract, value: NgbDateStruct | undefined): void {
+    this.contractFromDateValues.set(contract, value);
     if (value) {
       const date = transformNgbDateStructToDate(value);
       if (date) {
@@ -140,10 +143,11 @@ export class ClientContractsComponent
   }
 
   getContractUntilDate(contract: IClientContract): NgbDateStruct | undefined {
-    return contract.untilDate ? transformDateToNgbDateStruct(contract.untilDate) : undefined;
+    return this.contractUntilDateValues.get(contract);
   }
 
   setContractUntilDate(contract: IClientContract, value: NgbDateStruct | undefined): void {
+    this.contractUntilDateValues.set(contract, value);
     contract.untilDate = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
   }
@@ -235,6 +239,25 @@ export class ClientContractsComponent
       effect(() => {
         const client = this.dataManagementClientService.editClient();
         if (client?.clientContracts) {
+          this.contractFromDateValues.clear();
+          this.contractUntilDateValues.clear();
+
+          client.clientContracts.forEach((contract) => {
+            this.contractFromDateValues.set(
+              contract,
+              contract.fromDate ? transformDateToNgbDateStruct(contract.fromDate) : undefined
+            );
+            this.contractUntilDateValues.set(
+              contract,
+              contract.untilDate ? transformDateToNgbDateStruct(contract.untilDate) : undefined
+            );
+          });
+
+          const validFrom = client.membership?.validFrom;
+          this.minDateValue = validFrom
+            ? transformDateToNgbDateStruct(validFrom)!
+            : { year: 1900, month: 1, day: 1 };
+
           this.sortContracts();
           this.calcValidation();
         }

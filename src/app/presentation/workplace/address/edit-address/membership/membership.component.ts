@@ -50,6 +50,9 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
   public objectForUnsubscribe: any;
   public isValidFromValid: boolean | undefined;
 
+  public validFromValue: NgbDateStruct | undefined;
+  public validUntilValue: NgbDateStruct | undefined;
+
   public authorizationService = inject(AuthorizationService);
   public dataManagementClientService = inject(DataManagementClientService);
   private injector = inject(Injector);
@@ -67,6 +70,10 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
       effect(() => {
         const client = this.dataManagementClientService.editClient();
         if (client) {
+          const validFrom = client.membership?.validFrom;
+          const validUntil = client.membership?.validUntil;
+          this.validFromValue = validFrom ? transformDateToNgbDateStruct(validFrom) : undefined;
+          this.validUntilValue = validUntil ? transformDateToNgbDateStruct(validUntil) : undefined;
           this.calcValidation();
         }
       });
@@ -87,12 +94,8 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
     );
   }
 
-  get internalValidFrom(): NgbDateStruct | undefined {
-    const date = this.dataManagementClientService.editClient()?.membership?.validFrom;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalValidFrom(value: NgbDateStruct | undefined) {
+  onValidFromChange(value: NgbDateStruct | undefined): void {
+    this.validFromValue = value;
     const client = this.dataManagementClientService.editClient();
     if (client?.membership && value) {
       const date = transformNgbDateStructToDate(value);
@@ -100,14 +103,11 @@ export class MembershipComponent implements AfterViewInit, OnDestroy {
         client.membership.validFrom = date;
       }
     }
+    this.calcValidation();
   }
 
-  get internalValidUntil(): NgbDateStruct | undefined {
-    const date = this.dataManagementClientService.editClient()?.membership?.validUntil;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalValidUntil(value: NgbDateStruct | undefined) {
+  onValidUntilChange(value: NgbDateStruct | undefined): void {
+    this.validUntilValue = value;
     const client = this.dataManagementClientService.editClient();
     if (client?.membership) {
       client.membership.validUntil = value ? transformNgbDateStructToDate(value) : undefined;

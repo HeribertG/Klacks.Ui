@@ -14,6 +14,7 @@ import {
   effect,
   inject,
   runInInjectionContext,
+  untracked,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import {
@@ -118,15 +119,13 @@ export class AddressPersonaComponent
   public isCityValid: boolean | undefined;
   public isCountryValid: boolean | undefined;
 
+  public birthdateValue: NgbDateStruct | undefined;
+
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
 
-  get internalBirthdate(): NgbDateStruct | undefined {
-    const date = this.dataManagementClientService.editClient()?.birthdate;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalBirthdate(value: NgbDateStruct | undefined) {
+  onBirthdateChange(value: NgbDateStruct | undefined): void {
+    this.birthdateValue = value;
     const client = this.dataManagementClientService.editClient();
     if (client) {
       client.birthdate = value ? transformNgbDateStructToDate(value) : undefined;
@@ -629,17 +628,26 @@ export class AddressPersonaComponent
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       const effect1 = effect(() => {
-        if (this.dataManagementClientService.isRead()) {
-          setTimeout(() => this.setEnvironmentVariable(), 100);
+        const isRead = this.dataManagementClientService.isRead();
+        const isReset = this.dataManagementClientService.isReset();
+        const client = this.dataManagementClientService.editClient();
+
+        if (isRead && client) {
+          const birthdate = client.birthdate;
+          this.birthdateValue = birthdate ? transformDateToNgbDateStruct(birthdate) : undefined;
+          untracked(() => {
+            setTimeout(() => {
+              this.setEnvironmentVariable();
+              this.dataManagementClientService.filterState();
+              this.calcValidation();
+            }, 100);
+          });
         }
 
-        if (this.dataManagementClientService.isReset()) {
-          setTimeout(() => this.isChangingEvent.emit(false), 100);
-        }
-
-        if (this.dataManagementClientService.editClient()) {
-          this.dataManagementClientService.filterState();
-          this.calcValidation();
+        if (isReset) {
+          untracked(() => {
+            setTimeout(() => this.isChangingEvent.emit(false), 100);
+          });
         }
       });
       this.effects.push(effect1);

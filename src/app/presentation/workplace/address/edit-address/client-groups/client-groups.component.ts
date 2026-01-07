@@ -20,6 +20,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { NgbModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Group } from 'src/app/domain/models/group-class';
+import { IClientGroupItem } from 'src/app/domain/models/client-group-item-class';
 import { DataManagementClientService } from 'src/app/domain/services/client/data-management-client.service';
 import { TrashIconRedComponent } from 'src/app/presentation/icons/trash-icon-red.component';
 import { GroupSelectComponent } from 'src/app/presentation/shared/group-select/group-select.component';
@@ -73,6 +74,10 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   public groupFromDateValidationState: Map<number, boolean | undefined> =
     new Map();
 
+  public groupValidFromValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();
+  public groupValidUntilValues = new Map<IClientGroupItem, NgbDateStruct | undefined>();
+  public minDateValue: NgbDateStruct = { year: 1900, month: 1, day: 1 };
+
   private ngUnsubscribe = new Subject<void>();
 
   ngOnInit(): void {
@@ -111,25 +116,25 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getMinDate(): NgbDateStruct {
-    const client = this.dataManagementClientService.editClient();
-    const validFrom = client?.membership?.validFrom;
-    return validFrom ? transformDateToNgbDateStruct(validFrom)! : { year: 1900, month: 1, day: 1 };
+    return this.minDateValue;
   }
 
-  getGroupValidFrom(groupItem: { validFrom?: Date }): NgbDateStruct | undefined {
-    return groupItem.validFrom ? transformDateToNgbDateStruct(groupItem.validFrom) : undefined;
+  getGroupValidFrom(groupItem: IClientGroupItem): NgbDateStruct | undefined {
+    return this.groupValidFromValues.get(groupItem);
   }
 
-  setGroupValidFrom(groupItem: { validFrom?: Date }, value: NgbDateStruct | undefined): void {
+  setGroupValidFrom(groupItem: IClientGroupItem, value: NgbDateStruct | undefined): void {
+    this.groupValidFromValues.set(groupItem, value);
     groupItem.validFrom = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
   }
 
-  getGroupValidUntil(groupItem: { validUntil?: Date }): NgbDateStruct | undefined {
-    return groupItem.validUntil ? transformDateToNgbDateStruct(groupItem.validUntil) : undefined;
+  getGroupValidUntil(groupItem: IClientGroupItem): NgbDateStruct | undefined {
+    return this.groupValidUntilValues.get(groupItem);
   }
 
-  setGroupValidUntil(groupItem: { validUntil?: Date }, value: NgbDateStruct | undefined): void {
+  setGroupValidUntil(groupItem: IClientGroupItem, value: NgbDateStruct | undefined): void {
+    this.groupValidUntilValues.set(groupItem, value);
     groupItem.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
     this.calcValidation();
   }
@@ -241,6 +246,25 @@ export class ClientGroupsComponent implements OnInit, OnDestroy, AfterViewInit {
       effect(() => {
         const client = this.dataManagementClientService.editClient();
         if (client?.groupItems) {
+          this.groupValidFromValues.clear();
+          this.groupValidUntilValues.clear();
+
+          client.groupItems.forEach((groupItem) => {
+            this.groupValidFromValues.set(
+              groupItem,
+              groupItem.validFrom ? transformDateToNgbDateStruct(groupItem.validFrom) : undefined
+            );
+            this.groupValidUntilValues.set(
+              groupItem,
+              groupItem.validUntil ? transformDateToNgbDateStruct(groupItem.validUntil) : undefined
+            );
+          });
+
+          const validFrom = client.membership?.validFrom;
+          this.minDateValue = validFrom
+            ? transformDateToNgbDateStruct(validFrom)!
+            : { year: 1900, month: 1, day: 1 };
+
           this.calcValidation();
         }
       });

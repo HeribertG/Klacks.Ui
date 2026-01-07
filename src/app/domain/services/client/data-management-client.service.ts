@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import {
   Filter,
   IClient,
@@ -130,16 +130,21 @@ export class DataManagementClientService
     };
 
     effect(() => {
-      if (this.clientConfigService.isInit()) {
-        this.currentFilter.countries = this.clientConfigService.countries();
-        this.currentFilter.list = this.clientConfigService.stateList();
-        this.currentFilter.filteredStateToken =
-          this.clientConfigService.stateList();
-        this.currentFilter.countriesHaveBeenReadIn = true;
+      const isInit = this.clientConfigService.isInit();
+      const shouldReadPage = this.startToReadPage();
 
-        if (this.startToReadPage()) {
-          this.clientListService.readPage(this.currentFilter, this.clientAttribute);
-        }
+      if (isInit) {
+        untracked(() => {
+          this.currentFilter.countries = this.clientConfigService.countries();
+          this.currentFilter.list = this.clientConfigService.stateList();
+          this.currentFilter.filteredStateToken =
+            this.clientConfigService.stateList();
+          this.currentFilter.countriesHaveBeenReadIn = true;
+
+          if (shouldReadPage) {
+            this.clientListService.readPage(this.currentFilter, this.clientAttribute);
+          }
+        });
       }
     });
   }

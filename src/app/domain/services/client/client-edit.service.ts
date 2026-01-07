@@ -116,18 +116,34 @@ export class ClientEditService {
     this.dataClientService
       .countIdNumber()
       .pipe(takeUntil(this.destroy$))
-      .subscribe((x) => {
-        const c = new Client();
-        c.type = 0;
-        c.membership = new Membership();
-        c.membership.validFrom = new Date();
-        c.idNumber = x + 1;
-        const a = c.addresses[0];
-        a.validFrom = new Date();
-        a.type = AddressTypeEnum.customer;
+      .subscribe({
+        next: (x) => {
+          const c = new Client();
+          c.type = 0;
+          c.membership = new Membership();
+          c.membership.validFrom = new Date();
+          c.idNumber = x + 1;
+          const a = c.addresses[0];
+          a.validFrom = new Date();
+          a.type = AddressTypeEnum.customer;
 
-        this.prepareClient(c);
-        this._showProgressSpinner.set(false);
+          this.prepareClient(c);
+          this._showProgressSpinner.set(false);
+        },
+        error: (err) => {
+          this._showProgressSpinner.set(false);
+
+          const c = new Client();
+          c.type = 0;
+          c.membership = new Membership();
+          c.membership.validFrom = new Date();
+          c.idNumber = 1;
+          const a = c.addresses[0];
+          a.validFrom = new Date();
+          a.type = AddressTypeEnum.customer;
+
+          this.prepareClient(c);
+        }
       });
   }
 
