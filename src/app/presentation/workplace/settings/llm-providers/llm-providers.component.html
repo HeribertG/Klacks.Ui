@@ -174,32 +174,22 @@
   </div>
 </ng-template>
 
-<form id="llm-providers-form">
-  <div id="llm-providers-header" class="container-header">
-    {{ translate.instant("settings.llm-providers.title") }}
-  </div>
-
-  <div id="llm-providers-line" class="container-line"></div>
-
-  <app-llm-providers-header id="llm-providers-table-header"></app-llm-providers-header>
-
-  <div id="llm-providers-box" class="container-box">
-    @for (provider of providers; track provider.providerId || $index; let i =
-    $index) {
-    <app-llm-providers-row
-      [id]="'llm-providers-row-' + i"
-      [data]="provider"
-      [canDelete]="canDeleteProvider(provider)"
-      (editEvent)="onClickEdit($event)"
-      (deleteEvent)="openDeleteProvider($event)"
-    >
-    </app-llm-providers-row>
+<app-settings-list-card
+  [headline]="translate.instant('settings.llm-providers.title')"
+  [addLabel]="translate.instant('settings.llm-providers.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-llm-providers-header header id="llm-providers-table-header"></app-llm-providers-header>
+  <div rows>
+    @for (provider of providers; track provider.providerId || $index; let i = $index) {
+      <app-llm-providers-row
+        [id]="'llm-providers-row-' + i"
+        [data]="provider"
+        [canDelete]="canDeleteProvider(provider)"
+        (editEvent)="onClickEdit($event)"
+        (deleteEvent)="openDeleteProvider($event)"
+      />
     }
   </div>
-
-  <div id="llm-providers-footer" class="row">
-    <span id="llm-providers-add-btn" class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("settings.llm-providers.add") }}
-    </span>
-  </div>
-</form>
+</app-settings-list-card>

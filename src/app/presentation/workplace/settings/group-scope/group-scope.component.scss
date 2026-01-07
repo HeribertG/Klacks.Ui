@@ -4,8 +4,8 @@
 .container-box {
   flex: 1;
   height: 242px;
-
   box-sizing: content-box;
   overflow-x: hidden;
   overflow-y: auto;
+  margin: 0;
 }

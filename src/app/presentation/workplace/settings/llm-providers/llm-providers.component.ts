@@ -19,6 +19,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { LLMProvidersHeaderComponent } from './llm-providers-header/llm-providers-header.component';
 import { LLMProvidersRowComponent } from './llm-providers-row/llm-providers-row.component';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { DataManagementLLMProviderService } from 'src/app/domain/services/llm/data-management-llm-provider.service';
 import { DataManagementLLMService } from 'src/app/domain/services/llm/data-management-llm.service';
 import { ILLMProvider, ICreateProviderRequest } from 'src/app/infrastructure/api/data-llm-provider.service';
@@ -45,7 +46,8 @@ interface LLMProviderFormModel {
     NgbModule,
     SpinnerModule,
     LLMProvidersRowComponent,
-    LLMProvidersHeaderComponent
+    LLMProvidersHeaderComponent,
+    SettingsListCardComponent,
   ],
   templateUrl: './llm-providers.component.html',
   styleUrls: ['./llm-providers.component.scss'],

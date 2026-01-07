@@ -2,18 +2,13 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/settings-list-card-modal.scss";
 @use "../../../../../../assets/standard-styles/ayu-dark.css";
-
-.first {
-  margin-left: 30px;
-  padding-right: -30px;
-  height: 40px;
-}
 
 input {
   width: 200px;
   height: 32px;
-  margin-bottom: 20px;
 }
 
 select {
@@ -23,12 +18,6 @@ select {
 
 label {
   width: 100px;
-}
-
-.delete-button {
-  margin-top: 5px;
-  margin-left: 20px;
-  color: var(--standartRedColor);
 }
 
 .firstColumn {
@@ -51,40 +40,10 @@ label {
   padding-bottom: 10px;
 }
 
-.link-button {
-  font-size: 13px;
-  text-decoration: underline;
-}
-
-.red-font-disabled {
-  margin-top: 10px;
-  padding-right: 30px;
-  color: #b6b6c3;
-  pointer-events: none;
-}
-
-.add-button {
-  margin-left: 100px;
-  font-size: 13px;
-  text-decoration: underline;
-  color: var(--standartGreenColor);
-}
-
 .abbreviation {
   width: 70px;
   margin-right: 10px;
   text-align: center;
-}
-
-.attribute-name {
-  width: 250px;
-  margin-right: 10px;
-  background-color: var(--standartGreenColor) !important;
-  cursor: pointer;
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
 
 .preview {
@@ -128,7 +87,6 @@ button {
   font-weight: 500;
 }
 
-// CodeMirror 6 styles for ngx-code-editor
 ::ng-deep ngx-code-editor {
   .cm-editor {
     font-size: 12px !important;
@@ -165,7 +123,6 @@ button {
     border-left-color: black !important;
   }
 
-  // Syntax highlighting via classHighlighter (tok- prefix)
   .tok-keyword {
     color: #0000ff !important;
     font-weight: bold;

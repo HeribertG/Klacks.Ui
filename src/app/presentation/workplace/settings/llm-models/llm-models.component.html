@@ -244,32 +244,21 @@
   </div>
 </ng-template>
 
-<form id="llm-models-form">
-  <div id="llm-models-header" class="container-header">
-    {{ translate.instant("settings.llm-models.title") }}
-  </div>
-
-  <div id="llm-models-line" class="container-line"></div>
-
-  <app-llm-models-header id="llm-models-table-header"></app-llm-models-header>
-
-  <div id="llm-models-box" class="container-box">
+<app-settings-list-card
+  [headline]="translate.instant('settings.llm-models.title')"
+  [addLabel]="translate.instant('settings.llm-models.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-llm-models-header header id="llm-models-table-header"></app-llm-models-header>
+  <div rows>
     @for (model of models; track model.modelId || $index; let i = $index) {
-
-    <app-llm-models-row
-      [id]="'llm-models-row-' + i"
-      [data]="model"
-      (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="openDeleteModel($event)"
-    >
-    </app-llm-models-row>
-
+      <app-llm-models-row
+        [id]="'llm-models-row-' + i"
+        [data]="model"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteModel($event)"
+      />
     }
   </div>
-
-  <div id="llm-models-footer" class="row">
-    <span id="llm-models-add-btn" class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("settings.llm-models.add") }}
-    </span>
-  </div>
-</form>
+</app-settings-list-card>

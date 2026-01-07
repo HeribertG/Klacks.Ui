@@ -2,8 +2,11 @@
   [headline]="translate.instant('settings.identity-provider.headline')"
   [addLabel]="translate.instant('settings.identity-provider.add')"
   [showAddButton]="true"
+  [showHeader]="true"
   (addClick)="onClickAdd()"
 >
+  <app-identity-provider-header header></app-identity-provider-header>
+
   <div rows>
     @for (provider of providerService.providerList(); track provider.id; let i = $index) {
       <app-identity-provider-row

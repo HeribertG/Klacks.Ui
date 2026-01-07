@@ -1,8 +1,9 @@
-import { Component, inject, AfterViewInit, OnDestroy, ViewChildren, QueryList } from '@angular/core';
+import { Component, inject, AfterViewInit, OnDestroy, OnInit, ViewChildren, QueryList } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
+import { IdentityProviderHeaderComponent } from './identity-provider-header/identity-provider-header.component';
 import { IdentityProviderRowComponent } from './identity-provider-row/identity-provider-row.component';
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
@@ -18,10 +19,11 @@ import { ModalService, ModalType } from 'src/app/presentation/modal/modal.servic
   imports: [
     TranslateModule,
     SettingsListCardComponent,
+    IdentityProviderHeaderComponent,
     IdentityProviderRowComponent,
   ],
 })
-export class IdentityProvidersComponent implements AfterViewInit, OnDestroy {
+export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren(IdentityProviderRowComponent) providerRows!: QueryList<IdentityProviderRowComponent>;
 
   public translate = inject(TranslateService);
@@ -31,6 +33,10 @@ export class IdentityProvidersComponent implements AfterViewInit, OnDestroy {
 
   message = MessageLibrary.DELETE_ENTRY;
   private pendingOpenProvider: IdentityProvider | null = null;
+
+  ngOnInit(): void {
+    this.providerService.loadProviders();
+  }
 
   ngAfterViewInit(): void {
     this.modalService.resultEvent

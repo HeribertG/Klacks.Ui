@@ -266,33 +266,21 @@
   </div>
 </ng-template>
 
-<form id="contracts-form">
-  <div id="contracts-header" class="container-header">
-    {{ translate.instant("setting.contract.headline") }}
-  </div>
-
-  <div id="contracts-line" class="container-line"></div>
-
-  <app-contract-header id="contracts-table-header"></app-contract-header>
-
-  <div id="contracts-box" class="container-box" #containerBox>
-    @for (contract of dataManagementContractService.contracts; track contract.id
-    || $index; let i = $index) {
-
-    <app-contract-row
-      [id]="'contract-row-' + i"
-      [data]="contract"
-      (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="openDeleteContract(i)"
-    >
-    </app-contract-row>
-
+<app-settings-list-card
+  [headline]="translate.instant('setting.contract.headline')"
+  [addLabel]="translate.instant('setting.contract.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-contract-header header id="contracts-table-header"></app-contract-header>
+  <div rows #containerBox>
+    @for (contract of dataManagementContractService.contracts; track contract.id || $index; let i = $index) {
+      <app-contract-row
+        [id]="'contract-row-' + i"
+        [data]="contract"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteContract(i)"
+      />
     }
   </div>
-
-  <div id="contracts-add-row" class="row">
-    <span id="contracts-add-btn" class="add-button" type="button" (click)="onClickAdd()"
-      >{{ translate.instant("setting.contract.add") }}
-    </span>
-  </div>
-</form>
+</app-settings-list-card>

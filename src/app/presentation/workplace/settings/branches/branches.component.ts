@@ -20,6 +20,7 @@ import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
 import { BranchesHeaderComponent } from './branches-header/branches-header.component';
 import { BranchesRowComponent } from './branches-row/branches-row.component';
 import { DataBranchService } from 'src/app/infrastructure/api/data-branch.service';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { IBranch } from 'src/app/domain/models/branch';
 import {
   ModalService,
@@ -45,6 +46,7 @@ interface BranchFormModel {
     SpinnerModule,
     BranchesHeaderComponent,
     BranchesRowComponent,
+    SettingsListCardComponent,
   ],
   templateUrl: './branches.component.html',
   styleUrls: ['./branches.component.scss'],

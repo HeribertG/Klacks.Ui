@@ -23,6 +23,7 @@ import { ToastShowService } from 'src/app/presentation/toast/toast-show.service'
 import { LLMModelsHeaderComponent } from './llm-models-header/llm-models-header.component';
 import { LLMModelsRowComponent } from './llm-models-row/llm-models-row.component';
 import { SpinnerModule } from 'src/app/presentation/spinner/spinner.module';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 
@@ -51,7 +52,8 @@ interface LLMModelFormModel {
     NgbModule,
     SpinnerModule,
     LLMModelsHeaderComponent,
-    LLMModelsRowComponent
+    LLMModelsRowComponent,
+    SettingsListCardComponent,
   ],
   templateUrl: './llm-models.component.html',
   styleUrls: ['./llm-models.component.scss'],

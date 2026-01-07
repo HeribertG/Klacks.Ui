@@ -60,7 +60,6 @@
   "absence-gantt.validation.membership.before-start": "The absence cannot be created before the membership start date ({0}).",
   "absence-gantt.validation.membership.outside-period": "The absence must be within the membership period ({0} - {1}).",
 
-
   "address.all-address.all-address-home.header": "All Addresses",
   "address.all-address.all-address-list.header": "Addresses",
   "address.all-address.all-address-list.table.company": "COMPANY",
@@ -183,7 +182,6 @@
   "address.edit-address.note.toolbar.paste": "Paste",
   "address.edit-address.note.toolbar.underline": "Underline",
 
-
   "auth.forgot-password.email-address": "Email Address",
   "auth.forgot-password.email-placeholder": "your-email@example.com",
   "auth.forgot-password.error": "Error sending reset email.",
@@ -199,7 +197,6 @@
   "login.hide-password": "Hide password",
   "login.summit": "Sign In",
   "login.user": "Email",
-
 
   "April": "April",
   "August": "August",
@@ -234,10 +231,8 @@
   "wednesday": "Wednesday",
   "weekday-or-holiday": "Holiday on a selected weekday",
 
-
   "client.validation.duplicate": "The selected person is already in the list",
   "search.inc.client": "Include client name",
-
 
   "active": "Active",
   "all": "<all>",
@@ -303,7 +298,6 @@
   "store": "Save entries",
   "store.as": "Save as...",
 
-
   "ABSENCE": "Absence Calendar",
   "ADDRES_TYPE0_NAME": "Main address",
   "ADDRES_TYPE1_NAME": "Business Address",
@@ -350,7 +344,6 @@
   "UPDATE_NOT_DONE": "Changes were not adopted by the database",
   "VALID_FROM": "Valid from:",
 
-
   "EMAIL_EXIST": "The email address has already been used for registration",
   "EMAIL_TEST_ERROR": "Email test error",
   "EMAIL_TEST_INVALID_ADDRESS": "Please enter a valid email address in the Username field.",
@@ -368,7 +361,6 @@
   "email-templates.change-password.title": "Change Password",
   "email-templates.register-user.body": "<h2><strong>Your password for our application {appName}.</strong></h2><p>{password}</p><p>Please use this automatically generated password only once.</p><p>You can change your password at any time under Profile.</p><p>&nbsp;</p><p>Kind regards</p><p>Your Administration</p>",
   "email-templates.register-user.title": "Registration",
-
 
   "ADDRESS_NOT_VALID": "Address is incomplete",
   "AUTH_USER_ERROR": "Authorization failed!",
@@ -494,7 +486,6 @@
   "no-access.message": "You do not have permission to access this feature.",
   "page-not-found.message": "Page not found",
 
-
   "edit-group-structure": "Create Group Structures",
   "group.all-group.all-group-home.header": "All groups",
   "group.all-group.all-group-list.header": "Groups",
@@ -536,12 +527,10 @@
   "group.tree.refresh": "Refresh",
   "group.validation.valid-until-must-be-after-valid-from": "Valid until must be after valid from",
 
-
   "navigation.absence-calendar": "Absence Calendar",
   "navigation.all-employee": "All Addresses",
   "navigation.all-schedule": "All Schedules",
   "navigation.statistics": "Statistics",
-
 
   "pdf.generated": "Generated",
   "pdf.of": "of",
@@ -837,14 +826,14 @@
   "settings.llm-models.total-cost-30d": "Total Cost",
   "settings.llm-models.available-models": "Available Models",
   "settings.llm-models.input-tokens": "Input",
-  "settings.llm-models.output-tokens": "Output", 
+  "settings.llm-models.output-tokens": "Output",
   "settings.llm-models.max-tokens": "Max Tokens",
   "settings.llm-models.set-as-default": "Set as Default",
   "settings.llm-models.default-model": "Default Model",
   "settings.llm-models.loading": "Loading models...",
 
   "settings.llm-providers.title": "LLM Providers",
-  "settings.llm-providers.header.name": "Providers", 
+  "settings.llm-providers.header.name": "Providers",
   "settings.llm-providers.headline-modal": "Edit LLM Provider",
   "settings.llm-providers.provider-id": "Provider ID",
   "settings.llm-providers.provider-name": "Provider Name",
@@ -861,7 +850,7 @@
   "settings.llm-providers.api-key-status.configured": "Configured",
   "settings.llm-providers.api-key-status.missing": "Missing",
   "settings.llm-providers.success.enable": "Provider successfully enabled",
-  "settings.llm-providers.success.disable": "Provider successfully disabled", 
+  "settings.llm-providers.success.disable": "Provider successfully disabled",
   "settings.llm-providers.success.update": "Provider successfully updated",
   "settings.llm-providers.error.no-api-key": "Provider cannot be enabled without API key",
   "settings.llm-providers.error.save": "Error saving provider",
@@ -882,7 +871,6 @@
   "settings.llm-providers.add": "+ New Provider",
 
   "validation.errors": "Validation Errors",
-
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",
   "list.all-list.all-shift-list.table.Fry": "FRI",
@@ -960,12 +948,10 @@
   "shift.edit-shift.weekday.until": "Until Time hh:mm",
   "shift.edit-shift.weekday.work-hour": "Duration",
 
-
   "surface.home.modal.del": "Discard changes",
   "surface.home.modal.description": "Do you want to discard your changes if you leave this page?",
   "surface.home.modal.header": "Discard changes?",
   "surface.home.modal.save": "Save entries",
-
 
   "REGISTER": "The account data has been saved to the clipboard",
   "REGISTER_CHANGE_PASSWORD": "The account data has been saved to the clipboard",
@@ -1074,6 +1060,7 @@
   "shift.container-template.tooltip.compact-shifts": "Compact shifts",
 
   "settings.identity-provider.headline": "Identity Provider",
+  "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
   "settings.identity-provider.type": "Type",
   "settings.identity-provider.status": "Status",

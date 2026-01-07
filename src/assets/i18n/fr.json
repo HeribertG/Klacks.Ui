@@ -60,7 +60,6 @@
   "absence-gantt.validation.membership.before-start": "L'absence ne peut pas être créée avant le début de l'adhésion ({0}).",
   "absence-gantt.validation.membership.outside-period": "L'absence doit être dans la période d'adhésion ({0} - {1}).",
 
-
   "address.all-address.all-address-home.header": "Toutes les adresses",
   "address.all-address.all-address-list.header": "Adresses",
   "address.all-address.all-address-list.table.company": "ENTREPRISE",
@@ -183,7 +182,6 @@
   "address.edit-address.note.toolbar.paste": "Coller",
   "address.edit-address.note.toolbar.underline": "Souligner",
 
-
   "auth.forgot-password.email-address": "Adresse e-mail",
   "auth.forgot-password.email-placeholder": "votre-email@exemple.com",
   "auth.forgot-password.error": "Erreur lors de l'envoi de l'e-mail de réinitialisation.",
@@ -199,7 +197,6 @@
   "login.hide-password": "Masquer le mot de passe",
   "login.summit": "Se connecter",
   "login.user": "Email",
-
 
   "April": "Avril",
   "August": "Août",
@@ -234,10 +231,8 @@
   "wednesday": "Mercredi",
   "weekday-or-holiday": "Jour férié au jour de la semaine sélectionné",
 
-
   "client.validation.duplicate": "La personne sélectionnée est déjà dans la liste",
   "search.inc.client": "Inclure le nom du client",
-
 
   "active": "Actifs",
   "all": "<tous>",
@@ -303,7 +298,6 @@
   "store": "Enregistrer les entrées",
   "store.as": "Enregistrer sous...",
 
-
   "ABSENCE": "Calendrier d'absences",
   "ADDRES_TYPE0_NAME": "Adresse principale",
   "ADDRES_TYPE1_NAME": "Adresse professionnelle",
@@ -350,7 +344,6 @@
   "UPDATE_NOT_DONE": "Les modifications n'ont pas été adoptées par la base de données",
   "VALID_FROM": "Valide à partir de :",
 
-
   "EMAIL_EXIST": "L'adresse e-mail a déjà été utilisée pour l'inscription",
   "EMAIL_TEST_ERROR": "Erreur de test d'e-mail",
   "EMAIL_TEST_INVALID_ADDRESS": "Veuillez saisir une adresse e-mail valide dans le champ Nom d'utilisateur.",
@@ -368,7 +361,6 @@
   "email-templates.change-password.title": "Changement de mot de passe",
   "email-templates.register-user.body": "<h2><strong>Votre mot de passe pour notre application {appName}.</strong></h2><p>{password}</p><p>Veuillez utiliser ce mot de passe généré automatiquement une seule fois.</p><p>Vous pouvez changer votre mot de passe à tout moment dans votre profil.</p><p>&nbsp;</p><p>Cordialement,</p><p>Votre administration</p>",
   "email-templates.register-user.title": "Nouvelle inscription",
-
 
   "ADDRESS_NOT_VALID": "Adresse incomplète",
   "AUTH_USER_ERROR": "Échec de l'autorisation !",
@@ -494,7 +486,6 @@
   "no-access.message": "Vous n'êtes pas autorisé à accéder à cette fonctionnalité.",
   "page-not-found.message": "Page non trouvée",
 
-
   "edit-group-structure": "Créer des structures de groupe",
   "group.all-group.all-group-home.header": "Tous les groupes",
   "group.all-group.all-group-list.header": "Groupes",
@@ -536,12 +527,10 @@
   "group.tree.refresh": "Rafraîchir",
   "group.validation.valid-until-must-be-after-valid-from": "Valide jusqu'à doit être après valide dès",
 
-
   "navigation.absence-calendar": "Calendrier d'absences",
   "navigation.all-employee": "Toutes les adresses",
   "navigation.all-schedule": "Tous les plannings",
   "navigation.statistics": "Statistiques",
-
 
   "pdf.generated": "Généré",
   "pdf.of": "de",
@@ -879,7 +868,6 @@
 
   "validation.errors": "Erreurs de validation",
 
-
   "list.all-list.all-shift-list.table.Abbreviation": "ABR.",
   "list.all-list.all-shift-list.table.Fry": "VEN",
   "list.all-list.all-shift-list.table.description": "DESCRIPTION",
@@ -956,12 +944,10 @@
   "shift.edit-shift.weekday.until": "Heure de fin hh:mm",
   "shift.edit-shift.weekday.work-hour": "Durée",
 
-
   "surface.home.modal.del": "Abandonner les modifications",
   "surface.home.modal.description": "Voulez-vous abandonner vos modifications si vous quittez cette page ?",
   "surface.home.modal.header": "Abandonner les modifications ?",
   "surface.home.modal.save": "Enregistrer les entrées",
-
 
   "REGISTER": "Les données du compte ont été sauvegardées dans le presse-papiers",
   "REGISTER_CHANGE_PASSWORD": "Les données du compte ont été sauvegardées dans le presse-papiers",
@@ -1070,6 +1056,7 @@
   "shift.container-template.tooltip.compact-shifts": "Compacter les services",
 
   "settings.identity-provider.headline": "Fournisseur d'identité",
+  "settings.identity-provider.header.name": "Nom",
   "settings.identity-provider.name": "Nom",
   "settings.identity-provider.type": "Type",
   "settings.identity-provider.status": "Statut",

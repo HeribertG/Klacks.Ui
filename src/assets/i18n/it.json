@@ -60,7 +60,6 @@
   "absence-gantt.validation.membership.before-start": "L'assenza non può essere creata prima dell'inizio dell'adesione ({0}).",
   "absence-gantt.validation.membership.outside-period": "L'assenza deve essere nel periodo di adesione ({0} - {1}).",
 
-
   "address.all-address.all-address-home.header": "Tutti gli indirizzi",
   "address.all-address.all-address-list.header": "Indirizzi",
   "address.all-address.all-address-list.table.company": "AZIENDA",
@@ -183,7 +182,6 @@
   "address.edit-address.note.toolbar.paste": "Incolla",
   "address.edit-address.note.toolbar.underline": "Sottolineato",
 
-
   "auth.forgot-password.email-address": "Indirizzo email",
   "auth.forgot-password.email-placeholder": "tua-email@esempio.com",
   "auth.forgot-password.error": "Errore nell'invio dell'email di reimpostazione.",
@@ -199,7 +197,6 @@
   "login.hide-password": "Nascondi password",
   "login.summit": "Accedi",
   "login.user": "Email",
-
 
   "April": "Aprile",
   "August": "Agosto",
@@ -234,10 +231,8 @@
   "wednesday": "Mercoledì",
   "weekday-or-holiday": "Giorno festivo in un giorno della settimana selezionato.",
 
-
   "client.validation.duplicate": "La persona selezionata è già presente nell'elenco",
   "search.inc.client": "incluso il nome del cliente",
-
 
   "active": "Attivi",
   "all": "<tutti>",
@@ -303,7 +298,6 @@
   "store": "Salva le voci",
   "store.as": "Salva...",
 
-
   "ABSENCE": "Calendario assenze",
   "ADDRES_TYPE0_NAME": "Indirizzo principale",
   "ADDRES_TYPE1_NAME": "Indirizzo commerciale",
@@ -350,7 +344,6 @@
   "UPDATE_NOT_DONE": "Le modifiche non sono state adottate dal database",
   "VALID_FROM": "Valido da:",
 
-
   "EMAIL_EXIST": "L'indirizzo e-mail è già stato utilizzato per la registrazione",
   "EMAIL_TEST_ERROR": "Errore test e-mail",
   "EMAIL_TEST_INVALID_ADDRESS": "Inserire un indirizzo e-mail valido nel campo Nome utente.",
@@ -368,7 +361,6 @@
   "email-templates.change-password.title": "Cambio Password",
   "email-templates.register-user.body": "<h2><strong>La sua password per la nostra applicazione {appName}.</strong></h2><p>{password}</p><p>Si prega di utilizzare questa password generata automaticamente solo una volta.</p><p>Può cambiare la sua password in qualsiasi momento nel suo profilo.</p><p>&nbsp;</p><p>Distinti saluti,</p><p>La sua amministrazione</p>",
   "email-templates.register-user.title": "Nuova Registrazione",
-
 
   "ADDRESS_NOT_VALID": "Indirizzo incompleto",
   "AUTH_USER_ERROR": "Autorizzazione fallita!",
@@ -494,7 +486,6 @@
   "no-access.message": "Non hai il permesso di accedere a questa funzionalità.",
   "page-not-found.message": "Pagina non trovata",
 
-
   "edit-group-structure": "Gruppen Strukturen erfassen",
   "group.all-group.all-group-home.header": "Tutti i gruppi",
   "group.all-group.all-group-list.header": "Gruppi",
@@ -536,12 +527,10 @@
   "group.tree.refresh": "Aggiorna",
   "group.validation.valid-until-must-be-after-valid-from": "Valido fino a deve essere dopo valido da",
 
-
   "navigation.absence-calendar": "Calendario assenze",
   "navigation.all-employee": "Tutti gli indirizzi",
   "navigation.all-schedule": "Tutte le pianificazioni",
   "navigation.statistics": "Statistiche",
-
 
   "pdf.generated": "Generato",
   "pdf.of": "di",
@@ -872,13 +861,12 @@
   "settings.llm-providers.delete.message": "Vuoi davvero eliminare il fornitore '{{providerName}}'?",
   "settings.llm-providers.validation.provider-id-required": "L'ID del fornitore è obbligatorio",
   "settings.llm-providers.validation.provider-name-required": "Il nome del fornitore è obbligatorio",
-  "settings.llm-providers.validation.base-url-required": "L'URL di base è obbligatorio", 
+  "settings.llm-providers.validation.base-url-required": "L'URL di base è obbligatorio",
   "settings.llm-providers.validation.api-key-required": "La chiave API è obbligatoria",
   "settings.llm-providers.cannot-delete-default-provider": "Il provider del modello predefinito non può essere eliminato",
   "settings.llm-providers.add": "+ Nuovo Provider",
 
   "validation.errors": "Errori di validazione",
-
 
   "list.all-list.all-shift-list.table.Abbreviation": "ABBR.",
   "list.all-list.all-shift-list.table.Fry": "VEN",
@@ -956,12 +944,10 @@
   "shift.edit-shift.weekday.until": "All'Ora hh:mm",
   "shift.edit-shift.weekday.work-hour": "Durata",
 
-
   "surface.home.modal.del": "Annullare le modifiche",
   "surface.home.modal.description": "Vuoi annullare le tue modifiche se lasci questa pagina?",
   "surface.home.modal.header": "Annullare le modifiche?",
   "surface.home.modal.save": "Salva le voci",
-
 
   "REGISTER": "I dati dell'account sono stati salvati negli appunti",
   "REGISTER_CHANGE_PASSWORD": "I dati dell'account sono stati salvati negli appunti",
@@ -1070,6 +1056,7 @@
   "shift.container-template.tooltip.compact-shifts": "Compatta turni",
 
   "settings.identity-provider.headline": "Provider di identità",
+  "settings.identity-provider.header.name": "Nome",
   "settings.identity-provider.name": "Nome",
   "settings.identity-provider.type": "Tipo",
   "settings.identity-provider.status": "Stato",

@@ -119,36 +119,21 @@
   </div>
 </ng-template>
 
-<form id="branches-form">
-  <div id="branches-header" class="container-header">
-    {{ translate.instant("setting.branches.title") }}
-  </div>
-
-  <div id="branches-line" class="container-line"></div>
-
-  <app-branches-header id="branches-table-header"></app-branches-header>
-
-  <div id="branches-box" class="container-box">
+<app-settings-list-card
+  [headline]="translate.instant('setting.branches.title')"
+  [addLabel]="translate.instant('setting.branches.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-branches-header header id="branches-table-header"></app-branches-header>
+  <div rows>
     @for (branch of branches; track branch.id || $index; let i = $index) {
-
-    <app-branches-row
-      [id]="'branches-row-' + i"
-      [data]="branch"
-      (editEvent)="onClickEdit($event)"
-      (isDeleteEvent)="openDeleteBranch($event)"
-    >
-    </app-branches-row>
-
+      <app-branches-row
+        [id]="'branches-row-' + i"
+        [data]="branch"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteBranch($event)"
+      />
     }
   </div>
-
-  <div id="branches-footer" class="row">
-    <span
-      id="branches-add-btn"
-      class="add-button"
-      type="button"
-      (click)="onClickAdd()"
-      >{{ translate.instant("setting.branches.add") }}
-    </span>
-  </div>
-</form>
+</app-settings-list-card>

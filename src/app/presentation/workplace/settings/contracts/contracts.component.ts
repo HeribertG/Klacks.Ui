@@ -27,6 +27,7 @@ import { IContract } from 'src/app/domain/models/contract-class';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { DateInputComponent } from 'src/app/presentation/shared/date-input/date-input.component';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
+import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { cloneObject } from 'src/app/shared/helpers/object.helper';
 import { ModalService, ModalType } from 'src/app/presentation/modal/modal.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -59,7 +60,8 @@ interface ContractFormModel {
     ContractRowComponent,
     TimeInputComponent,
     DateInputComponent,
-    ChooseCalendarComponent
+    ChooseCalendarComponent,
+    SettingsListCardComponent,
   ],
 })
 export class ContractsComponent implements OnInit, AfterViewInit, OnDestroy {

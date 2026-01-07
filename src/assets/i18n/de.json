@@ -847,7 +847,7 @@
   "settings.llm-providers.is-enabled": "Aktiviert",
   "settings.llm-providers.save": "Speichern",
   "settings.llm-providers.status.enabled": "Aktiviert",
-  "settings.llm-providers.status.disabled": "Deaktiviert", 
+  "settings.llm-providers.status.disabled": "Deaktiviert",
   "settings.llm-providers.status.no-key": "Kein API-Schlüssel",
   "settings.llm-providers.api-key-status.configured": "Konfiguriert",
   "settings.llm-providers.api-key-status.missing": "Fehlt",
@@ -1062,6 +1062,7 @@
   "shift.container-template.tooltip.compact-shifts": "Dienste komprimieren",
 
   "settings.identity-provider.headline": "Identity Provider",
+  "settings.identity-provider.header.name": "Name",
   "settings.identity-provider.name": "Name",
   "settings.identity-provider.type": "Typ",
   "settings.identity-provider.status": "Status",

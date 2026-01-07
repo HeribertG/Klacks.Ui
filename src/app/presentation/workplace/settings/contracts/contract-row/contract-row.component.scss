@@ -1,34 +1,6 @@
 @use "../../../../../../assets/standard-styles/standard-card-interior.scss";
-@use "../../../../../../assets/standard-styles/colors.scss";
-@use "../../../../../../assets/standard-styles/datepicker.scss";
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
-
-.first {
-  margin-left: 30px;
-  padding-right: -30px;
-  height: 40px;
-}
-
-.custom-control-inline {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.form-group {
-  margin-bottom: 0;
-  margin-right: 10px;
-}
-
-.attribute-name {
-  width: 250px;
-  margin-right: 10px;
-  background-color: var(--standartGreenColor) !important;
-  cursor: pointer;
-  &:hover {
-    opacity: 0.8;
-  }
-}
+@use "../../../../../../assets/standard-styles/settings-list-row.scss";
 
 .attribute-hours {
   width: 120px;
@@ -46,12 +18,6 @@
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
-}
-
-.delete-button {
-  margin-top: 5px;
-  margin-left: 20px;
-  color: var(--standartRedColor);
 }
 
 .contract-name,
