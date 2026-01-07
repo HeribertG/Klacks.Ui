@@ -77,22 +77,17 @@ export class AllAddressNavComponent
   private ngUnsubscribe = new Subject<void>();
   private effectRef: EffectRef | null = null;
 
-  get internalScopeFrom(): NgbDateStruct | undefined {
-    const date = this.dataManagementClientService.currentFilter.scopeFrom;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
+  public scopeFromValue: NgbDateStruct | undefined;
+  public scopeUntilValue: NgbDateStruct | undefined;
 
-  set internalScopeFrom(value: NgbDateStruct | undefined) {
+  onScopeFromChange(value: NgbDateStruct | undefined): void {
+    this.scopeFromValue = value;
     const date = value ? transformNgbDateStructToDate(value) : undefined;
     (this.dataManagementClientService.currentFilter as { scopeFrom: Date | undefined }).scopeFrom = date;
   }
 
-  get internalScopeUntil(): NgbDateStruct | undefined {
-    const date = this.dataManagementClientService.currentFilter.scopeUntil;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalScopeUntil(value: NgbDateStruct | undefined) {
+  onScopeUntilChange(value: NgbDateStruct | undefined): void {
+    this.scopeUntilValue = value;
     const date = value ? transformNgbDateStructToDate(value) : undefined;
     (this.dataManagementClientService.currentFilter as { scopeUntil: Date | undefined }).scopeUntil = date;
   }
@@ -140,6 +135,11 @@ export class AllAddressNavComponent
 
   private isInit(): void {
     this.isInitFinished = true;
+
+    const scopeFrom = this.dataManagementClientService.currentFilter.scopeFrom;
+    const scopeUntil = this.dataManagementClientService.currentFilter.scopeUntil;
+    this.scopeFromValue = scopeFrom ? transformDateToNgbDateStruct(scopeFrom) : undefined;
+    this.scopeUntilValue = scopeUntil ? transformDateToNgbDateStruct(scopeUntil) : undefined;
 
     const scopeFromFlag = document.getElementById(
       'scopeFromFlag'

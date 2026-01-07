@@ -70,22 +70,17 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
-  get internalScopeFrom(): NgbDateStruct | undefined {
-    const date = this.dataManagementGroupService.currentClientFilter.scopeFrom;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
+  public scopeFromValue: NgbDateStruct | undefined;
+  public scopeUntilValue: NgbDateStruct | undefined;
 
-  set internalScopeFrom(value: NgbDateStruct | undefined) {
+  onScopeFromChange(value: NgbDateStruct | undefined): void {
+    this.scopeFromValue = value;
     const filter = this.dataManagementGroupService.currentClientFilter;
     filter.scopeFrom = value ? transformNgbDateStructToDate(value) : undefined;
   }
 
-  get internalScopeUntil(): NgbDateStruct | undefined {
-    const date = this.dataManagementGroupService.currentClientFilter.scopeUntil;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalScopeUntil(value: NgbDateStruct | undefined) {
+  onScopeUntilChange(value: NgbDateStruct | undefined): void {
+    this.scopeUntilValue = value;
     const filter = this.dataManagementGroupService.currentClientFilter;
     filter.scopeUntil = value ? transformNgbDateStructToDate(value) : undefined;
   }
@@ -220,6 +215,9 @@ export class EditGroupNavComponent implements OnInit, AfterViewInit, OnDestroy {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         if (this.dataManagementGroupService.initIsRead()) {
+          const filter = this.dataManagementGroupService.currentClientFilter;
+          this.scopeFromValue = filter.scopeFrom ? transformDateToNgbDateStruct(filter.scopeFrom) : undefined;
+          this.scopeUntilValue = filter.scopeUntil ? transformDateToNgbDateStruct(filter.scopeUntil) : undefined;
           this.isInit();
         }
       });

@@ -68,32 +68,8 @@ export class EditGroupItemComponent
   public validFromTouched = false;
   public validUntilTouched = false;
 
-  get internalValidFrom(): NgbDateStruct | undefined {
-    const date = this.dataManagementGroupService.editGroup?.validFrom;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalValidFrom(value: NgbDateStruct | undefined) {
-    const group = this.dataManagementGroupService.editGroup;
-    if (group && value) {
-      const date = transformNgbDateStructToDate(value);
-      if (date) {
-        group.validFrom = date;
-      }
-    }
-  }
-
-  get internalValidUntil(): NgbDateStruct | undefined {
-    const date = this.dataManagementGroupService.editGroup?.validUntil;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalValidUntil(value: NgbDateStruct | undefined) {
-    const group = this.dataManagementGroupService.editGroup;
-    if (group) {
-      group.validUntil = value ? transformNgbDateStructToDate(value) : undefined;
-    }
-  }
+  public internalValidFrom: NgbDateStruct | undefined;
+  public internalValidUntil: NgbDateStruct | undefined;
 
   ngOnInit(): void {
     this.locale = MessageLibrary.DEFAULT_LANG;
@@ -138,6 +114,8 @@ export class EditGroupItemComponent
       effect(() => {
         const group = this.dataManagementGroupService.editGroup;
         if (group) {
+          this.internalValidFrom = group.validFrom ? transformDateToNgbDateStruct(group.validFrom) : undefined;
+          this.internalValidUntil = group.validUntil ? transformDateToNgbDateStruct(group.validUntil) : undefined;
           this.calcValidation();
         }
       });
@@ -168,11 +146,22 @@ export class EditGroupItemComponent
 
   public onValidFromChange(): void {
     this.validFromTouched = true;
+    const group = this.dataManagementGroupService.editGroup;
+    if (group && this.internalValidFrom) {
+      const date = transformNgbDateStructToDate(this.internalValidFrom);
+      if (date) {
+        group.validFrom = date;
+      }
+    }
     this.calcValidation();
   }
 
   public onValidUntilChange(): void {
     this.validUntilTouched = true;
+    const group = this.dataManagementGroupService.editGroup;
+    if (group) {
+      group.validUntil = this.internalValidUntil ? transformNgbDateStructToDate(this.internalValidUntil) : undefined;
+    }
     this.calcValidation();
   }
 

@@ -66,22 +66,17 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   public currentLang: Language = MessageLibrary.DEFAULT_LANG;
   private ngUnsubscribe = new Subject<void>();
 
-  get internalScopeFrom(): NgbDateStruct | undefined {
-    const date = this.dataManagementShiftService.currentClientFilter.scopeFrom;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
+  public scopeFromValue: NgbDateStruct | undefined;
+  public scopeUntilValue: NgbDateStruct | undefined;
 
-  set internalScopeFrom(value: NgbDateStruct | undefined) {
+  onScopeFromChange(value: NgbDateStruct | undefined): void {
+    this.scopeFromValue = value;
     const filter = this.dataManagementShiftService.currentClientFilter;
     filter.scopeFrom = value ? transformNgbDateStructToDate(value) : undefined;
   }
 
-  get internalScopeUntil(): NgbDateStruct | undefined {
-    const date = this.dataManagementShiftService.currentClientFilter.scopeUntil;
-    return date ? transformDateToNgbDateStruct(date) : undefined;
-  }
-
-  set internalScopeUntil(value: NgbDateStruct | undefined) {
+  onScopeUntilChange(value: NgbDateStruct | undefined): void {
+    this.scopeUntilValue = value;
     const filter = this.dataManagementShiftService.currentClientFilter;
     filter.scopeUntil = value ? transformNgbDateStructToDate(value) : undefined;
   }
@@ -147,7 +142,11 @@ export class EditShiftNavComponent implements OnInit, AfterViewInit, OnDestroy {
   private readSignals(): void {
     runInInjectionContext(this.injector, () => {
       effect(() => {
-        this.dataManagementShiftService.initIsRead();
+        if (this.dataManagementShiftService.initIsRead()) {
+          const filter = this.dataManagementShiftService.currentClientFilter;
+          this.scopeFromValue = filter.scopeFrom ? transformDateToNgbDateStruct(filter.scopeFrom) : undefined;
+          this.scopeUntilValue = filter.scopeUntil ? transformDateToNgbDateStruct(filter.scopeUntil) : undefined;
+        }
       });
     });
   }
