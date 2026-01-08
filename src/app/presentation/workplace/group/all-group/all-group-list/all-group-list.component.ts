@@ -180,6 +180,7 @@ export class AllGroupListComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAddGroup() {
     this.dataManagementGroupService.createGroup();
+    this.navigationService.navigateToEditGroup();
   }
 
   onClickToggle() {

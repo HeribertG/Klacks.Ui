@@ -317,11 +317,36 @@ export class DataManagementGroupService implements ISaveable, IResettable, ILoad
 
     this.prepareGroup(c);
 
-    setTimeout(() => {
-      this.fireIsReadEvent();
-    }, 300);
+    if (this.flatNodeList.length === 0) {
+      this.loadFlatNodeListForParentSelection();
+    } else {
+      setTimeout(() => {
+        this.fireIsReadEvent();
+      }, 300);
+    }
 
     this._showProgressSpinner.set(false);
+  }
+
+  private loadFlatNodeListForParentSelection() {
+    this.dataGroupService.getGroupTree()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (tree: IGroupTree) => {
+          this.groupTree = new GroupTree();
+          this.groupTree.rootId = tree.rootId;
+          this.groupTree.nodes = tree.nodes.map((node) => new Group(node));
+          this.flatNodeList = this.flattenTree(this.groupTree.nodes);
+          this.fireIsReadEvent();
+        },
+        error: (error) => {
+          this.eventBus.emit(DomainEventType.ERROR, {
+            message: error,
+            code: 'GroupTreeError',
+            context: 'DataManagementGroupService.loadFlatNodeListForParentSelection'
+          });
+        },
+      });
   }
 
   prepareGroup(value: IGroup) {
