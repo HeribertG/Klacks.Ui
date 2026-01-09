@@ -11,6 +11,8 @@ interface AddressModel {
   address: string;
   zip: string;
   place: string;
+  state: string;
+  country: string;
 }
 
 @Component({
@@ -33,6 +35,8 @@ export class OwnerAddressComponent implements OnInit {
     address: '',
     zip: '',
     place: '',
+    state: '',
+    country: '',
   });
   addressForm = form(this.addressModel);
 
@@ -49,6 +53,8 @@ export class OwnerAddressComponent implements OnInit {
           address: model.address,
           zip: model.zip,
           place: model.place,
+          state: model.state,
+          country: model.country,
         }));
       }
     });
@@ -65,6 +71,8 @@ export class OwnerAddressComponent implements OnInit {
       address: contact.address,
       zip: contact.zip,
       place: contact.place,
+      state: contact.state,
+      country: contact.country,
     });
     this.isInitialized = true;
   }

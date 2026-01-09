@@ -5,6 +5,8 @@ export interface IAppContactSettings {
   address: string;
   zip: string;
   place: string;
+  state: string;
+  country: string;
   phone: string;
   email: string;
   accountingStart: number;
@@ -31,6 +33,8 @@ export class AppContactSettings implements IAppContactSettings {
   address = '';
   zip = '';
   place = '';
+  state = '';
+  country = '';
   phone = '';
   email = '';
   accountingStart = 0;

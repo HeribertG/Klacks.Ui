@@ -12,7 +12,7 @@
   }
 
   <div
-    id="group-select-dropdown-toggle"
+    [id]="'group-select-dropdown-toggle' + idSuffix"
     class="group-select-box form-group"
     [class.disabled]="isDisabled"
     [class.open]="isDropdownOpen"
@@ -60,7 +60,7 @@
         <li class="group-tree-node">
           @if (isVirtualGroup(node)) {
           <div
-            id="group-select-all-groups"
+            [id]="'group-select-all-groups' + idSuffix"
             class="group-tree-node-item all-groups-option"
             [class.selected]="selectedGroupId === ALL_GROUPS_ID"
             (click)="selectGroup(node, $event)"

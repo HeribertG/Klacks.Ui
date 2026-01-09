@@ -127,7 +127,9 @@ export class DataManagementIdentityProviderService {
           attributeMapping: provider.attributeMapping,
         };
 
-        await firstValueFrom(this.dataService.createProvider(request));
+        const created = await firstValueFrom(this.dataService.createProvider(request));
+        provider.id = created.id;
+        provider.isDirty = undefined;
       } else {
         const request: IUpdateIdentityProviderRequest = {
           name: provider.name,

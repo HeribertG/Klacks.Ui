@@ -723,6 +723,8 @@
   "setting.owner-address.street": "Rue",
   "setting.owner-address.supplement": "Complément",
   "setting.owner-address.zip": "Code postal",
+  "setting.owner-address.state": "Canton",
+  "setting.owner-address.country": "Pays",
   "setting.picture.delete": "Supprimer la photo de profil",
   "setting.picture.header": "Photo de profil",
   "setting.picture.info": "Glissez le fichier image ici ou cliquez pour télécharger un fichier.",

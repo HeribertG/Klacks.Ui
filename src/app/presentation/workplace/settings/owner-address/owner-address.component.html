@@ -111,6 +111,36 @@
       </div>
     </div>
 
+    <div id="owner-address-state-country-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-state">{{
+          translate.instant("setting.owner-address.state")
+        }}</label>
+        <input
+          id="setting-owner-address-state"
+          type="text"
+          class="form-control"
+          [field]="addressForm.state"
+          aria-label="appAddressState"
+        />
+      </div>
+
+      <div>
+        <div class="form-group secondColumn">
+          <label for="setting-owner-address-country">{{
+            translate.instant("setting.owner-address.country")
+          }}</label>
+          <input
+            id="setting-owner-address-country"
+            type="text"
+            class="form-control"
+            [field]="addressForm.country"
+            aria-label="appAddressCountry"
+          />
+        </div>
+      </div>
+    </div>
+
     <div class="bottom-border-space"></div>
   </div>
 </div>

@@ -12,6 +12,10 @@ import { PageNotFoundComponent } from './presentation/page-not-found/page-not-fo
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  {
+    path: 'oauth2/callback',
+    loadComponent: () => import('./presentation/auth/oauth2-callback/oauth2-callback.component').then(m => m.OAuth2CallbackComponent)
+  },
   { path: 'error', component: ErrorComponent },
   { path: 'no-access', component: NoAccessComponent },
   { path: 'page-not-found', component: PageNotFoundComponent },

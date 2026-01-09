@@ -120,6 +120,12 @@ export class AppSettingsManagementService {
         case AppSetting.APP_ADDRESS_PLACE:
           contact.place = setting.value;
           break;
+        case AppSetting.APP_ADDRESS_STATE:
+          contact.state = setting.value;
+          break;
+        case AppSetting.APP_ADDRESS_COUNTRY:
+          contact.country = setting.value;
+          break;
         case AppSetting.APP_ADDRESS_PHONE:
           contact.phone = setting.value;
           break;
@@ -244,6 +250,8 @@ export class AppSettingsManagementService {
     this.saveSetting(contact.address, contactOriginal.address, AppSetting.APP_ADDRESS_ADDRESS);
     this.saveSetting(contact.zip, contactOriginal.zip, AppSetting.APP_ADDRESS_ZIP);
     this.saveSetting(contact.place, contactOriginal.place, AppSetting.APP_ADDRESS_PLACE);
+    this.saveSetting(contact.state, contactOriginal.state, AppSetting.APP_ADDRESS_STATE);
+    this.saveSetting(contact.country, contactOriginal.country, AppSetting.APP_ADDRESS_COUNTRY);
     this.saveSetting(contact.phone, contactOriginal.phone, AppSetting.APP_ADDRESS_PHONE);
     this.saveSetting(contact.email, contactOriginal.email, AppSetting.APP_ADDRESS_MAIL);
     this.saveSetting(contact.accountingStart.toString(), contactOriginal.accountingStart.toString(), AppSetting.APP_ACCOUNTING_START);

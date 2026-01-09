@@ -104,3 +104,40 @@ label {
     border-radius: 2px;
   }
 }
+
+.oauth2-divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 50px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ced4da;
+  }
+
+  span {
+    padding: 0 15px;
+    color: #6c757d;
+    font-size: 14px;
+  }
+}
+
+.oauth2-providers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 50px;
+  margin-bottom: 20px;
+}
+
+.oauth2-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}

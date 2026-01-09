@@ -723,6 +723,8 @@
   "setting.owner-address.street": "Via",
   "setting.owner-address.supplement": "Integrativo",
   "setting.owner-address.zip": "CAP",
+  "setting.owner-address.state": "Cantone",
+  "setting.owner-address.country": "Paese",
   "setting.picture.delete": "Rimuovi immagine del profilo",
   "setting.picture.header": "Immagine del profilo",
   "setting.picture.info": "Trascina qui il file immagine o fai clic per caricare un file.",

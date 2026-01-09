@@ -65,6 +65,7 @@ export class GroupSelectComponent
   @Input() label?: string;
   @Input() required = false;
   @Input() showAllGroupsOption = true;
+  @Input() index?: number;
   @Input() set disabled(value: boolean) {
     this.setDisabledState(value);
   }
@@ -111,6 +112,10 @@ export class GroupSelectComponent
 
   // Constants
   readonly ALL_GROUPS_ID = 'all-groups-virtual';
+
+  get idSuffix(): string {
+    return this.index !== undefined ? `-${this.index}` : '';
+  }
 
   ngOnInit(): void {
     this.dataManagementGroupService.init();

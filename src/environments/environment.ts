@@ -10,8 +10,8 @@
 export const environment = {
   production: false,
   _baseUrl: 'https://localhost:44371/api/backend/',
-  baseUrl: 'https://localhost:5001/api/backend/',
-  baseAssistantUrl: 'https://localhost:5001/api/backend/assistant/',
+  baseUrl: 'http://localhost:5000/api/backend/',
+  baseAssistantUrl: 'http://localhost:5000/api/backend/assistant/',
   
   // Default settings
   enableDebugMode: false,

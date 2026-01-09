@@ -61,6 +61,7 @@
             <td class="table-cell cell-center-vertical">
               <app-group-select
                 id="groupId-{{ $index }}"
+                [index]="$index"
                 [showAllGroupsOption]="false"
                 [useGlobalSelection]="false"
                 [disabled]="isDisabled()"

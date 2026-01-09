@@ -138,7 +138,29 @@
           {{ "login.summit" | translate }}
         </button>
       </div>
-      <p></p>
+
+      @if (oauth2Providers.length > 0) {
+        <div class="oauth2-divider">
+          <span>{{ "login.oauth2.or" | translate }}</span>
+        </div>
+
+        <div class="oauth2-providers">
+          @for (provider of oauth2Providers; track provider.id) {
+            <button
+              type="button"
+              class="btn btn-outline-secondary oauth2-btn"
+              (click)="loginWithOAuth2(provider)"
+              [disabled]="oauth2Loading"
+            >
+              @if (oauth2Loading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+              }
+              {{ provider.name }}
+            </button>
+          }
+        </div>
+      }
+
       <p></p>
     </form>
   </div>

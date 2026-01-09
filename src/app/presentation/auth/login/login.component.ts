@@ -26,6 +26,7 @@ import { UserAdministrationService } from 'src/app/infrastructure/api/user-admin
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { DataOAuth2Service, OAuth2Provider } from 'src/app/infrastructure/api/data-oauth2.service';
 
 @Component({
   selector: 'app-login',
@@ -54,6 +55,7 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   private userAdministrationService = inject(UserAdministrationService);
   private toastService = inject(ToastShowService);
   private signalRService = inject(SignalRService);
+  private dataOAuth2Service = inject(DataOAuth2Service);
 
   private destroy$ = new Subject<void>();
 
@@ -71,6 +73,9 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
   public resetEmailError = false;
   public resetEmailSending = false;
 
+  public oauth2Providers: OAuth2Provider[] = [];
+  public oauth2Loading = false;
+
   ngOnInit(): void {
     this.translateService.setDefaultLang(MessageLibrary.DEFAULT_LANG);
 
@@ -82,6 +87,46 @@ export class LoginComponent implements OnInit, AfterViewInit, OnDestroy {
         this.localStorageService.get(MessageLibrary.CURRENT_LANG) as string
       );
     }
+
+    this.loadOAuth2Providers();
+  }
+
+  private loadOAuth2Providers(): void {
+    this.dataOAuth2Service.getProviders()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (providers) => {
+          this.oauth2Providers = providers;
+        },
+        error: (err) => {
+          console.error('Error loading OAuth2 providers:', err);
+        }
+      });
+  }
+
+  loginWithOAuth2(provider: OAuth2Provider): void {
+    this.oauth2Loading = true;
+    // Use 127.0.0.1 instead of localhost for Synology SSO compatibility
+    let origin = window.location.origin;
+    if (origin.includes('localhost')) {
+      origin = origin.replace('localhost', '127.0.0.1');
+    }
+    const redirectUri = origin + '/oauth2/callback';
+
+    this.dataOAuth2Service.authorize(provider.id, redirectUri)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.localStorageService.set('oauth2_state', response.state);
+          this.localStorageService.set('oauth2_redirect_uri', redirectUri);
+          window.location.href = response.authorizationUrl;
+        },
+        error: (err) => {
+          console.error('Error initiating OAuth2 login:', err);
+          this.toastService.showError('', 'login.oauth2.error');
+          this.oauth2Loading = false;
+        }
+      });
   }
 
   ngAfterViewInit(): void {

@@ -17,6 +17,8 @@ export class AppSetting {
   public static APP_ADDRESS_ADDRESS = 'APP_ADDRESS_ADDRESS';
   public static APP_ADDRESS_ZIP = 'APP_ADDRESS_ZIP';
   public static APP_ADDRESS_PLACE = 'APP_ADDRESS_PLACE';
+  public static APP_ADDRESS_STATE = 'APP_ADDRESS_STATE';
+  public static APP_ADDRESS_COUNTRY = 'APP_ADDRESS_COUNTRY';
   public static APP_ADDRESS_PHONE = 'APP_ADDRESS_PHONE';
   public static APP_ADDRESS_MAIL = 'APP_ADDRESS_MAIL';
   public static APP_ACCOUNTING_START = 'APP_ACCOUNTING_START';

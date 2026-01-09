@@ -20,6 +20,7 @@ export class SettingsListCardComponent {
   @Input() addLabel = 'Hinzufügen';
   @Input() showAddButton = true;
   @Input() showHeader = false;
+  @Input() idPrefix = 'settings-list';
   @Output() addClick = new EventEmitter<void>();
 
   onAddClick(): void {
