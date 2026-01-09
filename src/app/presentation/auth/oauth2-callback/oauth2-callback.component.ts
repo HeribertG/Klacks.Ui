@@ -64,6 +64,15 @@ export class OAuth2CallbackComponent implements OnInit {
   error: string | null = null;
 
   async ngOnInit(): Promise<void> {
+    const errorParam = this.route.snapshot.queryParamMap.get('error');
+    const errorDescription = this.route.snapshot.queryParamMap.get('error_description');
+
+    if (errorParam) {
+      this.error = errorDescription || errorParam;
+      this.isLoading = false;
+      return;
+    }
+
     const code = this.route.snapshot.queryParamMap.get('code');
     const state = this.route.snapshot.queryParamMap.get('state');
 
