@@ -96,11 +96,16 @@ export class HeaderComponent implements AfterViewInit, OnDestroy {
     this.navigationService.navigateToDashboard();
   }
 
-  onClickLogOut(): void {
-    this.auth.logOut();
-    this.navigationService.navigateToRoot().then(() => {
+  async onClickLogOut(): Promise<void> {
+    if (this.auth.isOAuth2User()) {
       this.authorised.set(false);
-    });
+      await this.auth.logOutWithSso();
+    } else {
+      this.auth.logOut();
+      this.navigationService.navigateToRoot().then(() => {
+        this.authorised.set(false);
+      });
+    }
   }
 
   onToggleAssistant(): void {

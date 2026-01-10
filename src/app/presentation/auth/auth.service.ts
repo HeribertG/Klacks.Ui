@@ -10,6 +10,7 @@ import { LocalStorageService } from 'src/app/infrastructure/storage/local-storag
 import { NavigationService } from 'src/app/presentation/services/navigation.service';
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataAuthService } from '../../infrastructure/api/data-auth.service';
+import { DataOAuth2Service } from '../../infrastructure/api/data-oauth2.service';
 import { RouteName } from 'src/app/domain/models/entity-names.enum';
 
 @Injectable({
@@ -18,6 +19,7 @@ import { RouteName } from 'src/app/domain/models/entity-names.enum';
 export class AuthService {
   public toastShowService = inject(ToastShowService);
   private dataAuthService = inject(DataAuthService);
+  private dataOAuth2Service = inject(DataOAuth2Service);
   private navigationService = inject(NavigationService);
   private localStorageService = inject(LocalStorageService);
   private dataLoadFileService = inject(DataLoadFileService);
@@ -60,6 +62,45 @@ export class AuthService {
     this.removeToken();
     this.removeStateValue();
     this.dataLoadFileService.clearAllImages();
+  }
+
+  async logOutWithSso(): Promise<void> {
+    const providerId = this.localStorageService.get('oauth2_provider_id');
+
+    if (providerId) {
+      try {
+        const postLogoutRedirectUri = window.location.origin + '/login';
+        const response = await firstValueFrom(
+          this.dataOAuth2Service.getLogoutUrl(providerId, postLogoutRedirectUri)
+        );
+
+        this.removeToken();
+        this.removeStateValue();
+        this.dataLoadFileService.clearAllImages();
+        this.localStorageService.remove('oauth2_provider_id');
+
+        if (response.supportsLogout && response.logoutUrl) {
+          window.location.href = response.logoutUrl;
+          return;
+        }
+      } catch (error) {
+        console.error('SSO logout error:', error);
+        this.removeToken();
+        this.removeStateValue();
+        this.dataLoadFileService.clearAllImages();
+        this.localStorageService.remove('oauth2_provider_id');
+      }
+    } else {
+      this.removeToken();
+      this.removeStateValue();
+      this.dataLoadFileService.clearAllImages();
+    }
+
+    this.navigationService.navigateToRoot();
+  }
+
+  isOAuth2User(): boolean {
+    return this.localStorageService.get('oauth2_provider_id') !== null;
   }
 
   authenticated(): boolean {

@@ -21,6 +21,11 @@ export interface OAuth2CallbackRequest {
   redirectUri: string;
 }
 
+export interface OAuth2LogoutResponse {
+  logoutUrl: string | null;
+  supportsLogout: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -44,5 +49,13 @@ export class DataOAuth2Service {
       `${environment.baseUrl}OAuth2/callback`,
       request
     );
+  }
+
+  getLogoutUrl(providerId: string, postLogoutRedirectUri?: string): Observable<OAuth2LogoutResponse> {
+    let url = `${environment.baseUrl}OAuth2/logout-url/${providerId}`;
+    if (postLogoutRedirectUri) {
+      url += `?postLogoutRedirectUri=${encodeURIComponent(postLogoutRedirectUri)}`;
+    }
+    return this.httpClient.get<OAuth2LogoutResponse>(url);
   }
 }

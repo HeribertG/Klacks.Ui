@@ -9,6 +9,13 @@
       "url": "http://localhost:4200/"
     },
     {
+      "name": "ng serve (SSL)",
+      "type": "msedge",
+      "request": "launch",
+      "preLaunchTask": "npm: start:ssl",
+      "url": "https://127.0.0.1:4200/"
+    },
+    {
       "name": "ng test",
       "type": "msedge",
       "request": "launch",

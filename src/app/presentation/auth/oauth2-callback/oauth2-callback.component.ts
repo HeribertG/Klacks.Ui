@@ -101,7 +101,7 @@ export class OAuth2CallbackComponent implements OnInit {
       );
 
       if (token && token.token) {
-        this.storeToken(token);
+        this.storeToken(token, state);
         this.localStorageService.remove('oauth2_state');
         this.localStorageService.remove('oauth2_redirect_uri');
         this.signalRService.startConnection();
@@ -121,7 +121,7 @@ export class OAuth2CallbackComponent implements OnInit {
     this.navigationService.navigateToRoot();
   }
 
-  private storeToken(token: any): void {
+  private storeToken(token: any, state: string): void {
     this.localStorageService.set(MessageLibrary.TOKEN, token.token);
     this.localStorageService.set(MessageLibrary.TOKEN_USERNAME, token.userName || token.username);
     this.localStorageService.set(MessageLibrary.TOKEN_USERID, token.id);
@@ -130,6 +130,11 @@ export class OAuth2CallbackComponent implements OnInit {
     this.localStorageService.set(MessageLibrary.TOKEN_AUTHORISED, (token.isAuthorised || false).toString());
     if (token.refreshToken) {
       this.localStorageService.set(MessageLibrary.TOKEN_REFRESHTOKEN, token.refreshToken);
+    }
+
+    const providerId = state.split('_')[0];
+    if (providerId) {
+      this.localStorageService.set('oauth2_provider_id', providerId);
     }
   }
 }
