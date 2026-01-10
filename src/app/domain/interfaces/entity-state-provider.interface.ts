@@ -1,5 +1,5 @@
 import { Signal, InjectionToken } from '@angular/core';
-import { EntityName } from '../models/entity-names.enum';
+import { EntityName } from '../enums/entity-names.enum';
 
 export interface IEntityStateProvider {
   nameOfVisibleEntity: Signal<EntityName | string>;

@@ -197,6 +197,10 @@
   "login.hide-password": "Masquer le mot de passe",
   "login.summit": "Se connecter",
   "login.user": "Email",
+  "login.oauth2.or": "ou",
+  "login.oauth2.processing": "Authentification en cours...",
+  "login.oauth2.back-to-login": "Retour à la connexion",
+  "login.oauth2.error": "Échec de la connexion SSO",
 
   "April": "Avril",
   "August": "Août",

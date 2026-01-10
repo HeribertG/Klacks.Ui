@@ -12,7 +12,7 @@ import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.serv
 import { DataLoadFileService } from 'src/app/infrastructure/api/data-load-file.service';
 import { ILoadable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

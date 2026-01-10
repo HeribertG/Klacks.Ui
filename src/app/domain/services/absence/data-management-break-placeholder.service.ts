@@ -10,7 +10,7 @@ import { IClientBreak } from 'src/app/domain/models/client-class';
 import { DataBreakPlaceholderService } from 'src/app/infrastructure/api/data-break-placeholder.service';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from '../../models/entity-names.enum';
+import { RouteName } from '../../enums/entity-names.enum';
 import { EVENT_BUS_TOKEN } from 'src/app/domain/interfaces/event-bus.interface';
 import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';

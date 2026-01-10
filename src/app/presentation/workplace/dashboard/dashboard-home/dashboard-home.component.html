@@ -3,10 +3,12 @@
   <div class="container-dashboard-line"></div>
 
   <div class="container-dashboard-content">
-    <div class="container-dashboard-charts-row">
-      <app-dashboard-clients-overview></app-dashboard-clients-overview>
-      <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
-    </div>
+    @if (isAuthorised) {
+      <div class="container-dashboard-charts-row">
+        <app-dashboard-clients-overview></app-dashboard-clients-overview>
+        <app-dashboard-shifts-overview></app-dashboard-shifts-overview>
+      </div>
+    }
     <app-dashboard-clients-locations></app-dashboard-clients-locations>
   </div>
 </div>

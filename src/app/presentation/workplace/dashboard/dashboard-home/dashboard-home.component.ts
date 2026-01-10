@@ -2,7 +2,8 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { AuthorizationService } from 'src/app/application/services/authorization.service';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SearchService } from 'src/app/application/services/search.service';
@@ -22,6 +23,11 @@ export class DashboardHomeComponent implements OnInit {
   private layoutService = inject(LayoutService);
   private searchService = inject(SearchService);
   private workplaceStateService = inject(WorkplaceStateService);
+  private authorizationService = inject(AuthorizationService);
+
+  get isAuthorised(): boolean {
+    return this.authorizationService.isAuthorised;
+  }
 
   ngOnInit(): void {
     this.savebarService.setSavebarVisibility(false);

@@ -16,12 +16,12 @@ button.btn-info {
   height: 35px;
   width: 80px;
   background-color: var(--standartGreenColor) !important;
-  border: 2px solid white !important;
+  border: 1px solid white !important;
   color: var(--colorHeadline) !important;
 
   &:disabled {
     background-color: var(--standartTextBackgroundReadOnly) !important;
-    border: 2px solid white !important;
+    border: 1px solid white !important;
     color: var(--colorHeadline) !important;
     opacity: 1;
   }
@@ -85,4 +85,3 @@ button.btn-info {
   font-size: 13px;
   text-decoration: underline;
 }
-

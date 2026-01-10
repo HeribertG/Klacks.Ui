@@ -34,7 +34,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { IPaginationDataService } from 'src/app/domain/interfaces/pagination.interface';
 
 @Injectable({

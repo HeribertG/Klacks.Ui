@@ -197,6 +197,10 @@
   "login.hide-password": "Nascondi password",
   "login.summit": "Accedi",
   "login.user": "Email",
+  "login.oauth2.or": "oppure",
+  "login.oauth2.processing": "Autenticazione in corso...",
+  "login.oauth2.back-to-login": "Torna al login",
+  "login.oauth2.error": "Accesso SSO non riuscito",
 
   "April": "Aprile",
   "August": "Agosto",

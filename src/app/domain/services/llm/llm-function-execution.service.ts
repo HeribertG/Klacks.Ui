@@ -9,7 +9,7 @@ import { DataManagementClientService } from '../client/data-management-client.se
 import {
   ILLMFunctionCall,
   ILLMFunctionResult,
-} from '../../models/llm-function-definitions.interface';
+} from '../../interfaces/llm-function-definitions.interface';
 import { LLMFunctionRegistryService } from './llm-function-registry.service';
 import { environment } from 'src/environments/environment';
 import {

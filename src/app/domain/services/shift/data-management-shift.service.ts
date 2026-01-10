@@ -20,7 +20,7 @@ import { DataCountryStateService } from 'src/app/infrastructure/api/data-country
 import { DataManagementGroupService } from 'src/app/domain/services/group/data-management-group.service';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs';
 

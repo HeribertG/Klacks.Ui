@@ -4,7 +4,7 @@ import { SearchService } from 'src/app/application/services/search.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { cloneObject, compareComplexObjects, copyObjectValues } from 'src/app/shared/helpers/object.helper';
 import { IBaseFilter } from 'src/app/domain/models/general-class';
 import { FILTER_STORAGE_TOKEN } from 'src/app/application/interfaces/filter-storage.interface';

@@ -15,7 +15,7 @@ import { DomainEventType } from 'src/app/domain/events/domain-events';
 import { TranslateService } from '@ngx-translate/core';
 import { LLMSystemContextService } from './llm-system-context.service';
 import { LLMFunctionExecutionService } from './llm-function-execution.service';
-import { ILLMFunctionCall } from '../../models/llm-function-definitions.interface';
+import { ILLMFunctionCall } from '../../interfaces/llm-function-definitions.interface';
 
 export interface IConversationMessage {
   role: 'user' | 'assistant' | 'system';

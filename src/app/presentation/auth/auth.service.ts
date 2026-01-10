@@ -11,7 +11,7 @@ import { NavigationService } from 'src/app/presentation/services/navigation.serv
 import { DataLoadFileService } from '../../infrastructure/api/data-load-file.service';
 import { DataAuthService } from '../../infrastructure/api/data-auth.service';
 import { DataOAuth2Service } from '../../infrastructure/api/data-oauth2.service';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 
 @Injectable({
   providedIn: 'root',

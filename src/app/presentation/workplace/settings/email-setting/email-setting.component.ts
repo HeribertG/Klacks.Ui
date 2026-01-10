@@ -5,7 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import { DataSettingsVariousService } from 'src/app/infrastructure/api/data-settings-various.service';
-import { EmailTestResult } from 'src/app/domain/models/email-test.interface';
+import { EmailTestResult } from 'src/app/domain/interfaces/email-test.interface';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';

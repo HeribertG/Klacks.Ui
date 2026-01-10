@@ -1,5 +1,5 @@
 import { Type, InjectionToken } from '@angular/core';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { ILoadable } from './manageable.interface';
 
 export interface IManageableServiceRegistry {

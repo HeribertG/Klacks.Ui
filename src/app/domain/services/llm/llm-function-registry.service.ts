@@ -5,7 +5,7 @@ import {
   ILLMFunctionDefinition,
   ILLMFunctionCall,
   ILLMToolDefinition,
-} from '../../models/llm-function-definitions.interface';
+} from '../../interfaces/llm-function-definitions.interface';
 
 @Injectable({
   providedIn: 'root',

@@ -25,7 +25,7 @@ import {
 import { SearchService } from 'src/app/application/services/search.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
-import { EntityName, RouteName } from 'src/app/domain/models/entity-names.enum';
+import { EntityName, RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { TimeRangeService } from 'src/app/presentation/shared/time-ruler/services/time-range.service';
 import { LayoutService } from 'src/app/presentation/services/layout.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';

@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ILoadable, IResettable, ISaveable, INavigable } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { DataManagementSettingsService } from './data-management-settings.service';
 import { DataManagementContractService } from '../contract/data-management-contract.service';
 

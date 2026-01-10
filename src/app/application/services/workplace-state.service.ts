@@ -20,7 +20,7 @@ import {
   EntityName,
   RouteName,
   isValidRouteName,
-} from 'src/app/domain/models/entity-names.enum';
+} from 'src/app/domain/enums/entity-names.enum';
 import { environment } from 'src/environments/environment';
 
 function isSaveable(manager: any): manager is ISaveable {

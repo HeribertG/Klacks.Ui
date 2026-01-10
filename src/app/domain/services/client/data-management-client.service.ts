@@ -12,7 +12,7 @@ import {
   ISaveable,
 } from 'src/app/domain/interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from 'src/app/domain/interfaces/manageable-service-registry.interface';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { ClientListService } from './client-list.service';
 import { ClientEditService } from './client-edit.service';
 import { ClientConfigService } from './client-config.service';

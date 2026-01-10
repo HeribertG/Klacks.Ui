@@ -25,7 +25,7 @@ import {
   INavigable,
 } from '../../interfaces/manageable.interface';
 import { MANAGEABLE_SERVICE_REGISTRY_TOKEN } from '../../interfaces/manageable-service-registry.interface';
-import { RouteName } from '../../models/entity-names.enum';
+import { RouteName } from '../../enums/entity-names.enum';
 import {
   cloneObject,
   compareComplexObjects,

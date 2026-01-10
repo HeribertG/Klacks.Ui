@@ -112,7 +112,7 @@ label {
 
   &::before,
   &::after {
-    content: '';
+    content: "";
     flex: 1;
     border-bottom: 1px solid #ced4da;
   }
@@ -135,9 +135,4 @@ label {
 .oauth2-btn {
   width: 100%;
   padding: 10px;
-  font-size: 14px;
-
-  &:hover {
-    background-color: #f8f9fa;
-  }
 }

@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
-import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 
 export interface SavebarConfig {
   showSavebar: boolean;

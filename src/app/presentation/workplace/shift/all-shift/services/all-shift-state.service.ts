@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IShiftFilter } from 'src/app/domain/models/shift-data-class';
 import { DataManagementShiftService } from 'src/app/domain/services/shift/data-management-shift.service';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 
 @Injectable()

@@ -6,7 +6,7 @@ import { ISetting } from 'src/app/domain/models/settings-various-class';
 import {
   EmailTestRequest,
   EmailTestResult,
-} from 'src/app/domain/models/email-test.interface';
+} from 'src/app/domain/interfaces/email-test.interface';
 import { environment } from 'src/environments/environment';
 import { Observable } from 'rxjs';
 

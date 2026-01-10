@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from '../../application/services/workplace-state.service';
 import { SearchStateService } from 'src/app/application/services/search-state.service';
 import {

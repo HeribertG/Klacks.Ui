@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
-import { RouteName } from 'src/app/domain/models/entity-names.enum';
+import { RouteName } from 'src/app/domain/enums/entity-names.enum';
 import { BaseStateService } from 'src/app/application/services/base-state.service';
 import { IBreakFilter } from 'src/app/domain/models/break-class';
 

@@ -10,7 +10,7 @@ import { AllGroupListComponent } from '../all-group-list/all-group-list.componen
 import { AllGroupNavComponent } from '../all-group-nav/all-group-nav.component';
 import { TreeGroupComponent } from '../tree-group/tree-group.component';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
-import { EntityName } from 'src/app/domain/models/entity-names.enum';
+import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { WorkplaceStateService } from 'src/app/application/services/workplace-state.service';
 import { LocalStorageService } from 'src/app/infrastructure/storage/local-storage.service';
 import { SavebarService } from 'src/app/presentation/services/savebar.service';
