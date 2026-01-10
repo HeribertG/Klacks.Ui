@@ -2,6 +2,12 @@
 @use "../../../../../../assets/standard-styles/standard-controls.scss";
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/settings-list-row.scss";
+@use "../../../../../../assets/standard-styles/modal-buttons.scss";
+
+.row-line-modal-inline {
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 input {
   width: 200px;
@@ -37,11 +43,6 @@ label {
   padding-bottom: 10px;
 }
 
-.link-button {
-  font-size: 13px;
-  text-decoration: underline;
-}
-
 .red-font-disabled {
   margin-top: 10px;
   padding-right: 30px;
@@ -58,12 +59,16 @@ label {
 
 button {
   border-radius: 5px;
-  border: none;
   margin-top: 5px;
   margin-bottom: 5px;
-  font-weight: 900;
-  color: grey;
   margin-right: 10px;
+}
+
+#identity-provider-modal-test-btn,
+#identity-provider-modal-sync-btn {
+  width: 140px;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .nav {
@@ -78,7 +83,7 @@ button {
 
 .form-row-inline {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
 }
 

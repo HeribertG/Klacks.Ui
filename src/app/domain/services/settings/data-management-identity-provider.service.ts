@@ -1,19 +1,17 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { DataIdentityProviderService } from 'src/app/infrastructure/api/data-identity-provider.service';
+import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import {
-  DataIdentityProviderService,
-  ICreateIdentityProviderRequest,
-  IUpdateIdentityProviderRequest
-} from 'src/app/infrastructure/api/data-identity-provider.service';
-import {
-  IdentityProvider,
   IIdentityProvider,
   IIdentityProviderListItem,
   ITestConnectionResult,
   ISyncResult,
-  IdentityProviderType
-} from 'src/app/domain/models/identity-provider-class';
+  ICreateIdentityProviderRequest,
+  IUpdateIdentityProviderRequest
+} from 'src/app/domain/interfaces/identity-provider.interface';
+import { IdentityProviderType } from 'src/app/domain/enums/identity-provider-enum';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';
 

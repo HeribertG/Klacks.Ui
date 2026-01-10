@@ -13,14 +13,16 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import {
   IIdentityProviderListItem,
-  IdentityProvider,
-  IdentityProviderType,
-  IdentityProviderTypeLabels,
   ITestConnectionResult,
   ISyncResult
-} from 'src/app/domain/models/identity-provider-class';
+} from 'src/app/domain/interfaces/identity-provider.interface';
+import {
+  IdentityProviderType,
+  IdentityProviderTypeLabels
+} from 'src/app/domain/enums/identity-provider-enum';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 

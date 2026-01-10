@@ -7,56 +7,10 @@ import {
   IIdentityProvider,
   IIdentityProviderListItem,
   ITestConnectionResult,
-  ISyncResult
-} from 'src/app/domain/models/identity-provider-class';
-
-export interface ICreateIdentityProviderRequest {
-  name: string;
-  type: number;
-  isEnabled: boolean;
-  sortOrder: number;
-  useForAuthentication: boolean;
-  useForClientImport: boolean;
-  host?: string;
-  port?: number;
-  useSsl: boolean;
-  baseDn?: string;
-  bindDn?: string;
-  bindPassword?: string;
-  userFilter?: string;
-  clientId?: string;
-  clientSecret?: string;
-  authorizationUrl?: string;
-  tokenUrl?: string;
-  userInfoUrl?: string;
-  scopes?: string;
-  tenantId?: string;
-  attributeMapping?: Record<string, string>;
-}
-
-export interface IUpdateIdentityProviderRequest {
-  name: string;
-  type: number;
-  isEnabled: boolean;
-  sortOrder: number;
-  useForAuthentication: boolean;
-  useForClientImport: boolean;
-  host?: string;
-  port?: number;
-  useSsl: boolean;
-  baseDn?: string;
-  bindDn?: string;
-  bindPassword?: string;
-  userFilter?: string;
-  clientId?: string;
-  clientSecret?: string;
-  authorizationUrl?: string;
-  tokenUrl?: string;
-  userInfoUrl?: string;
-  scopes?: string;
-  tenantId?: string;
-  attributeMapping?: Record<string, string>;
-}
+  ISyncResult,
+  ICreateIdentityProviderRequest,
+  IUpdateIdentityProviderRequest
+} from 'src/app/domain/interfaces/identity-provider.interface';
 
 @Injectable({
   providedIn: 'root'
