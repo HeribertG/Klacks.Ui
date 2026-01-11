@@ -47,6 +47,17 @@ export class SignalRService implements OnDestroy {
       return;
     }
 
+    if (this.isTokenExpired(token)) {
+      console.warn('SignalR: Token expired, skipping connection');
+      return;
+    }
+
+    const isValid = await this.validateTokenWithBackend(token);
+    if (!isValid) {
+      console.warn('SignalR: Token rejected by backend, skipping connection');
+      return;
+    }
+
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(this.hubUrl, {
         accessTokenFactory: () => token,
@@ -175,5 +186,34 @@ export class SignalRService implements OnDestroy {
     this.workUpdated$.complete();
     this.workDeleted$.complete();
     this.shiftStatsUpdated$.complete();
+  }
+
+  private async validateTokenWithBackend(token: string): Promise<boolean> {
+    try {
+      const validateUrl = environment.baseUrl + 'Accounts/ValidateToken';
+      const response = await fetch(validateUrl, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const payload = token.split('.')[1];
+      if (!payload) return true;
+
+      const decoded = JSON.parse(atob(payload));
+      if (!decoded.exp) return false;
+
+      const expirationTime = decoded.exp * 1000;
+      const bufferMs = 30000;
+      return Date.now() > expirationTime - bufferMs;
+    } catch {
+      return true;
+    }
   }
 }

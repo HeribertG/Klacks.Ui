@@ -178,9 +178,11 @@ export class RenderRowHeaderService {
   }
 
   private ShapeHeaderCanvasSurface(): void {
+    const canvas = this.rowHeaderCanvasManager.headerCanvas;
+    const ctx = this.rowHeaderCanvasManager.headerCtx;
+    if (!canvas || !ctx) return;
+
     const dpr = DrawHelper.pixelRatio();
-    const canvas = this.rowHeaderCanvasManager.headerCanvas!;
-    const ctx = this.rowHeaderCanvasManager.headerCtx!;
     const width = this.rowHeaderCanvasManager.width;
     const height = this.calendarSetting.cellHeaderHeight;
 
