@@ -1076,7 +1076,7 @@
   "settings.identity-provider.tab-general": "General",
   "settings.identity-provider.tab-connection": "Connection",
   "settings.identity-provider.tab-oauth": "OAuth",
-  "settings.identity-provider.tab-help": "Help",
+  "settings.identity-provider.tab-help": "Descriptions",
   "settings.identity-provider.enabled": "Enabled",
   "settings.identity-provider.disabled": "Disabled",
   "settings.identity-provider.is-enabled": "Enabled",
