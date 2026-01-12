@@ -2,6 +2,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   Output,
   TemplateRef,
   ViewChild,
@@ -9,9 +10,12 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import {
@@ -38,7 +42,7 @@ import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
     NgbModule,
   ],
 })
-export class IdentityProviderRowComponent {
+export class IdentityProviderRowComponent implements OnDestroy {
   @ViewChild('content', { static: true }) contentTemplate!: TemplateRef<unknown>;
   @Input() data!: IIdentityProviderListItem;
   @Output() isDeleteEvent = new EventEmitter<void>();
@@ -48,13 +52,16 @@ export class IdentityProviderRowComponent {
   public translate = inject(TranslateService);
   private modalService = inject(NgbModal);
   public providerService = inject(DataManagementIdentityProviderService);
+  private http = inject(HttpClient);
 
   private wasSaved = false;
+  private destroy$ = new Subject<void>();
 
-  tabId = signal<'general' | 'connection' | 'oauth'>('general');
+  tabId = signal<'general' | 'connection' | 'oauth' | 'help'>('general');
   editProvider = signal<IdentityProvider | null>(null);
   testResult = signal<ITestConnectionResult | null>(null);
   syncResult = signal<ISyncResult | null>(null);
+  manualContent = signal('');
 
   providerTypeOptions = Object.values(IdentityProviderType)
     .filter((v): v is IdentityProviderType => typeof v === 'number')
@@ -90,6 +97,7 @@ export class IdentityProviderRowComponent {
     this.tabId.set('general');
     this.testResult.set(null);
     this.syncResult.set(null);
+    this.loadManual();
 
     if ((this.data as any).isDirty === CreateEntriesEnum.new) {
       const newProvider = new IdentityProvider();
@@ -173,5 +181,38 @@ export class IdentityProviderRowComponent {
     }
     this.wasSaved = true;
     this.providerChangedEvent.emit();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    const supportedLangs = ['de', 'en', 'fr', 'it'];
+    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
+
+    this.http
+      .get(`assets/docs/identity-provider-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (content) => {
+          this.manualContent.set(content);
+        },
+        error: () => {
+          this.http
+            .get('assets/docs/identity-provider-manual/de.html', { responseType: 'text' })
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (content) => {
+                this.manualContent.set(content);
+              },
+              error: () => {
+                this.manualContent.set('<p>Manual not available</p>');
+              },
+            });
+        },
+      });
   }
 }

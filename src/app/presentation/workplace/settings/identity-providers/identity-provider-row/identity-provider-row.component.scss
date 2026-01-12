@@ -3,6 +3,7 @@
 @use "../../../../../../assets/standard-styles/standard-modal.scss";
 @use "../../../../../../assets/standard-styles/settings-list-row.scss";
 @use "../../../../../../assets/standard-styles/modal-buttons.scss";
+@use "../../../../../../assets/standard-styles/standard-manual.scss";
 
 .row-line-modal-inline {
   flex-wrap: wrap;
@@ -129,3 +130,4 @@ button {
   height: 14px;
   margin-right: 5px;
 }
+

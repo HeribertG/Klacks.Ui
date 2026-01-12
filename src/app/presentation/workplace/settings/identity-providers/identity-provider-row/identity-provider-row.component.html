@@ -118,6 +118,15 @@
               >
             </li>
           }
+          <li id="identity-provider-modal-tab-help-item" class="nav-item">
+            <a
+              id="identity-provider-modal-tab-help-link"
+              class="nav-link"
+              [ngClass]="{ active: tabId() === 'help' }"
+              (click)="tabId.set('help')"
+              >{{ translate.instant("settings.identity-provider.tab-help") }}</a
+            >
+          </li>
         </ul>
       </div>
 
@@ -304,6 +313,19 @@
             <input type="text" class="form-control" id="scopes" [(ngModel)]="p.scopes" placeholder="openid profile email" style="width: calc(100% - 60px)" />
           </div>
         </div>
+      </div>
+
+      <!-- Help Tab -->
+      <div
+        id="identity-provider-modal-help-content"
+        class="collapse tab-content-box"
+        [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+      >
+        <div
+          id="identity-provider-modal-manual-content"
+          class="manual-content"
+          [innerHTML]="manualContent()"
+        ></div>
       </div>
     }
   </div>

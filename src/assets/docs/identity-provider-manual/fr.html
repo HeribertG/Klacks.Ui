@@ -1,0 +1,118 @@
+<h2>Manuel des fournisseurs d'identité</h2>
+
+<h3>Introduction</h3>
+<p>
+Les fournisseurs d'identité permettent l'authentification des utilisateurs via des services
+d'annuaire externes tels que LDAP, Active Directory ou OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Types de fournisseurs pris en charge:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Lightweight Directory Access Protocol standard</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - Framework d'autorisation OAuth 2.0</li>
+  <li><strong>OpenID Connect</strong> - Couche d'identité sur OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Paramètres de connexion</h4>
+<table>
+  <tr><th>Champ</th><th>Description</th><th>Exemple</th></tr>
+  <tr><td>Hôte</td><td>Nom d'hôte ou adresse IP du serveur LDAP</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) ou 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Utiliser SSL</td><td>Activer la connexion chiffrée</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Distinguished Name de base pour les recherches</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN de l'utilisateur pour la connexion</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Mot de passe Bind</td><td>Mot de passe de l'utilisateur bind</td><td>-</td></tr>
+  <tr><td>Filtre utilisateur</td><td>Filtre LDAP pour la recherche d'utilisateurs</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Différences LDAP vs Active Directory</h4>
+<table>
+  <tr><th>Caractéristique</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>Attribut utilisateur</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Attribut rue</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Attribut titre</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Attribut pays</td><td>-</td><td>c</td></tr>
+  <tr><td>Méthode d'auth</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Filtres utilisateur typiques</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Import de clients</h4>
+<p>Lorsque "Utiliser pour l'import de clients" est activé, les données suivantes sont importées:</p>
+<ul>
+  <li><strong>Nom</strong> - sn (nom de famille) ou displayName</li>
+  <li><strong>Prénom</strong> - givenName</li>
+  <li><strong>Titre</strong> - title (titre professionnel)</li>
+  <li><strong>Entreprise</strong> - company</li>
+  <li><strong>Adresse</strong> - street/streetAddress, postalCode, l (ville), st (état), c (pays)</li>
+  <li><strong>Genre</strong> - Depuis personalTitle (M./Mme) pour Active Directory</li>
+</ul>
+
+<p><em>Note: Pour OpenLDAP, le genre est par défaut "Neutre" et peut être corrigé manuellement.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Configuration</h4>
+<table>
+  <tr><th>Champ</th><th>Description</th></tr>
+  <tr><td>Client ID</td><td>L'ID client enregistré auprès du fournisseur</td></tr>
+  <tr><td>Client Secret</td><td>Le secret client associé</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant ID (optionnel, Microsoft uniquement)</td></tr>
+  <tr><td>URL d'autorisation</td><td>Point de terminaison pour l'autorisation</td></tr>
+  <tr><td>URL du token</td><td>Point de terminaison pour l'échange de token</td></tr>
+  <tr><td>URL info utilisateur</td><td>Point de terminaison pour les informations utilisateur</td></tr>
+  <tr><td>Scopes</td><td>Permissions demandées (ex: "openid profile email")</td></tr>
+</table>
+
+<h4>Fournisseurs connus</h4>
+<table>
+  <tr><th>Fournisseur</th><th>URL d'autorisation</th><th>URL du token</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Conseils</h3>
+
+<h4>Synology NAS comme serveur LDAP</h4>
+<p>
+Un NAS Synology peut être utilisé comme serveur LDAP. Installez le paquet
+"Serveur LDAP" ou un conteneur Docker avec OpenLDAP.
+</p>
+<ul>
+  <li>Type de fournisseur: "Active Directory" (pour l'authentification de secours)</li>
+  <li>Filtre utilisateur: (objectClass=inetOrgPerson)</li>
+  <li>Format DN utilisateur: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Tester la connexion</h4>
+<p>
+Utilisez le bouton "Tester la connexion" pour vérifier la configuration.
+En cas de connexion réussie, le nombre d'utilisateurs trouvés et quelques
+noms d'utilisateurs exemples seront affichés.
+</p>
+
+<h4>Dépannage</h4>
+<table>
+  <tr><th>Problème</th><th>Solution</th></tr>
+  <tr><td>Connexion échouée</td><td>Vérifier l'hôte, le port et les paramètres SSL</td></tr>
+  <tr><td>Bind échoué</td><td>Vérifier le Bind DN et le mot de passe</td></tr>
+  <tr><td>Aucun utilisateur trouvé</td><td>Vérifier le Base DN et le filtre utilisateur</td></tr>
+  <tr><td>Adresses non importées</td><td>OpenLDAP utilise "street" au lieu de "streetAddress"</td></tr>
+</table>

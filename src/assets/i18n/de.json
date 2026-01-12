@@ -1078,6 +1078,7 @@
   "settings.identity-provider.tab-general": "Allgemein",
   "settings.identity-provider.tab-connection": "Verbindung",
   "settings.identity-provider.tab-oauth": "OAuth",
+  "settings.identity-provider.tab-help": "Hilfe",
   "settings.identity-provider.enabled": "Aktiviert",
   "settings.identity-provider.disabled": "Deaktiviert",
   "settings.identity-provider.is-enabled": "Aktiviert",

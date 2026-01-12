@@ -1,0 +1,118 @@
+<h2>Identity Provider Manual</h2>
+
+<h3>Introduction</h3>
+<p>
+Identity Providers enable user authentication through external directory services
+such as LDAP, Active Directory, or OAuth2/OpenID Connect.
+</p>
+
+<p><strong>Supported Provider Types:</strong></p>
+<ul>
+  <li><strong>LDAP</strong> - Standard Lightweight Directory Access Protocol</li>
+  <li><strong>Active Directory</strong> - Microsoft Active Directory</li>
+  <li><strong>OAuth2</strong> - OAuth 2.0 Authorization Framework</li>
+  <li><strong>OpenID Connect</strong> - Identity layer on top of OAuth 2.0</li>
+</ul>
+
+<hr>
+
+<h3>LDAP / Active Directory</h3>
+
+<h4>Connection Settings</h4>
+<table>
+  <tr><th>Field</th><th>Description</th><th>Example</th></tr>
+  <tr><td>Host</td><td>Hostname or IP address of the LDAP server</td><td>ldap.example.com</td></tr>
+  <tr><td>Port</td><td>389 (LDAP) or 636 (LDAPS)</td><td>389</td></tr>
+  <tr><td>Use SSL</td><td>Enable encrypted connection</td><td>-</td></tr>
+  <tr><td>Base DN</td><td>Base Distinguished Name for searches</td><td>DC=example,DC=com</td></tr>
+  <tr><td>Bind DN</td><td>DN of the user for connection</td><td>CN=admin,DC=example,DC=com</td></tr>
+  <tr><td>Bind Password</td><td>Password for the bind user</td><td>-</td></tr>
+  <tr><td>User Filter</td><td>LDAP filter for user search</td><td>(objectClass=person)</td></tr>
+</table>
+
+<h4>Differences LDAP vs Active Directory</h4>
+<table>
+  <tr><th>Feature</th><th>LDAP (OpenLDAP)</th><th>Active Directory</th></tr>
+  <tr><td>User Attribute</td><td>uid</td><td>sAMAccountName</td></tr>
+  <tr><td>Street Attribute</td><td>street</td><td>streetAddress</td></tr>
+  <tr><td>Title Attribute</td><td>-</td><td>personalTitle</td></tr>
+  <tr><td>Country Attribute</td><td>-</td><td>c</td></tr>
+  <tr><td>Auth Method</td><td>Simple Bind</td><td>Negotiate/Kerberos</td></tr>
+</table>
+
+<h4>Typical User Filters</h4>
+<pre>
+LDAP:             (objectClass=person)
+                  (objectClass=inetOrgPerson)
+
+Active Directory: (&amp;(objectClass=user)(objectCategory=person))
+                  (&amp;(objectClass=user)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))
+</pre>
+
+<h4>Client Import</h4>
+<p>When "Use for Client Import" is enabled, the following data is imported:</p>
+<ul>
+  <li><strong>Name</strong> - sn (surname) or displayName</li>
+  <li><strong>First Name</strong> - givenName</li>
+  <li><strong>Title</strong> - title (job title)</li>
+  <li><strong>Company</strong> - company</li>
+  <li><strong>Address</strong> - street/streetAddress, postalCode, l (city), st (state), c (country)</li>
+  <li><strong>Gender</strong> - From personalTitle (Mr/Mrs) for Active Directory</li>
+</ul>
+
+<p><em>Note: For OpenLDAP, gender defaults to "Neutral" and can be manually corrected.</em></p>
+
+<hr>
+
+<h3>OAuth2 / OpenID Connect</h3>
+
+<h4>Configuration</h4>
+<table>
+  <tr><th>Field</th><th>Description</th></tr>
+  <tr><td>Client ID</td><td>The client ID registered with the provider</td></tr>
+  <tr><td>Client Secret</td><td>The associated client secret</td></tr>
+  <tr><td>Tenant ID</td><td>Azure AD Tenant ID (optional, Microsoft only)</td></tr>
+  <tr><td>Authorization URL</td><td>Endpoint for authorization</td></tr>
+  <tr><td>Token URL</td><td>Endpoint for token exchange</td></tr>
+  <tr><td>User Info URL</td><td>Endpoint for user information</td></tr>
+  <tr><td>Scopes</td><td>Requested permissions (e.g., "openid profile email")</td></tr>
+</table>
+
+<h4>Known Providers</h4>
+<table>
+  <tr><th>Provider</th><th>Authorization URL</th><th>Token URL</th></tr>
+  <tr><td>Google</td><td>https://accounts.google.com/o/oauth2/v2/auth</td><td>https://oauth2.googleapis.com/token</td></tr>
+  <tr><td>Microsoft</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/authorize</td><td>https://login.microsoftonline.com/{tenant}/oauth2/v2.0/token</td></tr>
+  <tr><td>GitHub</td><td>https://github.com/login/oauth/authorize</td><td>https://github.com/login/oauth/access_token</td></tr>
+</table>
+
+<hr>
+
+<h3>Tips</h3>
+
+<h4>Synology NAS as LDAP Server</h4>
+<p>
+A Synology NAS can be used as an LDAP server. Install the "LDAP Server" package
+or a Docker container with OpenLDAP.
+</p>
+<ul>
+  <li>Provider Type: "Active Directory" (for fallback authentication)</li>
+  <li>User Filter: (objectClass=inetOrgPerson)</li>
+  <li>User DN Format: cn=username,ou=users,dc=example,dc=com</li>
+</ul>
+
+<h4>Test Connection</h4>
+<p>
+Use the "Test Connection" button to verify the configuration.
+On successful connection, the number of users found and some
+sample usernames will be displayed.
+</p>
+
+<h4>Troubleshooting</h4>
+<table>
+  <tr><th>Problem</th><th>Solution</th></tr>
+  <tr><td>Connection failed</td><td>Check host, port, and SSL settings</td></tr>
+  <tr><td>Bind failed</td><td>Check Bind DN and password</td></tr>
+  <tr><td>No users found</td><td>Check Base DN and User Filter</td></tr>
+  <tr><td>Addresses not imported</td><td>OpenLDAP uses "street" instead of "streetAddress"</td></tr>
+</table>
