@@ -10,9 +10,10 @@
     <fa-icon [icon]="faSearch" aria-hidden="true"></fa-icon>
   </button>
 
-  <div ngbDropdownMenu>
+  <div id="calendar-dropdown-menu" ngbDropdownMenu>
     <div class="px-4 py-3">
       <select
+        id="calendar-dropdown-country-select"
         class="form-select select-country"
         [(ngModel)]="dataManagementCalendarRulesService.selectedCountry"
         name="selectedCountry"
@@ -30,6 +31,7 @@
 
       <div class="form-group">
         <button
+          id="calendar-dropdown-select-all-btn"
           type="button"
           class="btn btn-secondary btn-sm max-width"
           (click)="onSelectStates(true)"
@@ -38,6 +40,7 @@
         </button>
         <p></p>
         <button
+          id="calendar-dropdown-deselect-all-btn"
           type="button"
           class="btn btn-secondary btn-sm max-width"
           (click)="onSelectStates(false)"
@@ -49,16 +52,18 @@
 
     <div class="form-group">
       @if (hasFilteredTokens) {
-      <div class="checkbox-container">
+      <div id="calendar-dropdown-states-container" class="checkbox-container">
         @for (item of dataManagementCalendarRulesService.filteredRulesToken;
         track item.state; let i = $index) {
         <label
+          [attr.id]="'calendar-dropdown-state-' + item.country + '-' + item.state"
           class="checkbox-label single-line"
           placement="right"
           ngbTooltip="{{ item.stateName | fallback : currentLang }}"
           autoClose="true"
         >
           <input
+            [attr.id]="'calendar-dropdown-checkbox-' + item.country + '-' + item.state"
             type="checkbox"
             [(ngModel)]="item.select"
             name="{{ item.state }}"
@@ -74,7 +79,7 @@
 
     <div class="dropdown-divider"></div>
 
-    <button type="button" ngbDropdownItem (click)="onClose()">
+    <button id="calendar-dropdown-close-btn" type="button" ngbDropdownItem (click)="onClose()">
       {{ "close" | translate }}
     </button>
   </div>

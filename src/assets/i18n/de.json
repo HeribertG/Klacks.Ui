@@ -596,6 +596,8 @@
   "setting.bank.subscriber-number": "BESR Nummer",
   "setting.bank.zip": "PLZ",
   "setting.calendar-rule.title": "Feiertagsregeln",
+  "setting.calendar-rule.tab-form": "Regel",
+  "setting.calendar-rule.tab-help": "Erklärungen",
   "setting.color-table.headline": "Tabellenfarbe verwalten",
   "setting.color-table.row.color": "Farbe",
   "setting.color-table.row.constant": "Konstante",

@@ -1,0 +1,82 @@
+<h2>Feiertagsregeln - Erklärungen</h2>
+
+<h3>Regel-Format</h3>
+<p>Es gibt zwei Arten von Regeln: <strong>feste Daten</strong> und <strong>Oster-bezogene Daten</strong>.</p>
+
+<h4>Feste Daten</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Beispiel</th><th>Bedeutung</th></tr>
+  <tr><td><code>01/01</code></td><td>1. Januar (Neujahr)</td></tr>
+  <tr><td><code>12/25</code></td><td>25. Dezember (Weihnachten)</td></tr>
+  <tr><td><code>08/01</code></td><td>1. August (Schweizer Nationalfeiertag)</td></tr>
+</table>
+
+<h4>Feste Daten mit Wochentag-Verschiebung</h4>
+<p>Format: <code>MM/DD+XXX+WW</code> oder <code>MM/DD+XXX-WW</code></p>
+<ul>
+  <li><code>XXX</code> = Offset in Tagen (000 bis 999)</li>
+  <li><code>+</code> = nächster Wochentag nach dem Datum</li>
+  <li><code>-</code> = vorheriger Wochentag vor dem Datum</li>
+  <li><code>WW</code> = Wochentag (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Beispiel</th><th>Bedeutung</th></tr>
+  <tr><td><code>11/01+000+TH</code></td><td>Erster Donnerstag im November</td></tr>
+  <tr><td><code>11/22+000+TH</code></td><td>Vierter Donnerstag im November (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+000-MO</code></td><td>Letzter Montag im Mai (Memorial Day)</td></tr>
+</table>
+
+<h4>Oster-bezogene Daten</h4>
+<p>Format: <code>EASTER+XX</code> oder <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Beispiel</th><th>Bedeutung</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Ostersonntag</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Karfreitag (2 Tage vor Ostern)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Ostermontag (1 Tag nach Ostern)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Auffahrt/Christi Himmelfahrt (39 Tage nach Ostern)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pfingstsonntag (49 Tage nach Ostern)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Pfingstmontag (50 Tage nach Ostern)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Fronleichnam (60 Tage nach Ostern)</td></tr>
+</table>
+
+<hr>
+
+<h3>SubRule-Format</h3>
+<p>SubRules ermöglichen die automatische Verschiebung eines Feiertags, wenn er auf einen bestimmten Wochentag fällt.</p>
+<p>Format: <code>WW+X</code> oder <code>WW-X</code>, mehrere Regeln mit <code>;</code> getrennt</p>
+<ul>
+  <li><code>WW</code> = Wochentag (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = X Tage nach vorne verschieben</li>
+  <li><code>-X</code> = X Tage nach hinten verschieben</li>
+</ul>
+<table>
+  <tr><th>Beispiel</th><th>Bedeutung</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Wenn Samstag: +2 Tage (Montag), wenn Sonntag: +1 Tag (Montag)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Wenn Sonntag: auf Montag verschieben</td></tr>
+</table>
+
+<p><em>Hinweis: SubRules werden typischerweise verwendet, um Feiertage, die auf ein Wochenende fallen, auf den nächsten Werktag zu verschieben.</em></p>
+
+<hr>
+
+<h3>Wochentag-Kürzel</h3>
+<table>
+  <tr><th>Kürzel</th><th>Wochentag</th></tr>
+  <tr><td>SU</td><td>Sonntag (Sunday)</td></tr>
+  <tr><td>MO</td><td>Montag (Monday)</td></tr>
+  <tr><td>TU</td><td>Dienstag (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Mittwoch (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Donnerstag (Thursday)</td></tr>
+  <tr><td>FR</td><td>Freitag (Friday)</td></tr>
+  <tr><td>SA</td><td>Samstag (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Checkboxen</h3>
+<table>
+  <tr><th>Checkbox</th><th>Bedeutung</th></tr>
+  <tr><td>Gesetzlicher Feiertag</td><td>Der Tag ist ein offizieller/gesetzlicher Feiertag</td></tr>
+  <tr><td>Bezahlt</td><td>Der Feiertag wird bezahlt (relevant für Lohnberechnung)</td></tr>
+</table>

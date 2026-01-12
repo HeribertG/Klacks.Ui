@@ -1,0 +1,82 @@
+<h2>Holiday Rules - Explanations</h2>
+
+<h3>Rule Format</h3>
+<p>There are two types of rules: <strong>fixed dates</strong> and <strong>Easter-related dates</strong>.</p>
+
+<h4>Fixed Dates</h4>
+<p>Format: <code>MM/DD</code></p>
+<table>
+  <tr><th>Example</th><th>Meaning</th></tr>
+  <tr><td><code>01/01</code></td><td>January 1st (New Year's Day)</td></tr>
+  <tr><td><code>12/25</code></td><td>December 25th (Christmas)</td></tr>
+  <tr><td><code>07/04</code></td><td>July 4th (Independence Day)</td></tr>
+</table>
+
+<h4>Fixed Dates with Weekday Offset</h4>
+<p>Format: <code>MM/DD+XXX+WW</code> or <code>MM/DD+XXX-WW</code></p>
+<ul>
+  <li><code>XXX</code> = Offset in days (000 to 999)</li>
+  <li><code>+</code> = next weekday after the date</li>
+  <li><code>-</code> = previous weekday before the date</li>
+  <li><code>WW</code> = Weekday (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Example</th><th>Meaning</th></tr>
+  <tr><td><code>11/01+000+TH</code></td><td>First Thursday in November</td></tr>
+  <tr><td><code>11/22+000+TH</code></td><td>Fourth Thursday in November (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+000-MO</code></td><td>Last Monday in May (Memorial Day)</td></tr>
+</table>
+
+<h4>Easter-Related Dates</h4>
+<p>Format: <code>EASTER+XX</code> or <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Example</th><th>Meaning</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Easter Sunday</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Good Friday (2 days before Easter)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Easter Monday (1 day after Easter)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Ascension Day (39 days after Easter)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Whit Sunday/Pentecost (49 days after Easter)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Whit Monday (50 days after Easter)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Christi (60 days after Easter)</td></tr>
+</table>
+
+<hr>
+
+<h3>SubRule Format</h3>
+<p>SubRules allow automatic shifting of a holiday when it falls on a specific weekday.</p>
+<p>Format: <code>WW+X</code> or <code>WW-X</code>, multiple rules separated by <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Weekday (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Shift X days forward</li>
+  <li><code>-X</code> = Shift X days backward</li>
+</ul>
+<table>
+  <tr><th>Example</th><th>Meaning</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>If Saturday: +2 days (Monday), if Sunday: +1 day (Monday)</td></tr>
+  <tr><td><code>SU+1</code></td><td>If Sunday: shift to Monday</td></tr>
+</table>
+
+<p><em>Note: SubRules are typically used to shift holidays that fall on weekends to the next business day.</em></p>
+
+<hr>
+
+<h3>Weekday Abbreviations</h3>
+<table>
+  <tr><th>Abbreviation</th><th>Weekday</th></tr>
+  <tr><td>SU</td><td>Sunday</td></tr>
+  <tr><td>MO</td><td>Monday</td></tr>
+  <tr><td>TU</td><td>Tuesday</td></tr>
+  <tr><td>WE</td><td>Wednesday</td></tr>
+  <tr><td>TH</td><td>Thursday</td></tr>
+  <tr><td>FR</td><td>Friday</td></tr>
+  <tr><td>SA</td><td>Saturday</td></tr>
+</table>
+
+<hr>
+
+<h3>Checkboxes</h3>
+<table>
+  <tr><th>Checkbox</th><th>Meaning</th></tr>
+  <tr><td>Public Holiday</td><td>The day is an official/public holiday</td></tr>
+  <tr><td>Paid</td><td>The holiday is paid (relevant for payroll calculation)</td></tr>
+</table>

@@ -1,0 +1,82 @@
+<h2>Regole per i giorni festivi - Spiegazioni</h2>
+
+<h3>Formato delle regole</h3>
+<p>Esistono due tipi di regole: <strong>date fisse</strong> e <strong>date relative alla Pasqua</strong>.</p>
+
+<h4>Date fisse</h4>
+<p>Formato: <code>MM/DD</code></p>
+<table>
+  <tr><th>Esempio</th><th>Significato</th></tr>
+  <tr><td><code>01/01</code></td><td>1 gennaio (Capodanno)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 dicembre (Natale)</td></tr>
+  <tr><td><code>08/15</code></td><td>15 agosto (Ferragosto)</td></tr>
+</table>
+
+<h4>Date fisse con spostamento giorno</h4>
+<p>Formato: <code>MM/DD+XXX+WW</code> o <code>MM/DD+XXX-WW</code></p>
+<ul>
+  <li><code>XXX</code> = Offset in giorni (000 a 999)</li>
+  <li><code>+</code> = prossimo giorno della settimana dopo la data</li>
+  <li><code>-</code> = giorno della settimana precedente prima della data</li>
+  <li><code>WW</code> = Giorno della settimana (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Esempio</th><th>Significato</th></tr>
+  <tr><td><code>11/01+000+TH</code></td><td>Primo giovedì di novembre</td></tr>
+  <tr><td><code>11/22+000+TH</code></td><td>Quarto giovedì di novembre (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+000-MO</code></td><td>Ultimo lunedì di maggio (Memorial Day)</td></tr>
+</table>
+
+<h4>Date relative alla Pasqua</h4>
+<p>Formato: <code>EASTER+XX</code> o <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Esempio</th><th>Significato</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Domenica di Pasqua</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Venerdì Santo (2 giorni prima di Pasqua)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Lunedì di Pasqua (1 giorno dopo Pasqua)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Ascensione (39 giorni dopo Pasqua)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pentecoste (49 giorni dopo Pasqua)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Lunedì di Pentecoste (50 giorni dopo Pasqua)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Corpus Domini (60 giorni dopo Pasqua)</td></tr>
+</table>
+
+<hr>
+
+<h3>Formato delle sotto-regole</h3>
+<p>Le sotto-regole permettono lo spostamento automatico di un giorno festivo quando cade in un giorno specifico.</p>
+<p>Formato: <code>WW+X</code> o <code>WW-X</code>, più regole separate da <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Giorno della settimana (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Spostare di X giorni in avanti</li>
+  <li><code>-X</code> = Spostare di X giorni indietro</li>
+</ul>
+<table>
+  <tr><th>Esempio</th><th>Significato</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Se sabato: +2 giorni (lunedì), se domenica: +1 giorno (lunedì)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Se domenica: spostare a lunedì</td></tr>
+</table>
+
+<p><em>Nota: Le sotto-regole sono tipicamente utilizzate per spostare i giorni festivi che cadono nel fine settimana al giorno lavorativo successivo.</em></p>
+
+<hr>
+
+<h3>Abbreviazioni dei giorni</h3>
+<table>
+  <tr><th>Abbreviazione</th><th>Giorno</th></tr>
+  <tr><td>SU</td><td>Domenica (Sunday)</td></tr>
+  <tr><td>MO</td><td>Lunedì (Monday)</td></tr>
+  <tr><td>TU</td><td>Martedì (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Mercoledì (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Giovedì (Thursday)</td></tr>
+  <tr><td>FR</td><td>Venerdì (Friday)</td></tr>
+  <tr><td>SA</td><td>Sabato (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Caselle di controllo</h3>
+<table>
+  <tr><th>Casella</th><th>Significato</th></tr>
+  <tr><td>Giorno festivo ufficiale</td><td>Il giorno è un giorno festivo ufficiale/legale</td></tr>
+  <tr><td>Pagato</td><td>Il giorno festivo è pagato (rilevante per il calcolo dello stipendio)</td></tr>
+</table>

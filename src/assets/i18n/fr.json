@@ -590,6 +590,8 @@
   "setting.bank.subscriber-number": "Numéro BESR",
   "setting.bank.zip": "Code postal",
   "setting.calendar-rule.title": "Règles des jours fériés",
+  "setting.calendar-rule.tab-form": "Règle",
+  "setting.calendar-rule.tab-help": "Explications",
   "setting.color-table.headline": "Gérer les couleurs de tableau",
   "setting.color-table.row.color": "Couleur",
   "setting.color-table.row.constant": "Constante",

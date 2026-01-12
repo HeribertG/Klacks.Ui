@@ -1,0 +1,82 @@
+<h2>Règles des jours fériés - Explications</h2>
+
+<h3>Format des règles</h3>
+<p>Il existe deux types de règles : <strong>dates fixes</strong> et <strong>dates relatives à Pâques</strong>.</p>
+
+<h4>Dates fixes</h4>
+<p>Format : <code>MM/DD</code></p>
+<table>
+  <tr><th>Exemple</th><th>Signification</th></tr>
+  <tr><td><code>01/01</code></td><td>1er janvier (Nouvel An)</td></tr>
+  <tr><td><code>12/25</code></td><td>25 décembre (Noël)</td></tr>
+  <tr><td><code>07/14</code></td><td>14 juillet (Fête nationale)</td></tr>
+</table>
+
+<h4>Dates fixes avec décalage de jour</h4>
+<p>Format : <code>MM/DD+XXX+WW</code> ou <code>MM/DD+XXX-WW</code></p>
+<ul>
+  <li><code>XXX</code> = Décalage en jours (000 à 999)</li>
+  <li><code>+</code> = prochain jour de la semaine après la date</li>
+  <li><code>-</code> = jour de la semaine précédent avant la date</li>
+  <li><code>WW</code> = Jour de la semaine (SU, MO, TU, WE, TH, FR, SA)</li>
+</ul>
+<table>
+  <tr><th>Exemple</th><th>Signification</th></tr>
+  <tr><td><code>11/01+000+TH</code></td><td>Premier jeudi de novembre</td></tr>
+  <tr><td><code>11/22+000+TH</code></td><td>Quatrième jeudi de novembre (Thanksgiving)</td></tr>
+  <tr><td><code>05/25+000-MO</code></td><td>Dernier lundi de mai (Memorial Day)</td></tr>
+</table>
+
+<h4>Dates relatives à Pâques</h4>
+<p>Format : <code>EASTER+XX</code> ou <code>EASTER-XX</code></p>
+<table>
+  <tr><th>Exemple</th><th>Signification</th></tr>
+  <tr><td><code>EASTER+00</code></td><td>Dimanche de Pâques</td></tr>
+  <tr><td><code>EASTER-02</code></td><td>Vendredi Saint (2 jours avant Pâques)</td></tr>
+  <tr><td><code>EASTER+01</code></td><td>Lundi de Pâques (1 jour après Pâques)</td></tr>
+  <tr><td><code>EASTER+39</code></td><td>Ascension (39 jours après Pâques)</td></tr>
+  <tr><td><code>EASTER+49</code></td><td>Pentecôte (49 jours après Pâques)</td></tr>
+  <tr><td><code>EASTER+50</code></td><td>Lundi de Pentecôte (50 jours après Pâques)</td></tr>
+  <tr><td><code>EASTER+60</code></td><td>Fête-Dieu (60 jours après Pâques)</td></tr>
+</table>
+
+<hr>
+
+<h3>Format des sous-règles</h3>
+<p>Les sous-règles permettent le décalage automatique d'un jour férié lorsqu'il tombe un jour spécifique.</p>
+<p>Format : <code>WW+X</code> ou <code>WW-X</code>, plusieurs règles séparées par <code>;</code></p>
+<ul>
+  <li><code>WW</code> = Jour de la semaine (SU, MO, TU, WE, TH, FR, SA)</li>
+  <li><code>+X</code> = Décaler de X jours en avant</li>
+  <li><code>-X</code> = Décaler de X jours en arrière</li>
+</ul>
+<table>
+  <tr><th>Exemple</th><th>Signification</th></tr>
+  <tr><td><code>SA+2;SU+1</code></td><td>Si samedi : +2 jours (lundi), si dimanche : +1 jour (lundi)</td></tr>
+  <tr><td><code>SU+1</code></td><td>Si dimanche : décaler au lundi</td></tr>
+</table>
+
+<p><em>Remarque : Les sous-règles sont généralement utilisées pour décaler les jours fériés tombant un week-end au jour ouvrable suivant.</em></p>
+
+<hr>
+
+<h3>Abréviations des jours</h3>
+<table>
+  <tr><th>Abréviation</th><th>Jour</th></tr>
+  <tr><td>SU</td><td>Dimanche (Sunday)</td></tr>
+  <tr><td>MO</td><td>Lundi (Monday)</td></tr>
+  <tr><td>TU</td><td>Mardi (Tuesday)</td></tr>
+  <tr><td>WE</td><td>Mercredi (Wednesday)</td></tr>
+  <tr><td>TH</td><td>Jeudi (Thursday)</td></tr>
+  <tr><td>FR</td><td>Vendredi (Friday)</td></tr>
+  <tr><td>SA</td><td>Samedi (Saturday)</td></tr>
+</table>
+
+<hr>
+
+<h3>Cases à cocher</h3>
+<table>
+  <tr><th>Case</th><th>Signification</th></tr>
+  <tr><td>Jour férié légal</td><td>Le jour est un jour férié officiel/légal</td></tr>
+  <tr><td>Payé</td><td>Le jour férié est payé (pertinent pour le calcul de la paie)</td></tr>
+</table>

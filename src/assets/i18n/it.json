@@ -590,6 +590,8 @@
   "setting.bank.subscriber-number": "Numero BESR",
   "setting.bank.zip": "CAP",
   "setting.calendar-rule.title": "Regole per le vacanze",
+  "setting.calendar-rule.tab-form": "Regola",
+  "setting.calendar-rule.tab-help": "Spiegazioni",
   "setting.color-table.headline": "Gestisci i Colori delle Tabelle",
   "setting.color-table.row.color": "Colore",
   "setting.color-table.row.constant": "Costante",

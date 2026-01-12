@@ -22,7 +22,30 @@
   </div>
 
   <div id="calendar-rules-modal-body" class="modal-body first-modal">
-    <form id="calendar-rules-modal-form">
+    <div id="calendar-rules-modal-tabs-container">
+      <ul id="calendar-rules-modal-tabs" class="nav nav-tabs">
+        <li id="calendar-rules-modal-tab-form-item" class="nav-item">
+          <a
+            id="calendar-rules-modal-tab-form-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'form' }"
+            (click)="tabId.set('form')"
+            >{{ translate.instant("setting.calendar-rule.tab-form") }}</a
+          >
+        </li>
+        <li id="calendar-rules-modal-tab-help-item" class="nav-item">
+          <a
+            id="calendar-rules-modal-tab-help-link"
+            class="nav-link"
+            [ngClass]="{ active: tabId() === 'help' }"
+            (click)="tabId.set('help')"
+            >{{ translate.instant("setting.calendar-rule.tab-help") }}</a
+          >
+        </li>
+      </ul>
+    </div>
+
+    <form id="calendar-rules-modal-form" [ngStyle]="{ display: tabId() === 'form' ? 'block' : 'none' }">
       <div id="calendar-rules-modal-name-row" class="row-line">
         <label for="ruleName">{{
           translate.instant("setting.holiday-rules.name")
@@ -150,6 +173,18 @@
         ><label id="calendar-rules-modal-result" class="rule-result"> {{ currentResult }}</label>
       </div>
     </form>
+
+    <div
+      id="calendar-rules-modal-help-content"
+      class="collapse tab-content-box"
+      [ngStyle]="{ display: tabId() === 'help' ? 'block' : 'none' }"
+    >
+      <div
+        id="calendar-rules-modal-manual-content"
+        class="manual-content"
+        [innerHTML]="manualContent()"
+      ></div>
+    </div>
   </div>
 
   <div id="calendar-rules-modal-footer" class="modal-footer">
@@ -166,7 +201,7 @@
       class="btn save-btn"
       (click)="modal.close()"
       [disabled]="
-        ruleFormModel().name === '' || ruleFormModel().rule === '' || currentRule.state === ''
+        ruleFormModel().name === '' || ruleFormModel().rule === '' || currentRule.country === '' || currentRule.state === ''
       "
     >
       {{ translate.instant("setting.absence.modal.add") }}

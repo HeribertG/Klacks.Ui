@@ -9,8 +9,10 @@ import {
   signal,
 } from '@angular/core';
 
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { form, Field } from '@angular/forms/signals';
+import { HttpClient } from '@angular/common/http';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   NgbModal,
@@ -61,6 +63,7 @@ interface RuleFormModel {
   styleUrls: ['./calendar-rules.component.scss'],
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     Field,
     TranslateModule,
@@ -89,6 +92,7 @@ export class CalendarRulesComponent
 
   private modalService = inject(ModalService);
   private ngbModal = inject(NgbModal);
+  private http = inject(HttpClient);
 
   // Pagination properties
   highlightRowId: string | undefined = undefined;
@@ -123,6 +127,8 @@ export class CalendarRulesComponent
   selectedCountry = '';
   headerCalendarDropdown = '';
   isComboBoxOpen = false;
+  tabId = signal<'form' | 'help'>('form');
+  manualContent = signal('');
 
   // Clean up resources
   private ngUnsubscribe = new Subject<void>();
@@ -443,6 +449,8 @@ export class CalendarRulesComponent
   }
 
   openNewRule(content: any): void {
+    this.tabId.set('form');
+    this.loadManual();
     this.ngbModal
       .open(content, {
         size: 'md',
@@ -480,4 +488,34 @@ export class CalendarRulesComponent
     this.sortingService.onHeaderClick(orderBy, () => this.readPage());
   }
   /* #endregion Header Sorting */
+
+  /* #region Help */
+  loadManual(): void {
+    const lang = this.translate.currentLang || 'de';
+    const supportedLangs = ['de', 'en', 'fr', 'it'];
+    const effectiveLang = supportedLangs.includes(lang) ? lang : 'de';
+
+    this.http
+      .get(`assets/docs/calendar-rule-manual/${effectiveLang}.html`, { responseType: 'text' })
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (content) => {
+          this.manualContent.set(content);
+        },
+        error: () => {
+          this.http
+            .get('assets/docs/calendar-rule-manual/de.html', { responseType: 'text' })
+            .pipe(takeUntil(this.ngUnsubscribe))
+            .subscribe({
+              next: (content) => {
+                this.manualContent.set(content);
+              },
+              error: () => {
+                this.manualContent.set('<p>Manual not available</p>');
+              },
+            });
+        },
+      });
+  }
+  /* #endregion Help */
 }

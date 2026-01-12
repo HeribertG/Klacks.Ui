@@ -594,6 +594,8 @@
   "setting.bank.subscriber-number": "BESR Number",
   "setting.bank.zip": "ZIP Code",
   "setting.calendar-rule.title": "Holiday rules",
+  "setting.calendar-rule.tab-form": "Rule",
+  "setting.calendar-rule.tab-help": "Explanations",
   "setting.color-table.headline": "Manage Table Colors",
   "setting.color-table.row.color": "Color",
   "setting.color-table.row.constant": "Constant",
