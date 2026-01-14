@@ -6,9 +6,20 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MacroRowComponent } from './macro-row.component';
 import { ScriptService } from 'src/app/infrastructure/scripting/script.service';
 import { MacroManagementService } from 'src/app/domain/services/settings/macro-management.service';
-import { IMacro, Macro } from 'src/app/domain/models/macro-class';
+import { IMacro } from 'src/app/domain/models/macro-class';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MacroTypes } from 'src/app/domain/enums/macro-type.enum';
+import { WritableSignal } from '@angular/core';
+
+interface MacroFormModel {
+  name: string;
+  type: string;
+  content: string;
+}
+
+interface MacroRowComponentPrivate {
+  macroModel: WritableSignal<MacroFormModel>;
+}
 
 describe('MacroRowComponent', () => {
   let component: MacroRowComponent;
@@ -111,7 +122,7 @@ describe('MacroRowComponent', () => {
       component.ngOnChanges();
 
       // Assert
-      const model = (component as any).macroModel();
+      const model = (component as unknown as MacroRowComponentPrivate).macroModel();
       expect(model.name).toBe('My Macro');
       expect(model.type).toBe(String(MacroTypes.WorkRules));
       expect(component.editorContent()).toBe('dim y as integer');
@@ -198,7 +209,7 @@ describe('MacroRowComponent', () => {
     it('should update data from form and editorContent', () => {
       // Arrange
       component.ngOnChanges();
-      (component as any).macroModel.set({
+      (component as unknown as MacroRowComponentPrivate).macroModel.set({
         name: 'Updated Name',
         type: String(MacroTypes.WorkRules),
         content: '',

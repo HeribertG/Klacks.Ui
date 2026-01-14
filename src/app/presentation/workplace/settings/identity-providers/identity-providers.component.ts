@@ -6,6 +6,7 @@ import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-
 import { IdentityProviderHeaderComponent } from './identity-provider-header/identity-provider-header.component';
 import { IdentityProviderRowComponent } from './identity-provider-row/identity-provider-row.component';
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
+import { IIdentityProviderListItem } from 'src/app/domain/interfaces/identity-provider.interface';
 import { DataManagementIdentityProviderService } from 'src/app/domain/services/settings/data-management-identity-provider.service';
 import { CreateEntriesEnum } from 'src/app/domain/enums/client-enum';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
@@ -76,7 +77,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
     provider.isDirty = CreateEntriesEnum.new;
 
     this.pendingOpenProvider = provider;
-    this.providerService.providerList.update(list => [...list, provider as any]);
+    this.providerService.providerList.update(list => [...list, provider as IIdentityProviderListItem]);
   }
 
   cancelNewProvider(index: number): void {
@@ -118,7 +119,7 @@ export class IdentityProvidersComponent implements OnInit, AfterViewInit, OnDest
       const provider = providers[index];
 
       if (provider) {
-        if ((provider as any).isDirty === CreateEntriesEnum.new) {
+        if (provider.isDirty === CreateEntriesEnum.new) {
           this.providerService.providerList.update(list => [
             ...list.slice(0, index),
             ...list.slice(index + 1)

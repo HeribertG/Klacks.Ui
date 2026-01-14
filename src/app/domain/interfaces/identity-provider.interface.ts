@@ -1,4 +1,5 @@
 import { IdentityProviderType } from '../enums/identity-provider-enum';
+import { CreateEntriesEnum } from '../enums/client-enum';
 
 export interface IIdentityProvider {
   id: string;
@@ -39,6 +40,7 @@ export interface IIdentityProviderListItem {
   lastSyncTime?: string;
   lastSyncCount?: number;
   lastSyncError?: string;
+  isDirty?: CreateEntriesEnum;
 }
 
 export interface ITestConnectionResult {

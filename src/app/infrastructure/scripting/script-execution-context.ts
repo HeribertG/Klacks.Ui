@@ -610,7 +610,7 @@ export class ScriptExecutionContext {
     const lengthEntry = this.scopes!.popScopes();
     const startEntry = this.scopes!.popScopes();
     const strEntry = this.scopes!.popScopes();
-    let length = this.extractValueFromEntry(lengthEntry).asInt();
+    const length = this.extractValueFromEntry(lengthEntry).asInt();
     let start = this.extractValueFromEntry(startEntry).asInt() - 1;
     const str = this.extractValueFromEntry(strEntry).asString();
     if (start < 0) start = 0;

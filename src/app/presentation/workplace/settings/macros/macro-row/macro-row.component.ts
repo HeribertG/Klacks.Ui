@@ -279,7 +279,6 @@ export class MacroRowComponent implements OnChanges, OnDestroy {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private setCursorPosition(line: number, column: number): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const view = (this.codeEditor as any)?.view;

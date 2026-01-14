@@ -85,7 +85,8 @@ describe('UserAdministrationComponent', () => {
             updateAccountRole: vi.fn(),
             requestPasswordReset: vi.fn(),
             accountsList: signal([...mockUsers]),
-            currentAccountId: signal('current-user-id')
+            currentAccountId: signal('current-user-id'),
+            generatedUsername: signal('')
         };
 
         const modalServiceSpy = {

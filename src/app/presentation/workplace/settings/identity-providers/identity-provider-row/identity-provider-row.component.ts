@@ -99,7 +99,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
     this.syncResult.set(null);
     this.loadManual();
 
-    if ((this.data as any).isDirty === CreateEntriesEnum.new) {
+    if (this.data.isDirty === CreateEntriesEnum.new) {
       const newProvider = new IdentityProvider();
       newProvider.name = this.data.name;
       newProvider.type = this.data.type;
@@ -125,7 +125,7 @@ export class IdentityProviderRowComponent implements OnDestroy {
         this.editProvider.set(null);
       },
       () => {
-        if (!this.wasSaved && (this.data as any).isDirty === CreateEntriesEnum.new) {
+        if (!this.wasSaved && this.data.isDirty === CreateEntriesEnum.new) {
           this.cancelNewEvent.emit();
         }
         this.editProvider.set(null);

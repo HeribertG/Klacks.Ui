@@ -4,7 +4,6 @@ import { takeUntil } from 'rxjs/operators';
 import { DataIdentityProviderService } from 'src/app/infrastructure/api/data-identity-provider.service';
 import { IdentityProvider } from 'src/app/domain/models/identity-provider-class';
 import {
-  IIdentityProvider,
   IIdentityProviderListItem,
   ITestConnectionResult,
   ISyncResult,

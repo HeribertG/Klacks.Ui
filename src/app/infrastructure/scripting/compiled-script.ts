@@ -65,8 +65,8 @@ export class CompiledScript {
 
     const instructions: unknown[][] = [];
     const codeStack = code.codeStack();
-    for (let i = 0; i < codeStack.length; i++) {
-      instructions.push(codeStack[i] as unknown[]);
+    for (const instruction of codeStack) {
+      instructions.push(instruction as unknown[]);
     }
 
     const externalSymbols = new Map<string, Identifier>();

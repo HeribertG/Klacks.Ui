@@ -14,9 +14,9 @@ describe('SettingsGeneralComponent', () => {
     let component: SettingsGeneralComponent;
     let fixture: ComponentFixture<SettingsGeneralComponent>;
     let mockDataLoadFileService: any;
-    let mockSettingsService: any;
+    let _mockSettingsService: any;
     let _mockTranslateService: any;
-    let mockTitleService: any;
+    let _mockTitleService: any;
 
     beforeEach(async () => {
         const dataLoadFileServiceSpy = {
@@ -72,9 +72,9 @@ describe('SettingsGeneralComponent', () => {
         }).compileComponents();
 
         mockDataLoadFileService = TestBed.inject(DataLoadFileService) as any;
-        mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
+        _mockSettingsService = TestBed.inject(DataManagementSettingsService) as any;
         _mockTranslateService = TestBed.inject(TranslateService) as any;
-        mockTitleService = TestBed.inject(Title) as any;
+        _mockTitleService = TestBed.inject(Title) as any;
 
         fixture = TestBed.createComponent(SettingsGeneralComponent);
         component = fixture.componentInstance;

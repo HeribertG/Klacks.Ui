@@ -9,6 +9,12 @@ import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 import { ToastShowService } from 'src/app/presentation/toast/toast-show.service';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
 import { TranslateModule } from '@ngx-translate/core';
+import { MyToken } from 'src/app/domain/models/authentification-class';
+
+interface OAuth2Token extends MyToken {
+  userName?: string;
+  expires?: Date;
+}
 
 @Component({
   selector: 'app-oauth2-callback',
@@ -121,7 +127,7 @@ export class OAuth2CallbackComponent implements OnInit {
     this.navigationService.navigateToRoot();
   }
 
-  private storeToken(token: any, state: string): void {
+  private storeToken(token: OAuth2Token, state: string): void {
     this.localStorageService.set(MessageLibrary.TOKEN, token.token);
     this.localStorageService.set(MessageLibrary.TOKEN_USERNAME, token.userName || token.username);
     this.localStorageService.set(MessageLibrary.TOKEN_USERID, token.id);

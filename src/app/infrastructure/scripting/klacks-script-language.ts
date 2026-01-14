@@ -71,7 +71,7 @@ function tokenBase(stream: StringStream, state: KlacksScriptState): string | nul
     return 'number';
   }
 
-  if (/[+\-*\/\\%^!&]/.test(ch as string)) {
+  if (/[+\-*/\\%^!&]/.test(ch as string)) {
     stream.match(/^=/);
     return 'operator';
   }

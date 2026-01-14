@@ -68,8 +68,8 @@ export class Code {
   clone(): Code {
     const result = new Code(this.interpreterError, this.stringInput);
 
-    for (let i = 0; i < this.code.length; i++) {
-      result.cloneAdd(this.code[i]);
+    for (const codeItem of this.code) {
+      result.cloneAdd(codeItem);
     }
 
     for (let i = 0; i < this._external.cloneCount(); i++) {

@@ -89,7 +89,7 @@ describe('Debug and Function Interaction', () => {
          `;
          
          // If this compiles, it might crash runtime.
-         const result = service.run(script, false, false);
+         const _result = service.run(script, false, false);
          
          // If it's disallowed, success should be false. If it runs and crashes/hangs/pops wrong value, that's the bug.
          // For now, let's see what happens.
