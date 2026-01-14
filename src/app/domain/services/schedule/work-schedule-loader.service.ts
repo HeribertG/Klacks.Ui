@@ -30,6 +30,7 @@ export class WorkScheduleLoaderService {
 
   private _isLoadingMore = signal(false);
   private _isRead = signal(false);
+  private _currentLoadId = 0;
 
   public workScheduleEntries: IScheduleCell[] = [];
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
@@ -58,12 +59,16 @@ export class WorkScheduleLoaderService {
   }
 
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
+    this._currentLoadId++;
+    const loadId = this._currentLoadId;
+
     this.workScheduleEntries = [];
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
     this.periodHours = new Map();
     this._autoLoadEnabled = true;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
+    this._isLoadingMore.set(false);
 
     const startDate = this.calculateStartDate(workFilter);
     const endDate = this.calculateEndDate(workFilter);
@@ -85,6 +90,8 @@ export class WorkScheduleLoaderService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (loadId !== this._currentLoadId) return;
+
           this.workScheduleEntries = response.entries ?? [];
           this.workScheduleByClientAndDate = this.groupByClientAndDate(this.workScheduleEntries);
           this.clients = this.convertToClientWork(response.clients ?? []);
@@ -98,7 +105,7 @@ export class WorkScheduleLoaderService {
           onLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreClients) {
-            setTimeout(() => this.autoLoadNextChunk(onLoaded), 100);
+            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 100);
           }
         },
         error: (err) => {
@@ -107,7 +114,8 @@ export class WorkScheduleLoaderService {
       });
   }
 
-  private autoLoadNextChunk(onLoaded?: () => void): void {
+  private autoLoadNextChunk(loadId: number, onLoaded?: () => void): void {
+    if (loadId !== this._currentLoadId) return;
     if (!this._autoLoadEnabled || !this.hasMoreClients || this._isLoadingMore() || !this._currentFilter) {
       return;
     }
@@ -120,6 +128,11 @@ export class WorkScheduleLoaderService {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (loadId !== this._currentLoadId) {
+            this._isLoadingMore.set(false);
+            return;
+          }
+
           const newEntries = response.entries ?? [];
           const newClients = response.clients ?? [];
 
@@ -147,7 +160,7 @@ export class WorkScheduleLoaderService {
           onLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreClients) {
-            setTimeout(() => this.autoLoadNextChunk(onLoaded), 50);
+            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 50);
           }
         },
         error: (err) => {
