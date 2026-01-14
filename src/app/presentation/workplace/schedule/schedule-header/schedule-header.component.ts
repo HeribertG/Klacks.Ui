@@ -28,6 +28,7 @@ import { IconAngleLeftComponent } from 'src/app/presentation/icons/icon-angle-le
 import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-right.component';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { AllScheduleStateService } from '../services/all-schedule-state.service';
 
 @Component({
   selector: 'app-schedule-header',
@@ -68,11 +69,29 @@ export class ScheduleHeaderComponent implements OnInit {
   private gridSettingsService = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService);
+  private allScheduleStateService = inject(AllScheduleStateService);
 
-  public displayYear = '';
-  public displayMonth = '';
-  private selectedMonth = new Date().getMonth() + 1;
-  private currentYear = new Date().getFullYear();
+  get displayYear(): string {
+    return this.dataManagementSchedule.workFilter.currentYear.toString();
+  }
+
+  get displayMonth(): string {
+    return this.gridSettingsService.monthsName[this.dataManagementSchedule.workFilter.currentMonth - 1];
+  }
+
+  private get selectedMonth(): number {
+    return this.dataManagementSchedule.workFilter.currentMonth;
+  }
+  private set selectedMonth(value: number) {
+    this.dataManagementSchedule.workFilter.currentMonth = value;
+  }
+
+  private get currentYear(): number {
+    return this.dataManagementSchedule.workFilter.currentYear;
+  }
+  private set currentYear(value: number) {
+    this.dataManagementSchedule.workFilter.currentYear = value;
+  }
 
   ngOnInit(): void {
     this.emitZoomChange();
@@ -97,11 +116,7 @@ export class ScheduleHeaderComponent implements OnInit {
     this.holidayCollection.setSelection(chips);
   }
 
-  onCalendarReset(data: CalendarResetData) {
-    this.selectedMonth = data.selectedMonth;
-    this.currentYear = data.currentYear;
-    this.displayYear = data.currentYear.toString();
-    this.displayMonth = this.gridSettingsService.monthsName[data.selectedMonth - 1];
+  onCalendarReset(_data: CalendarResetData) {
   }
 
   goToPreviousMonth() {
@@ -125,13 +140,9 @@ export class ScheduleHeaderComponent implements OnInit {
   }
 
   private applyMonthChange() {
-    this.dataManagementSchedule.workFilter.currentMonth = this.selectedMonth;
-    this.dataManagementSchedule.workFilter.currentYear = this.currentYear;
     this.dataService.holidayCollection.currentYear = this.currentYear;
     this.dataManagementSchedule.readDatas();
-
-    this.displayYear = this.currentYear.toString();
-    this.displayMonth = this.gridSettingsService.monthsName[this.selectedMonth - 1];
+    this.allScheduleStateService.saveCurrentFilter();
   }
 
   private emitZoomChange() {

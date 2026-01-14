@@ -1,5 +1,3 @@
-<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
-<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
 <div class="container">
   <div class="month-line">
     <span class="custom-counter-span"
@@ -11,7 +9,7 @@
       id="month"
       class="form-select month"
       [(ngModel)]="selectedMonth"
-      (ngChange)="onChangeMonth()"
+      (ngModelChange)="onChangeMonth()"
     >
       @for (c of gridSettingsService.monthsName; track $index; let i = $index) {
       <option [ngValue]="i + 1" [selected]="i + 1 === selectedMonth">
@@ -34,14 +32,5 @@
       (isChanged)="changeYear($event)"
     >
     </app-counter>
-  </div>
-</div>
-<div class="row-line-simple">
-  <div
-    ngbDropdownItem
-    class="btn btn-sm btn-info close"
-    (click)="onClickReset()"
-  >
-    {{ "group.edit-group.edit-group-member.add" | translate }}
   </div>
 </div>
