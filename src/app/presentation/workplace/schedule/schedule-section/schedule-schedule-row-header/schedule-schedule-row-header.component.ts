@@ -207,7 +207,7 @@ export class ScheduleScheduleRowHeaderComponent
   }
 
   onFilterChange(): void {
-    this.dataManagementSchedule.readWorkSchedule();
+    this.dataManagementSchedule.readWorkSchedule(false);
   }
 
   private showFilter(): void {
