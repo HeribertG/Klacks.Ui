@@ -105,7 +105,7 @@ export class WorkScheduleLoaderService {
           onLoaded?.();
 
           if (this._autoLoadEnabled && this.hasMoreClients) {
-            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 100);
+            setTimeout(() => this.autoLoadNextChunk(loadId), 100);
           }
         },
         error: (err) => {
@@ -114,7 +114,7 @@ export class WorkScheduleLoaderService {
       });
   }
 
-  private autoLoadNextChunk(loadId: number, onLoaded?: () => void): void {
+  private autoLoadNextChunk(loadId: number): void {
     if (loadId !== this._currentLoadId) return;
     if (!this._autoLoadEnabled || !this.hasMoreClients || this._isLoadingMore() || !this._currentFilter) {
       return;
@@ -157,10 +157,8 @@ export class WorkScheduleLoaderService {
           this._isRead.set(true);
           setTimeout(() => this._isRead.set(false), 100);
 
-          onLoaded?.();
-
           if (this._autoLoadEnabled && this.hasMoreClients) {
-            setTimeout(() => this.autoLoadNextChunk(loadId, onLoaded), 50);
+            setTimeout(() => this.autoLoadNextChunk(loadId), 50);
           }
         },
         error: (err) => {

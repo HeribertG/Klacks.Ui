@@ -184,13 +184,13 @@ export class DataManagementScheduleService implements ILoadable {
     });
   }
 
-  readWorkSchedule() {
+  readWorkSchedule(resetScroll = true) {
     this.workScheduleLoader.load(this.workFilter, () => {
       this.workFilterDummy = cloneObject<IWorkFilter>(this.workFilter);
       this._showProgressSpinner.set(false);
-      this.isRead.set({ value: true, resetScroll: true });
+      this.isRead.set({ value: true, resetScroll });
       setTimeout(
-        () => this.isRead.set({ value: false, resetScroll: true }),
+        () => this.isRead.set({ value: false, resetScroll }),
         100
       );
       this.isWorkScheduleRead.set(true);
