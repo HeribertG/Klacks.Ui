@@ -35,8 +35,12 @@ export class ProgressBarAnimationService {
     this.targetProgress = progress;
 
     if (progress >= 100 || progress === 0) {
+      const wasVisible = this.displayedProgress > 0;
       this.displayedProgress = 0;
       this.cancelAnimation();
+      if (wasVisible) {
+        this.triggerRender();
+      }
       return;
     }
 

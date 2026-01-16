@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector, effect, runInInjectionContext } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
@@ -25,6 +25,7 @@ export class BaseDrawRowHeaderService {
   private createHeader = inject(BaseCreateHeaderService);
   private progressBar = inject(ProgressBarAnimationService);
   private workScheduleLoader = inject(WorkScheduleLoaderService);
+  private injector = inject(Injector);
 
   public ctx: CanvasRenderingContext2D | undefined;
   public canvas: HTMLCanvasElement | undefined;
@@ -35,6 +36,7 @@ export class BaseDrawRowHeaderService {
 
   private lastSelection = -1;
   private lastVerticalScrollPosition = 0;
+  private progressEffectRef: { destroy: () => void } | null = null;
 
   public rowHeader: ScheduleScheduleRowHeaderComponent | undefined;
 
@@ -92,11 +94,12 @@ export class BaseDrawRowHeaderService {
     );
     DrawHelper.setAntiAliasing(this.headerCtx);
 
-    this.progressBar.configure({ position: 'bottom', height: 2 });
-    this.progressBar.setRenderCallback(() => this.crateGridHeader());
+    this.setupProgressBar();
   }
 
   public deleteCanvas() {
+    this.progressEffectRef?.destroy();
+    this.progressEffectRef = null;
     this.progressBar.destroy();
     this.renderCanvasCtx = undefined;
     this.renderCanvas = undefined;
@@ -104,6 +107,26 @@ export class BaseDrawRowHeaderService {
     this.canvas = undefined;
     this.headerCanvas = undefined;
     this.headerCtx = undefined;
+  }
+
+  private setupProgressBar(): void {
+    this.progressBar.configure({ position: 'bottom', height: 2 });
+    this.progressBar.setRenderCallback(() => this.renderProgressBar());
+
+    runInInjectionContext(this.injector, () => {
+      this.progressEffectRef = effect(() => {
+        const isRead = this.workScheduleLoader.isRead();
+        if (isRead) {
+          this.progressBar.setProgress(this.workScheduleLoader.clientLoadingProgress);
+        }
+      });
+    });
+  }
+
+  private renderProgressBar(): void {
+    if (!this.isCanvasAvailable()) return;
+    this.crateGridHeader();
+    this.renderGrid();
   }
 
   isCanvasAvailable(): boolean {
@@ -242,7 +265,6 @@ export class BaseDrawRowHeaderService {
         this.recFilterIcon = result.recFilterIcon;
       }
 
-      this.progressBar.setProgress(this.workScheduleLoader.clientLoadingProgress);
       this.progressBar.drawInRect(
         this.headerCtx!,
         0,

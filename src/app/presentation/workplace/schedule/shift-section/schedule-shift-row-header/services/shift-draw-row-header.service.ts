@@ -1,12 +1,12 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, Injector, effect, runInInjectionContext, DestroyRef } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.service';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { ShiftScheduleLoaderService } from 'src/app/domain/services/schedule/shift-schedule-loader.service';
+import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { ShiftRowHeaderCanvasService } from './shift-row-header-canvas.service';
 import { ShiftCreateRowHeaderService } from './shift-create-row-header.service';
-import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 
 @Injectable()
 export class ShiftDrawRowHeaderService {
@@ -15,12 +15,15 @@ export class ShiftDrawRowHeaderService {
   private scroll = inject(ScrollService);
   private settings = inject(BaseSettingsService);
   private gridColors = inject(GridColorService);
-  private dataManagement = inject(DataManagementScheduleService);
+  private shiftLoader = inject(ShiftScheduleLoaderService);
   private progressBar = inject(ProgressBarAnimationService);
+  private injector = inject(Injector);
+  private destroyRef = inject(DestroyRef);
 
   private canvasId = 'shiftRowHeaderCanvas';
   private lastVerticalScrollPosition = 0;
   private lastZoom = 1;
+  private progressEffectRef: { destroy: () => void } | null = null;
 
   public selectedRow = -1;
   public isSelectedRowActive = false;
@@ -47,13 +50,37 @@ export class ShiftDrawRowHeaderService {
 
   public createCanvas(): void {
     this.canvasManager.createCanvas(this.canvasId);
-    this.progressBar.configure({ position: 'top', height: this.canvasManager.progressBarHeight });
-    this.progressBar.setRenderCallback(() => this.renderGrid());
+    this.setupProgressBar();
   }
 
   public deleteCanvas(): void {
+    this.progressEffectRef?.destroy();
+    this.progressEffectRef = null;
     this.progressBar.destroy();
     this.canvasManager.deleteCanvas();
+  }
+
+  private setupProgressBar(): void {
+    this.progressBar.configure({
+      position: 'top',
+      height: this.canvasManager.progressBarHeight,
+    });
+    this.progressBar.setRenderCallback(() => this.renderProgressBar());
+
+    runInInjectionContext(this.injector, () => {
+      this.progressEffectRef = effect(() => {
+        const isRead = this.shiftLoader.isRead();
+        if (isRead) {
+          this.progressBar.setProgress(this.shiftLoader.shiftLoadingProgress);
+        }
+      });
+    });
+  }
+
+  private renderProgressBar(): void {
+    if (!this.isCanvasAvailable()) return;
+    this.drawGrid();
+    this.renderGrid();
   }
 
   public isCanvasAvailable(): boolean {
@@ -153,7 +180,6 @@ export class ShiftDrawRowHeaderService {
     );
 
     this.drawHighlightOnMainCanvas(ctx);
-    this.progressBar.setProgress(this.dataManagement.shiftLoadingProgress);
     this.progressBar.draw(ctx, this.canvasManager.width, this.height);
   }
 
