@@ -20,7 +20,7 @@
   <div class="container-line"></div>
 
   <div class="container-bank" [ngStyle]="{ display: visibleTable }">
-    @if (dataManagementShiftService.editShift !== undefined) {
+    @if (dataManagementShiftService.editShift !== undefined && shiftFormService.shiftForm() !== undefined) {
     <div class="container-bank-box">
       <div class="firstColumContainer">
         <div class="firstColumn">

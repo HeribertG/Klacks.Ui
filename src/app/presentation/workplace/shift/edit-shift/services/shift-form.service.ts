@@ -13,6 +13,8 @@ export class ShiftFormService {
 
   constructor() {
     effect(() => {
+      this.dataManagementShiftService.isReset();
+      this.dataManagementShiftService.isRead();
       const editShift = this.dataManagementShiftService.editShift;
       if (editShift) {
         this._shiftForm.set(new ShiftFormModel(editShift));
