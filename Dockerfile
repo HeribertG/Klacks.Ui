@@ -1,10 +1,13 @@
 # Build stage
-FROM node:22-alpine AS build
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+
+# Install dependencies with proper resolution
+RUN npm cache clean --force && \
+    npm install --legacy-peer-deps
 
 # Copy source code and build
 COPY . .
