@@ -12,7 +12,8 @@
           type="number"
           step="0.5"
           class="form-control"
-          [field]="workForm.defaultWorkingHours"
+          [ngModel]="formModel().defaultWorkingHours"
+          (ngModelChange)="updateField('defaultWorkingHours', $event)"
           aria-label="defaultWorkingHours"
           id="defaultWorkingHours"
         />
@@ -23,7 +24,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.overtimeThreshold"
+          [ngModel]="formModel().overtimeThreshold"
+          (ngModelChange)="updateField('overtimeThreshold', $event)"
           aria-label="overtimeThreshold"
           id="overtimeThreshold"
         />
@@ -36,7 +38,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.vacationDaysPerYear"
+          [ngModel]="formModel().vacationDaysPerYear"
+          (ngModelChange)="updateField('vacationDaysPerYear', $event)"
           aria-label="vacationDaysPerYear"
           id="vacationDaysPerYear"
         />
@@ -47,7 +50,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.probationPeriod"
+          [ngModel]="formModel().probationPeriod"
+          (ngModelChange)="updateField('probationPeriod', $event)"
           aria-label="probationPeriod"
           id="probationPeriod"
         />
@@ -60,7 +64,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.noticePeriod"
+          [ngModel]="formModel().noticePeriod"
+          (ngModelChange)="updateField('noticePeriod', $event)"
           aria-label="noticePeriod"
           id="noticePeriod"
         />
@@ -104,7 +109,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.guaranteedHours"
+          [ngModel]="formModel().guaranteedHours"
+          (ngModelChange)="updateField('guaranteedHours', $event)"
           aria-label="guaranteedHours"
           id="guaranteedHours"
         />
@@ -115,7 +121,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.maximumHours"
+          [ngModel]="formModel().maximumHours"
+          (ngModelChange)="updateField('maximumHours', $event)"
           aria-label="maximumHours"
           id="maximumHours"
         />
@@ -128,7 +135,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.minimumHours"
+          [ngModel]="formModel().minimumHours"
+          (ngModelChange)="updateField('minimumHours', $event)"
           aria-label="minimumHours"
           id="minimumHours"
         />
@@ -139,7 +147,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.fullTime"
+          [ngModel]="formModel().fullTime"
+          (ngModelChange)="updateField('fullTime', $event)"
           aria-label="fullTime"
           id="fullTime"
         />
@@ -152,7 +161,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.nightRate"
+          [ngModel]="formModel().nightRate"
+          (ngModelChange)="updateField('nightRate', $event)"
           aria-label="nightRate"
           id="nightRate"
         />
@@ -163,7 +173,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.holidayRate"
+          [ngModel]="formModel().holidayRate"
+          (ngModelChange)="updateField('holidayRate', $event)"
           aria-label="holidayRate"
           id="holidayRate"
         />
@@ -176,7 +187,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.saRate"
+          [ngModel]="formModel().saRate"
+          (ngModelChange)="updateField('saRate', $event)"
           aria-label="saRate"
           id="saRate"
         />
@@ -187,7 +199,8 @@
           type="number"
           step="1"
           class="form-control"
-          [field]="workForm.soRate"
+          [ngModel]="formModel().soRate"
+          (ngModelChange)="updateField('soRate', $event)"
           aria-label="soRate"
           id="soRate"
         />
