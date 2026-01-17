@@ -45,7 +45,7 @@ export function transformNgbDateStructToDate(
  * @returns NgbDateStruct or undefined if invalid
  */
 export function transformDateToNgbDateStruct(
-  value: Date | string
+  value: Date | string | undefined
 ): NgbDateStruct | NgbDate | undefined {
   if (value) {
     const now = new Date(value);
