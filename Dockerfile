@@ -5,12 +5,13 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with proper resolution
-RUN npm cache clean --force && \
-    npm install --legacy-peer-deps
+# Install dependencies strictly from package-lock.json
+# Using --force to ignore peer dependency warnings while keeping correct versions
+RUN npm ci --force
 
-# Copy source code and build
+# Copy source code and build with increased memory
 COPY . .
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Production stage
