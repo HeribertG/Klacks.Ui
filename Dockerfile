@@ -5,9 +5,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies strictly from package-lock.json
-# Using --force to ignore peer dependency warnings while keeping correct versions
-RUN npm ci --force
+# Install dependencies - npm ci strictly follows package-lock.json
+RUN npm ci
+
+# Verify @angular/forms has signals export (debug)
+RUN cat node_modules/@angular/forms/package.json | head -60
 
 # Copy source code and build with increased memory
 COPY . .
