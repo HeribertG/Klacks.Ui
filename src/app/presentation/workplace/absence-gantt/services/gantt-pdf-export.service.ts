@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 
 export interface GanttExportOptions {
   title?: string;
@@ -52,15 +53,8 @@ export class GanttPdfExportService {
             .absenceList()
             .find((absence) => absence.id === abs.id);
 
-          let localizedName = abs.name;
-          if (fullAbsence?.name) {
-            const currentLang = this.translateService.currentLang as any;
-            localizedName =
-              fullAbsence.name[currentLang] ||
-              fullAbsence.name['de'] ||
-              fullAbsence.name['en'] ||
-              abs.name;
-          }
+          const currentLang = this.translateService.currentLang;
+          const localizedName = getLocalizedValue(fullAbsence?.name, currentLang) || abs.name;
 
           return {
             id: abs.id,

@@ -22,6 +22,7 @@ import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/a
 import { daysBetweenDates } from 'src/app/shared/helpers/date.helper';
 import { Language } from 'src/app/application/helpers/sharedItems';
 import { MessageLibrary } from 'src/app/application/helpers/string-constants';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { PdfExportService } from '../../services/pdf-export.service';
 import { TextFormatterService } from 'src/app/presentation/shared/rich-text-editor/text-formatter.service';
 import { TableSortingService } from 'src/app/presentation/services/table-sorting.service';
@@ -94,7 +95,7 @@ export class AbsenceGanttGridComponent
     if (value) {
       const abs = this.absence.find((x) => x.id === value.absenceId);
       if (abs) {
-        return abs.name?.[this.currentLang] ?? '';
+        return getLocalizedValue(abs.name, this.currentLang);
       }
     }
     return 'undefined';
@@ -173,10 +174,10 @@ export class AbsenceGanttGridComponent
   private compareAbsences(a: IBreakPlaceholder, b: IBreakPlaceholder): number {
     const absenceA = this.absence.find(x => x.id === a.absenceId);
     const absenceB = this.absence.find(x => x.id === b.absenceId);
-    
-    const nameA = absenceA?.name?.[this.currentLang] ?? '';
-    const nameB = absenceB?.name?.[this.currentLang] ?? '';
-    
+
+    const nameA = getLocalizedValue(absenceA?.name, this.currentLang);
+    const nameB = getLocalizedValue(absenceB?.name, this.currentLang);
+
     return nameA.localeCompare(nameB);
   }
 

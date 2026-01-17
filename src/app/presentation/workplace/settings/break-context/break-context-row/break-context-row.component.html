@@ -1,0 +1,29 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<form id="break-context-row-form-{{ data.id }}">
+  <div
+    id="break-context-row-container-{{ data.id }}"
+    class="first custom-control-inline"
+  >
+    <div class="form-group">
+      <input
+        id="break-context-row-name-{{ data.id }}"
+        type="text"
+        [value]="data.detailName | fallback: translate.currentLang"
+        name="breakContextName"
+        class="form-control attribute-name"
+        aria-label="break context name"
+        (click)="onClickEdit()"
+        readonly
+      />
+    </div>
+
+    <span
+      id="break-context-row-delete-{{ data.id }}"
+      class="delete-button"
+      type="button"
+      (click)="onClickDelete()"
+      >&times;</span
+    >
+  </div>
+</form>

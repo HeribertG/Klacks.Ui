@@ -1,7 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { Language } from 'src/app/application/helpers/sharedItems';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { MultiLanguage } from 'src/app/domain/models/multi-language-class';
 import { MessageLibrary } from 'src/app/domain/constants/message-library';
 import { HoveredCellInfo } from 'src/app/presentation/shared/grid/services/body/cell-manipulation.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
@@ -125,6 +126,6 @@ export class ScheduleTooltipService {
   }
 
   private getTranslatedText(multiLanguage: MultiLanguage): string {
-    return multiLanguage[this.currentLang] || multiLanguage.de || '';
+    return getLocalizedValue(multiLanguage, this.currentLang);
   }
 }

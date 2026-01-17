@@ -46,6 +46,7 @@ import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
 import { AuthorizationService } from 'src/app/application/services/authorization.service';
 import { ButtonNewComponent } from 'src/app/presentation/shared/button-new/button-new.component';
 import { OtherGreyComponent } from 'src/app/presentation/icons/icon-other-grey.component';
@@ -273,9 +274,8 @@ export class AddressPersonaComponent
       return '';
     }
 
-    const stateName = stateToken.stateName as Record<string, string>;
     const currentLang = this.translateService.currentLang as Language;
-    return stateName[currentLang] || stateName['de'] || currentState;
+    return getLocalizedValue(stateToken.stateName, currentLang) || currentState;
   }
 
   isWeekend(date: NgbDateStruct) {

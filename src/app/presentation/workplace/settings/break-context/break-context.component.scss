@@ -1,0 +1,23 @@
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/standard-modal.scss";
+@use "../../../../../assets/standard-styles/settings-list-card-modal.scss";
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.time-config-item {
+  flex: 1;
+  min-width: 120px;
+
+  &.align-right {
+    display: flex;
+    justify-content: flex-end;
+  }
+}

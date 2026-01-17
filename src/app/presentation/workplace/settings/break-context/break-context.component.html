@@ -1,0 +1,156 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Break Context Modal -->
+<ng-template #breakContextModal id="break-context-modal-template" let-modal>
+  <form id="break-context-modal-form">
+    <div id="break-context-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.break-context.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        id="break-context-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="break-context-modal-body" class="modal-body">
+      @if (editingBreakContext) {
+      <!-- Absence Selection -->
+      <div id="break-context-modal-absence-row" class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="absenceId">{{
+            translate.instant("setting.break-context.modal.absence")
+          }}</label>
+          <select
+            id="break-context-modal-absence"
+            [field]="breakContextForm.absenceId"
+            class="form-control"
+          >
+            <option value="">{{ translate.instant("setting.break-context.modal.select-absence") }}</option>
+            @for (absence of absences; track absence.id) {
+              <option [value]="absence.id">
+                {{ absence.name | fallback: currentLang }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Start and End Break Times -->
+      <div id="break-context-modal-times-row" class="row-line-modal-inline">
+        <div id="break-context-modal-start-break-item" class="time-config-item">
+          <app-time-input
+            id="break-context-modal-start-break-input"
+            [label]="translate.instant('setting.break-context.modal.start-break')"
+            [value]="internalStartBreak"
+            (valueChange)="onStartBreakChange($event)"
+            hoursName="startBreakHours"
+            minutesName="startBreakMinutes"
+            hoursId="startBreakHours"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+            labelAlign="left"
+          ></app-time-input>
+        </div>
+
+        <div id="break-context-modal-end-break-item" class="time-config-item align-right">
+          <app-time-input
+            id="break-context-modal-end-break-input"
+            [label]="translate.instant('setting.break-context.modal.end-break')"
+            [value]="internalEndBreak"
+            (valueChange)="onEndBreakChange($event)"
+            hoursName="endBreakHours"
+            minutesName="endBreakMinutes"
+            hoursId="endBreakHours"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+            labelAlign="right"
+          ></app-time-input>
+        </div>
+      </div>
+
+      <!-- Detail Name -->
+      <div id="break-context-modal-name-row" class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="detailName">{{
+            translate.instant("setting.break-context.modal.detail-name")
+          }}</label>
+          <input
+            id="break-context-modal-detail-name"
+            type="text"
+            [field]="breakContextForm.detailName"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div id="break-context-modal-validation-row" class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div id="break-context-modal-footer" class="modal-footer">
+    <span
+      id="break-context-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      id="break-context-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("save") }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="translate.instant('setting.break-context.title')"
+  [addLabel]="translate.instant('setting.break-context.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-break-context-header header id="break-context-table-header"></app-break-context-header>
+  <div rows>
+    @for (breakContext of breakContexts; track breakContext.id || $index; let i = $index) {
+      <app-break-context-row
+        [id]="'break-context-row-' + i"
+        [data]="breakContext"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteBreakContext($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>
