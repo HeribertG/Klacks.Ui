@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { form, Field } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
@@ -33,7 +34,7 @@ interface WorkSettingsFormModel {
   templateUrl: './work-setting.component.html',
   styleUrls: ['./work-setting.component.scss'],
   standalone: true,
-  imports: [FormsModule, TranslateModule, NgbModule],
+  imports: [FormsModule, Field, TranslateModule, NgbModule],
 })
 export class WorkSettingComponent implements OnInit {
   public dataManagementSettingsService = inject(DataManagementSettingsService);
@@ -58,6 +59,8 @@ export class WorkSettingComponent implements OnInit {
     saRate: 0,
     soRate: 0,
   });
+
+  workForm = form(this.formModel);
 
   constructor() {
     effect(() => {
@@ -158,9 +161,5 @@ export class WorkSettingComponent implements OnInit {
   onPaymentIntervalChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     this.formModel.update(m => ({ ...m, paymentInterval: value }));
-  }
-
-  updateField(field: keyof WorkSettingsFormModel, value: number | string): void {
-    this.formModel.update(m => ({ ...m, [field]: value }));
   }
 }
