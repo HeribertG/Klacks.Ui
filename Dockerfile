@@ -5,8 +5,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies - all Angular packages now use v21
-RUN npm ci --legacy-peer-deps
+# Install dependencies using force to strictly follow package-lock.json
+# Then explicitly ensure @angular/forms is correct version
+RUN npm ci --force && \
+    npm ls @angular/forms && \
+    cat node_modules/@angular/forms/package.json | grep -A 5 '"version"'
 
 # Copy source code and build with increased memory
 COPY . .
