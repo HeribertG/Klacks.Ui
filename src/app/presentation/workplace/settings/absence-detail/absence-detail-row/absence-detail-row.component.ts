@@ -1,21 +1,21 @@
 import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { IBreakContext } from 'src/app/domain/models/break-context-class';
+import { IAbsenceDetail } from 'src/app/domain/models/absence-detail-class';
 import { FallbackPipe } from 'src/app/application/pipes/fallback/fallback.pipe';
 
 @Component({
-  selector: 'app-break-context-row',
+  selector: 'app-absence-detail-row',
   standalone: true,
   imports: [FallbackPipe],
-  templateUrl: './break-context-row.component.html',
-  styleUrls: ['./break-context-row.component.scss'],
+  templateUrl: './absence-detail-row.component.html',
+  styleUrls: ['./absence-detail-row.component.scss'],
 })
-export class BreakContextRowComponent {
+export class AbsenceDetailRowComponent {
   translate = inject(TranslateService);
 
-  @Input() data!: IBreakContext;
-  @Output() editEvent = new EventEmitter<IBreakContext>();
-  @Output() isDeleteEvent = new EventEmitter<IBreakContext>();
+  @Input() data!: IAbsenceDetail;
+  @Output() editEvent = new EventEmitter<IAbsenceDetail>();
+  @Output() isDeleteEvent = new EventEmitter<IAbsenceDetail>();
 
   onClickEdit(): void {
     this.editEvent.emit(this.data);

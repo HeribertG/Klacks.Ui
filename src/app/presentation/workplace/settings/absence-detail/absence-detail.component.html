@@ -1,0 +1,207 @@
+<!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
+<!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
+<!-- Absence Detail Modal -->
+<ng-template #absenceDetailModal id="absence-detail-modal-template" let-modal>
+  <form id="absence-detail-modal-form">
+    <div id="absence-detail-modal-header" class="modal-header">
+      <div class="container-header-modal modal-title" id="modal-title">
+        {{ translate.instant("setting.absence-detail.headline-modal") }}
+      </div>
+      <span class="filler"></span>
+
+      <div
+        id="absence-detail-modal-close-btn"
+        type="button"
+        class="close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      >
+        <span
+          aria-hidden="true"
+          style="
+            font-size: 13px;
+            border: 1px transparent solid;
+            color: var(--colorWorkplaceHeadline);
+          "
+          >&times;</span
+        >
+      </div>
+    </div>
+    <div id="absence-detail-modal-body" class="modal-body">
+      @if (editingAbsenceDetail) {
+      <!-- Absence Selection -->
+      <div id="absence-detail-modal-absence-row" class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="absenceId">{{
+            translate.instant("setting.absence-detail.modal.absence")
+          }}</label>
+          <select
+            id="absence-detail-modal-absence"
+            [field]="absenceDetailForm.absenceId"
+            class="form-control"
+          >
+            <option value="">{{ translate.instant("setting.absence-detail.modal.select-absence") }}</option>
+            @for (absence of absences; track absence.id) {
+              <option [value]="absence.id">
+                {{ absence.name | fallback: currentLang }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Mode Selection -->
+      <div id="absence-detail-modal-mode-row" class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label>{{ translate.instant("setting.absence-detail.modal.mode") }}</label>
+          <div class="mode-selection">
+            <div class="mode-option">
+              <input
+                type="radio"
+                id="mode-time-range"
+                name="mode"
+                [checked]="selectedMode() === AbsenceDetailMode.TimeRange"
+                (change)="onModeChange(AbsenceDetailMode.TimeRange)"
+              />
+              <label for="mode-time-range">{{ translate.instant("setting.absence-detail.modal.mode-time-range") }}</label>
+            </div>
+            <div class="mode-option">
+              <input
+                type="radio"
+                id="mode-duration"
+                name="mode"
+                [checked]="selectedMode() === AbsenceDetailMode.Duration"
+                (change)="onModeChange(AbsenceDetailMode.Duration)"
+              />
+              <label for="mode-duration">{{ translate.instant("setting.absence-detail.modal.mode-duration") }}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Range (shown when Mode = TimeRange) -->
+      @if (selectedMode() === AbsenceDetailMode.TimeRange) {
+      <div id="absence-detail-modal-times-row" class="row-line-modal-inline">
+        <div id="absence-detail-modal-start-time-item" class="time-config-item">
+          <app-time-input
+            id="absence-detail-modal-start-time-input"
+            [label]="translate.instant('setting.absence-detail.modal.start-time')"
+            [value]="internalStartTime"
+            (valueChange)="onStartTimeChange($event)"
+            hoursName="startTimeHours"
+            minutesName="startTimeMinutes"
+            hoursId="startTimeHours"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+            labelAlign="left"
+          ></app-time-input>
+        </div>
+
+        <div id="absence-detail-modal-end-time-item" class="time-config-item align-right">
+          <app-time-input
+            id="absence-detail-modal-end-time-input"
+            [label]="translate.instant('setting.absence-detail.modal.end-time')"
+            [value]="internalEndTime"
+            (valueChange)="onEndTimeChange($event)"
+            hoursName="endTimeHours"
+            minutesName="endTimeMinutes"
+            hoursId="endTimeHours"
+            [forDuration]="false"
+            [hoursMaxLength]="2"
+            labelAlign="right"
+          ></app-time-input>
+        </div>
+      </div>
+      }
+
+      <!-- Duration (shown when Mode = Duration) -->
+      @if (selectedMode() === AbsenceDetailMode.Duration) {
+      <div id="absence-detail-modal-duration-row" class="row-line-modal-inline">
+        <div id="absence-detail-modal-duration-item" class="time-config-item">
+          <app-time-input
+            id="absence-detail-modal-duration-input"
+            [label]="translate.instant('setting.absence-detail.modal.duration')"
+            [value]="internalDuration"
+            (valueChange)="onDurationChange($event)"
+            hoursName="durationHours"
+            minutesName="durationMinutes"
+            hoursId="durationHours"
+            [forDuration]="true"
+            [hoursMaxLength]="2"
+            labelAlign="left"
+          ></app-time-input>
+        </div>
+      </div>
+      }
+
+      <!-- Detail Name -->
+      <div id="absence-detail-modal-name-row" class="row-line-modal-inline">
+        <div class="model-field full-width">
+          <label for="detailName">{{
+            translate.instant("setting.absence-detail.modal.detail-name")
+          }}</label>
+          <input
+            id="absence-detail-modal-detail-name"
+            type="text"
+            [field]="absenceDetailForm.detailName"
+            class="form-control"
+          />
+        </div>
+      </div>
+
+      <!-- Validation Errors -->
+      @if (getValidationErrors().length > 0) {
+      <div id="absence-detail-modal-validation-row" class="row-line-modal-inline">
+        <div class="validation-errors-section">
+          <div class="alert alert-danger">
+            <strong>{{ translate.instant("validation.errors") }}:</strong>
+            <ul>
+              @for (error of getValidationErrors(); track error) {
+              <li>{{ error }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </form>
+
+  <div id="absence-detail-modal-footer" class="modal-footer">
+    <span
+      id="absence-detail-modal-cancel-btn"
+      type="button"
+      class="link-button red-font"
+      (click)="modal.dismiss('Cancel click')"
+      >{{ translate.instant("cancel") }}</span
+    >
+    <button
+      id="absence-detail-modal-save-btn"
+      type="button"
+      class="btn save-btn"
+      (click)="onSaveModal(modal)"
+      [disabled]="!isFormValid()"
+    >
+      {{ translate.instant("save") }}
+    </button>
+  </div>
+</ng-template>
+
+<app-settings-list-card
+  [headline]="translate.instant('setting.absence-detail.title')"
+  [addLabel]="translate.instant('setting.absence-detail.add')"
+  [showHeader]="true"
+  (addClick)="onClickAdd()"
+>
+  <app-absence-detail-header header id="absence-detail-table-header"></app-absence-detail-header>
+  <div rows>
+    @for (absenceDetail of absenceDetails; track absenceDetail.id || $index; let i = $index) {
+      <app-absence-detail-row
+        [id]="'absence-detail-row-' + i"
+        [data]="absenceDetail"
+        (editEvent)="onClickEdit($event)"
+        (isDeleteEvent)="openDeleteAbsenceDetail($event)"
+      />
+    }
+  </div>
+</app-settings-list-card>

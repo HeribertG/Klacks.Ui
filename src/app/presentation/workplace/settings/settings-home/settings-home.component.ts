@@ -31,7 +31,7 @@ import { LLMProvidersComponent } from '../llm-providers/llm-providers.component'
 import { OpenrouteComponent } from '../openroute/openroute.component';
 import { WorkSettingComponent } from '../work-setting/work-setting.component';
 import { IdentityProvidersComponent } from '../identity-providers/identity-providers.component';
-import { BreakContextComponent } from '../break-context/break-context.component';
+import { AbsenceDetailComponent } from '../absence-detail/absence-detail.component';
 
 @Component({
   selector: 'app-settings-home',
@@ -61,7 +61,7 @@ import { BreakContextComponent } from '../break-context/break-context.component'
     OpenrouteComponent,
     WorkSettingComponent,
     IdentityProvidersComponent,
-    BreakContextComponent,
+    AbsenceDetailComponent,
 ],
 })
 export class SettingsHomeComponent implements OnInit {
