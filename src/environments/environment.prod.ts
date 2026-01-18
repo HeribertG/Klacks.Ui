@@ -1,8 +1,8 @@
 // Production environment configuration
 export const environment = {
   production: true,
-  baseUrl: 'http://157.180.42.127:5000/api/backend/',
-  baseAssistantUrl: 'http://157.180.42.127:5000/api/backend/assistant/',
+  baseUrl: '/api/backend/',
+  baseAssistantUrl: '/api/backend/assistant/',
   
   // Production specific settings
   enableDebugMode: false,
