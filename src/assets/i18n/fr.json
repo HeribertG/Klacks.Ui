@@ -560,6 +560,11 @@
   "schedule.schedule-header.schedule-header.month": "Mois : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",
+  "schedule.shift-filter.title": "Filtre de services",
+  "schedule.shift-filter.search-placeholder": "Rechercher nom/abréviation",
+  "schedule.shift-filter.type": "Type",
+  "schedule.shift-filter.clear": "Réinitialiser les filtres",
+  "schedule.shift-filter.show-ungrouped": "Services non groupés",
   "schedule.tooltip.available": "Disponible",
   "schedule.tooltip.overbooked": "Surbooké",
 
