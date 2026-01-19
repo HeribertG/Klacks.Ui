@@ -189,9 +189,11 @@ export class AppSettingsManagementService {
         case AppSetting.WORK_NOTICE_PERIOD:
           work.noticePeriod = parseInt(setting.value, 10) || 30;
           break;
-        case AppSetting.WORK_PAYMENT_INTERVAL:
-          work.paymentInterval = parseInt(setting.value, 10) || 2;
+        case AppSetting.WORK_PAYMENT_INTERVAL: {
+          const paymentVal = parseInt(setting.value, 10);
+          work.paymentInterval = Number.isNaN(paymentVal) ? 2 : paymentVal;
           break;
+        }
         case AppSetting.WORK_GUARANTEED_HOURS:
           work.guaranteedHours = parseFloat(setting.value) || 170;
           break;

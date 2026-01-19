@@ -1,3 +1,4 @@
+@if (isInitialized) {
 <div class="schedule-main-header">
   <app-schedule-header (zoomChange)="onZoomChange($event)">
   </app-schedule-header>
@@ -5,3 +6,4 @@
 <div class="schedule-body">
   <app-schedule-container [zoom]="currentZoom" [refreshTrigger]="refreshTrigger"></app-schedule-container>
 </div>
+}

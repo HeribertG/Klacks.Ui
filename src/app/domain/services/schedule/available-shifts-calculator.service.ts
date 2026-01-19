@@ -1,12 +1,15 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule-class';
 import { getDayIndex, getDaysInMonth } from 'src/app/shared/helpers/date.helper';
+import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AvailableShiftsCalculatorService {
+  private calendarUtil = inject(CalendarUtilService);
+
   private _availableShiftsByDay = signal<readonly (readonly string[])[]>([]);
   private _overbookedShiftsByDay = signal<readonly (readonly string[])[]>([]);
 
@@ -61,15 +64,41 @@ export class AvailableShiftsCalculatorService {
 
   private calculateStartDate(filter: IWorkFilter): Date {
     const year = filter.currentYear;
-    const month = filter.currentMonth - 1;
     const daysBefore = filter.dayVisibleBeforeMonth;
-    const firstOfMonth = new Date(year, month, 1);
-    return new Date(firstOfMonth.getTime() - daysBefore * 24 * 60 * 60 * 1000);
+    const periodStart = this.calculatePeriodStartDate(filter);
+    return new Date(periodStart.getTime() - daysBefore * 24 * 60 * 60 * 1000);
+  }
+
+  private calculatePeriodStartDate(filter: IWorkFilter): Date {
+    const paymentInterval = filter.paymentInterval;
+    const year = filter.currentYear;
+
+    switch (paymentInterval) {
+      case 0:
+        return this.calendarUtil.getWeekStartDate(year, filter.currentWeek ?? 1);
+      case 1:
+        return this.calendarUtil.getBiweeklyStartDate(year, filter.currentWeek ?? 1);
+      case 2:
+      default:
+        const month = filter.currentMonth - 1;
+        return new Date(year, month, 1);
+    }
   }
 
   private getTotalDays(filter: IWorkFilter): number {
-    return filter.dayVisibleBeforeMonth +
-      getDaysInMonth(filter.currentYear, filter.currentMonth - 1) +
-      filter.dayVisibleAfterMonth;
+    const periodDays = this.getPeriodDays(filter);
+    return filter.dayVisibleBeforeMonth + periodDays + filter.dayVisibleAfterMonth;
+  }
+
+  private getPeriodDays(filter: IWorkFilter): number {
+    switch (filter.paymentInterval) {
+      case 0:
+        return 7;
+      case 1:
+        return 14;
+      case 2:
+      default:
+        return getDaysInMonth(filter.currentYear, filter.currentMonth - 1);
+    }
   }
 }

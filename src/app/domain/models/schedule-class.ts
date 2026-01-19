@@ -76,6 +76,7 @@ export interface IWorkFilter extends IBaseFilter {
   currentMonth: number;
   currentYear: number;
   currentWeek?: number;
+  paymentInterval: number;
   works: Work[];
   selectedGroup: string | undefined;
   showEmployees: boolean;
@@ -89,6 +90,7 @@ export class WorkFilter implements IWorkFilter {
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
   currentWeek?: number = undefined;
+  paymentInterval = 2;
   searchString = '';
   orderBy = '';
   sortOrder = '';

@@ -60,6 +60,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public currentZoom = 1.0;
   public refreshTrigger = false;
+  public isInitialized = false;
 
   private effects: EffectRef[] = [];
 
@@ -68,6 +69,7 @@ export class ScheduleHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.layoutService.setContainerToFullSize();
 
     await this.allScheduleStateService.initializeWorkplaceState();
+    this.isInitialized = true;
 
     this.setupEffects();
   }
