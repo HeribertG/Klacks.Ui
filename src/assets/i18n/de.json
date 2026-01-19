@@ -41,6 +41,7 @@
   "contextMenu.convert": "Umwandeln...",
   "contextMenu.showInShift": "Im Dienstplan anzeigen",
   "contextMenu.showInSchedule": "Im Einsatzplan anzeigen",
+  "contextMenu.shifts": "Dienste...",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Suche",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Jahr: ",

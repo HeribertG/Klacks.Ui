@@ -41,6 +41,7 @@
   "contextMenu.convert": "Converti...",
   "contextMenu.showInShift": "Mostra nel piano turni",
   "contextMenu.showInSchedule": "Mostra nel piano di lavoro",
+  "contextMenu.shifts": "Turni...",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Anno: ",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Anno: ",

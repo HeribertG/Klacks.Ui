@@ -61,6 +61,7 @@ import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-c
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-schedule-section',
@@ -125,6 +126,7 @@ export class ScheduleSectionComponent
   private workNotificationService = inject(WorkNotificationService);
   private showInShiftService = inject(ShowInShiftService);
   private showInScheduleService = inject(ShowInScheduleService);
+  private translateService = inject(TranslateService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -425,7 +427,7 @@ export class ScheduleSectionComponent
       const shiftsSubmenu = this.createShiftsSubmenu(column);
       if (shiftsSubmenu && shiftsSubmenu.list.length > 0) {
         menuData.list.push(...MenuDataTemplate.divider());
-        const dienstMenuItem = new MenuItem('dienste', 'Dienste...', false);
+        const dienstMenuItem = new MenuItem('dienste', this.translateService.instant('contextMenu.shifts'), false);
         dienstMenuItem.hasMenu = true;
         dienstMenuItem.menu = shiftsSubmenu;
         menuData.list.push(dienstMenuItem);
