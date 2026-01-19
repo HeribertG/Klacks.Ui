@@ -150,6 +150,14 @@ export class ScheduleScheduleRowHeaderComponent
       });
       this.effects.push(refreshEffect);
 
+      const dataReadEffect = effect(() => {
+        const readState = this.dataManagementSchedule.isRead();
+        if (readState.value) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(dataReadEffect);
+
       const positionEffect = effect(() => {
         this.drawRowHeader.cellManipulation.positionSignal();
         if (this.drawRowHeader.isCanvasAvailable()) {

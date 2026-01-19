@@ -304,6 +304,8 @@ export class BaseDrawRowHeaderService {
 
         row = correctedRow - this.firstVisibleRow;
       }
+
+      this.drawEmptySpace();
     }
   }
 
