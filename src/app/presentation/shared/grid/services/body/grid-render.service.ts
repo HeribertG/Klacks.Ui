@@ -113,10 +113,8 @@ export class BaseGridRenderService {
       return;
     }
     const headerCanvas = this.canvasManager.headerCanvas;
-    const headerCtx = this.canvasManager.headerCtx;
 
-    if (!headerCanvas || !headerCtx) {
-      console.error('Header canvas context is not available');
+    if (!headerCanvas || !this.canvasManager.headerCtx) {
       return;
     }
 
@@ -139,6 +137,8 @@ export class BaseGridRenderService {
       DrawHelper.setAntiAliasing(this.canvasManager.headerCtx);
     }
 
+    const headerCtx = this.canvasManager.headerCtx;
+
     for (let col = 0; col < columns; col++) {
       const headerCell = this.createHeader.createHeaderCell(col);
       if (headerCell) {
@@ -153,15 +153,12 @@ export class BaseGridRenderService {
     }
 
     // Draw a dark bottom border line
-    this.canvasManager.headerCtx!.strokeStyle = this.gridColors.borderColor;
-    this.canvasManager.headerCtx!.lineWidth = 1;
-    this.canvasManager.headerCtx!.beginPath();
-    this.canvasManager.headerCtx!.moveTo(0, this.settings.cellHeaderHeight - 1);
-    this.canvasManager.headerCtx!.lineTo(
-      expectedWidth,
-      this.settings.cellHeaderHeight - 1
-    );
-    this.canvasManager.headerCtx!.stroke();
+    headerCtx.strokeStyle = this.gridColors.borderColor;
+    headerCtx.lineWidth = 1;
+    headerCtx.beginPath();
+    headerCtx.moveTo(0, this.settings.cellHeaderHeight - 1);
+    headerCtx.lineTo(expectedWidth, this.settings.cellHeaderHeight - 1);
+    headerCtx.stroke();
   }
 
   public drawGridSelectedCell(
