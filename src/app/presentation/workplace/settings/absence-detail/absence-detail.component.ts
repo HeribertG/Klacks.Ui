@@ -24,7 +24,7 @@ import { DataAbsenceService } from 'src/app/infrastructure/api/data-absence.serv
 import { SettingsListCardComponent } from 'src/app/presentation/shared/settings-list-card/settings-list-card.component';
 import { TimeInputComponent } from 'src/app/presentation/shared/time-input/time-input.component';
 import { IAbsenceDetail, AbsenceDetail, AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { IAbsence, AbsenceFilter } from 'src/app/domain/models/absence-class';
+import { IAbsence } from 'src/app/domain/models/absence-class';
 import {
   ModalService,
   ModalType,
@@ -151,16 +151,12 @@ export class AbsenceDetailComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private loadAbsences(): void {
-    const filter = new AbsenceFilter();
-    filter.language = this.currentLang;
     this.absenceService
-      .readTruncatedAbsence(filter)
+      .readAbsenceList()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (result) => {
-          if (result) {
-            this.absences = result.absences;
-          }
+        next: (absences) => {
+          this.absences = absences;
         },
         error: (error) => {
           console.error('Error loading absences:', error);
