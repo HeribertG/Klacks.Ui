@@ -17,10 +17,9 @@ import {
 import { DataManagementCalendarSelectionService } from 'src/app/domain/services/calendar/data-management-calendar-selection.service';
 
 import { CalendarSelectorComponent } from 'src/app/presentation/shared/calendar-selector/calendar-selector.component';
-import {
-  CalendarResetData,
-  ScheduleHeaderCalendarComponent,
-} from './schedule-header-calendar/schedule-header-calendar.component';
+import { CalendarResetData, ScheduleHeaderCalendarMonthlyComponent } from './schedule-header-calendar-monthly/schedule-header-calendar-monthly.component';
+import { ScheduleHeaderCalendarWeeklyComponent } from './schedule-header-calendar-weekly/schedule-header-calendar-weekly.component';
+import { ScheduleHeaderCalendarBiweeklyComponent } from './schedule-header-calendar-biweekly/schedule-header-calendar-biweekly.component';
 import { FormsModule } from '@angular/forms';
 import { ChooseCalendarComponent } from 'src/app/presentation/icons/choose-calendar.component';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
@@ -29,6 +28,8 @@ import { IconAngleRightComponent } from 'src/app/presentation/icons/icon-angle-r
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
 import { AllScheduleStateService } from '../services/all-schedule-state.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 
 @Component({
   selector: 'app-schedule-header',
@@ -43,10 +44,12 @@ import { AllScheduleStateService } from '../services/all-schedule-state.service'
     CalendarSelectorComponent,
     NgbTooltip,
     ChooseCalendarComponent,
-    ScheduleHeaderCalendarComponent,
+    ScheduleHeaderCalendarMonthlyComponent,
+    ScheduleHeaderCalendarWeeklyComponent,
+    ScheduleHeaderCalendarBiweeklyComponent,
     IconAngleLeftComponent,
     IconAngleRightComponent,
-],
+  ],
   providers: [],
 })
 export class ScheduleHeaderComponent implements OnInit {
@@ -70,9 +73,28 @@ export class ScheduleHeaderComponent implements OnInit {
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private dataService = inject(BaseDataService);
   private allScheduleStateService = inject(AllScheduleStateService);
+  private settingsService = inject(DataManagementSettingsService);
+  private calendarUtil = inject(CalendarUtilService);
+
+  get paymentInterval(): number {
+    return this.settingsService.paymentInterval;
+  }
 
   get displayYear(): string {
     return this.dataManagementSchedule.workFilter.currentYear.toString();
+  }
+
+  get displayPeriod(): string {
+    switch (this.paymentInterval) {
+      case 0:
+        return `KW ${this.selectedWeek}`;
+      case 1:
+        const endWeek = Math.min(this.selectedWeek + 1, this.getWeeksInYear(this.currentYear));
+        return `KW ${this.selectedWeek}-${endWeek}`;
+      case 2:
+      default:
+        return this.gridSettingsService.monthsName[this.dataManagementSchedule.workFilter.currentMonth - 1];
+    }
   }
 
   get displayMonth(): string {
@@ -84,6 +106,13 @@ export class ScheduleHeaderComponent implements OnInit {
   }
   private set selectedMonth(value: number) {
     this.dataManagementSchedule.workFilter.currentMonth = value;
+  }
+
+  private get selectedWeek(): number {
+    return this.dataManagementSchedule.workFilter.currentWeek ?? 1;
+  }
+  private set selectedWeek(value: number) {
+    this.dataManagementSchedule.workFilter.currentWeek = value;
   }
 
   private get currentYear(): number {
@@ -119,27 +148,106 @@ export class ScheduleHeaderComponent implements OnInit {
   onCalendarReset(_data: CalendarResetData) {
   }
 
-  goToPreviousMonth() {
+  goToPrevious() {
+    switch (this.paymentInterval) {
+      case 0:
+        this.goToPreviousWeek();
+        break;
+      case 1:
+        this.goToPreviousBiweekly();
+        break;
+      case 2:
+      default:
+        this.goToPreviousMonth();
+        break;
+    }
+  }
+
+  goToNext() {
+    switch (this.paymentInterval) {
+      case 0:
+        this.goToNextWeek();
+        break;
+      case 1:
+        this.goToNextBiweekly();
+        break;
+      case 2:
+      default:
+        this.goToNextMonth();
+        break;
+    }
+  }
+
+  private goToPreviousMonth() {
     if (this.selectedMonth === 1) {
       this.selectedMonth = 12;
       this.currentYear--;
     } else {
       this.selectedMonth--;
     }
-    this.applyMonthChange();
+    this.applyPeriodChange();
   }
 
-  goToNextMonth() {
+  private goToNextMonth() {
     if (this.selectedMonth === 12) {
       this.selectedMonth = 1;
       this.currentYear++;
     } else {
       this.selectedMonth++;
     }
-    this.applyMonthChange();
+    this.applyPeriodChange();
   }
 
-  private applyMonthChange() {
+  private goToPreviousWeek() {
+    if (this.selectedWeek === 1) {
+      this.currentYear--;
+      this.selectedWeek = this.getWeeksInYear(this.currentYear);
+    } else {
+      this.selectedWeek--;
+    }
+    this.applyPeriodChange();
+  }
+
+  private goToNextWeek() {
+    const weeksInYear = this.getWeeksInYear(this.currentYear);
+    if (this.selectedWeek >= weeksInYear) {
+      this.currentYear++;
+      this.selectedWeek = 1;
+    } else {
+      this.selectedWeek++;
+    }
+    this.applyPeriodChange();
+  }
+
+  private goToPreviousBiweekly() {
+    if (this.selectedWeek <= 2) {
+      this.currentYear--;
+      const weeksInYear = this.getWeeksInYear(this.currentYear);
+      this.selectedWeek = weeksInYear % 2 === 1 ? weeksInYear : weeksInYear - 1;
+    } else {
+      this.selectedWeek -= 2;
+    }
+    this.applyPeriodChange();
+  }
+
+  private goToNextBiweekly() {
+    const weeksInYear = this.getWeeksInYear(this.currentYear);
+    if (this.selectedWeek + 2 > weeksInYear) {
+      this.currentYear++;
+      this.selectedWeek = 1;
+    } else {
+      this.selectedWeek += 2;
+    }
+    this.applyPeriodChange();
+  }
+
+  private getWeeksInYear(year: number): number {
+    const dec31 = new Date(year, 11, 31);
+    const week = this.calendarUtil.getISO8601WeekNumber(dec31);
+    return week === 1 ? 52 : week;
+  }
+
+  private applyPeriodChange() {
     this.dataService.holidayCollection.currentYear = this.currentYear;
     this.dataManagementSchedule.readDatas();
     this.allScheduleStateService.saveCurrentFilter();

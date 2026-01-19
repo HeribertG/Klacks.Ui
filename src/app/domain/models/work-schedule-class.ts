@@ -41,8 +41,8 @@ export class ScheduleCell implements IScheduleCell {
 }
 
 export interface IWorkScheduleFilter {
-  periodStartDate: string;
-  periodEndDate: string;
+  startDate: string;
+  endDate: string;
   selectedGroup?: string;
   orderBy?: string;
   sortOrder?: string;

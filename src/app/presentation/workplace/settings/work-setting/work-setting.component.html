@@ -67,34 +67,18 @@
       </div>
       <div class="form-group secondColumn">
         <label for="paymentInterval">{{ 'settings.work.payment-interval' | translate }}</label>
-        @if (hasContracts) {
-          <select
-            class="form-select"
-            [value]="formModel().paymentInterval"
-            aria-label="paymentInterval"
-            id="paymentInterval"
-            disabled
-            [title]="'settings.work.payment-interval-locked' | translate"
-          >
-            <option value="0">{{ 'settings.work.payment-weekly' | translate }}</option>
-            <option value="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
-            <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
-            <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
-          </select>
-        } @else {
-          <select
-            class="form-select"
-            [value]="formModel().paymentInterval"
-            (change)="onPaymentIntervalChange($event)"
-            aria-label="paymentInterval"
-            id="paymentInterval"
-          >
-            <option value="0">{{ 'settings.work.payment-weekly' | translate }}</option>
-            <option value="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
-            <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
-            <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
-          </select>
-        }
+        <select
+          class="form-select"
+          [value]="formModel().paymentInterval"
+          (change)="onPaymentIntervalChange($event)"
+          aria-label="paymentInterval"
+          id="paymentInterval"
+        >
+          <option value="0">{{ 'settings.work.payment-weekly' | translate }}</option>
+          <option value="1">{{ 'settings.work.payment-biweekly' | translate }}</option>
+          <option value="2">{{ 'settings.work.payment-monthly' | translate }}</option>
+          <option value="3">{{ 'settings.work.payment-individual' | translate }}</option>
+        </select>
       </div>
     </div>
     <div id="work-setting-guaranteed-maximum-row" class="row-line">
@@ -190,6 +174,30 @@
           [field]="workForm.soRate"
           aria-label="soRate"
           id="soRate"
+        />
+      </div>
+    </div>
+    <div id="work-setting-visible-days-row" class="row-line">
+      <div class="form-group firstColumn">
+        <label for="dayVisibleBefore">{{ 'settings.work.day-visible-before' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.dayVisibleBefore"
+          aria-label="dayVisibleBefore"
+          id="dayVisibleBefore"
+        />
+      </div>
+      <div class="form-group secondColumn">
+        <label for="dayVisibleAfter">{{ 'settings.work.day-visible-after' | translate }}</label>
+        <input
+          type="number"
+          step="1"
+          class="form-control"
+          [field]="workForm.dayVisibleAfter"
+          aria-label="dayVisibleAfter"
+          id="dayVisibleAfter"
         />
       </div>
     </div>

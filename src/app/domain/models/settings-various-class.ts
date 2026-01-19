@@ -51,6 +51,8 @@ export class AppSetting {
   public static WORK_HOLIDAY_RATE = 'holidayRate';
   public static WORK_SA_RATE = 'saRate';
   public static WORK_SO_RATE = 'soRate';
+  public static WORK_DAY_VISIBLE_BEFORE = 'dayVisibleBefore';
+  public static WORK_DAY_VISIBLE_AFTER = 'dayVisibleAfter';
 }
 
 export interface IMacroType {

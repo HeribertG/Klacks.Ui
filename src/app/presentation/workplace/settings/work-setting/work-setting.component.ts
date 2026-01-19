@@ -27,6 +27,8 @@ interface WorkSettingsFormModel {
   holidayRate: number;
   saRate: number;
   soRate: number;
+  dayVisibleBefore: number;
+  dayVisibleAfter: number;
 }
 
 @Component({
@@ -58,6 +60,8 @@ export class WorkSettingComponent implements OnInit {
     holidayRate: 0,
     saRate: 0,
     soRate: 0,
+    dayVisibleBefore: 0,
+    dayVisibleAfter: 0,
   });
 
   workForm = form(this.formModel);
@@ -85,13 +89,17 @@ export class WorkSettingComponent implements OnInit {
         holidayRate: Math.max(0, Math.min(100, data.holidayRate)),
         saRate: Math.max(0, Math.min(100, data.saRate)),
         soRate: Math.max(0, Math.min(100, data.soRate)),
+        dayVisibleBefore: Math.max(0, Math.min(31, data.dayVisibleBefore)),
+        dayVisibleAfter: Math.max(0, Math.min(31, data.dayVisibleAfter)),
       };
 
       if (
         clamped.nightRate !== data.nightRate ||
         clamped.holidayRate !== data.holidayRate ||
         clamped.saRate !== data.saRate ||
-        clamped.soRate !== data.soRate
+        clamped.soRate !== data.soRate ||
+        clamped.dayVisibleBefore !== data.dayVisibleBefore ||
+        clamped.dayVisibleAfter !== data.dayVisibleAfter
       ) {
         this.formModel.update(m => ({
           ...m,
@@ -99,6 +107,8 @@ export class WorkSettingComponent implements OnInit {
           holidayRate: clamped.holidayRate,
           saRate: clamped.saRate,
           soRate: clamped.soRate,
+          dayVisibleBefore: clamped.dayVisibleBefore,
+          dayVisibleAfter: clamped.dayVisibleAfter,
         }));
       }
     });
@@ -136,6 +146,8 @@ export class WorkSettingComponent implements OnInit {
       holidayRate: svc.holidayRate,
       saRate: svc.saRate,
       soRate: svc.soRate,
+      dayVisibleBefore: svc.dayVisibleBefore,
+      dayVisibleAfter: svc.dayVisibleAfter,
     });
   }
 
@@ -155,6 +167,8 @@ export class WorkSettingComponent implements OnInit {
     svc.holidayRate = data.holidayRate;
     svc.saRate = data.saRate;
     svc.soRate = data.soRate;
+    svc.dayVisibleBefore = data.dayVisibleBefore;
+    svc.dayVisibleAfter = data.dayVisibleAfter;
     svc.settingsChangeTrigger.update(v => v + 1);
   }
 

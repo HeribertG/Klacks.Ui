@@ -559,6 +559,8 @@
   "schedule.filter.extern": "Ext",
   "schedule.filter.hours": "Heures contractuelles garanties",
   "schedule.schedule-header.schedule-header.month": "Mois : ",
+  "schedule.schedule-header.schedule-header.week": "Semaine : ",
+  "schedule.schedule-header.schedule-header.biweekly": "2 semaines : ",
   "schedule.selector.select-calendar": "Sélectionner le mois et l'année",
   "schedule.shift-section.tab.shifts": "Services",
   "schedule.shift-filter.title": "Filtre de services",
@@ -860,6 +862,8 @@
   "settings.work.holiday-rate": "Majoration jours fériés",
   "settings.work.sa-rate": "Majoration samedi",
   "settings.work.so-rate": "Majoration dimanche",
+  "settings.work.day-visible-before": "Jours avant",
+  "settings.work.day-visible-after": "Jours après",
   "settings.work.payment-interval-locked": "Ne peut pas être modifié car des contrats existent déjà",
 
   "settings.llm-providers.title": "Fournisseurs LLM",

@@ -12,6 +12,8 @@ import {
   WorkScheduleByClientAndDate,
 } from 'src/app/domain/models/work-schedule-class';
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
 import { formatDateOnly, getDateKeysBetween } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
@@ -19,6 +21,8 @@ import { formatDateOnly, getDateKeysBetween } from 'src/app/shared/helpers/date.
 })
 export class WorkScheduleLoaderService {
   private dataWorkSchedule = inject(DataWorkScheduleService);
+  private settingsService = inject(DataManagementSettingsService);
+  private calendarUtil = inject(CalendarUtilService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -60,6 +64,25 @@ export class WorkScheduleLoaderService {
     return this._totalAvailableClients;
   }
 
+  calculateVisibleDates(workFilter: IWorkFilter): { startDate: string; endDate: string } {
+    const periodStartDate = this.calculatePeriodStartDate(workFilter);
+    const periodEndDate = this.calculatePeriodEndDate(workFilter);
+
+    const dayVisibleBefore = workFilter.dayVisibleBeforeMonth ?? 0;
+    const dayVisibleAfter = workFilter.dayVisibleAfterMonth ?? 0;
+
+    const startDate = new Date(periodStartDate);
+    startDate.setDate(startDate.getDate() - dayVisibleBefore);
+
+    const endDate = new Date(periodEndDate);
+    endDate.setDate(endDate.getDate() + dayVisibleAfter);
+
+    return {
+      startDate: formatDateOnly(startDate),
+      endDate: formatDateOnly(endDate),
+    };
+  }
+
   load(workFilter: IWorkFilter, onLoaded?: () => void): void {
     this._currentLoadId++;
     const loadId = this._currentLoadId;
@@ -74,12 +97,11 @@ export class WorkScheduleLoaderService {
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._isLoadingMore.set(false);
 
-    const periodStartDate = this.calculatePeriodStartDate(workFilter);
-    const periodEndDate = this.calculatePeriodEndDate(workFilter);
+    const dates = this.calculateVisibleDates(workFilter);
 
     this._currentFilter = {
-      periodStartDate: formatDateOnly(periodStartDate),
-      periodEndDate: formatDateOnly(periodEndDate),
+      startDate: dates.startDate,
+      endDate: dates.endDate,
       selectedGroup: workFilter.selectedGroup || undefined,
       orderBy: workFilter.orderBy || 'name',
       sortOrder: workFilter.sortOrder || 'asc',
@@ -198,15 +220,35 @@ export class WorkScheduleLoaderService {
   }
 
   private calculatePeriodStartDate(filter: IWorkFilter): Date {
+    const paymentInterval = this.settingsService.paymentInterval;
     const year = filter.currentYear;
-    const month = filter.currentMonth - 1;
-    return new Date(year, month, 1);
+
+    switch (paymentInterval) {
+      case 0:
+        return this.calendarUtil.getWeekStartDate(year, filter.currentWeek ?? 1);
+      case 1:
+        return this.calendarUtil.getBiweeklyStartDate(year, filter.currentWeek ?? 1);
+      case 2:
+      default:
+        const month = filter.currentMonth - 1;
+        return new Date(year, month, 1);
+    }
   }
 
   private calculatePeriodEndDate(filter: IWorkFilter): Date {
+    const paymentInterval = this.settingsService.paymentInterval;
     const year = filter.currentYear;
-    const month = filter.currentMonth - 1;
-    return new Date(year, month + 1, 0);
+
+    switch (paymentInterval) {
+      case 0:
+        return this.calendarUtil.getWeekEndDate(year, filter.currentWeek ?? 1);
+      case 1:
+        return this.calendarUtil.getBiweeklyEndDate(year, filter.currentWeek ?? 1);
+      case 2:
+      default:
+        const month = filter.currentMonth - 1;
+        return new Date(year, month + 1, 0);
+    }
   }
 
   private convertToClientWork(clients: IWorkScheduleClient[]): IClientWork[] {

@@ -139,6 +139,14 @@ export class DataManagementScheduleService implements ILoadable {
     return this.workScheduleLoader.periodHours;
   }
 
+  get visibleStartDate(): Date | null {
+    return this.workScheduleLoader.startDate;
+  }
+
+  get visibleEndDate(): Date | null {
+    return this.workScheduleLoader.endDate;
+  }
+
   get availableShiftsByDay(): readonly (readonly string[])[] {
     return this.availableShiftsCalc.availableShiftsByDay;
   }
@@ -169,12 +177,17 @@ export class DataManagementScheduleService implements ILoadable {
 
   readDatas() {
     this._showProgressSpinner.set(true);
+    const dates = this.workScheduleLoader.calculateVisibleDates(this.workFilter);
     this.readWorkSchedule();
-    this.readShiftSchedule();
+    this.readShiftSchedule(true, dates.startDate, dates.endDate);
   }
 
-  readShiftSchedule(resetScroll = true) {
-    this.shiftLoader.load(this.workFilter, this.holidayDates, () => {
+  readShiftSchedule(resetScroll = true, startDate?: string, endDate?: string) {
+    const dates = startDate && endDate
+      ? { startDate, endDate }
+      : this.workScheduleLoader.calculateVisibleDates(this.workFilter);
+
+    this.shiftLoader.load(dates.startDate, dates.endDate, this.workFilter, this.holidayDates, () => {
       this.availableShiftsCalc.calculate(this.shiftSchedules, this.workFilter);
       this.isShiftScheduleRead.set({ value: true, resetScroll });
       setTimeout(

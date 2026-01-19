@@ -75,6 +75,7 @@ export interface IWorkFilter extends IBaseFilter {
   dayVisibleAfterMonth: number;
   currentMonth: number;
   currentYear: number;
+  currentWeek?: number;
   works: Work[];
   selectedGroup: string | undefined;
   showEmployees: boolean;
@@ -87,6 +88,7 @@ export class WorkFilter implements IWorkFilter {
   dayVisibleAfterMonth = 10;
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
+  currentWeek?: number = undefined;
   searchString = '';
   orderBy = '';
   sortOrder = '';

@@ -8,7 +8,6 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import {
   addDays,
   EqualDate,
-  getDaysInMonth,
 } from 'src/app/shared/helpers/date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
@@ -127,19 +126,18 @@ export class ShiftDataService extends BaseDataService {
   }
 
   public override initializeDateAndColumns(): void {
-    const dayVisibleBeforeMonth =
-      this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
-    const dayVisibleAfterMonth =
-      this.dataManagementSchedule.workFilter.dayVisibleAfterMonth;
-    const currentYear = this.dataManagementSchedule.workFilter.currentYear;
-    const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
+    const visibleStart = this.dataManagementSchedule.visibleStartDate;
+    const visibleEnd = this.dataManagementSchedule.visibleEndDate;
 
-    this.startDate = new Date(currentYear, currentMonth - 1, 1);
-    this.startDate = addDays(this.startDate, -1 * dayVisibleBeforeMonth);
-    this.columns =
-      getDaysInMonth(currentYear, currentMonth - 1) +
-      dayVisibleBeforeMonth +
-      dayVisibleAfterMonth;
+    if (visibleStart && visibleEnd) {
+      this.startDate = new Date(visibleStart);
+      const diffTime = visibleEnd.getTime() - visibleStart.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      this.columns = diffDays;
+    } else {
+      this.startDate = new Date();
+      this.columns = 0;
+    }
   }
 
   public override isLastGroupRow(row: number): boolean {
@@ -176,19 +174,16 @@ export class ShiftDataService extends BaseDataService {
   }
 
   override isOverlayDay(column: number): boolean {
-    const dayVisibleBeforeMonth =
-      this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
-    const currentYear = this.dataManagementSchedule.workFilter.currentYear;
-    const currentMonth = this.dataManagementSchedule.workFilter.currentMonth;
+    const dayVisibleBefore = this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
+    const dayVisibleAfter = this.dataManagementSchedule.workFilter.dayVisibleAfterMonth;
+    const totalColumns = this.columns;
 
-    const daysInCurrentMonth = getDaysInMonth(currentYear, currentMonth - 1);
-
-    if (column < dayVisibleBeforeMonth) {
+    if (column < dayVisibleBefore) {
       return true;
     }
 
-    const startOfAfterMonth = dayVisibleBeforeMonth + daysInCurrentMonth;
-    if (column >= startOfAfterMonth) {
+    const periodDays = totalColumns - dayVisibleBefore - dayVisibleAfter;
+    if (column >= dayVisibleBefore + periodDays) {
       return true;
     }
 

@@ -39,10 +39,8 @@ export class ShiftSchedule implements IShiftSchedule {
 }
 
 export interface IShiftScheduleFilter {
-  dayVisibleBeforeMonth: number;
-  dayVisibleAfterMonth: number;
-  currentMonth: number;
-  currentYear: number;
+  startDate: string;
+  endDate: string;
   holidayDates?: Date[];
   selectedGroup?: string;
   searchString?: string;
@@ -63,10 +61,8 @@ export interface IShiftScheduleResponse {
 }
 
 export class ShiftScheduleFilter implements IShiftScheduleFilter {
-  dayVisibleBeforeMonth = 10;
-  dayVisibleAfterMonth = 10;
-  currentMonth: number = new Date().getMonth() + 1;
-  currentYear: number = new Date().getFullYear();
+  startDate = '';
+  endDate = '';
   holidayDates?: Date[];
   selectedGroup?: string;
   searchString?: string;

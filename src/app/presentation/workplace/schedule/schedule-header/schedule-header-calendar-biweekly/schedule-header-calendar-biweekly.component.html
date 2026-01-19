@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="biweekly-line">
+    <span class="custom-counter-span">
+      {{ "schedule.schedule-header.schedule-header.biweekly" | translate }}
+    </span>
+    <span class="filler"></span>
+    <select
+      name="biweekly"
+      id="biweekly"
+      class="form-select biweekly"
+      [(ngModel)]="selectedWeek"
+      (ngModelChange)="onChangeBiweekly()"
+    >
+      @for (option of biweeklyOptions; track option.startWeek) {
+        <option [ngValue]="option.startWeek" [selected]="option.startWeek === selectedWeek">
+          {{ option.label }}
+        </option>
+      }
+    </select>
+  </div>
+  <div class="custom-counter">
+    <span class="custom-counter-span">
+      {{ "absence-gantt.absence-gantt-header.absence-gantt-header.year" | translate }}
+    </span>
+    <span class="filler"></span>
+    <app-counter
+      [maxNumber]="maxYear"
+      [currentNumber]="currentYear"
+      (isChanged)="changeYear($event)"
+    >
+    </app-counter>
+  </div>
+</div>

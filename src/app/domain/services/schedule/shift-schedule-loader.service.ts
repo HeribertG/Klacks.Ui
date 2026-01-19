@@ -50,17 +50,17 @@ export class ShiftScheduleLoaderService {
     return this._totalAvailableShifts;
   }
 
-  load(workFilter: IWorkFilter, holidayDates: Date[], onLoaded?: () => void): void {
-    this.shiftScheduleFilter.dayVisibleBeforeMonth = workFilter.dayVisibleBeforeMonth;
-    this.shiftScheduleFilter.dayVisibleAfterMonth = workFilter.dayVisibleAfterMonth;
-    this.shiftScheduleFilter.currentMonth = workFilter.currentMonth;
-    this.shiftScheduleFilter.currentYear = workFilter.currentYear;
+  load(startDate: string, endDate: string, workFilter: IWorkFilter, holidayDates: Date[], onLoaded?: () => void): void {
+    this.shiftScheduleFilter.startDate = startDate;
+    this.shiftScheduleFilter.endDate = endDate;
     this.shiftScheduleFilter.holidayDates = holidayDates.length > 0 ? holidayDates : undefined;
     this.shiftScheduleFilter.selectedGroup = workFilter.selectedGroup || undefined;
     this.shiftScheduleFilter.startRow = 0;
     this.shiftScheduleFilter.rowCount = this.INITIAL_CHUNK_SIZE;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._autoLoadEnabled = true;
+
+    console.log('ShiftScheduleLoaderService - Sending filter:', this.shiftScheduleFilter);
 
     this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))

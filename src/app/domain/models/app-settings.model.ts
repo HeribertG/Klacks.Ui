@@ -69,6 +69,8 @@ export interface IWorkSettings {
   holidayRate: number;
   saRate: number;
   soRate: number;
+  dayVisibleBefore: number;
+  dayVisibleAfter: number;
 }
 
 export class WorkSettings implements IWorkSettings {
@@ -86,4 +88,6 @@ export class WorkSettings implements IWorkSettings {
   holidayRate = 0.1;
   saRate = 0.1;
   soRate = 0.1;
+  dayVisibleBefore = 3;
+  dayVisibleAfter = 3;
 }

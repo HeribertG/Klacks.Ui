@@ -402,6 +402,22 @@ export class DataManagementSettingsService implements ISaveable, IResettable, IL
     return this.appSettingsService.workSettings().soRate;
   }
 
+  get dayVisibleBefore(): number {
+    return this.appSettingsService.workSettings().dayVisibleBefore;
+  }
+
+  set dayVisibleBefore(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, dayVisibleBefore: value }));
+  }
+
+  get dayVisibleAfter(): number {
+    return this.appSettingsService.workSettings().dayVisibleAfter;
+  }
+
+  set dayVisibleAfter(value: number) {
+    this.appSettingsService.workSettings.update(s => ({ ...s, dayVisibleAfter: value }));
+  }
+
   // =============================
   // Countries & States - Delegated
   // =============================

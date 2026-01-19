@@ -216,6 +216,16 @@ export class AppSettingsManagementService {
         case AppSetting.WORK_SO_RATE:
           work.soRate = parseFloat(setting.value) || 0.1;
           break;
+        case AppSetting.WORK_DAY_VISIBLE_BEFORE: {
+          const valBefore = parseInt(setting.value, 10);
+          work.dayVisibleBefore = Number.isNaN(valBefore) ? 3 : valBefore;
+          break;
+        }
+        case AppSetting.WORK_DAY_VISIBLE_AFTER: {
+          const valAfter = parseInt(setting.value, 10);
+          work.dayVisibleAfter = Number.isNaN(valAfter) ? 3 : valAfter;
+          break;
+        }
       }
     });
 
@@ -284,6 +294,8 @@ export class AppSettingsManagementService {
     this.saveSetting(work.holidayRate.toString(), workOriginal.holidayRate.toString(), AppSetting.WORK_HOLIDAY_RATE);
     this.saveSetting(work.saRate.toString(), workOriginal.saRate.toString(), AppSetting.WORK_SA_RATE);
     this.saveSetting(work.soRate.toString(), workOriginal.soRate.toString(), AppSetting.WORK_SO_RATE);
+    this.saveSetting(work.dayVisibleBefore.toString(), workOriginal.dayVisibleBefore.toString(), AppSetting.WORK_DAY_VISIBLE_BEFORE);
+    this.saveSetting(work.dayVisibleAfter.toString(), workOriginal.dayVisibleAfter.toString(), AppSetting.WORK_DAY_VISIBLE_AFTER);
 
     // Save OpenRouteService API Key
     this.saveSetting(this.openRouteServiceApiKey(), this.openRouteServiceApiKeyOriginal(), AppSetting.OPENROUTESERVICE_API_KEY);

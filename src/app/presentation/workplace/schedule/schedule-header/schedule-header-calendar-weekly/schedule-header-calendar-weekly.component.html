@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="week-line">
+    <span class="custom-counter-span">
+      {{ "schedule.schedule-header.schedule-header.week" | translate }}
+    </span>
+    <span class="filler"></span>
+    <select
+      name="week"
+      id="week"
+      class="form-select week"
+      [(ngModel)]="selectedWeek"
+      (ngModelChange)="onChangeWeek()"
+    >
+      @for (w of weeks; track w) {
+        <option [ngValue]="w" [selected]="w === selectedWeek">
+          {{ w }}
+        </option>
+      }
+    </select>
+  </div>
+  <div class="custom-counter">
+    <span class="custom-counter-span">
+      {{ "absence-gantt.absence-gantt-header.absence-gantt-header.year" | translate }}
+    </span>
+    <span class="filler"></span>
+    <app-counter
+      [maxNumber]="maxYear"
+      [currentNumber]="currentYear"
+      (isChanged)="changeYear($event)"
+    >
+    </app-counter>
+  </div>
+</div>
