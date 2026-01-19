@@ -36,6 +36,8 @@ export class WorkScheduleLoaderService {
   public workScheduleByClientAndDate: WorkScheduleByClientAndDate = new Map();
   public clients: IClientWork[] = [];
   public periodHours = new Map<string, IPeriodHours>();
+  public startDate: Date | null = null;
+  public endDate: Date | null = null;
 
   get isLoadingMore(): boolean {
     return this._isLoadingMore();
@@ -66,16 +68,18 @@ export class WorkScheduleLoaderService {
     this.workScheduleByClientAndDate = new Map();
     this.clients = [];
     this.periodHours = new Map();
+    this.startDate = null;
+    this.endDate = null;
     this._autoLoadEnabled = true;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._isLoadingMore.set(false);
 
-    const startDate = this.calculateStartDate(workFilter);
-    const endDate = this.calculateEndDate(workFilter);
+    const periodStartDate = this.calculatePeriodStartDate(workFilter);
+    const periodEndDate = this.calculatePeriodEndDate(workFilter);
 
     this._currentFilter = {
-      startDate: formatDateOnly(startDate),
-      endDate: formatDateOnly(endDate),
+      periodStartDate: formatDateOnly(periodStartDate),
+      periodEndDate: formatDateOnly(periodEndDate),
       selectedGroup: workFilter.selectedGroup || undefined,
       orderBy: workFilter.orderBy || 'name',
       sortOrder: workFilter.sortOrder || 'asc',
@@ -85,6 +89,8 @@ export class WorkScheduleLoaderService {
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,
     };
+
+    console.log('WorkScheduleLoaderService - Sending filter:', this._currentFilter);
 
     this.dataWorkSchedule.getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -97,6 +103,8 @@ export class WorkScheduleLoaderService {
           this.clients = this.convertToClientWork(response.clients ?? []);
           this.periodHours = new Map(Object.entries(response.periodHours ?? {}));
           this._totalAvailableClients = response.totalClientCount;
+          this.startDate = new Date(response.startDate);
+          this.endDate = new Date(response.endDate);
           this.updateClientNeededRows();
 
           this._isRead.set(true);
@@ -189,20 +197,16 @@ export class WorkScheduleLoaderService {
     return result;
   }
 
-  private calculateStartDate(filter: IWorkFilter): Date {
+  private calculatePeriodStartDate(filter: IWorkFilter): Date {
     const year = filter.currentYear;
     const month = filter.currentMonth - 1;
-    const daysBefore = filter.dayVisibleBeforeMonth;
-    const firstOfMonth = new Date(year, month, 1);
-    return new Date(firstOfMonth.getTime() - daysBefore * 24 * 60 * 60 * 1000);
+    return new Date(year, month, 1);
   }
 
-  private calculateEndDate(filter: IWorkFilter): Date {
+  private calculatePeriodEndDate(filter: IWorkFilter): Date {
     const year = filter.currentYear;
     const month = filter.currentMonth - 1;
-    const daysAfter = filter.dayVisibleAfterMonth;
-    const lastOfMonth = new Date(year, month + 1, 0);
-    return new Date(lastOfMonth.getTime() + daysAfter * 24 * 60 * 60 * 1000);
+    return new Date(year, month + 1, 0);
   }
 
   private convertToClientWork(clients: IWorkScheduleClient[]): IClientWork[] {

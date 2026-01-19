@@ -104,8 +104,8 @@ export class WorkScheduleCrudService {
 
   private refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): void {
     const filter: IWorkScheduleFilter = {
-      startDate: formatDateOnly(startDate),
-      endDate: formatDateOnly(endDate),
+      periodStartDate: formatDateOnly(startDate),
+      periodEndDate: formatDateOnly(endDate),
     };
 
     this.dataWorkSchedule.getWorkSchedule(filter)

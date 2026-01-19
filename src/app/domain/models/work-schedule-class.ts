@@ -41,8 +41,8 @@ export class ScheduleCell implements IScheduleCell {
 }
 
 export interface IWorkScheduleFilter {
-  startDate: string;
-  endDate: string;
+  periodStartDate: string;
+  periodEndDate: string;
   selectedGroup?: string;
   orderBy?: string;
   sortOrder?: string;
@@ -73,6 +73,8 @@ export interface IWorkScheduleResponse {
   clients: IWorkScheduleClient[];
   periodHours: Record<string, IPeriodHours>;
   totalClientCount: number;
+  startDate: string;
+  endDate: string;
 }
 
 export interface IPeriodHours {
