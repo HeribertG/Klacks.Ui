@@ -5,6 +5,7 @@ import { ShiftSporadic } from 'src/app/domain/enums/shift-sporadic.enum';
 import { ShiftDragData } from 'src/app/presentation/workplace/schedule/services/shift-to-schedule-drag-drop.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import {
   addDays,
   EqualDate,
@@ -53,6 +54,7 @@ export class ShiftDataService extends BaseDataService {
   public override holidayCollection = inject(HolidayCollectionService);
   protected gridSetting = inject(GridSettingsService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
+  private appSettingsService = inject(AppSettingsManagementService);
   private workNotificationService = inject(WorkNotificationService);
 
   public override rowGroupIndex: number[] = new Array<number>();
@@ -174,8 +176,9 @@ export class ShiftDataService extends BaseDataService {
   }
 
   override isOverlayDay(column: number): boolean {
-    const dayVisibleBefore = this.dataManagementSchedule.workFilter.dayVisibleBeforeMonth;
-    const dayVisibleAfter = this.dataManagementSchedule.workFilter.dayVisibleAfterMonth;
+    const workSettings = this.appSettingsService.workSettings();
+    const dayVisibleBefore = workSettings.dayVisibleBefore;
+    const dayVisibleAfter = workSettings.dayVisibleAfter;
     const totalColumns = this.columns;
 
     if (column < dayVisibleBefore) {

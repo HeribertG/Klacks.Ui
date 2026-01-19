@@ -37,8 +37,6 @@ export class AllScheduleStateService extends BaseStateService<
   private applySettingsToFilter(): void {
     const filter = this.dataManagementService.currentFilter;
     const workSettings = this.appSettingsService.workSettings();
-    filter.dayVisibleBeforeMonth = workSettings.dayVisibleBefore;
-    filter.dayVisibleAfterMonth = workSettings.dayVisibleAfter;
     filter.paymentInterval = workSettings.paymentInterval;
   }
 }

@@ -71,8 +71,6 @@ export class ClientWork implements IClientWork {
 }
 
 export interface IWorkFilter extends IBaseFilter {
-  dayVisibleBeforeMonth: number;
-  dayVisibleAfterMonth: number;
   currentMonth: number;
   currentYear: number;
   currentWeek?: number;
@@ -85,8 +83,6 @@ export interface IWorkFilter extends IBaseFilter {
 }
 
 export class WorkFilter implements IWorkFilter {
-  dayVisibleBeforeMonth = 10;
-  dayVisibleAfterMonth = 10;
   currentMonth: number = new Date().getMonth() + 1;
   currentYear: number = new Date().getFullYear();
   currentWeek?: number = undefined;

@@ -5,6 +5,7 @@ import { ScrollService } from 'src/app/presentation/shared/scrollbar/scroll.serv
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { GridSettingsService } from 'src/app/presentation/shared/grid/services/grid-settings.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
+import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 
 describe('ScheduleDataService', () => {
     let service: ScheduleDataService;
@@ -17,8 +18,15 @@ describe('ScheduleDataService', () => {
                 { provide: HolidayCollectionService, useValue: { holidays: { holidayList: [] } } },
                 { provide: GridSettingsService, useValue: { weekday: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] } },
                 { provide: DataManagementScheduleService, useValue: {
-                        workFilter: { dayVisibleBeforeMonth: 0, dayVisibleAfterMonth: 0, currentYear: 2024, currentMonth: 0 },
-                        clients: []
+                        workFilter: { currentYear: 2024, currentMonth: 1, paymentInterval: 2 },
+                        clients: [],
+                        shiftSchedules: [],
+                        visibleStartDate: null,
+                        visibleEndDate: null,
+                        availableShiftsByDay: []
+                    } },
+                { provide: AppSettingsManagementService, useValue: {
+                        workSettings: () => ({ dayVisibleBefore: 3, dayVisibleAfter: 3, paymentInterval: 2 })
                     } }
             ]
         });

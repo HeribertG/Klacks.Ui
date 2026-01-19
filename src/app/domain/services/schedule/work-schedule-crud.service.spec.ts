@@ -17,10 +17,9 @@ import { IWorkFilter } from '../../models/schedule-class';
 
 function createMockWorkFilter(): IWorkFilter {
   return {
-    dayVisibleBeforeMonth: 10,
-    dayVisibleAfterMonth: 10,
     currentMonth: 1,
     currentYear: 2025,
+    paymentInterval: 2,
     works: [],
     selectedGroup: undefined,
     searchString: '',

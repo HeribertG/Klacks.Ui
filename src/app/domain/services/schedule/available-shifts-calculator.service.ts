@@ -3,12 +3,14 @@ import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
 import { IWorkFilter } from 'src/app/domain/models/schedule-class';
 import { getDayIndex, getDaysInMonth } from 'src/app/shared/helpers/date.helper';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AvailableShiftsCalculatorService {
   private calendarUtil = inject(CalendarUtilService);
+  private settingsService = inject(DataManagementSettingsService);
 
   private _availableShiftsByDay = signal<readonly (readonly string[])[]>([]);
   private _overbookedShiftsByDay = signal<readonly (readonly string[])[]>([]);
@@ -63,8 +65,7 @@ export class AvailableShiftsCalculatorService {
   }
 
   private calculateStartDate(filter: IWorkFilter): Date {
-    const year = filter.currentYear;
-    const daysBefore = filter.dayVisibleBeforeMonth;
+    const daysBefore = this.settingsService.dayVisibleBefore;
     const periodStart = this.calculatePeriodStartDate(filter);
     return new Date(periodStart.getTime() - daysBefore * 24 * 60 * 60 * 1000);
   }
@@ -87,7 +88,7 @@ export class AvailableShiftsCalculatorService {
 
   private getTotalDays(filter: IWorkFilter): number {
     const periodDays = this.getPeriodDays(filter);
-    return filter.dayVisibleBeforeMonth + periodDays + filter.dayVisibleAfterMonth;
+    return this.settingsService.dayVisibleBefore + periodDays + this.settingsService.dayVisibleAfter;
   }
 
   private getPeriodDays(filter: IWorkFilter): number {

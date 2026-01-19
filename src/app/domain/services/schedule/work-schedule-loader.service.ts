@@ -68,8 +68,8 @@ export class WorkScheduleLoaderService {
     const periodStartDate = this.calculatePeriodStartDate(workFilter);
     const periodEndDate = this.calculatePeriodEndDate(workFilter);
 
-    const dayVisibleBefore = workFilter.dayVisibleBeforeMonth ?? 0;
-    const dayVisibleAfter = workFilter.dayVisibleAfterMonth ?? 0;
+    const dayVisibleBefore = this.settingsService.dayVisibleBefore;
+    const dayVisibleAfter = this.settingsService.dayVisibleAfter;
 
     const startDate = new Date(periodStartDate);
     startDate.setDate(startDate.getDate() - dayVisibleBefore);
