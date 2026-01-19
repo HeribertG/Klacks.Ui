@@ -83,11 +83,13 @@ export class VScrollbarComponent
   private sanitizer = inject(DomSanitizer);
   private scrollbarService = inject(ScrollbarService);
   private cdr = inject(ChangeDetectorRef);
+  private hostRef = inject(ElementRef);
 
   public safeTriangleSvgTop!: SafeHtml;
   public safeTriangleSvgBottom!: SafeHtml;
   public disableTopArrow = false;
   public disableBottomArrow = false;
+  public hideArrowButtons = false;
 
   private _value = 0;
   private readonly CANVAS_PADDING = 50;
@@ -705,6 +707,8 @@ export class VScrollbarComponent
   private updateArrowButtonsState(): void {
     this.disableTopArrow = this.isAtStart();
     this.disableBottomArrow = this.isAtEnd();
+    const host = this.hostRef?.nativeElement as HTMLElement;
+    this.hideArrowButtons = !host || host.offsetWidth === 0 || host.offsetHeight === 0;
     this.cdr.detectChanges();
   }
 

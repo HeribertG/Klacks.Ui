@@ -40,6 +40,7 @@ export class ShiftFilterComponent {
     this.dataManagement.shiftScheduleFilter.isTimeRange = true;
     this.dataManagement.shiftScheduleFilter.container = true;
     this.dataManagement.shiftScheduleFilter.isStandartShift = true;
+    this.dataManagement.shiftScheduleFilter.showUngroupedShifts = false;
     this.onShiftFilterChange();
   }
 }

@@ -84,11 +84,13 @@ export class HScrollbarComponent
   private sanitizer = inject(DomSanitizer);
   private scrollbarService = inject(ScrollbarService);
   private cdr = inject(ChangeDetectorRef);
+  private hostRef = inject(ElementRef);
 
   public safeTriangleSvgLeft!: SafeHtml;
   public safeTriangleSvgRight!: SafeHtml;
   public disableLeftArrow = false;
   public disableRightArrow = false;
+  public hideArrowButtons = false;
 
   private _value = 0;
   private readonly CANVAS_PADDING = 50;
@@ -694,6 +696,8 @@ export class HScrollbarComponent
   private updateArrowButtonsState(): void {
     this.disableLeftArrow = this.isAtStart();
     this.disableRightArrow = this.isAtEnd();
+    const host = this.hostRef?.nativeElement as HTMLElement;
+    this.hideArrowButtons = !host || host.offsetWidth === 0 || host.offsetHeight === 0;
     this.cdr.detectChanges();
   }
 

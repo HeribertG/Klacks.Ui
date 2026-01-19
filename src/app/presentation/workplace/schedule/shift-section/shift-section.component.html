@@ -68,6 +68,7 @@
 
             <app-v-scrollbar
               class="vScrollAreaShift"
+              [class.hidden]="vScrollbarSize === 0"
               [(value)]="vScrollbarShift.value"
               [maxValue]="vScrollbarShift.maxValue"
               [visibleValue]="vScrollbarShift.visibleValue"

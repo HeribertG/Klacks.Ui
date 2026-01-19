@@ -25,6 +25,7 @@ import { ShiftDrawRowHeaderService } from './services/shift-draw-row-header.serv
 import { ShiftRowHeaderIconsService } from './services/shift-row-header-icons.service';
 import { ShiftRowHeaderEventsDirective } from './directives/shift-row-header-events.directive';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 
 @Component({
   selector: 'app-schedule-shift-row-header',
@@ -55,6 +56,7 @@ export class ScheduleShiftRowHeaderComponent
   private drawRowHeader = inject(ShiftDrawRowHeaderService);
   private dataService = inject(BaseDataService);
   private settings = inject(BaseSettingsService);
+  private dataManagementSchedule = inject(DataManagementScheduleService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -122,6 +124,14 @@ export class ScheduleShiftRowHeaderComponent
         }
       });
       this.effects.push(refreshEffect);
+
+      const dataReadEffect = effect(() => {
+        const readState = this.dataManagementSchedule.isShiftScheduleRead();
+        if (readState.value) {
+          this.drawRowHeader.redraw();
+        }
+      });
+      this.effects.push(dataReadEffect);
 
       const scrollEffect = effect(() => {
         this.scrollEventService.scrollPosition();

@@ -564,6 +564,7 @@
   "schedule.shift-filter.search-placeholder": "Search Name/Abbreviation",
   "schedule.shift-filter.type": "Type",
   "schedule.shift-filter.clear": "Clear Filters",
+  "schedule.shift-filter.show-ungrouped": "Ungrouped Shifts",
   "schedule.tooltip.available": "Available",
   "schedule.tooltip.overbooked": "Overbooked",
 

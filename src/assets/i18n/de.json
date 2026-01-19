@@ -566,6 +566,7 @@
   "schedule.shift-filter.search-placeholder": "Suche Name/Abkürzung",
   "schedule.shift-filter.type": "Typ",
   "schedule.shift-filter.clear": "Filter zurücksetzen",
+  "schedule.shift-filter.show-ungrouped": "Nicht gruppierte Dienste",
   "schedule.tooltip.available": "Verfügbar",
   "schedule.tooltip.overbooked": "Überbelegt",
 

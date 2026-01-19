@@ -29,6 +29,7 @@ import { GridTemplateEventsDirective, GridRightClickEvent } from '../directives/
 import { CellInputEventsDirective, CellInputRightClickEvent } from '../directives/cell-input-events.directive';
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
+import { MyPosition } from '../../classes/position';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -208,6 +209,10 @@ export class GridSurfaceTemplateComponent
       this.scroll.verticalScrollPosition = 0;
       this.valueHScrollbar.emit(0);
       this.valueVScrollbar.emit(0);
+    }
+    if (this.dataService.rows === 0) {
+      this.cellManipulation.Position = new MyPosition(-1, -1);
+      this.cellManipulation.PositionCollection.clear();
     }
     this.drawSchedule.redraw();
     this.updateScrollbarValues();

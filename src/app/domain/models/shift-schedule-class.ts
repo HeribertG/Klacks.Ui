@@ -52,6 +52,7 @@ export interface IShiftScheduleFilter {
   isSporadic: boolean;
   isTimeRange: boolean;
   isStandartShift: boolean;
+  showUngroupedShifts: boolean;
   startRow: number;
   rowCount: number;
 }
@@ -75,6 +76,7 @@ export class ShiftScheduleFilter implements IShiftScheduleFilter {
   isSporadic = true;
   isTimeRange = true;
   isStandartShift = true;
+  showUngroupedShifts = false;
   startRow = 0;
   rowCount = 100;
 }

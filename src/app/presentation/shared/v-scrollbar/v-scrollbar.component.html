@@ -6,6 +6,7 @@
     (mouseup)="onArrowThumbMouseUp($event)"
     [innerHTML]="safeTriangleSvgTop"
     [class.disabled]="disableTopArrow"
+    [class.hidden]="hideArrowButtons"
     [attr.disabled]="disableTopArrow ? true : null"
     [attr.aria-disabled]="disableTopArrow"
   ></div>
@@ -21,6 +22,7 @@
     (mouseup)="onArrowThumbMouseUp($event)"
     [innerHTML]="safeTriangleSvgBottom"
     [class.disabled]="disableBottomArrow"
+    [class.hidden]="hideArrowButtons"
     [attr.disabled]="disableBottomArrow ? true : null"
     [attr.aria-disabled]="disableBottomArrow"
   ></div>

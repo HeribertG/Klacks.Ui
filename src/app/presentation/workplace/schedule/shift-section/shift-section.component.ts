@@ -190,7 +190,7 @@ export class ShiftSectionComponent
     ) as HTMLElement;
     if (hostElement) {
       hostElement.style.setProperty(
-        '--v-scrollbar-size',
+        '--v-shift-scrollbar-size',
         `${this.vScrollbarSize}px`
       );
     }
@@ -213,7 +213,8 @@ export class ShiftSectionComponent
 
       const vScrollbarSizeEffect = effect(() => {
         const isLocked = this.scrollService.lockedRows();
-        this.vScrollbarSize = isLocked ? 0 : this.defaultVScrollbarSize;
+        const hasRows = this.dataService.rows > 0;
+        this.vScrollbarSize = (isLocked || !hasRows) ? 0 : this.defaultVScrollbarSize;
         this.updateScrollbarSizes();
       });
       this.effects.push(vScrollbarSizeEffect);

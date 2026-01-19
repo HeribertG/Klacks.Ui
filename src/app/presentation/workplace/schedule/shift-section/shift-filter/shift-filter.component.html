@@ -53,6 +53,15 @@
     />
     {{ "shift.all-shift.nav.standart-shift" | translate }}
   </label>
+  <label class="checkbox-label">
+    <input
+      type="checkbox"
+      [(ngModel)]="dataManagement.shiftScheduleFilter.showUngroupedShifts"
+      (change)="onShiftFilterChange()"
+      name="shiftShowUngroupedShifts"
+    />
+    {{ "schedule.shift-filter.show-ungrouped" | translate }}
+  </label>
 
   <div class="button-center">
     <button class="btn btn-sm" (click)="clearShiftFilters()">
