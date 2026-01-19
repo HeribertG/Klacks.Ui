@@ -66,13 +66,19 @@ export class ScrollbarService {
     maxLine: number
   ): IMetrics {
     const res: Metrics = new Metrics();
+    const minThumbLength = SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH;
+    const maxThumbLength = Math.max(minThumbLength, width - minThumbLength);
 
     if (colPercent > 0) {
       res.thumbLength = Math.round((width * colPercent) / 100);
     }
 
-    if (res.thumbLength < SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH) {
-      res.thumbLength = SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH;
+    if (res.thumbLength < minThumbLength) {
+      res.thumbLength = minThumbLength;
+    }
+
+    if (res.thumbLength > maxThumbLength) {
+      res.thumbLength = maxThumbLength;
     }
 
     const invisibleWidth = width - res.thumbLength;

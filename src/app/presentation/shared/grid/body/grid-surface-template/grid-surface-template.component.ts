@@ -262,7 +262,7 @@ export class GridSurfaceTemplateComponent
         } as DOMRectReadOnly);
 
         this.checkPixelRatio();
-        this.updateScrollbarValues();
+        this.updateScrollbarValues(true);
       }
     }
   }

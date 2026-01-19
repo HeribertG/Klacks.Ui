@@ -337,22 +337,23 @@ export class VScrollbarComponent
     const safeValue = value ?? 0;
     const safeTrackHeight = trackHeight ?? 0;
 
-    // Calculate the maximum possible scroll value (without TICKS_OUTSIDE_RANGE)
     const maxScrollValue = this.maxValue - this.visibleValue;
+    const availableSpace = canvasHeight - safeTrackHeight;
+
+    if (availableSpace <= 0) {
+      return 0;
+    }
 
     if (maxScrollValue <= 0) {
       return 0;
     }
 
-    // If we're at or beyond max scroll, place thumb at the end
     if (safeValue >= maxScrollValue) {
-      return Math.round(canvasHeight - safeTrackHeight);
+      return Math.round(availableSpace);
     }
 
-    // For normal values, use proportional positioning
-    const proportion = safeValue / maxScrollValue;
-    const availableSpace = canvasHeight - safeTrackHeight;
-    return Math.max(0, Math.round(proportion * availableSpace));
+    const proportion = Math.max(0, Math.min(1, safeValue / maxScrollValue));
+    return Math.round(proportion * availableSpace);
   }
 
   /* #endregion Redraw */

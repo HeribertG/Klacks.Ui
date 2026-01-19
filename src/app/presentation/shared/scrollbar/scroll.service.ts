@@ -173,14 +173,10 @@ export class ScrollService {
   }
 
   private calcLockedCols() {
-    this.lockedCols.set(false);
-    const maxScrollH = Math.max(0, this._maxCols - this._visibleCols);
-    this.lockedCols.set(maxScrollH === 0);
+    this.lockedCols.set(this._maxCols <= 0);
   }
 
   private calcLockedRows() {
-    this.lockedRows.set(false);
-    const maxScrollV = Math.max(0, this._maxRows - this._visibleRows);
-    this.lockedRows.set(maxScrollV === 0);
+    this.lockedRows.set(this._maxRows <= 0);
   }
 }
