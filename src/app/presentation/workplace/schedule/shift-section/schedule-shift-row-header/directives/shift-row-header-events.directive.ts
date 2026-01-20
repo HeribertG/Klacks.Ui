@@ -25,6 +25,11 @@ export class ShiftRowHeaderEventsDirective {
     return this.dataService as ShiftDataService;
   }
 
+  @HostListener('contextmenu', ['$event'])
+  onContextMenu(event: MouseEvent): void {
+    event.preventDefault();
+  }
+
   @HostListener('dblclick', ['$event'])
   onDoubleClick(event: MouseEvent): void {
     const canvas = this.elementRef.nativeElement as HTMLCanvasElement;
