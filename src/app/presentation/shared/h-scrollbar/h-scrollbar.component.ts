@@ -154,7 +154,19 @@ export class HScrollbarComponent
 
   private handleMaxValueOrVisibleValueChanges(changes: SimpleChanges): void {
     if (changes['maxValue'] || changes['visibleValue']) {
+      this.clampCurrentValue();
       this.refresh();
+    }
+  }
+
+  private clampCurrentValue(): void {
+    const maxScrollValue =
+      this.maxValue -
+      this.visibleValue +
+      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+    if (this._value > maxScrollValue) {
+      this._value = Math.max(0, maxScrollValue);
+      this.valueChange.emit(this._value);
     }
   }
 
@@ -237,11 +249,9 @@ export class HScrollbarComponent
   }
 
   private updateMetrics(): void {
-    const percent = Math.round((this.visibleValue / this.maxValue) * 100);
     const canvas = this.canvasRef.nativeElement;
     this.metrics = this.scrollbarService.calcMetrics(
       canvas.width,
-      percent,
       this.visibleValue,
       this.maxValue
     );
@@ -333,7 +343,10 @@ export class HScrollbarComponent
     tickSize: number,
     trackWidth: number
   ): number {
-    const maxScrollValue = this.maxValue - this.visibleValue;
+    const maxScrollValue =
+      this.maxValue -
+      this.visibleValue +
+      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     const availableSpace = canvas.width - trackWidth;
 
     if (availableSpace <= 0) {

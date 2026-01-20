@@ -61,7 +61,6 @@ export class ScrollbarService {
 
   public calcMetrics(
     width: number,
-    colPercent: number,
     visibleLine: number,
     maxLine: number
   ): IMetrics {
@@ -69,8 +68,8 @@ export class ScrollbarService {
     const minThumbLength = SCROLLBAR_CONSTANTS.MARGINS.MINIMUM_LENGTH;
     const maxThumbLength = Math.max(minThumbLength, width - minThumbLength);
 
-    if (colPercent > 0) {
-      res.thumbLength = Math.round((width * colPercent) / 100);
+    if (maxLine > 0) {
+      res.thumbLength = Math.round(width * (visibleLine / maxLine));
     }
 
     if (res.thumbLength < minThumbLength) {

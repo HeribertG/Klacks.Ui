@@ -152,7 +152,19 @@ export class VScrollbarComponent
 
   private handleMaxValueOrVisibleValueChanges(changes: SimpleChanges): void {
     if (changes['maxValue'] || changes['visibleValue']) {
+      this.clampCurrentValue();
       this.refresh();
+    }
+  }
+
+  private clampCurrentValue(): void {
+    const maxScrollValue =
+      this.maxValue -
+      this.visibleValue +
+      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
+    if (this._value > maxScrollValue) {
+      this._value = Math.max(0, maxScrollValue);
+      this.valueChange.emit(this._value);
     }
   }
 
@@ -235,13 +247,11 @@ export class VScrollbarComponent
   }
 
   private updateMetrics(): void {
-    const percent = Math.round((this.visibleValue / this.maxValue) * 100);
     const canvas = this.canvasRef.nativeElement;
     const height = Math.round(canvas.height);
 
     this.metrics = this.scrollbarService.calcMetrics(
       height,
-      percent,
       this.visibleValue,
       this.maxValue
     );
@@ -337,7 +347,10 @@ export class VScrollbarComponent
     const safeValue = value ?? 0;
     const safeTrackHeight = trackHeight ?? 0;
 
-    const maxScrollValue = this.maxValue - this.visibleValue;
+    const maxScrollValue =
+      this.maxValue -
+      this.visibleValue +
+      SCROLLBAR_CONSTANTS.TICKS_OUTSIDE_RANGE;
     const availableSpace = canvasHeight - safeTrackHeight;
 
     if (availableSpace <= 0) {
