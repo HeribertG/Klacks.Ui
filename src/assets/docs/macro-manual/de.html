@@ -41,7 +41,8 @@ IMPORT betrag, rabatt
   <tr><td>Holiday</td><td>Integer</td><td>Feiertagsstatus (0=kein, 1=Feiertag, -1=Vortag, -2=Nachtag)</td></tr>
   <tr><td>NightRate</td><td>Decimal</td><td>Nachtzuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
   <tr><td>HolidayRate</td><td>Decimal</td><td>Feiertagszuschlag-Satz (z.B. 0.15 = 15%)</td></tr>
-  <tr><td>WeekendRate</td><td>Decimal</td><td>Wochenendzuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
+  <tr><td>SaRate</td><td>Decimal</td><td>Samstagszuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
+  <tr><td>SoRate</td><td>Decimal</td><td>Sonntagszuschlag-Satz (z.B. 0.10 = 10%)</td></tr>
   <tr><td>GuaranteedHours</td><td>Decimal</td><td>Garantierte Monatsstunden</td></tr>
   <tr><td>FullTime</td><td>Decimal</td><td>Beschäftigungsgrad in % (z.B. 100.0)</td></tr>
 </table>
@@ -268,11 +269,11 @@ von Schichten über Mitternacht (Segment-Splitting).</p>
 <pre>
 IMPORT Hour, FromHour, UntilHour
 IMPORT Weekday, Holiday, HolidayNextDay
-IMPORT NightRate, HolidayRate, WeekendRate
+IMPORT NightRate, HolidayRate, SaRate, SoRate
 
 FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
     DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, HasWeekend
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday, WeekendRate
 
     SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
@@ -281,16 +282,20 @@ FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
     NonNightHours = SegmentHours - NightHours
 
     HasHoliday = HolidayFlag = 1
-    HasWeekend = WeekdayNum = 6 OrElse WeekdayNum = 7
+    IsSaturday = WeekdayNum = 6
+    IsSunday = WeekdayNum = 7
+    WeekendRate = 0
+    IF IsSaturday THEN WeekendRate = SaRate ENDIF
+    IF IsSunday THEN WeekendRate = SoRate ENDIF
 
     NRate = 0
     IF NightHours &gt; 0 THEN NRate = NightRate ENDIF
     IF HasHoliday AndAlso HolidayRate &gt; NRate THEN NRate = HolidayRate ENDIF
-    IF HasWeekend AndAlso WeekendRate &gt; NRate THEN NRate = WeekendRate ENDIF
+    IF WeekendRate &gt; NRate THEN NRate = WeekendRate ENDIF
 
     DRate = 0
     IF HasHoliday AndAlso HolidayRate &gt; DRate THEN DRate = HolidayRate ENDIF
-    IF HasWeekend AndAlso WeekendRate &gt; DRate THEN DRate = WeekendRate ENDIF
+    IF WeekendRate &gt; DRate THEN DRate = WeekendRate ENDIF
 
     CalcSegment = NightHours * NRate + NonNightHours * DRate
 ENDFUNCTION
