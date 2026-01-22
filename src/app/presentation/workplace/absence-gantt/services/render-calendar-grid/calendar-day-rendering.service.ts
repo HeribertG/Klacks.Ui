@@ -6,7 +6,7 @@ import { HolidayCollectionService } from '../../../../shared/grid/services/holid
 import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { EqualDate } from 'src/app/shared/helpers/date.helper';
+import { compareDate } from 'src/app/shared/helpers/date.helper';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { CalendarCalculationService } from './calendar-calculation.service';
 
@@ -56,15 +56,20 @@ export class CalendarDayRenderingService {
     ) {
       return false;
     }
+
+    this.ensureCorrectYearLoaded(date);
+
     return this.holidayCollection.holidays.holidayList.some(
-      (x) => EqualDate(x.currentDate, date) === 0
+      (x) => compareDate(x.currentDate, date)
     );
   }
 
   @CanvasAvailable('queue')
   private drawHolidayBackground(dayRect: Rectangle, date: Date): void {
+    this.ensureCorrectYearLoaded(date);
+
     const holiday = this.holidayCollection.holidays!.holidayList.find(
-      (x) => EqualDate(x.currentDate, date) === 0
+      (x) => compareDate(x.currentDate, date)
     );
     if (holiday) {
       const color = holiday.officially
@@ -133,6 +138,15 @@ export class CalendarDayRenderingService {
           : this.gridColors.backGroundColorSaturday;
 
       headerDayRank.push(headerDay);
+    }
+  }
+
+  private ensureCorrectYearLoaded(date: Date): void {
+    const year = date.getFullYear();
+    const currentYear = this.holidayCollection.currentYear;
+
+    if (year < currentYear - 1 || year > currentYear + 1) {
+      this.holidayCollection.currentYear = year;
     }
   }
 }

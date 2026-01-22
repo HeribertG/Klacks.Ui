@@ -8,7 +8,7 @@ import { DataManagementScheduleService } from 'src/app/domain/services/schedule/
 import { AppSettingsManagementService } from 'src/app/domain/services/settings/app-settings-management.service';
 import {
   addDays,
-  EqualDate,
+  compareDate,
 } from 'src/app/shared/helpers/date.helper';
 import { formatTime } from 'src/app/shared/helpers/time-format.helper';
 import { transformNumberToOwnTime } from 'src/app/domain/helpers/own-time.helper';
@@ -287,8 +287,10 @@ export class ShiftDataService extends BaseDataService {
       today.setDate(today.getDate() + column);
 
       if (this.holidayCollection) {
+        this.ensureCorrectYearLoaded(today);
+
         const result = this.holidayCollection.holidays.holidayList.find(
-          (x) => EqualDate(x.currentDate, today) === 0
+          (x) => compareDate(x.currentDate, today)
         );
 
         if (result) {
@@ -309,6 +311,15 @@ export class ShiftDataService extends BaseDataService {
     return WeekDaysEnum.Workday;
   }
 
+  private ensureCorrectYearLoaded(date: Date): void {
+    const year = date.getFullYear();
+    const currentYear = this.holidayCollection.currentYear;
+
+    if (year < currentYear - 1 || year > currentYear + 1) {
+      this.holidayCollection.currentYear = year;
+    }
+  }
+
   override weekdayName(column: number): string {
     if (this.startDate) {
       const today: Date = new Date(this.startDate);
@@ -325,8 +336,10 @@ export class ShiftDataService extends BaseDataService {
       const today = addDays(this.startDate, column);
 
       if (this.holidayCollection) {
+        this.ensureCorrectYearLoaded(today);
+
         return this.holidayCollection.holidays.holidayList.find(
-          (x) => EqualDate(x.currentDate, today) === 0
+          (x) => compareDate(x.currentDate, today)
         );
       }
     }

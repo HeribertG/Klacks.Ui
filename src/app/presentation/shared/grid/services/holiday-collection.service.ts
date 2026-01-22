@@ -81,9 +81,8 @@ export class HolidayCollectionService {
   private computeHolidays() {
     this.holidays.computeHolidays();
 
-    setTimeout(
-      () => this.isReset.set(true),
-      HolidayCollectionService.WAIT_TIME
-    );
+    setTimeout(() => {
+      this.isReset.set(true);
+    }, HolidayCollectionService.WAIT_TIME);
   }
 }

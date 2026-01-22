@@ -19,7 +19,7 @@ import {
   runInInjectionContext,
 } from '@angular/core';
 import {
-  EqualDate,
+  compareDate,
   addDays,
   daysBetweenDates,
   equalDate,
@@ -626,9 +626,19 @@ export class AbsenceGanttSurfaceComponent
 
   holidayInfo(column: number): HolidayDate | undefined {
     const today = addDays(this.drawCalendarGantt.startDate, column);
+    this.ensureCorrectYearLoaded(today);
     return this.holidayCollection.holidays.holidayList.find(
-      (x) => EqualDate(x.currentDate, today) === 0
+      (x) => compareDate(x.currentDate, today)
     );
+  }
+
+  private ensureCorrectYearLoaded(date: Date): void {
+    const year = date.getFullYear();
+    const currentYear = this.holidayCollection.currentYear;
+
+    if (year < currentYear - 1 || year > currentYear + 1) {
+      this.holidayCollection.currentYear = year;
+    }
   }
   setShiftKey(): void {
     if (!this.isShift) {

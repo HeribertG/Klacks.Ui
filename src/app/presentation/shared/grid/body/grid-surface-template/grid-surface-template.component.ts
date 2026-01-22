@@ -454,7 +454,8 @@ export class GridSurfaceTemplateComponent
       this.effects.push(refreshEffect);
 
       const holidayResetEffect = effect(() => {
-        if (this.dataService.holidayCollection?.isReset()) {
+        const isReset = this.dataService.holidayCollection?.isReset();
+        if (isReset) {
           setTimeout(() => {
             if (this.drawSchedule.isCanvasAvailable()) {
               this.drawSchedule.rebuild();

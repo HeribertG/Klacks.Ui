@@ -176,21 +176,27 @@ export class HolidaysListHelper {
 
     if (this._list.length === 0) return;
 
+    this.computeHolidaysForYear(this.currentYear - 1);
+    this.computeHolidaysForYear(this.currentYear);
+    this.computeHolidaysForYear(this.currentYear + 1);
+
+    this.holidayList.sort(
+      (a, b) => a.currentDate.getTime() - b.currentDate.getTime()
+    );
+  }
+
+  private computeHolidaysForYear(year: number) {
     let easterDate: Date;
     let ruleString: string;
 
-    easterDate = this.easter(this.currentYear);
+    easterDate = this.easter(year);
 
     for (let i = 0; i < this.count(); i++) {
       const item: ICalendarRule = this.item(i);
       ruleString = item.rule!;
       const c = new HolidayDate();
       c.currentName = item.name!;
-      c.currentDate = this.convertDate(
-        easterDate,
-        this.currentYear,
-        ruleString
-      );
+      c.currentDate = this.convertDate(easterDate, year, ruleString);
       c.officially = item.isMandatory;
       c.formatDate = this.formatDate(c.currentDate);
 
@@ -198,10 +204,6 @@ export class HolidaysListHelper {
 
       this.holidayList.push(c);
     }
-
-    this.holidayList.sort(
-      (a, b) => a.currentDate.getTime() - b.currentDate.getTime()
-    );
   }
 
   private subRules(rules: string, item: HolidayDate) {
