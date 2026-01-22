@@ -633,27 +633,59 @@ WorkScheduleCrudService
   - bulkDeleteWorkScheduleEntries(entries[], workFilter)
   - scheduleRefreshed: Signal<boolean>
   - shiftScheduleRefreshed: Signal<boolean>
-        │ API Calls
+        │ API Calls (mit periodStart/periodEnd)
         ▼
 WorkCrudService
-  - createWork(params): Promise<void>
-  - deleteWorkById(workId): Promise<void>
+  - createWork(params): Promise<IWork>      // enthält periodHours in Response
+  - deleteWorkById(workId, periodStart, periodEnd): Promise<IWork>
   - bulkDeleteWorks(workIds[]): Promise<BulkWorksResponse>
         │ HTTP
         ▼
 DataScheduleService
-  - addWork(work): Observable
-  - deleteWork(id): Observable
+  - addWork(work): Observable               // work enthält periodStart/periodEnd
+  - deleteWork(id, periodStart, periodEnd): Observable  // Query-Parameter
   - bulkDeleteWorks(workIds[]): Observable<BulkWorksResponse>
+```
+
+### PeriodHours in Response
+
+Seit Januar 2026 wird `periodHours` bei Work CRUD-Operationen direkt in der HTTP-Response zurückgegeben:
+
+```typescript
+interface IWork {
+  // ... bestehende Felder
+  periodHours?: IPeriodHours;  // NEU: in Response enthalten
+  periodStart?: string;        // NEU: im Request mitschicken
+  periodEnd?: string;          // NEU: im Request mitschicken
+}
+
+interface IPeriodHours {
+  hours: number;
+  surcharges: number;
+  guaranteedHours: number;
+}
+```
+
+Das Frontend schickt `periodStart`/`periodEnd` aus `workScheduleLoader.startDate/endDate`:
+
+```typescript
+const periodStart = formatDateOnly(this.workScheduleLoader.startDate);
+const periodEnd = formatDateOnly(this.workScheduleLoader.endDate);
+```
+
+Bei Delete werden diese als Query-Parameter gesendet:
+```
+DELETE /Works/{id}?periodStart=2026-01-01&periodEnd=2026-01-31
 ```
 
 ### Workflow: Add Work
 
 1. Drop Shift auf Schedule-Section
 2. `DataManagementScheduleService.addWorkScheduleEntry()`
-3. `WorkCrudService.createWork()` → POST /Works
-4. `refreshClientScheduleForDays(clientId, date)` → Lädt 3 Tage
-5. `updateShiftEngagedLocally(shiftId, date, +1)`
+3. `WorkCrudService.createWork({ ...params, periodStart, periodEnd })` → POST /Works
+4. **NEU:** Response enthält `periodHours` → `workScheduleLoader.periodHours.set(clientId, response.periodHours)`
+5. `refreshClientScheduleForDays(clientId, date)` → Lädt 3 Tage
+6. `updateShiftEngagedLocally(shiftId, date, +1)`
 
 ### Workflow: Bulk Delete
 
@@ -847,6 +879,15 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 21.01.2026 - PeriodHours in Work CRUD Response
+
+- `WorkResource` um `PeriodStart`, `PeriodEnd` und `PeriodHours` erweitert
+- Frontend schickt `periodStart`/`periodEnd` bei Work CRUD-Operationen mit
+- Backend gibt `periodHours` (Hours, Surcharges, GuaranteedHours) in HTTP-Response zurück
+- DELETE verwendet Query-Parameter: `?periodStart=...&periodEnd=...`
+- Repository-Methoden: `AddWithPeriodHours`, `PutWithPeriodHours`, `DeleteWithPeriodHours`
+- `RecalculateAndNotifyAsync` verwendet jetzt explizite Periode statt Berechnung
 
 ### 03.01.2026 - ClientPeriodHours Refactoring
 

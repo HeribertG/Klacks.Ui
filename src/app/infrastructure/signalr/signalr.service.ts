@@ -6,6 +6,10 @@ import { LocalStorageService } from '../storage/local-storage.service';
 import { StorageKeys } from '../constants/storage-keys';
 import { IWorkNotification } from 'src/app/domain/interfaces/work-notification.interface';
 import { IShiftStatsNotification } from 'src/app/domain/interfaces/shift-stats-notification.interface';
+import {
+  IPeriodHoursNotification,
+  IPeriodHoursRecalculatedNotification,
+} from 'src/app/domain/interfaces/period-hours-notification.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +27,11 @@ export class SignalRService implements OnDestroy {
   public workUpdated$ = new Subject<IWorkNotification>();
   public workDeleted$ = new Subject<IWorkNotification>();
   public shiftStatsUpdated$ = new Subject<IShiftStatsNotification>();
+  public periodHoursUpdated$ = new Subject<IPeriodHoursNotification>();
+  public periodHoursRecalculated$ = new Subject<IPeriodHoursRecalculatedNotification>();
+  public reconnected$ = new Subject<void>();
+
+  private currentGroup: { startDate: string; endDate: string } | null = null;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', '/hubs/work-notifications');
@@ -132,6 +141,50 @@ export class SignalRService implements OnDestroy {
       await this.hubConnection.stop();
       this._isConnected.set(false);
       this._connectionId.set('');
+      this.currentGroup = null;
+    }
+  }
+
+  async joinScheduleGroup(startDate: string, endDate: string): Promise<void> {
+    if (!this.hubConnection || !this.isConnected) {
+      console.warn('SignalR: Cannot join group - not connected');
+      return;
+    }
+
+    if (this.currentGroup) {
+      await this.leaveScheduleGroup(this.currentGroup.startDate, this.currentGroup.endDate);
+    }
+
+    try {
+      await this.hubConnection.invoke('JoinScheduleGroup', startDate, endDate);
+      this.currentGroup = { startDate, endDate };
+      console.log(`SignalR: Joined group schedule_${startDate}_${endDate}`);
+    } catch (error) {
+      console.error('SignalR: Failed to join group', error);
+    }
+  }
+
+  async leaveScheduleGroup(startDate: string, endDate: string): Promise<void> {
+    if (!this.hubConnection || !this.isConnected) {
+      return;
+    }
+
+    try {
+      await this.hubConnection.invoke('LeaveScheduleGroup', startDate, endDate);
+      if (this.currentGroup?.startDate === startDate && this.currentGroup?.endDate === endDate) {
+        this.currentGroup = null;
+      }
+      console.log(`SignalR: Left group schedule_${startDate}_${endDate}`);
+    } catch (error) {
+      console.error('SignalR: Failed to leave group', error);
+    }
+  }
+
+  async rejoinCurrentGroup(): Promise<void> {
+    if (this.currentGroup && this.isConnected) {
+      const { startDate, endDate } = this.currentGroup;
+      this.currentGroup = null;
+      await this.joinScheduleGroup(startDate, endDate);
     }
   }
 
@@ -153,6 +206,14 @@ export class SignalRService implements OnDestroy {
     this.hubConnection.on('ShiftStatsUpdated', (notification: IShiftStatsNotification) => {
       this.shiftStatsUpdated$.next(notification);
     });
+
+    this.hubConnection.on('PeriodHoursUpdated', (notification: IPeriodHoursNotification) => {
+      this.periodHoursUpdated$.next(notification);
+    });
+
+    this.hubConnection.on('PeriodHoursRecalculated', (notification: IPeriodHoursRecalculatedNotification) => {
+      this.periodHoursRecalculated$.next(notification);
+    });
   }
 
   private registerConnectionEvents(): void {
@@ -172,6 +233,8 @@ export class SignalRService implements OnDestroy {
         this._connectionId.set(newId || '');
       }
       this._isConnected.set(true);
+      await this.rejoinCurrentGroup();
+      this.reconnected$.next();
     });
 
     this.hubConnection.onclose(() => {
@@ -186,6 +249,9 @@ export class SignalRService implements OnDestroy {
     this.workUpdated$.complete();
     this.workDeleted$.complete();
     this.shiftStatsUpdated$.complete();
+    this.periodHoursUpdated$.complete();
+    this.periodHoursRecalculated$.complete();
+    this.reconnected$.complete();
   }
 
   private async validateTokenWithBackend(token: string): Promise<boolean> {

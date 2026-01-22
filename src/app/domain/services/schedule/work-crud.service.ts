@@ -39,8 +39,8 @@ export class WorkCrudService {
   }
 
   deleteWork(clients: IClientWork[], index: number, value: IWork): void {
-    if (value.id) {
-      this.dataSchedule.deleteWork(value.id!).pipe(takeUntil(this.destroy$)).subscribe(() => {
+    if (value.id && value.periodStart && value.periodEnd) {
+      this.dataSchedule.deleteWork(value.id, value.periodStart, value.periodEnd).pipe(takeUntil(this.destroy$)).subscribe(() => {
         const client = clients[index];
         client.works = this.sortWorks(
           client.works.filter((obj) => obj.id !== value.id)
@@ -67,7 +67,9 @@ export class WorkCrudService {
     workTime: number;
     startTime: string;
     endTime: string;
-  }): Promise<void> {
+    periodStart: string;
+    periodEnd: string;
+  }): Promise<IWork> {
     return new Promise((resolve, reject) => {
       const work = new Work();
       work.clientId = params.clientId;
@@ -77,11 +79,13 @@ export class WorkCrudService {
       work.startTime = params.startTime;
       work.endTime = params.endTime;
       work.isSealed = false;
+      work.periodStart = params.periodStart;
+      work.periodEnd = params.periodEnd;
 
       this.dataSchedule.addWork(work)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: () => resolve(),
+          next: (response) => resolve(response),
           error: (err) => {
             console.error('Error creating work entry:', err);
             reject(err);
@@ -90,12 +94,12 @@ export class WorkCrudService {
     });
   }
 
-  deleteWorkById(workId: string): Promise<void> {
+  deleteWorkById(workId: string, periodStart: string, periodEnd: string): Promise<IWork> {
     return new Promise((resolve, reject) => {
-      this.dataSchedule.deleteWork(workId)
+      this.dataSchedule.deleteWork(workId, periodStart, periodEnd)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
-          next: () => resolve(),
+          next: (response) => resolve(response),
           error: (err) => {
             console.error('Error deleting work entry:', err);
             reject(err);

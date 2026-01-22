@@ -42,13 +42,33 @@ export class WorkScheduleCrudService {
   addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): void {
     this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
 
-    this.workCrud.createWork(params).then(() => {
+    const periodStart = this.workScheduleLoader.startDate
+      ? formatDateOnly(this.workScheduleLoader.startDate)
+      : formatDateOnly(new Date());
+    const periodEnd = this.workScheduleLoader.endDate
+      ? formatDateOnly(this.workScheduleLoader.endDate)
+      : formatDateOnly(new Date());
+
+    this.workCrud.createWork({ ...params, periodStart, periodEnd }).then((response) => {
+      if (response.periodHours) {
+        this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+      }
       this.refreshClientScheduleForDays(params.clientId, params.date);
     });
   }
 
   deleteWorkScheduleEntry(params: DeleteWorkScheduleEntryParams, workFilter: IWorkFilter): void {
-    this.workCrud.deleteWorkById(params.workId).then(() => {
+    const periodStart = this.workScheduleLoader.startDate
+      ? formatDateOnly(this.workScheduleLoader.startDate)
+      : formatDateOnly(new Date());
+    const periodEnd = this.workScheduleLoader.endDate
+      ? formatDateOnly(this.workScheduleLoader.endDate)
+      : formatDateOnly(new Date());
+
+    this.workCrud.deleteWorkById(params.workId, periodStart, periodEnd).then((response) => {
+      if (response.periodHours) {
+        this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
+      }
       this.refreshClientScheduleForDays(params.clientId, params.date);
       this.updateShiftEngagedLocally(params.shiftId, params.date, -1, workFilter);
     });

@@ -36,13 +36,13 @@ export class ShiftScheduleLoaderService {
   }
 
   get hasMoreShifts(): boolean {
-    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    const uniqueShiftIds = new Set(this.shiftSchedules.map((s) => s.shiftId));
     return uniqueShiftIds.size < this._totalAvailableShifts;
   }
 
   get shiftLoadingProgress(): number {
     if (this._totalAvailableShifts === 0) return 0;
-    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    const uniqueShiftIds = new Set(this.shiftSchedules.map((s) => s.shiftId));
     return Math.round((uniqueShiftIds.size / this._totalAvailableShifts) * 100);
   }
 
@@ -50,19 +50,26 @@ export class ShiftScheduleLoaderService {
     return this._totalAvailableShifts;
   }
 
-  load(startDate: string, endDate: string, workFilter: IWorkFilter, holidayDates: Date[], onLoaded?: () => void): void {
+  load(
+    startDate: string,
+    endDate: string,
+    workFilter: IWorkFilter,
+    holidayDates: Date[],
+    onLoaded?: () => void,
+  ): void {
     this.shiftScheduleFilter.startDate = startDate;
     this.shiftScheduleFilter.endDate = endDate;
-    this.shiftScheduleFilter.holidayDates = holidayDates.length > 0 ? holidayDates : undefined;
-    this.shiftScheduleFilter.selectedGroup = workFilter.selectedGroup || undefined;
+    this.shiftScheduleFilter.holidayDates =
+      holidayDates.length > 0 ? holidayDates : undefined;
+    this.shiftScheduleFilter.selectedGroup =
+      workFilter.selectedGroup || undefined;
     this.shiftScheduleFilter.startRow = 0;
     this.shiftScheduleFilter.rowCount = this.INITIAL_CHUNK_SIZE;
     this._currentChunkSize = this.LOAD_MORE_CHUNK_SIZE;
     this._autoLoadEnabled = true;
 
-    console.log('ShiftScheduleLoaderService - Sending filter:', this.shiftScheduleFilter);
-
-    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter)
+    this.dataShiftSchedule
+      .getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -85,25 +92,33 @@ export class ShiftScheduleLoaderService {
   }
 
   private autoLoadNextChunk(onLoaded?: () => void): void {
-    if (!this._autoLoadEnabled || !this.hasMoreShifts || this._isLoadingMore()) {
+    if (
+      !this._autoLoadEnabled ||
+      !this.hasMoreShifts ||
+      this._isLoadingMore()
+    ) {
       return;
     }
 
     this._isLoadingMore.set(true);
-    const uniqueShiftIds = new Set(this.shiftSchedules.map(s => s.shiftId));
+    const uniqueShiftIds = new Set(this.shiftSchedules.map((s) => s.shiftId));
     this.shiftScheduleFilter.startRow = uniqueShiftIds.size;
     this.shiftScheduleFilter.rowCount = this._currentChunkSize;
 
-    this.dataShiftSchedule.getShiftSchedule(this.shiftScheduleFilter)
+    this.dataShiftSchedule
+      .getShiftSchedule(this.shiftScheduleFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.shiftSchedules.push(...response.shifts);
 
-          const newUniqueCount = new Set(response.shifts.map(s => s.shiftId)).size;
+          const newUniqueCount = new Set(response.shifts.map((s) => s.shiftId))
+            .size;
 
           if (newUniqueCount < this._currentChunkSize) {
-            this._totalAvailableShifts = new Set(this.shiftSchedules.map(s => s.shiftId)).size;
+            this._totalAvailableShifts = new Set(
+              this.shiftSchedules.map((s) => s.shiftId),
+            ).size;
             this._autoLoadEnabled = false;
           } else {
             this._currentChunkSize = Math.min(this._currentChunkSize * 2, 400);

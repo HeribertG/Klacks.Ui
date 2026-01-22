@@ -1,9 +1,6 @@
 import { inject, Injectable, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  IClientWork,
-  IWorkFilter,
-} from 'src/app/domain/models/schedule-class';
+import { IClientWork, IWorkFilter } from 'src/app/domain/models/schedule-class';
 import {
   IPeriodHours,
   IWorkScheduleClient,
@@ -14,7 +11,11 @@ import {
 import { DataWorkScheduleService } from 'src/app/infrastructure/api/data-work-schedule.service';
 import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
 import { CalendarUtilService } from 'src/app/domain/services/calendar-util.service';
-import { formatDateOnly, getDateKeysBetween } from 'src/app/shared/helpers/date.helper';
+import {
+  formatDateOnly,
+  getDateKeysBetween,
+} from 'src/app/shared/helpers/date.helper';
+import { SignalRService } from 'src/app/infrastructure/signalr/signalr.service';
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,7 @@ export class WorkScheduleLoaderService {
   private dataWorkSchedule = inject(DataWorkScheduleService);
   private settingsService = inject(DataManagementSettingsService);
   private calendarUtil = inject(CalendarUtilService);
+  private signalRService = inject(SignalRService);
   private destroyRef = inject(DestroyRef);
 
   private readonly INITIAL_CHUNK_SIZE = 50;
@@ -43,6 +45,42 @@ export class WorkScheduleLoaderService {
   public startDate: Date | null = null;
   public endDate: Date | null = null;
 
+  constructor() {
+    this.subscribeToSignalREvents();
+  }
+
+  private subscribeToSignalREvents(): void {
+    this.signalRService.periodHoursUpdated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((notification) => {
+        if (notification.sourceConnectionId === this.signalRService.connectionId) {
+          return;
+        }
+
+        const clientLoaded = this.clients.some(c => c.id === notification.clientId);
+        if (!clientLoaded) {
+          return;
+        }
+
+        const periodHoursData: IPeriodHours = {
+          hours: notification.hours,
+          surcharges: notification.surcharges,
+          guaranteedHours: notification.guaranteedHours,
+        };
+        this.periodHours.set(notification.clientId, periodHoursData);
+
+        this._isRead.set(true);
+        setTimeout(() => this._isRead.set(false), 100);
+      });
+
+    this.signalRService.periodHoursRecalculated$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this._isRead.set(true);
+        setTimeout(() => this._isRead.set(false), 100);
+      });
+  }
+
   get isLoadingMore(): boolean {
     return this._isLoadingMore();
   }
@@ -57,14 +95,19 @@ export class WorkScheduleLoaderService {
 
   get clientLoadingProgress(): number {
     if (this._totalAvailableClients === 0) return 0;
-    return Math.round((this.clients.length / this._totalAvailableClients) * 100);
+    return Math.round(
+      (this.clients.length / this._totalAvailableClients) * 100,
+    );
   }
 
   get totalAvailableClients(): number {
     return this._totalAvailableClients;
   }
 
-  calculateVisibleDates(workFilter: IWorkFilter): { startDate: string; endDate: string } {
+  calculateVisibleDates(workFilter: IWorkFilter): {
+    startDate: string;
+    endDate: string;
+  } {
     const periodStartDate = this.calculatePeriodStartDate(workFilter);
     const periodEndDate = this.calculatePeriodEndDate(workFilter);
 
@@ -98,6 +141,8 @@ export class WorkScheduleLoaderService {
     this._isLoadingMore.set(false);
 
     const dates = this.calculateVisibleDates(workFilter);
+    const periodDates = this.calculatePeriodDates(workFilter);
+    this.joinSignalRGroup(periodDates.startDate, periodDates.endDate);
 
     this._currentFilter = {
       startDate: dates.startDate,
@@ -112,18 +157,21 @@ export class WorkScheduleLoaderService {
       rowCount: this.INITIAL_CHUNK_SIZE,
     };
 
-    console.log('WorkScheduleLoaderService - Sending filter:', this._currentFilter);
-
-    this.dataWorkSchedule.getWorkSchedule(this._currentFilter)
+    this.dataWorkSchedule
+      .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           if (loadId !== this._currentLoadId) return;
 
           this.workScheduleEntries = response.entries ?? [];
-          this.workScheduleByClientAndDate = this.groupByClientAndDate(this.workScheduleEntries);
+          this.workScheduleByClientAndDate = this.groupByClientAndDate(
+            this.workScheduleEntries,
+          );
           this.clients = this.convertToClientWork(response.clients ?? []);
-          this.periodHours = new Map(Object.entries(response.periodHours ?? {}));
+          this.periodHours = new Map(
+            Object.entries(response.periodHours ?? {}),
+          );
           this._totalAvailableClients = response.totalClientCount;
           this.startDate = new Date(response.startDate);
           this.endDate = new Date(response.endDate);
@@ -146,7 +194,12 @@ export class WorkScheduleLoaderService {
 
   private autoLoadNextChunk(loadId: number): void {
     if (loadId !== this._currentLoadId) return;
-    if (!this._autoLoadEnabled || !this.hasMoreClients || this._isLoadingMore() || !this._currentFilter) {
+    if (
+      !this._autoLoadEnabled ||
+      !this.hasMoreClients ||
+      this._isLoadingMore() ||
+      !this._currentFilter
+    ) {
       return;
     }
 
@@ -154,7 +207,8 @@ export class WorkScheduleLoaderService {
     this._currentFilter.startRow = this.clients.length;
     this._currentFilter.rowCount = this._currentChunkSize;
 
-    this.dataWorkSchedule.getWorkSchedule(this._currentFilter)
+    this.dataWorkSchedule
+      .getWorkSchedule(this._currentFilter)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
@@ -170,7 +224,9 @@ export class WorkScheduleLoaderService {
           this.mergeIntoGroupedData(newEntries);
           this.clients.push(...this.convertToClientWork(newClients));
 
-          for (const [key, value] of Object.entries(response.periodHours ?? {})) {
+          for (const [key, value] of Object.entries(
+            response.periodHours ?? {},
+          )) {
             this.periodHours.set(key, value);
           }
 
@@ -199,7 +255,10 @@ export class WorkScheduleLoaderService {
       });
   }
 
-  getWorkScheduleForClientAndDate(clientId: string, date: Date): IScheduleCell[] {
+  getWorkScheduleForClientAndDate(
+    clientId: string,
+    date: Date,
+  ): IScheduleCell[] {
     const dateKey = formatDateOnly(date);
     const clientMap = this.workScheduleByClientAndDate.get(clientId);
     if (!clientMap) {
@@ -212,7 +271,7 @@ export class WorkScheduleLoaderService {
     const result = new Map<string, number>();
 
     for (const [clientId, dateMap] of this.workScheduleByClientAndDate) {
-      const lengths = Array.from(dateMap.values(), entries => entries.length);
+      const lengths = Array.from(dateMap.values(), (entries) => entries.length);
       result.set(clientId, Math.max(0, ...lengths));
     }
 
@@ -225,9 +284,15 @@ export class WorkScheduleLoaderService {
 
     switch (paymentInterval) {
       case 0:
-        return this.calendarUtil.getWeekStartDate(year, filter.currentWeek ?? 1);
+        return this.calendarUtil.getWeekStartDate(
+          year,
+          filter.currentWeek ?? 1,
+        );
       case 1:
-        return this.calendarUtil.getBiweeklyStartDate(year, filter.currentWeek ?? 1);
+        return this.calendarUtil.getBiweeklyStartDate(
+          year,
+          filter.currentWeek ?? 1,
+        );
       case 2:
       default:
         const month = filter.currentMonth - 1;
@@ -243,7 +308,10 @@ export class WorkScheduleLoaderService {
       case 0:
         return this.calendarUtil.getWeekEndDate(year, filter.currentWeek ?? 1);
       case 1:
-        return this.calendarUtil.getBiweeklyEndDate(year, filter.currentWeek ?? 1);
+        return this.calendarUtil.getBiweeklyEndDate(
+          year,
+          filter.currentWeek ?? 1,
+        );
       case 2:
       default:
         const month = filter.currentMonth - 1;
@@ -252,7 +320,7 @@ export class WorkScheduleLoaderService {
   }
 
   private convertToClientWork(clients: IWorkScheduleClient[]): IClientWork[] {
-    return clients.map(c => ({
+    return clients.map((c) => ({
       id: c.id,
       company: c.company ?? undefined,
       firstName: c.firstName ?? undefined,
@@ -284,7 +352,9 @@ export class WorkScheduleLoaderService {
     }
   }
 
-  private groupByClientAndDate(entries: IScheduleCell[]): WorkScheduleByClientAndDate {
+  private groupByClientAndDate(
+    entries: IScheduleCell[],
+  ): WorkScheduleByClientAndDate {
     const result: WorkScheduleByClientAndDate = new Map();
 
     for (const entry of entries) {
@@ -328,11 +398,11 @@ export class WorkScheduleLoaderService {
     clientId: string,
     startDate: Date,
     endDate: Date,
-    newEntries: IScheduleCell[]
+    newEntries: IScheduleCell[],
   ): void {
     const dateKeys = getDateKeysBetween(startDate, endDate);
 
-    this.workScheduleEntries = this.workScheduleEntries.filter(entry => {
+    this.workScheduleEntries = this.workScheduleEntries.filter((entry) => {
       if (entry.clientId !== clientId) return true;
       const entryDateKey = formatDateOnly(new Date(entry.entryDate));
       return !dateKeys.includes(entryDateKey);
@@ -360,5 +430,24 @@ export class WorkScheduleLoaderService {
     }
 
     this.updateClientNeededRows();
+  }
+
+  private calculatePeriodDates(workFilter: IWorkFilter): {
+    startDate: string;
+    endDate: string;
+  } {
+    const periodStartDate = this.calculatePeriodStartDate(workFilter);
+    const periodEndDate = this.calculatePeriodEndDate(workFilter);
+
+    return {
+      startDate: formatDateOnly(periodStartDate),
+      endDate: formatDateOnly(periodEndDate),
+    };
+  }
+
+  private joinSignalRGroup(startDate: string, endDate: string): void {
+    if (this.signalRService.isConnected) {
+      this.signalRService.joinScheduleGroup(startDate, endDate);
+    }
   }
 }

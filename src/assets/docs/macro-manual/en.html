@@ -30,21 +30,22 @@ IMPORT amount, discount
 </pre>
 
 <h4>Imported Variables (IMPORT)</h4>
-<p>These variables are generated from the respective service or employment:</p>
+<p>These variables are generated from Work, Contract and CalendarSelection:</p>
 
 <table>
   <tr><th>Variable</th><th>Type</th><th>Description</th></tr>
-  <tr><td>Hour</td><td>Decimal</td><td>Work hours</td></tr>
-  <tr><td>FromHour</td><td>String</td><td>Start time in format "HH:MM"</td></tr>
-  <tr><td>UntilHour</td><td>String</td><td>End time in format "HH:MM"</td></tr>
-  <tr><td>Weekday</td><td>Integer</td><td>Weekday (1=Mon, 2=Tue, ..., 6=Sat, 7=Sun)</td></tr>
-  <tr><td>Holiday</td><td>Integer</td><td>Holiday status (0=none, 1=holiday, -1=day before, -2=day after)</td></tr>
-  <tr><td>NightRate</td><td>Decimal</td><td>Night surcharge rate (e.g. 0.10 = 10%)</td></tr>
-  <tr><td>HolidayRate</td><td>Decimal</td><td>Holiday surcharge rate (e.g. 0.15 = 15%)</td></tr>
-  <tr><td>SaRate</td><td>Decimal</td><td>Saturday surcharge rate (e.g. 0.10 = 10%)</td></tr>
-  <tr><td>SoRate</td><td>Decimal</td><td>Sunday surcharge rate (e.g. 0.10 = 10%)</td></tr>
-  <tr><td>GuaranteedHours</td><td>Decimal</td><td>Guaranteed monthly hours</td></tr>
-  <tr><td>FullTime</td><td>Decimal</td><td>Employment level in % (e.g. 100.0)</td></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Work hours (from Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Start time as decimal hours (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>End time as decimal hours (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Weekday ISO-8601 (1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>Is current day an official holiday</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Is next day an official holiday</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Night surcharge rate from Contract (e.g. 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Holiday surcharge rate from Contract (e.g. 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Saturday surcharge rate from Contract</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Sunday surcharge rate from Contract</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Guaranteed monthly hours from Contract</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Full-time hours from Contract</td></tr>
 </table>
 
 <hr>
@@ -267,48 +268,54 @@ DEBUGPRINT "Calculation running..."
 of shifts crossing midnight (segment splitting).</p>
 
 <pre>
-IMPORT Hour, FromHour, UntilHour
-IMPORT Weekday, Holiday, HolidayNextDay
-IMPORT NightRate, HolidayRate, SaRate, SoRate
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
 
-FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
     DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday, WeekendRate
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
 
-    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    SegmentHours = EndHour - StartHour
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    NightHours = TimeOverlap("23:00", "06:00", StartTime, EndTime)
+    ' Calculate night hours (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = HolidayFlag = 1
-    IsSaturday = WeekdayNum = 6
-    IsSunday = WeekdayNum = 7
-    WeekendRate = 0
-    IF IsSaturday THEN WeekendRate = SaRate ENDIF
-    IF IsSunday THEN WeekendRate = SoRate ENDIF
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Sat = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Sun = 7 (ISO-8601)
 
-    NRate = 0
-    IF NightHours &gt; 0 THEN NRate = NightRate ENDIF
-    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN NRate = HolidayRate ENDIF
-    IF WeekendRate &gt; NRate THEN NRate = WeekendRate ENDIF
+    ' Highest rate for night hours
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
 
+    ' Highest rate for day hours
     DRate = 0
-    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN DRate = HolidayRate ENDIF
-    IF WeekendRate &gt; DRate THEN DRate = WeekendRate ENDIF
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
 
     CalcSegment = NightHours * NRate + NonNightHours * DRate
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
 
-WeekdayNextDay = (Weekday MOD 7) + 1
+' Calculate next day weekday (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
 
-IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
-    TotalBonus = CalcSegment(FromHour, "00:00", Holiday, Weekday)
-    TotalBonus = TotalBonus + CalcSegment("00:00", UntilHour, HolidayNextDay, WeekdayNextDay)
+IF untilhour &lt;= fromhour THEN
+    ' Shift crosses midnight - 2 segments
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
 ELSE
-    TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
+    ' Normal day shift
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
 ENDIF
 
 OUTPUT 1, Round(TotalBonus, 2)
@@ -318,6 +325,7 @@ OUTPUT 1, Round(TotalBonus, 2)
 <ul>
   <li><strong>Segment Splitting:</strong> Shifts crossing midnight (e.g. 22:00-06:00) are split into two segments</li>
   <li><strong>CalcSegment:</strong> Calculates the surcharge for a segment considering night, holiday and weekend rates</li>
-  <li><strong>Highest Rate:</strong> Always uses the highest applicable surcharge (night vs. holiday vs. weekend)</li>
-  <li><strong>HolidayNextDay:</strong> Considers if the next day is a holiday (important for night shifts)</li>
+  <li><strong>Separate Sat/Sun rates:</strong> sarate and sorate allow different surcharges for Saturday and Sunday</li>
+  <li><strong>Highest Rate:</strong> Always uses the highest applicable surcharge</li>
+  <li><strong>holidaynextday:</strong> Considers if the next day is a holiday (important for night shifts)</li>
 </ul>

@@ -2,6 +2,7 @@ import { IClient, Membership } from './client-class';
 import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from './shift-class';
 import { IBaseFilter } from './general-class';
+import { IPeriodHours } from './work-schedule-class';
 
 export interface IWork {
   client?: IClient;
@@ -16,6 +17,9 @@ export interface IWork {
   surcharges: number;
   startTime: string;
   endTime: string;
+  periodHours?: IPeriodHours;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export class Work implements IWork {
@@ -31,6 +35,9 @@ export class Work implements IWork {
   surcharges = 0;
   startTime = '';
   endTime = '';
+  periodHours?: IPeriodHours;
+  periodStart?: string;
+  periodEnd?: string;
 }
 
 export interface IClientWork {

@@ -30,21 +30,22 @@ IMPORT importo, sconto
 </pre>
 
 <h4>Variabili Importate (IMPORT)</h4>
-<p>Queste variabili vengono generate dal rispettivo servizio o impiego:</p>
+<p>Queste variabili vengono generate da Work, Contract e CalendarSelection:</p>
 
 <table>
   <tr><th>Variabile</th><th>Tipo</th><th>Descrizione</th></tr>
-  <tr><td>Hour</td><td>Decimal</td><td>Ore di lavoro</td></tr>
-  <tr><td>FromHour</td><td>String</td><td>Ora di inizio nel formato "HH:MM"</td></tr>
-  <tr><td>UntilHour</td><td>String</td><td>Ora di fine nel formato "HH:MM"</td></tr>
-  <tr><td>Weekday</td><td>Integer</td><td>Giorno della settimana (1=Lun, 2=Mar, ..., 6=Sab, 7=Dom)</td></tr>
-  <tr><td>Holiday</td><td>Integer</td><td>Stato festivo (0=no, 1=festivo, -1=vigilia, -2=giorno dopo)</td></tr>
-  <tr><td>NightRate</td><td>Decimal</td><td>Tasso supplemento notturno (es: 0.10 = 10%)</td></tr>
-  <tr><td>HolidayRate</td><td>Decimal</td><td>Tasso supplemento festivo (es: 0.15 = 15%)</td></tr>
-  <tr><td>SaRate</td><td>Decimal</td><td>Tasso supplemento sabato (es: 0.10 = 10%)</td></tr>
-  <tr><td>SoRate</td><td>Decimal</td><td>Tasso supplemento domenica (es: 0.10 = 10%)</td></tr>
-  <tr><td>GuaranteedHours</td><td>Decimal</td><td>Ore mensili garantite</td></tr>
-  <tr><td>FullTime</td><td>Decimal</td><td>Grado di occupazione in % (es: 100.0)</td></tr>
+  <tr><td>hour</td><td>Decimal</td><td>Ore di lavoro (da Work)</td></tr>
+  <tr><td>fromhour</td><td>Decimal</td><td>Ora di inizio in ore decimali (8:30 → 8.5)</td></tr>
+  <tr><td>untilhour</td><td>Decimal</td><td>Ora di fine in ore decimali (17:00 → 17.0)</td></tr>
+  <tr><td>weekday</td><td>Integer</td><td>Giorno della settimana ISO-8601 (1=Lun, 2=Mar, 3=Mer, 4=Gio, 5=Ven, 6=Sab, 7=Dom)</td></tr>
+  <tr><td>holiday</td><td>Boolean</td><td>È un giorno festivo ufficiale</td></tr>
+  <tr><td>holidaynextday</td><td>Boolean</td><td>Il giorno successivo è un giorno festivo ufficiale</td></tr>
+  <tr><td>nightrate</td><td>Decimal</td><td>Tasso supplemento notturno dal Contract (es: 0.10 = 10%)</td></tr>
+  <tr><td>holidayrate</td><td>Decimal</td><td>Tasso supplemento festivo dal Contract (es: 0.15 = 15%)</td></tr>
+  <tr><td>sarate</td><td>Decimal</td><td>Tasso supplemento sabato dal Contract</td></tr>
+  <tr><td>sorate</td><td>Decimal</td><td>Tasso supplemento domenica dal Contract</td></tr>
+  <tr><td>guaranteedhours</td><td>Decimal</td><td>Ore mensili garantite dal Contract</td></tr>
+  <tr><td>fulltime</td><td>Decimal</td><td>Ore tempo pieno dal Contract</td></tr>
 </table>
 
 <hr>
@@ -267,48 +268,54 @@ DEBUGPRINT "Calcolo in corso..."
 corretta dei turni che attraversano mezzanotte (divisione in segmenti).</p>
 
 <pre>
-IMPORT Hour, FromHour, UntilHour
-IMPORT Weekday, Holiday, HolidayNextDay
-IMPORT NightRate, HolidayRate, SaRate, SoRate
+IMPORT hour, fromhour, untilhour
+IMPORT weekday, holiday, holidaynextday
+IMPORT nightrate, holidayrate, sarate, sorate
 
-FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
+FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
     DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday, WeekendRate
+    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
 
-    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    SegmentHours = EndHour - StartHour
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    NightHours = TimeOverlap("23:00", "06:00", StartTime, EndTime)
+    ' Calcola ore notturne (23:00-06:00)
+    NightHours = 0
+    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
+    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = HolidayFlag = 1
-    IsSaturday = WeekdayNum = 6
-    IsSunday = WeekdayNum = 7
-    WeekendRate = 0
-    IF IsSaturday THEN WeekendRate = SaRate ENDIF
-    IF IsSunday THEN WeekendRate = SoRate ENDIF
+    HasHoliday = IsHoliday
+    IsSaturday = WeekdayNum = 6    ' Sab = 6 (ISO-8601)
+    IsSunday = WeekdayNum = 7      ' Dom = 7 (ISO-8601)
 
-    NRate = 0
-    IF NightHours &gt; 0 THEN NRate = NightRate ENDIF
-    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN NRate = HolidayRate ENDIF
-    IF WeekendRate &gt; NRate THEN NRate = WeekendRate ENDIF
+    ' Tasso più alto per ore notturne
+    NRate = nightrate
+    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
 
+    ' Tasso più alto per ore diurne
     DRate = 0
-    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN DRate = HolidayRate ENDIF
-    IF WeekendRate &gt; DRate THEN DRate = WeekendRate ENDIF
+    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
+    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
+    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
 
     CalcSegment = NightHours * NRate + NonNightHours * DRate
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
 
-WeekdayNextDay = (Weekday MOD 7) + 1
+' Calcola il giorno della settimana del giorno successivo (ISO-8601)
+WeekdayNextDay = (weekday MOD 7) + 1
 
-IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
-    TotalBonus = CalcSegment(FromHour, "00:00", Holiday, Weekday)
-    TotalBonus = TotalBonus + CalcSegment("00:00", UntilHour, HolidayNextDay, WeekdayNextDay)
+IF untilhour &lt;= fromhour THEN
+    ' Turno che attraversa mezzanotte - 2 segmenti
+    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
+    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
 ELSE
-    TotalBonus = CalcSegment(FromHour, UntilHour, Holiday, Weekday)
+    ' Turno diurno normale
+    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
 ENDIF
 
 OUTPUT 1, Round(TotalBonus, 2)
@@ -318,6 +325,7 @@ OUTPUT 1, Round(TotalBonus, 2)
 <ul>
   <li><strong>Divisione in segmenti:</strong> I turni che attraversano mezzanotte (es: 22:00-06:00) vengono divisi in due segmenti</li>
   <li><strong>CalcSegment:</strong> Calcola il supplemento per un segmento considerando i tassi notturni, festivi e di fine settimana</li>
-  <li><strong>Tasso più alto:</strong> Utilizza sempre il supplemento più alto applicabile (notte vs. festivo vs. fine settimana)</li>
-  <li><strong>HolidayNextDay:</strong> Considera se il giorno successivo è festivo (importante per i turni notturni)</li>
+  <li><strong>Tassi Sab/Dom separati:</strong> sarate e sorate permettono supplementi diversi per sabato e domenica</li>
+  <li><strong>Tasso più alto:</strong> Utilizza sempre il supplemento più alto applicabile</li>
+  <li><strong>holidaynextday:</strong> Considera se il giorno successivo è festivo (importante per i turni notturni)</li>
 </ul>

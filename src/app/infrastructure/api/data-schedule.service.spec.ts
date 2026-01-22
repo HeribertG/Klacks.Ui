@@ -62,15 +62,17 @@ describe('DataScheduleService', () => {
     it('should delete a work item by id', () => {
         // Arrange
         const workId = 'work-123';
+        const periodStart = '2026-01-01';
+        const periodEnd = '2026-01-31';
         const deletedWork = mockWork();
 
         // Act
-        service.deleteWork(workId).subscribe((work) => {
+        service.deleteWork(workId, periodStart, periodEnd).subscribe((work) => {
             // Assert
             expect(work).toEqual(deletedWork);
         });
 
-        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}`);
+        const req = httpTestingController.expectOne(`${environment.baseUrl}Works/${workId}?periodStart=${periodStart}&periodEnd=${periodEnd}`);
         expect(req.request.method).toEqual('DELETE');
         req.flush(deletedWork);
     });

@@ -48,9 +48,9 @@ export class DataScheduleService {
       .pipe(retry(3));
   }
 
-  deleteWork(id: string) {
+  deleteWork(id: string, periodStart: string, periodEnd: string) {
     return this.httpClient
-      .delete<IWork>(`${environment.baseUrl}Works/` + id)
+      .delete<IWork>(`${environment.baseUrl}Works/${id}?periodStart=${periodStart}&periodEnd=${periodEnd}`)
       .pipe(retry(3));
   }
 
