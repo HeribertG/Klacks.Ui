@@ -195,28 +195,28 @@ export class AppSettingsManagementService {
           break;
         }
         case AppSetting.WORK_GUARANTEED_HOURS:
-          work.guaranteedHours = parseFloat(setting.value) || 170;
+          work.guaranteedHours = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_MAXIMUM_HOURS:
-          work.maximumHours = parseFloat(setting.value) || 200;
+          work.maximumHours = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_MINIMUM_HOURS:
-          work.minimumHours = parseFloat(setting.value) || 160;
+          work.minimumHours = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_FULL_TIME:
-          work.fullTime = parseFloat(setting.value) || 180;
+          work.fullTime = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_NIGHT_RATE:
-          work.nightRate = parseFloat(setting.value) || 0.1;
+          work.nightRate = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_HOLIDAY_RATE:
-          work.holidayRate = parseFloat(setting.value) || 0.1;
+          work.holidayRate = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_SA_RATE:
-          work.saRate = parseFloat(setting.value) || 0.1;
+          work.saRate = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_SO_RATE:
-          work.soRate = parseFloat(setting.value) || 0.1;
+          work.soRate = parseFloat(setting.value) || 0;
           break;
         case AppSetting.WORK_DAY_VISIBLE_BEFORE: {
           const valBefore = parseInt(setting.value, 10);
