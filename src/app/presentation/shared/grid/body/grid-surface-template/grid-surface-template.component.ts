@@ -115,6 +115,7 @@ export class GridSurfaceTemplateComponent
   private lastWidth = 0;
   private lastHeight = 0;
   private readonly RESIZE_THRESHOLD = 2;
+  private pendingResize?: { width: number; height: number };
 
   private lastColumns = 0;
   private lastRows = 0;
@@ -239,15 +240,15 @@ export class GridSurfaceTemplateComponent
   }
 
   private handleParentResize(entries: ResizeObserverEntry[]): void {
-    if (!this.drawSchedule.isCanvasAvailable()) {
-      console.warn('[TEMPLATE] resize skipped – canvas not ready', this.nameId);
-      return;
-    }
-
     if (entries?.length > 0) {
       const entry = entries[0];
       const newWidth = Math.round(entry.contentRect.width);
       const newHeight = Math.round(entry.contentRect.height);
+
+      if (!this.drawSchedule.isCanvasAvailable()) {
+        this.pendingResize = { width: newWidth, height: newHeight };
+        return;
+      }
 
       if (
         Math.abs(newWidth - this.lastWidth) >= this.RESIZE_THRESHOLD ||
@@ -273,6 +274,30 @@ export class GridSurfaceTemplateComponent
     this.drawSchedule.height = box.clientHeight;
     this.drawSchedule.refresh();
     this.updateScrollbarValues();
+    this.applyPendingResize();
+  }
+
+  private applyPendingResize(): void {
+    if (this.pendingResize && this.drawSchedule.isCanvasAvailable()) {
+      const { width, height } = this.pendingResize;
+      this.pendingResize = undefined;
+
+      if (
+        Math.abs(width - this.lastWidth) >= this.RESIZE_THRESHOLD ||
+        Math.abs(height - this.lastHeight) >= this.RESIZE_THRESHOLD
+      ) {
+        this.lastWidth = width;
+        this.lastHeight = height;
+
+        this.updateDrawScheduleDimensions({
+          width,
+          height,
+        } as DOMRectReadOnly);
+
+        this.checkPixelRatio();
+        this.updateScrollbarValues(true);
+      }
+    }
   }
 
   private updateDrawScheduleDimensions(rec: DOMRectReadOnly): void {
