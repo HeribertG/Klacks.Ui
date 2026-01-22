@@ -201,10 +201,12 @@ export class BaseGridRenderService {
         col,
         this.settings.cellHeight
       );
+      const maxDataWidth = (this.gridData.columns - firstVisibleCol) * this.settings.cellWidth;
+      const fillWidth = Math.max(0, maxDataWidth - col - this.settings.cellWidth);
       ctx.fillRect(
         col + this.settings.cellWidth,
         row,
-        this.canvasManager.canvas!.width - col - this.settings.cellWidth,
+        fillWidth,
         this.settings.cellHeight
       );
       ctx.globalAlpha = 1.0;
