@@ -447,6 +447,7 @@ export class GridSurfaceTemplateComponent
 
       const refreshEffect = effect(() => {
         this.dataService.refreshSignal();
+        this.drawSchedule.rebuild();
         this.drawSchedule.redraw();
         this.updateScrollbarValues();
         this.cdr.detectChanges();

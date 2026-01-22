@@ -111,7 +111,7 @@ export class BaseCreateCellService {
     }
 
     if (isOverlay) {
-      return DrawHelper.GetDarkColor(baseColor, 25);
+      return DrawHelper.GetDarkColor(baseColor, 30);
     }
 
     return baseColor;
