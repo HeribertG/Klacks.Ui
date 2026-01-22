@@ -152,6 +152,9 @@ export class GridSurfaceTemplateComponent
       const prevH = changes['valueChangeHScrollbar'].previousValue;
       const currH = changes['valueChangeHScrollbar'].currentValue;
       if (currH !== prevH) {
+        if (currH > this.scroll.maxCols) {
+          this.scroll.maxCols = currH + 10;
+        }
         this.scroll.horizontalScrollPosition = currH;
         this.scroll.updateScrollPosition(
           currH,

@@ -109,6 +109,7 @@ export class ScheduleSectionComponent
   @Input() refreshTrigger = false;
 
   @Output() horizontalSizeChange = new EventEmitter<number>();
+  @Output() hScrollPositionChange = new EventEmitter<number>();
 
   public hScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -168,6 +169,7 @@ export class ScheduleSectionComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: number) => {
         this.hScrollService.setPosition(value);
+        this.hScrollPositionChange.emit(value);
       });
 
     this.scheduleHScrollbar.maxValueChange

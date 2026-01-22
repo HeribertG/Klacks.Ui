@@ -7,6 +7,7 @@
           [zoom]="zoom"
           [refreshTrigger]="refreshTrigger"
           (horizontalSizeChange)="onHorizontalSizeChange($event)"
+          (hScrollPositionChange)="onHScrollPositionChange($event)"
         >
         </app-schedule-section>
       </as-split-area>
@@ -16,6 +17,7 @@
           [zoom]="zoom"
           [refreshTrigger]="refreshTrigger"
           [horizontalSize]="horizontalSize"
+          [hScrollPosition]="hScrollPosition"
         >
         </app-shift-section>
       </as-split-area>

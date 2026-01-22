@@ -118,6 +118,7 @@ export class ShiftSectionComponent
   @Input() horizontalSize!: number;
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
+  @Input() hScrollPosition = 0;
 
   public hScrollPositionValue = 0;
   public vScrollbar = { value: 0, maxValue: 0, visibleValue: 0 };
@@ -167,6 +168,12 @@ export class ShiftSectionComponent
     if (changes['refreshTrigger'] && !changes['refreshTrigger'].firstChange) {
       this.shiftSurface.Refresh();
     }
+
+    if (changes['hScrollPosition']) {
+      const position = changes['hScrollPosition'].currentValue;
+      this.hScrollPositionValue = position;
+      this.scrollService.horizontalScrollPosition = position;
+    }
   }
 
   ngOnDestroy(): void {
@@ -202,11 +209,6 @@ export class ShiftSectionComponent
         const readState = this.dataManagement.isShiftScheduleRead();
         if (readState.value) {
           this.shiftSurface.Refresh(readState.resetScroll);
-          const position = this.hScrollService.horizontalPosition();
-          if (position > 0) {
-            this.hScrollPositionValue = position;
-            this.scrollService.horizontalScrollPosition = position;
-          }
         }
       });
       this.effects.push(dataReadEffect);
@@ -219,13 +221,6 @@ export class ShiftSectionComponent
       });
       this.effects.push(vScrollbarSizeEffect);
 
-      const hScrollEffect = effect(() => {
-        const position = this.hScrollService.horizontalPosition();
-        this.hScrollPositionValue = position;
-        this.scrollService.horizontalScrollPosition = position;
-        this.cdr.detectChanges();
-      });
-      this.effects.push(hScrollEffect);
 
       const positionEffect = effect(() => {
         const pos = this.cellManipulation.positionSignal();

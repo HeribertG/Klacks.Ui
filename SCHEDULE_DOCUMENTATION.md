@@ -1,6 +1,6 @@
 # Schedule Documentation
 
-**Letzte Aktualisierung:** 03.01.2026
+**Letzte Aktualisierung:** 22.01.2026
 
 ---
 
@@ -541,21 +541,42 @@ override getWeekday(column: number): WeekDaysEnum {
 
 ## Horizontale Scroll-Synchronisierung
 
+### Architektur (aktualisiert 22.01.2026)
+
 ```
-┌─ ScheduleHomeComponent ─────────────────────────────────────────────────┐
-│  providers: [ ScheduleHorizontalScrollService ]  ← Shared Singleton     │
-├─────────────────────────────────────────────────────────────────────────┤
+┌─ ScheduleContainerComponent ────────────────────────────────────────────┐
+│                                                                          │
 │  ┌─ ScheduleSectionComponent ────────────────────────────────────────┐  │
-│  │  WRITES: H-Scrollbar.valueChange → hScrollService.setPosition()   │  │
-│  │  READS:  hScrollPositionEffect → hScrollbar.value = signal()      │  │
-│  └───────────────────────────────────────────────────────────────────┘  │
-│                                ↕ Signal (bidirectional)                  │
-│  ┌─ ShiftSectionComponent ───────────────────────────────────────────┐  │
-│  │  WRITES: (valueHScrollbar) → onHScrollChange → setPosition()      │  │
-│  │  READS:  hScrollEffect → hScrollPositionValue = signal()          │  │
+│  │  H-Scrollbar.valueChange → hScrollPositionChange.emit(value)      │  │
+│  └──────────────────────────────────┬────────────────────────────────┘  │
+│                                     │                                    │
+│                    hScrollPosition = value  (direktes Binding)           │
+│                                     │                                    │
+│  ┌─ ShiftSectionComponent ──────────▼────────────────────────────────┐  │
+│  │  @Input() hScrollPosition → scrollService.horizontalScrollPosition│  │
 │  └───────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Wichtige Details
+
+**Jede Section hat eigenen ScrollService:**
+- `schedule-section`: eigener ScrollService (providers)
+- `shift-section`: eigener ScrollService (providers)
+
+**MaxCols Workaround in GridSurfaceTemplate:**
+```typescript
+// grid-surface-template.component.ts - ngOnChanges
+if (currH > this.scroll.maxCols) {
+  this.scroll.maxCols = currH + 10;
+}
+```
+
+**Grund:** Der ScrollService clampet die Position auf `maxCols`. Da `maxCols` initial auf einen kleineren Wert gesetzt wird (basierend auf sichtbaren Spalten), würde das Clamping die Synchronisierung blockieren. Der Workaround erhöht `maxCols` automatisch wenn ein größerer Wert reinkommt.
+
+### Legacy: ScheduleHorizontalScrollService
+
+Der `ScheduleHorizontalScrollService` existiert noch für bidirektionale Kommunikation (wenn in shift-section gescrollt wird), wird aber primär durch direkte Input-Bindings ersetzt.
 
 ---
 
@@ -879,6 +900,53 @@ if (!string.IsNullOrEmpty(filter.HoursSortOrder)) {
 ---
 
 ## Changelog
+
+### 22.01.2026 - Surcharges Berechnung & Cache Invalidierung Fix
+
+**Bug Fixes:**
+- **Surcharges Berechnung:** `PeriodHoursService` und `WorkRepository` summieren jetzt `Work.Surcharges` (vorher nur `WorkChange.ChangeTime`)
+- **Cache Invalidierung:** Bei Work CRUD werden jetzt ALLE `ClientPeriodHours`-Einträge für den betroffenen Client gelöscht, nicht nur der aktuelle Perioden-Eintrag
+- **Surcharges Display:** Dritte Info-Zelle (Slot3) zeigt jetzt auch `0h` statt leerer String wenn `surcharges = 0`
+- **Resize Race Condition:** `GridSurfaceTemplateComponent` speichert Resize-Events als "pending" wenn Canvas nicht bereit, statt sie zu ignorieren
+
+**Betroffene Dateien:**
+| Datei | Änderung |
+|-------|----------|
+| `PeriodHoursService.cs` | `CalculatePeriodHoursForClientsAsync()` summiert `Work.Surcharges` |
+| `PeriodHoursService.cs` | `RecalculateAndNotifyAsync()` löscht andere Cache-Einträge vor Neuberechnung |
+| `WorkRepository.cs` | `GetPeriodHoursForClients()` summiert `Work.Surcharges` |
+| `schedule-data.service.ts` | `getRowHeaderSlot3Text()` zeigt auch `0h` |
+| `grid-surface-template.component.ts` | `handleParentResize()` speichert pending resize |
+
+**Surcharges Berechnung (korrigiert):**
+```csharp
+// Vorher: Nur WorkTime
+.Select(g => new { ClientId = g.Key, TotalHours = g.Sum(w => w.WorkTime) })
+
+// Nachher: WorkTime + Surcharges
+.Select(g => new {
+    ClientId = g.Key,
+    TotalHours = g.Sum(w => w.WorkTime),
+    TotalSurcharges = g.Sum(w => w.Surcharges)
+})
+
+// Ergebnis kombiniert Work.Surcharges + WorkChange.ChangeTime (wenn ToInvoice)
+Surcharges = workData.Surcharges + workChangeSurcharges
+```
+
+**Cache Invalidierung (neu):**
+```csharp
+// Bei RecalculateAndNotifyAsync: Lösche alle anderen Cache-Einträge für diesen Client
+var otherCacheEntries = await _context.ClientPeriodHours
+    .Where(p => p.ClientId == clientId
+        && (p.StartDate != startDate || p.EndDate != endDate))
+    .ToListAsync();
+
+if (otherCacheEntries.Count > 0)
+{
+    _context.ClientPeriodHours.RemoveRange(otherCacheEntries);
+}
+```
 
 ### 21.01.2026 - PeriodHours in Work CRUD Response
 

@@ -31,12 +31,17 @@ export class ScheduleContainerComponent {
   @Input() zoom = 1.0;
   @Input() refreshTrigger = false;
   public horizontalSize = 205;
+  public hScrollPosition = 0;
   public IsInfoVisible = false;
 
   public shiftDragService = inject(ShiftToScheduleDragDropService);
 
   onHorizontalSizeChange(newSize: number): void {
     this.horizontalSize = newSize;
+  }
+
+  onHScrollPositionChange(position: number): void {
+    this.hScrollPosition = position;
   }
 
   @HostListener('document:mousemove', ['$event'])

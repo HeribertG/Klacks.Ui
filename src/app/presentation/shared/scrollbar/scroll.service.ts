@@ -15,7 +15,7 @@ export class ScrollService {
   public lockedCols = signal<boolean>(false);
   public lockedRows = signal<boolean>(false);
 
-  private _maxCols = 0;
+  private _maxCols = Number.MAX_SAFE_INTEGER;
   private _maxRows = 0;
   private _horizontalScrollDelta = 0;
   private _verticalScrollDelta = 0;
@@ -104,10 +104,7 @@ export class ScrollService {
     const oldV = this._verticalScrollPosition;
 
     if (horizontal !== undefined) {
-      this._horizontalScrollPosition = Math.max(
-        0,
-        Math.min(horizontal, this.maxCols)
-      );
+      this._horizontalScrollPosition = Math.max(0, Math.min(horizontal, this.maxCols));
     }
     if (vertical !== undefined) {
       this._verticalScrollPosition = Math.max(
