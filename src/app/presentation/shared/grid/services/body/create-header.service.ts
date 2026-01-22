@@ -13,6 +13,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { BaseSettingsService } from 'src/app/presentation/shared/grid/services/data-setting/settings.service';
 import { BaseDataService } from 'src/app/presentation/shared/grid/services/data-setting/data.service';
+import { DataManagementSettingsService } from 'src/app/domain/services/settings/data-management-settings.service';
+import { PaymentInterval } from 'src/app/domain/models/contract-class';
 
 @Injectable()
 export class BaseCreateHeaderService {
@@ -22,6 +24,7 @@ export class BaseCreateHeaderService {
   protected gridSettings = inject(GridSettingsService);
   protected gridData = inject(BaseDataService);
   private translateService = inject(TranslateService);
+  private settingsService = inject(DataManagementSettingsService);
 
   private emptyHeader: ImageData | undefined = undefined;
 
@@ -152,12 +155,15 @@ export class BaseCreateHeaderService {
 
   private formatDate(date: Date): string {
     const day = date.getDate();
-    return (
-      this.translateService.instant(this.gridSettings.weekday[date.getDay()]) +
-      ' ' +
-      day +
-      '. '
-    );
+    const weekday = this.translateService.instant(this.gridSettings.weekday[date.getDay()]);
+    const paymentInterval = this.settingsService.paymentInterval;
+
+    if (paymentInterval === PaymentInterval.Weekly || paymentInterval === PaymentInterval.Biweekly) {
+      const month = date.getMonth() + 1;
+      return `${weekday} ${day}.${month.toString().padStart(2, '0')}`;
+    }
+
+    return `${weekday} ${day}. `;
   }
 
   private fillHeaderBackground(
