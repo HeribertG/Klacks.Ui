@@ -120,7 +120,7 @@ export class ScheduleDataService extends BaseDataService {
     const periodHours = this.dataManagementSchedule.periodHours.get(
       client.id
     );
-    return periodHours?.surcharges ? `+${periodHours.surcharges}h` : '';
+    return periodHours ? `${periodHours.surcharges}h` : '';
   }
 
   public override initializeDateAndColumns(): void {
