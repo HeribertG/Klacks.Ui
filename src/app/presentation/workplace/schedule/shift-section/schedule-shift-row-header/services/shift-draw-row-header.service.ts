@@ -71,7 +71,10 @@ export class ShiftDrawRowHeaderService {
       this.progressEffectRef = effect(() => {
         const isRead = this.shiftLoader.isRead();
         if (isRead) {
-          this.progressBar.setProgress(this.shiftLoader.shiftLoadingProgress);
+          const progress = this.shiftLoader.hasMoreShifts
+            ? this.shiftLoader.shiftLoadingProgress
+            : 100;
+          this.progressBar.setProgress(progress);
         }
       });
     });
