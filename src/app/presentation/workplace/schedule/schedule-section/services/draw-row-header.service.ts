@@ -113,13 +113,11 @@ export class BaseDrawRowHeaderService {
     this.progressBar.configure({ position: 'bottom', height: 2 });
     this.progressBar.setRenderCallback(() => this.renderProgressBar());
 
-    runInInjectionContext(this.injector, () => {
-      this.progressEffectRef = effect(() => {
-        const isRead = this.workScheduleLoader.isRead();
-        if (isRead) {
-          this.progressBar.setProgress(this.workScheduleLoader.clientLoadingProgress);
-        }
-      });
+    const loader = this.workScheduleLoader;
+    this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
+      get isRead() { return loader.isRead; },
+      get loadingProgress() { return loader.clientLoadingProgress; },
+      get hasMore() { return loader.hasMoreClients; },
     });
   }
 

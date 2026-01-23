@@ -1,5 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector, effect, runInInjectionContext, Signal } from '@angular/core';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
+
+export interface IProgressLoader {
+  readonly isRead: Signal<boolean> | (() => boolean);
+  readonly loadingProgress: number;
+  readonly hasMore: boolean;
+}
 
 export interface ProgressBarConfig {
   color?: string;
@@ -29,6 +35,26 @@ export class ProgressBarAnimationService {
 
   setRenderCallback(callback: () => void): void {
     this.renderCallback = callback;
+  }
+
+  setupWithLoader(
+    injector: Injector,
+    loader: IProgressLoader
+  ): { destroy: () => void } {
+    return runInInjectionContext(injector, () => {
+      return effect(() => {
+        const readSignalOrFn = loader.isRead;
+        const isRead = typeof readSignalOrFn === 'function'
+          ? (readSignalOrFn as () => boolean)()
+          : readSignalOrFn;
+        if (isRead) {
+          const progress = loader.hasMore
+            ? loader.loadingProgress
+            : 100;
+          this.setProgress(progress);
+        }
+      });
+    });
   }
 
   setProgress(progress: number): void {

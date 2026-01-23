@@ -67,16 +67,11 @@ export class ShiftDrawRowHeaderService {
     });
     this.progressBar.setRenderCallback(() => this.renderProgressBar());
 
-    runInInjectionContext(this.injector, () => {
-      this.progressEffectRef = effect(() => {
-        const isRead = this.shiftLoader.isRead();
-        if (isRead) {
-          const progress = this.shiftLoader.hasMoreShifts
-            ? this.shiftLoader.shiftLoadingProgress
-            : 100;
-          this.progressBar.setProgress(progress);
-        }
-      });
+    const loader = this.shiftLoader;
+    this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
+      get isRead() { return loader.isRead; },
+      get loadingProgress() { return loader.shiftLoadingProgress; },
+      get hasMore() { return loader.hasMoreShifts; },
     });
   }
 

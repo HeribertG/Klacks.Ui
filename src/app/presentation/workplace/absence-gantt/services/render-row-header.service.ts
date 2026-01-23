@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { RowHeaderCanvasManagerService } from './row-header-canvas.service';
 import { CalendarSettingService } from './calendar-setting.service';
@@ -26,12 +26,14 @@ export class RenderRowHeaderService {
   dataManagementBreak = inject(DataManagementBreakPlaceholderService);
   private renderRowHeaderCell = inject(RenderRowHeaderCellService);
   private progressBar = inject(ProgressBarAnimationService);
+  private injector = inject(Injector);
 
   public recFilterIcon!: Rectangle;
   public filterImage: HTMLImageElement | undefined;
 
   public readonly iconSize = 16;
   private isProgressBarInitialized = false;
+  private progressEffectRef: { destroy: () => void } | null = null;
 
   public createRuler(): void {
     this.ShapeHeaderCanvasSurface();
@@ -224,7 +226,6 @@ export class RenderRowHeaderService {
     );
 
     this.initializeProgressBar();
-    this.progressBar.setProgress(this.dataManagementBreak.loadingProgress);
     this.progressBar.drawInRect(
       this.rowHeaderCanvasManager.headerCtx!,
       rec.left,
@@ -249,8 +250,22 @@ export class RenderRowHeaderService {
     if (!this.isProgressBarInitialized) {
       this.progressBar.configure({ position: 'bottom', height: 2 });
       this.progressBar.setRenderCallback(() => this.createRuler());
+
+      const loader = this.dataManagementBreak;
+      this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
+        get isRead() { return loader.isRead; },
+        get loadingProgress() { return loader.loadingProgress; },
+        get hasMore() { return loader.hasMoreRows; },
+      });
+
       this.isProgressBarInitialized = true;
     }
+  }
+
+  public destroy(): void {
+    this.progressEffectRef?.destroy();
+    this.progressEffectRef = null;
+    this.progressBar.destroy();
   }
 
   private drawFilterIcon(rec: Rectangle) {
