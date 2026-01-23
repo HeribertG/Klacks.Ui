@@ -138,17 +138,16 @@ export class BaseDrawRowHeaderService {
     this.progressBar.drawInRect(this.headerCtx, 0, 0, width, height);
 
     if (this.ctx && this.headerCanvas) {
-      const pixelRatio = DrawHelper.pixelRatio();
       this.ctx.drawImage(
         this.headerCanvas,
         0,
-        yPos * pixelRatio,
-        this.headerCanvas.width,
-        (barHeight + 2),
         0,
-        yPos,
+        this.headerCanvas.width,
+        this.headerCanvas.height,
+        0,
+        0,
         width,
-        (barHeight + 2) / pixelRatio
+        height
       );
     }
   }
