@@ -573,6 +573,7 @@
   "schedule.row-header.slot1.tooltip": "Ore garantite",
   "schedule.row-header.slot2.tooltip": "Ore lavorate",
   "schedule.row-header.slot3.tooltip": "Maggiorazioni",
+  "schedule.row-header.no-contract.tooltip": "Nessun contratto",
 
   "setting.absence.add": "+ Aggiungi assenza",
   "setting.absence.headline": "Assenze",

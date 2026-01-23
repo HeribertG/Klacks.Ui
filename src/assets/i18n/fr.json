@@ -573,6 +573,7 @@
   "schedule.row-header.slot1.tooltip": "Heures garanties",
   "schedule.row-header.slot2.tooltip": "Heures travaillées",
   "schedule.row-header.slot3.tooltip": "Majorations",
+  "schedule.row-header.no-contract.tooltip": "Pas de contrat",
 
   "setting.absence.add": "+ Ajouter une absence",
   "setting.absence.headline": "Absences",

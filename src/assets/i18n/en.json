@@ -573,6 +573,7 @@
   "schedule.row-header.slot1.tooltip": "Guaranteed Hours",
   "schedule.row-header.slot2.tooltip": "Worked Hours",
   "schedule.row-header.slot3.tooltip": "Surcharges",
+  "schedule.row-header.no-contract.tooltip": "No Contract",
 
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",

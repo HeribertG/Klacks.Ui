@@ -41,7 +41,12 @@ import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.serv
   styleUrls: ['./schedule-schedule-row-header.component.scss'],
   standalone: true,
   imports: [NgStyle, ResizeDirective, ScheduleRowHeaderEventsDirective, ClientFilterComponent],
-  providers: [ScrollService, BaseCreateRowHeaderService, ProgressBarAnimationService],
+  providers: [
+    ScrollService,
+    BaseCreateRowHeaderService,
+    BaseDrawRowHeaderService,
+    ProgressBarAnimationService
+  ],
 })
 export class ScheduleScheduleRowHeaderComponent
   implements OnInit, AfterViewInit, OnChanges, OnDestroy
@@ -204,7 +209,42 @@ export class ScheduleScheduleRowHeaderComponent
       }
     }
 
+    if (this.checkContractSymbolTooltip(event, pos)) {
+      return;
+    }
+
     this.checkInfoSpotTooltip(event, pos);
+  }
+
+  private checkContractSymbolTooltip(event: MouseEvent, pos: { x: number; y: number }): boolean {
+    const canvas = this.drawRowHeader.canvas;
+    if (!canvas) return false;
+
+    const row = Math.floor((pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight) + this.scroll.verticalScrollPosition;
+    if (row < 0 || row >= this.dataService.rows) return false;
+
+    const clientIndex = this.dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) return false;
+
+    const client = this.dataService.getGroupIndex(clientIndex);
+    if (!client || client.hasContract) return false;
+
+    const firstRow = this.dataService.indexGroupRow[clientIndex];
+    const cellHeight = this.settings.cellHeight;
+    const localY = pos.y - this.settings.cellHeaderHeight - ((firstRow - this.scroll.verticalScrollPosition) * cellHeight);
+    const sectionHeight = cellHeight / 3;
+
+    if (localY >= 0 && localY <= sectionHeight && pos.x >= 0 && pos.x <= 24) {
+      const tooltipText = this.translateService.instant('schedule.row-header.no-contract.tooltip');
+      this.tooltipService.show({
+        text: tooltipText,
+        x: event.clientX,
+        y: event.clientY,
+      });
+      return true;
+    }
+
+    return false;
   }
 
   private checkInfoSpotTooltip(event: MouseEvent, pos: { x: number; y: number }): void {

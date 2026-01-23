@@ -216,19 +216,32 @@ export class BaseCreateRowHeaderService {
     ctx: CanvasRenderingContext2D,
     text: string,
     width: number,
-    height: number
+    height: number,
+    client?: ClientWork
   ): void {
-    const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
+    const sectionHeight = height / 3;
+    const symbolSize = 16 * this.settings.zoom;
 
+    // Oben: Vertragssymbol (wenn kein Vertrag)
+    if (client && !client.hasContract) {
+      ctx.save();
+      ctx.font = `${symbolSize}px Arial`;
+      ctx.fillStyle = '#ef4444';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('⊘', 4, sectionHeight / 2);
+      ctx.restore();
+    }
+
+    // Mitte: Name mit Hintergrund
+    const textWidth = this.prepareFontMeasureTextForHeader(ctx, text);
     const fontHeight = this.gridFonts.headerFontHeightZoom;
     const padding = 2;
     const idealBackgroundWidth = textWidth + padding * 2;
-
     const maxBackgroundWidth = width - 2;
     const backgroundWidth = Math.min(idealBackgroundWidth, maxBackgroundWidth);
     const backgroundHeight = fontHeight + padding * 2;
-
-    const backgroundY = (height - backgroundHeight) / 2;
+    const backgroundY = sectionHeight + (sectionHeight - backgroundHeight) / 2;
 
     ctx.save();
     ctx.fillStyle = this.gridColors.controlBackGroundColor;
@@ -239,15 +252,18 @@ export class BaseCreateRowHeaderService {
       ctx,
       text,
       0,
-      0,
+      sectionHeight,
       width,
-      height,
+      sectionHeight,
       this.gridFonts.headerFontStringZoom,
       this.gridFonts.headerFontHeightZoom,
       this.gridColors.headerForeGroundColor,
       TextAlignmentEnum.Left,
       BaselineAlignmentEnum.Center
     );
+
+    // Unten: Reserviert für zukünftige Angaben
+    // (aktuell leer)
   }
 
   private drawGenderSymbols(
@@ -491,7 +507,7 @@ export class BaseCreateRowHeaderService {
         );
 
         const name = this.getName(client);
-        this.drawName(ctx, name, textAreaWidth, height);
+        this.drawName(ctx, name, textAreaWidth, height, client);
 
         this.drawInfoSpots(
           ctx,
