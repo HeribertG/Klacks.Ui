@@ -459,8 +459,11 @@ export class BaseDrawScheduleService {
 
   @CanvasAvailable('queue')
   drawSelectionDynamically(pos: MyPosition): void {
+    console.log('=== drawSelectionDynamically START ===', { position: this.position, pos });
+
     if (this.position != null && !this.position.isEmpty()) {
       if (pos != null && !pos.isEmpty()) {
+        console.log('Drawing selection overlay');
         this.canvasManager.ctx!.save();
 
         this.renderGrid();
@@ -502,11 +505,17 @@ export class BaseDrawScheduleService {
         this.canvasManager.ctx!.globalAlpha = 1.0;
 
         const startCell = this.gridData.getCell(this.position.row, this.position.column);
+        console.log('Start cell:', startCell, 'mainText:', startCell?.mainText);
+
         if (startCell && startCell.mainText) {
+          console.log('CALLING drawPreviewTextInEmptyCells with:', startCell.mainText);
           this.drawPreviewTextInEmptyCells(minCol, maxCol, minRow, maxRow, startCell.mainText);
+        } else {
+          console.log('NOT calling drawPreviewTextInEmptyCells - no startCell or mainText');
         }
 
         this.canvasManager.ctx!.restore();
+        console.log('=== drawSelectionDynamically END ===');
       }
     }
   }
@@ -574,39 +583,41 @@ export class BaseDrawScheduleService {
     maxRow: number,
     previewText: string
   ): void {
-    this.canvasManager.ctx!.save();
-    this.canvasManager.ctx!.globalAlpha = 0.5;
-    this.canvasManager.ctx!.fillStyle = '#000000';
+    console.log('drawPreviewTextInEmptyCells called', { minCol, maxCol, minRow, maxRow, previewText });
 
+    const ctx = this.canvasManager.ctx!;
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = '#000000';
+    ctx.font = this.gridFonts.mainFontStringZoom;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    let drawnCount = 0;
     for (let row = minRow; row < maxRow; row++) {
       for (let col = minCol; col < maxCol; col++) {
         if (row === this.position.row && col === this.position.column) {
           continue;
         }
 
-        const cell = this.gridData.getCell(row, col);
-        if (cell && cell.isEmpty()) {
-          const x = (col - this.firstVisibleCol) * this.settings.cellWidth;
-          const y = (row - this.firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
+        const isActive = this.gridData.isCellActive(row, col);
+        console.log(`Cell [${row},${col}] isActive: ${isActive}`);
 
-          DrawHelper.drawText(
-            this.canvasManager.ctx!,
-            previewText,
-            x,
-            y + this.margin * this.settings.zoom + this.settings.increaseBorder * 2,
-            this.settings.cellWidth,
-            this.gridFonts.mainFontHeightZoom,
-            this.gridFonts.mainFontStringZoom,
-            +this.gridFonts.mainFontSizeZoom,
-            '#000000',
-            TextAlignmentEnum.Center,
-            BaselineAlignmentEnum.Center
-          );
+        if (!isActive) {
+          const x = (col - this.firstVisibleCol) * this.settings.cellWidth + this.settings.cellWidth / 2;
+          const y = (row - this.firstVisibleRow) * this.settings.cellHeight +
+                    this.settings.cellHeaderHeight +
+                    this.margin * this.settings.zoom +
+                    this.settings.increaseBorder * 2 +
+                    this.gridFonts.mainFontHeightZoom / 2;
+
+          console.log(`Drawing preview "${previewText}" at [${row},${col}] position (${x},${y})`);
+          ctx.fillText(previewText, x, y);
+          drawnCount++;
         }
       }
     }
 
-    this.canvasManager.ctx!.restore();
+    console.log(`Drew ${drawnCount} preview cells`);
   }
 
   @CanvasAvailable('queue')
