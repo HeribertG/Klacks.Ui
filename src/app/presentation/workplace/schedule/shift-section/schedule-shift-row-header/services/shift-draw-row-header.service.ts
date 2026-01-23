@@ -78,6 +78,12 @@ export class ShiftDrawRowHeaderService {
   private renderProgressBarOnly(): void {
     if (!this.isCanvasAvailable() || !this.canvasManager.ctx) return;
 
+    if (!this.shiftLoader.isLoadingMore && !this.shiftLoader.hasMoreShifts) {
+      this.drawGrid();
+      this.renderGrid();
+      return;
+    }
+
     const ctx = this.canvasManager.ctx;
     const width = this.canvasManager.width;
     const height = this.height;

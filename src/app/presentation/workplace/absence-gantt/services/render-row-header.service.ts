@@ -55,6 +55,11 @@ export class RenderRowHeaderService {
   private renderProgressBarOnly(): void {
     if (!this.rowHeaderCanvasManager.headerCtx) return;
 
+    if (!this.dataManagementBreak.isLoadingMore && !this.dataManagementBreak.hasMoreRows) {
+      this.createRuler();
+      return;
+    }
+
     const rec = new Rectangle(
       0,
       0,

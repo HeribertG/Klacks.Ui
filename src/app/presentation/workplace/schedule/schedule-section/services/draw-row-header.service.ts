@@ -124,6 +124,12 @@ export class BaseDrawRowHeaderService {
   private renderProgressBarOnly(): void {
     if (!this.isCanvasAvailable() || !this.headerCtx) return;
 
+    if (!this.workScheduleLoader.isLoadingMore && !this.workScheduleLoader.hasMoreClients) {
+      this.crateGridHeader();
+      this.renderGrid();
+      return;
+    }
+
     const width = this.width;
     const height = this.settings.cellHeaderHeight;
     const dpr = DrawHelper.pixelRatio();
