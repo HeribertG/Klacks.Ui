@@ -499,6 +499,8 @@ export class BaseDrawScheduleService {
 
         this.drawRange(minCol, maxCol, minRow, maxRow);
 
+        this.canvasManager.ctx!.globalAlpha = 1.0;
+
         const startCell = this.gridData.getCell(this.position.row, this.position.column);
         if (startCell && startCell.mainText) {
           this.drawPreviewTextInEmptyCells(minCol, maxCol, minRow, maxRow, startCell.mainText);
