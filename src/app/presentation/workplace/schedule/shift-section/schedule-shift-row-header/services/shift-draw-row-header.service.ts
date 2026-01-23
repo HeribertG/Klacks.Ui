@@ -65,7 +65,7 @@ export class ShiftDrawRowHeaderService {
       position: 'top',
       height: this.canvasManager.progressBarHeight,
     });
-    this.progressBar.setRenderCallback(() => this.renderProgressBar());
+    this.progressBar.setRenderCallback(() => this.renderProgressBarOnly());
 
     const loader = this.shiftLoader;
     this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
@@ -73,6 +73,23 @@ export class ShiftDrawRowHeaderService {
       get loadingProgress() { return loader.shiftLoadingProgress; },
       get hasMore() { return loader.hasMoreShifts; },
     });
+  }
+
+  private renderProgressBarOnly(): void {
+    if (!this.isCanvasAvailable() || !this.canvasManager.ctx) return;
+
+    const ctx = this.canvasManager.ctx;
+    const width = this.canvasManager.width;
+    const height = this.height;
+    const dpr = DrawHelper.pixelRatio();
+    const barHeight = this.canvasManager.progressBarHeight * dpr;
+
+    ctx.save();
+    ctx.fillStyle = this.gridColors.controlBackGroundColor;
+    ctx.fillRect(0, 0, width * dpr, barHeight + 2);
+    ctx.restore();
+
+    this.progressBar.draw(ctx, width, height);
   }
 
   private renderProgressBar(): void {

@@ -67,7 +67,10 @@ export class RenderRowHeaderService {
     const barHeight = 2 * dpr;
     const yPos = rec.top + rec.height - barHeight - 1;
 
-    ctx.clearRect(0, yPos, rec.width, barHeight + 2);
+    ctx.save();
+    ctx.fillStyle = this.gridColors.controlBackGroundColor;
+    ctx.fillRect(0, yPos * dpr, rec.width * dpr, barHeight + 2);
+    ctx.restore();
 
     this.progressBar.drawInRect(ctx, rec.left, rec.top, rec.width, rec.height);
   }

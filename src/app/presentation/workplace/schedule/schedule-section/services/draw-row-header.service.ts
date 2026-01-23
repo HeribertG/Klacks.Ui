@@ -111,7 +111,7 @@ export class BaseDrawRowHeaderService {
 
   private setupProgressBar(): void {
     this.progressBar.configure({ position: 'bottom', height: 2 });
-    this.progressBar.setRenderCallback(() => this.renderProgressBar());
+    this.progressBar.setRenderCallback(() => this.renderProgressBarOnly());
 
     const loader = this.workScheduleLoader;
     this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
@@ -119,6 +119,38 @@ export class BaseDrawRowHeaderService {
       get loadingProgress() { return loader.clientLoadingProgress; },
       get hasMore() { return loader.hasMoreClients; },
     });
+  }
+
+  private renderProgressBarOnly(): void {
+    if (!this.isCanvasAvailable() || !this.headerCtx) return;
+
+    const width = this.width;
+    const height = this.settings.cellHeaderHeight;
+    const dpr = DrawHelper.pixelRatio();
+    const barHeight = 2 * dpr;
+    const yPos = height - barHeight - 1;
+
+    this.headerCtx.save();
+    this.headerCtx.fillStyle = this.gridColors.controlBackGroundColor;
+    this.headerCtx.fillRect(0, yPos * dpr, width * dpr, barHeight + 2);
+    this.headerCtx.restore();
+
+    this.progressBar.drawInRect(this.headerCtx, 0, 0, width, height);
+
+    if (this.ctx && this.headerCanvas) {
+      const pixelRatio = DrawHelper.pixelRatio();
+      this.ctx.drawImage(
+        this.headerCanvas,
+        0,
+        yPos * pixelRatio,
+        this.headerCanvas.width,
+        (barHeight + 2),
+        0,
+        yPos,
+        width,
+        (barHeight + 2) / pixelRatio
+      );
+    }
   }
 
   private renderProgressBar(): void {
