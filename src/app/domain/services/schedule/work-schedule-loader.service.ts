@@ -155,6 +155,7 @@ export class WorkScheduleLoaderService {
       hoursSortOrder: workFilter.hoursSortOrder || undefined,
       startRow: 0,
       rowCount: this.INITIAL_CHUNK_SIZE,
+      paymentInterval: this.settingsService.paymentInterval,
     };
 
     this.dataWorkSchedule
@@ -336,7 +337,6 @@ export class WorkScheduleLoaderService {
       neededRows: 2,
       works: [],
       hasContract: c.hasContract ?? false,
-      contractPaymentInterval: c.contractPaymentInterval ?? null,
     }));
   }
 

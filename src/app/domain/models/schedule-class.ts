@@ -58,7 +58,6 @@ export interface IClientWork {
   neededRows: number;
   works: Work[];
   hasContract: boolean;
-  contractPaymentInterval: number | null;
 }
 
 export class ClientWork implements IClientWork {
@@ -79,7 +78,6 @@ export class ClientWork implements IClientWork {
   neededRows = 3;
   works: Work[] = [];
   hasContract = false;
-  contractPaymentInterval: number | null = null;
 }
 
 export interface IWorkFilter extends IBaseFilter {

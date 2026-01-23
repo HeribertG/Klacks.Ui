@@ -51,6 +51,7 @@ export interface IWorkScheduleFilter {
   hoursSortOrder?: string;
   startRow?: number;
   rowCount?: number;
+  paymentInterval?: number;
 }
 
 export interface IWorkScheduleClient {
@@ -67,7 +68,6 @@ export interface IWorkScheduleClient {
   type: number;
   neededRows: number;
   hasContract: boolean;
-  contractPaymentInterval: number | null;
 }
 
 export interface IWorkScheduleResponse {
