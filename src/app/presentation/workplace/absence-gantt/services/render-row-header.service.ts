@@ -52,6 +52,26 @@ export class RenderRowHeaderService {
     this.drawFilterIcon(rec);
   }
 
+  private renderProgressBarOnly(): void {
+    if (!this.rowHeaderCanvasManager.headerCtx) return;
+
+    const rec = new Rectangle(
+      0,
+      0,
+      this.rowHeaderCanvasManager.width,
+      this.calendarSetting.cellHeaderHeight
+    );
+
+    const ctx = this.rowHeaderCanvasManager.headerCtx;
+    const dpr = DrawHelper.pixelRatio();
+    const barHeight = 2 * dpr;
+    const yPos = rec.top + rec.height - barHeight - 1;
+
+    ctx.clearRect(0, yPos, rec.width, barHeight + 2);
+
+    this.progressBar.drawInRect(ctx, rec.left, rec.top, rec.width, rec.height);
+  }
+
   public renderRowHeader(): void {
     this.ShapeRenderCanvasSurface();
     this.ClearRenderCanvasSurface();
@@ -225,15 +245,6 @@ export class RenderRowHeaderService {
       BaselineAlignmentEnum.Center
     );
 
-    this.initializeProgressBar();
-    this.progressBar.drawInRect(
-      this.rowHeaderCanvasManager.headerCtx!,
-      rec.left,
-      rec.top,
-      rec.width,
-      rec.height
-    );
-
     this.renderRowHeaderCell.drawBorder(
       this.rowHeaderCanvasManager.headerCtx!,
       rec.left,
@@ -244,12 +255,21 @@ export class RenderRowHeaderService {
       2,
       Gradient3DBorderStyleEnum.Raised
     );
+
+    this.initializeProgressBar();
+    this.progressBar.drawInRect(
+      this.rowHeaderCanvasManager.headerCtx!,
+      rec.left,
+      rec.top,
+      rec.width,
+      rec.height
+    );
   }
 
   private initializeProgressBar(): void {
     if (!this.isProgressBarInitialized) {
       this.progressBar.configure({ position: 'bottom', height: 2 });
-      this.progressBar.setRenderCallback(() => this.createRuler());
+      this.progressBar.setRenderCallback(() => this.renderProgressBarOnly());
 
       const loader = this.dataManagementBreak;
       this.progressEffectRef = this.progressBar.setupWithLoader(this.injector, {
