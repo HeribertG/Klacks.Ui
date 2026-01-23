@@ -14,6 +14,8 @@ import { BaseGridRenderService } from './grid-render.service';
 import { BaseCreateCellService } from './create-cell.service';
 import { BaseCreateHeaderService } from './create-header.service';
 import { BaseCellManipulationService } from './cell-manipulation.service';
+import { TextAlignmentEnum, BaselineAlignmentEnum } from '../../enums/cell-settings.enum';
+import { GridFontsService } from '../grid-fonts.service';
 
 @Injectable()
 export class BaseDrawScheduleService {
@@ -28,10 +30,12 @@ export class BaseDrawScheduleService {
   protected canvasManager = inject(BaseCanvasManagerService);
   protected gridRender = inject(BaseGridRenderService);
   protected cellRender = inject(BaseCellRenderService);
+  protected gridFonts = inject(GridFontsService);
 
   private readonly MAX_INCREMENTAL_SCROLL = 4;
   private readonly ADDITIONALLY_EMPTY_COLUMNS = 3;
   private readonly ADDITIONALLY_EMPTY_ROWS = 3;
+  private readonly margin = 2;
 
   public startDate: Date = new Date();
   public recFilterIcon: Rectangle = new Rectangle();
@@ -494,6 +498,12 @@ export class BaseDrawScheduleService {
         }
 
         this.drawRange(minCol, maxCol, minRow, maxRow);
+
+        const startCell = this.gridData.getCell(this.position.row, this.position.column);
+        if (startCell && startCell.mainText) {
+          this.drawPreviewTextInEmptyCells(minCol, maxCol, minRow, maxRow, startCell.mainText);
+        }
+
         this.canvasManager.ctx!.restore();
       }
     }
@@ -552,6 +562,48 @@ export class BaseDrawScheduleService {
     const height = lastRow - row;
 
     this.canvasManager.ctx!.fillRect(col, row, width, height);
+  }
+
+  @CanvasAvailable('queue')
+  private drawPreviewTextInEmptyCells(
+    minCol: number,
+    maxCol: number,
+    minRow: number,
+    maxRow: number,
+    previewText: string
+  ): void {
+    this.canvasManager.ctx!.save();
+    this.canvasManager.ctx!.globalAlpha = 0.5;
+
+    for (let row = minRow; row < maxRow; row++) {
+      for (let col = minCol; col < maxCol; col++) {
+        if (row === this.position.row && col === this.position.column) {
+          continue;
+        }
+
+        const cell = this.gridData.getCell(row, col);
+        if (cell && cell.isEmpty()) {
+          const x = (col - this.firstVisibleCol) * this.settings.cellWidth;
+          const y = (row - this.firstVisibleRow) * this.settings.cellHeight + this.settings.cellHeaderHeight;
+
+          DrawHelper.drawText(
+            this.canvasManager.ctx!,
+            previewText,
+            x,
+            y + this.margin * this.settings.zoom + this.settings.increaseBorder * 2,
+            this.settings.cellWidth,
+            this.gridFonts.mainFontHeightZoom,
+            this.gridFonts.mainFontStringZoom,
+            +this.gridFonts.mainFontSizeZoom,
+            this.gridColors.mainFontColor,
+            TextAlignmentEnum.Center,
+            BaselineAlignmentEnum.Center
+          );
+        }
+      }
+    }
+
+    this.canvasManager.ctx!.restore();
   }
 
   @CanvasAvailable('queue')
