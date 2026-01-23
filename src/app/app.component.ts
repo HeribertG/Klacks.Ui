@@ -6,6 +6,7 @@ import { ApplicationInitService } from 'src/app/application/services/application
 import { ToastsContainerComponent } from './presentation/toast/toast.component';
 import { KeyboardShortcutDirective } from './presentation/directives/keyboard-shortcut.directive';
 import { AsideComponent } from './presentation/aside/aside.component';
+import { TooltipComponent } from './presentation/shared/tooltip/tooltip.component';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { AsideComponent } from './presentation/aside/aside.component';
     ToastsContainerComponent,
     KeyboardShortcutDirective,
     AsideComponent,
+    TooltipComponent,
   ],
 })
 export class AppComponent implements OnInit {

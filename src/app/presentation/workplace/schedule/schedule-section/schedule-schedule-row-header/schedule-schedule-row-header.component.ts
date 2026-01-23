@@ -32,6 +32,8 @@ import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
+import { TranslateService } from '@ngx-translate/core';
+import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
 
 @Component({
   selector: 'app-schedule-schedule-row-header',
@@ -55,6 +57,8 @@ export class ScheduleScheduleRowHeaderComponent
   private injector = inject(Injector);
   private settings = inject(BaseSettingsService);
   private scrollEventService = inject(ScrollEventService);
+  private translateService = inject(TranslateService);
+  private tooltipService = inject(TooltipService);
 
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
@@ -193,9 +197,85 @@ export class ScheduleScheduleRowHeaderComponent
     if (this.drawRowHeader.recFilterIcon) {
       if (this.drawRowHeader.recFilterIcon.pointInRect(pos.x, pos.y)) {
         this.currentCursor = CursorEnum.pointer;
+        this.tooltipService.hide();
+        return;
       } else {
         this.currentCursor = CursorEnum.default;
       }
+    }
+
+    this.checkInfoSpotTooltip(event, pos);
+  }
+
+  private checkInfoSpotTooltip(event: MouseEvent, pos: { x: number; y: number }): void {
+    const canvas = this.drawRowHeader.canvas;
+    if (!canvas) {
+      this.tooltipService.hide();
+      return;
+    }
+
+    const row = Math.floor((pos.y - this.settings.cellHeaderHeight) / this.settings.cellHeight) + this.scroll.verticalScrollPosition;
+
+    if (row < 0 || row >= this.dataService.rows) {
+      this.tooltipService.hide();
+      return;
+    }
+
+    const clientIndex = this.dataService.rowGroupIndex[row];
+    if (clientIndex === undefined) {
+      this.tooltipService.hide();
+      return;
+    }
+
+    const firstRow = this.dataService.indexGroupRow[clientIndex];
+    const client = this.dataService.getGroupIndex(clientIndex);
+    const lastRow = firstRow + (client?.neededRows ?? 1) - 1;
+
+    if (row < firstRow || row > lastRow) {
+      this.tooltipService.hide();
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const visualWidth = rect.width;
+    const canvasWidth = canvas.width;
+    const scale = canvasWidth / visualWidth;
+
+    const widthWithoutInfoSpot = visualWidth - (this.settings.InfoSpotWidth / scale);
+
+    if (pos.x < widthWithoutInfoSpot) {
+      this.tooltipService.hide();
+      return;
+    }
+
+    const localY = pos.y - this.settings.cellHeaderHeight - ((firstRow - this.scroll.verticalScrollPosition) * this.settings.cellHeight);
+
+    const slot1Top = this.settings.increaseBorder;
+    const slot1Bottom = this.settings.cellHeaderHeight;
+    const slot2Top = this.settings.cellHeaderHeight + this.settings.borderWidth;
+    const slot2Bottom = this.settings.cellHeaderHeight * 2 + this.settings.borderWidth;
+    const slot3Top = this.settings.cellHeaderHeight * 2 + this.settings.borderWidth * 2;
+    const slot3Bottom = this.settings.cellHeaderHeight * 3 + this.settings.borderWidth;
+
+    let tooltipKey = '';
+
+    if (localY >= slot1Top && localY <= slot1Bottom) {
+      tooltipKey = 'schedule.row-header.slot1.tooltip';
+    } else if (localY >= slot2Top && localY <= slot2Bottom) {
+      tooltipKey = 'schedule.row-header.slot2.tooltip';
+    } else if (localY >= slot3Top && localY <= slot3Bottom) {
+      tooltipKey = 'schedule.row-header.slot3.tooltip';
+    }
+
+    if (tooltipKey) {
+      const tooltipText = this.translateService.instant(tooltipKey);
+      this.tooltipService.show({
+        text: tooltipText,
+        x: event.clientX,
+        y: event.clientY,
+      });
+    } else {
+      this.tooltipService.hide();
     }
   }
 
@@ -212,6 +292,10 @@ export class ScheduleScheduleRowHeaderComponent
 
   onFilterMouseLeave(): void {
     this.destroyFilter();
+  }
+
+  onCanvasMouseLeave(): void {
+    this.tooltipService.hide();
   }
 
   onFilterChange(): void {

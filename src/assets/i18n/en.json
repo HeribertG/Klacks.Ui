@@ -570,6 +570,9 @@
   "schedule.shift-filter.show-ungrouped": "Ungrouped Shifts",
   "schedule.tooltip.available": "Available",
   "schedule.tooltip.overbooked": "Overbooked",
+  "schedule.row-header.slot1.tooltip": "Guaranteed Hours",
+  "schedule.row-header.slot2.tooltip": "Worked Hours",
+  "schedule.row-header.slot3.tooltip": "Surcharges",
 
   "setting.absence.add": "+ Add Absence",
   "setting.absence.headline": "Absences",

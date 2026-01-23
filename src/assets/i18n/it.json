@@ -570,6 +570,9 @@
   "schedule.shift-filter.show-ungrouped": "Turni non raggruppati",
   "schedule.tooltip.available": "Disponibile",
   "schedule.tooltip.overbooked": "Sovraprenotato",
+  "schedule.row-header.slot1.tooltip": "Ore garantite",
+  "schedule.row-header.slot2.tooltip": "Ore lavorate",
+  "schedule.row-header.slot3.tooltip": "Maggiorazioni",
 
   "setting.absence.add": "+ Aggiungi assenza",
   "setting.absence.headline": "Assenze",

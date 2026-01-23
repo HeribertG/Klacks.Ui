@@ -30,6 +30,7 @@ import { CellInputEventsDirective, CellInputRightClickEvent } from '../directive
 import { BaseCellManipulationService } from '../../services/body/cell-manipulation.service';
 import { GridFontsService } from '../../services/grid-fonts.service';
 import { MyPosition } from '../../classes/position';
+import { TooltipService } from '../../../tooltip/tooltip.service';
 
 export interface GridSurfaceRightClickEvent {
   row: number;
@@ -72,7 +73,6 @@ export class GridSurfaceTemplateComponent
   @ViewChild('boxTemplate') boxTemplate!: ElementRef<HTMLDivElement>;
   @ViewChild('canvasTemplateRef', { static: true })
   canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild('tooltip') tooltipRef!: ElementRef<HTMLDivElement>;
   @ViewChild(CellInputEventsDirective) cellInputDirective?: CellInputEventsDirective;
 
   public dataService = inject(BaseDataService);
@@ -81,6 +81,7 @@ export class GridSurfaceTemplateComponent
   public settings = inject(BaseSettingsService);
   private cellManipulation = inject(BaseCellManipulationService);
   private gridFonts = inject(GridFontsService);
+  private tooltipService = inject(TooltipService);
 
   private readonly el = inject<ElementRef<HTMLCanvasElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
@@ -102,10 +103,6 @@ export class GridSurfaceTemplateComponent
 
   public get cellInputFontFamily(): string {
     return this.gridFonts.mainFontName;
-  }
-
-  private get tooltip(): HTMLDivElement | undefined {
-    return this.tooltipRef?.nativeElement;
   }
   private _pixelRatio = 1;
   private ngUnsubscribe = new Subject<void>();
@@ -356,77 +353,19 @@ export class GridSurfaceTemplateComponent
   }
 
   showToolTip({ value, event }: { value: string; event: MouseEvent }) {
-    if (this.tooltip && this.tooltip.innerHTML !== value) {
-      this.tooltip.innerHTML = value;
-      this.tooltip.style.display = 'block';
-      this.tooltip.style.visibility = 'hidden';
-
-      const tooltipRect = this.tooltip.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-      const offset = 10;
-
-      let left = event.clientX + offset;
-      let top = event.clientY + offset;
-
-      if (left + tooltipRect.width > viewportWidth - offset) {
-        left = event.clientX - tooltipRect.width - offset;
-      }
-
-      if (top + tooltipRect.height > viewportHeight - offset) {
-        top = event.clientY - tooltipRect.height - offset;
-      }
-
-      left = Math.max(offset, left);
-      top = Math.max(offset, top);
-
-      this.tooltip.style.top = `${top}px`;
-      this.tooltip.style.left = `${left}px`;
-      this.fadeInToolTip();
-    }
+    this.tooltipService.show({
+      text: value,
+      x: event.clientX,
+      y: event.clientY,
+    });
   }
 
   hideToolTip() {
-    if (this.tooltip && parseFloat(this.tooltip.style.opacity) >= 0.9) {
-      this.fadeOutToolTip();
-    }
-  }
-
-  private fadeInToolTip() {
-    if (!this.tooltip) return;
-    this.tooltip.style.display = 'block';
-    this.tooltip.style.visibility = 'visible';
-    this.tooltip.style.opacity = '1';
-  }
-
-  private fadeOutToolTip() {
-    if (!this.tooltip) return;
-    let op = 1;
-    const timer = setInterval(() => {
-      if (op <= 0.1) {
-        clearInterval(timer);
-        this.tooltip!.style.opacity = '0';
-        this.tooltip!.style.display = 'none';
-        this.tooltip!.style.visibility = 'hidden';
-        this.tooltip!.innerHTML = '';
-        this.tooltip!.style.top = '-9000px';
-        this.tooltip!.style.left = '-9000px';
-      } else {
-        this.tooltip!.style.opacity = op.toString();
-        op -= op * 0.1;
-      }
-    }, 50);
+    this.tooltipService.hide();
   }
 
   destroyToolTip() {
-    if (this.tooltip) {
-      this.tooltip.style.opacity = '0';
-      this.tooltip.style.display = 'none';
-      this.tooltip.style.visibility = 'hidden';
-      this.tooltip.innerHTML = '';
-      this.tooltip.style.top = '-9000px';
-      this.tooltip.style.left = '-9000px';
-    }
+    this.tooltipService.hide();
   }
 
   private readSignals(): void {

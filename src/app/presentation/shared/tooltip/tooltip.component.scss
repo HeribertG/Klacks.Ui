@@ -1,0 +1,16 @@
+@use "../../../../assets/standard-styles/colors.scss";
+
+.tooltip {
+  position: fixed;
+  padding: 6px 10px;
+  background-color: colors.$tooltipBackgroundColor;
+  color: #000;
+  border: colors.$tooltipBorder;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  z-index: 99999;
+  pointer-events: none;
+}

@@ -55,6 +55,9 @@ import { ResizeDirective } from 'src/app/presentation/directives/resize.directiv
 import { ScrollbarService } from 'src/app/presentation/shared/scrollbar/scrollbar.service';
 import { ContextMenuService } from 'src/app/presentation/shared/context-menu/context-menu.service';
 import { SelectedArea } from 'src/app/presentation/shared/grid/enums/breaks_enums';
+import { TooltipService } from 'src/app/presentation/shared/tooltip/tooltip.service';
+import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';
+import { Language } from 'src/app/application/helpers/sharedItems';
 
 @Component({
   selector: 'app-absence-gantt-surface',
@@ -96,6 +99,7 @@ export class AbsenceGanttSurfaceComponent
   private clipboard = inject(Clipboard);
   private cd = inject(ChangeDetectorRef);
   private injector = inject(Injector);
+  private tooltipService = inject(TooltipService);
 
   public selectedArea: SelectedArea = SelectedArea.None;
   public isLeftMouseDown = false;
@@ -105,8 +109,6 @@ export class AbsenceGanttSurfaceComponent
   private resizeSubject = new Subject<void>();
   private ngUnsubscribe = new Subject<void>();
   private effects: EffectRef[] = [];
-
-  private tooltip: HTMLDivElement | undefined;
   private mouseToBarAlpha: { x: number; y: number } | undefined;
   private copiedBreaks: IBreakPlaceholder[] = [];
   private isAbsenceHeaderInit = false;
@@ -130,10 +132,6 @@ export class AbsenceGanttSurfaceComponent
     this.readSignals();
 
     this.drawCalendarGantt.pixelRatio = DrawHelper.pixelRatio();
-
-    this.tooltip = document.getElementById(
-      'absence-surface-tooltip'
-    ) as HTMLDivElement;
 
     this.absenceMask?.UpdateEvent.pipe(takeUntil(this.ngUnsubscribe)).subscribe(
       () => {
@@ -227,7 +225,6 @@ export class AbsenceGanttSurfaceComponent
     this.eventListeners = [];
 
     this.drawCalendarGantt.deleteCanvas();
-    this.tooltip = undefined;
   }
 
   /* #endregion ng */
@@ -661,30 +658,22 @@ export class AbsenceGanttSurfaceComponent
   /* #region ToolTips */
 
   showToolTip(value: MultiLanguage, event: MouseEvent): void {
-    const name = this.correctName(value);
-    if (this.tooltip && this.tooltip!.innerHTML !== name) {
-      this.tooltip!.innerHTML = name;
+    const lang = this.translateService.currentLang as Language;
+    const name = getLocalizedValue(value, lang);
 
-      this.tooltip!.style.display = 'block';
-      this.tooltip!.style.opacity = '1';
-      this.tooltip!.style.visibility = 'visible';
-    }
-
-    this.tooltip!.style.top = event.clientY + 'px';
-    this.tooltip!.style.left = event.clientX + 'px';
+    this.tooltipService.show({
+      text: name,
+      x: event.clientX,
+      y: event.clientY,
+    });
   }
 
   hideToolTip() {
-    this.destroyToolTip();
+    this.tooltipService.hide();
   }
 
   destroyToolTip() {
-    this.tooltip!.style.opacity = '0';
-    this.tooltip!.style.display = 'none';
-    this.tooltip!.innerHTML = '';
-    this.tooltip!.style.top = '-9000px';
-    this.tooltip!.style.left = '-9000px';
-    this.tooltip!.style.visibility = 'hidden';
+    this.tooltipService.hide();
   }
   /* #endregion ToolTips */
 
@@ -695,15 +684,6 @@ export class AbsenceGanttSurfaceComponent
     return bodyStyles.getPropertyValue(name);
   }
 
-  private correctName(value: MultiLanguage): string {
-    const lang = this.translateService.currentLang;
-
-    if (value[lang] !== undefined) {
-      return value[lang] ?? '';
-    }
-
-    return '';
-  }
 
   private redrawSelectedRow(): void {
     if (this.drawCalendarGantt.selectedRow >= 0) {
