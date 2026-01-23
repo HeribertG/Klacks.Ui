@@ -3,6 +3,7 @@ import { GenderEnum } from 'src/app/domain/enums/client-enum';
 import { IShift } from './shift-class';
 import { IBaseFilter } from './general-class';
 import { IPeriodHours } from './work-schedule-class';
+import { PaymentInterval } from './contract-class';
 
 export interface IWork {
   client?: IClient;
@@ -56,6 +57,8 @@ export interface IClientWork {
   type: number;
   neededRows: number;
   works: Work[];
+  hasContract: boolean;
+  contractPaymentInterval: number | null;
 }
 
 export class ClientWork implements IClientWork {
@@ -75,6 +78,8 @@ export class ClientWork implements IClientWork {
   type!: number;
   neededRows = 3;
   works: Work[] = [];
+  hasContract = false;
+  contractPaymentInterval: number | null = null;
 }
 
 export interface IWorkFilter extends IBaseFilter {

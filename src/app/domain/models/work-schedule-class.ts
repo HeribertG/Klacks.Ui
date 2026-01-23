@@ -66,6 +66,8 @@ export interface IWorkScheduleClient {
   legalEntity: boolean;
   type: number;
   neededRows: number;
+  hasContract: boolean;
+  contractPaymentInterval: number | null;
 }
 
 export interface IWorkScheduleResponse {

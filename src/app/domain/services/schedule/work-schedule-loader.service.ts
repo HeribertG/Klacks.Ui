@@ -335,6 +335,8 @@ export class WorkScheduleLoaderService {
       membershipId: '',
       neededRows: 2,
       works: [],
+      hasContract: c.hasContract ?? false,
+      contractPaymentInterval: c.contractPaymentInterval ?? null,
     }));
   }
 
