@@ -32,6 +32,8 @@ export class SignalRService implements OnDestroy {
   public reconnected$ = new Subject<void>();
 
   private currentGroup: { startDate: string; endDate: string } | null = null;
+  private pendingGroupSwitch: Promise<void> | null = null;
+  private reconnectAttemptWithExpiredToken = false;
 
   constructor() {
     this.hubUrl = environment.baseUrl.replace('/api/backend/', '/hubs/work-notifications');
@@ -145,9 +147,34 @@ export class SignalRService implements OnDestroy {
     }
   }
 
+  async refreshConnection(): Promise<void> {
+    const previousGroup = this.currentGroup;
+    await this.stopConnection();
+    await this.startConnection();
+
+    if (previousGroup && this.isConnected) {
+      await this.joinScheduleGroup(previousGroup.startDate, previousGroup.endDate);
+    }
+  }
+
   async joinScheduleGroup(startDate: string, endDate: string): Promise<void> {
+    if (this.pendingGroupSwitch) {
+      await this.pendingGroupSwitch;
+    }
+
+    this.pendingGroupSwitch = this.performGroupSwitch(startDate, endDate);
+
+    try {
+      await this.pendingGroupSwitch;
+    } finally {
+      this.pendingGroupSwitch = null;
+    }
+  }
+
+  private async performGroupSwitch(startDate: string, endDate: string): Promise<void> {
     if (!this.hubConnection || !this.isConnected) {
       console.warn('SignalR: Cannot join group - not connected');
+      this.currentGroup = { startDate, endDate };
       return;
     }
 
@@ -161,6 +188,7 @@ export class SignalRService implements OnDestroy {
       console.log(`SignalR: Joined group schedule_${startDate}_${endDate}`);
     } catch (error) {
       console.error('SignalR: Failed to join group', error);
+      this.currentGroup = { startDate, endDate };
     }
   }
 
@@ -222,10 +250,22 @@ export class SignalRService implements OnDestroy {
     this.hubConnection.onreconnecting(() => {
       console.log('SignalR reconnecting...');
       this._isConnected.set(false);
+
+      const token = this.localStorageService.get(StorageKeys.TOKEN);
+      if (token && this.isTokenExpired(token)) {
+        console.warn('SignalR: Token expired during reconnect - connection may fail');
+        this.reconnectAttemptWithExpiredToken = true;
+      }
     });
 
     this.hubConnection.onreconnected(async (connectionId) => {
       console.log('SignalR reconnected with ID:', connectionId);
+
+      if (this.reconnectAttemptWithExpiredToken) {
+        console.warn('SignalR: Reconnected with potentially expired token - consider refreshing connection');
+        this.reconnectAttemptWithExpiredToken = false;
+      }
+
       if (connectionId) {
         this._connectionId.set(connectionId);
       } else {
@@ -237,9 +277,14 @@ export class SignalRService implements OnDestroy {
       this.reconnected$.next();
     });
 
-    this.hubConnection.onclose(() => {
-      console.log('SignalR connection closed');
+    this.hubConnection.onclose((error) => {
+      console.log('SignalR connection closed', error);
       this._isConnected.set(false);
+
+      if (this.reconnectAttemptWithExpiredToken) {
+        console.warn('SignalR: Connection closed, possibly due to expired token');
+        this.reconnectAttemptWithExpiredToken = false;
+      }
     });
   }
 
