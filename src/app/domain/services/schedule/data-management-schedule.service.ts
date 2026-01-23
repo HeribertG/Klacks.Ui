@@ -268,8 +268,8 @@ export class DataManagementScheduleService implements ILoadable {
     workTime: number;
     startTime: string;
     endTime: string;
-  }): void {
-    this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
+  }): Promise<void> {
+    return this.workScheduleCrud.addWorkScheduleEntry(params, this.workFilter);
   }
 
   deleteWorkScheduleEntry(
@@ -293,8 +293,8 @@ export class DataManagementScheduleService implements ILoadable {
     );
   }
 
-  refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
-    this.workScheduleCrud.refreshClientScheduleForDays(clientId, centerDate);
+  refreshClientScheduleForDays(clientId: string, centerDate: Date): Promise<void> {
+    return this.workScheduleCrud.refreshClientScheduleForDays(clientId, centerDate);
   }
 
   private isFilter_Dirty(): boolean {

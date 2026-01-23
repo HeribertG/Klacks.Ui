@@ -20,6 +20,7 @@ export interface BulkWorksResponse {
   createdIds: string[];
   deletedIds: string[];
   affectedShifts: ShiftDatePair[];
+  periodHours?: Record<string, { hours: number; surcharges: number; guaranteedHours: number }>;
 }
 
 @Injectable({

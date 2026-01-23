@@ -39,7 +39,7 @@ export class WorkScheduleCrudService {
   public scheduleRefreshed = signal<boolean>(false);
   public shiftScheduleRefreshed = signal<boolean>(false);
 
-  addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): void {
+  addWorkScheduleEntry(params: ScheduleCellParams, workFilter: IWorkFilter): Promise<void> {
     this.updateShiftEngagedLocally(params.shiftId, params.date, 1, workFilter);
 
     const periodStart = this.workScheduleLoader.startDate
@@ -49,11 +49,11 @@ export class WorkScheduleCrudService {
       ? formatDateOnly(this.workScheduleLoader.endDate)
       : formatDateOnly(new Date());
 
-    this.workCrud.createWork({ ...params, periodStart, periodEnd }).then((response) => {
+    return this.workCrud.createWork({ ...params, periodStart, periodEnd }).then(async (response) => {
       if (response.periodHours) {
         this.workScheduleLoader.periodHours.set(params.clientId, response.periodHours);
       }
-      this.refreshClientScheduleForDays(params.clientId, params.date);
+      await this.refreshClientScheduleForDays(params.clientId, params.date);
     });
   }
 
@@ -79,8 +79,20 @@ export class WorkScheduleCrudService {
 
     const workIds = entries.map(e => e.workId);
 
-    this.workCrud.bulkDeleteWorks(workIds).then((response) => {
+    this.workCrud.bulkDeleteWorks(workIds).then(async (response) => {
       if (response.successCount === 0) return;
+
+      console.log('BulkDelete Response:', response);
+      console.log('PeriodHours from backend:', response.periodHours);
+
+      if (response.periodHours) {
+        for (const [clientId, hours] of Object.entries(response.periodHours)) {
+          console.log(`Setting periodHours for client ${clientId}:`, hours);
+          this.workScheduleLoader.periodHours.set(clientId, hours);
+        }
+      } else {
+        console.warn('No periodHours in bulkDelete response!');
+      }
 
       const clientShiftDates = new Map<string, Set<number>>();
       for (const entry of entries) {
@@ -103,12 +115,15 @@ export class WorkScheduleCrudService {
         clientRanges.get(clientId)!.push(...ranges);
       }
 
+      const refreshPromises: Promise<void>[] = [];
       for (const [clientId, ranges] of clientRanges) {
         const mergedRanges = this.mergeClientDateRanges(ranges);
         for (const range of mergedRanges) {
-          this.refreshClientScheduleForDateRange(clientId, range.start, range.end);
+          refreshPromises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
         }
       }
+
+      await Promise.all(refreshPromises);
 
       this.bulkUpdateShiftEngagedLocally(entries, workFilter);
 
@@ -116,31 +131,35 @@ export class WorkScheduleCrudService {
     });
   }
 
-  public refreshClientScheduleForDays(clientId: string, centerDate: Date): void {
+  public refreshClientScheduleForDays(clientId: string, centerDate: Date): Promise<void> {
     const startDate = addDays(centerDate, -1);
     const endDate = addDays(centerDate, 1);
-    this.refreshClientScheduleForDateRange(clientId, startDate, endDate);
+    return this.refreshClientScheduleForDateRange(clientId, startDate, endDate);
   }
 
-  private refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): void {
+  private refreshClientScheduleForDateRange(clientId: string, startDate: Date, endDate: Date): Promise<void> {
     const filter: IWorkScheduleFilter = {
       startDate: formatDateOnly(startDate),
       endDate: formatDateOnly(endDate),
     };
 
-    this.dataWorkSchedule.getWorkSchedule(filter)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          const clientEntries = response.entries.filter(e => e.clientId === clientId);
-          this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
+    return new Promise<void>((resolve, reject) => {
+      this.dataWorkSchedule.getWorkSchedule(filter)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => {
+            const clientEntries = response.entries.filter(e => e.clientId === clientId);
+            this.workScheduleLoader.replaceClientEntriesForDays(clientId, startDate, endDate, clientEntries);
 
-          this.triggerScheduleRefresh();
-        },
-        error: (err) => {
-          console.error('Error refreshing schedule:', err);
-        },
-      });
+            this.triggerScheduleRefresh();
+            resolve();
+          },
+          error: (err) => {
+            console.error('Error refreshing schedule:', err);
+            reject(err);
+          },
+        });
+    });
   }
 
   private updateShiftEngagedLocally(shiftId: string, date: Date, delta: number, workFilter: IWorkFilter): void {

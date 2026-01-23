@@ -29,6 +29,7 @@ import { ShiftDataService } from 'src/app/presentation/workplace/schedule/shift-
 import { ScheduleDataService } from 'src/app/presentation/workplace/schedule/schedule-section/services/schedule-data.service';
 import { DataManagementScheduleService } from 'src/app/domain/services/schedule/data-management-schedule.service';
 import { FillHandleService } from 'src/app/presentation/workplace/schedule/services/fill-handle.service';
+import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 
 @Directive({
   selector: '[appGridTemplateEvents]',
@@ -46,6 +47,7 @@ export class GridTemplateEventsDirective {
   private shiftDragService = inject(ShiftToScheduleDragDropService);
   private dataManagementSchedule = inject(DataManagementScheduleService);
   private fillHandleService = inject(FillHandleService);
+  private gridFonts = inject(GridFontsService);
 
   @Output() rightClick = new EventEmitter<GridRightClickEvent>();
 
@@ -998,15 +1000,15 @@ export class GridTemplateEventsDirective {
     const ctx = this.gridSurface.drawSchedule['canvasManager'].ctx;
     if (!ctx) return;
 
-    ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#4a90d9';
-
     const firstVisibleCol = this.scrollGrid.horizontalScrollPosition;
     const firstVisibleRow = this.scrollGrid.verticalScrollPosition;
     const cellWidth = this.gridSettings.cellWidth;
     const cellHeight = this.gridSettings.cellHeight;
     const headerHeight = this.gridSettings.cellHeaderHeight;
+
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = '#4a90d9';
 
     for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
       const x = (col - firstVisibleCol) * cellWidth;
@@ -1015,9 +1017,33 @@ export class GridTemplateEventsDirective {
     }
 
     ctx.restore();
+
+    const startCell = this.gridData.getCell(state.startPosition.row, state.startPosition.column);
+    const previewText = startCell?.mainText;
+
+    if (previewText) {
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.fillStyle = '#000000';
+      ctx.font = this.gridFonts.mainFontStringZoom;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (let col = state.startPosition.column + 1; col <= state.currentColumn; col++) {
+        const isActive = this.gridData.isCellActive(state.startPosition.row, col);
+
+        if (!isActive) {
+          const x = (col - firstVisibleCol) * cellWidth + cellWidth / 2;
+          const y = (state.startPosition.row - firstVisibleRow) * cellHeight + headerHeight + cellHeight / 2;
+          ctx.fillText(previewText, x, y);
+        }
+      }
+
+      ctx.restore();
+    }
   }
 
-  private handleFillHandleDrop(): void {
+  private async handleFillHandleDrop(): Promise<void> {
     this.stopAutoScroll();
     const result = this.fillHandleService.endDrag();
     this.el.nativeElement.style.cursor = 'default';
@@ -1028,6 +1054,7 @@ export class GridTemplateEventsDirective {
     }
 
     const scheduleDataService = this.gridData as ScheduleDataService;
+    const promises: Promise<void>[] = [];
 
     for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
       if (scheduleDataService.isColumnSealed(col)) {
@@ -1066,7 +1093,7 @@ export class GridTemplateEventsDirective {
         continue;
       }
 
-      this.dataManagementSchedule.addWorkScheduleEntry({
+      const promise = this.dataManagementSchedule.addWorkScheduleEntry({
         clientId: client.id,
         date: date,
         shiftId: result.shiftId,
@@ -1074,8 +1101,10 @@ export class GridTemplateEventsDirective {
         startTime: shiftAvailable.startShift,
         endTime: shiftAvailable.endShift,
       });
+      promises.push(promise);
     }
 
+    await Promise.all(promises);
     this.gridSurface.drawSchedule.refresh();
   }
 
