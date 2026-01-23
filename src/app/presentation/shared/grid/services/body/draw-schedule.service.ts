@@ -576,6 +576,7 @@ export class BaseDrawScheduleService {
   ): void {
     this.canvasManager.ctx!.save();
     this.canvasManager.ctx!.globalAlpha = 0.5;
+    this.canvasManager.ctx!.fillStyle = '#000000';
 
     for (let row = minRow; row < maxRow; row++) {
       for (let col = minCol; col < maxCol; col++) {
@@ -597,7 +598,7 @@ export class BaseDrawScheduleService {
             this.gridFonts.mainFontHeightZoom,
             this.gridFonts.mainFontStringZoom,
             +this.gridFonts.mainFontSizeZoom,
-            this.gridColors.mainFontColor,
+            '#000000',
             TextAlignmentEnum.Center,
             BaselineAlignmentEnum.Center
           );
