@@ -51,3 +51,20 @@ export function isNumericInt(c: string | null | undefined): boolean {
   if (c == null) return false;
   return /^-?\d+$/.test(c);
 }
+
+export function areEqual(
+  left: Identifier | ScriptValue | null,
+  right: Identifier | ScriptValue | null
+): boolean {
+  const leftValue = left instanceof Identifier ? left.value : (left ?? ScriptValue.Null);
+  const rightValue = right instanceof Identifier ? right.value : (right ?? ScriptValue.Null);
+
+  const leftIsNumeric = leftValue.isNumber || leftValue.isBoolean;
+  const rightIsNumeric = rightValue.isNumber || rightValue.isBoolean;
+
+  if (leftIsNumeric && rightIsNumeric) {
+    return leftValue.asDouble() === rightValue.asDouble();
+  }
+
+  return leftValue.asString() === rightValue.asString();
+}

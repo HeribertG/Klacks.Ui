@@ -151,20 +151,30 @@ export class ScriptValue {
   }
 
   equals(other: ScriptValue): boolean {
-    if (this._type !== other._type) return false;
-    switch (this._type) {
-      case ScriptValueType.Null:
-        return true;
-      case ScriptValueType.Number:
-      case ScriptValueType.Boolean:
-        return this._numberValue === other._numberValue;
-      case ScriptValueType.String:
-        return this._objectValue === other._objectValue;
-      case ScriptValueType.Object:
-        return this._objectValue === other._objectValue;
-      default:
-        return false;
+    if (this._type === other._type) {
+      switch (this._type) {
+        case ScriptValueType.Null:
+          return true;
+        case ScriptValueType.Number:
+        case ScriptValueType.Boolean:
+          return this._numberValue === other._numberValue;
+        case ScriptValueType.String:
+          return this._objectValue === other._objectValue;
+        case ScriptValueType.Object:
+          return this._objectValue === other._objectValue;
+        default:
+          return false;
+      }
     }
+
+    if (
+      (this._type === ScriptValueType.Boolean && other._type === ScriptValueType.Number) ||
+      (this._type === ScriptValueType.Number && other._type === ScriptValueType.Boolean)
+    ) {
+      return this._numberValue === other._numberValue;
+    }
+
+    return false;
   }
 
   add(other: ScriptValue): ScriptValue {

@@ -11,7 +11,7 @@ import {
 import { ScriptValue } from './script-value';
 import { Scope, Entry } from './scope';
 import { Scopes } from './scopes';
-import { extractDouble, extractInt, extractString } from './helper';
+import { extractDouble, extractInt, extractString, areEqual } from './helper';
 
 export type MessageEventHandler = (type: number, message: string) => void;
 export type DebugPrintEventHandler = (msg: string) => void;
@@ -461,14 +461,10 @@ export class ScriptExecutionContext {
           );
           break;
         case Opcodes.Eq:
-          result = ScriptValue.fromBoolean(
-            extractString(accumulator) === extractString(register)
-          );
+          result = ScriptValue.fromBoolean(areEqual(accumulator, register));
           break;
         case Opcodes.NotEq:
-          result = ScriptValue.fromBoolean(
-            extractString(accumulator) !== extractString(register)
-          );
+          result = ScriptValue.fromBoolean(!areEqual(accumulator, register));
           break;
         case Opcodes.Lt:
           result = ScriptValue.fromBoolean(
