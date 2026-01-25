@@ -11,6 +11,9 @@ export interface IAppContactSettings {
   email: string;
   accountingStart: number;
   mark: string;
+  globalCalendarCountry: string;
+  globalCalendarState: string;
+  globalCalendarSelectionId: string;
 }
 
 export interface IEmailServerSettings {
@@ -39,6 +42,9 @@ export class AppContactSettings implements IAppContactSettings {
   email = '';
   accountingStart = 0;
   mark = '';
+  globalCalendarCountry = '';
+  globalCalendarState = '';
+  globalCalendarSelectionId = '';
 }
 
 export class EmailServerSettings implements IEmailServerSettings {

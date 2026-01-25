@@ -113,31 +113,80 @@
 
     <div id="owner-address-state-country-row" class="row-line">
       <div class="form-group firstColumn">
+        <label for="setting-owner-address-country">{{
+          translate.instant("setting.owner-address.country")
+        }}</label>
+        <select
+          id="setting-owner-address-country"
+          class="form-control form-select"
+          [ngModel]="selectedCountry()"
+          (ngModelChange)="onCountryChange($event)"
+          aria-label="appAddressCountry"
+        >
+          <option value="">
+            {{ translate.instant("setting.owner-address.noCountry") }}
+          </option>
+          @for (
+            country of clientConfigService.countries();
+            track country.abbreviation
+          ) {
+            <option [value]="country.abbreviation">
+              {{ country.name | fallback: currentLang }}
+            </option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group secondColumn">
         <label for="setting-owner-address-state">{{
           translate.instant("setting.owner-address.state")
         }}</label>
-        <input
+        <select
           id="setting-owner-address-state"
-          type="text"
-          class="form-control"
-          [field]="addressForm.state"
+          class="form-control form-select"
+          [ngModel]="selectedState()"
+          (ngModelChange)="onStateChange($event)"
+          [disabled]="!selectedCountry()"
           aria-label="appAddressState"
-        />
+        >
+          <option value="">
+            {{ translate.instant("setting.owner-address.noState") }}
+          </option>
+          @for (state of filteredStateList(); track state.state) {
+            <option [value]="state.state">
+              {{ state.stateName | fallback: currentLang }}
+            </option>
+          }
+        </select>
       </div>
+    </div>
 
-      <div>
-        <div class="form-group secondColumn">
-          <label for="setting-owner-address-country">{{
-            translate.instant("setting.owner-address.country")
-          }}</label>
-          <input
-            id="setting-owner-address-country"
-            type="text"
-            class="form-control"
-            [field]="addressForm.country"
-            aria-label="appAddressCountry"
-          />
-        </div>
+    <div id="owner-address-calendar-row" class="row-line-single">
+      <div class="form-group firstColumn">
+        <label for="setting-owner-address-calendar">{{
+          translate.instant("setting.owner-address.calendar")
+        }}</label>
+        <select
+          id="setting-owner-address-calendar"
+          class="form-control form-select"
+          [ngModel]="selectedCalendarId()"
+          (ngModelChange)="onCalendarSelectionChange($event)"
+          aria-label="appCalendarSelection"
+        >
+          <option value="">
+            {{ translate.instant("setting.owner-address.noCalendar") }}
+          </option>
+          @for (
+            calendar of calendarSelectionService.calendarsSelections;
+            track calendar.id
+          ) {
+            @if (!calendar.internal) {
+              <option [value]="calendar.id">
+                {{ calendar.name }}
+              </option>
+            }
+          }
+        </select>
       </div>
     </div>
 

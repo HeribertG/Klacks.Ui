@@ -1,14 +1,13 @@
-@use '../../../../../assets/standard-styles/dragDropFileUpLoad.scss';
-@use '../../../../../assets/standard-styles/standard-controls.scss';
-@use '../../../../../assets/standard-styles/toggle-switch.scss';
-@use '../../../../../assets/standard-styles/standard-card-interior.scss';
-
+@use "../../../../../assets/standard-styles/dragDropFileUpLoad.scss";
+@use "../../../../../assets/standard-styles/standard-controls.scss";
+@use "../../../../../assets/standard-styles/toggle-switch.scss";
+@use "../../../../../assets/standard-styles/standard-card-interior.scss";
+@use "../../../../../assets/standard-styles/colors.scss" as colors;
 
 .first {
   padding-top: 10px;
   margin-left: 30px;
   padding-right: 40px;
-
 }
 
 input {
@@ -16,17 +15,17 @@ input {
   height: 32px;
 }
 
-
+select {
+  width: 420px;
+  height: 32px;
+}
 .row-line {
   margin-top: 5px;
   display: inline-flex;
-
 }
 .row-line-single {
   margin-top: 5px;
-
 }
-
 
 .firstColumn {
   margin-left: 30px;
@@ -34,4 +33,51 @@ input {
 
 .secondColumn {
   margin-left: 40px;
+}
+
+.calendar-section {
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--colorWorkplaceHeadline);
+  }
+}
+
+.calendar-selector-container {
+  display: flex;
+  align-items: center;
+}
+
+.btn-calendar-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 15px;
+  background-color: var(--colorCardBackground);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: var(--colorWorkplaceHeadline);
+  min-width: 200px;
+
+  &:hover {
+    background-color: var(--colorCardBackgroundHover);
+  }
+
+  .calendar-name {
+    flex: 1;
+    text-align: left;
+  }
+}
+
+.calendar-dropdown-menu {
+  min-width: 200px;
+  background-color: var(--colorCardBackgroundHover);
+  color: var(--colorWorkplaceHeadline);
+  button {
+    &.active {
+      background-color: colors.$standartGreenColor;
+      color: colors.$standartWhiteColor;
+    }
+  }
 }

@@ -53,6 +53,10 @@ export class AppSetting {
   public static WORK_SO_RATE = 'soRate';
   public static WORK_DAY_VISIBLE_BEFORE = 'dayVisibleBefore';
   public static WORK_DAY_VISIBLE_AFTER = 'dayVisibleAfter';
+
+  public static GLOBAL_CALENDAR_COUNTRY = 'globalCalendarCountry';
+  public static GLOBAL_CALENDAR_STATE = 'globalCalendarState';
+  public static GLOBAL_CALENDAR_SELECTION_ID = 'globalCalendarSelectionId';
 }
 
 export interface IMacroType {

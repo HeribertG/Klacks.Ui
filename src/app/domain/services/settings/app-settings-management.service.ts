@@ -138,6 +138,15 @@ export class AppSettingsManagementService {
         case AppSetting.APP_MARK:
           contact.mark = setting.value;
           break;
+        case AppSetting.GLOBAL_CALENDAR_COUNTRY:
+          contact.globalCalendarCountry = setting.value;
+          break;
+        case AppSetting.GLOBAL_CALENDAR_STATE:
+          contact.globalCalendarState = setting.value;
+          break;
+        case AppSetting.GLOBAL_CALENDAR_SELECTION_ID:
+          contact.globalCalendarSelectionId = setting.value;
+          break;
 
         case AppSetting.APP_OUTGOING_SERVER:
           email.outgoingServer = setting.value;
@@ -268,6 +277,9 @@ export class AppSettingsManagementService {
     this.saveSetting(contact.email, contactOriginal.email, AppSetting.APP_ADDRESS_MAIL);
     this.saveSetting(contact.accountingStart.toString(), contactOriginal.accountingStart.toString(), AppSetting.APP_ACCOUNTING_START);
     this.saveSetting(contact.mark, contactOriginal.mark, AppSetting.APP_MARK);
+    this.saveSetting(contact.globalCalendarCountry, contactOriginal.globalCalendarCountry, AppSetting.GLOBAL_CALENDAR_COUNTRY);
+    this.saveSetting(contact.globalCalendarState, contactOriginal.globalCalendarState, AppSetting.GLOBAL_CALENDAR_STATE);
+    this.saveSetting(contact.globalCalendarSelectionId, contactOriginal.globalCalendarSelectionId, AppSetting.GLOBAL_CALENDAR_SELECTION_ID);
 
     // Save email settings
     this.saveSetting(email.outgoingServer, emailOriginal.outgoingServer, AppSetting.APP_OUTGOING_SERVER);
