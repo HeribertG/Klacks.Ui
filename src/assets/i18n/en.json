@@ -42,6 +42,7 @@
   "contextMenu.showInShift": "Show in shift schedule",
   "contextMenu.showInSchedule": "Show in work schedule",
   "contextMenu.shifts": "Shifts...",
+  "contextMenu.absences": "Absences...",
 
   "absence-gantt.absence-gantt-header.absence-gantt-header.search": "Search",
   "absence-gantt.absence-gantt-header.absence-gantt-header.year": "Year: ",

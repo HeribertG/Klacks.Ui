@@ -62,6 +62,10 @@ import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift
 import { IconUnknownTimeComponent } from 'src/app/presentation/icons/icon-unknown-time.component';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';
 import { TranslateService } from '@ngx-translate/core';
+import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
+import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
+import { BreakPlaceholder } from 'src/app/domain/models/break-class';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -128,6 +132,8 @@ export class ScheduleSectionComponent
   private showInShiftService = inject(ShowInShiftService);
   private showInScheduleService = inject(ShowInScheduleService);
   private translateService = inject(TranslateService);
+  private absenceMenuService = inject(AbsenceMenuService);
+  private breakPlaceholderService = inject(DataManagementBreakPlaceholderService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -142,6 +148,7 @@ export class ScheduleSectionComponent
   ngOnInit(): void {
     this.tooltipService.initLanguage();
     this.settings.editable = true;
+    this.absenceMenuService.loadAbsencesIfNeeded();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -434,6 +441,17 @@ export class ScheduleSectionComponent
         dienstMenuItem.menu = shiftsSubmenu;
         menuData.list.push(dienstMenuItem);
       }
+
+      const absencesSubmenu = this.createAbsencesSubmenu();
+      if (absencesSubmenu && absencesSubmenu.list.length > 0) {
+        if (!shiftsSubmenu || shiftsSubmenu.list.length === 0) {
+          menuData.list.push(...MenuDataTemplate.divider());
+        }
+        const absenceMenuItem = new MenuItem('absenzen', this.translateService.instant('contextMenu.absences'), false);
+        absenceMenuItem.hasMenu = true;
+        absenceMenuItem.menu = absencesSubmenu;
+        menuData.list.push(absenceMenuItem);
+      }
     }
 
     const pasteMenu = menuData.list.find((x) => x.key === 'paste');
@@ -515,6 +533,34 @@ export class ScheduleSectionComponent
     });
   }
 
+  private createAbsencesSubmenu(): Menu | undefined {
+    const language = this.translateService.currentLang || 'en';
+    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
+
+    if (absenceItems.length === 0) return undefined;
+
+    const submenu = new Menu();
+
+    for (const item of absenceItems) {
+      const menuItem = new MenuItem('absence', item.name, false);
+      menuItem.valueKey = item.id;
+
+      if (item.isDetail) {
+        if (item.mode === AbsenceDetailMode.TimeRange && item.startTime && item.endTime) {
+          const startTime = this.formatTimeHHMM(item.startTime);
+          const endTime = this.formatTimeHHMM(item.endTime);
+          menuItem.subText = `(${startTime} - ${endTime})`;
+        } else if (item.mode === AbsenceDetailMode.Duration && item.duration) {
+          menuItem.subText = `(${item.duration}h)`;
+        }
+      }
+
+      submenu.list.push(menuItem);
+    }
+
+    return submenu;
+  }
+
   private menuClicked(keys: string[]): void {
     if (!keys || keys.length === 0) return;
 
@@ -543,6 +589,10 @@ export class ScheduleSectionComponent
       case 'shift':
         this.contextMenu.closeMenu(true);
         this.addWorkFromShiftMenu(keys[1]);
+        break;
+      case 'absence':
+        this.contextMenu.closeMenu(true);
+        this.addBreakFromAbsenceMenu(keys[1]);
         break;
     }
   }
@@ -574,6 +624,38 @@ export class ScheduleSectionComponent
       startTime: shift.startShift,
       endTime: shift.endShift,
     });
+  }
+
+  private addBreakFromAbsenceMenu(absenceItemId: string): void {
+    if (!absenceItemId) return;
+
+    const dataService = this.scheduleSurface.dataService as ScheduleDataService;
+    if (!dataService.startDate) return;
+
+    const clientIndex = dataService.rowGroupIndex[this.contextMenuRow];
+    if (clientIndex === undefined) return;
+
+    const client = this.dataManagement.clients[clientIndex];
+    if (!client?.id) return;
+
+    const targetDate = addDays(dataService.startDate, this.contextMenuColumn);
+
+    const language = this.translateService.currentLang || 'en';
+    const absenceItems = this.absenceMenuService.getAbsenceMenuItems(language);
+    const selectedItem = absenceItems.find(item => item.id === absenceItemId);
+
+    if (!selectedItem) return;
+
+    const breakClientIndex = this.breakPlaceholderService.clients.findIndex(c => c.id === client.id);
+    if (breakClientIndex === -1) return;
+
+    const breakPlaceholder = new BreakPlaceholder();
+    breakPlaceholder.clientId = client.id;
+    breakPlaceholder.absenceId = selectedItem.absenceId;
+    breakPlaceholder.from = targetDate;
+    breakPlaceholder.until = targetDate;
+
+    this.breakPlaceholderService.addBreak(breakClientIndex, breakPlaceholder);
   }
 
   private showSelectedShiftInShiftSection(): void {
