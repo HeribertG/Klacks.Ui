@@ -9,6 +9,21 @@ export interface BulkDeleteWorksRequest {
   workIds: string[];
 }
 
+export interface BulkAddWorkItem {
+  clientId: string;
+  shiftId: string;
+  currentDate: string;
+  workTime: number;
+  startTime: string;
+  endTime: string;
+}
+
+export interface BulkAddWorksRequest {
+  works: BulkAddWorkItem[];
+  periodStart: string;
+  periodEnd: string;
+}
+
 export interface ShiftDatePair {
   shiftId: string;
   date: string;
@@ -59,6 +74,12 @@ export class DataScheduleService {
     const request: BulkDeleteWorksRequest = { workIds };
     return this.httpClient
       .delete<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, { body: request })
+      .pipe(retry(3));
+  }
+
+  bulkAddWorks(request: BulkAddWorksRequest) {
+    return this.httpClient
+      .post<BulkWorksResponse>(`${environment.baseUrl}Works/Bulk`, request)
       .pipe(retry(3));
   }
 

@@ -349,6 +349,15 @@ export class ScheduleDataService extends BaseDataService {
     startCol: number,
     data: string[][]
   ): void {
+    const entriesToAdd: {
+      clientId: string;
+      date: Date;
+      shiftId: string;
+      workTime: number;
+      startTime: string;
+      endTime: string;
+    }[] = [];
+
     for (let rowOffset = 0; rowOffset < data.length; rowOffset++) {
       const rowData = data[rowOffset];
       for (let colOffset = 0; colOffset < rowData.length; colOffset++) {
@@ -391,7 +400,7 @@ export class ScheduleDataService extends BaseDataService {
           continue;
         }
 
-        this.dataManagementSchedule.addWorkScheduleEntry({
+        entriesToAdd.push({
           clientId: client.id,
           date: date,
           shiftId: matchingShift.shiftId,
@@ -400,6 +409,10 @@ export class ScheduleDataService extends BaseDataService {
           endTime: matchingShift.endShift,
         });
       }
+    }
+
+    if (entriesToAdd.length > 0) {
+      this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
     }
   }
 

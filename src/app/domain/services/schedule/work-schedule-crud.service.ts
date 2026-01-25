@@ -57,6 +57,78 @@ export class WorkScheduleCrudService {
     });
   }
 
+  async bulkAddWorkScheduleEntries(entries: ScheduleCellParams[], workFilter: IWorkFilter): Promise<void> {
+    if (entries.length === 0) return;
+
+    for (const entry of entries) {
+      this.updateShiftEngagedLocally(entry.shiftId, entry.date, 1, workFilter);
+    }
+
+    const periodStart = this.workScheduleLoader.startDate
+      ? formatDateOnly(this.workScheduleLoader.startDate)
+      : formatDateOnly(new Date());
+    const periodEnd = this.workScheduleLoader.endDate
+      ? formatDateOnly(this.workScheduleLoader.endDate)
+      : formatDateOnly(new Date());
+
+    const response = await this.workCrud.bulkCreateWorks({
+      entries: entries.map(e => ({
+        clientId: e.clientId,
+        shiftId: e.shiftId,
+        date: e.date,
+        workTime: e.workTime,
+        startTime: e.startTime,
+        endTime: e.endTime,
+      })),
+      periodStart,
+      periodEnd,
+    });
+
+    if (response.periodHours) {
+      for (const [clientId, hours] of Object.entries(response.periodHours)) {
+        this.workScheduleLoader.periodHours.set(clientId, hours);
+      }
+    }
+
+    const clientRanges = this.calculateBulkAddClientDateRanges(entries);
+
+    const refreshPromises: Promise<void>[] = [];
+    for (const [clientId, range] of clientRanges) {
+      refreshPromises.push(this.refreshClientScheduleForDateRange(clientId, range.start, range.end));
+    }
+
+    await Promise.all(refreshPromises);
+
+    this.workScheduleLoader.updateClientNeededRows();
+  }
+
+  private calculateBulkAddClientDateRanges(entries: ScheduleCellParams[]): Map<string, { start: Date; end: Date }> {
+    const clientDates = new Map<string, { min: number; max: number }>();
+
+    for (const entry of entries) {
+      const timestamp = entry.date.getTime();
+      const existing = clientDates.get(entry.clientId);
+
+      if (existing) {
+        existing.min = Math.min(existing.min, timestamp);
+        existing.max = Math.max(existing.max, timestamp);
+      } else {
+        clientDates.set(entry.clientId, { min: timestamp, max: timestamp });
+      }
+    }
+
+    const clientRanges = new Map<string, { start: Date; end: Date }>();
+
+    for (const [clientId, range] of clientDates) {
+      clientRanges.set(clientId, {
+        start: addDays(new Date(range.min), -1),
+        end: addDays(new Date(range.max), 1),
+      });
+    }
+
+    return clientRanges;
+  }
+
   deleteWorkScheduleEntry(params: DeleteWorkScheduleEntryParams, workFilter: IWorkFilter): void {
     const periodStart = this.workScheduleLoader.startDate
       ? formatDateOnly(this.workScheduleLoader.startDate)
@@ -82,16 +154,10 @@ export class WorkScheduleCrudService {
     this.workCrud.bulkDeleteWorks(workIds).then(async (response) => {
       if (response.successCount === 0) return;
 
-      console.log('BulkDelete Response:', response);
-      console.log('PeriodHours from backend:', response.periodHours);
-
       if (response.periodHours) {
         for (const [clientId, hours] of Object.entries(response.periodHours)) {
-          console.log(`Setting periodHours for client ${clientId}:`, hours);
           this.workScheduleLoader.periodHours.set(clientId, hours);
         }
-      } else {
-        console.warn('No periodHours in bulkDelete response!');
       }
 
       const clientShiftDates = new Map<string, Set<number>>();

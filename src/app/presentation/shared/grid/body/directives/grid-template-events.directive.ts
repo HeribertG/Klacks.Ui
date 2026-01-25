@@ -1054,7 +1054,14 @@ export class GridTemplateEventsDirective {
     }
 
     const scheduleDataService = this.gridData as ScheduleDataService;
-    const promises: Promise<void>[] = [];
+    const entriesToAdd: {
+      clientId: string;
+      date: Date;
+      shiftId: string;
+      workTime: number;
+      startTime: string;
+      endTime: string;
+    }[] = [];
 
     for (let col = result.startColumn + 1; col <= result.endColumn; col++) {
       if (scheduleDataService.isColumnSealed(col)) {
@@ -1093,7 +1100,7 @@ export class GridTemplateEventsDirective {
         continue;
       }
 
-      const promise = this.dataManagementSchedule.addWorkScheduleEntry({
+      entriesToAdd.push({
         clientId: client.id,
         date: date,
         shiftId: result.shiftId,
@@ -1101,10 +1108,12 @@ export class GridTemplateEventsDirective {
         startTime: shiftAvailable.startShift,
         endTime: shiftAvailable.endShift,
       });
-      promises.push(promise);
     }
 
-    await Promise.all(promises);
+    if (entriesToAdd.length > 0) {
+      await this.dataManagementSchedule.bulkAddWorkScheduleEntries(entriesToAdd);
+    }
+
     this.gridSurface.drawSchedule.refresh();
   }
 

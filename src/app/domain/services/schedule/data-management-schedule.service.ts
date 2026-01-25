@@ -35,6 +35,7 @@ import { AvailableShiftsCalculatorService } from './available-shifts-calculator.
 import {
   WorkScheduleCrudService,
   DeleteWorkScheduleEntryParams,
+  ScheduleCellParams,
 } from './work-schedule-crud.service';
 
 @Injectable({
@@ -288,6 +289,13 @@ export class DataManagementScheduleService implements ILoadable {
     entries: DeleteWorkScheduleEntryParams[]
   ): void {
     this.workScheduleCrud.bulkDeleteWorkScheduleEntries(
+      entries,
+      this.workFilter
+    );
+  }
+
+  bulkAddWorkScheduleEntries(entries: ScheduleCellParams[]): Promise<void> {
+    return this.workScheduleCrud.bulkAddWorkScheduleEntries(
       entries,
       this.workFilter
     );

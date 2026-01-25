@@ -7,7 +7,8 @@ import {
   IWork,
   Work,
 } from 'src/app/domain/models/schedule-class';
-import { BulkWorksResponse, DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { BulkAddWorksRequest, BulkWorksResponse, DataScheduleService } from 'src/app/infrastructure/api/data-schedule.service';
+import { formatDateOnly } from 'src/app/shared/helpers/date.helper';
 
 @Injectable({
   providedIn: 'root',
@@ -116,6 +117,44 @@ export class WorkCrudService {
           next: (response) => resolve(response),
           error: (err) => {
             console.error('Error bulk deleting works:', err);
+            reject(err);
+          },
+        });
+    });
+  }
+
+  bulkCreateWorks(params: {
+    entries: {
+      clientId: string;
+      shiftId: string;
+      date: Date;
+      workTime: number;
+      startTime: string;
+      endTime: string;
+    }[];
+    periodStart: string;
+    periodEnd: string;
+  }): Promise<BulkWorksResponse> {
+    const request: BulkAddWorksRequest = {
+      works: params.entries.map(e => ({
+        clientId: e.clientId,
+        shiftId: e.shiftId,
+        currentDate: formatDateOnly(e.date),
+        workTime: e.workTime,
+        startTime: e.startTime,
+        endTime: e.endTime,
+      })),
+      periodStart: params.periodStart,
+      periodEnd: params.periodEnd,
+    };
+
+    return new Promise((resolve, reject) => {
+      this.dataSchedule.bulkAddWorks(request)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (response) => resolve(response),
+          error: (err) => {
+            console.error('Error bulk creating works:', err);
             reject(err);
           },
         });
