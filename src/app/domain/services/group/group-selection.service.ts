@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Group } from 'src/app/domain/models/group-class';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { ENTITY_STATE_PROVIDER_TOKEN } from 'src/app/domain/interfaces/entity-state-provider.interface';
-import { DataManagementBreakPlaceholderService } from '../absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from '../break/data-management-break-placeholder.service';
 import { DataManagementScheduleService } from '../schedule/data-management-schedule.service';
 import { DataManagementShiftService } from '../shift/data-management-shift.service';
 import { DataManagementClientService } from '../client/data-management-client.service';

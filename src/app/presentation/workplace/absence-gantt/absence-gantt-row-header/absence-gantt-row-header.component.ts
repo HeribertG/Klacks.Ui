@@ -18,7 +18,7 @@ import { Size } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { ClientFilterComponent } from 'src/app/presentation/shared/client-filter/client-filter.component';
 import { Subject } from 'rxjs';
 import { DrawCalendarGanttService } from 'src/app/presentation/workplace/absence-gantt/services/draw-calendar-gantt.service';

@@ -17,7 +17,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { IAbsence } from 'src/app/domain/models/absence-class';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { addDays } from 'src/app/shared/helpers/date.helper';
 import { isNgbDateStructOk, transformDateToNgbDateStruct, transformNgbDateStructToDate } from 'src/app/shared/helpers/ngb-date.helper';
 import { cloneObject, compareComplexObjects } from 'src/app/shared/helpers/object.helper';

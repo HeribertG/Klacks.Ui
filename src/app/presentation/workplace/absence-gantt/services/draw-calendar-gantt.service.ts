@@ -7,7 +7,7 @@ import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { MyPosition } from 'src/app/presentation/shared/grid/classes/position';

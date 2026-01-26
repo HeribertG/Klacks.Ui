@@ -7,7 +7,7 @@ import { CalendarSettingService } from './calendar-setting.service';
 import { RenderRowHeaderCellService } from './render-row-header-cell.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GridFontsService } from 'src/app/presentation/shared/grid/services/grid-fonts.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/services/progress-bar-animation.service';

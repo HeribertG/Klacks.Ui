@@ -1,33 +1,25 @@
 <!-- eslint-disable @angular-eslint/template/click-events-have-key-events -->
 <!-- eslint-disable @angular-eslint/template/interactive-supports-focus -->
-<!-- Delete Window -->
-<!-- <ng-template #contentDelete id="content1" let-modal role="dialog">
-  <app-deletewindow [message]="message"></app-deletewindow>
-  <div class="modal-footer">
-    <span
-      type="button"
-      class="link-button darkgrey-font font-underline"
-      (click)="modal.dismiss('Cancel click')"
-      >{{ "cancel" | translate }}</span
-    >
-    <button
-      type="button"
-      class="btn btn-danger normal-btn"
-      (click)="modal.close()"
-    >
-      {{ "button.delete" | translate }}
-    </button>
-  </div>
-</ng-template> -->
 
-<ng-template #absenceModal id="absence-modal-template" let-modal role="dialog" class="modal-window">
+<ng-template
+  #absenceModal
+  id="absence-modal-template"
+  let-modal
+  role="dialog"
+  class="modal-window"
+>
   <div id="absence-modal-header" class="modal-header">
     <div class="container-header-modal modal-title" id="modal-title1">
       {{ "setting.absence.modal.edit" | translate }}
     </div>
     <span class="filler"></span>
 
-    <div id="absence-modal-close-btn" type="button" class="close" (click)="modal.dismiss('Cross click')">
+    <div
+      id="absence-modal-close-btn"
+      type="button"
+      class="close"
+      (click)="modal.dismiss('Cross click')"
+    >
       <span
         aria-hidden="true"
         style="
@@ -52,6 +44,19 @@
           class="form-control"
           [field]="absenceForm.name"
           aria-label="ruleName"
+        />
+      </div>
+
+      <div id="absence-modal-abbreviation-row" class="row-line">
+        <label for="abbreviation">{{
+          "setting.absence.modal.abbreviation" | translate
+        }}</label>
+        <input
+          id="absence-modal-abbreviation"
+          type="text"
+          class="form-control"
+          [field]="absenceForm.abbreviation"
+          aria-label="abbreviation"
         />
       </div>
 
@@ -213,7 +218,7 @@
                     {{ "default.grid.name" | translate }}
                   </p>
                   <p class="table-header-cell-arrow noselect">
-                    {{ sortingService.getArrow('name') }}
+                    {{ sortingService.getArrow("name") }}
                   </p>
                 </div>
               </th>
@@ -228,61 +233,77 @@
                     {{ "default.grid.description" | translate }}
                   </p>
                   <p class="table-header-cell-arrow noselect">
-                    {{ sortingService.getArrow('description') }}
+                    {{ sortingService.getArrow("description") }}
                   </p>
                 </div>
               </th>
 
-              <th id="absence-header-action" class="table-header action header-action"></th>
+              <th
+                id="absence-header-action"
+                class="table-header action header-action"
+              ></th>
             </tr>
           </thead>
           <tbody id="absence-table-body">
-            @for (data of dataManagementAbsenceService.listWrapper?.absences;
-            track data.id; let i = $index) {
-            <tr
-              [id]="'absence-row-' + i"
-              class="table-row"
-              (click)="onClickedRow(data)"
-              [class.active]="data.id === highlightRowId"
-            >
-              <td [id]="'absence-cell-color-' + i" class="table-cell color-width">
-                <div
-                  [id]="'absence-color-icon-' + i"
-                  class="color-icon"
-                  [ngStyle]="{ 'background-color': data.color }"
-                ></div>
-              </td>
-              <td [id]="'absence-cell-name-' + i" class="table-cell">
-                {{ data.name | fallback : currentLang }}
-              </td>
-              <td [id]="'absence-cell-description-' + i" class="table-cell">
-                {{ data.description | fallback : currentLang }}
-              </td>
-
-              <td [id]="'absence-cell-actions-' + i" class="table-cell cell-right">
-                <div>
+            @for (
+              data of dataManagementAbsenceService.listWrapper?.absences;
+              track data.id;
+              let i = $index
+            ) {
+              <tr
+                [id]="'absence-row-' + i"
+                class="table-row"
+                (click)="onClickedRow(data)"
+                [class.active]="data.id === highlightRowId"
+              >
+                <td
+                  [id]="'absence-cell-color-' + i"
+                  class="table-cell color-width"
+                >
                   <div
-                    [id]="'absence-edit-btn-' + i"
-                    class="icon icon-padding"
-                    (click)="onEditAbsence(absenceModal, data)"
-                  >
-                    <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
-                  </div>
+                    [id]="'absence-color-icon-' + i"
+                    class="color-icon"
+                    [ngStyle]="{ 'background-color': data.color }"
+                  ></div>
+                </td>
+                <td [id]="'absence-cell-name-' + i" class="table-cell">
+                  {{ data.name | fallback: currentLang }}
+                </td>
+                <td [id]="'absence-cell-description-' + i" class="table-cell">
+                  {{ data.description | fallback: currentLang }}
+                </td>
 
-                  <div
-                    [id]="'absence-copy-btn-' + i"
-                    class="icon icon-padding"
-                    (click)="onCopyAbsence(absenceModal, data)"
-                  >
-                    <app-icon-copy-grey></app-icon-copy-grey>
-                  </div>
+                <td
+                  [id]="'absence-cell-actions-' + i"
+                  class="table-cell cell-right"
+                >
+                  <div>
+                    <div
+                      [id]="'absence-edit-btn-' + i"
+                      class="icon icon-padding"
+                      (click)="onEditAbsence(absenceModal, data)"
+                    >
+                      <app-icon-pencil-icon-grey></app-icon-pencil-icon-grey>
+                    </div>
 
-                  <div [id]="'absence-delete-btn-' + i" class="icon" (click)="openDeleteAbsence(data)">
-                    <app-icon-trash-red></app-icon-trash-red>
+                    <div
+                      [id]="'absence-copy-btn-' + i"
+                      class="icon icon-padding"
+                      (click)="onCopyAbsence(absenceModal, data)"
+                    >
+                      <app-icon-copy-grey></app-icon-copy-grey>
+                    </div>
+
+                    <div
+                      [id]="'absence-delete-btn-' + i"
+                      class="icon"
+                      (click)="openDeleteAbsence(data)"
+                    >
+                      <app-icon-trash-red></app-icon-trash-red>
+                    </div>
                   </div>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
             }
           </tbody>
         </table>

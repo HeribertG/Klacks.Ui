@@ -29,7 +29,7 @@ import { CalendarSettingService } from 'src/app/presentation/workplace/absence-g
 import { DrawHelper } from 'src/app/presentation/helpers/draw-helper';
 import { HolidayCollectionService } from 'src/app/presentation/shared/grid/services/holiday-collection.service';
 import { HolidayDate } from 'src/app/domain/models/calendar-rule-class';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { BreakPlaceholder, IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CursorEnum } from 'src/app/presentation/shared/grid/enums/cursor_enums';

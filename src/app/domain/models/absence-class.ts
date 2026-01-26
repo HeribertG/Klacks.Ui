@@ -28,6 +28,7 @@ export class TruncatedAbsence
 
 export interface IAbsence {
   id: string | undefined;
+  abbreviation?: MultiLanguage | undefined;
   name?: MultiLanguage | undefined;
   description?: MultiLanguage | undefined;
   color: string | undefined;
@@ -42,6 +43,7 @@ export interface IAbsence {
 
 export class Absence implements IAbsence {
   id = undefined;
+  abbreviation?: MultiLanguage | undefined = undefined;
   name?: MultiLanguage | undefined = undefined;
   description?: MultiLanguage | undefined = undefined;
   color = '';

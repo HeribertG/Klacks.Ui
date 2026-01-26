@@ -1,6 +1,41 @@
 import { Absence } from './absence-class';
 import { Client } from './client-class';
 import { IBaseFilter } from './general-class';
+import { IPeriodHours } from './work-schedule-class';
+
+export interface IBreak {
+  id: string | undefined;
+  clientId: string;
+  client: Client | undefined;
+  absenceId: string;
+  currentDate: Date;
+  information: string | undefined;
+  isSealed: boolean;
+  workTime: number;
+  surcharges: number;
+  startTime: string;
+  endTime: string;
+  periodHours: IPeriodHours | undefined;
+  periodStart: string | undefined;
+  periodEnd: string | undefined;
+}
+
+export class Break implements IBreak {
+  id: string | undefined = undefined;
+  clientId = '';
+  client: Client | undefined = undefined;
+  absenceId = '';
+  currentDate: Date = new Date();
+  information: string | undefined = undefined;
+  isSealed = false;
+  workTime = 0;
+  surcharges = 0;
+  startTime = '00:00:00';
+  endTime = '23:59:00';
+  periodHours: IPeriodHours | undefined = undefined;
+  periodStart: string | undefined = undefined;
+  periodEnd: string | undefined = undefined;
+}
 
 export interface IBreakPlaceholder {
   id: string | undefined;

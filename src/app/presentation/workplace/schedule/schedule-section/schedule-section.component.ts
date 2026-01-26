@@ -55,7 +55,7 @@ import { DeleteWorkScheduleEntryParams } from 'src/app/domain/services/schedule/
 import { ShowInShiftService } from '../services/show-in-shift.service';
 import { ShowInScheduleService } from '../services/show-in-schedule.service';
 import { IShiftSchedule } from 'src/app/domain/models/shift-schedule-class';
-import { addDays } from 'src/app/shared/helpers/date.helper';
+import { addDays, formatDateOnly } from 'src/app/shared/helpers/date.helper';
 import { IconTimeWindowComponent } from 'src/app/presentation/icons/icon-time-window.component';
 import { IconBoxContainerComponent } from 'src/app/presentation/icons/icon-box-container.component';
 import { IconShiftSegmentComponent } from 'src/app/presentation/icons/icon-shift-segment.component';
@@ -64,8 +64,8 @@ import { ProgressBarAnimationService } from 'src/app/presentation/shared/grid/se
 import { TranslateService } from '@ngx-translate/core';
 import { AbsenceMenuService, AbsenceMenuItem } from 'src/app/domain/services/schedule/absence-menu.service';
 import { AbsenceDetailMode } from 'src/app/domain/models/absence-detail-class';
-import { BreakPlaceholder } from 'src/app/domain/models/break-class';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { Break } from 'src/app/domain/models/break-class';
+import { DataManagementBreakService } from 'src/app/domain/services/break/data-management-break.service';
 
 @Component({
   selector: 'app-schedule-section',
@@ -133,7 +133,7 @@ export class ScheduleSectionComponent
   private showInScheduleService = inject(ShowInScheduleService);
   private translateService = inject(TranslateService);
   private absenceMenuService = inject(AbsenceMenuService);
-  private breakPlaceholderService = inject(DataManagementBreakPlaceholderService);
+  private dataManagementBreakService = inject(DataManagementBreakService);
 
   private defaultVScrollbarSize = 17;
   private defaultHScrollbarSize = 17;
@@ -656,16 +656,49 @@ export class ScheduleSectionComponent
 
     if (!selectedItem) return;
 
-    const breakClientIndex = this.breakPlaceholderService.clients.findIndex(c => c.id === client.id);
-    if (breakClientIndex === -1) return;
+    const { startTime, endTime } = this.calculateBreakTimes(selectedItem);
 
-    const breakPlaceholder = new BreakPlaceholder();
-    breakPlaceholder.clientId = client.id;
-    breakPlaceholder.absenceId = selectedItem.absenceId;
-    breakPlaceholder.from = targetDate;
-    breakPlaceholder.until = targetDate;
+    const periodStart = this.dataManagement.visibleStartDate
+      ? formatDateOnly(this.dataManagement.visibleStartDate)
+      : formatDateOnly(new Date());
+    const periodEnd = this.dataManagement.visibleEndDate
+      ? formatDateOnly(this.dataManagement.visibleEndDate)
+      : formatDateOnly(new Date());
 
-    this.breakPlaceholderService.addBreak(breakClientIndex, breakPlaceholder);
+    const breakEntry = new Break();
+    breakEntry.clientId = client.id;
+    breakEntry.absenceId = selectedItem.absenceId;
+    breakEntry.currentDate = targetDate;
+    breakEntry.startTime = startTime;
+    breakEntry.endTime = endTime;
+    breakEntry.periodStart = periodStart;
+    breakEntry.periodEnd = periodEnd;
+
+    this.dataManagementBreakService.addBreak(breakEntry).subscribe({
+      next: (response) => {
+        if (response.periodHours) {
+          this.dataManagement.periodHours.set(client.id!, response.periodHours);
+        }
+        this.scheduleSurface.Refresh(false);
+      },
+      error: (err) => {
+        console.error('Error creating break:', err);
+      }
+    });
+  }
+
+  private calculateBreakTimes(item: AbsenceMenuItem): { startTime: string; endTime: string } {
+    if (item.isDetail && item.mode === AbsenceDetailMode.TimeRange && item.startTime && item.endTime) {
+      return {
+        startTime: item.startTime,
+        endTime: item.endTime
+      };
+    }
+
+    return {
+      startTime: '00:00:00',
+      endTime: '23:59:00'
+    };
   }
 
   private showSelectedShiftInShiftSection(): void {

@@ -6,7 +6,7 @@ import { CalendarSettingService } from '../calendar-setting.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { CanvasAvailable } from 'src/app/domain/services/canvasAvailable.decorator';
 import { IBreakPlaceholder } from 'src/app/domain/models/break-class';
 import { CalendarCalculationService } from './calendar-calculation.service';

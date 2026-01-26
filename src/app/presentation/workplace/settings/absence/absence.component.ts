@@ -2,6 +2,7 @@
 import {
   AfterViewInit,
   Component,
+  effect,
   OnDestroy,
   OnInit,
   inject,
@@ -39,6 +40,7 @@ import { SimplePaginationComponent } from 'src/app/presentation/shared/simple-pa
 
 interface AbsenceFormModel {
   name: string;
+  abbreviation: string;
   description: string;
   defaultLength: number;
   defaultValue: number;
@@ -96,6 +98,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private formModel = signal<AbsenceFormModel>({
     name: '',
+    abbreviation: '',
     description: '',
     defaultLength: 0,
     defaultValue: 0,
@@ -108,8 +111,16 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   absenceForm = form(this.formModel, f => {
     debounce(f.name, 300);
+    debounce(f.abbreviation, 300);
     debounce(f.description, 300);
     debounce(f.color, 300);
+  });
+
+  private abbreviationMaxLengthEffect = effect(() => {
+    const current = this.formModel();
+    if (current.abbreviation && current.abbreviation.length > 4) {
+      this.formModel.set({ ...current, abbreviation: current.abbreviation.substring(0, 4) });
+    }
   });
 
   ngOnInit(): void {
@@ -155,6 +166,8 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
     this.currentAbsence = new Absence();
     this.currentAbsence.name = new MultiLanguage();
     this.currentAbsence.name.de = '';
+    this.currentAbsence.abbreviation = new MultiLanguage();
+    this.currentAbsence.abbreviation.de = '';
     this.currentAbsence.description = new MultiLanguage();
     this.currentAbsence.description.de = '';
     this.initFormFromAbsence();
@@ -287,6 +300,11 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       name = absence.name[lang] || absence.name.de || '';
     }
 
+    let abbreviation = '';
+    if (absence.abbreviation) {
+      abbreviation = absence.abbreviation[lang] || absence.abbreviation.de || '';
+    }
+
     let description = '';
     if (absence.description) {
       description = absence.description[lang] || absence.description.de || '';
@@ -294,6 +312,7 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.formModel.set({
       name,
+      abbreviation,
       description,
       defaultLength: absence.defaultLength || 0,
       defaultValue: absence.defaultValue || 0,
@@ -313,6 +332,11 @@ export class AbsenceComponent implements OnInit, AfterViewInit, OnDestroy {
       this.currentAbsence.name = new MultiLanguage();
     }
     this.currentAbsence.name[lang] = formData.name;
+
+    if (!this.currentAbsence.abbreviation) {
+      this.currentAbsence.abbreviation = new MultiLanguage();
+    }
+    this.currentAbsence.abbreviation[lang] = formData.abbreviation;
 
     if (!this.currentAbsence.description) {
       this.currentAbsence.description = new MultiLanguage();

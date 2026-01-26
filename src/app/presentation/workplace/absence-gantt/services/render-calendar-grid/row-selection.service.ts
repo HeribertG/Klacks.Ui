@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Rectangle } from 'src/app/shared/helpers/geometry.helper';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';
 import { IBreakPlaceholder, BreakPlaceholder } from 'src/app/domain/models/break-class';

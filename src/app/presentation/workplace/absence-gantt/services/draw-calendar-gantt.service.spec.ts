@@ -6,7 +6,7 @@ import { RenderCalendarGridService } from './render-calendar-grid';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
 import { HolidayCollectionService } from '../../../shared/grid/services/holiday-collection.service';
 import { CalendarSettingService } from './calendar-setting.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../shared/scrollbar/scroll.service';
 

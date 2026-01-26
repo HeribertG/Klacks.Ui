@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AbsenceGanttMaskComponent } from './absence-gantt-mask.component';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 
 describe('AbsenceGanttMaskComponent', () => {
     let component: AbsenceGanttMaskComponent;

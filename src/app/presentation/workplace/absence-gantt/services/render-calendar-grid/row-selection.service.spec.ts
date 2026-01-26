@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { RowSelectionService } from './row-selection.service';
 import { GanttCanvasManagerService } from '../gantt-canvas-manager.service';
 import { GridColorService } from 'src/app/domain/services/settings/grid-color.service';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { ScrollService } from '../../../../shared/scrollbar/scroll.service';
 import { CalendarSettingService } from '../calendar-setting.service';

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TestBed } from '@angular/core/testing';
 import { AbsenceSearchStrategy } from './absence-search.strategy';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 
 describe('AbsenceSearchStrategy', () => {

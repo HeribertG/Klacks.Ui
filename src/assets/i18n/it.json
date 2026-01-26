@@ -584,6 +584,7 @@
   "setting.absence.modal.edit": "Modifica assenza",
   "setting.absence.modal.internal": "Solo per uso interno",
   "setting.absence.modal.name": "Nome",
+  "setting.absence.modal.abbreviation": "Abbreviazione",
   "setting.absence.modal.sum-day": "Numero di giorni predefinito",
   "setting.absence.modal.value-day": "Valore calcolato per giorno",
   "setting.absence.modal.value-holiday": "Le festività sono calcolate",

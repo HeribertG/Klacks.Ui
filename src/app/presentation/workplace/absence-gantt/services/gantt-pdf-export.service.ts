@@ -2,7 +2,7 @@
 import { Injectable, inject } from '@angular/core';
 import { jsPDF } from 'jspdf';
 import { TranslateService } from '@ngx-translate/core';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { DataManagementAbsenceGanttService } from 'src/app/domain/services/absence/data-management-absence-gantt.service';
 import { GanttPdfDrawingService } from './gantt-pdf-drawing.service';
 import { getLocalizedValue } from 'src/app/domain/helpers/multi-language.helper';

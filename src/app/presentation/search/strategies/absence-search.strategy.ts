@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, inject } from '@angular/core';
 import { BaseEntitySearchStrategy } from './base-entity-search-strategy';
-import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/absence/data-management-break-placeholder.service';
+import { DataManagementBreakPlaceholderService } from 'src/app/domain/services/break/data-management-break-placeholder.service';
 import { EntityName } from 'src/app/domain/enums/entity-names.enum';
 import { EntitySearchOptions } from './interfaces/entity-search-strategy.interface';
 
